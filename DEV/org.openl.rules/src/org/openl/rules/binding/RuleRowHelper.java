@@ -11,7 +11,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.NodeType;

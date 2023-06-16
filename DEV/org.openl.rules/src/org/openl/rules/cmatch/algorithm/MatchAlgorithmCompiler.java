@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.cmatch.*;

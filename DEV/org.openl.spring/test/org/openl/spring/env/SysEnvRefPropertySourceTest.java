@@ -1,7 +1,6 @@
 package org.openl.spring.env;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.util.HashMap;
 

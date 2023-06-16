@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.openl.OpenL;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
-import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;

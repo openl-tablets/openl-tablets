@@ -10,10 +10,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
-import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;

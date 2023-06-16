@@ -1,7 +1,5 @@
 package org.openl.util;
 
-import org.openl.util.StringUtils;
-
 /**
  * Common util methods for parsing and binding.
  *

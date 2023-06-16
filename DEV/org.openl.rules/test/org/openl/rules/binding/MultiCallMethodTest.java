@@ -1,10 +1,10 @@
 package org.openl.rules.binding;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.openl.rules.TestUtils;
 
 public class MultiCallMethodTest {
