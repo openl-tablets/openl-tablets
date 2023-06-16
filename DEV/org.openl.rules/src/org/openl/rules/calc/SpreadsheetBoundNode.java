@@ -298,8 +298,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         }
     }
 
-    public SpreadsheetComponentsBuilder getComponentsBuilder() {
-        return componentsBuilder;
+    public boolean isReturnCell(SpreadsheetCell cell) {
+        return componentsBuilder.isReturnCell(cell);
     }
 
     @Override
