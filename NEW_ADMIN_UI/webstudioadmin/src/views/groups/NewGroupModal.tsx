@@ -137,38 +137,38 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
         createGroup();
     };
 
-    const rowSelection = {
-        onChange: (selectedRowKeys: React.Key[], selectedRows: Privilege[], groupKey: string) => {
-            const privileges = selectedRows.map((row) => row[Object.keys(row)[1]]) as CheckboxValueType[];
-            handleGroupButtonClick(groupKey);
-            setPrivileges(privileges);
-            console.log("selected privileges: ---> ", privileges);
-            markCheckboxes(privileges);
-        }
-    };
+    // const rowSelection = {
+    //     onChange: (selectedRowKeys: React.Key[], selectedRows: Privilege[], groupKey: string) => {
+    //         const privileges = selectedRows.map((row) => row[Object.keys(row)[0]]) as CheckboxValueType[];
+    //         handleGroupButtonClick(groupKey);
+    //         setPrivileges(privileges);
+    //         console.log("selected privileges: ---> ", privileges);
+    //         markCheckboxes(privileges);
+    //     }
+    // };
 
-    const handleGroupButtonClick = (groupKey: string) => {
-        const selectedPrivileges: string[] = [];
+    // const handleGroupButtonClick = (groupKey: string) => {
+    //     const selectedPrivileges: string[] = [];
 
-        if (groupData && groupData[groupKey]) {
-            const group: Group = groupData[groupKey];
-            selectedPrivileges.push(...group.privileges);
-        }
+    //     if (groupData && groupData[groupKey]) {
+    //         const group: Group = groupData[groupKey];
+    //         selectedPrivileges.push(...group.privileges);
+    //     }
 
-        if (selectedPrivileges.length > 0) {
-            setPrivileges(selectedPrivileges);
-            console.log("selected privileges through roles: ", selectedPrivileges);
-        }
-        markCheckboxes(selectedPrivileges);
-    };
+    //     if (selectedPrivileges.length > 0) {
+    //         setPrivileges(selectedPrivileges);
+    //         console.log("selected privileges through roles: ", selectedPrivileges);
+    //     }
+    //     markCheckboxes(selectedPrivileges);
+    // };
 
-    const markCheckboxes = (selectedPrivileges: string[]) => {
-        const updatedCheckboxes = { ...privilegeCheckboxes };
-        selectedPrivileges.forEach((privilege) => {
-            updatedCheckboxes[privilege] = true;
-        });
-        setPrivilegeCheckboxes(updatedCheckboxes);
-    };
+    // const markCheckboxes = (selectedPrivileges: string[]) => {
+    //     const updatedCheckboxes = { ...privilegeCheckboxes };
+    //     selectedPrivileges.forEach((privilege) => {
+    //         updatedCheckboxes[privilege] = true;
+    //     });
+    //     setPrivilegeCheckboxes(updatedCheckboxes);
+    // };
 
 
     const dataSource = useMemo(() => {
@@ -199,7 +199,9 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
             },
             ...Object.keys(groupData || {}).map((groupKey) => ({
                 title: (
-                    <Button type="link" onClick={() => handleGroupButtonClick(groupKey)}>
+                    <Button type="link"
+                        onClick={() => handleGroupButtonClick(groupKey)}
+                    >
                         {groupKey}
                     </Button>
                 ),

@@ -1,0 +1,13 @@
+.new-user-modal .ant-modal-content {
+    width: 500px;
+}
+
+.user-label {
+    padding-top: 15px;
+    width: 100%;
+}
+
+.new-user-input .ant-select-selector .ant-select .ant-modal-body {
+    width: 100%;
+    color: red;
+}

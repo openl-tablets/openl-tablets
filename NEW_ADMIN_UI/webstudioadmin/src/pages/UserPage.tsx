@@ -5,6 +5,9 @@ import DefaultLayout from '../components/DefaultLayout';
 import { NewUserModal } from 'views/users/NewUserModal';
 import { EditUserModal } from 'views/users/EditUserModal';
 import './userPage.css';
+import { NewUserModal1 } from 'views/users/NewUserModal1';
+import { EditUserModal1 } from 'views/users/EditUserModal1';
+
 
 export const UserPage: React.FC = () => {
 
@@ -169,9 +172,8 @@ export const UserPage: React.FC = () => {
                     onRow={(record) => ({
                         onDoubleClick: () => handleDoubleRowClick(record),
                     })} />
-                <NewUserModal
-                    fetchUsers={fetchUsers}
-                />
+                {/* <NewUserModal fetchUsers={fetchUsers} /> */}
+                <NewUserModal1 fetchUsers={fetchUsers} />
                 <Modal
                     className='edit-user-modal'
                     open={isModalOpen}
@@ -179,7 +181,7 @@ export const UserPage: React.FC = () => {
                     footer={null}
                 >
                     {isModalOpen && (
-                        <EditUserModal
+                        <EditUserModal1
                             user={selectedUser}
                             updateUser={updateUser}
                             onSave={hideEditUserModal}
