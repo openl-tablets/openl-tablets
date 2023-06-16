@@ -40,7 +40,6 @@ import org.openl.util.ClassUtils;
 public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     private SpreadsheetStructureBuilder structureBuilder;
-    private SpreadsheetComponentsBuilder componentsBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
     private SpreadsheetCell[][] cells;
 
@@ -99,7 +98,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     @Override
     protected ExecutableRulesMethod createMethodShell() {
         Spreadsheet spreadsheet;
-        if (componentsBuilder.isExistsReturnHeader()) {
+        if (structureBuilder.isExistsReturnHeader()) {
             spreadsheet = new Spreadsheet(getHeader(), this, false);
         } else {
             /*
@@ -118,14 +117,14 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         // compilation.
         // Add generated type to be accessible through binding context.
         //
-        spreadsheet.setRowNames(componentsBuilder.getRowNames());
-        spreadsheet.setColumnNames(componentsBuilder.getColumnNames());
+        spreadsheet.setRowNames(structureBuilder.getRowNames());
+        spreadsheet.setColumnNames(structureBuilder.getColumnNames());
 
-        spreadsheet.setRowNamesForResultModel(componentsBuilder.getRowNamesForResultModel());
-        spreadsheet.setColumnNamesForResultModel(componentsBuilder.getColumnNamesForResultModel());
+        spreadsheet.setRowNamesForResultModel(structureBuilder.getRowNamesForResultModel());
+        spreadsheet.setColumnNamesForResultModel(structureBuilder.getColumnNamesForResultModel());
 
-        spreadsheet.setRowTitles(componentsBuilder.getRowNames2());
-        spreadsheet.setColumnTitles(componentsBuilder.getColumnNames2());
+        spreadsheet.setRowTitles(structureBuilder.getRowNames2());
+        spreadsheet.setColumnTitles(structureBuilder.getColumnNames2());
 
         spreadsheet.getTableStructureDetails(
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
@@ -224,9 +223,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
         RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), bindingContext);
-        componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
-        componentsBuilder.buildHeaders(header.getType());
-        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, getModule());
+        structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, getModule());
         String headerType = header.getName() + "Type";
         OpenL openL = bindingContext.getOpenL();
         spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
@@ -250,7 +247,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
             spreadsheet.setCells(cells);
 
-            spreadsheet.setResultBuilder(componentsBuilder.buildResultBuilder(spreadsheet, bindingContext));
+            spreadsheet.setResultBuilder(structureBuilder.buildResultBuilder(spreadsheet, bindingContext));
         }
     }
 
@@ -299,7 +296,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     public boolean isReturnCell(SpreadsheetCell cell) {
-        return componentsBuilder.isReturnCell(cell);
+        return structureBuilder.isReturnCell(cell);
     }
 
     @Override
