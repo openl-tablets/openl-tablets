@@ -110,11 +110,6 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public void setRowTitles(String[] rowTitles) {
-        delegate.setRowTitles(rowTitles);
-    }
-
-    @Override
     public String[] getRowNamesForResultModel() {
         return delegate.getRowNamesForResultModel();
     }
@@ -132,21 +127,6 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     @Override
     public void setColumnNamesForResultModel(String[] columnNamesForResultModel) {
         delegate.setColumnNamesForResultModel(columnNamesForResultModel);
-    }
-
-    @Override
-    public String[] getRowTitles() {
-        return delegate.getRowTitles();
-    }
-
-    @Override
-    public void setColumnTitles(String[] columnTitles) {
-        delegate.setColumnTitles(columnTitles);
-    }
-
-    @Override
-    public String[] getColumnTitles() {
-        return delegate.getColumnTitles();
     }
 
     @Override
