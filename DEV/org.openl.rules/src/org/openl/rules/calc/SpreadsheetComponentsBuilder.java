@@ -488,8 +488,8 @@ public class SpreadsheetComponentsBuilder {
         return returnHeaderDefinition != null;
     }
 
-    public ReturnSpreadsheetHeaderDefinition getReturnHeaderDefinition() {
-        return returnHeaderDefinition;
+    public boolean isReturnCell(SpreadsheetCell cell) {
+        return returnHeaderDefinition != null && returnHeaderDefinition.isReturnCell(cell);
     }
 
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet,
