@@ -31,7 +31,6 @@ import org.openl.rules.calc.result.EmptyResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.calc.result.SpreadsheetResultBuilder;
-import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
@@ -85,14 +84,8 @@ public class SpreadsheetComponentsBuilder {
 
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
         this.tableSyntaxNode = tableSyntaxNode;
-        CellsHeaderExtractor extractor = ((SpreadsheetHeaderNode) tableSyntaxNode.getHeader())
-            .getCellHeadersExtractor();
-        if (extractor == null) {
-            extractor = new CellsHeaderExtractor(getSignature(tableSyntaxNode),
-                tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
+        this.cellsHeaderExtractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
                 tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
-        }
-        this.cellsHeaderExtractor = extractor;
         this.bindingContext = bindingContext;
     }
 
@@ -646,9 +639,5 @@ public class SpreadsheetComponentsBuilder {
 
     private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
         return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
-    }
-
-    private String getSignature(TableSyntaxNode table) {
-        return table.getHeader().getHeaderToken().getModule().getCode();
     }
 }
