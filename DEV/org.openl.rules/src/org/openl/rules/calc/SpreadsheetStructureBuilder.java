@@ -695,29 +695,25 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void addRowHeaders() {
-        String[] rowNames = this.getRowNames2();
-        for (int i = 0; i < rowNames.length; i++) {
-            if (rowNames[i] != null) {
-                IGridTable rowNameForHeader = rowNamesTable
-                        .getRow(i)
-                        .getColumn(0)
-                        .getSource();
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(rowNameForHeader, bindingContext);
-                parseHeader(source, i, true);
+        int height = getHeight();
+        for (int row = 0; row < height; row++) {
+            IGridTable cell = rowNamesTable.getRow(row).getColumn(0).getSource();
+            var value = cell.getCell(0, 0).getStringValue();
+            if (value != null) {
+                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                parseHeader(source, row, true);
             }
         }
     }
 
     private void addColumnHeaders() {
-        String[] columnNames = this.getColumnNames2();
-        for (int i = 0; i < columnNames.length; i++) {
-            if (columnNames[i] != null) {
-                IGridTable columnNameForHeader = columnNamesTable
-                        .getColumn(i)
-                        .getRow(0)
-                        .getSource();
-                GridCellSourceCodeModule source = new GridCellSourceCodeModule(columnNameForHeader, bindingContext);
-                parseHeader(source, i, false);
+        int width = getWidth();
+        for (int col = 0; col < width; col++) {
+            IGridTable cell = columnNamesTable.getColumn(col).getRow(0).getSource();
+            var value = cell.getCell(0, 0).getStringValue();
+            if (value != null) {
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
+                parseHeader(source, col, false);
             }
         }
     }
@@ -1117,9 +1113,6 @@ public class SpreadsheetStructureBuilder {
         return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
     }
 
-    private String[] rowNames;
-    private String[] columnNames;
-
     /**
      * table representing column section in the spreadsheet
      **/
@@ -1138,27 +1131,4 @@ public class SpreadsheetStructureBuilder {
         return rowNamesTable == null ? 0 : rowNamesTable.getHeight();
     }
 
-    public String[] getRowNames2() {
-        if (rowNames == null) {
-            int height = getHeight();
-            rowNames = new String[height];
-            for (int row = 0; row < height; row++) {
-                IGridTable nameCell = rowNamesTable.getRow(row).getColumn(0).getSource();
-                rowNames[row] = nameCell.getCell(0, 0).getStringValue();
-            }
-        }
-        return rowNames;
-    }
-
-    public String[] getColumnNames2() {
-        if (columnNames == null) {
-            int width = getWidth();
-            columnNames = new String[width];
-            for (int col = 0; col < width; col++) {
-                IGridTable nameCell = columnNamesTable.getColumn(col).getRow(0).getSource();
-                columnNames[col] = nameCell.getCell(0, 0).getStringValue();
-            }
-        }
-        return columnNames;
-    }
 }

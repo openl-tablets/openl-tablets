@@ -40,10 +40,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     private String[] columnNamesForResultModel;
 
-    private String[] rowTitles;
-
-    private String[] columnTitles;
-
     private boolean tableStructureDetails;
 
     /**
@@ -145,10 +141,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.rowNames = rowNames;
     }
 
-    public void setRowTitles(String[] rowTitles) {
-        this.rowTitles = rowTitles;
-    }
-
     public String[] getRowNamesForResultModel() {
         return rowNamesForResultModel;
     }
@@ -163,18 +155,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public void setColumnNamesForResultModel(String[] columnNamesForResultModel) {
         this.columnNamesForResultModel = columnNamesForResultModel;
-    }
-
-    public String[] getRowTitles() {
-        return rowTitles;
-    }
-
-    public void setColumnTitles(String[] columnTitles) {
-        this.columnTitles = columnTitles;
-    }
-
-    public String[] getColumnTitles() {
-        return columnTitles;
     }
 
     public void setSpreadsheetType(SpreadsheetOpenClass spreadsheetType) {
