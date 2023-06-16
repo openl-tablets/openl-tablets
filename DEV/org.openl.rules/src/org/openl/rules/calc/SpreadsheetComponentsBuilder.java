@@ -74,8 +74,6 @@ public class SpreadsheetComponentsBuilder {
     /** binding context for indicating execution mode **/
     private final IBindingContext bindingContext;
 
-    private final CellsHeaderExtractor cellsHeaderExtractor;
-
     private ReturnSpreadsheetHeaderDefinition returnHeaderDefinition;
 
     private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
@@ -84,8 +82,8 @@ public class SpreadsheetComponentsBuilder {
 
     public SpreadsheetComponentsBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
         this.tableSyntaxNode = tableSyntaxNode;
-        this.cellsHeaderExtractor = new CellsHeaderExtractor(tableSyntaxNode.getTableBody().getRow(0).getColumns(1),
-                tableSyntaxNode.getTableBody().getColumn(0).getRows(1));
+        columnNamesTable = tableSyntaxNode.getTableBody().getRow(0).getColumns(1);
+        rowNamesTable = tableSyntaxNode.getTableBody().getColumn(0).getRows(1);
         this.bindingContext = bindingContext;
     }
 
@@ -126,11 +124,11 @@ public class SpreadsheetComponentsBuilder {
         String[] ret;
         if (rowsWithAsteriskCount > 0) {
             ret = buildArrayForHeaders(rowHeaders,
-                cellsHeaderExtractor.getHeight(),
+                this.getHeight(),
                 e -> e.getDefinition().isAsteriskPresented());
         } else {
             ret = buildArrayForHeaders(rowHeaders,
-                cellsHeaderExtractor.getHeight(),
+                this.getHeight(),
                 e -> !e.getDefinition().isTildePresented());
         }
         for (int i = 0; i < ret.length; i++) {
@@ -147,11 +145,11 @@ public class SpreadsheetComponentsBuilder {
         String[] ret;
         if (columnsWithAsteriskCount > 0) {
             ret = buildArrayForHeaders(columnHeaders,
-                cellsHeaderExtractor.getWidth(),
+                this.getWidth(),
                 e -> e.getDefinition().isAsteriskPresented());
         } else {
             ret = buildArrayForHeaders(columnHeaders,
-                cellsHeaderExtractor.getWidth(),
+                this.getWidth(),
                 e -> !e.getDefinition().isTildePresented());
         }
 
@@ -163,11 +161,11 @@ public class SpreadsheetComponentsBuilder {
     }
 
     public String[] getRowNames() {
-        return buildArrayForHeaders(rowHeaders, cellsHeaderExtractor.getHeight(), e -> true);
+        return buildArrayForHeaders(rowHeaders, this.getHeight(), e -> true);
     }
 
     public String[] getColumnNames() {
-        return buildArrayForHeaders(columnHeaders, cellsHeaderExtractor.getWidth(), e -> true);
+        return buildArrayForHeaders(columnHeaders, this.getWidth(), e -> true);
     }
 
     private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers,
@@ -181,10 +179,6 @@ public class SpreadsheetComponentsBuilder {
             }
         }
         return ret;
-    }
-
-    public CellsHeaderExtractor getCellsHeadersExtractor() {
-        return cellsHeaderExtractor;
     }
 
     /**
@@ -217,10 +211,10 @@ public class SpreadsheetComponentsBuilder {
     }
 
     private void addRowHeaders() {
-        String[] rowNames = cellsHeaderExtractor.getRowNames();
+        String[] rowNames = this.getRowNames2();
         for (int i = 0; i < rowNames.length; i++) {
             if (rowNames[i] != null) {
-                IGridTable rowNameForHeader = cellsHeaderExtractor.getRowNamesTable()
+                IGridTable rowNameForHeader = this.getRowNamesTable()
                     .getRow(i)
                     .getColumn(0)
                     .getSource();
@@ -231,10 +225,10 @@ public class SpreadsheetComponentsBuilder {
     }
 
     private void addColumnHeaders() {
-        String[] columnNames = cellsHeaderExtractor.getColumnNames();
+        String[] columnNames = this.getColumnNames2();
         for (int i = 0; i < columnNames.length; i++) {
             if (columnNames[i] != null) {
-                IGridTable columnNameForHeader = cellsHeaderExtractor.getColumnNamesTable()
+                IGridTable columnNameForHeader = this.getColumnNamesTable()
                     .getColumn(i)
                     .getRow(0)
                     .getSource();
@@ -351,9 +345,9 @@ public class SpreadsheetComponentsBuilder {
                 List<NodeUsage> nodeUsages = new ArrayList<>();
                 ILogicalTable cell;
                 if (headerDefinition.getRow() >= 0) {
-                    cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                    cell = this.getRowNamesTable().getRow(headerDefinition.getRow());
                 } else {
-                    cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                    cell = this.getColumnNamesTable().getColumn(headerDefinition.getColumn());
                 }
                 if (headerDefinition.getDefinition().isAsteriskPresented()) {
                     String s = removeWrongSymbols(headerDefinition.getDefinitionName());
@@ -457,10 +451,10 @@ public class SpreadsheetComponentsBuilder {
 
     private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
         int fromRow = 0;
-        int toRow = cellsHeaderExtractor.getHeight();
+        int toRow = this.getHeight();
 
         int fromColumn = 0;
-        int toColumn = cellsHeaderExtractor.getWidth();
+        int toColumn = this.getWidth();
 
         if (headerDefinition.isRow()) {
             fromRow = headerDefinition.getRow();
@@ -476,8 +470,8 @@ public class SpreadsheetComponentsBuilder {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
 
                 ILogicalTable cell = LogicalTableHelper.mergeBounds(
-                    cellsHeaderExtractor.getRowNamesTable().getRow(rowIndex),
-                    cellsHeaderExtractor.getColumnNamesTable().getColumn(columnIndex));
+                    this.getRowNamesTable().getRow(rowIndex),
+                    this.getColumnNamesTable().getColumn(columnIndex));
                 String value = cell.getSource().getCell(0, 0).getStringValue();
                 boolean isFormula = Optional.ofNullable(StringUtils.trimToNull(value))
                     .map(SpreadsheetExpressionMarker::isFormula)
@@ -640,4 +634,53 @@ public class SpreadsheetComponentsBuilder {
     private boolean isCalculateAllCellsInSpreadsheet(Spreadsheet spreadsheet) {
         return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
     }
+
+        private String[] rowNames;
+        private String[] columnNames;
+
+        /** table representing column section in the spreadsheet **/
+        private final ILogicalTable columnNamesTable;
+
+        /** table representing row section in the spreadsheet **/
+        private final ILogicalTable rowNamesTable;
+
+        public ILogicalTable getColumnNamesTable() {
+            return columnNamesTable;
+        }
+
+        public int getWidth() {
+            return columnNamesTable == null ? 0 : columnNamesTable.getWidth();
+        }
+
+        public ILogicalTable getRowNamesTable() {
+            return rowNamesTable;
+        }
+
+        public int getHeight() {
+            return rowNamesTable == null ? 0 : rowNamesTable.getHeight();
+        }
+
+        public String[] getRowNames2() {
+            if (rowNames == null) {
+                int height = getHeight();
+                rowNames = new String[height];
+                for (int row = 0; row < height; row++) {
+                    IGridTable nameCell = rowNamesTable.getRow(row).getColumn(0).getSource();
+                    rowNames[row] = nameCell.getCell(0, 0).getStringValue();
+                }
+            }
+            return rowNames;
+        }
+
+        public String[] getColumnNames2() {
+            if (columnNames == null) {
+                int width = getWidth();
+                columnNames = new String[width];
+                for (int col = 0; col < width; col++) {
+                    IGridTable nameCell = columnNamesTable.getColumn(col).getRow(0).getSource();
+                    columnNames[col] = nameCell.getCell(0, 0).getStringValue();
+                }
+            }
+            return columnNames;
+        }
 }
