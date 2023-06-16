@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
-import org.openl.rules.lang.xls.syntax.SpreadsheetHeaderNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
@@ -146,7 +145,7 @@ public final class XlsHelper {
 
         HeaderSyntaxNode headerNode;
         if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xlsType)) {
-            headerNode = new SpreadsheetHeaderNode(src, headerToken);
+            headerNode = new HeaderSyntaxNode(src, headerToken);
         } else {
             headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[] {}));
         }
