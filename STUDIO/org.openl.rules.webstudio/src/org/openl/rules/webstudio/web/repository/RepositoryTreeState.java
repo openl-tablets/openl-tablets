@@ -838,7 +838,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanDeleteNode(TreeNode el) {
         try {
-            return designRepositoryAclService.isGranted(el.getData(), List.of(AclPermission.DELETE));
+            if (el.getData().getProject() instanceof UserWorkspaceProject) {
+                boolean branchProtected = isCurrentBranchProtected((UserWorkspaceProject) el.getData().getProject());
+                if (branchProtected) {
+                    return false;
+                }
+            }
+            return el.getData().getProject().isOpenedForEditing() && designRepositoryAclService.isGranted(el.getData(),
+                List.of(AclPermission.DELETE));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
