@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import './newUserModal.css';
+
+import './userModal.css';
 
 const displayOrder = [
     {
@@ -37,7 +38,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [displayName, setDisplayName] = useState("");
-    const [userGroups, setUserGroups] = useState<CheckboxValueType[]>([]);
+    const [groups, setGroups] = useState<CheckboxValueType[]>([]);
     const [allGroups, setAllGroups] = useState<Group[]>([]);
     const [groupNames, setGroupNames] = useState<string[]>([]);
 
@@ -73,10 +74,10 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
     useEffect(() => {
         fetchGroupData();
         console.log("all groups : ", allGroups);
-        console.log("groups: ", userGroups);
+        console.log("groups: ", groups);
         console.log("groupnames", groupNames);
 
-        setUserGroups([]);
+        setGroups([]);
     }, []);
 
     const createUser = async (constructedDisplayName: string) => {
@@ -87,7 +88,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
                 firstName,
                 lastName,
                 password,
-                userGroups: userGroups.map(group => group.toString()),
+                groups: groups.map(group => group.toString()),
                 username,
                 internalPassword: {
                     password: password
@@ -108,7 +109,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
             setFirstName("");
             setLastName("");
             setDisplayName("");
-            setUserGroups([]);
+            setGroups([]);
             setIsModalOpen(false);
             console.log("Created User:", requestBody);
             fetchUsers();
@@ -122,7 +123,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
     };
 
     const onChange = (checkedValues: CheckboxValueType[]) => {
-        setUserGroups(checkedValues as string[]);
+        setGroups(checkedValues as string[]);
     };
 
 
@@ -197,7 +198,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
                     <Form.Item><b>Groups</b></Form.Item>
 
                     <Form.Item className="user-create-form_last-form-item">
-                        <Checkbox.Group value={userGroups} onChange={onChange}>
+                        <Checkbox.Group value={groups} onChange={onChange}>
                             <Row>
                                 {groupNames.map((groupName) => (
                                     <Col span={8}>

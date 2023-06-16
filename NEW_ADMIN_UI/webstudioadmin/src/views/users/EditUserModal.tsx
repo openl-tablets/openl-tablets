@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Card, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { stringify } from 'querystring';
+import './userModal.css';
 
 
 const displayOrder = [
