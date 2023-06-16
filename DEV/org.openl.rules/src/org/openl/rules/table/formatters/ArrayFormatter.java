@@ -1,20 +1,15 @@
 package org.openl.rules.table.formatters;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.function.IntFunction;
-import java.util.stream.Collectors;
 
-import org.openl.binding.impl.component.ComponentOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.helpers.ArraySplitter;
-import org.openl.types.IOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A formatter for converting an array of elements, represented by <code>{@link String}</code> to an array of specified
