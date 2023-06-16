@@ -124,8 +124,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         spreadsheet.setRowNamesForResultModel(componentsBuilder.getRowNamesForResultModel());
         spreadsheet.setColumnNamesForResultModel(componentsBuilder.getColumnNamesForResultModel());
 
-        spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
-        spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
+        spreadsheet.setRowTitles(componentsBuilder.getRowNames2());
+        spreadsheet.setColumnTitles(componentsBuilder.getColumnNames2());
 
         spreadsheet.getTableStructureDetails(
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
