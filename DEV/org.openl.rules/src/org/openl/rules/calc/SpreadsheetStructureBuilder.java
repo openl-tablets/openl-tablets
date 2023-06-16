@@ -113,9 +113,8 @@ public class SpreadsheetStructureBuilder {
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
 
-        CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
-        int rowsCount = cellsHeadersExtractor.getHeight();
-        int columnsCount = cellsHeadersExtractor.getWidth();
+        int rowsCount = componentsBuilder.getHeight();
+        int columnsCount = componentsBuilder.getWidth();
 
         // create cells according to the size of the spreadsheet
         cells = new SpreadsheetCell[rowsCount][columnsCount];
@@ -138,9 +137,8 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void extractCellValues() {
-        CellsHeaderExtractor cellsHeadersExtractor = componentsBuilder.getCellsHeadersExtractor();
-        int rowsCount = cellsHeadersExtractor.getHeight();
-        int columnsCount = cellsHeadersExtractor.getWidth();
+        int rowsCount = componentsBuilder.getHeight();
+        int columnsCount = componentsBuilder.getWidth();
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             IBindingContext rowBindingContext = getRowContext(rowIndex);
@@ -212,8 +210,8 @@ public class SpreadsheetStructureBuilder {
         }
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(
-            componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
-            componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
+            componentsBuilder.getRowNamesTable().getRow(rowIndex),
+            componentsBuilder.getColumnNamesTable().getColumn(columnIndex));
 
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
         String code = StringUtils.trimToNull(source.getCode());
@@ -380,8 +378,8 @@ public class SpreadsheetStructureBuilder {
         Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = componentsBuilder.getRowHeaders();
 
         ILogicalTable cell = LogicalTableHelper.mergeBounds(
-            componentsBuilder.getCellsHeadersExtractor().getRowNamesTable().getRow(rowIndex),
-            componentsBuilder.getCellsHeadersExtractor().getColumnNamesTable().getColumn(columnIndex));
+            componentsBuilder.getRowNamesTable().getRow(rowIndex),
+            componentsBuilder.getColumnNamesTable().getColumn(columnIndex));
         ICell sourceCell = cell.getSource().getCell(0, 0);
 
         String cellCode = sourceCell.getStringValue();
