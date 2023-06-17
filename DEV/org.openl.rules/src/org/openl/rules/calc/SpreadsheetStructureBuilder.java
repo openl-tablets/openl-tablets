@@ -95,6 +95,7 @@ public class SpreadsheetStructureBuilder {
         this);
 
     public static final ThreadLocal<Stack<Set<SpreadsheetCell>>> preventCellsLoopingOnThis = new ThreadLocal<>();
+    private final ILogicalTable tableBody;
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
         return spreadsheetStructureBuilderHolder;
@@ -104,6 +105,7 @@ public class SpreadsheetStructureBuilder {
             IOpenMethodHeader spreadsheetHeader,
             XlsModuleOpenClass xlsModuleOpenClass) {
         this.tableSyntaxNode = tableSyntaxNode;
+        this.tableBody = tableSyntaxNode.getTableBody();
         this.columnNamesTable = tableSyntaxNode.getTableBody().getRow(0).getColumns(1);
         this.rowNamesTable = tableSyntaxNode.getTableBody().getColumn(0).getRows(1);
         this.bindingContext = bindingContext;
@@ -916,8 +918,7 @@ public class SpreadsheetStructureBuilder {
                 .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
                 .getAggregateInfo()
                 .getComponentType(spreadsheetHeaderType) == null) {
-            int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
-            if (nonEmptyCellsCount == 1) {
+            if (hasOnlyOneEmptyCell(headerDefinition)) {
                 headerDefinition.setType(spreadsheetHeaderType);
             }
         }
@@ -927,12 +928,12 @@ public class SpreadsheetStructureBuilder {
         headerDefinitions.replace(key, returnHeaderDefinition);
     }
 
-    private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
+    private boolean hasOnlyOneEmptyCell(SpreadsheetHeaderDefinition headerDefinition) {
         int fromRow = 0;
-        int toRow = this.getHeight();
+        int toRow = getHeight();
 
         int fromColumn = 0;
-        int toColumn = this.getWidth();
+        int toColumn = getWidth();
 
         if (headerDefinition.isRow()) {
             fromRow = headerDefinition.getRow();
@@ -946,20 +947,18 @@ public class SpreadsheetStructureBuilder {
 
         for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
+                var value = tableBody.getCell(columnIndex + 1, rowIndex + 1).getStringValue();
 
-                ILogicalTable cell = LogicalTableHelper.mergeBounds(
-                        rowNamesTable.getRow(rowIndex),
-                        columnNamesTable.getColumn(columnIndex));
-                String value = cell.getSource().getCell(0, 0).getStringValue();
-                boolean isFormula = Optional.ofNullable(org.apache.commons.lang3.StringUtils.trimToNull(value))
-                        .map(SpreadsheetExpressionMarker::isFormula)
-                        .orElse(false);
-                if (!org.apache.commons.lang3.StringUtils.isBlank(value) && !isFormula) {
+                boolean isFormula = SpreadsheetExpressionMarker.isFormula(value);
+                if (StringUtils.isNotBlank(value) && !isFormula) {
                     nonEmptyCellsCount += 1;
+                    if (nonEmptyCellsCount > 1) {
+                        return false;
+                    }
                 }
             }
         }
-        return nonEmptyCellsCount;
+        return nonEmptyCellsCount == 1;
     }
 
     public boolean isExistsReturnHeader() {
@@ -1124,11 +1123,11 @@ public class SpreadsheetStructureBuilder {
     private final ILogicalTable rowNamesTable;
 
     private int getWidth() {
-        return columnNamesTable == null ? 0 : columnNamesTable.getWidth();
+        return tableBody.getWidth() - 1;
     }
 
     private int getHeight() {
-        return rowNamesTable == null ? 0 : rowNamesTable.getHeight();
+        return tableBody.getHeight() - 1;
     }
 
 }
