@@ -104,10 +104,7 @@ public class SpreadsheetStructureBuilder {
         this.bindingContext = bindingContext;
         this.spreadsheetHeader = spreadsheetHeader;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
-        addRowHeaders();
-        addColumnHeaders();
-        buildHeaderDefinitions();
-        buildReturnCells(spreadsheetHeader.getType());
+        addHeaders();
     }
 
     private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
@@ -146,7 +143,6 @@ public class SpreadsheetStructureBuilder {
      * @param spreadsheetType open class of the spreadsheet
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
-        IBindingContext generalBindingContext = bindingContext;
 
         int rowsCount = this.getHeight();
         int columnsCount = this.getWidth();
@@ -155,7 +151,7 @@ public class SpreadsheetStructureBuilder {
         cells = new SpreadsheetCell[rowsCount][columnsCount];
 
         // create the binding context for the spreadsheet level
-        spreadsheetBindingContext = new SpreadsheetContext(generalBindingContext, spreadsheetType, xlsModuleOpenClass);
+        spreadsheetBindingContext = new SpreadsheetContext(bindingContext, spreadsheetType, xlsModuleOpenClass);
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
@@ -584,7 +580,6 @@ public class SpreadsheetStructureBuilder {
 
     private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
     private final Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
-    private final Map<String, SpreadsheetHeaderDefinition> headerDefinitions = new HashMap<>();
 
     private static String removeWrongSymbols(String s) {
         if (s == null) {
@@ -682,49 +677,94 @@ public class SpreadsheetStructureBuilder {
         return resultBuilder;
     }
 
-    private void addRowHeaders() {
+    private void addHeaders() {
         int height = getHeight();
+        int width = getWidth();
+        HashSet<String> registered = new HashSet<>(height + width, 1);
         for (int row = 0; row < height; row++) {
             ICell cell = tableBody.getCell(0, row + 1);
             var value = cell.getStringValue();
             if (value != null) {
-                parseHeader(new CellSourceCodeModule(cell, tableBody), row, true);
+                parseHeader(new CellSourceCodeModule(cell, tableBody), row, true, registered);
             }
         }
-    }
-
-    private void addColumnHeaders() {
-        int width = getWidth();
         for (int col = 0; col < width; col++) {
             ICell cell = tableBody.getCell(col + 1, 0);
             var value = cell.getStringValue();
             if (value != null) {
-                parseHeader(new CellSourceCodeModule(cell, tableBody), col, false);
+                parseHeader(new CellSourceCodeModule(cell, tableBody), col, false, registered);
+            }
+        }
+
+        IOpenClass spreadsheetHeaderType = spreadsheetHeader.getType();
+
+        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
+                .equals(spreadsheetHeaderType) && returnHeaderDefinition == null) {
+
+            // No RETURN and SpreadsheetResult is in the return
+            return;
+        }
+
+        if (returnHeaderDefinition == null) {
+            // No RETURN, get the last row
+            returnHeaderDefinition = rowHeaders.get(height -1);;
+        }
+
+        if (Boolean.FALSE
+                .equals(tableSyntaxNode.getTableProperties().getAutoType()) && returnHeaderDefinition.getType() == null) {
+            //  Spreadsheet auto type is disabled and no type is defined in the cell name like  RowName:Double
+            returnHeaderDefinition.setType(spreadsheetHeaderType);
+        } else if (spreadsheetHeaderType
+                .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
+                .getAggregateInfo()
+                .getComponentType(spreadsheetHeaderType) == null) {
+            // No Java array in the return method signature
+            if (hasOnlyOneEmptyCell(returnHeaderDefinition)) {
+                returnHeaderDefinition.setType(spreadsheetHeaderType);
             }
         }
     }
 
-    private void parseHeader(IOpenSourceCodeModule source, int index, boolean row) {
+    private void parseHeader(IOpenSourceCodeModule source, int index, boolean row, Set<String> registered) {
         try {
             SymbolicTypeDefinition parsed = parseHeaderElement(source);
             IdentifierNode name = parsed.getName();
             String headerName = name.getIdentifier();
 
-            SpreadsheetHeaderDefinition h1 = headerDefinitions.get(headerName);
-            if (h1 != null) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
-                        name);
-                bindingContext.addError(error);
-                throw new DuplicatedVarException(null, headerName);
-            } else {
+            if (registered.add(headerName)) {
                 SpreadsheetHeaderDefinition header;
                 if (row) {
                     header = rowHeaders.computeIfAbsent(index, e -> new SpreadsheetHeaderDefinition(parsed, index, -1));
                 } else {
-                    header = columnHeaders.computeIfAbsent(index,
-                            e -> new SpreadsheetHeaderDefinition(parsed, -1, index));
+                    header = columnHeaders.computeIfAbsent(index, e -> new SpreadsheetHeaderDefinition(parsed, -1, index));
                 }
-                headerDefinitions.put(headerName, header);
+                IOpenClass headerType = null;
+                SymbolicTypeDefinition symbolicTypeDefinition = header.getDefinition();
+                IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
+                if (typeIdentifierNode != null) {
+                    String typeIdentifier = typeIdentifierNode.getOriginalText();
+                    headerType = OpenLManager.makeType(bindingContext.getOpenL(),
+                            typeIdentifier,
+                            symbolicTypeDefinition.getSource(),
+                            bindingContext);
+                }
+
+                if (headerType != null) {
+                    header.setType(headerType);
+                }
+
+                addMetaInfo(header);
+
+                if ("RETURN".equals(headerName)) {
+                    // If the Spreadsheet Step name is "RETURN" keyword
+                    returnHeaderDefinition = header;
+                }
+            } else {
+                // Register error if the Step name was already registered for the Spreadsheet.
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
+                        name);
+                bindingContext.addError(error);
+                throw new DuplicatedVarException(null, headerName);
             }
         } catch (SyntaxNodeException error) {
             bindingContext.addError(error);
@@ -785,66 +825,51 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private void buildHeaderDefinitions() {
-        for (SpreadsheetHeaderDefinition headerDefinition : headerDefinitions.values()) {
-
-            IOpenClass headerType = null;
+    private void addMetaInfo(SpreadsheetHeaderDefinition headerDefinition) {
+        if (!bindingContext.isExecutionMode() && tableSyntaxNode
+                .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader) {
+            IOpenClass headerType = headerDefinition.getType();
             SymbolicTypeDefinition symbolicTypeDefinition = headerDefinition.getDefinition();
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
-            if (typeIdentifierNode != null) {
-                String typeIdentifier = typeIdentifierNode.getOriginalText();
-                headerType = OpenLManager.makeType(bindingContext.getOpenL(),
-                        typeIdentifier,
-                        symbolicTypeDefinition.getSource(),
-                        bindingContext);
+            SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) tableSyntaxNode
+                    .getMetaInfoReader();
+            List<NodeUsage> nodeUsages = new ArrayList<>();
+            ICell cell;
+            if (headerDefinition.getRow() >= 0) {
+                cell = tableBody.getCell(0, 1 + headerDefinition.getRow());
+            } else {
+                cell = tableBody.getCell(1 + headerDefinition.getColumn(), 0);
             }
-
+            if (headerDefinition.getDefinition().isAsteriskPresented()) {
+                String s = removeWrongSymbols(headerDefinition.getDefinitionName());
+                if (org.apache.commons.lang3.StringUtils.isEmpty(s)) {
+                    s = "Empty string";
+                }
+                String stringValue = cell.getStringValue();
+                int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
+                SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, d, s, null, NodeType.OTHER);
+                nodeUsages.add(nodeUsage);
+            }
             if (headerType != null) {
-                headerDefinition.setType(headerType);
+                IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
+                if (identifier != null) {
+                    IOpenClass type = headerType;
+                    while (type.getMetaInfo() == null && type.isArray()) {
+                        type = type.getComponentClass();
+                    }
+                    IMetaInfo typeMeta = type.getMetaInfo();
+                    if (typeMeta != null) {
+                        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
+                                typeMeta.getDisplayName(INamedThing.SHORT),
+                                typeMeta.getSourceUrl(),
+                                NodeType.DATATYPE);
+                        nodeUsages.add(nodeUsage);
+                    }
+                }
             }
-
-            if (!bindingContext.isExecutionMode() && tableSyntaxNode
-                    .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader) {
-                SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) tableSyntaxNode
-                        .getMetaInfoReader();
-                List<NodeUsage> nodeUsages = new ArrayList<>();
-                ICell cell;
-                if (headerDefinition.getRow() >= 0) {
-                    cell = tableBody.getCell(0, 1 + headerDefinition.getRow());
-                } else {
-                    cell = tableBody.getCell(1 + headerDefinition.getColumn(), 0);
-                }
-                if (headerDefinition.getDefinition().isAsteriskPresented()) {
-                    String s = removeWrongSymbols(headerDefinition.getDefinitionName());
-                    if (org.apache.commons.lang3.StringUtils.isEmpty(s)) {
-                        s = "Empty string";
-                    }
-                    String stringValue = cell.getStringValue();
-                    int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
-                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, d, s, null, NodeType.OTHER);
-                    nodeUsages.add(nodeUsage);
-                }
-                if (headerType != null) {
-                    IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
-                    if (identifier != null) {
-                        IOpenClass type = headerType;
-                        while (type.getMetaInfo() == null && type.isArray()) {
-                            type = type.getComponentClass();
-                        }
-                        IMetaInfo typeMeta = type.getMetaInfo();
-                        if (typeMeta != null) {
-                            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-                                    typeMeta.getDisplayName(INamedThing.SHORT),
-                                    typeMeta.getSourceUrl(),
-                                    NodeType.DATATYPE);
-                            nodeUsages.add(nodeUsage);
-                        }
-                    }
-                }
-                if (!nodeUsages.isEmpty()) {
-                    CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
-                    metaInfoReader.addHeaderMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), cellMetaInfo);
-                }
+            if (!nodeUsages.isEmpty()) {
+                CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                metaInfoReader.addHeaderMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), cellMetaInfo);
             }
         }
     }
@@ -873,40 +898,6 @@ public class SpreadsheetStructureBuilder {
         }
 
         return null;
-    }
-
-    private void buildReturnCells(IOpenClass spreadsheetHeaderType) {
-        SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
-
-        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
-                .equals(spreadsheetHeaderType) && headerDefinition == null) {
-            return;
-        }
-
-        if (headerDefinition == null) {
-            for (SpreadsheetHeaderDefinition spreadsheetHeaderDefinition : headerDefinitions.values()) {
-                if (headerDefinition == null || headerDefinition.getRow() < spreadsheetHeaderDefinition.getRow()) {
-                    headerDefinition = spreadsheetHeaderDefinition;
-                }
-            }
-        }
-        if (headerDefinition == null) {
-            throw new IllegalStateException("Expected non-null headerDefinition");
-        }
-
-        if (Boolean.FALSE
-                .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
-            headerDefinition.setType(spreadsheetHeaderType);
-        } else if (spreadsheetHeaderType
-                .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
-                .getAggregateInfo()
-                .getComponentType(spreadsheetHeaderType) == null) {
-            if (hasOnlyOneEmptyCell(headerDefinition)) {
-                headerDefinition.setType(spreadsheetHeaderType);
-            }
-        }
-
-        returnHeaderDefinition = headerDefinition;
     }
 
     private boolean hasOnlyOneEmptyCell(SpreadsheetHeaderDefinition headerDefinition) {
