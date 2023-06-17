@@ -290,10 +290,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         }
     }
 
-    public boolean isReturnCell(SpreadsheetCell cell) {
-        return structureBuilder.isReturnCell(cell);
-    }
-
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         if (cxt.isExecutionMode()) {

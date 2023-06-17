@@ -79,7 +79,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                     nodeUsages.addAll(parsedNodeUsages);
                 }
             }
-            boolean isRet = getBoundNode().isReturnCell(spreadsheetCell);
+            boolean isRet = spreadsheetCell.isReturnCell();
 
             if (method == null && type != null) {
                 boolean multiValue = type.isArray();
