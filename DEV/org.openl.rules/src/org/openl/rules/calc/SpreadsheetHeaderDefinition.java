@@ -36,13 +36,6 @@ public class SpreadsheetHeaderDefinition {
         return definition;
     }
 
-    public SymbolicTypeDefinition findDefinition(String name) {
-        if (definition != null && definition.getName() != null && definition.getName().getIdentifier().equals(name)) {
-            return definition;
-        }
-        return null;
-    }
-
     public String getDefinitionName() {
         if (definition != null && definition.getName() != null) {
             return definition.getName().getIdentifier();
@@ -53,9 +46,4 @@ public class SpreadsheetHeaderDefinition {
     public boolean isRow() {
         return row >= 0;
     }
-
-    public String rowOrColumn() {
-        return isRow() ? "row" : "column";
-    }
-
 }

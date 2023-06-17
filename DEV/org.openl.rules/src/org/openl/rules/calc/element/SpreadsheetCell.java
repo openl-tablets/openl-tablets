@@ -21,6 +21,8 @@ public class SpreadsheetCell implements Invokable {
 
     private IOpenMethod method;
 
+    private boolean returnCell;
+
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
@@ -101,6 +103,14 @@ public class SpreadsheetCell implements Invokable {
         } else {
             this.value = value;
         }
+    }
+
+    public boolean isReturnCell() {
+        return returnCell;
+    }
+
+    public void setReturnCell(boolean returnCell) {
+        this.returnCell = returnCell;
     }
 
     @Override
