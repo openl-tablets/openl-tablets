@@ -59,9 +59,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
-        if (!spreadsheet.isTypeCustomSpreadsheetResult()) {
-            throw new IllegalArgumentException("Only custom spreadsheets are supported.");
-        }
         Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
             .getFields()
             .stream()
@@ -95,20 +92,16 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     @Override
     protected ExecutableRulesMethod createMethodShell() {
-        Spreadsheet spreadsheet;
-        if (structureBuilder.isExistsReturnHeader()) {
-            spreadsheet = new Spreadsheet(getHeader(), this, false);
-        } else {
-            /*
-             * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
-             * and the customspreadsheet property is true
-             */
-            boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType()
-                .getInstanceClass() && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
-                    .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
+        /*
+         * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
+         * and the customspreadsheet property is true
+         */
+        boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType().getInstanceClass()
+                && !(getType() instanceof CustomSpreadsheetResultOpenClass)
+                && !structureBuilder.isExistsReturnHeader()
+                && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
 
-            spreadsheet = new Spreadsheet(getHeader(), this, isTypeCustomSpreadsheetResult);
-        }
+        var spreadsheet = new Spreadsheet(getHeader(), this);
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
         // call this method to ensure that CSR will be generated during the
@@ -124,7 +117,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         spreadsheet.getTableStructureDetails(
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
 
-        if (spreadsheet.isTypeCustomSpreadsheetResult()) {
+        if (isTypeCustomSpreadsheetResult) {
             CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException

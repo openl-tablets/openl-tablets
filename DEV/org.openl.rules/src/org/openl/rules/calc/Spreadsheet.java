@@ -58,36 +58,22 @@ public class Spreadsheet extends ExecutableRulesMethod {
      */
     private CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
-    /**
-     * Whether <code>spreadsheetCustomType</code> should be generated or not.
-     */
-    private boolean typeCustomSpreadsheetResult;
-
     public Spreadsheet() {
         super(null, null);
     }
 
-    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean typeCustomSpreadsheetResult) {
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
-        this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
     }
 
     @Override
     public IOpenClass getType() {
-        if (isTypeCustomSpreadsheetResult()) {
-            return customSpreadsheetResultType;
-        } else {
-            return super.getType();
-        }
+        return customSpreadsheetResultType == null ? super.getType() : customSpreadsheetResultType;
     }
 
     public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass spreadsheetCustomResultType) {
         this.customSpreadsheetResultType = spreadsheetCustomResultType;
-    }
-
-    public boolean isTypeCustomSpreadsheetResult() {
-        return typeCustomSpreadsheetResult;
     }
 
     @Override
