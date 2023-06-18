@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
@@ -90,6 +91,11 @@ public class SpreadsheetStructureBuilder {
         this);
 
     public static final ThreadLocal<Stack<Set<SpreadsheetCell>>> preventCellsLoopingOnThis = new ThreadLocal<>();
+
+    /**
+     * tableSyntaxNode of the spreadsheet
+     **/
+    private final TableSyntaxNode tableSyntaxNode;
     private final ILogicalTable tableBody;
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
@@ -104,13 +110,23 @@ public class SpreadsheetStructureBuilder {
         this.bindingContext = bindingContext;
         this.spreadsheetHeader = spreadsheetHeader;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+        this.rowHeaders = new SpreadsheetHeaderDefinition[tableBody.getHeight() - 1];
+        this.columnHeaders = new SpreadsheetHeaderDefinition[tableBody.getWidth() - 1];
         addHeaders();
     }
 
+    /**
+     * binding context for indicating execution mode
+     **/
+    private final IBindingContext bindingContext;
     private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
     private final Map<Integer, SpreadsheetOpenClass> colComponentOpenClasses = new HashMap<>();
     private final Map<Integer, Map<Integer, SpreadsheetContext>> spreadsheetResultContexts = new HashMap<>();
 
+    private final SpreadsheetHeaderDefinition[] rowHeaders;
+    private final SpreadsheetHeaderDefinition[] columnHeaders;
+
+    private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
 
     private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
@@ -232,7 +248,7 @@ public class SpreadsheetStructureBuilder {
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
-        if (columnHeaders.get(columnIndex) == null || rowHeaders.get(rowIndex) == null) {
+        if (columnHeaders[columnIndex] == null || rowHeaders[rowIndex] == null) {
             spreadsheetCell.setValue(null);
             return;
         }
@@ -241,8 +257,8 @@ public class SpreadsheetStructureBuilder {
         var source = new CellSourceCodeModule(cell, tableBody);
         var code = source.getCode();
 
-        String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getDefinitionName(),
-            rowHeaders.get(rowIndex).getDefinitionName());
+        String name = getSpreadsheetCellFieldName(columnHeaders[columnIndex].getDefinitionName(),
+            rowHeaders[rowIndex].getDefinitionName());
 
         IOpenClass type = spreadsheetCell.getType();
 
@@ -331,18 +347,18 @@ public class SpreadsheetStructureBuilder {
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, int rowIndex, int columnIndex) {
-        SpreadsheetHeaderDefinition columnHeaders = this.columnHeaders.get(columnIndex);
-        SpreadsheetHeaderDefinition rowHeaders = this.rowHeaders.get(rowIndex);
+        SpreadsheetHeaderDefinition columnHeader = this.columnHeaders[columnIndex];
+        SpreadsheetHeaderDefinition rowHeader = this.rowHeaders[rowIndex];
 
-        if (columnHeaders == null || rowHeaders == null) {
+        if (columnHeader == null || rowHeader == null) {
             return;
         }
 
-        boolean oneColumnSpreadsheet = this.columnHeaders.size() == 1;
-        boolean oneRowSpreadsheet = this.rowHeaders.size() == 1;
+        boolean oneColumnSpreadsheet = Arrays.stream(columnHeaders).filter(Objects::nonNull).limit(2).count() == 1;
+        boolean oneRowSpreadsheet = Arrays.stream(rowHeaders).filter(Objects::nonNull).limit(2).count() == 1;
 
-        SymbolicTypeDefinition columnDefinition = columnHeaders.getDefinition();
-        SymbolicTypeDefinition rowDefinition = rowHeaders.getDefinition();
+        SymbolicTypeDefinition columnDefinition = columnHeader.getDefinition();
+        SymbolicTypeDefinition rowDefinition = rowHeader.getDefinition();
 
         // get column name from the column definition
         String columnName = columnDefinition.getName().getIdentifier();
@@ -404,9 +420,10 @@ public class SpreadsheetStructureBuilder {
 
         IOpenField openField = null;
 
+        SpreadsheetHeaderDefinition columnHeader = columnHeaders[columnIndex];
+        SpreadsheetHeaderDefinition rowHeader = rowHeaders[rowIndex];
         SpreadsheetCellType spreadsheetCellType;
-        if (cellCode == null || cellCode.isEmpty() || columnHeaders.get(columnIndex) == null || rowHeaders
-            .get(rowIndex) == null) {
+        if (cellCode == null || cellCode.isEmpty() || columnHeader == null || rowHeader == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
         } else if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
             spreadsheetCellType = SpreadsheetCellType.METHOD;
@@ -422,8 +439,6 @@ public class SpreadsheetStructureBuilder {
         ICell sourceCellForExecutionMode = spreadsheetBindingContext.isExecutionMode() ? null : sourceCell;
         spreadsheetCell = new SpreadsheetCell(rowIndex, columnIndex, sourceCellForExecutionMode, spreadsheetCellType);
 
-        SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
-        SpreadsheetHeaderDefinition rowHeader = rowHeaders.get(rowIndex);
         IOpenClass cellType;
         if (openField != null) {
             cellType = openField.getType();
@@ -500,7 +515,7 @@ public class SpreadsheetStructureBuilder {
 
         for (int rowIndex = 0; rowIndex < cells.length; rowIndex++) {
 
-            SpreadsheetHeaderDefinition headerDefinition = rowHeaders.get(rowIndex);
+            SpreadsheetHeaderDefinition headerDefinition = rowHeaders[rowIndex];
 
             proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
         }
@@ -521,7 +536,7 @@ public class SpreadsheetStructureBuilder {
         // create for each column in row its field
         for (int columnIndex = 0; columnIndex < width; columnIndex++) {
 
-            SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
+            SpreadsheetHeaderDefinition columnHeader = columnHeaders[columnIndex];
 
             proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
         }
@@ -566,21 +581,6 @@ public class SpreadsheetStructureBuilder {
         rowOpenClass.addField(field);
     }
 
-    /**
-     * tableSyntaxNode of the spreadsheet
-     **/
-    private final TableSyntaxNode tableSyntaxNode;
-
-    /**
-     * binding context for indicating execution mode
-     **/
-    private final IBindingContext bindingContext;
-
-    private SpreadsheetHeaderDefinition returnHeaderDefinition;
-
-    private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders = new HashMap<>();
-    private final Map<Integer, SpreadsheetHeaderDefinition> columnHeaders = new HashMap<>();
-
     private static String removeWrongSymbols(String s) {
         if (s == null) {
             return null;
@@ -603,65 +603,46 @@ public class SpreadsheetStructureBuilder {
     }
 
     public String[] getRowNamesForResultModel() {
-        final long rowsWithAsteriskCount = rowHeaders.entrySet()
-                .stream()
-                .filter(e -> e.getValue().getDefinition().isAsteriskPresented())
-                .count();
-        String[] ret;
-        if (rowsWithAsteriskCount > 0) {
-            ret = buildArrayForHeaders(rowHeaders,
-                    this.getHeight(),
-                    e -> e.getDefinition().isAsteriskPresented());
-        } else {
-            ret = buildArrayForHeaders(rowHeaders,
-                    this.getHeight(),
-                    e -> !e.getDefinition().isTildePresented());
-        }
-        for (int i = 0; i < ret.length; i++) {
-            ret[i] = removeWrongSymbols(ret[i]);
-        }
-        return ret;
+        return getNamesForResultModel(rowHeaders);
     }
 
     public String[] getColumnNamesForResultModel() {
-        final long columnsWithAsteriskCount = columnHeaders.entrySet()
-                .stream()
-                .filter(e -> e.getValue().getDefinition().isAsteriskPresented())
+        return getNamesForResultModel(columnHeaders);
+    }
+
+    private String[] getNamesForResultModel(SpreadsheetHeaderDefinition[] headers) {
+        final long rowsWithAsteriskCount = Arrays.stream(headers)
+                .filter(Objects::nonNull)
+                .filter(e -> e.getDefinition().isAsteriskPresented())
                 .count();
         String[] ret;
-        if (columnsWithAsteriskCount > 0) {
-            ret = buildArrayForHeaders(columnHeaders,
-                    this.getWidth(),
-                    e -> e.getDefinition().isAsteriskPresented());
+        if (rowsWithAsteriskCount > 0) {
+            ret = buildArrayForHeaders(headers, e -> e.getDefinition().isAsteriskPresented());
         } else {
-            ret = buildArrayForHeaders(columnHeaders,
-                    this.getWidth(),
-                    e -> !e.getDefinition().isTildePresented());
+            ret = buildArrayForHeaders(headers, e -> !e.getDefinition().isTildePresented());
         }
-
         for (int i = 0; i < ret.length; i++) {
             ret[i] = removeWrongSymbols(ret[i]);
         }
-
         return ret;
     }
 
     public String[] getRowNames() {
-        return buildArrayForHeaders(rowHeaders, this.getHeight(), e -> true);
+        return buildArrayForHeaders(rowHeaders, e -> true);
     }
 
     public String[] getColumnNames() {
-        return buildArrayForHeaders(columnHeaders, this.getWidth(), e -> true);
+        return buildArrayForHeaders(columnHeaders, e -> true);
     }
 
-    private String[] buildArrayForHeaders(Map<Integer, SpreadsheetHeaderDefinition> headers,
-                                          int size,
+    private String[] buildArrayForHeaders(SpreadsheetHeaderDefinition[] headers,
                                           Predicate<SpreadsheetHeaderDefinition> predicate) {
+
+        int size = headers.length;
         String[] ret = new String[size];
-        for (Map.Entry<Integer, SpreadsheetHeaderDefinition> x : headers.entrySet()) {
-            int k = x.getKey();
-            if (predicate.test(x.getValue())) {
-                ret[k] = x.getValue().getDefinitionName();
+        for (int i = 0; i < size; i++) {
+            if (headers[i] != null && predicate.test(headers[i])) {
+                ret[i] = headers[i].getDefinitionName();
             }
         }
         return ret;
@@ -707,7 +688,7 @@ public class SpreadsheetStructureBuilder {
 
         if (returnHeaderDefinition == null) {
             // No RETURN, get the last row
-            returnHeaderDefinition = rowHeaders.get(height -1);;
+            returnHeaderDefinition = rowHeaders[height -1];
         }
 
         if (Boolean.FALSE
@@ -734,9 +715,9 @@ public class SpreadsheetStructureBuilder {
             if (registered.add(headerName)) {
                 SpreadsheetHeaderDefinition header;
                 if (row) {
-                    header = rowHeaders.computeIfAbsent(index, e -> new SpreadsheetHeaderDefinition(parsed, index, -1));
+                    header = rowHeaders[index] = new SpreadsheetHeaderDefinition(parsed, index, -1);
                 } else {
-                    header = columnHeaders.computeIfAbsent(index, e -> new SpreadsheetHeaderDefinition(parsed, -1, index));
+                    header = columnHeaders[index] = new SpreadsheetHeaderDefinition(parsed, -1, index);
                 }
                 IOpenClass headerType = null;
                 SymbolicTypeDefinition symbolicTypeDefinition = header.getDefinition();
@@ -1071,11 +1052,11 @@ public class SpreadsheetStructureBuilder {
     }
 
     private int getWidth() {
-        return tableBody.getWidth() - 1;
+        return columnHeaders.length;
     }
 
     private int getHeight() {
-        return tableBody.getHeight() - 1;
+        return rowHeaders.length;
     }
 
     private static class CellSourceCodeModule extends StringSourceCodeModule {
