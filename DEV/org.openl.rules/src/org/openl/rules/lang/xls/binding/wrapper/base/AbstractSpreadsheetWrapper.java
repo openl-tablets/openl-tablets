@@ -50,11 +50,6 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public boolean isTypeCustomSpreadsheetResult() {
-        return delegate.isTypeCustomSpreadsheetResult();
-    }
-
-    @Override
     public SpreadsheetBoundNode getBoundNode() {
         return delegate.getBoundNode();
     }
