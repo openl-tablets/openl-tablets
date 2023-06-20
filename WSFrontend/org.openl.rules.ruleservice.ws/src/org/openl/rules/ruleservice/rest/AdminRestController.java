@@ -144,7 +144,7 @@ public class AdminRestController {
 
     @GET
     @Path("/config/application.properties")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces("text/plain;charset=UTF-8") // Because of the source code is encoded as UTF-8
     public Response getApplicationProperties() {
         InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("application-example.properties");
         return Response.ok(resourceAsStream).build();
