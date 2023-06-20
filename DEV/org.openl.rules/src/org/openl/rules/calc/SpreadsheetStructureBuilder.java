@@ -16,7 +16,6 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -732,10 +731,9 @@ public class SpreadsheetStructureBuilder {
                 }
             } else {
                 // Register error if the Step name was already registered for the Spreadsheet.
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(String.format("The header '%s' is already defined.", headerName),
                         name);
                 bindingContext.addError(error);
-                throw new DuplicatedVarException(null, headerName);
             }
         } catch (SyntaxNodeException error) {
             bindingContext.addError(error);
