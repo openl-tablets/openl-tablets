@@ -190,7 +190,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "$ref": "#/components/schemas/LocalTime"
                 }
@@ -284,7 +284,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string",
                   "format": "date-time"
@@ -463,7 +463,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string",
                   "format": "date"
@@ -558,7 +558,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string",
                   "format": "date-time"
@@ -653,7 +653,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string",
                   "format": "date-time"
@@ -748,7 +748,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string",
                   "format": "date-time"

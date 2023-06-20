@@ -543,7 +543,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 .isAnnotationPresent(Produces.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
-                av2.visit(null, MediaType.TEXT_PLAIN);
+                av2.visit(null, "text/plain;charset=UTF-8"); // All I/O of Strings are serialized as UTF-8
                 av2.visitEnd();
                 av.visitEnd();
             }

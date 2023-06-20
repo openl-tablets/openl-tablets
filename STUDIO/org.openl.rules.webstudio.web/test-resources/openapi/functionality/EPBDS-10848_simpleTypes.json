@@ -29,7 +29,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -55,7 +55,7 @@
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "$ref": "#/components/schemas/SimpleSchema"
                 }
@@ -82,7 +82,7 @@
         "responses": {
           "default": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "$ref": "#/components/schemas/SimpleSchema"
                 }
@@ -109,7 +109,7 @@
         "responses": {
           "default": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "integer",
                   "format": "int64"

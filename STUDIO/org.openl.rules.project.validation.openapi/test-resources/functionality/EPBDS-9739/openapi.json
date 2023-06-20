@@ -21,7 +21,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -160,7 +160,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -230,7 +230,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -369,7 +369,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "type": "string"
                                 }
@@ -438,7 +438,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -508,7 +508,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -578,7 +578,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -648,7 +648,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -718,7 +718,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -788,7 +788,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -858,7 +858,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -928,7 +928,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -998,7 +998,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1068,7 +1068,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1138,7 +1138,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1208,7 +1208,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1278,7 +1278,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1348,7 +1348,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1418,7 +1418,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1488,7 +1488,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1558,7 +1558,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1628,7 +1628,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1698,7 +1698,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1768,7 +1768,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1838,7 +1838,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1908,7 +1908,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -1978,7 +1978,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -2048,7 +2048,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -2118,7 +2118,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"
@@ -2251,7 +2251,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "text/plain": {
+                            "text/plain;charset=UTF-8": {
                                 "schema": {
                                     "format": "double",
                                     "type": "number"

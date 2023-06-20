@@ -46,7 +46,7 @@ public class RulesDeployerRestController {
      */
     @POST
     @Consumes("application/zip")
-    @Produces("text/plain")
+    @Produces("text/plain;charset=UTF-8")
     public Response deploy(@Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
@@ -62,7 +62,7 @@ public class RulesDeployerRestController {
     @POST
     @Path("/{deployPath:.+}")
     @Consumes("application/zip")
-    @Produces("text/plain")
+    @Produces("text/plain;charset=UTF-8")
     public Response deploy(@PathParam("deployPath") final String deployPath,
             @Context HttpServletRequest request) throws Exception {
         try {
