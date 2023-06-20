@@ -103,7 +103,6 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
         setLastName(user.lastName);
         setDisplayName(user.displayName);
         setSelectedGroupValues(user.groups);
-        // setSelectedGroupValues(user.userGroups.map((group) => group.name));
     }, [user]);
 
     const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
