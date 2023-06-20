@@ -102,7 +102,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -196,7 +196,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -290,7 +290,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -384,7 +384,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -486,7 +486,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -590,7 +590,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -694,7 +694,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -798,7 +798,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -899,7 +899,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1001,7 +1001,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1103,7 +1103,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1206,7 +1206,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1310,7 +1310,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1414,7 +1414,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"
@@ -1518,7 +1518,7 @@
           },
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "format": "int32",
                   "type": "integer"

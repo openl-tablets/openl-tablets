@@ -64,7 +64,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -186,7 +186,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -247,7 +247,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -368,7 +368,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: string
   /prefix/CapitalAdequacyScore:
@@ -428,7 +428,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -489,7 +489,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -550,7 +550,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -611,7 +611,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -672,7 +672,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -733,7 +733,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -794,7 +794,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -855,7 +855,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -916,7 +916,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -978,7 +978,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1039,7 +1039,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1100,7 +1100,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1162,7 +1162,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1223,7 +1223,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1284,7 +1284,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1345,7 +1345,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1405,7 +1405,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1466,7 +1466,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1528,7 +1528,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1589,7 +1589,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1650,7 +1650,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1711,7 +1711,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1772,7 +1772,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1833,7 +1833,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1895,7 +1895,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -2010,7 +2010,7 @@ paths:
         "200":
           description: Successful operation
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double

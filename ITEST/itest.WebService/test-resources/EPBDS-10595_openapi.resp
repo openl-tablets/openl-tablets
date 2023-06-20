@@ -193,7 +193,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -287,7 +287,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"

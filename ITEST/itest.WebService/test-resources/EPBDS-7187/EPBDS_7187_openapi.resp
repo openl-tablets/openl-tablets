@@ -94,7 +94,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -184,7 +184,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -463,7 +463,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -555,7 +555,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -645,7 +645,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -735,7 +735,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -825,7 +825,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -906,7 +906,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -996,7 +996,7 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "boolean"
                 }

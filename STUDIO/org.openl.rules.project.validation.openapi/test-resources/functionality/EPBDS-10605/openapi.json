@@ -408,7 +408,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -479,7 +479,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "string"
                 }
@@ -550,7 +550,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -622,7 +622,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -693,7 +693,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -764,7 +764,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -835,7 +835,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -906,7 +906,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -978,7 +978,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
@@ -1049,7 +1049,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
                   "type": "number",
                   "format": "double"
