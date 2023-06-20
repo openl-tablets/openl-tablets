@@ -132,18 +132,11 @@ export const UserPage: React.FC = () => {
         },
     ];
 
-    // const updateUser = (updatedUser: any) => {
-    //     setUserData((userData) =>
-    //         userData.map((user: any) => (user.key === updatedUser.key ? updatedUser : user))
-    //     );
-    // };
-
     const updateUser = (updatedUser: any) => {
         setUserData((userData) =>
             userData.map((user: any) => (user.username === updatedUser.username ? updatedUser : user))
         );
     };
-
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record });
@@ -151,15 +144,15 @@ export const UserPage: React.FC = () => {
         console.log("Clicked row:", record);
     };
 
-    const userModalKey = useMemo(() => {
-        return selectedUser.key + isModalOpen
-    }, [selectedUser, isModalOpen])
+    // const userModalKey = useMemo(() => {
+    //     return selectedUser.key + isModalOpen
+    // }, [selectedUser, isModalOpen])
 
 
-    const handleEditUserSave = () => {
-        hideEditUserModal();
-        fetchUsers(); //
-    };
+    // const handleEditUserSave = () => {
+    //     hideEditUserModal();
+    //     fetchUsers(); //
+    // };
 
     return (
         <DefaultLayout>

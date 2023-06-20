@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Checkbox, Col, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { Form as FinalForm, Field, Form } from 'react-final-form';
+import { Form as FinalForm, Field, FormSpy } from 'react-final-form';
 import { stringify } from 'querystring';
 import './userModal.css';
 
@@ -67,30 +67,10 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
     const [groupNames, setGroupNames] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(true);
     const [username, setUsername] = useState(user.username);
-    const [email, setEmail] = useState(user.email);
-    const [password, setPassword] = useState(user.password);
-    const [firstName, setFirstName] = useState(user.firstName);
-    const [lastName, setLastName] = useState(user.lastName);
-    const [displayName, setDisplayName] = useState(user.displayName);
-    const [groups, setGroups] = useState(user.groups);
     const [selectedDisplayOrder, setSelectedDisplayOrder] = useState<string>(user.displayName);
-
-    // const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
-    // const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.userGroups.map((group) => group.name));
     const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.groups);
     const formRef = useRef(null);
 
-
-    // useEffect(() => {
-    //     setUsername(user.username);
-    //     setEmail(user.email);
-    //     setPassword(user.password);
-    //     setFirstName(user.firstName);
-    //     setLastName(user.lastName);
-    //     setDisplayName(user.displayName);
-    //     setSelectedGroupValues(user.groups);
-    //     // setSelectedGroupValues(user.userGroups.map((group) => group.name));
-    // }, [user]);
 
     const initialValues = {
         username: user.username,
@@ -102,28 +82,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         selectedGroupValues: user.groups,
     };
 
-    // useEffect(() => {
-    //     form.reset(initialValues);
-    // }, [form, initialValues]);
-
-
-    // const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setEmail(e.target.value);
-    // };
-
-    // const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setPassword(e.target.value);
-    // };
-
-    // const handleFirstNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setFirstName(e.target.value);
-    // };
-
-    // const handleLastNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setLastName(e.target.value);
-    // };
-
-    const fetchGroupData = async () => {
+       const fetchGroupData = async () => {
         try {
             const response = await fetch(`${apiURL}/admin/management/groups`, {
                 headers: {
@@ -145,19 +104,20 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
 
     useEffect(() => {
         fetchGroupData();
-        setGroups([]);
     }, []);
 
-    const handleSubmit = async () => {
-        const updatedUser = {
-            email: email,
-            displayName: displayName,
-            firstName: firstName,
-            lastName: lastName,
-            password: password,
-            groups: selectedGroupValues
-        };
+    const handleSubmit = async (values: any) => {
+        const { email, displayName, firstName, lastName, password, groups } = values;
 
+        const updatedUser = {
+            email,
+            displayName,
+            firstName,
+            lastName,
+            password,
+            groups,
+        };
+        console.log("updated user: -> ", updatedUser);
         try {
             const response = await fetch(`${apiURL}/users/${username}`, {
                 method: 'PUT',
@@ -168,15 +128,9 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                 body: JSON.stringify(updatedUser)
             });
             console.log('12. Response:', response);
-            console.log('Response status:', response.status);
             if (response.status === 204) {
+                console.log("response body: ", response.body);
                 console.log('User updated successfully!');
-                setEmail(updatedUser.email);
-                setPassword(updatedUser.password);
-                setFirstName(updatedUser.firstName);
-                setLastName(updatedUser.lastName);
-                setDisplayName(updatedUser.displayName);
-                setSelectedGroupValues(updatedUser.groups);
                 updateUser(updatedUser);
                 setIsModalOpen(false);
                 onSave();
@@ -198,6 +152,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         setSelectedGroupValues(groupValues);
         console.log(selectedGroupValues);
     };
+  
 
     const handleDisplayNameChange = (value: string) => {
         setSelectedDisplayOrder(value);
@@ -210,8 +165,8 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                 initialValues={initialValues}
                 render={({ handleSubmit }) => (
                     <form onSubmit={handleSubmit}
-                    >                        <br></br>
-
+                    >
+                        <br></br>
                         <label><b>Account</b></label>
                         <div className="user-label">
                             <label>Username</label>
@@ -256,10 +211,10 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                             <div>
                                 <Field name="displayName">
                                     {({ input }) => (
-                                        <Select 
-                                        defaultValue={"First last"}
-                                        options={displayOrder} 
-                                         />
+                                        <Select
+                                            defaultValue={"First last"}
+                                            options={displayOrder}
+                                        />
                                     )}
                                 </Field>
                             </div>
@@ -273,9 +228,11 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                         </div>
                         <br></br>
                         <label><b>Groups</b></label>
-                        <Field name="groups" type="checkbox" valuePropName="value" value={groups} >
+                        <Field name="groups" type="checkbox"
+                        //  valuePropName="value" value={selectedGroupValues}
+                        >
                             {({ input }) => (
-                                <Checkbox.Group onChange={(values) => input.onChange(values)}>
+                                <Checkbox.Group onChange={handleUserGroupChange} value={selectedGroupValues}>
                                     <Row>
                                         {groupNames.map((groupName) => (
                                             <Col span={8} key={groupName}>
