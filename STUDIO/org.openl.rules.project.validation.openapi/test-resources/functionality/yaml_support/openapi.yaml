@@ -49,7 +49,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -96,7 +96,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -143,7 +143,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -190,7 +190,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -237,7 +237,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -285,7 +285,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -376,7 +376,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -564,7 +564,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -611,7 +611,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -658,7 +658,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -705,7 +705,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -752,7 +752,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -800,7 +800,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -894,7 +894,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -941,7 +941,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -988,7 +988,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1035,7 +1035,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1082,7 +1082,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1129,7 +1129,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: string
   /BankQualitativeIndexCalculation:
@@ -1175,7 +1175,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1222,7 +1222,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1269,7 +1269,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1316,7 +1316,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1410,7 +1410,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1457,7 +1457,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1504,7 +1504,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1551,7 +1551,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1598,7 +1598,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1645,7 +1645,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
@@ -1692,7 +1692,7 @@ paths:
                 type: COMPILATION
         "200":
           content:
-            text/plain:
+            "text/plain;charset=UTF-8":
               schema:
                 type: number
                 format: double
