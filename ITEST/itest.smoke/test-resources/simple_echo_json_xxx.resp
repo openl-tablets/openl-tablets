@@ -1,0 +1,7 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "txt": "Привет",
+  "date": "1980-07-12T00:00:00.000"
+}
