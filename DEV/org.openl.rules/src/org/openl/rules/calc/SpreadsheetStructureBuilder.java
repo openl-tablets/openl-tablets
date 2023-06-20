@@ -648,16 +648,6 @@ public class SpreadsheetStructureBuilder {
         return ret;
     }
 
-    public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet, IBindingContext bindingContext) {
-        IResultBuilder resultBuilder = null;
-        try {
-            resultBuilder = getResultBuilderInternal(spreadsheet, bindingContext);
-        } catch (SyntaxNodeException e) {
-            this.bindingContext.addError(e);
-        }
-        return resultBuilder;
-    }
-
     private void addHeaders() {
         int height = getHeight();
         int width = getWidth();
@@ -918,8 +908,8 @@ public class SpreadsheetStructureBuilder {
         return returnHeaderDefinition != null;
     }
 
-    private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet,
-                                                    IBindingContext bindingContext) throws SyntaxNodeException {
+    public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet,
+                                             IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (OpenClassUtils.isVoid(spreadsheet.getHeader().getType())) {
             return new EmptyResultBuilder();
