@@ -70,10 +70,7 @@ import org.openl.util.MessageUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.AbsolutePosition;
-import org.openl.util.text.ILocation;
-import org.openl.util.text.IPosition;
 import org.openl.util.text.LocationUtils;
-import org.openl.util.text.TextInfo;
 import org.openl.util.text.TextInterval;
 
 public class SpreadsheetStructureBuilder {
@@ -696,101 +693,63 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void parseHeader(IOpenSourceCodeModule source, int index, boolean row, Set<String> registered) {
-        try {
-            SymbolicTypeDefinition parsed = parseHeaderElement(source);
-            IdentifierNode name = parsed.getName();
-            String headerName = name.getIdentifier();
-
-            if (registered.add(headerName)) {
-                SpreadsheetHeaderDefinition header;
-                if (row) {
-                    header = rowHeaders[index] = new SpreadsheetHeaderDefinition(parsed, index, -1);
-                } else {
-                    header = columnHeaders[index] = new SpreadsheetHeaderDefinition(parsed, -1, index);
-                }
-                IOpenClass headerType = null;
-                SymbolicTypeDefinition symbolicTypeDefinition = header.getDefinition();
-                IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
-                if (typeIdentifierNode != null) {
-                    String typeIdentifier = typeIdentifierNode.getOriginalText();
-                    headerType = OpenLManager.makeType(bindingContext.getOpenL(),
-                            typeIdentifier,
-                            symbolicTypeDefinition.getSource(),
-                            bindingContext);
-                }
-
-                if (headerType != null) {
-                    header.setType(headerType);
-                }
-
-                addMetaInfo(header);
-
-                if ("RETURN".equals(headerName)) {
-                    // If the Spreadsheet Step name is "RETURN" keyword
-                    returnHeaderDefinition = header;
-                }
-            } else {
-                // Register error if the Step name was already registered for the Spreadsheet.
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(String.format("The header '%s' is already defined.", headerName),
-                        name);
-                bindingContext.addError(error);
-            }
-        } catch (SyntaxNodeException error) {
-            bindingContext.addError(error);
-        }
-    }
-
-    private IdentifierNode removeSignInTheEnd(IdentifierNode identifierNode, String sign) {
-        String s = org.apache.commons.lang3.StringUtils.stripEnd(identifierNode.getIdentifier(), null);
-        int d = s.lastIndexOf(sign);
-        if (d != s.length() - 1) {
-            throw new IllegalStateException(String.format("'%s' symbols is not found.", sign));
-        }
-        String v = org.apache.commons.lang3.StringUtils.stripEnd(identifierNode.getIdentifier().substring(0, d), null);
-        int delta = identifierNode.getIdentifier().length() - v.length();
-
-        IPosition end = new AbsolutePosition(-delta + identifierNode.getLocation()
-                .getEnd()
-                .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier())));
-        ILocation location = new TextInterval(identifierNode.getLocation().getStart(), end);
-        return new IdentifierNode(identifierNode.getType(), location, v, identifierNode.getModule());
-    }
-
-    private SymbolicTypeDefinition parseHeaderElement(IOpenSourceCodeModule source) throws SyntaxNodeException {
         IdentifierNode[] nodes;
 
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
         } catch (OpenLCompilationException e) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError("Cannot parse header.", source));
+            return;
         }
-
         if (nodes.length == 0) {
-            throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError("Cannot parse header.", source));
+            return;
+        }
+        if (nodes.length > 2) {
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError("Valid header format: name [: type].", nodes[2]));
+            return;
         }
 
-        IdentifierNode headerNameNode = nodes[0];
-        boolean endsWithAsterisk = false;
-        if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
-                .endsWith(SpreadsheetSymbols.ASTERISK.toString())) {
-            headerNameNode = removeSignInTheEnd(nodes[0], SpreadsheetSymbols.ASTERISK.toString());
-            endsWithAsterisk = true;
+        var headerNameNode = nodes[0];
+        var typeIdentifierNode = nodes.length == 1 ? null : nodes[1];
+        var headerName = headerNameNode.getIdentifier();
+
+        var endsWithAsterisk = headerName.endsWith(SpreadsheetSymbols.ASTERISK.toString());
+        var endsWithTilde = headerName.endsWith(SpreadsheetSymbols.TILDE.toString());
+        if (endsWithAsterisk || endsWithTilde) {
+            headerName = StringUtils.trim(headerName.substring(0, headerName.length() - 1));
+            var end = new AbsolutePosition(headerName.length());
+            var location = new TextInterval(headerNameNode.getLocation().getStart(), end);
+            headerNameNode = new IdentifierNode(headerNameNode.getType(), location, headerName, headerNameNode.getModule());
         }
-        boolean endsWithTilde = false;
-        if ((nodes.length == 1 || nodes.length == 2) && nodes[0].getIdentifier()
-                .endsWith(SpreadsheetSymbols.TILDE.toString())) {
-            headerNameNode = removeSignInTheEnd(nodes[0], SpreadsheetSymbols.TILDE.toString());
-            endsWithTilde = true;
+
+        var parsed = new SymbolicTypeDefinition(headerNameNode, typeIdentifierNode, endsWithAsterisk, endsWithTilde, source);
+
+        if (!registered.add(headerName)) {
+            // Register error if the Step name was already registered for the Spreadsheet.
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError(String.format("The header '%s' is already defined.", headerName),
+                    headerNameNode));
+            return;
         }
-        switch (nodes.length) {
-            case 1:
-                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk, endsWithTilde, source);
-            case 2:
-                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde, source);
-            default:
-                String message = String.format("Valid header format: name [%s type].",
-                        SpreadsheetSymbols.TYPE_DELIMITER);
-                throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
+
+        SpreadsheetHeaderDefinition header;
+        if (row) {
+            header = rowHeaders[index] = new SpreadsheetHeaderDefinition(parsed, index, -1);
+        } else {
+            header = columnHeaders[index] = new SpreadsheetHeaderDefinition(parsed, -1, index);
+        }
+
+        if (typeIdentifierNode != null) {
+            String typeIdentifier = typeIdentifierNode.getOriginalText();
+            var headerType = OpenLManager.makeType(bindingContext.getOpenL(), typeIdentifier, source, bindingContext);
+            header.setType(headerType);
+        }
+
+        addMetaInfo(header);
+
+        if ("RETURN".equals(headerName)) {
+            // If the Spreadsheet Step name is "RETURN" keyword
+            returnHeaderDefinition = header;
         }
     }
 
