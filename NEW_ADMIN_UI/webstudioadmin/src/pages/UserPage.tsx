@@ -38,7 +38,7 @@ export const UserPage: React.FC = () => {
             if (response.ok) {
                 const jsonResponse = await response.json();
                 setUserData(jsonResponse.map((user: any, index: any) => ({ ...user, key: index })));
-                console.log(jsonResponse)
+                console.log("users: ",jsonResponse)
             } else {
                 console.error("Failed to fetch users:", response.statusText);
             }
