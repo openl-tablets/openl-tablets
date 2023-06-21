@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Checkbox, Col, Input, Modal, Row, Select } from 'antd';
+import { Button, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { Form as FinalForm, Field, Form } from 'react-final-form';
-import { stringify } from 'querystring';
-
+import arrayMutators from 'final-form-arrays'
+import { Input, CheckboxGroup } from '../../components/form'
 import './userModal.css';
 
 const displayOrder = [
@@ -78,7 +78,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         firstName: user.firstName,
         lastName: user.lastName,
         displayName: user.displayName,
-        groups: user.groups,
+        groups: user.userGroups.map((group) => group.name),
     };
 
     const fetchGroupData = async () => {
@@ -172,6 +172,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         <div>
             <FinalForm
                 onSubmit={handleSubmit}
+                mutators={{...arrayMutators}}
                 initialValues={initialValues} >
                 {({ handleSubmit, form }) => (
                     <form onSubmit={handleSubmit}
@@ -180,38 +181,25 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                         <label><b>Account</b></label>
                         <div className="user-label">
                             <label>Username</label>
-                            <Field name="username" component="input" type="text">
-                                {props => (
-                                    <div>
-                                        <b>{user.username}</b>
-                                    </div>
-                                )}</Field>
+                            <Input name="username" disabled />
                         </div>
                         <div className="user-label">
                             <label>Email</label>
-                            <Field name="email">
-                                {({ input }) => <Input {...input} />}
-                            </Field>
+                            <Input name="email" />
                         </div>
                         <div className="user-label">
                             <label>Password</label>
-                            <Field name="password" component="input" type="password">
-                                {({ input }) => <Input {...input} />}
-                            </Field>
+                            <Input name="password" type="password"/>
                         </div>
                         <br></br>
                         <label><b>Name</b></label>
                         <div className="user-label">
                             <label >First name (given name)</label>
-                            <Field name="firstName" component="input" type="text" subscription={{ value: true }}>
-                                {({ input }) => <Input {...input} />}
-                            </Field>
+                            <Input name="firstName" />
                         </div>
                         <div className="user-label">
                             <label >Last name (family name)</label>
-                            <Field name="lastName" component="input" type="text" subscription={{ value: true }}>
-                                {({ input }) => <Input {...input} />}
-                            </Field>
+                            <Input name="lastName" />
                         </div>
                         <div className="user-label">
                             <label>Display name:</label>
@@ -255,19 +243,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                         </div>
                         <br></br>
                         <label><b>Groups</b></label>
-                        <Field name="groups" type="checkbox"
-                        >
-                            {({ input }) => (
-                                <Checkbox.Group onChange={handleUserGroupChange} value={selectedGroupValues}>
-                                    <Row>
-                                        {groupNames.map((groupName) => (
-                                            <Col span={8} key={groupName}>
-                                                <Checkbox value={groupName}>{groupName}</Checkbox>
-                                            </Col>))}
-                                    </Row>
-                                </Checkbox.Group>
-                            )}
-                        </Field>
+                        <CheckboxGroup name="groups" options={groupNames} />
                         <div style={{ display: "grid", justifyContent: "end" }}>
                             <Row>
                                 <Button key="submit" htmlType="submit" style={{ marginTop: 15, color: "green", borderColor: "green" }}>
