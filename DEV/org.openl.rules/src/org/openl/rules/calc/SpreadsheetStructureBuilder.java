@@ -652,14 +652,14 @@ public class SpreadsheetStructureBuilder {
             ICell cell = tableBody.getCell(0, row + 1);
             var value = cell.getStringValue();
             if (value != null) {
-                parseHeader(new CellSourceCodeModule(cell, tableBody), row, true, registered);
+                parseHeader(cell, row, true, registered);
             }
         }
         for (int col = 0; col < width; col++) {
             ICell cell = tableBody.getCell(col + 1, 0);
             var value = cell.getStringValue();
             if (value != null) {
-                parseHeader(new CellSourceCodeModule(cell, tableBody), col, false, registered);
+                parseHeader(cell, col, false, registered);
             }
         }
 
@@ -692,8 +692,9 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private void parseHeader(IOpenSourceCodeModule source, int index, boolean row, Set<String> registered) {
+    private void parseHeader(ICell cell, int index, boolean row, Set<String> registered) {
         IdentifierNode[] nodes;
+        var source = new CellSourceCodeModule(cell, tableBody);
 
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
@@ -745,7 +746,7 @@ public class SpreadsheetStructureBuilder {
             header.setType(headerType);
         }
 
-        addMetaInfo(header);
+        addMetaInfo(header, cell);
 
         if ("RETURN".equals(headerName)) {
             // If the Spreadsheet Step name is "RETURN" keyword
@@ -753,7 +754,7 @@ public class SpreadsheetStructureBuilder {
         }
     }
 
-    private void addMetaInfo(SpreadsheetHeaderDefinition headerDefinition) {
+    private void addMetaInfo(SpreadsheetHeaderDefinition headerDefinition, ICell cell) {
         if (!bindingContext.isExecutionMode() && tableSyntaxNode
                 .getMetaInfoReader() instanceof SpreadsheetMetaInfoReader) {
             IOpenClass headerType = headerDefinition.getType();
@@ -762,12 +763,6 @@ public class SpreadsheetStructureBuilder {
             SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) tableSyntaxNode
                     .getMetaInfoReader();
             List<NodeUsage> nodeUsages = new ArrayList<>();
-            ICell cell;
-            if (headerDefinition.getRow() >= 0) {
-                cell = tableBody.getCell(0, 1 + headerDefinition.getRow());
-            } else {
-                cell = tableBody.getCell(1 + headerDefinition.getColumn(), 0);
-            }
             if (headerDefinition.getDefinition().isAsteriskPresented()) {
                 String s = removeWrongSymbols(headerDefinition.getDefinitionName());
                 if (org.apache.commons.lang3.StringUtils.isEmpty(s)) {
