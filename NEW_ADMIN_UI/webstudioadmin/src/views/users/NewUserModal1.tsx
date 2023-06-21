@@ -40,7 +40,7 @@ export const NewUserModal1: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers
 
     const showModal = () => {
         setIsModalOpen(true);
-           };
+    };
 
     const hideModal = () => {
         setIsModalOpen(false);
@@ -200,23 +200,41 @@ export const NewUserModal1: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers
                             <div className="user-label">
                                 <label >Display name:</label>
                                 <div>
-                                    <Select
-                                        defaultValue={selectedDisplayOrder}
-                                        onChange={handleDisplayNameChange}
-                                    >
-                                        {displayOrder.map(option => (
-                                            <Select.Option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </Select.Option>
-                                        ))}
-                                    </Select>
+                                    <Field name="displayName" component="select" >
+                                        {({ input }) => (
+                                            <>
+                                                <Select
+                                                style={{width:100}}
+                                                    defaultActiveFirstOption
+                                                    onChange={(value) => {
+                                                        input.onChange(value);
+                                                    }}
+                                                >
+                                                    {displayOrder.map((option) => (
+                                                        <Select.Option key={option.value} value={option.value} >
+                                                            {option.label}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </>
+                                        )}
+                                    </Field>
                                 </div>
                             </div>
                             <div className="user-label">
-                                <Field name="displayName" subscription={{ value: true }}>
-                                    {({ input: { value, onChange } }) => (
-                                        <Input value={value} onChange={onChange} />
-                                    )}
+                                <Field name="displayName" form={form}>
+                                    {({ input, meta, form }) => {
+                                        const { values } = form.getState();
+                                        const { firstName, lastName } = values;
+                                        const displayOrder = values.displayName;
+                                        let displayNameValue = '';
+                                        if (displayOrder === 'firstLast') {
+                                            displayNameValue = `${firstName} ${lastName}`;
+                                        } else if (displayOrder === 'lastFirst') {
+                                            displayNameValue = `${lastName} ${firstName}`;
+                                        }
+                                        return <Input {...input} value={displayNameValue} />;
+                                    }}
                                 </Field>
                             </div>
                             <br></br>
