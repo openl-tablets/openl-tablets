@@ -1,22 +1,27 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { Button, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { Form as FinalForm, Field, Form } from 'react-final-form';
+import { Form as FinalForm, Field, Form, FormSpy } from 'react-final-form'
 import arrayMutators from 'final-form-arrays'
 import { Input, CheckboxGroup } from '../../components/form'
 import './userModal.css';
+import { FormApi } from 'final-form'
 
-const displayOrder = [
+const DISPLAY_NAME_FIRST_LAST = "firstLast";
+const DISPLAY_NAME_LAST_FIRST = "lastFirst";
+const DISPLAY_NAME_OTHER = "other";
+
+const displayNameOptions = [
     {
-        value: "firstLast",
+        value: DISPLAY_NAME_FIRST_LAST,
         label: "First last",
     },
     {
-        value: "lastFirst",
+        value: DISPLAY_NAME_LAST_FIRST,
         label: "Last first",
     },
     {
-        value: "Other",
+        value: DISPLAY_NAME_OTHER,
         label: "Other",
     },
 ];
@@ -68,7 +73,18 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
     const [groupNames, setGroupNames] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(true);
     const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.groups);
-    const formRef = useRef(null);
+    const [isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled] = useState<boolean>(true);
+    const formRef = useRef<FormApi>();
+
+    const displayNameSelectInitialValue = useMemo(() => {
+        if (user.displayName === user.firstName + " " + user.lastName) {
+            return DISPLAY_NAME_FIRST_LAST;
+        } else if (user.displayName === user.lastName + " " + user.firstName) {
+            return DISPLAY_NAME_LAST_FIRST;
+        } else {
+            return DISPLAY_NAME_OTHER;
+        }
+    }, [user])
 
     const initialValues = useMemo(() => ({
         username: user.username,
@@ -77,6 +93,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         firstName: user.firstName,
         lastName: user.lastName,
         displayName: user.displayName,
+        displayNameSelect: displayNameSelectInitialValue,
         groups: user.userGroups.map((group) => group.name),
     }), [user]);
 
@@ -114,17 +131,9 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
     const handleSubmit = async (values: any) => {
         const { email, displayName, firstName, lastName, password, groups, username } = values;
 
-        let updatedDisplayName = '';
-
-        if (displayName === 'firstLast') {
-            updatedDisplayName = `${firstName} ${lastName}`;
-        } else if (displayName === 'lastFirst') {
-            updatedDisplayName = `${lastName} ${firstName}`;
-        }
-
         const updatedUser = {
             email,
-            displayName: updatedDisplayName,
+            displayName,
             firstName,
             lastName,
             password,
@@ -167,91 +176,90 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         console.log("selected group values: ", selectedGroupValues);
     };
 
+    // TODO: values is object with all form values. create a type for it
+    const displayNameSetter = (values: any, form: FormApi) => {
+        if (values.displayNameSelect === DISPLAY_NAME_OTHER) {
+            setIsDisplayNameFieldDisabled(false);
+        } else {
+            if (values.displayNameSelect === DISPLAY_NAME_FIRST_LAST) {
+                form.change('displayName', `${values.firstName} ${values.lastName}`);
+            } else  {
+                form.change('displayName', `${values.lastName} ${values.firstName}`);
+            }
+            setIsDisplayNameFieldDisabled(true);
+        }
+
+
+        return null;
+    }
+
     return (
         <div>
             <FinalForm
                 onSubmit={handleSubmit}
                 mutators={{...arrayMutators}}
                 initialValues={initialValues} >
-                {({ handleSubmit, form }) => (
-                    <form onSubmit={handleSubmit}
-                    >
-                        <br></br>
-                        <label><b>Account</b></label>
-                        <div className="user-label">
-                            <label>Username</label>
-                            <Input name="username" disabled />
-                        </div>
-                        <div className="user-label">
-                            <label>Email</label>
-                            <Input name="email" />
-                        </div>
-                        <div className="user-label">
-                            <label>Password</label>
-                            <Input name="password" type="password"/>
-                        </div>
-                        <br></br>
-                        <label><b>Name</b></label>
-                        <div className="user-label">
-                            <label >First name (given name)</label>
-                            <Input name="firstName" />
-                        </div>
-                        <div className="user-label">
-                            <label >Last name (family name)</label>
-                            <Input name="lastName" />
-                        </div>
-                        <div className="user-label">
-                            <label>Display name:</label>
-                            <div>
-                                <Field name="displayName" component="select" >
-                                    {({ input }) => (
-                                        <>
+                {({ handleSubmit, form }) => {
+                    formRef.current = form;
+                    return (
+                        <form onSubmit={handleSubmit}>
+                            <br></br>
+                            <label><b>Account</b></label>
+                            <div className="user-label">
+                                <label>Username</label>
+                                <Input name="username" disabled />
+                            </div>
+                            <div className="user-label">
+                                <label>Email</label>
+                                <Input name="email" />
+                            </div>
+                            <div className="user-label">
+                                <label>Password</label>
+                                <Input name="password" type="password"/>
+                            </div>
+                            <br></br>
+                            <label><b>Name</b></label>
+                            <div className="user-label">
+                                <label >First name (given name)</label>
+                                <Input name="firstName" />
+                            </div>
+                            <div className="user-label">
+                                <label >Last name (family name)</label>
+                                <Input name="lastName" />
+                            </div>
+                            <div className="user-label">
+                                <label>Display name:</label>
+                                <div>
+                                    <Field name="displayNameSelect">
+                                        {({ input }) => (
                                             <Select
                                                 style={{ width: 100 }}
-                                                defaultActiveFirstOption
-                                                onChange={(value) => {
-                                                    input.onChange(value);
-                                                }}
-                                            >
-                                                {displayOrder.map((option) => (
-                                                    <Select.Option key={option.value} value={option.value} >
-                                                        {option.label}
-                                                    </Select.Option>
-                                                ))}
-                                            </Select>
-                                        </>
-                                    )}
-                                </Field>
+                                                options={displayNameOptions}
+                                                {...input}
+                                            />
+                                        )}
+                                    </Field>
+                                </div>
                             </div>
-                        </div>
-                        <div className="user-label">
-                            <Field name="displayName" form={form}>
-                                {({ input, meta, form }) => {
-                                    const { values } = form.getState();
-                                    const { firstName, lastName } = values;
-                                    const displayOrder = values.displayName;
-                                    let displayNameValue = '';
-                                    if (displayOrder === 'firstLast') {
-                                        displayNameValue = `${firstName} ${lastName}`;
-                                    } else if (displayOrder === 'lastFirst') {
-                                        displayNameValue = `${lastName} ${firstName}`;
-                                    }
-                                    return <Input {...input} value={displayNameValue} disabled/>;
-                                }}
-                            </Field>
-                        </div>
-                        <br></br>
-                        <label><b>Groups</b></label>
-                        <CheckboxGroup name="groups" options={groupNames} />
-                        <div style={{ display: "grid", justifyContent: "end" }}>
-                            <Row>
-                                <Button key="submit" htmlType="submit" style={{ marginTop: 15, color: "green", borderColor: "green" }}>
-                                    Update
-                                </Button>
-                            </Row>
-                        </div>
-                    </form>
-                )}
+                            <div className="user-label">
+                                <Input name="displayName" disabled={isDisplayNameFieldDisabled} />
+                            </div>
+                            <br></br>
+                            <label><b>Groups</b></label>
+                            <CheckboxGroup name="groups" options={groupNames} />
+                            <div style={{ display: "grid", justifyContent: "end" }}>
+                                <Row>
+                                    <Button key="submit" htmlType="submit" style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                                        Update
+                                    </Button>
+                                </Row>
+                            </div>
+                            <FormSpy subscription={{ values: true }}>
+                                {({ values }) => displayNameSetter(values, form)}
+                            </FormSpy>
+                        </form>
+                    )}
+                }
             </FinalForm>
 
         </div>
