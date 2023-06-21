@@ -1,4 +1,4 @@
-import React, { FC, useRef } from 'react'
+import React, { FC, useMemo } from 'react'
 import { FieldArray } from 'react-final-form-arrays'
 import { Checkbox as AntdCheckbox, Col, Row } from 'antd'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
@@ -22,7 +22,7 @@ const CheckboxGroup: FC<CheckboxGroupProps> = ({
       {({ fields }) => {
           return (
               <Row>
-                {options.map((option) => (
+                {options.map(option => (
                   <Checkbox
                     name={name}
                     key={option}
@@ -40,20 +40,23 @@ const CheckboxGroup: FC<CheckboxGroupProps> = ({
 
 
 const Checkbox: FC<CheckboxProps> = ({ name, fields, option }) => {
-  const isChecked = useRef(fields.value.includes(option));
+  const isChecked = useMemo(() => fields.value.includes(option), [fields.value]);
 
   const toggleCheckbox = (event: CheckboxChangeEvent) => {
     if (event.target.checked) {
       fields.push(option);
     }
     else {
-      fields.remove(option);
+      const optionIndex = fields.value.indexOf(option);
+      if (optionIndex > -1) {
+        fields.remove(optionIndex);
+      }
     }
   }
 
   return (
       <Col span={8} key={option}>
-        <AntdCheckbox name={name} value={option} defaultChecked={isChecked.current} onChange={toggleCheckbox}>{option}</AntdCheckbox>
+        <AntdCheckbox name={name} checked={isChecked} onChange={toggleCheckbox}>{option}</AntdCheckbox>
       </Col>
   )
 }

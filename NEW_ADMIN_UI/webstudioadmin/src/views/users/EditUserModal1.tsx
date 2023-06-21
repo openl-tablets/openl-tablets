@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { Button, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { Form as FinalForm, Field, Form } from 'react-final-form';
@@ -67,11 +67,10 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
     const [allGroups, setAllGroups] = useState<Group[]>([]);
     const [groupNames, setGroupNames] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(true);
-    const [username, setUsername] = useState(user.username);
     const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.groups);
     const formRef = useRef(null);
 
-    const initialValues = {
+    const initialValues = useMemo(() => ({
         username: user.username,
         email: user.email,
         password: user.password,
@@ -79,7 +78,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
         lastName: user.lastName,
         displayName: user.displayName,
         groups: user.userGroups.map((group) => group.name),
-    };
+    }), [user]);
 
     const fetchGroupData = async () => {
         try {
@@ -113,7 +112,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
 
 
     const handleSubmit = async (values: any) => {
-        const { email, displayName, firstName, lastName, password, groups } = values;
+        const { email, displayName, firstName, lastName, password, groups, username } = values;
 
         let updatedDisplayName = '';
 
@@ -237,7 +236,7 @@ export const EditUserModal1: React.FC<EditUserProps> = ({ user, updateUser, onSa
                                     } else if (displayOrder === 'lastFirst') {
                                         displayNameValue = `${lastName} ${firstName}`;
                                     }
-                                    return <Input {...input} value={displayNameValue} />;
+                                    return <Input {...input} value={displayNameValue} disabled/>;
                                 }}
                             </Field>
                         </div>
