@@ -30,7 +30,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
@@ -44,6 +43,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.DiffStatus;
@@ -436,10 +436,10 @@ public class MergeConflictBean {
             } else {
                 project.save(conflictResolveData);
             }
-
             String branch = mergeOperation ? mergeConflict.getMergeBranchTo() : project.getBranch();
             updateRulesXmlFiles(repositoryId, modulesToAppend, branch);
 
+            project = userWorkspace.getProject(project.getRepository().getId(), project.getName());
             if (opened) {
                 if (project.isDeleted()) {
                     project.close();
