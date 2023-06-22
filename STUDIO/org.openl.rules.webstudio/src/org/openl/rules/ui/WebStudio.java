@@ -361,8 +361,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             return userWorkspace.getProject(repositoryId, name, false);
         } catch (ProjectException e) {
-            // Should not occur
-            log.error(e.getMessage(), e);
             return null;
         }
     }
