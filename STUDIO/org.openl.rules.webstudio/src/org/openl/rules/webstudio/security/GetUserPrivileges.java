@@ -2,14 +2,12 @@ package org.openl.rules.webstudio.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
@@ -101,9 +99,6 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         }
         // Create if absent
         groupManagementService.addGroup(defaultGroup, "A default group for authenticated users");
-        groupManagementService.updateGroup(defaultGroup,
-            Collections.emptySet(),
-            Collections.singleton(Privileges.VIEW_PROJECTS.getAuthority()));
         group = groupManagementService.getGroupByName(defaultGroup);
         Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
