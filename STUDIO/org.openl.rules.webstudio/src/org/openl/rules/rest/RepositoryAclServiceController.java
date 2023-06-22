@@ -56,9 +56,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "ACL Management")
 public class RepositoryAclServiceController {
 
-    private static final String REPO_TYPE_PROD = "prod";
-    private static final String REPO_TYPE_DEPLOY_CONFIG = "deployConfig";
-    private static final String REPO_TYPE_DESIGN = "design";
+    public static final String REPO_TYPE_PROD = "prod";
+    public static final String REPO_TYPE_DEPLOY_CONFIG = "deployConfig";
+    public static final String REPO_TYPE_DESIGN = "design";
 
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryAclService deployConfigRepositoryAclService;

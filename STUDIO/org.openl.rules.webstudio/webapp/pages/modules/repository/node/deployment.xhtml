@@ -33,6 +33,18 @@
                 </c:otherwise>
             </c:choose>
         </h:panelGroup>
+        <c:if test="#{repositoryTreeController.showFullPath and environment.getProperty('user.mode') != 'single'}">
+            <h:outputText value="Repository:"/>
+            <h:panelGroup>
+                <h:outputText value="#{artefact.repository.name}"/>
+                <ui:param name="fullPath" value="#{repositoryTreeController.getFullPath(artefact)}"/>
+                <c:if test="#{not empty fullPath}">
+                    <img style="margin-left: 3px; width: 16px; height: 16px;"
+                         src="#{contextPath}/webresource/images/copy.svg" title="Copy as path"
+                         alt="Copy as path" onclick="copyToClipboard('#{fullPath}')"/>
+                </c:if>
+            </h:panelGroup>
+        </c:if>
     </h:panelGrid>
 
 </ui:composition>
