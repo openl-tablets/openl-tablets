@@ -8,7 +8,6 @@ package org.openl.rules.security;
  */
 public enum Privileges implements Privilege {
 
-    VIEW_PROJECTS("View Projects"),
     ADMIN("Administrate"),
 
     UNLOCK_PROJECTS("Unlock Projects"),

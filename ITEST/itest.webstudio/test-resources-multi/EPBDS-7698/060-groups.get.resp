@@ -12,8 +12,7 @@ Content-Type: application/json
   },
   "Authenticated": {
     "id": 7,
-    "description": "A default group for authenticated users",
-    "privileges": ["VIEW_PROJECTS"]
+    "description": "A default group for authenticated users"
   },
   "Deployers": {
     "id": 5,
@@ -28,7 +27,6 @@ Content-Type: application/json
     "roles": ["Viewers"]
   },
   "Viewers": {
-    "id": 2,
-    "privileges": ["VIEW_PROJECTS"]
+    "id": 2
   }
 }

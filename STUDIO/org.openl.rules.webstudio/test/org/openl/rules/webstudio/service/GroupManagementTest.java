@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -232,14 +233,14 @@ public class GroupManagementTest {
             mappedGroups.get("Deployers").getPrivileges(),
             Privilege::getName);
 
-        assertCollectionEquals(Stream.of("Viewers")
-            .collect(Collectors.toList()), mappedGroups.get("Developers").getPrivileges(), Privilege::getName);
+        assertCollectionEquals(Arrays.asList("Viewers"),
+            mappedGroups.get("Developers").getPrivileges(), Privilege::getName);
 
-        assertCollectionEquals(Stream.of("Viewers").collect(Collectors.toList()),
+        assertCollectionEquals(Arrays.asList("Viewers"),
             mappedGroups.get("Testers").getPrivileges(),
             Privilege::getName);
 
-        assertCollectionEquals(Stream.of("VIEW_PROJECTS").collect(Collectors.toList()),
+        assertCollectionEquals(Collections.emptyList(),
             mappedGroups.get("Viewers").getPrivileges(),
             Privilege::getName);
 
