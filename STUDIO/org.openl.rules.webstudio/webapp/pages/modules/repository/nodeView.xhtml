@@ -258,7 +258,7 @@
                                     <ui:param name="fullPath"
                                               value="#{repositoryTreeController.getFullPath(artefact)}"/>
                                     <c:if test="#{not empty fullPath}">
-                                        <img style="margin-left: 3px; width: 16px; height: 16px;"
+                                        <img style="margin-left: 3px; width: 16px; height: 16px;cursor: pointer;"
                                              src="#{contextPath}/webresource/images/copy.svg"
                                              title="Copy as path" alt="Copy as path"
                                              onclick="copyToClipboard('#{fullPath}')"/>
