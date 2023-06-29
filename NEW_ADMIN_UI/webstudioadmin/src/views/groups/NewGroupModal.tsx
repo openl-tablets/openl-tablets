@@ -32,7 +32,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
     const [description, setDescription] = useState("");
     const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-    const [allPrivileges, setAllPrivileges] = useState<Privilege[]>([]);
+    const [allPrivileges, setAllPrivileges] = useState<Privilege>({});
     const [groupData, setGroupData] = useState<Group[]>([]);
     const [privilegeCheckboxes, setPrivilegeCheckboxes] = useState<{ [privilege: string]: boolean }>({});
 
@@ -150,16 +150,16 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
     // const handleGroupButtonClick = (groupKey: string) => {
     //     const selectedPrivileges: string[] = [];
 
-    //     if (groupData && groupData[groupKey]) {
-    //         const group: Group = groupData[groupKey];
-    //         selectedPrivileges.push(...group.privileges);
-    //     }
+        // if (groupData && groupData[groupKey]) {
+        //     const group: Group = groupData[groupKey];
+        //     selectedPrivileges.push(...group.privileges);
+        // }
 
-    //     if (selectedPrivileges.length > 0) {
-    //         setPrivileges(selectedPrivileges);
-    //         console.log("selected privileges through roles: ", selectedPrivileges);
-    //     }
-    //     markCheckboxes(selectedPrivileges);
+        // if (selectedPrivileges.length > 0) {
+        //     setPrivileges(selectedPrivileges);
+        //     console.log("selected privileges through roles: ", selectedPrivileges);
+        // }
+        // markCheckboxes(selectedPrivileges);
     // };
 
     // const markCheckboxes = (selectedPrivileges: string[]) => {
@@ -176,7 +176,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
             return []
         }
 
-        return Object.keys(allPrivileges).map((key: string) => {
+        return Object.keys(allPrivileges).map((key) => {
             return {
                 key,
                 title: allPrivileges[key],
@@ -200,7 +200,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
             ...Object.keys(groupData || {}).map((groupKey) => ({
                 title: (
                     <Button type="link"
-                        onClick={() => handleGroupButtonClick(groupKey)}
+                        // onClick={() => handleGroupButtonClick(groupKey)}
                     >
                         {groupKey}
                     </Button>
@@ -247,7 +247,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                         <Form.Item className="group-create-form_last-form-item">
                             <Form.Item>
                                 <Table
-                                    rowSelection={rowSelection}
+                                    // rowSelection={rowSelection}
                                     dataSource={dataSource}
                                     columns={columns}
                                     pagination={false}
