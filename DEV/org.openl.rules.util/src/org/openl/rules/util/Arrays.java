@@ -63,11 +63,11 @@ public final class Arrays {
      * <p/>
      *
      * <pre>
-     * Arrays.add(null, 0, null)      = [null]
-     * Arrays.add(null, 0, "a")       = ["a"]
-     * Arrays.add(["a"], 1, null)     = ["a", null]
-     * Arrays.add(["a"], 1, "b")      = ["a", "b"]
-     * Arrays.add(["a", "b"], 3, "c") = ["a", "b", "c"]
+     * Arrays.addElement(null, 0, null)      = [null]
+     * Arrays.addElement(null, 0, "a")       = ["a"]
+     * Arrays.addElement(["a"], 1, null)     = ["a", null]
+     * Arrays.addElement(["a"], 1, "b")      = ["a", "b"]
+     * Arrays.addElement(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
      *
      * @param array the array to add the element to, may be <code>null</code>
