@@ -168,10 +168,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
-        </dependency>
     </dependencies>
 
 </project>
