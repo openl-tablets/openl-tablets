@@ -14,17 +14,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.openl.rules.project.model.RulesDeploy;
@@ -42,7 +39,6 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
-import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
@@ -50,7 +46,6 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -93,17 +88,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     @Autowired
     private Environment env;
-
-    private final Map<String, KafkaTracingProvider> tracingProviderMap = new HashMap<>();
-
-    /*
-     * Load all the beans that are implementing the KafkaTracingProvider interface
-     */
-    @Autowired
-    public void fillTracingProviders(ListableBeanFactory beanFactory) {
-        Collection<KafkaTracingProvider> interfaces = beanFactory.getBeansOfType(KafkaTracingProvider.class).values();
-        interfaces.forEach(tracingProvider -> tracingProviderMap.put(tracingProvider.getName(), tracingProvider));
-    }
 
     @Autowired
     @Qualifier("serviceDescriptionInProcess")
@@ -208,8 +192,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private Properties getProducerConfigs(OpenLService service,
             BaseKafkaConfig baseKafkaDeploy,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+            KafkaDeploy kafkaDeploy) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getProducerConfigs());
@@ -225,26 +208,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         }
         useClientIdGeneratorIfPropertyIsNotSet(configs, service, baseKafkaDeploy);
         setBootstrapServers(service, baseKafkaDeploy, "Producer", configs);
-        addTracingInterceptorToProducer(configs, producerInterceptors);
         return configs;
-    }
-
-    private void addTracingInterceptorToProducer(Properties configs, String producerInterceptors) {
-        if (StringUtils.isNotBlank(producerInterceptors)) {
-            configs.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, producerInterceptors);
-        }
-    }
-
-    private void addTracingInterceptorToConsumer(Properties configs, String consumerInterceptors) {
-        if (StringUtils.isNotBlank(consumerInterceptors)) {
-            configs.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG, consumerInterceptors);
-        }
     }
 
     private Properties getDltProducerConfigs(OpenLService service,
             BaseKafkaConfig kafkaConfig,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+            KafkaDeploy kafkaDeploy) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getDltProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getDltProducerConfigs());
@@ -258,7 +227,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (getImmutableKafkaDeploy().getDltProducerConfigs() != null) {
             configs.putAll(getImmutableKafkaDeploy().getDltProducerConfigs());
         }
-        addTracingInterceptorToProducer(configs, producerInterceptors);
         useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
         setBootstrapServers(service, kafkaConfig, "DLT producer", configs);
         return configs;
@@ -266,8 +234,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private Properties getConsumerConfigs(OpenLService service,
             BaseKafkaConfig kafkaConfig,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+            KafkaDeploy kafkaDeploy) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getConsumerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getConsumerConfigs());
@@ -283,7 +250,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         }
         useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
         setBootstrapServers(service, kafkaConfig, "Consumer", configs);
-        addTracingInterceptorToConsumer(configs, producerInterceptors);
 
         if (!configs.containsKey(GROUP_ID)) {
             configs.setProperty(GROUP_ID, getDefaultGroupId());
@@ -345,17 +311,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             T kafkaConfig,
             KafkaDeploy kafkaDeploy) throws IOException {
         T config = cloner.deepClone(kafkaConfig);
-        String consumerInterceptors = tracingProviderMap.values()
-            .stream()
-            .map(KafkaTracingProvider::getConsumerInterceptorProviders)
-            .collect(Collectors.joining(","));
-        String producerInterceptors = tracingProviderMap.values()
-            .stream()
-            .map(KafkaTracingProvider::getProducerInterceptorProviders)
-            .collect(Collectors.joining(","));
-        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig, kafkaDeploy, producerInterceptors));
-        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig, kafkaDeploy, consumerInterceptors));
-        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig, kafkaDeploy, producerInterceptors));
+        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig, kafkaDeploy));
+        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig, kafkaDeploy));
+        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig, kafkaDeploy));
         return config;
     }
 
@@ -510,12 +468,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             }
             kafkaProducers.add(dltProducer);
         }
-        /*
-         * The reason why only one implementation is passed to KafkaService is that only one TracingProvider is used
-         * now. If there will be more than one implementation, it will be needed to pass them all and change the logic
-         * in creating and finishing spans.
-         */
-        Optional<KafkaTracingProvider> tracingProvider = tracingProviderMap.values().stream().findFirst();
         var requestIdHeaderKey = org.openl.util.StringUtils.trimToNull(env.getProperty("log.request-id.header"));
         final KafkaService kafkaService = KafkaService.createService(service,
             requestIdHeaderKey,
@@ -528,7 +480,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             objectSerializer,
             getStoreLogDataManager(),
             getStoreLogDataManager().isEnabled(),
-            tracingProvider.orElse(null),
             rulesDeploy);
         kafkaServices.add(kafkaService);
 

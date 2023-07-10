@@ -122,6 +122,18 @@ jobs:
         gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
         rm demo.zip.asc
 
+    - name: Download OpenTelemetry extension
+      run: |
+        # Define urls
+        artifactUrl="$SERVER/org/openl/rules/openl-rules-opentelemetry"
+        downloadUrl="$artifactUrl/$version/openl-rules-opentelemetry-$version.jar"
+        # Download artifact.
+        wget --progress=dot:giga -O openl-rules-opentelemetry.jar "$downloadUrl"
+        wget --progress=dot:giga -O openl-rules-opentelemetry.jar.asc "$downloadUrl.asc"
+        # GPG verification
+        gpg --batch --verify openl-rules-opentelemetry.jar.asc openl-rules-opentelemetry.jar
+        rm openl-rules-opentelemetry.jar.asc
+
     - name: Prepare for multi-platform docker build
       run: |
         echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
@@ -149,6 +161,7 @@ jobs:
         -t openltablets/ws:$version-all
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice-all
+        --build-arg OTEL_APP=openl-rules-opentelemetry.jar
         --build-arg JDK=$JAVA11
         --label "org.opencontainers.image.title=OpenL RuleServices (All)"
         --label "org.opencontainers.image.version=${version}"
@@ -165,6 +178,7 @@ jobs:
         $tags_11
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice
+        --build-arg OTEL_APP=openl-rules-opentelemetry.jar
         --build-arg JDK=$JAVA11
         --label '"org.opencontainers.image.title=OpenL RuleServices"'
         --label "org.opencontainers.image.version=${version}"
@@ -181,6 +195,7 @@ jobs:
         $tags_11
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webstudio
+        --build-arg OTEL_APP=openl-rules-opentelemetry.jar
         --build-arg JDK=$JAVA11
         --label '"org.opencontainers.image.title=OpenL WebStudio"'
         --label "org.opencontainers.image.version=${version}"

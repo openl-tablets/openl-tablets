@@ -15,41 +15,54 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine.noPerf>-Xms128m -Xmx2048m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.noPerf>
-        <surefire.argLine.perf>-Xms128m -Xmx1024m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
+        <surefire.argLine>
+            -javaagent:${project.build.directory}/opentelemetry-javaagent.jar
+            -Xms64m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=128m
+            -Dotel.metrics.exporter=none <!-- To reduce spamming to the log -->
+            -Dotel.traces.exporter=logging-otlp <!-- JSON output format -->
+            -Dotel.logs.exporter=none <!-- To reduce spamming to the log -->
+            -Dotel.bsp.schedule.delay=0 <!-- For rapidly output to the console -->
+            -Dotel.service.name=RulerService-Test
+            -Dotel.javaagent.extensions=../../Util/openl-rules-opentelemetry/target/openl-rules-opentelemetry.jar
+        </surefire.argLine>
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <configuration>
-                        <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
-                        <systemPropertyVariables>
-                            <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp
-                            </webservice-webapp>
-                        </systemPropertyVariables>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>io.opentelemetry.javaagent</groupId>
+                            <artifactId>opentelemetry-javaagent</artifactId>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <destFileName>opentelemetry-javaagent.jar</destFileName>
+                        </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>./</outputDirectory>
+                    <overWriteReleases>false</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentracing</groupId>
-            <artifactId>opentracing-mock</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
@@ -72,6 +85,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
             <scope>test</scope>
@@ -85,6 +103,11 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.javaagent</groupId>
+            <artifactId>opentelemetry-javaagent</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
