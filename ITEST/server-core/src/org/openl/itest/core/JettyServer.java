@@ -34,7 +34,7 @@ public class JettyServer {
 
     private final Server server;
 
-    private JettyServer(String explodedWar, boolean sharedClassloader, Map<String, String> params) throws IOException {
+    private JettyServer(String explodedWar, Map<String, String> params) throws IOException {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
@@ -52,10 +52,6 @@ public class JettyServer {
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
                 "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in WebStudio
 
-
-        if (sharedClassloader) {
-            webAppContext.setClassLoader(JettyServer.class.getClassLoader());
-        }
         this.server.setHandler(webAppContext);
     }
 
@@ -79,7 +75,7 @@ public class JettyServer {
      * Start an application with configuration defined using {@code @WebListener}.
      */
     public static JettyServer start() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, null);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), null);
         jetty.server.start();
         return jetty;
     }
@@ -90,7 +86,7 @@ public class JettyServer {
      * @param profile Spring profiles which are activated
      */
     public static JettyServer start(String profile) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, Map.of("spring.profiles.active", profile));
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), Map.of("spring.profiles.active", profile));
         jetty.server.start();
         return jetty;
     }
@@ -103,7 +99,7 @@ public class JettyServer {
     public static JettyServer start(String profile, Map<String, String> params) throws Exception {
         params = new HashMap<>(params);
         params.put("spring.profiles.active", profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
         jetty.server.start();
         return jetty;
     }
@@ -114,19 +110,7 @@ public class JettyServer {
      * @param params Servlet context init params
      */
     public static JettyServer start(Map<String, String> params) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
-        jetty.server.start();
-        return jetty;
-    }
-
-    /**
-     * Start an application with configuration defined using {@code @WebListener} and sharing JUnit classloader with the
-     * application.
-     *
-     * @param params Servlet context init params
-     */
-    public static JettyServer startSharingClassLoader(Map<String, String> params) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, params);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
         jetty.server.start();
         return jetty;
     }
@@ -155,7 +139,7 @@ public class JettyServer {
             params = Map.of("spring.profiles.active", profile);
         }
         String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
 
         final Locale DEFAULT_LOCALE = Locale.getDefault();
         final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
