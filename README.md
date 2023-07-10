@@ -54,10 +54,10 @@ It is possible to use the following settings:
 
 
 Artifacts:
-* **WebStudio** - STUDIO\org.openl.rules.webstudio\target\webapp.war
-* **RuleService WS** - WSFrontend\org.openl.rules.ruleservice.ws\target\webapp.war
-* **DEMO App** - DEMO\org.openl.rules.demo\target\openl-tablets-demo.zip
+* **WebStudio** - STUDIO/org.openl.rules.webstudio/target/webapp.war
+* **RuleService WS** - WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war
+* **DEMO App** - DEMO/org.openl.rules.demo/target/openl-tablets-demo.zip
 
 #### Build Docker images:
 
-`docker-compose -f Dockerfiles\docker-compose.yaml build`
+`docker-compose -f Dockerfiles/docker-compose.yaml build`
