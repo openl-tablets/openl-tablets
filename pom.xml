@@ -46,13 +46,6 @@
         </developer>
         <developer>
             <name>Nail Samatov</name>
-            <email>nsamatov@eisgroup.com</email>
-            <organization>EIS Group</organization>
-            <organizationUrl>https://eisgroup.com</organizationUrl>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>+3</timezone>
         </developer>
         <developer>
             <name>Vlad Pikus</name>
