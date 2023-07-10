@@ -21,7 +21,7 @@ ENV OPENL_HOME_SHARED $OPENL_DIR/shared
 ENV OPENL_APP $OPENL_DIR/app
 ENV OPENL_LIB $OPENL_DIR/lib
 
-COPY --from=jetty:10-jre11-slim-openjdk /usr/local/jetty $OPENL_APP
+COPY --from=jetty:10-jre11 /usr/local/jetty $OPENL_APP
 RUN set -euxv ; \
 \
 # Create start file for Jetty with configuration options
