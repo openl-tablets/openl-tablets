@@ -100,6 +100,10 @@
         <!-- Kafka -->
         <kafka.version>3.5.0</kafka.version>
 
+        <!-- Open Telemetry -->
+        <opentelemetry.version>1.27.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <auto.service.version>1.1.1</auto.service.version>
+
         <!-- Casandra -->
         <cassandra.driver.version>4.16.0</cassandra.driver.version>
 
@@ -111,7 +115,6 @@
         <ant.version>1.10.13</ant.version>
         <netty.version>4.1.94.Final</netty.version>
         <reactor-netty-http.version>1.1.8</reactor-netty-http.version>
-        <kotlin.stdlib.version>1.9.0</kotlin.stdlib.version>
 
         <!-- REST -->
         <jackson.version>2.14.3</jackson.version>
@@ -135,13 +138,6 @@
         <!-- DEMO & ITEST -->
         <jetty.version>10.0.15</jetty.version>
 
-        <!-- Request tracing -->
-        <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
-        <jaeger.client.version>1.8.0</jaeger.client.version>
-        <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
-        <opentracing.mock.version>0.33.0</opentracing.mock.version>
-        <okhttp.version>4.11.0</okhttp.version>
-
         <!-- Repositories -->
         <amazonaws.version>1.12.504</amazonaws.version>
         <azure.version>12.22.3</azure.version>
@@ -161,6 +157,7 @@
         <datasource-proxy.version>1.9</datasource-proxy.version>
         <xmlunit.version>2.9.1</xmlunit.version>
         <testcontainers.version>1.18.3</testcontainers.version>
+        <system-rules.version>1.19.0</system-rules.version>
         <jmh.version>1.36</jmh.version>
 
         <!-- javax & Jakarta APIs -->
@@ -228,6 +225,7 @@
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
         <module>Util/org.openl.rules.profiler</module>
+        <module>Util/openl-rules-opentelemetry</module>
         <module>ITEST</module>
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
@@ -356,6 +354,11 @@
                             </manifestEntries>
                         </archive>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
                 </plugin>
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
@@ -851,6 +854,12 @@
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>${system-rules.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
@@ -1765,12 +1774,36 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- //Kafka -->
-            <!-- OpenTracing -->
+            <!-- Open Telemetry -->
             <dependency>
-                <groupId>io.opentracing</groupId>
-                <artifactId>opentracing-mock</artifactId>
-                <version>${opentracing.mock.version}</version>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-api</artifactId>
+                <version>${opentelemetry.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.javaagent</groupId>
+                <artifactId>opentelemetry-javaagent-extension-api</artifactId>
+                <version>${opentelemetry.version}-alpha</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-api-semconv</artifactId>
+                <version>${opentelemetry.version}-alpha</version>
+            </dependency>
+            <!-- Javaagent for ITEST -->
+            <dependency>
+                <groupId>io.opentelemetry.javaagent</groupId>
+                <artifactId>opentelemetry-javaagent</artifactId>
+                <version>${opentelemetry.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <!-- See https://github.com/google/auto/tree/main/service -->
+                <!-- @AutoService for marking classes which should be placed as a service in META-INF/services/ -->
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${auto.service.version}</version>
+                <optional>true</optional>
             </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
@@ -1853,58 +1886,6 @@
                 <version>${netty.version}</version>
             </dependency>
             <!-- //hive -->
-            <!-- jaeger -->
-            <dependency>
-                <groupId>io.opentracing.contrib</groupId>
-                <artifactId>opentracing-web-servlet-filter</artifactId>
-                <version>${opentracing.web.servlet.filter}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.jaegertracing</groupId>
-                <artifactId>jaeger-client</artifactId>
-                <version>${jaeger.client.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>javax.annotation-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.opentracing.contrib</groupId>
-                <artifactId>opentracing-kafka-client</artifactId>
-                <version>${opentracing.kafka.client}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp</artifactId>
-                <version>${okhttp.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib</artifactId>
-                <version>${kotlin.stdlib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib-jdk7</artifactId>
-                <version>${kotlin.stdlib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib-jdk8</artifactId>
-                <version>${kotlin.stdlib.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib-common</artifactId>
-                <version>${kotlin.stdlib.version}</version>
-            </dependency>
-            <!-- //jaeger -->
             <!-- OpenL modules -->
             <!-- DEV -->
             <dependency>
@@ -2190,11 +2171,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Util -->

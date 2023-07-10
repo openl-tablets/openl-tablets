@@ -37,7 +37,6 @@ import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
-import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.servlet.RuleServicesFilter;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
@@ -76,7 +75,6 @@ public final class KafkaService implements Runnable {
     private final ObjectSerializer objectSerializer;
     private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
-    private final KafkaTracingProvider kafkaTracingProvider;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public static KafkaService createService(OpenLService service,
@@ -90,7 +88,6 @@ public final class KafkaService implements Runnable {
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
             boolean storeLogDataEnabled,
-            KafkaTracingProvider kafkaTracingProvider,
             RulesDeploy rulesDeploy) throws KafkaServiceException {
         return new KafkaService(service,
             requestIdHeaderKey,
@@ -103,7 +100,6 @@ public final class KafkaService implements Runnable {
             objectSerializer,
             storeLogDataManager,
             storeLogDataEnabled,
-            kafkaTracingProvider,
             rulesDeploy);
     }
 
@@ -118,7 +114,6 @@ public final class KafkaService implements Runnable {
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
             boolean storageEnabled,
-            KafkaTracingProvider kafkaTracingProvider,
             RulesDeploy rulesDeploy) throws KafkaServiceException {
         this.service = Objects.requireNonNull(service);
         this.requestIdHeaderKey = requestIdHeaderKey;
@@ -133,7 +128,6 @@ public final class KafkaService implements Runnable {
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
         this.storageEnabled = storageEnabled;
-        this.kafkaTracingProvider = kafkaTracingProvider;
         try {
             PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
                 .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
@@ -153,10 +147,6 @@ public final class KafkaService implements Runnable {
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
-    }
-
-    public boolean isTracingEnabled() {
-        return kafkaTracingProvider != null;
     }
 
     public OpenLService getService() {
@@ -264,16 +254,8 @@ public final class KafkaService implements Runnable {
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 if (!StringUtils.isBlank(outputTopic)) {
-                                    boolean tracingEnabled = isTracingEnabled();
-                                    Object span = null;
-                                    if (tracingEnabled) {
-                                        span = kafkaTracingProvider.start(consumerRecord.headers(), service.getName());
-                                    }
                                     Object result = requestMessage.getMethod()
                                         .invoke(service.getServiceBean(), requestMessage.getParameters());
-                                    if (tracingEnabled) {
-                                        kafkaTracingProvider.finish(span);
-                                    }
                                     Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                     ProducerRecord<String, Object> producerRecord;
                                     if (header == null) {
@@ -292,11 +274,6 @@ public final class KafkaService implements Runnable {
                                         producerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
                                     }
                                     forwardHeadersToOutput(consumerRecord, producerRecord);
-
-                                    if (tracingEnabled) {
-                                        kafkaTracingProvider.injectTracingHeaders(consumerRecord.headers(),
-                                            producerRecord.headers());
-                                    }
 
                                     if (storeLogData != null) {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
@@ -375,9 +352,6 @@ public final class KafkaService implements Runnable {
     private void sendError(ConsumerRecord<String, RequestMessage> consumerRecord, StoreLogData storeLogData, Exception e, String requestIdHeader) {
         if (log.isErrorEnabled()) {
             log.error("Failed to process a message from input topic '{}'.", getInTopic(), e);
-        }
-        if (isTracingEnabled()) {
-            kafkaTracingProvider.traceError(consumerRecord.headers(), service.getName(), e);
         }
         sendErrorToDlt(consumerRecord, e, storeLogData, requestIdHeader);
     }
