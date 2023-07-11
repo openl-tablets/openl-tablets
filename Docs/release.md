@@ -3,6 +3,7 @@
 1. Ensure all required tickets and issues are resolved, all required branches and commits are merged, and tests are updated.
 2. Run the [Build](https://github.com/openl-tablets/openl-tablets/actions/workflows/build.yml) action. It must be green.
 3. Run the [Deploy Maven artifacts](https://github.com/openl-tablets/openl-tablets/actions/workflows/deploy.yml) action.
+   This action uploads DEMO, WebStudio and RuleServices artifacts to the [GitHub packages](https://github.com/orgs/openl-tablets/packages?repo_name=openl-tablets).
 4. Execute all automation tests.
 5. Execute all performance tests.
 6. Execute all backward compatibility tests.
