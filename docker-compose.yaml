@@ -16,7 +16,6 @@ services:
           cpus: '0.50'
           memory: 384M
         reservations:
-          cpus: '0.25'
           memory: 32M
 
   ws:
@@ -33,7 +32,6 @@ services:
           cpus: '0.50'
           memory: 256M
         reservations:
-          cpus: '0.25'
           memory: 32M
 
   ws-all:
@@ -50,7 +48,6 @@ services:
           cpus: '0.50'
           memory: 256M
         reservations:
-          cpus: '0.25'
           memory: 32M
 
   demo:
@@ -65,5 +62,4 @@ services:
           cpus: '0.50'
           memory: 640M
         reservations:
-          cpus: '0.25'
           memory: 32M
