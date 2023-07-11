@@ -89,6 +89,7 @@ jobs:
           --label $created --label $version --label $revision \
           --label "org.opencontainers.image.title=OpenL WebStudio" \
           --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
-        docker buildx build -t $repo/demo:x      -f Demo ../DEMO/org.openl.rules.demo/target \
+        cd ../DEMO/org.openl.rules.demo
+        docker buildx build -t $repo/demo:x      . \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision

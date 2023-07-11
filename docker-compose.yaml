@@ -52,8 +52,7 @@ services:
 
   demo:
     build:
-      context: DEMO/org.openl.rules.demo/target
-      dockerfile: ../../Dockerfiles/Demo
+      context: DEMO/org.openl.rules.demo
     container_name: demo
     ports:
       - "8184:8080"

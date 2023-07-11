@@ -137,10 +137,11 @@ jobs:
         eval docker buildx build
         $tags_11
         --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=openl-tablets-demo.zip
         --label "org.opencontainers.image.version=${version}"
         --label "org.opencontainers.image.revision=${GITHUB_SHA}"
         --label "org.opencontainers.image.created=${BUILD_DATE}"
-        -f ./Dockerfiles/Demo .
+        -f DEMO/org.openl.rules.demo/Dockerfile .
 
     - name: Push Rule Services (All)
       run: >
