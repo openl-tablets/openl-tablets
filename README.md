@@ -60,4 +60,4 @@ Artifacts:
 
 #### Build Docker images:
 
-`docker-compose -f Dockerfiles/docker-compose.yaml build`
+`docker-compose build`
