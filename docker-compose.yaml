@@ -4,7 +4,7 @@ services:
 
   webstudio:
     build:
-      context: ../STUDIO/org.openl.rules.webstudio
+      context: STUDIO/org.openl.rules.webstudio
       dockerfile: ../../Dockerfiles/WebApp
     container_name: webstudio
     ports:
@@ -20,7 +20,7 @@ services:
 
   ws:
     build:
-      context: ../WSFrontend/org.openl.rules.ruleservice.ws
+      context: WSFrontend/org.openl.rules.ruleservice.ws
       dockerfile: ../../Dockerfiles/WebApp
     container_name: ws
     ports:
@@ -36,7 +36,7 @@ services:
 
   ws-all:
     build:
-      context: ../WSFrontend/org.openl.rules.ruleservice.ws.all
+      context: WSFrontend/org.openl.rules.ruleservice.ws.all
       dockerfile: ../../Dockerfiles/WebApp
     container_name: ws-all
     ports:
@@ -52,8 +52,8 @@ services:
 
   demo:
     build:
-      context: ../DEMO/org.openl.rules.demo/target
-      dockerfile: ../../../Dockerfiles/Demo
+      context: DEMO/org.openl.rules.demo/target
+      dockerfile: ../../Dockerfiles/Demo
     container_name: demo
     ports:
       - "8184:8080"
