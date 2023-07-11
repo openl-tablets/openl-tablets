@@ -4,7 +4,6 @@
 **/stop eol=lf
 
 # EOL for Dockerfile
-Dockerfiles/* eol=lf
 **/Dockerfile eol=lf
 
 # EOL for Http Requests
