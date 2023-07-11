@@ -67,29 +67,31 @@ jobs:
 
     - name: Build docker images
       run: |
-        cd Dockerfiles
         echo Platforms: ${BUILD_PLATFORMS}
         repo=ghcr.io/${{ github.repository_owner }}
         created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
         version="org.opencontainers.image.version=x"
         revision="org.opencontainers.image.revision=${GITHUB_SHA}"
         echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-        docker buildx build -t $repo/ws:x        -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
+        docker buildx build -t $repo/ws:x . \
+          --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision \
           --label "org.opencontainers.image.title=OpenL RuleServices" \
           --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
-        docker buildx build -t $repo/ws:x-all    -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
+        docker buildx build -t $repo/ws:x-all . \
+          --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision \
           --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
           --label "org.opencontainers.image.description=An OpenL web service with extra modules"
-        docker buildx build -t $repo/webstudio:x -f WebApp ../STUDIO/org.openl.rules.webstudio \
+        docker buildx build -t $repo/webstudio:x . \
+          --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision \
           --label "org.opencontainers.image.title=OpenL WebStudio" \
           --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
-        cd ../DEMO/org.openl.rules.demo
-        docker buildx build -t $repo/demo:x      . \
+        cd DEMO/org.openl.rules.demo
+        docker buildx build -t $repo/demo:x . \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision

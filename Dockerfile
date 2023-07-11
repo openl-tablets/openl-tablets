@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.vendor="OpenL Tablets"
 
 ENV LC_ALL C.UTF-8
 
-ARG APP=target/webapp
+ARG APP=STUDIO/org.openl.rules.webstudio/target/webapp
 
 # Copy Java
 ENV JAVA_HOME /opt/java/openjdk
