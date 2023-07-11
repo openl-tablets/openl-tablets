@@ -1,28 +1,11 @@
-FROM ubuntu:focal
+FROM busybox as files
 
-LABEL org.opencontainers.image.title="OpenL Tablets DEMO"
-LABEL org.opencontainers.image.description="Demo with preconfigured OpenL WebStudio, OpenL RuleServices and simple web client"
-LABEL org.opencontainers.image.url="https://openl-tablets.org/"
-LABEL org.opencontainers.image.vendor="OpenL Tablets"
+ARG APP=target/openl-tablets-demo.zip
 
-ENV LC_ALL C.UTF-8
+COPY $APP demo.zip
 
-COPY openl-tablets-demo.zip demo.zip
-
-RUN set -eux ; \
-    \
-# Prepare environment. Install required utils for Docker image building.
-    savedAptMark="$(apt-mark showmanual)"; \
-    \
-    apt-get update ; \
-    apt-get install -y --no-install-recommends \
-    unzip \
-    ; \
-    \
-# Clean up temporaries
-    rm -rf /var/lib/apt/lists/* ; \
-    \
 # Unpack demo files
+RUN set -eux ; \
     unzip -q demo.zip ; \
     rm demo.zip ; \
     \
@@ -39,6 +22,13 @@ RUN set -eux ; \
     chmod o=u openl-demo
 
 FROM ubuntu:focal
+
+LABEL org.opencontainers.image.title="OpenL Tablets DEMO"
+LABEL org.opencontainers.image.description="Demo with preconfigured OpenL WebStudio, OpenL RuleServices and simple web client"
+LABEL org.opencontainers.image.url="https://openl-tablets.org/"
+LABEL org.opencontainers.image.vendor="OpenL Tablets"
+
+ENV LC_ALL C.UTF-8
 
 # Copy Java
 ENV JAVA_HOME /opt/java/openjdk
@@ -60,7 +50,7 @@ ENV JAVA_OPTS "-Xms64m -XX:MaxRAMPercentage=90.0"
 
 EXPOSE 8080
 
-COPY --from=0 /demo /demo
+COPY --from=files /demo /demo
 
 WORKDIR /demo
 
