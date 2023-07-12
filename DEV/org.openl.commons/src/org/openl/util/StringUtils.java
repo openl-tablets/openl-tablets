@@ -360,7 +360,7 @@ public class StringUtils {
      * @param ch the character to be tested
      * @return {@code true} if character is whitespace or control, otherwise {@code false}
      */
-    public static boolean isSpaceOrControl(char ch) {
+    public static boolean isSpaceOrControl(int ch) {
         return ch <= ' ' || Character.isWhitespace(ch) || Character.isISOControl(ch) || Character.isSpaceChar(ch);
     }
 
@@ -520,6 +520,46 @@ public class StringUtils {
     }
 
     /**
+     * Find position of the first occurrence of the symbol is matched to the predicate.
+     *
+     * @param text  the string where a not white space symbol should be searched
+     * @param start the start position of the searching inclusive
+     * @param end   the final position of searching exclusive
+     * @param tester the predicate for searching the symbol
+     * @return position of the symbol or -1
+     */
+    public static int first(CharSequence text, int start, int end, IntPredicate tester) {
+        end = Math.min(text.length(), end);
+        for (int i = Math.max(start, 0); i < end; i++) {
+            char ch = text.charAt(i);
+            if (tester.test(ch)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Find position of the last occurrence of the symbol is matched to the predicate.
+     *
+     * @param text  the string where a not white space symbol should be searched
+     * @param start the start position of the searching inclusive
+     * @param end   the final position of searching exclusive
+     * @param tester the predicate for searching the symbol
+     * @return position of the symbol or -1
+     */
+    public static int last(CharSequence text, int start, int end, IntPredicate tester) {
+        start = Math.max(start, 0);
+        for (int i = Math.min(text.length(), end) - 1; i >= start; i--) {
+            char ch = text.charAt(i);
+            if (tester.test(ch)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Find position of the next not white space symbol.
      *
      * @param text  the string where a not white space symbol should be searched
@@ -528,14 +568,7 @@ public class StringUtils {
      * @return position of a not white space symbol or -1
      */
     public static int firstNonSpace(CharSequence text, int start, int end) {
-        end = Math.min(text.length(), end);
-        for (int i = Math.max(start, 0); i < end; i++) {
-            char ch = text.charAt(i);
-            if (!isSpaceOrControl(ch)) {
-                return i;
-            }
-        }
-        return -1;
+        return first(text, start, end, ch -> !isSpaceOrControl(ch));
     }
 
     /**
@@ -547,13 +580,6 @@ public class StringUtils {
      * @return position of a not white space symbol or -1
      */
     public static int lastNonSpace(CharSequence text, int start, int end) {
-        start = Math.max(start, 0);
-        for (int i = Math.min(text.length(), end) - 1; i >= start; i--) {
-            char ch = text.charAt(i);
-            if (!isSpaceOrControl(ch)) {
-                return i;
-            }
-        }
-        return -1;
+        return last(text, start, end, ch -> !isSpaceOrControl(ch));
     }
 }
