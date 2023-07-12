@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG JDK=11-jre-focal
 
 FROM eclipse-temurin:${JDK} as jdk
@@ -22,38 +24,45 @@ ENV OPENL_APP $OPENL_DIR/app
 ENV OPENL_LIB $OPENL_DIR/lib
 
 COPY --from=jetty:10-jre11 /usr/local/jetty $OPENL_APP
-RUN set -euxv ; \
-\
+
 # Create start file for Jetty with configuration options
-    echo '#!/usr/bin/env bash\n\n\
-if [ -r "$OPENL_DIR/setenv.sh" ]; then\n\
-    . "$OPENL_DIR/setenv.sh"\n\
-fi\n\n\
-JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"\n\
+RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh
+#!/usr/bin/env bash
+
+if [ -r "$OPENL_DIR/setenv.sh" ]; then
+    . "$OPENL_DIR/setenv.sh"
+fi
+
+JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
+
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"\n\
-' >> $OPENL_DIR/start.sh; \
-    chmod +x $OPENL_DIR/start.sh; \
-\
+-jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"
+EOT
+
 # Create setenv.sh file for configuration customization purpose
-    echo 'export JAVA_OPTS="$JAVA_OPTS -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
+export JAVA_OPTS="$JAVA_OPTS \
+-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
-"\n' >> $OPENL_DIR/setenv.sh; \
-    chmod +x $OPENL_DIR/setenv.sh; \
-\
+"
+EOT
+
+RUN <<EOT
+set -euxv
+
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
-    apt-get update; \
-    \
-    apt-get install -y --no-install-recommends \
-    fontconfig ; \
-    rm -rf /var/lib/apt/lists/*; \
+apt-get update
+apt-get install -y --no-install-recommends fontconfig
+rm -rf /var/lib/apt/lists/*
+
 # Permission for rootless mode (for running as non-root)
-    mkdir $OPENL_DIR/logs; \
-    chmod o=u $OPENL_DIR/logs; \
-    \
-    mkdir $OPENL_LIB; \
-    chmod o=u -R $OPENL_LIB
+mkdir $OPENL_DIR/logs
+chmod o=u $OPENL_DIR/logs
+
+mkdir $OPENL_LIB
+chmod o=u -R $OPENL_LIB
+EOT
 
 # Define executables
 ENV PATH .:$JAVA_HOME/bin:$PATH
