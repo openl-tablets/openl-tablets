@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls;
 import java.util.Date;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.table.properties.ITableProperties;
@@ -13,8 +12,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
 public final class TableSyntaxNodeUtils {
-
-    private static final String ROUND_BRACKETS_WITH_ANY_TEXT = "\\(.*\\)";
 
     private TableSyntaxNodeUtils() {
     }
@@ -94,33 +91,34 @@ public final class TableSyntaxNodeUtils {
 
         if (StringUtils.isBlank(resultName)) {
             resultName = "NO NAME";
-
-        } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
-            String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
-            // ensure that the appropriate index exists
-            //
-            if (tokens.length > DatatypeNodeBinder.TYPE_INDEX) {
-                resultName = tokens[DatatypeNodeBinder.TYPE_INDEX].trim();
-            }
-
-        } else if (tableType.equals(XlsNodeTypes.XLS_DT) || tableType.equals(XlsNodeTypes.XLS_SPREADSHEET) || tableType
-            .equals(XlsNodeTypes.XLS_TBASIC) || tableType.equals(XlsNodeTypes.XLS_COLUMN_MATCH) || tableType
-                .equals(XlsNodeTypes.XLS_DATA) || tableType.equals(XlsNodeTypes.XLS_METHOD) || tableType
-                    .equals(XlsNodeTypes.XLS_TEST_METHOD) || tableType.equals(XlsNodeTypes.XLS_RUN_METHOD) || tableType
-                        .equals(XlsNodeTypes.XLS_CONSTANTS) || tableType.equals(
-                            XlsNodeTypes.XLS_CONDITIONS) || tableType.equals(XlsNodeTypes.XLS_ACTIONS) || tableType
-                                .equals(XlsNodeTypes.XLS_RETURNS) || tableType.equals(
-                                    XlsNodeTypes.XLS_ENVIRONMENT) || tableType.equals(XlsNodeTypes.XLS_PROPERTIES)) {
-            String[] tokens = StringUtils.split(resultName.replaceAll(ROUND_BRACKETS_WITH_ANY_TEXT, ""));
-            resultName = tokens[tokens.length - 1].trim();
-
         } else if (tableType.equals(XlsNodeTypes.XLS_OTHER)) {
-            if (resultName != null && resultName.length() > 57) {
+            if (resultName.length() > 57) {
                 resultName = resultName.substring(0, 57) + "...";
             }
+        } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
+            // Get the second word
+            var first  = StringUtils.firstNonSpace(resultName, 0, resultName.length()); // the first token
+            first = StringUtils.first(resultName, first, resultName.length(), StringUtils::isSpaceOrControl); // space
+            first = StringUtils.firstNonSpace(resultName, first, resultName.length()); // the second token
+            var last = StringUtils.first(resultName, first, resultName.length(), StringUtils::isSpaceOrControl); // space
+            if (last < 0) {
+                last = resultName.length();
+            }
+            if (first > 0) {
+                resultName = resultName.substring(first, last);
+            }
+        } else {
+            // Get the last word except method arguments
+            var last = StringUtils.first(resultName,0, resultName.length(), x -> x == '('); // arguments
+            if (last < 0) {
+                last = resultName.length();
+            }
+            last = StringUtils.lastNonSpace(resultName, 0, last) + 1;
+            var first = StringUtils.last(resultName, 0, last, StringUtils::isSpaceOrControl);
+            resultName = resultName.substring(first+1, last);
         }
 
-        return resultName;
+        return resultName.trim();
     }
 
     public static String getTestName(IOpenMethod testMethod) {
