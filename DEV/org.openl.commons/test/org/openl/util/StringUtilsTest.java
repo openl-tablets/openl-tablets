@@ -2,6 +2,7 @@ package org.openl.util;
 
 import static org.junit.Assert.*;
 
+import java.util.function.IntPredicate;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -253,10 +254,98 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testFirst() {
+        IntPredicate tester = (int x) -> x == '!';
+        assertEquals( StringUtils.first(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length(), tester), -1);
+        assertEquals( StringUtils.first("",0,0, tester), -1);
+        assertEquals( StringUtils.first("",1,0, tester), -1);
+        assertEquals( StringUtils.first("",-1,1, tester), -1);
+        assertEquals( StringUtils.first("",0,-1, tester), -1);
+
+        assertEquals( StringUtils.first("X",-1,1, tester), -1);
+        assertEquals( StringUtils.first("X",0,1, tester), -1);
+
+        assertEquals( StringUtils.first("XY",0,2, tester), -1);
+        assertEquals( StringUtils.first("XY",1,2, tester), -1);
+        assertEquals( StringUtils.first("XY",2,2, tester), -1);
+
+        assertEquals( StringUtils.first("!",0,0, tester), -1);
+        assertEquals( StringUtils.first("!",0,1, tester), 0);
+        assertEquals( StringUtils.first("!",1,0, tester), -1);
+        assertEquals( StringUtils.first("!",0,-1, tester), -1);
+        assertEquals( StringUtils.first("!",-1,2, tester), 0);
+
+        assertEquals( StringUtils.first("X!",0,0, tester), -1);
+        assertEquals( StringUtils.first("X!",0,1, tester), -1);
+        assertEquals( StringUtils.first("X!",0,2, tester), 1);
+        assertEquals( StringUtils.first("X!",1,0, tester), -1);
+        assertEquals( StringUtils.first("X!",1,1, tester), -1);
+        assertEquals( StringUtils.first("X!",1,2, tester), 1);
+        assertEquals( StringUtils.first("X!",2,0, tester), -1);
+        assertEquals( StringUtils.first("X!",2,1, tester), -1);
+        assertEquals( StringUtils.first("X!",2,2, tester), -1);
+        assertEquals( StringUtils.first("X!",1,3, tester), 1);
+        assertEquals( StringUtils.first("X!",2,3, tester), -1);
+
+        assertEquals( StringUtils.first("!!!",0,3, tester), 0);
+        assertEquals( StringUtils.first("X!!",0,3, tester), 1);
+        assertEquals( StringUtils.first("XY!",0,3, tester), 2);
+        assertEquals( StringUtils.first("XYZ",0,3, tester), -1);
+        assertEquals( StringUtils.first("!YZ",0,3, tester), 0);
+        assertEquals( StringUtils.first("!!Z",0,3, tester), 0);
+        assertEquals( StringUtils.first("X!Z",0,3, tester), 1);
+        assertEquals( StringUtils.first("!Y!",0,3, tester), 0);
+    }
+
+    @Test
+    public void testLast() {
+        IntPredicate tester = (int x) -> x == '!';
+        assertEquals( StringUtils.last(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length(), tester), -1);
+        assertEquals( StringUtils.last("",0,0, tester), -1);
+        assertEquals( StringUtils.last("",1,0, tester), -1);
+        assertEquals( StringUtils.last("",-1,1, tester), -1);
+        assertEquals( StringUtils.last("",0,-1, tester), -1);
+
+        assertEquals( StringUtils.last("X",-1,1, tester), -1);
+        assertEquals( StringUtils.last("X",0,1, tester), -1);
+
+        assertEquals( StringUtils.last("XY",0,2, tester), -1);
+        assertEquals( StringUtils.last("XY",1,2, tester), -1);
+        assertEquals( StringUtils.last("XY",2,2, tester), -1);
+
+        assertEquals( StringUtils.last("!",0,0, tester), -1);
+        assertEquals( StringUtils.last("!",0,1, tester), 0);
+        assertEquals( StringUtils.last("!",1,0, tester), -1);
+        assertEquals( StringUtils.last("!",0,-1, tester), -1);
+        assertEquals( StringUtils.last("!",-1,2, tester), 0);
+
+        assertEquals( StringUtils.last("X!",0,0, tester), -1);
+        assertEquals( StringUtils.last("X!",0,1, tester), -1);
+        assertEquals( StringUtils.last("X!",0,2, tester), 1);
+        assertEquals( StringUtils.last("X!",1,0, tester), -1);
+        assertEquals( StringUtils.last("X!",1,1, tester), -1);
+        assertEquals( StringUtils.last("X!",1,2, tester), 1);
+        assertEquals( StringUtils.last("X!",2,0, tester), -1);
+        assertEquals( StringUtils.last("X!",2,1, tester), -1);
+        assertEquals( StringUtils.last("X!",2,2, tester), -1);
+        assertEquals( StringUtils.last("X!",1,3, tester), 1);
+        assertEquals( StringUtils.last("X!",2,3, tester), -1);
+
+        assertEquals( StringUtils.last("!!!",0,3, tester), 2);
+        assertEquals( StringUtils.last("X!!",0,3, tester), 2);
+        assertEquals( StringUtils.last("XY!",0,3, tester), 2);
+        assertEquals( StringUtils.last("XYZ",0,3, tester), -1);
+        assertEquals( StringUtils.last("!YZ",0,3, tester), 0);
+        assertEquals( StringUtils.last("!!Z",0,3, tester), 1);
+        assertEquals( StringUtils.last("X!Z",0,3, tester), 1);
+        assertEquals( StringUtils.last("!Y!",0,3, tester), 2);
+    }
+
+    @Test
     public void testFirstNonSpace() {
         assertEquals( StringUtils.firstNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
         assertEquals( StringUtils.firstNonSpace("",0,0), -1);
-        assertEquals( StringUtils.firstNonSpace("",0,0), -1);
+        assertEquals( StringUtils.firstNonSpace("",1,0), -1);
         assertEquals( StringUtils.firstNonSpace("",-1,1), -1);
         assertEquals( StringUtils.firstNonSpace("",0,-1), -1);
         assertEquals( StringUtils.firstNonSpace("X",-1,1), 0);
@@ -300,7 +389,7 @@ public class StringUtilsTest {
     public void testLastNonSpace() {
         assertEquals( StringUtils.lastNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
         assertEquals( StringUtils.lastNonSpace("",0,0), -1);
-        assertEquals( StringUtils.lastNonSpace("",0,0), -1);
+        assertEquals( StringUtils.lastNonSpace("",1,0), -1);
         assertEquals( StringUtils.lastNonSpace("",-1,1), -1);
         assertEquals( StringUtils.lastNonSpace("",0,-1), -1);
         assertEquals( StringUtils.lastNonSpace("X",-1,1), 0);
