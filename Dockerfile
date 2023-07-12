@@ -1,19 +1,30 @@
+# syntax=docker/dockerfile:1
+
 ARG JDK=11-jre-focal
 
 FROM eclipse-temurin:${JDK} as jdk
 
-FROM ubuntu:focal as otel
+FROM alpine as otel
 
 ENV OTEL_VER 1.27.0
 
-RUN apt-get update
-RUN apt-get install -y wget gnupg
+RUN <<EOT
+set -euxv
 
-RUN wget  --progress=dot:giga -O opentelemetry-javaagent.jar "https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/$OTEL_VER/opentelemetry-javaagent-$OTEL_VER.jar"
-RUN wget  --progress=dot:giga -O opentelemetry-javaagent.jar.asc "https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/$OTEL_VER/opentelemetry-javaagent-$OTEL_VER.jar.asc"
+# Install tools
+apk add --no-cache wget gnupg
+
+# Download OpenTelemetry java agent
+wget  --progress=dot:giga -O opentelemetry-javaagent.jar "https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/$OTEL_VER/opentelemetry-javaagent-$OTEL_VER.jar"
+wget  --progress=dot:giga -O opentelemetry-javaagent.jar.asc "https://repo1.maven.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/$OTEL_VER/opentelemetry-javaagent-$OTEL_VER.jar.asc"
+
 # GPG verification
-RUN gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 17A27CE7A60FF5F0
-RUN gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
+gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 17A27CE7A60FF5F0
+gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
+
+# Remove tools
+apk del wget gnupg
+EOT
 
 FROM ubuntu:focal
 
@@ -42,52 +53,62 @@ RUN mkdir -p $OTEL_DIR
 COPY --from=otel opentelemetry-javaagent.jar $OTEL_DIR
 
 COPY --from=jetty:10-jre11 /usr/local/jetty $OPENL_APP
-RUN set -euxv ; \
-\
+
 # Create start file for Jetty with configuration options
-    echo '#!/usr/bin/env bash\n\n\
-echo "--------------------------------------------------------------------------------------------------"\n\
-echo "|    To define OpenTelemetry endpoint:    OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-host:4317    |"\n\
-echo "|    To disable OpenL rules tracing:      OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false         |"\n\
-echo "|    To disable OpenTelemetry:            OTEL_JAVAAGENT_ENABLED=false                           |"\n\
-echo "--------------------------------------------------------------------------------------------------"\n\n\
-if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '"'^OTEL_EXPORTER_'"')" ]; then\n\
-    echo "INFO: OpenTelemetry has been disabled because of no OTEL_EXPORTER_*** are defined"\n\
-    export OTEL_JAVAAGENT_ENABLED=false\n\
-fi\n\n\
-if [ -z "$OTEL_JAVAAGENT_EXTENSIONS" ] && [ "${OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED,,}" != "false"  ]; then\n\
-    echo "INFO: OpenL rules agent extension for the OpenTelemetry has been defined"\n\
-    export OTEL_JAVAAGENT_EXTENSIONS="$OTEL_DIR/openl-rules-opentelemetry.jar"\n\
-fi\n\n\
-if [ -r "$OPENL_DIR/setenv.sh" ]; then\n\
-    . "$OPENL_DIR/setenv.sh"\n\
-fi\n\n\
-JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"\n\
+RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh
+#!/usr/bin/env bash
+
+echo "--------------------------------------------------------------------------------------------------"
+echo "|    To define OpenTelemetry endpoint:    OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-host:4317    |"
+echo "|    To disable OpenL rules tracing:      OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false         |"
+echo "|    To disable OpenTelemetry:            OTEL_JAVAAGENT_ENABLED=false                           |"
+echo "--------------------------------------------------------------------------------------------------"
+
+if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '"'^OTEL_EXPORTER_'"')" ]; then
+    echo "INFO: OpenTelemetry has been disabled because of no OTEL_EXPORTER_*** are defined"
+    export OTEL_JAVAAGENT_ENABLED=false
+fi
+
+if [ -z "$OTEL_JAVAAGENT_EXTENSIONS" ] && [ "${OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED,,}" != "false"  ]; then
+    echo "INFO: OpenL rules agent extension for the OpenTelemetry has been defined"
+    export OTEL_JAVAAGENT_EXTENSIONS="$OTEL_DIR/openl-rules-opentelemetry.jar"
+fi
+
+if [ -r "$OPENL_DIR/setenv.sh" ]; then
+    . "$OPENL_DIR/setenv.sh"
+fi
+
+JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
+
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -javaagent:"$OTEL_DIR/opentelemetry-javaagent.jar" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"\n\
-' >> $OPENL_DIR/start.sh; \
-    chmod +x $OPENL_DIR/start.sh; \
-\
+-jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"
+EOT
+
 # Create setenv.sh file for configuration customization purpose
-    echo 'export JAVA_OPTS="$JAVA_OPTS -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
+export JAVA_OPTS="$JAVA_OPTS \
+-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
-"\n' >> $OPENL_DIR/setenv.sh; \
-    chmod +x $OPENL_DIR/setenv.sh; \
-\
+"
+EOT
+
+RUN <<EOT
+set -euxv
+
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
-    apt-get update; \
-    \
-    apt-get install -y --no-install-recommends \
-    fontconfig ; \
-    rm -rf /var/lib/apt/lists/*; \
+apt-get update
+apt-get install -y --no-install-recommends fontconfig
+rm -rf /var/lib/apt/lists/*
+
 # Permission for rootless mode (for running as non-root)
-    mkdir $OPENL_DIR/logs; \
-    chmod o=u $OPENL_DIR/logs; \
-    \
-    mkdir $OPENL_LIB; \
-    chmod o=u -R $OPENL_LIB
+mkdir $OPENL_DIR/logs
+chmod o=u $OPENL_DIR/logs
+
+mkdir $OPENL_LIB
+chmod o=u -R $OPENL_LIB
+EOT
 
 # Define executables
 ENV PATH .:$JAVA_HOME/bin:$PATH
