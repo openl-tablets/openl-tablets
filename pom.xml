@@ -106,6 +106,7 @@
 
         <!-- Kafka -->
         <kafka.version>3.5.0</kafka.version>
+        <snappy-java.version>1.1.10.1</snappy-java.version>
 
         <!-- Casandra -->
         <cassandra.driver.version>4.16.0</cassandra.driver.version>
@@ -1765,6 +1766,12 @@
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-log4j-appender</artifactId>
                 <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>${snappy-java.version}</version>
+                <scope>runtime</scope>
             </dependency>
             <!-- //Kafka -->
             <!-- OpenTracing -->
