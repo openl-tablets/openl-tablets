@@ -23,6 +23,7 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.Environment;
 
 import org.openl.info.OpenLInfoLogger;
+import org.openl.rules.ruleservice.api.AccessDeniedHandler;
 import org.openl.rules.ruleservice.api.AuthorizationChecker;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.util.StringUtils;
@@ -53,6 +54,7 @@ public class RuleServicesFilter implements Filter {
 
     // Security
     private AuthorizationChecker[] authorizationCheckers;
+    private AccessDeniedHandler accessDeniedHandler;
 
     // CORS
     private String[] allowedOrigins;
@@ -77,6 +79,7 @@ public class RuleServicesFilter implements Filter {
         Arrays.sort(checkers, AnnotationAwareOrderComparator.INSTANCE);
         log.info("Available Authorization checkers: {}", Arrays.toString(checkers));
         authorizationCheckers = checkers;
+        accessDeniedHandler = appContext.getBeansOfType(AccessDeniedHandler.class).values().iterator().next();
 
         //CORS
         var allowed = env.getProperty("cors.allowed.origins");
@@ -156,8 +159,7 @@ public class RuleServicesFilter implements Filter {
                 log.warn("Authorization failure.", e);
             }
             if (!authorized) {
-                log.info("Unauthorized: {} {};", method, request.getRequestURL());
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                accessDeniedHandler.handle(request, response);
                 return;
             }
         }
@@ -224,6 +226,7 @@ public class RuleServicesFilter implements Filter {
     public void destroy() {
         OpenLInfoLogger.memStat();
         authorizationCheckers = null;
+        accessDeniedHandler = null;
         mimeMap = null;
     }
 }
