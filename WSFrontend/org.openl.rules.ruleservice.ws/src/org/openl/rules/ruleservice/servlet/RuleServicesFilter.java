@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.FileNameMap;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -41,6 +42,8 @@ import org.openl.util.StringUtils;
 public class RuleServicesFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(RuleServicesFilter.class);
+
+    private static final Pattern ALLOWED_PATH = Pattern.compile("/[a-zA-Z0-9_-]+([./][a-zA-Z0-9_-]+)*");
 
     // Mapping from the file extension to the MIME type.
     private FileNameMap mimeMap;
@@ -137,7 +140,8 @@ public class RuleServicesFilter implements Filter {
         }
 
         // Static content
-        if (method.equals("GET")) {
+        if (method.equals("GET") && isAllowedPath(path)) {
+
             try (var resourceStream = getClass().getClassLoader().getResourceAsStream("static" + path)) {
                 if (resourceStream != null) {
                     response.setStatus(HttpServletResponse.SC_OK);
@@ -151,7 +155,7 @@ public class RuleServicesFilter implements Filter {
         }
 
         // Swagger UI
-        if (method.equals("GET") && path.startsWith("/swagger-ui/")) {
+        if (method.equals("GET") && path.startsWith("/swagger-ui/") && isAllowedPath(path)) {
             String resource = path.substring(SWAGGER_UI.length());
             try (var resourceStream = getClass().getClassLoader().getResourceAsStream(SWAGGER_UI_PATH + resource)) {
                 if (resourceStream != null) {
@@ -223,6 +227,13 @@ public class RuleServicesFilter implements Filter {
         return path.startsWith("/admin/healthcheck/")
                 || path.startsWith("/admin/info/")
                 || path.startsWith("/admin/config/");
+    }
+
+    /**
+     * Check the path against a traversal vulnerability.
+     */
+    static boolean isAllowedPath(String path) {
+        return ALLOWED_PATH.matcher(path).matches();
     }
 
     private boolean isAllowedOrigin(String requestOrigin) {
