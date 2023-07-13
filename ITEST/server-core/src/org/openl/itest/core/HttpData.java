@@ -179,7 +179,9 @@ class HttpData {
                     Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 default:
-                    assertArrayEquals("Body: ", decoder.apply(expected.body), decoder.apply(this.body));
+                    if (!new String(expected.body, StandardCharsets.ISO_8859_1).trim().equals("***")) {
+                        assertArrayEquals("Body: ", decoder.apply(expected.body), decoder.apply(this.body));
+                    }
             }
         } catch (Exception | AssertionError ex) {
             log(expected != null ? expected.resource : resource, firstLine, headers, body);
