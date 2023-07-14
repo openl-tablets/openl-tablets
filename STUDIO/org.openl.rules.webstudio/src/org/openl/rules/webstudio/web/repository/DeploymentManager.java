@@ -72,11 +72,15 @@ public class DeploymentManager implements InitializingBean {
     }
 
     public DeployID deploy(ADeploymentProject project, String repositoryConfigName) throws ProjectException {
+
+        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
+        return deploy(project, repositoryConfigName, user);
+    }
+
+    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, CommonUser user) throws ProjectException {
         if (!deployers.contains(repositoryConfigName)) {
             throw new IllegalArgumentException(String.format("Repository '%s' is not found.", repositoryConfigName));
         }
-
-        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
 
         @SuppressWarnings("rawtypes")
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
