@@ -63,7 +63,7 @@ public class DeploymentManager implements InitializingBean {
         repositoryFactoryProxy.releaseRepository(repositoryConfigName);
     }
 
-    Collection<String> getRepositoryConfigNames() {
+    public Collection<String> getRepositoryConfigNames() {
         return deployers;
     }
 
@@ -72,11 +72,15 @@ public class DeploymentManager implements InitializingBean {
     }
 
     public DeployID deploy(ADeploymentProject project, String repositoryConfigName) throws ProjectException {
+
+        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
+        return deploy(project, repositoryConfigName, user);
+    }
+
+    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, CommonUser user) throws ProjectException {
         if (!deployers.contains(repositoryConfigName)) {
             throw new IllegalArgumentException(String.format("No such repository '%s'", repositoryConfigName));
         }
-
-        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
 
         @SuppressWarnings("rawtypes")
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
