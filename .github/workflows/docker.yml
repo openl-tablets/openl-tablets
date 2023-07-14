@@ -141,7 +141,7 @@ jobs:
         --label "org.opencontainers.image.version=${version}"
         --label "org.opencontainers.image.revision=${GITHUB_SHA}"
         --label "org.opencontainers.image.created=${BUILD_DATE}"
-        -f DEMO/org.openl.rules.demo/Dockerfile .
+        -f DEMO/Dockerfile .
 
     - name: Push Rule Services (All)
       run: >

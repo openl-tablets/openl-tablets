@@ -52,7 +52,7 @@ services:
 
   demo:
     build:
-      context: DEMO/org.openl.rules.demo
+      context: DEMO
     container_name: demo
     ports:
       - "8184:8080"

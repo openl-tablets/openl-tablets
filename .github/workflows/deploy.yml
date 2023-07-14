@@ -54,7 +54,7 @@ jobs:
         mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
         cd ../../WSFrontend/org.openl.rules.ruleservice.ws.all
         mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-        cd ../../DEMO/org.openl.rules.demo
+        cd ../../DEMO
         mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -91,7 +91,7 @@ jobs:
           --label $created --label $version --label $revision \
           --label "org.opencontainers.image.title=OpenL WebStudio" \
           --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
-        cd DEMO/org.openl.rules.demo
+        cd DEMO
         docker buildx build -t $repo/demo:x . \
           --platform ${BUILD_PLATFORMS} --push \
           --label $created --label $version --label $revision
