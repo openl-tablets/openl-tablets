@@ -9,20 +9,16 @@
 
     <fileSets>
         <fileSet>
-            <directory>ROOT</directory>
-            <outputDirectory>${jetty.webapps}/ROOT</outputDirectory>
-        </fileSet>
-        <fileSet>
-            <directory>jetty-conf</directory>
-            <outputDirectory>${jetty.root}</outputDirectory>
+            <directory>demo-root</directory>
+            <outputDirectory>${demo.root}</outputDirectory>
             <includes>
                 <include>start</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>jetty-conf</directory>
-            <outputDirectory>${jetty.root}</outputDirectory>
+            <directory>demo-root</directory>
+            <outputDirectory>${demo.root}</outputDirectory>
             <excludes>
                 <exclude>start</exclude>
             </excludes>
@@ -44,7 +40,7 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${jetty.webapps}/webstudio</outputDirectory>
+            <outputDirectory>${demo.root}/webapps/webstudio</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.webstudio</include>
             </includes>
@@ -52,7 +48,7 @@
             <unpack>true</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${jetty.webapps}/webservice</outputDirectory>
+            <outputDirectory>${demo.root}/webapps/webservice</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.ruleservice.ws</include>
             </includes>
@@ -60,7 +56,7 @@
             <unpack>true</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${jetty.lib}</outputDirectory>
+            <outputDirectory>${demo.root}/lib/ext</outputDirectory>
             <includes>
                 <include>com.h2database:h2</include>
             </includes>
