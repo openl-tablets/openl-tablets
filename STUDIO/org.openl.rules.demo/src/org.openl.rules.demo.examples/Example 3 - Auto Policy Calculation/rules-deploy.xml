@@ -1,0 +1,6 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>Example3-AutoPolicyCalculation</serviceName>
+  <url>Example3-AutoPolicyCalculation</url>
+</rules-deploy>
