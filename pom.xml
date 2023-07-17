@@ -213,6 +213,7 @@
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <activiti.version>5.18.0</activiti.version>
+        <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -1030,6 +1031,15 @@
                 <artifactId>spring-webmvc</artifactId>
                 <version>${spring.framework.version}</version>
             </dependency>
+            <dependency>
+                <!-- This library implements a filter to process X-Forwarded-* headers.
+                The reason of this usage: no huge dependencies.
+                Neither Spring filter, nor CXF filter works correctly within the same reverse proxy.
+                So this library unifies forwarding for both WebStudio and RuleServices -->
+                <groupId>de.qaware.xff</groupId>
+                <artifactId>x-forwarded-filter</artifactId>
+                <version>${x-forwarded-filter.version}</version>
+            </dependency>
             <!-- Spring's TestContext framework. Also includes common Servlet and Portlet API mocks. -->
             <dependency>
                 <groupId>org.springframework</groupId>
@@ -1366,6 +1376,8 @@
                 <version>${cxf.version}</version>
                 <exclusions>
                     <exclusion>
+                        <!-- consumes a lot of memory due scanning all classloader to find all relations of all classes -->
+                        <!-- So it often causes OOM Error due OpenL generates a lot of classes in the runtime -->
                         <groupId>io.github.classgraph</groupId>
                         <artifactId>classgraph</artifactId>
                     </exclusion>

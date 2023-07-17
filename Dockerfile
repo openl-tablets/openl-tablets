@@ -36,7 +36,7 @@ fi
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
 
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"
+-jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"
 EOT
 
 # Create setenv.sh file for configuration customization purpose
