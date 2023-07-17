@@ -12,9 +12,11 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import de.qaware.xff.filter.ForwardedHeaderFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -38,13 +40,14 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
-@WebFilter("/*")
+@WebFilter(value = "/*", initParams = @WebInitParam(name = "xForwardedPrefixStrategy", value = "PREPEND") )
 public class RuleServicesFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(RuleServicesFilter.class);
 
     private static final Pattern ALLOWED_PATH = Pattern.compile("/[a-zA-Z0-9_-]+([./][a-zA-Z0-9_-]+)*");
 
+    private Filter xForwardedFilter;
     // Mapping from the file extension to the MIME type.
     private FileNameMap mimeMap;
 
@@ -65,6 +68,9 @@ public class RuleServicesFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        xForwardedFilter = new ForwardedHeaderFilter();
+        xForwardedFilter.init(filterConfig);
+
         var servletContext = filterConfig.getServletContext();
         mimeMap = servletContext::getMimeType;
 
@@ -92,6 +98,10 @@ public class RuleServicesFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+        xForwardedFilter.doFilter(req, resp, (request, response) -> processForwarded(request, response, chain));
+    }
+
+    private void processForwarded(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
 
         var request = (HttpServletRequest) req;
         var response = (HttpServletResponse) resp;
@@ -228,5 +238,7 @@ public class RuleServicesFilter implements Filter {
         authorizationCheckers = null;
         accessDeniedHandler = null;
         mimeMap = null;
+        xForwardedFilter.destroy();
+        xForwardedFilter = null;
     }
 }

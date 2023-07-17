@@ -86,4 +86,4 @@ if [[ $1 != "batchMode" ]]; then
   sleep 1 && open http://localhost:8080/ &
 fi
 
-exec "$_java" -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="${TMPDIR:-/tmp}" -jar "$JETTY_HOME/start.jar" --module=http,jsp,ext,deploy,http-forwarded
+exec "$_java" -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="${TMPDIR:-/tmp}" -jar "$JETTY_HOME/start.jar" --module=http,jsp,ext,deploy
