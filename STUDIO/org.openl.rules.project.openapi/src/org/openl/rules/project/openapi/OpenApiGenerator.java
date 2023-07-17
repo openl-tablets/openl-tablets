@@ -283,15 +283,10 @@ public class OpenApiGenerator {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 targetService,
                 classLoader,
-                Optional.ofNullable(getRulesDeploy())
-                    .map(RulesDeploy::getServiceName)
-                    .filter(StringUtils::isNotBlank)
-                    .orElse("unknown"),
                 true,
                 isProvidedRuntimeContext(),
                 isProvideVariations(),
-                objectMapper,
-                false);
+                objectMapper);
         } catch (Exception e) {
             throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
         }

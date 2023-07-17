@@ -879,11 +879,7 @@
       }
     }
   },
-  "info": {
-    "title": "*",
-    "version": "1.0.0"
-  },
-  "openapi": "3.0.1",
+  "openapi": "3.#.#",
   "paths": {
     "/prefix/BalanceDynamicIndexCalculation": {
       "post": {
@@ -4320,11 +4316,5 @@
         "summary": "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)"
       }
     }
-  },
-  "servers": [
-    {
-      "url": "*",
-      "variables": {}
-    }
-  ]
+  }
 }
