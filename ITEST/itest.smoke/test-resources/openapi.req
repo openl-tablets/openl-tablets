@@ -1,0 +1,5 @@
+GET /simple/openapi.json HTTP/1.1
+X-Forwarded-Prefix: /forwarded/prefix
+X-Forwarded-Proto: https
+X-Forwarded-Host: forwarded:777
+

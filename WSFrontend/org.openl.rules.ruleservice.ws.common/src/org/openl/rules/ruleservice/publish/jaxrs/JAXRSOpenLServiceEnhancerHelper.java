@@ -70,16 +70,12 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.servers.Server;
 
 public class JAXRSOpenLServiceEnhancerHelper {
 
@@ -120,11 +116,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final ClassLoader classLoader;
         private Set<String> usedPaths = null;
         private final Set<String> nicknames = new HashSet<>();
-        private final String serviceName;
         private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
-        private final boolean authenticationEnabled;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
         private final ObjectMapper openApiObjectMapper;
         private final Object targetService;
@@ -135,21 +129,17 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Class<?> originalClass,
                 Object targetService,
                 ClassLoader classLoader,
-                String serviceName,
                 boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
                 boolean provideVariations,
-                ObjectMapper openApiObjectMapper,
-                boolean authenticationEnabled) {
+                ObjectMapper openApiObjectMapper) {
             super(Opcodes.ASM5, arg0);
-            this.serviceName = serviceName;
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
             this.openApiObjectMapper = openApiObjectMapper;
-            this.authenticationEnabled = authenticationEnabled;
             this.targetService = targetService;
 
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
@@ -163,34 +153,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String superName,
                 String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-
-            // OpenAPI annotation
-            if (!originalClass.isAnnotationPresent(OpenAPIDefinition.class)) {
-                AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(OpenAPIDefinition.class), true);
-                AnnotationVisitor av1 = av.visitAnnotation("info", Type.getDescriptor(Info.class));
-                av1.visit("title", serviceName);
-                av1.visit("version", DEFAULT_VERSION);
-                av1.visitEnd();
-
-                {
-                    AnnotationVisitor av2 = av.visitArray("servers");
-                    AnnotationVisitor av3 = av2.visitAnnotation("servers", Type.getDescriptor(Server.class));
-                    av3.visit("url", ".");
-                    av3.visitEnd();
-                    av2.visitEnd();
-                }
-
-                if (authenticationEnabled) {
-                    AnnotationVisitor av2 = av.visitArray("security");
-                    AnnotationVisitor av3 = av2.visitAnnotation("security",
-                        Type.getDescriptor(SecurityRequirement.class));
-                    av3.visit("name", "OAuth2");
-                    av3.visitEnd();
-                    av2.visitEnd();
-                }
-
-                av.visitEnd();
-            }
 
             if (!originalClass.isAnnotationPresent(Path.class)) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(Path.class), true);
@@ -873,12 +835,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
     public static Class<?> enhanceInterface(Class<?> originalClass,
             Object targetService,
             ClassLoader classLoader,
-            String serviceName,
             boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
             boolean provideVariations,
-            ObjectMapper openApiObjectMapper,
-            boolean authenticationEnabled) throws Exception {
+            ObjectMapper openApiObjectMapper) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
@@ -893,12 +853,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 originalClass,
                 targetService,
                 classLoader,
-                serviceName,
                 resolveMethodParameterNames,
                 provideRuntimeContext,
                 provideVariations,
-                openApiObjectMapper,
-                authenticationEnabled);
+                openApiObjectMapper);
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
                 enhancedClassName,
                 InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
