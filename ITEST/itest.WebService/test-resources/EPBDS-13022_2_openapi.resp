@@ -2,15 +2,14 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "openapi": "3.0.1",
+  "openapi": "3.#.#",
   "info": {
     "title": "EPBDS-13022_2_EPBDS-13022_2",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": ".",
-      "variables": {}
+      "url": "http://***"
     }
   ],
   "paths": {

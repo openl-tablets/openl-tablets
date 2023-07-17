@@ -278,12 +278,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
             context.getTargetService(),
             classLoader,
-            "unknown",
             isResolveMethodParameterNames(),
             context.isProvideRuntimeContext(),
             context.isProvideVariations(),
-            context.getObjectMapper(),
-            false);
+            context.getObjectMapper());
     }
 
     private Pair<String, PathItem> findPathItem(io.swagger.v3.oas.models.Paths paths, String path) {

@@ -40,7 +40,7 @@ Content-Type: application/json
     "title": "EPBDS-10996_EPBDS-10996",
     "version": "1.0.0"
   },
-  "openapi": "3.0.1",
+  "openapi": "3.#.#",
   "paths": {
     "/getMyData2": {
       "get": {
@@ -129,8 +129,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": ".",
-      "variables": {}
+      "url": "http://***"
     }
   ]
 }

@@ -7,11 +7,13 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
+import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -184,14 +186,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,
-                openApiObjectMapper,
-                authenticationEnabled);
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, openApiObjectMapper);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
             svrFactory.setResourceClasses(serviceClass);
 
-            OpenApiFeature openApiFeature = getOpenAPIv3Feature(serviceClass);
+            OpenApiFeature openApiFeature = getOpenAPIv3Feature(serviceClass, service);
             svrFactory.getFeatures().add(openApiFeature);
 
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));
@@ -228,15 +228,31 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return null;
     }
 
-    private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass) {
+    private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass, final OpenLService service) {
         final OpenApiFeature openApiFeature = new OpenApiFeature();
         openApiFeature.setRunAsFilter(false);
         openApiFeature.setScan(false);
+        openApiFeature.setTitle(service.getName());
+        openApiFeature.setVersion("1.0.0");
         openApiFeature.setPrettyPrint(isSwaggerPrettyPrint());
         openApiFeature.setScanKnownConfigLocations(false);
-        openApiFeature.setUseContextBasedConfig(false);
+        openApiFeature.setUseContextBasedConfig(true);
         openApiFeature.setScannerClass(io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner.class.getName());
         openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
+        openApiFeature.setCustomizer(new OpenApiCustomizer() {
+            @Override
+            public OpenAPIConfiguration customize(OpenAPIConfiguration configuration) {
+                if (authenticationEnabled) {
+                    var securityRequirement = new SecurityRequirement();
+                    securityRequirement.addList("OAuth2");
+                    configuration.getOpenAPI().addSecurityItem(securityRequirement);
+                }
+                configuration.getOpenAPI().getInfo().setContact(null); // to do not change tests
+                configuration.getOpenAPI().getInfo().setLicense(null); // to do not change tests
+                dynamicBasePath = true; // Add "server" definition
+                return super.customize(configuration);
+            }
+        });
         if (authenticationEnabled) {
             //Add to OpenAPI scheme description about supported OAuth2 authentication format.
             openApiFeature.setSecurityDefinitions(Collections.singletonMap("OAuth2",

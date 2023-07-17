@@ -27,21 +27,17 @@ public final class JAXRSOpenLServiceEnhancer {
         this.resolveMethodParameterNames = resolveMethodParameterNames;
     }
 
-    public Object decorateServiceBean(OpenLService service,
-            ObjectMapper openApiObjectMapper,
-            boolean authenticationEnabled) throws Exception {
+    public Object decorateServiceBean(OpenLService service, ObjectMapper openApiObjectMapper) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         ClassLoader classLoader = service.getClassLoader();
         Class<?> enhancedServiceClass = JAXRSOpenLServiceEnhancerHelper.enhanceInterface(serviceClass,
             service.getServiceBean(),
             classLoader,
-            service.getName(),
             isResolveMethodParameterNames(),
             service.isProvideRuntimeContext(),
             service.isProvideVariations(),
-            openApiObjectMapper,
-            authenticationEnabled);
+            openApiObjectMapper);
         if (enhancedServiceClass.getPackage() == null) {
             throw new IllegalStateException("Package cannot be null");
         }

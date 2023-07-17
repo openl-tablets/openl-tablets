@@ -1,15 +1,5 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "title": "*",
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "*",
-      "variables": {}
-    }
-  ],
+  "openapi": "3.#.#",
   "paths": {
     "/add": {
       "post": {
