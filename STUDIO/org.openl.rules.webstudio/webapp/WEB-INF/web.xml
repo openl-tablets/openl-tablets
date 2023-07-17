@@ -81,7 +81,11 @@
 
   <filter>
     <filter-name>ForwardedFilter</filter-name>
-    <filter-class>org.springframework.web.filter.ForwardedHeaderFilter</filter-class>
+    <filter-class>de.qaware.xff.filter.ForwardedHeaderFilter</filter-class>
+    <init-param>
+      <param-name>xForwardedPrefixStrategy</param-name>
+      <param-value>PREPEND</param-value>
+    </init-param>
   </filter>
   <filter-mapping>
     <filter-name>ForwardedFilter</filter-name>
