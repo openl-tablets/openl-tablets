@@ -8,8 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.ext.ExceptionMapper;
 
+import io.swagger.v3.jaxrs2.integration.ServletConfigContextUtils;
+import io.swagger.v3.oas.integration.ClasspathOpenApiConfigurationLoader;
+import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.info.Info;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -40,8 +43,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
-import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.core.env.Environment;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
@@ -54,8 +56,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private final Logger log = LoggerFactory.getLogger(JAXRSRuleServicePublisher.class);
 
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
-
-    private boolean swaggerPrettyPrint = false;
 
     private boolean authenticationEnabled;
 
@@ -82,6 +82,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private List<ExceptionMapper> exceptionMappers;
+
+    @Autowired
+    private Environment env;
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
@@ -123,14 +126,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public void setStoreLoggingFeatureObjectFactory(
             ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory) {
         this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
-    }
-
-    public void setSwaggerPrettyPrint(boolean swaggerPrettyPrint) {
-        this.swaggerPrettyPrint = swaggerPrettyPrint;
-    }
-
-    public boolean isSwaggerPrettyPrint() {
-        return swaggerPrettyPrint;
     }
 
     public void setAuthenticationEnabled(boolean authenticationEnabled) {
@@ -230,37 +225,28 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass, final OpenLService service) {
         final OpenApiFeature openApiFeature = new OpenApiFeature();
-        openApiFeature.setRunAsFilter(false);
-        openApiFeature.setScan(false);
-        openApiFeature.setTitle(service.getName());
-        openApiFeature.setVersion("1.0.0");
-        openApiFeature.setPrettyPrint(isSwaggerPrettyPrint());
-        openApiFeature.setScanKnownConfigLocations(false);
         openApiFeature.setUseContextBasedConfig(true);
-        openApiFeature.setScannerClass(io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner.class.getName());
+        var configLocation = env.getProperty(ServletConfigContextUtils.OPENAPI_CONFIGURATION_LOCATION_KEY, "openapi-configuration.json");
+        if (!new FileOpenApiConfigurationLoader().exists(configLocation) && !new ClasspathOpenApiConfigurationLoader().exists(configLocation) && authenticationEnabled) {
+            configLocation = "openapi-security.json";
+        }
+        openApiFeature.setConfigLocation(configLocation);
+        openApiFeature.setScan(false);
         openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
         openApiFeature.setCustomizer(new OpenApiCustomizer() {
             @Override
             public OpenAPIConfiguration customize(OpenAPIConfiguration configuration) {
-                if (authenticationEnabled) {
-                    var securityRequirement = new SecurityRequirement();
-                    securityRequirement.addList("OAuth2");
-                    configuration.getOpenAPI().addSecurityItem(securityRequirement);
+                if (configuration.getOpenAPI().getInfo() == null) {
+                    configuration.getOpenAPI().info(new Info()
+                        .description("Auto-generated OpenAPI schema from the OpenL rules")
+                        .version("1.0.0")
+                    );
                 }
-                configuration.getOpenAPI().getInfo().setContact(null); // to do not change tests
-                configuration.getOpenAPI().getInfo().setLicense(null); // to do not change tests
+                configuration.getOpenAPI().getInfo().setTitle(service.getName());
                 dynamicBasePath = true; // Add "server" definition
                 return super.customize(configuration);
             }
         });
-        if (authenticationEnabled) {
-            //Add to OpenAPI scheme description about supported OAuth2 authentication format.
-            openApiFeature.setSecurityDefinitions(Collections.singletonMap("OAuth2",
-                new SecurityScheme().type(SecurityScheme.Type.HTTP)
-                    .name("Authorization")
-                    .scheme("Bearer")
-                    .bearerFormat("JWT")));
-        }
         return openApiFeature;
     }
 

@@ -4,26 +4,31 @@ Content-Type: application/json
 {
   "openapi": "3.#.#",
   "info": {
-    "description": "***",
-    "title": "EPBDS-10393_2",
+    "description": "Auto-generated OpenAPI schema from the OpenL rules",
+    "title": "simple_simple",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://***"
+      "url": "http://example.com/simple"
+    }
+  ],
+  "security": [
+    {
+      "OAuth2": []
     }
   ],
   "paths": {
-    "/someRule4": {
+    "/mul": {
       "post": {
-        "summary": "Object someRule4(Object)",
-        "description": "Rules method: java.lang.Object someRule4(java.lang.Object arg)",
-        "operationId": "someRule4",
+        "summary": "Integer mul(int, Integer)",
+        "description": "Rules method: java.lang.Integer mul(int x, java.lang.Integer y)",
+        "operationId": "mul",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "$ref": "#/components/schemas/MulRequest"
               }
             }
           }
@@ -97,9 +102,10 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "application/json": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
-                  "type": "object"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -107,197 +113,11 @@ Content-Type: application/json
         }
       }
     },
-    "/someRule2": {
-      "post": {
-        "summary": "WrapperClass someRule2(WrapperClass)",
-        "description": "Rules method: org.openl.generated.beans.WrapperClass someRule2(org.openl.generated.beans.WrapperClass wrapperClass)",
-        "operationId": "someRule2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WrapperClass"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
-                },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
-                    }
-                  },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WrapperClass"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/someRule3": {
-      "post": {
-        "summary": "Benefit someRule3(Benefit)",
-        "description": "Rules method: org.openl.generated.beans.Benefit someRule3(org.openl.generated.beans.Benefit benefit)",
-        "operationId": "someRule3",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Benefit"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
-                },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
-                    }
-                  },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Benefit"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/someRule5": {
+    "/ping": {
       "get": {
-        "summary": "WrapperClass someRule5()",
-        "description": "Rules method: org.openl.generated.beans.WrapperClass someRule5()",
-        "operationId": "someRule5",
+        "summary": "String ping()",
+        "description": "Rules method: java.lang.String ping()",
+        "operationId": "ping",
         "responses": {
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -367,9 +187,9 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "application/json": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/WrapperClass"
+                  "type": "string"
                 }
               }
             }
@@ -377,11 +197,11 @@ Content-Type: application/json
         }
       }
     },
-    "/someRule": {
+    "/twice": {
       "post": {
-        "summary": "Benefit someRule(Integer)",
-        "description": "Rules method: org.openl.generated.beans.Benefit someRule(java.lang.Integer a)",
-        "operationId": "someRule",
+        "summary": "Integer twice(Integer)",
+        "description": "Rules method: java.lang.Integer twice(java.lang.Integer num)",
+        "operationId": "twice",
         "requestBody": {
           "content": {
             "text/plain": {
@@ -461,9 +281,10 @@ Content-Type: application/json
           "200": {
             "description": "Successful operation",
             "content": {
-              "application/json": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
-                  "$ref": "#/components/schemas/Benefit"
+                  "type": "integer",
+                  "format": "int32"
                 }
               }
             }
@@ -477,10 +298,10 @@ Content-Type: application/json
       "JAXRSUserErrorResponse": {
         "type": "object",
         "properties": {
-          "message": {
+          "code": {
             "type": "string"
           },
-          "code": {
+          "message": {
             "type": "string"
           }
         }
@@ -497,75 +318,25 @@ Content-Type: application/json
           }
         }
       },
-      "Benefit": {
+      "MulRequest": {
         "type": "object",
         "properties": {
-          "fieldOne": {
-            "type": "string"
+          "x": {
+            "type": "integer",
+            "format": "int32"
           },
-          "fieldTwo": {
-            "type": "string"
+          "y": {
+            "type": "integer",
+            "format": "int32"
           }
         }
-      },
-      "SubBenefit": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Benefit"
-          }, {
-            "type": "object",
-            "properties": {
-              "fieldThree": {
-                "type": "string"
-              }
-            }
-          }
-        ]
-      },
-      "SubSubBenefit": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SubBenefit"
-          }, {
-            "type": "object",
-            "properties": {
-              "fieldFour": {
-                "type": "string"
-              }
-            }
-          }
-        ]
-      },
-      "SubSubSubBenefit": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/SubSubBenefit"
-          }, {
-            "type": "object",
-            "properties": {
-              "fieldFive": {
-                "type": "string"
-              }
-            }
-          }
-        ]
-      },
-      "WrapperClass": {
-        "type": "object",
-        "properties": {
-          "benefit": {
-            "$ref": "#/components/schemas/Benefit"
-          },
-          "subBenefit": {
-            "$ref": "#/components/schemas/SubBenefit"
-          },
-          "subSubBenefit": {
-            "$ref": "#/components/schemas/SubSubBenefit"
-          }
-        }
+      }
+    },
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
