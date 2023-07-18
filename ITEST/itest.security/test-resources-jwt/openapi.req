@@ -1,0 +1,2 @@
+GET /simple/openapi.json HTTP/1.1
+

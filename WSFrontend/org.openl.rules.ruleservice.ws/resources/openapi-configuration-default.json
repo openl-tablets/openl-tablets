@@ -1,0 +1,13 @@
+{
+  "prettyPrint": false,
+  "cacheTTL": -1,
+  "sortOutput": false,
+  "scannerClass": "io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner",
+  "openAPI": {
+    "info": {
+      "description": "Auto-generated OpenAPI schema from the OpenL rules",
+      "title": "OpenL Tablets",
+      "version": "1.0.0"
+    }
+  }
+}

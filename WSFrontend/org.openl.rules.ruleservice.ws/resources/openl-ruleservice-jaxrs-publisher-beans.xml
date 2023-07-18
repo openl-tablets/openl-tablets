@@ -111,9 +111,7 @@
                   ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 
-    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
-        <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
+    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="initOpenAPIDefaultContext">
         <property name="authenticationEnabled" value="${ruleservice.authentication.enabled}"/>
     </bean>
-
 </beans>
