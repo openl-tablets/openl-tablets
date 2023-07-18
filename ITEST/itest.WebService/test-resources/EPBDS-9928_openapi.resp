@@ -4,6 +4,7 @@ Content-Type: application/json
 {
   "openapi": "3.#.#",
   "info": {
+    "description": "***",
     "title": "EPBDS-9928-alg",
     "version": "1.0.0"
   },

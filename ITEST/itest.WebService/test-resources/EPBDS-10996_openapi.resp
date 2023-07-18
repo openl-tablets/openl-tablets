@@ -37,6 +37,7 @@ Content-Type: application/json
     }
   },
   "info": {
+    "description": "***",
     "title": "EPBDS-10996_EPBDS-10996",
     "version": "1.0.0"
   },
