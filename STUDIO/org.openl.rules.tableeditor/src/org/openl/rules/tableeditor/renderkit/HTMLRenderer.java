@@ -50,7 +50,7 @@ public class HTMLRenderer {
         result.append("<div>").append(renderCSS("css/tableeditor.min.css"));
 
         if (!Constants.THIRD_PARTY_LIBS_PROTOTYPE.equalsIgnoreCase(editor.getExcludeScripts())) {
-            result.append(renderJS("js/prototype/prototype-1.6.1.js"));
+            result.append(renderJS("js/prototype/prototype-1.7.3.js"));
             result.append(renderJS("js/tableeditor.min.js?1"));
         }
 
