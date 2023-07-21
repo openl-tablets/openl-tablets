@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.ext.ExceptionMapper;
 
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.ServletConfigContextUtils;
 import io.swagger.v3.oas.integration.ClasspathOpenApiConfigurationLoader;
 import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
@@ -223,7 +224,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return null;
     }
 
-    private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass, final OpenLService service) {
+    private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass, final OpenLService service) throws Exception {
+
+        // Build and register default OpenAPI context with the common settings to all OpenApiFeature.
+        // because of the different classloaders in deploy phase, the default context is not accessible
+        // if it is registered in the Spring initialization.
+        new JaxrsOpenApiContextBuilder<>()
+                .configLocation("openapi-configuration-default.json")
+                .buildContext(true);
         final OpenApiFeature openApiFeature = new OpenApiFeature();
         openApiFeature.setUseContextBasedConfig(true);
         var configLocation = env.getProperty(ServletConfigContextUtils.OPENAPI_CONFIGURATION_LOCATION_KEY, "openapi-configuration.json");
