@@ -25,8 +25,6 @@ class FieldDescriptor {
     private static final BiPredicate<IOpenClass, Object> SKIP_EMPTY_PARAMETER_FILTER = (fieldType,
             fieldValue) -> fieldValue != null && (!fieldType.isArray() || Array.getLength(fieldValue) > 0);
 
-    private static final BiPredicate<IOpenClass, Object> ALL_PARAM_FILTER = (fieldType, fieldValue) -> true;
-
     /**
      * Find fields from all test results. WARNING: This method is very expensive! Don't invoke it too often.
      *
@@ -61,13 +59,10 @@ class FieldDescriptor {
 
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
-                String fieldName = field.getDeclaringClass().toString() +
-                        field.getName() +
-                        fieldValue;
+                String fieldName = field.getDeclaringClass().toString() + field.getName() + fieldValue;
                 if (!coveredFields.contains(fieldName)) {
                     coveredFields.add(fieldName);
-                    if (skipEmptyParameters ? SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)
-                                            : ALL_PARAM_FILTER.test(fieldType, fieldValue)) {
+                    if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
                         if (fieldValue instanceof Collection) {
                             fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
                         }
