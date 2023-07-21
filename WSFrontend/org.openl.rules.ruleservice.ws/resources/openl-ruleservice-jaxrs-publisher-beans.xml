@@ -111,7 +111,7 @@
                   ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
     </bean>
 
-    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher" depends-on="initOpenAPIDefaultContext">
+    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
         <property name="authenticationEnabled" value="${ruleservice.authentication.enabled}"/>
     </bean>
 </beans>
