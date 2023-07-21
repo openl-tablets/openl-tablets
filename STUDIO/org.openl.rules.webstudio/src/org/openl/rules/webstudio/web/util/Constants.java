@@ -21,6 +21,8 @@ public final class Constants {
 
     public static final String RULES_USER_SESSION = "rulesUserSession";
 
+    public static final String SKIP_EMPTY_PARAMETERS = "skipEmptyParameters";
+
     private Constants() {
     }
 }
