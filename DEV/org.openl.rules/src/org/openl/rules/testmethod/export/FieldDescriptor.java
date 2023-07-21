@@ -35,15 +35,15 @@ class FieldDescriptor {
      * @param skipEmptyParameters Boolean indication whether to skip empty parameters in result.
      * @return fields from all test results(values) based on boolean flag.
      */
-    static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
+    static List<FieldDescriptor> extractFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
         Set<String> coveredFields = new HashSet<>();
-        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields);
+        return extractFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields);
     }
 
-    private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type,
-            List<?> values,
-            Boolean skipEmptyParameters,
-            Set<String> coveredFields) {
+    private static List<FieldDescriptor> extractFieldsForFlatten(IOpenClass type,
+                                                                 List<?> values,
+                                                                 Boolean skipEmptyParameters,
+                                                                 Set<String> coveredFields) {
         type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
@@ -71,7 +71,7 @@ class FieldDescriptor {
                         if (fieldValue instanceof Collection) {
                             fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
                         }
-                        List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
+                        List<FieldDescriptor> children = extractFieldsForFlatten(fieldType,
                             childFieldValues,
                             skipEmptyParameters,
                             coveredFields);
