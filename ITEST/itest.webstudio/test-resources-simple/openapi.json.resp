@@ -7247,6 +7247,13 @@ Content-Type: application/json
             "schema": {
               "type": "boolean"
             }
+          }, {
+           "in": "query",
+           "name": "skipEmptyParameters",
+           "required": true,
+           "schema": {
+             "type": "boolean"
+           }
           }
         ],
         "responses": {

@@ -57,7 +57,7 @@ public class ParameterExportTest {
 
     @Test
     public void simpleType() throws IOException {
-        export.write(sheet, mockResults(params(0.5)));
+        export.write(sheet, mockResults(params(0.5)), true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
@@ -77,14 +77,14 @@ public class ParameterExportTest {
 
     @Test
     public void emptyParameters() throws IOException {
-        export.write(sheet, mockResults());
+        export.write(sheet, mockResults(), true);
 
         assertEquals(-1, saveAndReadSheet().getLastRowNum());
     }
 
     @Test
     public void halfFilled() throws IOException {
-        export.write(sheet, mockResults(params(new A("name1")), params(new A("name2"))));
+        export.write(sheet, mockResults(params(new A("name1")), params(new A("name2"))), true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         assertEquals(BaseExport.FIRST_ROW, sheetToCheck.getFirstRowNum());
@@ -114,7 +114,7 @@ public class ParameterExportTest {
         mapValues.put("key1", 123);
         mapValues.put("key2", 333);
         List<TestUnitsResults> result = mockResults(params(paramList, mapValues));
-        export.write(sheet, result);
+        export.write(sheet, result, true);
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
         XSSFRow row = sheetToCheck.getRow(rowNum);
@@ -141,7 +141,7 @@ public class ParameterExportTest {
         mapValues.put("key2", 333);
         ComplexObj obj = new ComplexObj(paramList, mapValues);
         List<TestUnitsResults> result = mockResults(params(obj));
-        export.write(sheet, result);
+        export.write(sheet, result, true);
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
         XSSFRow row = sheetToCheck.getRow(rowNum);
@@ -156,7 +156,7 @@ public class ParameterExportTest {
             params((Object) null),
             params((Object) new A[] { new A("name3") }),
             params());
-        export.write(sheet, result);
+        export.write(sheet, result, true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -195,7 +195,7 @@ public class ParameterExportTest {
         B B1 = new B("id1", A1, A2);
         B1.setChildBValues(B11, B12);
 
-        export.write(sheet, mockResults(params(B1)));
+        export.write(sheet, mockResults(params(B1)), true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -239,7 +239,8 @@ public class ParameterExportTest {
     public void twoParameters() throws IOException {
         export.write(sheet,
             mockResults(params(new Class[] { A.class, String.class }, null, "str1"),
-                params(new A("name2", 5, 6), "str2")));
+                params(new A("name2", 5, 6), "str2")),
+            true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -260,7 +261,8 @@ public class ParameterExportTest {
             mockResults(params(new Class[] { A[].class, String.class }, null, "str1"),
                 params(new A[] {}, "str2"),
                 params(new A[] { new A("name3", 5, 6) }, "str3"),
-                params(new A[] { new A("name4.1"), new A("name4.2", 7) }, "str4")));
+                params(new A[] { new A("name4.1"), new A("name4.2", 7) }, "str4")),
+            true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -292,7 +294,8 @@ public class ParameterExportTest {
     public void twoTestsInSheet() throws IOException {
         export.write(sheet,
             Arrays.asList(mockResult("FirstTest", params(new A("name1"), "str1"), params(new A("name2"), "str2")),
-                mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))));
+                mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),
+            true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         // First test
@@ -330,7 +333,8 @@ public class ParameterExportTest {
     public void paramsWithPK() throws IOException {
         export.write(sheet,
             mockResults(params(new String[] { "n1", null }, new A("name1"), "str1"),
-                params(new String[] { "n2", null }, new A("name2", 5, 6), "str2")));
+                params(new String[] { "n2", null }, new A("name2", 5, 6), "str2")),
+            true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;

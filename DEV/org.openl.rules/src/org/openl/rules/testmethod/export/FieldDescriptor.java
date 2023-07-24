@@ -6,8 +6,11 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiPredicate;
 
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
@@ -19,20 +22,26 @@ class FieldDescriptor {
     private final IOpenField field;
     private final List<FieldDescriptor> children;
 
+    private static final BiPredicate<IOpenClass, Object> SKIP_EMPTY_PARAMETER_FILTER = (fieldType,
+            fieldValue) -> fieldValue != null && (!fieldType.isArray() || Array.getLength(fieldValue) > 0);
+
     /**
-     * Find all non empty fields from all test results. If some field of any test result is not null, it will be
-     * included in result. If some field is null in all test results, it will not be included in result. WARNING: This
-     * method is very expensive! Don't invoke it too often.
+     * Find fields from all test results. WARNING: This method is very expensive! Don't invoke it too often.
      *
      * @param type Type of a checking object
      * @param values All possible values for a given type. Is got from test result.
-     * @return all non empty fields from all test results (values).
+     * @param skipEmptyParameters Boolean indication whether to skip empty parameters in result.
+     * @return fields from all test results(values) based on boolean flag.
      */
-    static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values) {
-        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values));
+    static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
+        Set<String> coveredFields = new HashSet<>();
+        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields);
     }
 
-    private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type, List<?> values) {
+    private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type,
+            List<?> values,
+            Boolean skipEmptyParameters,
+            Set<String> coveredFields) {
         type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
@@ -50,14 +59,21 @@ class FieldDescriptor {
 
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
-                if (fieldValue != null && (!field.getType().isArray() || Array.getLength(fieldValue) > 0)) {
-                    if (fieldValue instanceof Collection) {
-                        fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
-                    }
-                    List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType, childFieldValues);
-                    result.add(new FieldDescriptor(field, children));
+                String fieldName = field.getDeclaringClass().toString() + field.getName() + fieldValue;
+                if (!coveredFields.contains(fieldName)) {
+                    coveredFields.add(fieldName);
+                    if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
+                        if (fieldValue instanceof Collection) {
+                            fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
+                        }
+                        List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
+                            childFieldValues,
+                            skipEmptyParameters,
+                            coveredFields);
+                        result.add(new FieldDescriptor(field, children));
 
-                    break;
+                        break;
+                    }
                 }
             }
         }

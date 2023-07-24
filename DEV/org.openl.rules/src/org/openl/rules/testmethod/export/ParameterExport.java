@@ -30,7 +30,7 @@ class ParameterExport extends BaseExport {
         this.styles = styles;
     }
 
-    public void write(SXSSFSheet sheet, List<TestUnitsResults> tests) {
+    public void write(SXSSFSheet sheet, List<TestUnitsResults> tests, Boolean skipEmptyParameters) {
         if (tests.isEmpty()) {
             return;
         }
@@ -50,7 +50,8 @@ class ParameterExport extends BaseExport {
 
             // Finding non empty fields from the test results is very expensive. Find them only once and then reuse
             // everywhere where needed.
-            List<List<FieldDescriptor>> nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests());
+            List<List<FieldDescriptor>> nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests(),
+                skipEmptyParameters);
 
             // Create header
             final Cursor start = new Cursor(rowNum, colNum);
@@ -340,7 +341,8 @@ class ParameterExport extends BaseExport {
         return maxHeight;
     }
 
-    private List<List<FieldDescriptor>> getAllNonEmptyFields(TestDescription[] descriptions) {
+    private List<List<FieldDescriptor>> getAllNonEmptyFields(TestDescription[] descriptions,
+            Boolean skipEmptyParameters) {
         TestDescription description = descriptions[0];
         ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
 
@@ -350,9 +352,9 @@ class ParameterExport extends BaseExport {
             List<Object> values = valuesForAllCases(descriptions, i);
             if (org.openl.util.ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
                 IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection<?>) param.getValue());
-                result.add(FieldDescriptor.nonEmptyFields(paramType, values));
+                result.add(FieldDescriptor.nonEmptyFields(paramType, values, skipEmptyParameters));
             } else {
-                result.add(FieldDescriptor.nonEmptyFields(param.getType(), values));
+                result.add(FieldDescriptor.nonEmptyFields(param.getType(), values, skipEmptyParameters));
             }
         }
 
