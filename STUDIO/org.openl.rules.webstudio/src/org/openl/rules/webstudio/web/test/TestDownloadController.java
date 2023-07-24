@@ -95,6 +95,7 @@ public class TestDownloadController {
             @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
+            @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
             HttpServletRequest request,
             HttpServletResponse response) {
         HttpSession session = request.getSession();
@@ -104,7 +105,8 @@ public class TestDownloadController {
         TestSuite testSuite = Utils.pollTestFromSession(session);
         if (testSuite != null) {
             final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
-            StreamingResponseBody streamingOutput = output -> new RulesResultExport().export(output, -1, results);
+            StreamingResponseBody streamingOutput = output -> new RulesResultExport()
+                .export(output, -1, skipEmptyParameters, results);
             return prepareResponse(request, response, cookieName, streamingOutput);
         }
 

@@ -18,6 +18,13 @@ import org.openl.rules.testmethod.TestUnitsResults;
 public abstract class ResultExport extends BaseExport {
 
     public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
+        export(outputStream, testsPerPage, true, results);
+    }
+
+    public void export(OutputStream outputStream,
+            int testsPerPage,
+            Boolean skipEmptyParameters,
+            TestUnitsResults... results) throws IOException {
         List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
         SXSSFWorkbook tempWorkbook = null;
         try (var workbook = tempWorkbook = new SXSSFWorkbook()) {
@@ -54,7 +61,7 @@ public abstract class ResultExport extends BaseExport {
 
                 // Tracking all columns for auto sizing is expensive
                 // sheet.trackAllColumnsForAutoSizing();
-                parameterExport.write(sheet, resultsList);
+                parameterExport.write(sheet, resultsList, skipEmptyParameters);
                 // autoSizeColumns(sheet);
 
                 // EPBDS-7848 Previously we added regions without validation, so it's better to validate in the end.
