@@ -560,7 +560,9 @@
                                             value="Trace" title="Launch the table and trace steps"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
                                             onclick="moduleOnlyInputArgs()" action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
-                                            title="Trace into File" />
+                                            title="Trace into File" >
+                                            <a4j:ajax execute="@form" disabled="false"/>
+                                        </h:commandButton>
                                     </div>
                                 </div>
                             </c:if>
