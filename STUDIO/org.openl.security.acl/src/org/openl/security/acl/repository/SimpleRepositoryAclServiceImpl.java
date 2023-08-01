@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private final String rootId;
     private final Class<?> objectIdentityClass;
     private final SpringCacheBasedAclCache springCacheBasedAclCache;
+
+    private final static int MAX_LIFE_TIME = 2000;
+    private final Map<ObjectIdentity, Long> objectIdentityIdCache = new ConcurrentHashMap<>();
 
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
@@ -139,6 +143,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             acl = (MutableAcl) aclService.readAclById(oi);
         } catch (NotFoundException nfe) {
             acl = aclService.createAcl(oi);
+            objectIdentityIdCache.remove(oi);
             acl.setEntriesInheriting(true);
             ObjectIdentity poi = buildParentObjectIdentity(oi);
             if (poi != null) {
@@ -387,6 +392,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         MutableAcl oldAcl = getOrCreateAcl(oldObjectIdentity);
         MutableAcl newParentAcl = getOrCreateAcl(buildParentObjectIdentity(newObjectIdentity));
         MutableAcl newAcl = aclService.createAcl(newObjectIdentity);
+        objectIdentityIdCache.remove(newObjectIdentity);
         newAcl.setParent(newParentAcl);
         newAcl.setEntriesInheriting(true);
         for (AccessControlEntry accessControlEntry : oldAcl.getEntries()) {
@@ -433,6 +439,14 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         if (sids.contains(relevantSystemWideSid)) {
             return true;
         }
+        Long t = objectIdentityIdCache.get(objectIdentity);
+        if (t != null) {
+            // This is a performance optimization to avoid hitting the database
+            if (System.currentTimeMillis() - t <= MAX_LIFE_TIME) {
+                ObjectIdentity poi = buildParentObjectIdentity(objectIdentity);
+                return poi != null && isGranted(poi, sids, permissions);
+            }
+        }
         try {
             MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
             try {
@@ -441,13 +455,14 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
                 return false;
             }
         } catch (NotFoundException nfe) {
+            objectIdentityIdCache.put(objectIdentity, System.currentTimeMillis());
             ObjectIdentity poi = buildParentObjectIdentity(objectIdentity);
             return poi != null && isGranted(poi, sids, permissions);
         }
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isGranted(String repositoryId, String path, List<Permission> permissions) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         if (LocalWorkspace.LOCAL_ID.equals(repositoryId)) {
@@ -465,12 +480,14 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
         aclService.deleteAcl(oi, true);
+        objectIdentityIdCache.remove(oi);
     }
 
     @Override
     @Transactional
     public void deleteAclRoot() {
-        aclService.deleteAcl(getRootObjectIdentity(), true);
+        ObjectIdentity oi = getRootObjectIdentity();
+        aclService.deleteAcl(oi, true);
     }
 
     @Override
@@ -506,6 +523,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             ObjectIdentity poi = buildParentObjectIdentity(oi);
             MutableAcl pacl = getOrCreateAcl(poi);
             MutableAcl acl = aclService.createAcl(oi);
+            objectIdentityIdCache.remove(oi);
             acl.setParent(pacl);
             acl.setEntriesInheriting(true);
             int i = 0;
