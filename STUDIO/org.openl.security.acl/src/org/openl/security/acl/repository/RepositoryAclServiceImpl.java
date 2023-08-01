@@ -149,7 +149,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions) {
         if (projectArtefact == null) {
             return false;
