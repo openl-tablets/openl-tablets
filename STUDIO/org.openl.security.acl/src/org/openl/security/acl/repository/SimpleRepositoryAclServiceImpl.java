@@ -38,7 +38,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private final Class<?> objectIdentityClass;
     private final SpringCacheBasedAclCache springCacheBasedAclCache;
 
-    private final static int MAX_LIFE_TIME = 2000;
+    private final static int MAX_LIFE_TIME = 15000;
     private final Map<ObjectIdentity, Long> objectIdentityIdCache = new ConcurrentHashMap<>();
 
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
