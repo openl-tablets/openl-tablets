@@ -7,15 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
 
+import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
 
-@Component
+@Component("aiService")
 public class AIServiceImpl implements AIService {
+    private static final int CONNECTION_CHECK_INTERVAL = 2000;
+
     private final String grpcAddress;
-    private volatile ManagedChannel channel;
-    private volatile long lastGrpcCheckTime = 0L;
+    private ManagedChannel channel;
+    private volatile boolean enabled = false;
+    private volatile long lastEnabledCheckTime = 0L;
 
     @Autowired
     public AIServiceImpl(PropertyResolver environment) {
@@ -24,26 +27,34 @@ public class AIServiceImpl implements AIService {
 
     @Override
     public boolean isEnabled() {
-        boolean f = grpcAddress != null && grpcAddress.contains(":");
-        if (f) {
-            return getChannel() != null;
+        if (System.currentTimeMillis() - lastEnabledCheckTime > CONNECTION_CHECK_INTERVAL) {
+            boolean f = grpcAddress != null && grpcAddress.contains(":");
+            if (f) {
+                try {
+                    ManagedChannel managedChannel = getChannel();
+                    enabled = managedChannel != null && ConnectivityState.READY.equals(managedChannel.getState(true));
+                } catch (Exception e) {
+                    enabled = false;
+                }
+            } else {
+                enabled = false;
+            }
+            lastEnabledCheckTime = System.currentTimeMillis();
         }
-        return false;
+        return enabled;
     }
 
     public ManagedChannel getChannel() {
-        if (channel == null || channel.isTerminated() || System.currentTimeMillis() - lastGrpcCheckTime < 15000) {
-            // Take the host and port from the environment variable
-            String[] parts = grpcAddress.split(":");
-            // Create a channel to connect to the server
-            this.channel = ManagedChannelBuilder.forAddress(parts[0], Integer.parseInt(parts[1]))
-                .usePlaintext()
-                .build();
-            try {
-                this.lastGrpcCheckTime = System.currentTimeMillis();
-                this.channel.getState(true); // Check if the channel is in a ready state
-            } catch (StatusRuntimeException ignored) {
-                this.channel = null;
+        if (channel == null || channel.isTerminated()) {
+            synchronized (this) {
+                if (channel == null || channel.isTerminated()) {
+                    // Take the host and port from the environment variable
+                    String[] parts = grpcAddress.split(":");
+                    // Create a channel to connect to the server
+                    this.channel = ManagedChannelBuilder.forAddress(parts[0], Integer.parseInt(parts[1]))
+                        .usePlaintext()
+                        .build();
+                }
             }
         }
         return channel;

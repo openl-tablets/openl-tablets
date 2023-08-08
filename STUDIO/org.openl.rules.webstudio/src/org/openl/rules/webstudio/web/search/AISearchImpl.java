@@ -15,6 +15,8 @@ import org.openl.rules.webstudio.grpc.AIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.grpc.StatusRuntimeException;
+
 @Component
 public class AISearchImpl implements AISearch {
 
@@ -44,19 +46,23 @@ public class AISearchImpl implements AISearch {
     @Override
     public List<TableSyntaxNode> filter(String query, List<TableSyntaxNode> tableSyntaxNodes) {
         if (aiService.isEnabled() && tableSyntaxNodes != null && !tableSyntaxNodes.isEmpty()) {
-            WebstudioAIServiceGrpc.WebstudioAIServiceBlockingStub blockingStub = aiService.getBlockingStub();
-            WebstudioAi.SearchRequest.Builder builder = WebstudioAi.SearchRequest.newBuilder()
-                .setQuery(query)
-                .setLimit(MAX_RESULTS_COUNT)
-                .setLlmFiltering(LLM_FILTERING);
-            tableSyntaxNodes.stream().map(this::toProtoTableSyntaxNode).forEach(builder::addTableSyntaxNodes);
-            WebstudioAi.SearchRequest searchRequest = builder.build();
-            WebstudioAi.SearchReply searchReply = blockingStub.search(searchRequest);
-            Map<String, TableSyntaxNode> cache = tableSyntaxNodes.stream()
-                .collect(Collectors.toMap(TableSyntaxNode::getUri, p -> p));
-            List<TableSyntaxNode> filtered = new ArrayList<>();
-            searchReply.getUrisList().stream().map(cache::get).forEach(filtered::add);
-            return filtered;
+            try {
+                WebstudioAIServiceGrpc.WebstudioAIServiceBlockingStub blockingStub = aiService.getBlockingStub();
+                WebstudioAi.SearchRequest.Builder builder = WebstudioAi.SearchRequest.newBuilder()
+                    .setQuery(query)
+                    .setLimit(MAX_RESULTS_COUNT)
+                    .setLlmFiltering(LLM_FILTERING);
+                tableSyntaxNodes.stream().map(this::toProtoTableSyntaxNode).forEach(builder::addTableSyntaxNodes);
+                WebstudioAi.SearchRequest searchRequest = builder.build();
+                WebstudioAi.SearchReply searchReply = blockingStub.search(searchRequest);
+                Map<String, TableSyntaxNode> cache = tableSyntaxNodes.stream()
+                    .collect(Collectors.toMap(TableSyntaxNode::getUri, p -> p));
+                List<TableSyntaxNode> filtered = new ArrayList<>();
+                searchReply.getUrisList().stream().map(cache::get).forEach(filtered::add);
+                return filtered;
+            } catch (StatusRuntimeException ignored) {
+                // Fails safe behaviour if AI service is not available
+            }
         }
         return Collections.emptyList();
     }

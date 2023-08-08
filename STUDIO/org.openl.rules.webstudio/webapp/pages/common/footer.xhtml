@@ -49,7 +49,9 @@
     </style>
     <div id="notificationPanel" style="display: none;"/>
     <div id="footerX" class="invisible">
-        <c:if test="#{not request.requestURI.endsWith('login.xhtml')}">
+        <!-- TODO: Yury Molchan please refactor this -->
+        <c:if test="#{not (request.requestURI.endsWith('login.xhtml') or
+                   request.requestURI.matches('.*/install/.*\\.xhtml')) and aiService.enabled}">
             <span class="ask_help">
                 <ui:include src="/pages/modules/smartAssistant.xhtml"/>
             </span>
