@@ -20,11 +20,6 @@
           <f:ajax event="change" render="@form" execute="@this"/>
         </h:selectOneMenu>
       </h:panelGroup>
-      <h:panelGroup rendered="#{deploymentController.protectedDeployRepository}">
-        <h:outputText
-                value="Selected repository is protected. It's not allowed to deploy."
-                style="margin: 25px 0"/>
-      </h:panelGroup>
       <footer>
         <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
          Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.

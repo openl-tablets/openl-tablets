@@ -24,11 +24,6 @@
                         <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
-                <h:panelGroup rendered="#{smartRedeployController.protectedDeployRepository}">
-                    <h:outputText
-                            value="Selected repository is protected. It's not allowed to deploy."
-                            style="margin: 25px 0"/>
-                </h:panelGroup>
                 <h:panelGroup rendered="#{not smartRedeployController.protectedDeployRepository}">
                     <h:outputText
                             value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.businessName}'"

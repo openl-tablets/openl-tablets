@@ -303,15 +303,7 @@ public class DeploymentController {
         }
 
         Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        return isMainBranchProtected(repo);
-    }
-
-    protected boolean isMainBranchProtected(Repository repo) {
-        if (repo.supports().branches()) {
-            BranchRepository branchRepo = (BranchRepository) repo;
-            return branchRepo.isBranchProtected(branchRepo.getBranch());
-        }
-        return false;
+        return DeploymentRepositoriesUtil.isMainBranchProtected(repo);
     }
 
     public List<DeploymentDescriptorItem> getItems() {
@@ -568,11 +560,16 @@ public class DeploymentController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        return DeploymentRepositoriesUtil.getRepositories(deploymentManager,
+        Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
+            deploymentManager,
             propertyResolver,
             productionRepositoryAclService,
             AclPermission.VIEW,
             AclPermission.EDIT);
+        return repositoryConfigurations.stream()
+            .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
+                deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
+            .collect(Collectors.toList());
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {
