@@ -425,6 +425,7 @@
 
         function smartAssistantSendMessageOnEnter(event) {
             if (event.keyCode === 13 && smartAssistantWaitingResponses !== smartAssistantId) {
+                event.preventDefault();
                 smartAssistantSendMessage();
             }
         }
