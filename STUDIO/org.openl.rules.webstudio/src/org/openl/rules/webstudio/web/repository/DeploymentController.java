@@ -297,15 +297,6 @@ public class DeploymentController {
         return null;
     }
 
-    public boolean isProtectedDeployRepository() {
-        if (repositoryConfigName == null) {
-            return false;
-        }
-
-        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
-        return DeploymentRepositoriesUtil.isMainBranchProtected(repo);
-    }
-
     public List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {

@@ -21,10 +21,9 @@
                     <h:selectOneMenu id="redeploySmartEditorRepository" value="#{smartRedeployEditorController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployEditorController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
-                        <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
-                <h:panelGroup rendered="#{not smartRedeployEditorController.protectedDeployRepository}">
+                <h:panelGroup>
                     <h:outputText
                             value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.businessName}'"
                             rendered="#{empty smartRedeployEditorController.items}"
@@ -79,7 +78,7 @@
                  But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
                  --></ui:remove>
                 <a4j:commandButton value="Deploy"
-                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems or smartRedeployEditorController.protectedDeployRepository}"
+                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems}"
                                    onclick="modalSmartEditorRedeployDeployAction(); return false;"
                                    styleClass="button-primary"/>
                 <a4j:commandButton id="smartRedeployBtn"

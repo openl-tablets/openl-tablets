@@ -148,15 +148,6 @@ public abstract class AbstractSmartRedeployController {
         return (AProject) deployment.getProject(wsProject.getName());
     }
 
-    public boolean isProtectedDeployRepository() {
-        String configName = getRepositoryConfigName();
-        if (StringUtils.isBlank(configName)) {
-            return false;
-        }
-        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(configName);
-        return DeploymentRepositoriesUtil.isMainBranchProtected(repo);
-    }
-
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
             return Collections.emptyList();
