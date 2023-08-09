@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.ai.OpenL2TextUtils;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.ai.WebstudioAIServiceGrpc;
 import org.openl.rules.webstudio.ai.WebstudioAi;
@@ -19,6 +20,7 @@ import org.openl.rules.webstudio.grpc.AIService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,8 +41,8 @@ public class AssistantController {
     private final static String CHAT_TYPE_ASSISTANT = "ASSISTANT";
     private final static String CHAT_TYPE_USER = "USER";
 
-    private final boolean REPLACE_ALIAS_TYPES_WITH_BASE = false;
-    private final int MAX_DEPTH_COLLECT_TYPES = 1;
+    private final static boolean REPLACE_ALIAS_TYPES_WITH_BASE = false;
+    private final static int MAX_DEPTH_COLLECT_TYPES = 1;
 
     private final AIService aiService;
 
@@ -117,14 +119,21 @@ public class AssistantController {
 
     public static class MessageArrayWrapper {
         private List<Message> messages;
+        private final String tableId;
 
         @JsonCreator
-        public MessageArrayWrapper(@JsonProperty("messages") List<Message> messages) {
+        public MessageArrayWrapper(@JsonProperty("tableId") String tableId,
+                @JsonProperty("messages") List<Message> messages) {
             this.messages = messages;
+            this.tableId = tableId;
         }
 
         public List<Message> getMessages() {
             return messages;
+        }
+
+        public String getTableId() {
+            return tableId;
         }
 
         public void setMessages(List<Message> messages) {
@@ -147,15 +156,15 @@ public class AssistantController {
         if (history.length > 0) {
             System.arraycopy(messages, 0, history, 0, messages.length - 1);
         }
-
         WebStudio studio = WebStudioUtils.getWebStudio(httpSession);
-        String tableUri = studio.getTableUri();
-        String currentOpenedTable = null;
+        IOpenLTable table = StringUtils.isNotBlank(messageArrayWrapper.getTableId()) ? studio.getModel()
+            .getTableById(messageArrayWrapper.getTableId()) : null;
         WebstudioAi.ChatRequest.Builder chatRequestBuilder = WebstudioAi.ChatRequest.newBuilder();
-        if (tableUri != null) {
-            TableSyntaxNode tableSyntaxNode = studio.getModel().findNode(tableUri);
+        if (table != null) {
+            TableSyntaxNode tableSyntaxNode = studio.getModel().findNode(table.getUri());
             if (tableSyntaxNode != null) {
-                currentOpenedTable = OpenL2TextUtils.methodToString((ExecutableRulesMethod) tableSyntaxNode.getMember(),
+                String currentOpenedTable = OpenL2TextUtils.methodToString(
+                    (ExecutableRulesMethod) tableSyntaxNode.getMember(),
                     false,
                     false,
                     false,
@@ -180,7 +189,7 @@ public class AssistantController {
                     .map(e -> OpenL2TextUtils.methodHeaderToString(e, REPLACE_ALIAS_TYPES_WITH_BASE) + "{}")
                     .forEach(chatRequestBuilder::addRefMethods);
                 WebstudioAi.TableSyntaxNode tableSyntaxNodeMessage = WebstudioAi.TableSyntaxNode.newBuilder()
-                    .setUri(tableUri)
+                    .setUri(table.getUri())
                     .setType(tableSyntaxNode.getType())
                     .setTable(currentOpenedTable)
                     .build();

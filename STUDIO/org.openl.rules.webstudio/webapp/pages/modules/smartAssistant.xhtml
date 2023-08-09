@@ -371,7 +371,18 @@
         }
 
         function smartAssistantCallAjax() {
-            const data = JSON.stringify({"messages": smartAssistantHistory.filter((message) => message.text !== "")});
+            // if url without parameters ends with "table" - get id from url
+            var tableId = null;
+            if (window.location.href.split('?')[0].endsWith("table")) {
+                var urlSearchParams = new URLSearchParams(window.location.href.split('?')[1]);
+                if (urlSearchParams.has('id')) {
+                    tableId = urlSearchParams.get('id');
+                }
+            }
+            const data = JSON.stringify({
+                "tableId": tableId,
+                "messages": smartAssistantHistory.filter((message) => message.text !== "")
+            });
             // Show the spinner
             smartAssistantId += 1;
             smartAssistantWaitingResponses = smartAssistantId;
