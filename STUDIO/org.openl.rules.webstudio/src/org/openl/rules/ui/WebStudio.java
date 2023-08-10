@@ -62,6 +62,7 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.DeploymentRepositoriesUtil;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -1409,6 +1410,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         return deploymentManager.getRepositoryConfigNames()
             .stream()
+            .filter(e -> !DeploymentRepositoriesUtil
+                .isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
             .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 

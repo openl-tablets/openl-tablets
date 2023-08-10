@@ -24,7 +24,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -149,15 +148,6 @@ public abstract class AbstractSmartRedeployController {
         return (AProject) deployment.getProject(wsProject.getName());
     }
 
-    public boolean isProtectedDeployRepository() {
-        String configName = getRepositoryConfigName();
-        if (StringUtils.isBlank(configName)) {
-            return false;
-        }
-        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(configName);
-        return isMainBranchProtected(repo);
-    }
-
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
             return Collections.emptyList();
@@ -250,8 +240,8 @@ public abstract class AbstractSmartRedeployController {
                 }
             } else {
                 if (!deployConfigRepositoryAclService.isGranted(deploymentProject,
-                    List.of(AclPermission.EDIT)) || isMainBranchProtected(
-                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                    List.of(AclPermission.EDIT)) || DeploymentRepositoriesUtil
+                        .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
@@ -336,8 +326,8 @@ public abstract class AbstractSmartRedeployController {
             .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
                 userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 null,
-                List.of(AclPermission.CREATE)) && !isMainBranchProtected(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                List.of(AclPermission.CREATE)) && !DeploymentRepositoriesUtil
+                    .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -369,14 +359,6 @@ public abstract class AbstractSmartRedeployController {
         }
 
         return result;
-    }
-
-    protected boolean isMainBranchProtected(Repository repo) {
-        if (repo.supports().branches()) {
-            BranchRepository branchRepo = (BranchRepository) repo;
-            return branchRepo.isBranchProtected(branchRepo.getBranch());
-        }
-        return false;
     }
 
     public abstract void reset();
@@ -573,11 +555,16 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        return DeploymentRepositoriesUtil.getRepositories(deploymentManager,
+        Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
+            deploymentManager,
             propertyResolver,
             productionRepositoryAclService,
             AclPermission.VIEW,
             AclPermission.EDIT);
+        return repositoryConfigurations.stream()
+            .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
+                deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
+            .collect(Collectors.toList());
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {

@@ -777,16 +777,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             .isGranted(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 null,
                 List.of(AclPermission.CREATE)) && userWorkspace.getDesignTimeRepository()
-                    .hasDeployConfigRepo() && !isMainBranchProtected(
+                    .hasDeployConfigRepo() && !DeploymentRepositoriesUtil.isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
-    }
-
-    private boolean isMainBranchProtected(Repository repo) {
-        if (repo.supports().branches()) {
-            BranchRepository branchRepo = (BranchRepository) repo;
-            return branchRepo.isBranchProtected(branchRepo.getBranch());
-        }
-        return false;
     }
 
     public boolean getCanEditDeployment() {
@@ -997,6 +989,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             if (deploymentManager.getRepositoryConfigNames()
                 .stream()
+                .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
                 .noneMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)))) {
                 return false;
             }
@@ -1124,6 +1117,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
         return !selectedProject.isModified() && deploymentManager.getRepositoryConfigNames()
             .stream()
+            .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
             .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 

@@ -21,15 +21,9 @@
                     <h:selectOneMenu id="redeploySmartRepository" value="#{smartRedeployController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
-                        <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
-                <h:panelGroup rendered="#{smartRedeployController.protectedDeployRepository}">
-                    <h:outputText
-                            value="Selected repository is protected. It's not allowed to deploy."
-                            style="margin: 25px 0"/>
-                </h:panelGroup>
-                <h:panelGroup rendered="#{not smartRedeployController.protectedDeployRepository}">
+                <h:panelGroup>
                     <h:outputText
                             value="There are no deploy configurations containing project '#{repositoryTreeState.selectedProject.businessName}'"
                             rendered="#{empty smartRedeployController.items}"
@@ -85,7 +79,7 @@
                  --></ui:remove>
                 <h:commandButton value="Deploy"
                                  onclick="modalSmartRedeployDeployAction(); return false;"
-                                 disabled="#{!smartRedeployController.projectHasSelectedItems or smartRedeployController.protectedDeployRepository}"
+                                 disabled="#{!smartRedeployController.projectHasSelectedItems}"
                                  styleClass="button-primary"/>
                 <h:commandButton id="smartRedeployBtn" onclick="return startSmartRedeploy();"
                                  action="#{smartRedeployController.redeploy}"

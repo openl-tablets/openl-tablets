@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.acls.model.Permission;
 
-class DeploymentRepositoriesUtil {
+public class DeploymentRepositoriesUtil {
     private DeploymentRepositoriesUtil() {
     }
 
@@ -31,5 +33,13 @@ class DeploymentRepositoriesUtil {
             repos.sort(RepositoryConfiguration.COMPARATOR);
         }
         return repos;
+    }
+
+    public static boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
     }
 }
