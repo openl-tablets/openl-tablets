@@ -487,7 +487,7 @@
 
                 <c:if test="#{tableBean.table.executable}">
                     <td>
-                        <h:form id="inputArgsForm">
+                        <h:form id="inputArgsForm" onsubmit="return checkInput()">
                             <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
                             <c:set var="traceUrl"
                                 value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
@@ -956,6 +956,21 @@
             $j("#testModuleOnlyInputArgs")
                 .val($j("#inputArgsMenu").find('input[type=checkbox]')[0].checked)
                 .prop('disabled', false);
+        }
+
+        function checkInput() {
+            var textBean = $j('textarea:[id=inputArgsForm\\:jsonInput]')[0].value;
+            var beanSelected = $j('input:radio[name=inputArgsForm\\:inputTestCaseType]')[1].checked;
+            if (beanSelected && textBean != null && textBean.length > 0) {
+                try {
+                    JSON.parse(textBean);
+                } catch (e) {
+                    message(e.message, 4000, true);
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         function compiled(callback) {
