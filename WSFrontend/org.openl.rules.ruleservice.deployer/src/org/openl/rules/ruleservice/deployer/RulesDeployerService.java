@@ -103,8 +103,7 @@ public class RulesDeployerService implements Closeable {
      * @param ignoreIfExists if deployment was exist before and overridable is false, it will not be deployed, if true,
      *            it will be overridden.
      */
-    public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException,
-                                                                            RulesDeployInputException {
+    public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException {
         Path archiveTmp = Files.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
         try {
             IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
@@ -114,7 +113,7 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    public void deploy(InputStream in, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+    public void deploy(InputStream in, boolean ignoreIfExists) throws IOException {
         Path archiveTmp = Files.createTempFile(DEFAULT_DEPLOYMENT_NAME, ".zip");
         try {
             IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
@@ -124,7 +123,7 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    public void deploy(File file, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+    public void deploy(File file, boolean ignoreIfExists) throws IOException {
         deployInternal(file.toPath(), FileUtils.getBaseName(file.getName()), ignoreIfExists);
     }
 
@@ -234,7 +233,7 @@ public class RulesDeployerService implements Closeable {
 
     private void deployInternal(Path pathToArchive,
             String originalName,
-            boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+            boolean ignoreIfExists) throws IOException {
         validateSignature(pathToArchive);
         if (originalName != null) {
             // For some reason Java doesn't allow trailing whitespace in folder names
@@ -425,16 +424,16 @@ public class RulesDeployerService implements Closeable {
         return !deployments.isEmpty();
     }
 
-    private static void validateSignature(Path path) throws RulesDeployInputException {
+    private static void validateSignature(Path path) {
         if (!Files.isRegularFile(path)) {
-            throw new RulesDeployInputException("Provided file is not an archive!");
+            throw new IllegalArgumentException("Provided file is not an archive!");
         }
         int sign = readSignature(path);
         if (!FileSignatureHelper.isArchiveSign(sign)) {
-            throw new RulesDeployInputException("Provided file is not an archive!");
+            throw new IllegalArgumentException("Provided file is not an archive!");
         }
         if (FileSignatureHelper.isEmptyArchive(sign)) {
-            throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
+            throw new IllegalArgumentException("Cannot create a project from the given file. Zip file is empty.");
         }
     }
 
