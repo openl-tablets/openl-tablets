@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -42,6 +43,14 @@ public class AppServer {
         webAppContext.setInitParameter("production-repository.archives", pathDeployment);
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*ruleservice.ws[^/]*\\.jar$"); // For scanning annotations of the RuleService WS
+
+        webAppContext.addConfiguration(new AbstractConfiguration() {
+            @Override
+            public void preConfigure(WebAppContext context) throws Exception {
+                // Define default level of the information for logging to prevent leaking of the sensitive information.
+                context.getClassLoader().loadClass("org.openl.info.OpenLInfoLogger").getDeclaredField("defaultLevel").set(null, "main");
+            }
+        });
 
         var server = new Server(0); // Random port
         server.setHandler(webAppContext);
