@@ -31,7 +31,6 @@ import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.InOrNotIn;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -144,7 +143,6 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(IntRange.class.getName());
         javaImport1.addClassImport(StringRange.class.getName());
         javaImport1.addClassImport(DoubleRange.class.getName());
-        javaImport1.addClassImport(InOrNotIn.class.getName());
 
         javaImport1.addClassImport(SpreadsheetResult.class.getName());
         javaImport1.addClassImport(AnySpreadsheetResult.class.getName());
