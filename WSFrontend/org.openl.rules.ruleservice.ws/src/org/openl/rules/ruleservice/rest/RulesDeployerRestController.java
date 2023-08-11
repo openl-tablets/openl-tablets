@@ -22,7 +22,6 @@ import javax.ws.rs.core.StreamingOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 
@@ -51,7 +50,7 @@ public class RulesDeployerRestController {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
             return Response.status(Status.CREATED).build();
-        } catch (RulesDeployInputException e) {
+        } catch (IllegalArgumentException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
@@ -68,7 +67,7 @@ public class RulesDeployerRestController {
         try {
             rulesDeployerService.deploy(deployPath, request.getInputStream(), true);
             return Response.status(Status.CREATED).build();
-        } catch (RulesDeployInputException e) {
+        } catch (IllegalArgumentException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
     }
