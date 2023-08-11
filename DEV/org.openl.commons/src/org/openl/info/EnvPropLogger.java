@@ -12,7 +12,12 @@ final class EnvPropLogger extends OpenLLogger {
     protected void discover() {
         log("System environment:");
         for (Map.Entry<String, String> prop : System.getenv().entrySet()) {
-            log("  {} = {}", prop.getKey(), prop.getValue());
+            var key = prop.getKey();
+            if ("secret.key".equals(key) || "SECRET_KEY".equals(key)) {
+                log("  {} = ********************************", key);
+            } else {
+                log("  {} = {}", key, prop.getValue());
+            }
         }
     }
 }

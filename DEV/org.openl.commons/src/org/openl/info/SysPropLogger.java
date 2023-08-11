@@ -12,7 +12,12 @@ final class SysPropLogger extends OpenLLogger {
     protected void discover() {
         log("System properties:");
         for (Map.Entry<?, ?> prop : System.getProperties().entrySet()) {
-            log("  {} = {}", prop.getKey(), prop.getValue());
+            var key = prop.getKey();
+            if ("secret.key".equals(key)) {
+                log("  {} = ********************************", key);
+            } else {
+                log("  {} = {}", key, prop.getValue());
+            }
         }
     }
 }
