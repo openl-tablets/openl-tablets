@@ -153,7 +153,6 @@
                     <useLocalRepository>true</useLocalRepository>
                     <properties>
                         <maven.compiler.release>11</maven.compiler.release>
-                        <openl.info>main</openl.info>
                     </properties>
                     <showErrors>true</showErrors>
                     <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
