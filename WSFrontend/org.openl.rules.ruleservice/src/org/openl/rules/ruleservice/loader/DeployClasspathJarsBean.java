@@ -174,10 +174,13 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             log.info("All jars were deployed successfully.");
             // We deployed all files. Can shut down the pool.
             scheduledPool.shutdown();
-        } catch (Exception e) {
+        } catch (IOException e) {
             // Probably connection is lost after rulesDeployerService.isReady() was true.
             // Log error and try to continue on the next invocation.
             log.warn(e.getMessage(), e);
+        } catch (Throwable e) {
+            log.warn("Cannot to complete deploy of jars", e);
+            throw e;
         }
     }
 
