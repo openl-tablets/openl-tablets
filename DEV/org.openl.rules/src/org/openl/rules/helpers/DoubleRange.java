@@ -114,48 +114,6 @@ public class DoubleRange extends Range<Double> implements INumberRange {
         return from instanceof BigDecimal && Double.isInfinite(to);
     }
 
-    /**
-     * Compares lower bounds.
-     *
-     * @param range the DoubleRange to be compared
-     * @return a negative integer, zero, or a positive integer as lower bound of this range is less than, equal to, or
-     * greater than the lower bound of specified range.
-     */
-    @Deprecated
-    public int compareLowerBound(DoubleRange range) {
-        if (lowerBound < range.lowerBound) {
-            return -1;
-        } else if (lowerBound == range.lowerBound) {
-            if (type.left != Bound.OPEN && range.type.left == Bound.OPEN) {
-                return -1;
-            } else if (type.left == range.type.left) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
-    /**
-     * Compares upper bounds.
-     *
-     * @param range the DoubleRange to be compared
-     * @return a negative integer, zero, or a positive integer as upper bound of this range is less than, equal to, or
-     * greater than the upper bound of specified range.
-     */
-    @Deprecated
-    public int compareUpperBound(DoubleRange range) {
-        if (upperBound < range.upperBound) {
-            return -1;
-        } else if (upperBound == range.upperBound) {
-            if (type.right != Bound.OPEN && range.type.right == Bound.OPEN) {
-                return -1;
-            } else if (type.right == range.type.right) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
     @Override
     public boolean contains(Number n) {
         if (n instanceof Float) {
@@ -198,18 +156,6 @@ public class DoubleRange extends Range<Double> implements INumberRange {
      */
     public double getUpperBound() {
         return upperBound;
-    }
-
-    @Deprecated
-    public DoubleRange intersect(DoubleRange range) {
-        int lowerBoundComaring = compareLowerBound(range);
-        int upperBoundComaring = compareUpperBound(range);
-
-        double lowerBound = lowerBoundComaring > 0 ? this.lowerBound : range.lowerBound;
-        BoundType lowerBoundType = lowerBoundComaring > 0 ? this.getLowerBoundType() : range.getLowerBoundType();
-        double upperBound = upperBoundComaring < 0 ? this.upperBound : range.upperBound;
-        BoundType upperBoundType = upperBoundComaring < 0 ? this.getUpperBoundType() : range.getUpperBoundType();
-        return lowerBound > upperBound ? null : new DoubleRange(lowerBound, upperBound, lowerBoundType, upperBoundType);
     }
 
     /**

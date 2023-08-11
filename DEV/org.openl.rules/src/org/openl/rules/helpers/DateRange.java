@@ -84,16 +84,6 @@ public class DateRange extends Range<Date> {
         return upperBound;
     }
 
-    @Deprecated
-    public BoundType getLowerBoundType() {
-        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
-    }
-
-    @Deprecated
-    public BoundType getUpperBoundType() {
-        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
-    }
-
     @Override
     public boolean contains(Date value) {
         return super.contains(value);
