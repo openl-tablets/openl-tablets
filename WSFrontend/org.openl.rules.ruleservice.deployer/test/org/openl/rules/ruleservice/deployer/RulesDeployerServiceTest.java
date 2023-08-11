@@ -232,8 +232,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws IOException,
-                                                                             RulesDeployInputException {
+    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws Exception {
         init(Repository.class, true);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
@@ -244,7 +243,7 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testMultiDeploymentFolderSupport_NoDeploymentName() throws IOException, RulesDeployInputException {
+    public void testMultiDeploymentFolderSupport_NoDeploymentName() throws Exception {
         init(Repository.class, true);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
@@ -255,12 +254,12 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testWrongFile() throws IOException {
+    public void testWrongFile() throws Exception {
         init(Repository.class, true);
         try {
             deployer.deploy("customName-deployment", new ByteArrayInputStream("foo".getBytes()), true);
             fail("Everything went different before...");
-        } catch (RulesDeployInputException e) {
+        } catch (Exception e) {
             assertEquals("Provided file is not an archive!", e.getMessage());
         }
         try {
@@ -268,7 +267,7 @@ public class RulesDeployerServiceTest {
             IOUtils.closeQuietly(new ZipOutputStream(baos)); // make it empty
             deployer.deploy("customName-deployment", new ByteArrayInputStream(baos.toByteArray()), true);
             fail("Everything went different before...");
-        } catch (RulesDeployInputException e) {
+        } catch (Exception e) {
             assertEquals("Cannot create a project from the given file. Zip file is empty.", e.getMessage());
         }
     }
