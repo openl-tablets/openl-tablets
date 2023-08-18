@@ -1,8 +1,10 @@
 package org.openl.rules.project.ai;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -306,8 +309,13 @@ public final class OpenL2TextUtils {
                 objectMapper = createObjectMapper();
             }
             try {
+                Map<String, Object> props = new HashMap<>(rulesMethod.getMethodProperties().getAllDimensionalProperties());
+                if (props.containsKey("state")) {
+                    UsStatesEnum[] states = (UsStatesEnum[]) props.get("state");
+                    props.put("state", Arrays.stream(states).map(UsStatesEnum::toString).toArray());
+                }
                 return objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(rulesMethod.getMethodProperties().getAllDimensionalProperties());
+                    .writeValueAsString(props);
             } catch (JsonProcessingException e) {
                 return null;
             }
