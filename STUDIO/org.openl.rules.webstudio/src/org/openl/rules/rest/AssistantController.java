@@ -172,20 +172,23 @@ public class AssistantController {
         if (table != null) {
             TableSyntaxNode tableSyntaxNode = studio.getModel().findNode(table.getUri());
             if (tableSyntaxNode != null) {
-                String currentOpenedTable = OpenL2TextUtils.methodToString(
-                    (ExecutableRulesMethod) tableSyntaxNode.getMember(),
-                    false,
-                    false,
-                    false,
-                    Integer.MAX_VALUE);
-
+                String currentOpenedTable;
+                if (tableSyntaxNode.getMember() instanceof ExecutableRulesMethod) {
+                    currentOpenedTable = OpenL2TextUtils.methodToString(
+                        (ExecutableRulesMethod) tableSyntaxNode.getMember(),
+                        false,
+                        false,
+                        false,
+                        Integer.MAX_VALUE);
+                } else {
+                    currentOpenedTable = OpenL2TextUtils
+                        .tableSyntaxNodeToString(tableSyntaxNode, false, false, Integer.MAX_VALUE);
+                }
                 Set<IOpenClass> types = new HashSet<>();
-                Set<IOpenMethod> methodRefs = OpenL2TextUtils
-                    .methodRefs((ExecutableRulesMethod) tableSyntaxNode.getMember());
-                for (IOpenClass type : OpenL2TextUtils
-                    .methodTypes((ExecutableRulesMethod) tableSyntaxNode.getMember())) {
+                for (IOpenClass type : OpenL2TextUtils.methodTypes(tableSyntaxNode)) {
                     OpenL2TextUtils.collectTypes(type, types, MAX_DEPTH_COLLECT_TYPES, REPLACE_ALIAS_TYPES_WITH_BASE);
                 }
+                Set<IOpenMethod> methodRefs = OpenL2TextUtils.methodRefs(tableSyntaxNode);
                 for (IOpenMethod method : methodRefs) {
                     OpenL2TextUtils
                         .collectTypes(method.getType(), types, MAX_DEPTH_COLLECT_TYPES, REPLACE_ALIAS_TYPES_WITH_BASE);
@@ -197,14 +200,18 @@ public class AssistantController {
                 methodRefs.stream()
                     .map(e -> OpenL2TextUtils.methodHeaderToString(e, REPLACE_ALIAS_TYPES_WITH_BASE) + "{}")
                     .forEach(chatRequestBuilder::addRefMethods);
-                String dimensionalProperties = OpenL2TextUtils
-                    .dimensionalPropertiesToString((ExecutableRulesMethod) tableSyntaxNode.getMember(), objectMapper);
-                WebstudioAi.TableSyntaxNode tableSyntaxNodeMessage = WebstudioAi.TableSyntaxNode.newBuilder()
+                WebstudioAi.TableSyntaxNode.Builder tableSyntaxNodeMessageBuilder = WebstudioAi.TableSyntaxNode
+                    .newBuilder()
                     .setUri(table.getUri())
                     .setType(tableSyntaxNode.getType())
-                    .setBusinessDimensionProperties(dimensionalProperties)
-                    .setTable(currentOpenedTable)
-                    .build();
+                    .setTable(currentOpenedTable);
+                if (tableSyntaxNode.getMember() instanceof ExecutableRulesMethod) {
+                    String dimensionalProperties = OpenL2TextUtils.dimensionalPropertiesToString(
+                        (ExecutableRulesMethod) tableSyntaxNode.getMember(),
+                        objectMapper);
+                    tableSyntaxNodeMessageBuilder.setBusinessDimensionProperties(dimensionalProperties);
+                }
+                WebstudioAi.TableSyntaxNode tableSyntaxNodeMessage = tableSyntaxNodeMessageBuilder.build();
                 chatRequestBuilder.addTableSyntaxNodes(tableSyntaxNodeMessage);
             }
         }

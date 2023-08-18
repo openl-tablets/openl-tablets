@@ -309,13 +309,13 @@ public final class OpenL2TextUtils {
                 objectMapper = createObjectMapper();
             }
             try {
-                Map<String, Object> props = new HashMap<>(rulesMethod.getMethodProperties().getAllDimensionalProperties());
+                Map<String, Object> props = new HashMap<>(
+                    rulesMethod.getMethodProperties().getAllDimensionalProperties());
                 if (props.containsKey("state")) {
                     UsStatesEnum[] states = (UsStatesEnum[]) props.get("state");
                     props.put("state", Arrays.stream(states).map(UsStatesEnum::toString).toArray());
                 }
-                return objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(props);
+                return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(props);
             } catch (JsonProcessingException e) {
                 return null;
             }
@@ -323,11 +323,10 @@ public final class OpenL2TextUtils {
         return null;
     }
 
-    public static Set<IOpenMethod> methodRefs(ExecutableRulesMethod rulesMethod) {
+    public static Set<IOpenMethod> methodRefs(TableSyntaxNode tableSyntaxNode) {
         Set<IOpenMethod> methodRefs = new HashSet<>();
-        MetaInfoReader metaInfoReader = rulesMethod.getSyntaxNode().getMetaInfoReader();
+        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
         if (metaInfoReader != null) {
-            TableSyntaxNode tableSyntaxNode = rulesMethod.getSyntaxNode();
             int height = tableSyntaxNode.getTable().getSource().getHeight();
             int width = tableSyntaxNode.getTable().getSource().getWidth();
             for (int i = 0; i < height; i++) {
@@ -348,11 +347,10 @@ public final class OpenL2TextUtils {
         return methodRefs;
     }
 
-    public static Set<IOpenClass> methodTypes(ExecutableRulesMethod rulesMethod) {
+    public static Set<IOpenClass> methodTypes(TableSyntaxNode tableSyntaxNode) {
         Set<IOpenClass> types = new HashSet<>();
-        MetaInfoReader metaInfoReader = rulesMethod.getSyntaxNode().getMetaInfoReader();
+        MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
         if (metaInfoReader != null) {
-            TableSyntaxNode tableSyntaxNode = rulesMethod.getSyntaxNode();
             int height = tableSyntaxNode.getTable().getSource().getHeight();
             int width = tableSyntaxNode.getTable().getSource().getWidth();
             for (int i = 0; i < height; i++) {
