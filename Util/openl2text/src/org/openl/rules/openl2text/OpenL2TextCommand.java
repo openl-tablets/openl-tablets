@@ -204,9 +204,9 @@ public class OpenL2TextCommand {
         }
         Set<IOpenMethod> methodRefs = null;
         if (!omitTypes) {
-            methodRefs = OpenL2TextUtils.methodRefs(rulesMethod);
+            methodRefs = OpenL2TextUtils.methodRefs(rulesMethod.getSyntaxNode());
             Set<IOpenClass> types = new HashSet<>();
-            for (IOpenClass type : OpenL2TextUtils.methodTypes(rulesMethod)) {
+            for (IOpenClass type : OpenL2TextUtils.methodTypes(rulesMethod.getSyntaxNode())) {
                 OpenL2TextUtils.collectTypes(type, types, maxTypesDeep, replaceAliasesWithBaseTypes);
             }
             for (IOpenMethod method : methodRefs) {
@@ -229,7 +229,7 @@ public class OpenL2TextCommand {
         }
         if (!omitMethodRefs) {
             if (methodRefs == null) {
-                methodRefs = OpenL2TextUtils.methodRefs(rulesMethod);
+                methodRefs = OpenL2TextUtils.methodRefs(rulesMethod.getSyntaxNode());
             }
             Set<String> refs = new HashSet<>();
             for (IOpenMethod method : methodRefs) {
