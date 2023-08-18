@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.swagger.v3.oas.annotations.Hidden;
 
@@ -43,12 +45,19 @@ public class AssistantController {
 
     private final static boolean REPLACE_ALIAS_TYPES_WITH_BASE = false;
     private final static int MAX_DEPTH_COLLECT_TYPES = 1;
+    private final static ObjectMapper objectMapper = createObjectMapper();
 
     private final AIService aiService;
 
     @Autowired
     public AssistantController(AIService aiService) {
         this.aiService = aiService;
+    }
+
+    public static ObjectMapper createObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return objectMapper;
     }
 
     public static class Ref {
@@ -188,9 +197,12 @@ public class AssistantController {
                 methodRefs.stream()
                     .map(e -> OpenL2TextUtils.methodHeaderToString(e, REPLACE_ALIAS_TYPES_WITH_BASE) + "{}")
                     .forEach(chatRequestBuilder::addRefMethods);
+                String dimensionalProperties = OpenL2TextUtils
+                    .dimensionalPropertiesToString((ExecutableRulesMethod) tableSyntaxNode.getMember(), objectMapper);
                 WebstudioAi.TableSyntaxNode tableSyntaxNodeMessage = WebstudioAi.TableSyntaxNode.newBuilder()
                     .setUri(table.getUri())
                     .setType(tableSyntaxNode.getType())
+                    .setBusinessDimensionProperties(dimensionalProperties)
                     .setTable(currentOpenedTable)
                     .build();
                 chatRequestBuilder.addTableSyntaxNodes(tableSyntaxNodeMessage);

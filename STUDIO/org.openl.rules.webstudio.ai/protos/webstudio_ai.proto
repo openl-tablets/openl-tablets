@@ -32,8 +32,9 @@ message SearchRequest {
 
 message TableSyntaxNode {
   string table = 1;
-  string type = 2;
-  string uri = 3;
+  string businessDimensionProperties = 2;
+  string type = 3;
+  string uri = 4;
 }
 
 message SearchReply {
