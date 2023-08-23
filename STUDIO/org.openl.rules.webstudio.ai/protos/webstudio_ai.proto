@@ -35,6 +35,7 @@ message TableSyntaxNode {
   string businessDimensionProperties = 2;
   string type = 3;
   string uri = 4;
+  string description = 5;
 }
 
 message SearchReply {

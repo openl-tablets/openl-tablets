@@ -209,7 +209,14 @@ public class AssistantController {
                     String dimensionalProperties = OpenL2TextUtils.dimensionalPropertiesToString(
                         (ExecutableRulesMethod) tableSyntaxNode.getMember(),
                         objectMapper);
-                    tableSyntaxNodeMessageBuilder.setBusinessDimensionProperties(dimensionalProperties);
+                    if (dimensionalProperties != null) {
+                        tableSyntaxNodeMessageBuilder.setBusinessDimensionProperties(dimensionalProperties);
+                    }
+                    String description = ((ExecutableRulesMethod) tableSyntaxNode.getMember()).getMethodProperties()
+                        .getDescription();
+                    if (StringUtils.isNotBlank(description)) {
+                        tableSyntaxNodeMessageBuilder.setDescription(description);
+                    }
                 }
                 WebstudioAi.TableSyntaxNode tableSyntaxNodeMessage = tableSyntaxNodeMessageBuilder.build();
                 chatRequestBuilder.addTableSyntaxNodes(tableSyntaxNodeMessage);
