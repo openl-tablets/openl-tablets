@@ -335,6 +335,9 @@
             smartAssistantHistory = [];
             // add first message
             smartAssistantAddMessage("Hi, how can I help you?", null)
+            // clean userInput
+            const userInput = document.getElementById("smartAssistantUserInput");
+            userInput.value = "";
         }
 
         function smartAssistantOpenChat() {
