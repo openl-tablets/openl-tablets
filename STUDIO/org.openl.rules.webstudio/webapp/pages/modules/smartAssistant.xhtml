@@ -361,6 +361,11 @@
             displaySmartAssistantStopGeneratingButton(false);
         }
 
+        function scrollToBottom() {
+            const chatBody = document.getElementById("smartAssistantChatBody");
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
         function smartAssistantAddMessage(receivedMessage, refs) {
             const chatMessages = document.getElementById("smartAssistantChatMessages");
             const receivedWrapper = document.createElement("div")
@@ -382,8 +387,7 @@
             chatMessages.appendChild(receivedWrapper);
 
             // Automatically scroll to the bottom of the chatBody
-            const chatBody = document.getElementById("smartAssistantChatBody");
-            chatBody.scrollTop = chatBody.scrollHeight;
+            scrollToBottom();
         }
 
         function formattedMessage(inputText) {
@@ -426,6 +430,7 @@
                 // Add message to history
                 smartAssistantHistory.push({text: message, type: "USER"});
                 smartAssistantCallAjax();
+                scrollToBottom();
             }
         }
 
