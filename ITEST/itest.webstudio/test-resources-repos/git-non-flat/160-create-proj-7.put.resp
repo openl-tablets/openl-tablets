@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "branch": "master",
-  "rev": "*"
+  "revision": "*"
 }

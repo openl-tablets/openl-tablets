@@ -12,6 +12,16 @@ public interface BranchRepository extends Repository, SearchableRepository {
 
     void createBranch(String projectPath, String branch) throws IOException;
 
+    /**
+     * Create branch from startPoint
+     *
+     * @param projectPath path to project
+     * @param branch name of branch
+     * @param startPoint revision or tag
+     * @throws IOException if any
+     */
+    void createBranch(String projectPath, String branch, String startPoint) throws IOException;
+
     void deleteBranch(String projectPath, String branch) throws IOException;
 
     List<String> getBranches(String projectPath) throws IOException;

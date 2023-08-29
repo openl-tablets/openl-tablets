@@ -7,7 +7,11 @@ import org.openl.rules.security.standalone.persistence.Tag;
 
 public class TagService {
 
-    private TagDao tagDao;
+    private final TagDao tagDao;
+
+    public TagService(TagDao tagDao) {
+        this.tagDao = tagDao;
+    }
 
     public List<Tag> getAll() {
         return tagDao.getAll();
@@ -37,7 +41,4 @@ public class TagService {
         return tagDao.getByName(tagTypeId, name);
     }
 
-    public void setTagDao(TagDao tagDao) {
-        this.tagDao = tagDao;
-    }
 }

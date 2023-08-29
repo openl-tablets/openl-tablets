@@ -1,0 +1,27 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Project",
+    "modifiedBy": "Admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "revision": "*",
+    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdA==",
+    "status": "CLOSED",
+    "comment": "Project Project is created.",
+    "repository": "design-flat"
+  },
+  {
+    "name": "Project2",
+    "modifiedBy": "Admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "revision": "*",
+    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI=",
+    "status": "CLOSED",
+    "comment": "Project is created.",
+    "repository": "design-flat"
+  }
+]

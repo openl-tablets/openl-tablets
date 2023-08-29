@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +21,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
@@ -39,6 +34,8 @@ import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.resolver.PaginationDefault;
 import org.openl.rules.rest.service.HistoryRepositoryMapper;
+import org.openl.rules.rest.service.ProjectCriteriaQuery;
+import org.openl.rules.rest.service.RepositoryProjectService;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
@@ -88,6 +85,7 @@ public class DesignTimeRepositoryController {
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
     private final LockManager lockManager;
     private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryProjectService projectService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -96,7 +94,8 @@ public class DesignTimeRepositoryController {
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
             ZipArchiveValidator zipArchiveValidator,
             ZipProjectSaveStrategy zipProjectSaveStrategy,
-            @Value("${openl.home.shared}") String homeDirectory) {
+            @Value("${openl.home.shared}") String homeDirectory,
+            RepositoryProjectService projectService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -104,6 +103,7 @@ public class DesignTimeRepositoryController {
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
         this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
+        this.projectService = projectService;
     }
 
     @Lookup
@@ -141,31 +141,8 @@ public class DesignTimeRepositoryController {
         if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }
-        return designTimeRepository.getProjects(repository.getId())
-            .stream()
-            .filter(proj -> !proj.isDeleted())
-            .filter(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
-            .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
-            .map(src -> mapProjectResponse(src, repository.supports()))
-            .collect(Collectors.toList());
-    }
-
-    private <T extends AProject> ProjectViewModel mapProjectResponse(T src, Features features) {
-        var builder = ProjectViewModel.builder().name(src.getBusinessName());
-        Optional.of(src.getFileData()).map(FileData::getAuthor).map(UserInfo::getName).ifPresent(builder::modifiedBy);
-        Optional.of(src.getFileData())
-            .map(FileData::getModifiedAt)
-            .map(Date::toInstant)
-            .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-            .ifPresent(builder::modifiedAt);
-        Optional.of(src.getFileData()).map(FileData::getVersion).ifPresent(builder::rev);
-        if (features.branches()) {
-            Optional.of(src.getFileData()).map(FileData::getBranch).ifPresent(builder::branch);
-        }
-        if (features.mappedFolders()) {
-            Optional.ofNullable(src.getRealPath()).map(p -> p.replace('\\', '/')).ifPresent(builder::path);
-        }
-        return builder.build();
+        return projectService.getProjects(
+            ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
     }
 
     @GetMapping({ "/{repo-name}/projects/{project-name}/history",
@@ -270,7 +247,7 @@ public class DesignTimeRepositoryController {
         if (features.branches()) {
             builder.branch(src.getBranch());
         }
-        builder.rev(src.getVersion());
+        builder.revision(src.getVersion());
         return builder.build();
     }
 

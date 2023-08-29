@@ -2566,7 +2566,12 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     @Override
-    public void createBranch(String projectPath, String newBranch) throws IOException {
+    public void createBranch(String projectPath, String branch) throws IOException {
+        createBranch(projectPath, branch, null);
+    }
+
+    @Override
+    public void createBranch(String projectPath, String newBranch, String startPoint) throws IOException {
         initializeGit(true);
 
         Lock writeLock = repositoryLock.writeLock();
@@ -2576,6 +2581,13 @@ public class GitRepository implements BranchRepository, Closeable {
             initLfsCredentials();
 
             reset();
+
+            if (startPoint != null) {
+                var obj = git.getRepository().resolve(startPoint);
+                if (obj == null) {
+                    throw new IOException("Cannot resolve " + startPoint);
+                }
+            }
 
             // If newBranch does not exist, create it.
             Ref branchRef = git.getRepository().findRef(newBranch);
@@ -2588,7 +2600,11 @@ public class GitRepository implements BranchRepository, Closeable {
                 checkoutForced(branch);
 
                 // Create new branch
-                branchRef = git.branchCreate().setName(newBranch).call();
+                var createBranchCommand = git.branchCreate().setName(newBranch);
+                if (startPoint != null) {
+                    createBranchCommand.setStartPoint(startPoint);
+                }
+                branchRef = createBranchCommand.call();
                 pushBranch(new RefSpec().setSource(newBranch).setDestination(Constants.R_HEADS + newBranch));
             }
 

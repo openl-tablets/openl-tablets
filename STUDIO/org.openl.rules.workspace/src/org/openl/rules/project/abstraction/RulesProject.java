@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -357,7 +358,10 @@ public class RulesProject extends UserWorkspaceProject {
         setRepository(localRepository);
         setFolderPath(localFolderName);
 
-        String designVersion = designProject.getFileData().getVersion();
+
+        String designVersion = Optional.ofNullable(designProject.getFileData())
+                .map(FileData::getVersion)
+                .orElseThrow(() -> new ProjectException("Cannot open. Revision not found."));
         setHistoryVersion(designVersion);
         if (version == null) {
             // version == 0 means that designVersion is last history version

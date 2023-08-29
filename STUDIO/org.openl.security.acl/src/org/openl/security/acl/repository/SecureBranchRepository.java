@@ -6,7 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.security.acl.permission.AclPermission;
 
 public class SecureBranchRepository extends SecureRepository implements BranchRepository {
@@ -39,6 +44,15 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public void createBranch(String projectPath, String branch) throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
             branchRepository.createBranch(projectPath, branch);
+        } else {
+            throw new AccessDeniedException("There is no permission for creating a branch.");
+        }
+    }
+
+    @Override
+    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+            branchRepository.createBranch(projectPath, branch, startPoint);
         } else {
             throw new AccessDeniedException("There is no permission for creating a branch.");
         }

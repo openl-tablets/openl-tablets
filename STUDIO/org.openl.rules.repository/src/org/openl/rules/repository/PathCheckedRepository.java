@@ -179,6 +179,13 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
+    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
+        validatePath(projectPath);
+        validateBranch(branch);
+        ((BranchRepository) delegate).createBranch(projectPath, branch, startPoint);
+    }
+
+    @Override
     public void deleteBranch(String projectPath, String branch) throws IOException {
         validatePath(projectPath);
         validateBranch(branch);

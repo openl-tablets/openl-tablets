@@ -208,7 +208,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public List<? extends AProject> getProjects(String repositoryId) {
+    public List<RulesProject> getProjects(String repositoryId) {
         if (projectsRefreshNeeded) {
             refreshRulesProjects();
         }

@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
@@ -96,7 +95,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
@@ -167,6 +165,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final DeploymentManager deploymentManager;
 
     private final Authentication authentication;
+    private final ProjectDescriptorArtefactResolver pdArtefactResolver;
+    private final PathFilter zipFilter;
+    private final ZipCharsetDetector zipCharsetDetector;
+    private final ProjectDescriptorSerializerFactory pdSerializerFactory;
 
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
@@ -181,6 +183,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         designRepositoryAclService = WebStudioUtils.getBean("designRepositoryAclService", RepositoryAclService.class);
         productionRepositoryAclService = WebStudioUtils.getBean("productionRepositoryAclService",
             SimpleRepositoryAclService.class);
+        pdArtefactResolver = WebStudioUtils.getBean("projectDescriptorArtefactResolver",
+            ProjectDescriptorArtefactResolver.class);
+        zipFilter = WebStudioUtils.getBean("zipFilter", PathFilter.class);
+        zipCharsetDetector = WebStudioUtils.getBean(ZipCharsetDetector.class);
+        pdSerializerFactory = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
         propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
         deploymentManager = WebStudioUtils.getBean(DeploymentManager.class);
@@ -274,7 +281,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public String getLogicalName(RulesProject project) {
-        return project == null ? null : getProjectDescriptorResolver().getLogicalName(project);
+        return project == null ? null : pdArtefactResolver.getLogicalName(project);
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
@@ -290,9 +297,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     getModel().clearModuleInfo();
 
                     // Revert project name in rules.xml
-                    IProjectDescriptorSerializer serializer = WebStudioUtils
-                        .getBean(ProjectDescriptorSerializerFactory.class)
-                        .getSerializer(project);
+                    var serializer = pdSerializerFactory.getSerializer(project);
                     AProjectResource artefact = (AProjectResource) project
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                     content = artefact.getContent();
@@ -675,16 +680,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             tryLockProject();
 
             projectDescriptor = getCurrentProjectDescriptor();
-            PathFilter filter = getZipFilter();
 
-            List<String> filesInProject = getFilesInProject(filter);
-            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
-                filesInProject);
+            List<String> filesInProject = getFilesInProject(zipFilter);
+            var charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile), filesInProject);
             if (charset == null) {
                 throw new Message("Cannot detect a charset for the zip file");
             }
 
-            String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor, charset);
+            String errorMessage = validateUploadedFiles(lastUploadedFile, zipFilter, projectDescriptor, charset);
             if (errorMessage != null) {
                 // TODO Replace exceptions with FacesUtils.addErrorMessage()
                 throw new Message(errorMessage);
@@ -699,14 +702,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // Release resources that can be deleted or replaced
             getModel().clearModuleInfo();
 
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter, charset);
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, zipFilter, charset);
 
             FilePathsCollector filesCollector = new FilePathsCollector();
             zipWalker.iterateEntries(filesCollector);
             List<String> filesInZip = filesCollector.getFilePaths();
 
             final File projectFolder = projectDescriptor.getProjectFolder().toFile();
-            Collection<File> files = getProjectFiles(projectFolder, filter);
+            Collection<File> files = getProjectFiles(projectFolder, zipFilter);
             RulesProject rulesProject = getCurrentProject();
 
             List<FileData> absentResources = new ArrayList<>();
@@ -857,15 +860,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return false;
         }
         try {
-            PathFilter filter = getZipFilter();
-            List<String> filesInProject = getFilesInProject(filter);
+            List<String> filesInProject = getFilesInProject(zipFilter);
 
-            Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
+            Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile),
                 filesInProject);
             if (charset == null) {
                 return true;
             }
-            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, filter, charset);
+            ZipWalker zipWalker = new ZipWalker(lastUploadedFile, zipFilter, charset);
 
             FilePathsCollector filesCollector = new FilePathsCollector();
             zipWalker.iterateEntries(filesCollector);
@@ -949,22 +951,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             msg = "Failed to update the project. Another project with the same name already exists in Repository.";
         }
         return msg;
-    }
-
-    private ProjectDescriptorArtefactResolver getProjectDescriptorResolver() {
-        return (ProjectDescriptorArtefactResolver) WebApplicationContextUtils
-            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext())
-            .getBean("projectDescriptorArtefactResolver");
-    }
-
-    private PathFilter getZipFilter() {
-        return (PathFilter) WebApplicationContextUtils
-            .getRequiredWebApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext())
-            .getBean("zipFilter");
-    }
-
-    private ZipCharsetDetector getZipCharsetDetector() {
-        return WebStudioUtils.getBean(ZipCharsetDetector.class);
     }
 
     private Collection<File> getProjectFiles(File projectFolder, final PathFilter filter) {

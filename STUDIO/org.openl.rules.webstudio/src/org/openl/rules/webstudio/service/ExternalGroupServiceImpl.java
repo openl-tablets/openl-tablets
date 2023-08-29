@@ -10,9 +10,7 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -20,12 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Vladyslav Pikus
  */
-@Service("externalGroupService")
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     private final ExternalGroupDao externalGroupDao;
 
-    @Autowired
     public ExternalGroupServiceImpl(ExternalGroupDao externalGroupDao) {
         this.externalGroupDao = externalGroupDao;
     }
