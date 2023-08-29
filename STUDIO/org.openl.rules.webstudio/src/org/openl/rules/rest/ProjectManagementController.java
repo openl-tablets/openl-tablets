@@ -1,15 +1,12 @@
 package org.openl.rules.rest;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -20,10 +17,10 @@ import org.openl.rules.rest.project.ProjectStateValidator;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.service.ProjectDependencyResolver;
 import org.openl.rules.rest.service.ProjectDeploymentService;
+import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -43,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,6 +53,7 @@ public class ProjectManagementController {
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryAclService deployConfigRepositoryAclService;
+    private final WorkspaceProjectService projectService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
@@ -62,17 +61,24 @@ public class ProjectManagementController {
             DeploymentManager deploymentManager,
             ProjectStateValidator projectStateValidator,
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+            WorkspaceProjectService projectService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
         this.designRepositoryAclService = designRepositoryAclService;
         this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.projectService = projectService;
     }
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
+        return null;
+    }
+
+    @Lookup
+    public WebStudio getWebStudio() {
         return null;
     }
 
@@ -136,30 +142,13 @@ public class ProjectManagementController {
     @PostMapping("/{repo-name}/projects/{proj-name}/close")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Hidden
-    public void close(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            HttpSession session) {
-        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
+    public void close(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
+        var webstudio = getWebStudio();
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
-                throw new SecurityException();
-            }
-            if (project.isDeleted()) {
-                throw new ConflictException("project.close.deleted.message", name);
-            } else if (!projectStateValidator.canClose(project)) {
-                throw new ConflictException("project.close.conflict.message");
-            }
-            ProjectHistoryService.deleteHistory(project.getBusinessName());
-            // We must release module info because it can hold jars.
-            // We cannot rely on studio.getProject() to determine if closing project is compiled inside
-            // studio.getModel()
-            // because project could be changed or cleared before (See studio.reset() usages). Also that project can be
-            // a dependency of other. That's why we must always clear moduleInfo when closing a project.
-            webStudio.getModel().clearModuleInfo();
-            project.close();
-            webStudio.reset();
-        } catch (ProjectException | IOException e) {
+            projectService.close(project);
+            webstudio.reset();
+        } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
     }
@@ -175,28 +164,14 @@ public class ProjectManagementController {
     @Hidden
     public void open(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
-            @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
-            HttpSession session) {
-        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
+            @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies) {
+        var webstudio = getWebStudio();
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
-                throw new SecurityException();
-            }
-            if (project.isDeleted()) {
-                throw new ConflictException("project.open.deleted.message", name);
-            } else if (!projectStateValidator.canOpen(project)) {
-                throw new ConflictException("project.open.conflict.message");
-            } else if (getUserWorkspace().isOpenedOtherProject(project)) {
-                throw new ConflictException("open.duplicated.project");
-            }
-            project.open();
-            if (openDependencies) {
-                openAllDependencies(project);
-            }
+            projectService.open(project, openDependencies);
             // User workspace is changed when the project was opened, so we must refresh it to calc dependencies.
             // reset() should internally refresh workspace.
-            webStudio.reset();
+            webstudio.reset();
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
@@ -261,7 +236,8 @@ public class ProjectManagementController {
             @RequestParam(value = "comment", required = false) final String comment) {
         // FIXME request body is not allowed for DELETE method.
         // see: https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5
-        // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
+        // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE
+        // request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
@@ -310,13 +286,7 @@ public class ProjectManagementController {
         }
     }
 
-    private void openAllDependencies(RulesProject project) throws ProjectException {
-        for (RulesProject rulesProject : projectDependencyResolver.getProjectDependencies(project)) {
-            rulesProject.open();
-        }
-    }
-
-    private static class ProjectInfo {
+    public static class ProjectInfo {
 
         ProjectInfo(RulesProject project) {
             this.name = project.getBusinessName();

@@ -7,12 +7,19 @@ Content-Type: application/json
     "modifiedBy": "Admin",
     "modifiedAt": "*",
     "branch": "master",
-    "rev": "*"
-  }, {
+    "revision": "*",
+    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdA==",
+    "comment": "Project Project is created.",
+    "repository": "design-flat"
+  },
+  {
     "name": "Project2",
     "modifiedBy": "Admin",
     "modifiedAt": "*",
     "branch": "master",
-    "rev": "*"
+    "revision": "*",
+    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI=",
+    "comment": "Project is created.",
+    "repository": "design-flat"
   }
 ]

@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,7 +35,9 @@ import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DBTestConfiguration.class)
+@ContextConfiguration(classes = { DBTestConfiguration.class,
+        UserManagementConfiguration.class,
+        AclServiceTestConfiguration.class })
 @TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password =" })
 public class GroupManagementTest {
 
@@ -226,15 +229,13 @@ public class GroupManagementTest {
             mappedGroups.get("Analysts").getPrivileges(),
             Privilege::getName);
 
-        assertCollectionEquals(
-            Stream
-                .of("Viewers")
-                .collect(Collectors.toList()),
+        assertCollectionEquals(Stream.of("Viewers").collect(Collectors.toList()),
             mappedGroups.get("Deployers").getPrivileges(),
             Privilege::getName);
 
         assertCollectionEquals(Arrays.asList("Viewers"),
-            mappedGroups.get("Developers").getPrivileges(), Privilege::getName);
+            mappedGroups.get("Developers").getPrivileges(),
+            Privilege::getName);
 
         assertCollectionEquals(Arrays.asList("Viewers"),
             mappedGroups.get("Testers").getPrivileges(),

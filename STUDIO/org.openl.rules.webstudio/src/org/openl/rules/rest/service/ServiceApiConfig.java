@@ -2,6 +2,7 @@ package org.openl.rules.rest.service;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,12 @@ public class ServiceApiConfig {
     @Scope(BeanDefinition.SCOPE_PROTOTYPE) // TODO probably can be changed to @SessionScope bean
     public UserWorkspace userWorkspace() {
         return WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+    }
+
+    @Bean
+    @Scope(BeanDefinition.SCOPE_PROTOTYPE) // TODO probably can be changed to @SessionScope bean
+    public WebStudio webstudio() {
+        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
     }
 
 }

@@ -8,21 +8,18 @@ import java.util.Set;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.security.acl.JdbcMutableAclService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Andrei Astrouski
  */
-@Service("groupManagementService")
 public class GroupManagementService {
 
     private final GroupDao groupDao;
     private final JdbcMutableAclService aclService;
 
-    public GroupManagementService(GroupDao groupDao, @Autowired(required = false) JdbcMutableAclService aclService) {
+    public GroupManagementService(GroupDao groupDao, JdbcMutableAclService aclService) {
         this.groupDao = groupDao;
         this.aclService = aclService;
     }

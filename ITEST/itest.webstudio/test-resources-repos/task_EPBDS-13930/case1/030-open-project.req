@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg== HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "status": "OPENED"
+}

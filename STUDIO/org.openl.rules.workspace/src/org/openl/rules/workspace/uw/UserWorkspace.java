@@ -68,4 +68,7 @@ public interface UserWorkspace extends ProjectsContainer {
     LockEngine getProjectsLockEngine();
 
     boolean isOpenedOtherProject(AProject project);
+
+    @Override
+    Collection<RulesProject> getProjects(String repositoryId);
 }

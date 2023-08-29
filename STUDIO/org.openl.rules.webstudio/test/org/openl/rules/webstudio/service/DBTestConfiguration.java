@@ -17,7 +17,6 @@ import org.openl.util.PropertiesUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -29,7 +28,6 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
-@ComponentScan(basePackages = "org.openl.rules.webstudio.service")
 public class DBTestConfiguration {
 
     @Bean

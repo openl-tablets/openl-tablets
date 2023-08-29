@@ -18,19 +18,16 @@ import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.util.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Andrei Astrouski
  */
-@Service("userManagementService")
 public class UserManagementService {
 
     private final UserDao userDao;
@@ -43,7 +40,7 @@ public class UserManagementService {
             GroupDao groupDao,
             SessionRegistry sessionRegistry,
             PasswordEncoder passwordEncoder,
-            @Autowired(required = false) JdbcMutableAclService aclService) {
+            JdbcMutableAclService aclService) {
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.sessionRegistry = sessionRegistry;

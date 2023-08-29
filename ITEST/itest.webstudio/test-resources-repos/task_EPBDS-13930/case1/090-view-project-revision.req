@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduOlByb2plY3Q= HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "status": "OPENED",
+  "revision": "1"
+}

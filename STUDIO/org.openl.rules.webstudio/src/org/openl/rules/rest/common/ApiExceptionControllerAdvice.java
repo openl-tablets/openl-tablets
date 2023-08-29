@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +88,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
+    @ExceptionHandler(ConversionFailedException.class)
+    public ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
+        var causeEx = e.getCause();
+        if (causeEx instanceof RestRuntimeException) {
+            return handleAllRestRuntimeExceptions((RestRuntimeException) causeEx, request);
+        } else {
+            return handleInternalErrors(e, request);
+        }
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
             HttpHeaders headers,
@@ -148,10 +159,14 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
+        if (ex.getCause() instanceof ConversionFailedException) {
+            return (ResponseEntity<Object>) handleConversionFailedException((ConversionFailedException) ex.getCause(), request);
+        }
         var handledEx = super.handleTypeMismatch(ex, headers, status, request);
         var builder = ValidationError.builder()
             .message(status.getReasonPhrase())

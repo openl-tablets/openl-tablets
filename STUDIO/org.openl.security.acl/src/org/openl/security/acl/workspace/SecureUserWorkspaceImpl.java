@@ -49,7 +49,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public List<? extends AProject> getProjects(String repositoryId) {
+    public List<RulesProject> getProjects(String repositoryId) {
         return userWorkspace.getProjects(repositoryId)
             .stream()
             .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))

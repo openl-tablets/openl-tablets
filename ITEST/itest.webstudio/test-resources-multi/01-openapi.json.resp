@@ -399,13 +399,13 @@ Content-Type: application/json
             "description": "***",
             "type": "string"
           },
-          "rev": {
+          "revision": {
             "description": "***",
             "type": "string"
           }
         },
         "required": [
-          "modifiedAt", "modifiedBy", "name", "rev"
+          "modifiedAt", "modifiedBy", "name", "revision"
         ],
         "type": "object"
       },
@@ -415,13 +415,13 @@ Content-Type: application/json
             "description": "***",
             "type": "string"
           },
-          "rev": {
+          "revision": {
             "description": "***",
             "type": "string"
           }
         },
         "required": [
-          "rev"
+          "revision"
         ],
         "type": "object"
       },

@@ -1,0 +1,8 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdDI= HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "status": "CLOSED",
+  "branch": "master"
+}

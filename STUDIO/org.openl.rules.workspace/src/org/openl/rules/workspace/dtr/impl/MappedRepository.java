@@ -405,6 +405,12 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
+    public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        ((BranchRepository) delegate).createBranch(toInternal(mapping, projectPath), branch, startPoint);
+    }
+
+    @Override
     public void deleteBranch(String projectPath, String branch) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         ((BranchRepository) delegate).deleteBranch(toInternal(mapping, projectPath), branch);

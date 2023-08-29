@@ -38,5 +38,5 @@ public interface ProjectsContainer {
      */
     boolean hasProject(String repositoryId, String name);
 
-    List<? extends AProject> getProjects(String repositoryId);
+    Collection<? extends AProject> getProjects(String repositoryId);
 }

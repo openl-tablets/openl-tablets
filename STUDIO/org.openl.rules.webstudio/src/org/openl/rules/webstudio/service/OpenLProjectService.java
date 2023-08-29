@@ -1,13 +1,20 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.security.standalone.dao.OpenLProjectDao;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
+import org.openl.rules.security.standalone.persistence.Tag;
+import org.springframework.transaction.annotation.Transactional;
 
 public class OpenLProjectService {
 
-    private OpenLProjectDao projectDao;
+    private final OpenLProjectDao projectDao;
+
+    public OpenLProjectService(OpenLProjectDao projectDao) {
+        this.projectDao = projectDao;
+    }
 
     public OpenLProject getProject(String repoId, String projectPath) {
         return projectDao.getProject(repoId, projectPath);
@@ -33,7 +40,14 @@ public class OpenLProjectService {
         return projectDao.getProjectsForTag(id);
     }
 
-    public void setProjectDao(OpenLProjectDao projectDao) {
-        this.projectDao = projectDao;
+    @Transactional(readOnly = true)
+    public boolean isProjectHasTags(String repoId, String projectPath, Map<String, String> tags) {
+        return projectDao.isProjectHasTags(repoId, projectPath, tags);
     }
+
+    @Transactional(readOnly = true)
+    public List<Tag> getTagsForProject(String repoId, String projectPath) {
+        return projectDao.getTagsForProject(repoId, projectPath);
+    }
+
 }

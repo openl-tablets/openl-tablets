@@ -11,6 +11,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -45,6 +47,9 @@ public class ApiConfig implements WebMvcConfigurer {
     // No custom argument resolvers in Wizard
     @Autowired(required = false)
     private List<HandlerMethodArgumentResolver> argumentResolvers;
+
+    @Autowired(required = false)
+    private List<Converter<?, ?>> converters;
 
     @Autowired
     @Qualifier("webstudioValidatorBean")
@@ -100,5 +105,12 @@ public class ApiConfig implements WebMvcConfigurer {
         messageSource.setBasename("classpath:i18n/openapi");
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        if (converters != null) {
+            converters.forEach(registry::addConverter);
+        }
     }
 }
