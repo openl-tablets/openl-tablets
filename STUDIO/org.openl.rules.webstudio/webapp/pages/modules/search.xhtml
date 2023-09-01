@@ -51,7 +51,7 @@
     </div>
 
     <script>
-        $j("#searchQuery").val("#{param.query}");
+        $j("#searchQuery").val(decodeURIComponent("#{searchBean.query}"));
     </script>
 
 </ui:composition>
