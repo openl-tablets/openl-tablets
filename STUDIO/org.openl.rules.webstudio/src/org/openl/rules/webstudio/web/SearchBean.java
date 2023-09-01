@@ -22,6 +22,7 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 @Service
 @RequestScope
@@ -89,6 +90,10 @@ public class SearchBean {
         return searchResults;
     }
 
+    public String getQuery() {
+        return query;
+    }
+
     private void initProperties() {
         TablePropertyDefinition[] propDefinitions = DefaultPropertyDefinitions.getDefaultDefinitions();
 
@@ -111,7 +116,7 @@ public class SearchBean {
             String spaceToRemove = Character.toString((char) 160);
             query = query.replaceAll(spaceToRemove, " ");
 
-            this.query = query;
+            this.query = UriEncoder.encode(query);
         }
 
         if (StringUtils.isNotBlank(tableTypes)) {
@@ -149,7 +154,7 @@ public class SearchBean {
     private void search() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query);
+        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query != null? UriEncoder.decode(query): null);
 
         if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));
