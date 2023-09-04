@@ -522,9 +522,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             needRedirect = false;
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
-                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesContext.getCurrentInstance().responseComplete();
-                return;
+                var facesContext = FacesContext.getCurrentInstance();
+                if (facesContext != null) {
+                    facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                    facesContext.responseComplete();
+                    return;
+                } else {
+                    throw new IllegalStateException();
+                }
             }
             // switch current project branch to the selected
             if (branchName != null && project != null) {
@@ -538,17 +543,27 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 project = getProjectByName(currentRepositoryId, projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
                     // Not empty project name is requested but it's not found
-                    WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                    FacesContext.getCurrentInstance().responseComplete();
-                    return;
+                    var facesContext = FacesContext.getCurrentInstance();
+                    if (facesContext != null) {
+                        facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                        facesContext.responseComplete();
+                        return;
+                    } else {
+                        throw new IllegalStateException();
+                    }
                 }
             }
             Module module = getModule(project, moduleName);
             if (StringUtils.isNotBlank(moduleName) && module == null) {
                 // Not empty module name is requested but it's not found
-                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesContext.getCurrentInstance().responseComplete();
-                return;
+                var facesContext = FacesContext.getCurrentInstance();
+                if (facesContext != null) {
+                    facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                    facesContext.responseComplete();
+                    return;
+                } else {
+                    throw new IllegalStateException();
+                }
             }
             boolean anotherModuleOpened = currentModule != module;
             boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
@@ -600,8 +615,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
-            WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            FacesContext.getCurrentInstance().responseComplete();
+            var facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+                facesContext.responseComplete();
+            } else {
+                throw new IllegalStateException();
+            }
         }
     }
 

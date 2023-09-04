@@ -2,19 +2,30 @@
 CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.openl.base.INamedThing;
+import org.openl.binding.MethodUtil;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -27,20 +38,32 @@ import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
+import org.openl.rules.rest.model.TableInfo;
 import org.openl.rules.rest.project.ProjectStateValidator;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.OpenLProjectService;
+import org.openl.rules.webstudio.web.SearchScope;
+import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.types.impl.AMethod;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 
 /**
  * Implementation of project service for workspace projects.
@@ -54,6 +77,30 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private static final Logger LOG = LoggerFactory.getLogger(WorkspaceProjectService.class);
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
+
+    private static final BiMap<String, String> TABLE_TYPE_ITEMS;
+
+    static {
+        BiMap<String, String> tableTypeItems = HashBiMap.create();
+        tableTypeItems.put(XlsNodeTypes.XLS_DT.toString(), "Decision");
+        tableTypeItems.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), "Spreadsheet");
+        tableTypeItems.put(XlsNodeTypes.XLS_TBASIC.toString(), "TBasic");
+        tableTypeItems.put(XlsNodeTypes.XLS_COLUMN_MATCH.toString(), "Column Match");
+        tableTypeItems.put(XlsNodeTypes.XLS_DATATYPE.toString(), "Datatype");
+        tableTypeItems.put(XlsNodeTypes.XLS_DATA.toString(), "Data");
+        tableTypeItems.put(XlsNodeTypes.XLS_METHOD.toString(), "Method");
+        tableTypeItems.put(XlsNodeTypes.XLS_TEST_METHOD.toString(), "Test");
+        tableTypeItems.put(XlsNodeTypes.XLS_RUN_METHOD.toString(), "Run");
+        tableTypeItems.put(XlsNodeTypes.XLS_CONSTANTS.toString(), "Constants");
+        tableTypeItems.put(XlsNodeTypes.XLS_CONDITIONS.toString(), "Conditions");
+        tableTypeItems.put(XlsNodeTypes.XLS_ACTIONS.toString(), "Actions");
+        tableTypeItems.put(XlsNodeTypes.XLS_RETURNS.toString(), "Returns");
+        tableTypeItems.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), "Environment");
+        tableTypeItems.put(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties");
+        tableTypeItems.put(XlsNodeTypes.XLS_OTHER.toString(), "Other");
+
+        TABLE_TYPE_ITEMS = Maps.unmodifiableBiMap(tableTypeItems);
+    }
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -320,5 +367,98 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         return false;
+    }
+
+    @Override
+    public Collection<TableInfo> getTables(RulesProject project,
+            ProjectTableCriteriaQuery query) throws ProjectException {
+        var moduleModel = getProjectModel(project);
+        var result = new ArrayList<TableInfo>();
+
+        Predicate<TableSyntaxNode> selectors = buildTableSelector(query);
+        for (var table : moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)) {
+            var tableInfoBuilder = TableInfo.builder()
+                .id(table.getId())
+                .kind(TABLE_TYPE_ITEMS.get(table.getType()))
+                .name(table.getDisplayName());
+
+            var url = table.getUriParser();
+            try {
+                var file = new File("").getCanonicalFile()
+                    .toPath()
+                    .relativize(Path.of(url.getWbPath()))
+                    .resolve(url.getWbName())
+                    .toString();
+                tableInfoBuilder.file(file);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to resolve module location", e);
+            }
+            tableInfoBuilder.pos(url.getRange());
+
+            Optional.ofNullable(table.getProperties())
+                .map(ITableProperties::getTableProperties)
+                .map(Map::copyOf)
+                .ifPresent(tableInfoBuilder::properties);
+
+            var tsn = table.getSyntaxNode();
+            var header = tsn.getHeader();
+            tableInfoBuilder.tableType(header.getHeaderToken().getIdentifier());
+            var member = tsn.getMember();
+            if (member instanceof AMethod) {
+                var methodHeader = ((AMethod) member).getHeader();
+                tableInfoBuilder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
+                    .returnType(MethodUtil.printType(methodHeader.getType()));
+            }
+
+            result.add(tableInfoBuilder.build());
+        }
+        return result;
+    }
+
+    private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
+        Predicate<TableSyntaxNode> selectors = tsn -> !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
+
+        var tableTypes = query.getKinds()
+            .stream()
+            .map(TABLE_TYPE_ITEMS.inverse()::get)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        if (CollectionUtils.isNotEmpty(tableTypes)) {
+            selectors = selectors.and(tsn -> tableTypes.contains(tsn.getType()));
+        }
+
+        if (query.getName().isPresent()) {
+            var name = query.getName().get();
+            selectors = selectors.and(tsn -> StringUtils.containsIgnoreCase(tsn.getDisplayName(), name));
+        }
+
+        if (CollectionUtils.isNotEmpty(query.getProperties())) {
+            selectors = selectors.and(new TablePropertiesSelector(query.getProperties()));
+        }
+
+        return selectors;
+    }
+
+    private ProjectModel getProjectModel(RulesProject project) throws ProjectException {
+        var webstudio = getWebStudio();
+
+        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
+        var module = projectDescriptor.getModules().stream().findFirst().orElse(null);
+        if (module != null) {
+            webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
+            var moduleModel = webstudio.getModel();
+            while (!moduleModel.isProjectCompilationCompleted()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new ProjectException("Project compilation interrupted", e);
+                }
+            }
+            return moduleModel;
+        } else {
+            throw new ProjectException("Failed to find module for project " + project.getBusinessName());
+        }
     }
 }

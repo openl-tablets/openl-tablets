@@ -2,8 +2,10 @@
 CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.openl.rules.common.ProjectException;
@@ -14,7 +16,9 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
 import org.openl.rules.rest.model.ProjectViewModel;
+import org.openl.rules.rest.model.TableInfo;
 import org.openl.rules.rest.service.ProjectCriteriaQuery;
+import org.openl.rules.rest.service.ProjectTableCriteriaQuery;
 import org.openl.rules.rest.service.WorkspaceProjectService;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.NewBranchValidator;
@@ -46,6 +50,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 public class ProjectsController {
 
     private static final String TAGS_PREFIX = "tags.";
+    private static final String PROPERTIES_PREFIX = "properties.";
 
     private final WorkspaceProjectService projectService;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
@@ -110,6 +115,26 @@ public class ProjectsController {
         } catch (ProjectException e) {
             throw new ConflictException("project.branch.create.failed.message");
         }
+    }
+
+    @GetMapping("/{projectId}/tables")
+    public Collection<TableInfo> getTables(@PathVariable("projectId") RulesProject project,
+            @RequestParam Map<String, String> params,
+            @RequestParam(value = "kind", required = false) Set<String> kinds,
+            @RequestParam(value = "name", required = false) String name) throws ProjectException {
+
+        var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
+
+        params.entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
+            .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
+            .forEach(entry -> {
+                var tag = entry.getKey().substring(PROPERTIES_PREFIX.length());
+                queryBuilder.property(tag, entry.getValue());
+            });
+
+        return projectService.getTables(project, queryBuilder.build());
     }
 
 }

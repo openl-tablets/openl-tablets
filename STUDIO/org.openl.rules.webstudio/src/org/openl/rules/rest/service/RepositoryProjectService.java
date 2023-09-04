@@ -13,9 +13,9 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
+import org.openl.rules.rest.model.TableInfo;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
@@ -96,7 +96,12 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     }
 
     @Override
-    public void createBranch(@Nonnull AProject project, @Nonnull CreateBranchModel model) throws ProjectException {
+    public void createBranch(AProject project, CreateBranchModel model) {
         throw new UnsupportedOperationException("Branch creation is not supported for repository projects");
+    }
+
+    @Override
+    public Collection<TableInfo> getTables(AProject project, ProjectTableCriteriaQuery query) {
+        throw new UnsupportedOperationException("Tables are not supported for repository projects");
     }
 }
