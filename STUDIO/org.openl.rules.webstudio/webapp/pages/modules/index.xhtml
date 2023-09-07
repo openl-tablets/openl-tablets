@@ -747,6 +747,17 @@
                     render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
+                crossroads.addRoute("{repositoryId}/{project}/search?{query*}", function(reload, repositoryId, project, searchScope, query) {
+                    var url = "search.xhtml?" + query;
+                    var newModule = setModule(repositoryId, project);
+                    var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
+                    var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
+                    var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
+                    var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
+                    var toOpen = { bottom: 1, right: 0 };
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
+                });
                 crossroads.addRoute("{repositoryId}/{project}/{module}/{page*}", function(reload, repositoryId, project, module, page) {
                     var query;
                     if (page.indexOf("?") > -1) {
