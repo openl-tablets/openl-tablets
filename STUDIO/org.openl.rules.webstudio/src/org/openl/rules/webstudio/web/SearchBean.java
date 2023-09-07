@@ -52,11 +52,6 @@ public class SearchBean {
             new SelectItem(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties"),
             new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other") };
 
-    private static final SelectItem[] searchScopeItems = new SelectItem[] {
-            new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()),
-            new SelectItem(SearchScope.CURRENT_PROJECT, SearchScope.CURRENT_PROJECT.getLabel()),
-            new SelectItem(SearchScope.ALL, SearchScope.ALL.getLabel()) };
-
     private String query;
     private String[] tableTypes;
     private String tableHeader;
@@ -91,7 +86,13 @@ public class SearchBean {
     }
 
     public SelectItem[] getSearchScopeItems() {
-        return searchScopeItems;
+        List<SelectItem> selectItems = new ArrayList<>();
+        if (WebStudioUtils.getWebStudio().getCurrentModule() != null) {
+            selectItems.add(new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()));
+        }
+        selectItems.add(new SelectItem(SearchScope.CURRENT_PROJECT, SearchScope.CURRENT_PROJECT.getLabel()));
+        selectItems.add(new SelectItem(SearchScope.ALL, SearchScope.ALL.getLabel()));
+        return selectItems.toArray(new SelectItem[0]);
     }
 
     public List<IOpenLTable> getSearchResults() {
@@ -132,7 +133,8 @@ public class SearchBean {
         }
 
         this.tableHeader = tableHeader;
-
+        this.searchScope = WebStudioUtils.getWebStudio().getCurrentModule() == null ? SearchScope.CURRENT_PROJECT
+                                                                                    : SearchScope.CURRENT_MODULE;
         if (StringUtils.isNotBlank(searchScope)) {
             this.searchScope = SearchScope.valueOf(searchScope);
         }
