@@ -1147,7 +1147,8 @@ public class ProjectModel {
             getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            Set<TableSyntaxNode> nodes = WebStudioUtils.getWebStudio().getCurrentModule() != null ? getSearchScopeData(
+                SearchScope.CURRENT_MODULE) : new LinkedHashSet<>();
             getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_MODULE) {
