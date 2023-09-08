@@ -72,7 +72,7 @@
             <script>
                 //<![CDATA[
                 function setSubmitUrl(form) {
-                    if (location.href.indexOf("login.xhtml") == -1) {
+                    if (location.href.indexOf("login.xhtml") == -1 && location.href.indexOf("/web/") == -1) {
                         form.action += "?openl-redirect=" + location;
                     }
                     return true;
