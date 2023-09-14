@@ -1,5 +1,3 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
 import java.util.Collection;
@@ -10,12 +8,13 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
-import org.openl.rules.rest.model.TableInfo;
+import org.openl.rules.rest.model.tables.EditableTableView;
+import org.openl.rules.rest.model.tables.SummaryTableView;
+import org.openl.rules.rest.model.tables.TableView;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
@@ -101,7 +100,17 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     }
 
     @Override
-    public Collection<TableInfo> getTables(AProject project, ProjectTableCriteriaQuery query) {
+    public Collection<SummaryTableView> getTables(AProject project, ProjectTableCriteriaQuery query) {
+        throw new UnsupportedOperationException("Tables are not supported for repository projects");
+    }
+
+    @Override
+    public TableView getTable(AProject project, String tableId) {
+        throw new UnsupportedOperationException("Tables are not supported for repository projects");
+    }
+
+    @Override
+    public void updateTable(AProject project, String tableId, EditableTableView tableView) {
         throw new UnsupportedOperationException("Tables are not supported for repository projects");
     }
 }

@@ -1,17 +1,10 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -21,8 +14,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.base.INamedThing;
-import org.openl.binding.MethodUtil;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -36,11 +27,26 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
-import org.openl.rules.rest.model.TableInfo;
+import org.openl.rules.rest.model.tables.DatatypeView;
+import org.openl.rules.rest.model.tables.EditableTableView;
+import org.openl.rules.rest.model.tables.SimpleRulesView;
+import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
+import org.openl.rules.rest.model.tables.SpreadsheetView;
+import org.openl.rules.rest.model.tables.SummaryTableView;
+import org.openl.rules.rest.model.tables.TableView;
+import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.project.ProjectStateValidator;
-import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.rest.service.tables.OpenLTableUtils;
+import org.openl.rules.rest.service.tables.read.EditableTableReader;
+import org.openl.rules.rest.service.tables.read.SummaryTableReader;
+import org.openl.rules.rest.service.tables.write.DatatypeTableWriter;
+import org.openl.rules.rest.service.tables.write.SimpleRulesWriter;
+import org.openl.rules.rest.service.tables.write.SimpleSpreadsheetTableWriter;
+import org.openl.rules.rest.service.tables.write.SpreadsheetTableWriter;
+import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.OpenLProjectService;
@@ -52,7 +58,6 @@ import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.types.impl.AMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -60,10 +65,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 
 /**
  * Implementation of project service for workspace projects.
@@ -78,41 +79,23 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     private static final Set<ProjectStatus> ALLOWED_STATUSES = EnumSet.of(ProjectStatus.CLOSED, ProjectStatus.VIEWING);
 
-    private static final BiMap<String, String> TABLE_TYPE_ITEMS;
-
-    static {
-        BiMap<String, String> tableTypeItems = HashBiMap.create();
-        tableTypeItems.put(XlsNodeTypes.XLS_DT.toString(), "Decision");
-        tableTypeItems.put(XlsNodeTypes.XLS_SPREADSHEET.toString(), "Spreadsheet");
-        tableTypeItems.put(XlsNodeTypes.XLS_TBASIC.toString(), "TBasic");
-        tableTypeItems.put(XlsNodeTypes.XLS_COLUMN_MATCH.toString(), "Column Match");
-        tableTypeItems.put(XlsNodeTypes.XLS_DATATYPE.toString(), "Datatype");
-        tableTypeItems.put(XlsNodeTypes.XLS_DATA.toString(), "Data");
-        tableTypeItems.put(XlsNodeTypes.XLS_METHOD.toString(), "Method");
-        tableTypeItems.put(XlsNodeTypes.XLS_TEST_METHOD.toString(), "Test");
-        tableTypeItems.put(XlsNodeTypes.XLS_RUN_METHOD.toString(), "Run");
-        tableTypeItems.put(XlsNodeTypes.XLS_CONSTANTS.toString(), "Constants");
-        tableTypeItems.put(XlsNodeTypes.XLS_CONDITIONS.toString(), "Conditions");
-        tableTypeItems.put(XlsNodeTypes.XLS_ACTIONS.toString(), "Actions");
-        tableTypeItems.put(XlsNodeTypes.XLS_RETURNS.toString(), "Returns");
-        tableTypeItems.put(XlsNodeTypes.XLS_ENVIRONMENT.toString(), "Environment");
-        tableTypeItems.put(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties");
-        tableTypeItems.put(XlsNodeTypes.XLS_OTHER.toString(), "Other");
-
-        TABLE_TYPE_ITEMS = Maps.unmodifiableBiMap(tableTypeItems);
-    }
-
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
+    private final SummaryTableReader summaryTableReader;
+    private final List<EditableTableReader<? extends EditableTableView, ? extends TableView.Builder<?>>> readers;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
             OpenLProjectService projectService,
             ProjectStateValidator projectStateValidator,
-            ProjectDependencyResolver projectDependencyResolver) {
+            ProjectDependencyResolver projectDependencyResolver,
+            SummaryTableReader summaryTableReader,
+            List<EditableTableReader<? extends EditableTableView, ? extends TableView.Builder<?>>> readers) {
         super(designRepositoryAclService, projectService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
+        this.summaryTableReader = summaryTableReader;
+        this.readers = readers;
     }
 
     @Lookup
@@ -370,49 +353,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     @Override
-    public Collection<TableInfo> getTables(RulesProject project,
+    public Collection<SummaryTableView> getTables(RulesProject project,
             ProjectTableCriteriaQuery query) throws ProjectException {
         var moduleModel = getProjectModel(project);
-        var result = new ArrayList<TableInfo>();
 
-        Predicate<TableSyntaxNode> selectors = buildTableSelector(query);
-        for (var table : moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)) {
-            var tableInfoBuilder = TableInfo.builder()
-                .id(table.getId())
-                .kind(TABLE_TYPE_ITEMS.get(table.getType()))
-                .name(table.getDisplayName());
-
-            var url = table.getUriParser();
-            try {
-                var file = new File("").getCanonicalFile()
-                    .toPath()
-                    .relativize(Path.of(url.getWbPath()))
-                    .resolve(url.getWbName())
-                    .toString();
-                tableInfoBuilder.file(file);
-            } catch (IOException e) {
-                throw new ProjectException("Failed to resolve module location", e);
-            }
-            tableInfoBuilder.pos(url.getRange());
-
-            Optional.ofNullable(table.getProperties())
-                .map(ITableProperties::getTableProperties)
-                .map(Map::copyOf)
-                .ifPresent(tableInfoBuilder::properties);
-
-            var tsn = table.getSyntaxNode();
-            var header = tsn.getHeader();
-            tableInfoBuilder.tableType(header.getHeaderToken().getIdentifier());
-            var member = tsn.getMember();
-            if (member instanceof AMethod) {
-                var methodHeader = ((AMethod) member).getHeader();
-                tableInfoBuilder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
-                    .returnType(MethodUtil.printType(methodHeader.getType()));
-            }
-
-            result.add(tableInfoBuilder.build());
-        }
-        return result;
+        var selectors = buildTableSelector(query);
+        return moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+            .stream()
+            .map(summaryTableReader::read)
+            .collect(Collectors.toList());
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
@@ -420,7 +369,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var tableTypes = query.getKinds()
             .stream()
-            .map(TABLE_TYPE_ITEMS.inverse()::get)
+            .map(OpenLTableUtils.getTableTypeItems().inverse()::get)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
@@ -459,6 +408,62 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return moduleModel;
         } else {
             throw new ProjectException("Failed to find module for project " + project.getBusinessName());
+        }
+    }
+
+    @Override
+    public EditableTableView getTable(RulesProject project, String tableId) throws ProjectException {
+        var moduleModel = getProjectModel(project);
+        var table = moduleModel.getTableById(tableId);
+        if (table == null) {
+            // TODO
+            throw new NotFoundException("TODO");
+        }
+        var reader = readers.stream()
+                .filter(r -> r.supports(table))
+                .findFirst().orElseThrow();
+        return reader.read(table);
+    }
+
+    @Override
+    public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+        var moduleModel = getProjectModel(project);
+        var table = moduleModel.getTableById(tableId);
+        if (table == null) {
+            // TODO
+            throw new NotFoundException("TODO");
+        }
+        boolean found = false;
+        if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {
+            if (tableView instanceof VocabularyView) {
+                found = true;
+                var writer = new VocabularyTableWriter(table);
+                writer.write((VocabularyView) tableView);
+            } else if (tableView instanceof DatatypeView) {
+                found = true;
+                var writer = new DatatypeTableWriter(table);
+                writer.write((DatatypeView) tableView);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_SPREADSHEET.toString(), table.getType())) {
+            if (tableView instanceof SimpleSpreadsheetView) {
+                found = true;
+                var writer = new SimpleSpreadsheetTableWriter(table);
+                writer.write((SimpleSpreadsheetView) tableView);
+            } else if (tableView instanceof SpreadsheetView) {
+                found = true;
+                var writer = new SpreadsheetTableWriter(table);
+                writer.write((SpreadsheetView) tableView);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_DT.toString(), table.getType())) {
+            if (tableView instanceof SimpleRulesView) {
+                found = true;
+                var writer = new SimpleRulesWriter(table);
+                writer.write((SimpleRulesView) tableView);
+            }
+        }
+        if (!found) {
+            // TODO
+            throw new UnsupportedOperationException("Table type doesn't match writer type");
         }
     }
 }

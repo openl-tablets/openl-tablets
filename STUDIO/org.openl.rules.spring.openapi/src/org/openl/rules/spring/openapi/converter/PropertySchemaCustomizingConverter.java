@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi.converter;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
@@ -52,6 +53,10 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                             }
                             if (StringUtils.isNotBlank(paramApi.example())) {
                                 resolvedSchema.setExample(paramApi.example());
+                            }
+                            var schemaApi = paramApi.schema();
+                            if (schemaApi != null && schemaApi.allowableValues().length > 0) {
+                                resolvedSchema.setEnum(Arrays.asList(schemaApi.allowableValues()));
                             }
                             if (paramApi.required()) {
                                 type.getParent().addRequiredItem(type.getPropertyName());

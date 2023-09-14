@@ -1,6 +1,6 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.model;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,6 +13,8 @@ public class CreateBranchModel {
 
     @NotNull
     private String branch;
+
+    @Parameter(description = "Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used.")
     private String revision;
 
     public String getBranch() {

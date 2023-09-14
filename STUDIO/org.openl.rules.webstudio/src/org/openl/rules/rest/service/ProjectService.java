@@ -1,5 +1,3 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
 import java.util.Collection;
@@ -12,7 +10,9 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
 import org.openl.rules.rest.model.ProjectViewModel;
-import org.openl.rules.rest.model.TableInfo;
+import org.openl.rules.rest.model.tables.EditableTableView;
+import org.openl.rules.rest.model.tables.SummaryTableView;
+import org.openl.rules.rest.model.tables.TableView;
 
 /**
  * Project service API
@@ -38,5 +38,9 @@ public interface ProjectService<T extends AProject> {
 
     void createBranch(@Nonnull T project, @Nonnull CreateBranchModel model) throws ProjectException;
 
-    Collection<TableInfo> getTables(@Nonnull T project, @Nonnull ProjectTableCriteriaQuery query) throws ProjectException;
+    Collection<SummaryTableView> getTables(@Nonnull T project, @Nonnull ProjectTableCriteriaQuery query) throws ProjectException;
+
+    TableView getTable(@Nonnull T project, @Nonnull String tableId) throws ProjectException;
+
+    void updateTable(@Nonnull T project, @Nonnull String tableId, @Nonnull EditableTableView tableView) throws ProjectException;
 }
