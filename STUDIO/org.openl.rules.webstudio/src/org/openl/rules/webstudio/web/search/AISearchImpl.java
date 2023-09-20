@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.search;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -44,7 +43,7 @@ public class AISearchImpl implements AISearch {
     }
 
     @Override
-    public List<TableSyntaxNode> filter(String query, List<TableSyntaxNode> tableSyntaxNodes) {
+    public SearchResult filter(String query, List<TableSyntaxNode> tableSyntaxNodes) {
         if (aiService.isEnabled() && tableSyntaxNodes != null && !tableSyntaxNodes.isEmpty()) {
             try {
                 WebstudioAIServiceGrpc.WebstudioAIServiceBlockingStub blockingStub = aiService.getBlockingStub();
@@ -59,11 +58,13 @@ public class AISearchImpl implements AISearch {
                     .collect(Collectors.toMap(TableSyntaxNode::getUri, p -> p));
                 List<TableSyntaxNode> filtered = new ArrayList<>();
                 searchReply.getUrisList().stream().map(cache::get).forEach(filtered::add);
-                return filtered;
+                return new SearchResult(filtered,
+                    searchReply.getTableCountForIndexing(),
+                    searchReply.getExpectedIndexingDuration());
             } catch (StatusRuntimeException ignored) {
                 // Fails safe behaviour if AI service is not available
             }
         }
-        return Collections.emptyList();
+        return SearchResult.EMPTY;
     }
 }

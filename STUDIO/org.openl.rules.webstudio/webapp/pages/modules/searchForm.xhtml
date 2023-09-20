@@ -1,10 +1,10 @@
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:oh="http://openl-tablets.sf.net/jsf/html"
-     xmlns:f="http://java.sun.com/jsf/core">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:oh="http://openl-tablets.sf.net/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core">
 
     <style>
         #searchInput input[type='text'] {
@@ -29,7 +29,6 @@
             display: none;
             padding: 13px 11px 4px;
             width: 271px;
-            max-height: 300px;
         }
         #advancedSearch > div {
             margin-bottom: 9px;
@@ -165,7 +164,7 @@
                                 <oh:multiselect items="#{prop.enumArrayItems}" selected="#{prop.enumArrayValue}"
                                     rendered="#{prop.enumArray}" />
                                 <oh:inputVersion value="#{prop.value}" rendered="#{prop.name == 'version'}"/>
-                                <h:inputText value="#{prop.value}" 
+                                <h:inputText value="#{prop.value}"
                                     rendered="#{!(prop.dateType || prop.booleanType || prop.enumType || prop.enumArray || prop.stringArray || prop.name == 'version')}" />
                                 <h:inputText value="#{prop.stringValue}" rendered="#{prop.stringArray}" />
                                 <h:selectOneMenu id="oneSelect" value="#{prop.value}" rendered="#{prop.enumType and !prop.enumArray}">
@@ -192,7 +191,6 @@
                         style="margin-left: 9px; padding: 2px 6px" />
                 </div>
             </div>
-
             <div style="margin-top: 20px">
                 <input type="submit" value="#{msg['ws.search.search']}" class="button-primary" />
             </div>

@@ -40,6 +40,8 @@ message TableSyntaxNode {
 
 message SearchReply {
   repeated string uris = 1;
+  int32 expectedIndexingDuration = 2;
+  int32 tableCountForIndexing = 3;
 }
 
 message ChatRequest {

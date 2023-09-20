@@ -1006,7 +1006,7 @@ public class ProjectBean {
         tryLockProject();
         try {
             OpenApiGenerator generator = OpenApiGenerator
-                .builder(projectModel.getModuleInfo().getProject(), projectModel.getRulesInstantiationStrategy())
+                .builder(projectModel.getModuleInfo().getProject(), projectModel.getRulesInstantiationStrategy(projectModel.getModuleInfo().getProject()))
                 .generator();
             final OpenAPI.Type openAPIType = Optional.of(OpenAPI.Type.JSON)
                 .map(t -> update ? OpenAPI.Type.chooseType(FileUtils.getExtension(existedOpenAPIFilePath)) : t)
