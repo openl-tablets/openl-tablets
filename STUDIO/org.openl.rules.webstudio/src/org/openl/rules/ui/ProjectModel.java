@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -1017,7 +1018,7 @@ public class ProjectModel {
     public synchronized Set<TableSyntaxNode> getAllTableSyntaxNodes() {
         Set<TableSyntaxNode> result = ConcurrentHashMap.newKeySet();
         if (webStudioWorkspaceDependencyManager != null) {
-            webStudioWorkspaceDependencyManager.findAllProjectDependencyLoaders(moduleInfo.getProject())
+            webStudioWorkspaceDependencyManager.findAllProjectDependencyLoaders(getProjectDescriptor())
                 .stream()
                 .filter(IDependencyLoader::isProjectLoader)
                 .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
@@ -1241,9 +1242,7 @@ public class ProjectModel {
         clearModuleResources(); // prevent memory leak
         projectRoot = null;
         xlsModuleSyntaxNode = null;
-
-        prepareWorkspaceDependencyManager();
-
+        prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
                 .loadDependency(AbstractDependencyManager.buildResolvedDependency(moduleInfo))
@@ -1259,24 +1258,7 @@ public class ProjectModel {
                     .buildResolvedDependency(moduleInfo.getProject());
                 if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependency,
                     projectCompilationCompleted)) {
-                    this.compilationInProgress = true;
-                    projectCompilationCompleted = null;
-                    webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
-                        synchronized (ProjectModel.this) {
-                            try {
-                                this.compiledOpenClass = this.validate();
-                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                    .getMetaInfo();
-                                getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
-                                    .add(metaInfo1.getXlsModuleNode());
-                                redraw();
-                            } catch (Exception | LinkageError e) {
-                                onCompilationFailed(e);
-                            }
-                            this.projectCompilationCompleted = compiledDependency.getDependency();
-                            this.compilationInProgress = false;
-                        }
-                    });
+                    compileProject(false, false);
                 }
             } else {
                 this.compilationInProgress = false;
@@ -1284,6 +1266,58 @@ public class ProjectModel {
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
         }
+    }
+
+    public void compileProject(boolean sync, boolean prepareWorkspaceDependencyManager) {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        synchronized (this) {
+            ProjectDescriptor projectDescriptor = getProjectDescriptor();
+            if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
+                prepareWorkspaceDependencyManager(projectDescriptor);
+            }
+            this.compilationInProgress = true;
+            this.projectCompilationCompleted = null;
+            ResolvedDependency projectDependency = AbstractDependencyManager.buildResolvedDependency(projectDescriptor);
+            this.webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
+                synchronized (ProjectModel.this) {
+                    try {
+                        this.compiledOpenClass = this.validate(projectDescriptor);
+                        XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                            .getMetaInfo();
+                        getModuleSyntaxNodesByProject(projectDescriptor.getName()).add(metaInfo1.getXlsModuleNode());
+                        redraw();
+                    } catch (Exception | LinkageError e) {
+                        onCompilationFailed(e);
+                    }
+                    this.projectCompilationCompleted = compiledDependency.getDependency();
+                    this.compilationInProgress = false;
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        if (sync) {
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private ProjectDescriptor getProjectDescriptor() {
+        ProjectDescriptor projectDescriptor;
+        if (this.moduleInfo == null) {
+            try {
+                ProjectResolver projectResolver = studio.getProjectResolver();
+                File localFile = new File(getProject().getLocalRepository().getRoot(), getProject().getName());
+                projectDescriptor = projectResolver.resolve(localFile);
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        } else {
+            projectDescriptor = moduleInfo.getProject();
+        }
+        return projectDescriptor;
     }
 
     private void onCompilationFailed(Throwable t) {
@@ -1307,13 +1341,13 @@ public class ProjectModel {
         return modificationTime != moduleLastModified;
     }
 
-    private CompiledOpenClass validate() throws RulesInstantiationException {
+    private CompiledOpenClass validate(ProjectDescriptor projectDescriptor) throws RulesInstantiationException {
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), getRulesInstantiationStrategy());
+        return openApiProjectValidator.validate(projectDescriptor, getRulesInstantiationStrategy(projectDescriptor));
     }
 
-    public RulesInstantiationStrategy getRulesInstantiationStrategy() {
-        List<Module> modules = moduleInfo.getProject().getModules();
+    public RulesInstantiationStrategy getRulesInstantiationStrategy(ProjectDescriptor projectDescriptor) {
+        List<Module> modules = projectDescriptor.getModules();
         RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
             webStudioWorkspaceDependencyManager,
             false);
@@ -1323,16 +1357,16 @@ public class ProjectModel {
         return instantiationStrategy;
     }
 
-    private void prepareWorkspaceDependencyManager() {
+    private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                .buildDependencyManager(this.moduleInfo.getProject());
+                .buildDependencyManager(projectDescriptor);
             webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
             projectCompilationCompleted = null;
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
-                .resolveWorkspace(this.moduleInfo.getProject());
+                .resolveWorkspace(projectDescriptor);
             Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
                 .map(ProjectDescriptor::getName)
                 .collect(Collectors.toSet());
@@ -1344,7 +1378,7 @@ public class ProjectModel {
                 .filter(IDependencyLoader::isProjectLoader)
                 .collect(Collectors.toList());
             for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
-                if (this.moduleInfo.getProject().getName().equals(projectDependencyLoader.getProject().getName())) {
+                if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
                     foundOpenedProject = true;
                 }
                 if (!projectNamesInWorkspace.contains(projectDependencyLoader.getProject().getName())) {
@@ -1357,15 +1391,15 @@ public class ProjectModel {
                     xlsModuleSyntaxNodesPerProject.clear();
                     xlsModuleSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                        .buildDependencyManager(this.moduleInfo.getProject());
+                        .buildDependencyManager(projectDescriptor);
                     webStudioWorkspaceDependencyManager
                         .registerOnCompilationCompleteListener(this::addCompiledDependency);
                     webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
                     projectCompilationCompleted = null;
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
-                    webStudioWorkspaceDependencyManager.expand(
-                        webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(this.moduleInfo.getProject()));
+                    webStudioWorkspaceDependencyManager
+                        .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
                 }
             }
         }
