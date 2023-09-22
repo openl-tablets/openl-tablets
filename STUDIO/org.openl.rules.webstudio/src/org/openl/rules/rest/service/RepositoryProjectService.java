@@ -1,5 +1,3 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
 import java.util.Collection;
@@ -10,12 +8,8 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.rest.model.CreateBranchModel;
-import org.openl.rules.rest.model.ProjectStatusUpdateModel;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
@@ -80,23 +74,4 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
         return filter;
     }
 
-    @Override
-    public void updateProjectStatus(AProject project, ProjectStatusUpdateModel model) {
-        throw new UnsupportedOperationException("Project status update is not supported for repository projects");
-    }
-
-    @Override
-    public void close(AProject project) {
-        throw new UnsupportedOperationException("Project close is not supported for repository projects");
-    }
-
-    @Override
-    public void open(AProject project, boolean openDependencies) {
-        throw new UnsupportedOperationException("Project open is not supported for repository projects");
-    }
-
-    @Override
-    public void createBranch(@Nonnull AProject project, @Nonnull CreateBranchModel model) throws ProjectException {
-        throw new UnsupportedOperationException("Branch creation is not supported for repository projects");
-    }
 }

@@ -14,11 +14,11 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
-class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
+public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
 
     private final Map<String, Object> properties;
 
-    TablePropertiesSelector(Map<String, Object> properties) {
+    public TablePropertiesSelector(Map<String, Object> properties) {
         this.properties = properties;
     }
 

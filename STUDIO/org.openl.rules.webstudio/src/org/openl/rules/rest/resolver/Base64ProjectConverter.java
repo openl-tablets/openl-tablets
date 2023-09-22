@@ -58,7 +58,7 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
         try {
             return decodeProjectIdentifier(projectId);
         } catch (ProjectException e) {
-            var ex = new NotFoundException("project.identifier", projectId);
+            var ex = new NotFoundException("project.identifier.message");
             ex.initCause(e);
             throw ex;
         }

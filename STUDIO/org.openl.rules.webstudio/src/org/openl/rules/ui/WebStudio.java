@@ -31,7 +31,6 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -52,6 +51,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
+import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.ui.tree.view.RulesTreeView;
@@ -522,8 +522,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             needRedirect = false;
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
-                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesContext.getCurrentInstance().responseComplete();
+                handleProjectNotFound();
                 return;
             }
             // switch current project branch to the selected
@@ -538,16 +537,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 project = getProjectByName(currentRepositoryId, projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
                     // Not empty project name is requested but it's not found
-                    WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                    FacesContext.getCurrentInstance().responseComplete();
+                    handleProjectNotFound();
                     return;
                 }
             }
             Module module = getModule(project, moduleName);
             if (StringUtils.isNotBlank(moduleName) && module == null) {
                 // Not empty module name is requested but it's not found
-                WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
-                FacesContext.getCurrentInstance().responseComplete();
+                handleProjectNotFound();
                 return;
             }
             boolean anotherModuleOpened = currentModule != module;
@@ -600,8 +597,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
-            WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            FacesContext.getCurrentInstance().responseComplete();
+            handleProjectNotFound();
+        }
+    }
+
+    private void handleProjectNotFound() {
+        var facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
+            facesContext.responseComplete();
+        } else {
+            // faces context may not be available in WebStudio if it's used from REST API
+            throw new NotFoundException("project.identifier.message");
         }
     }
 

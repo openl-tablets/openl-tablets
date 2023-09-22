@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Cat",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B17:C18"
+  },
+  {
+    "id": "da1f4603fa80458412457592fd5f6459",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Color",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B28:B32"
+  },
+  {
+    "id": "35ce2623bfcdb41b66079342a8e78342",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Pet",
+    "properties": {
+      "description": "Datatype"
+    },
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B5:D8"
+  }
+]

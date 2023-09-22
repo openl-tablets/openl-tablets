@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+  "kind": "Datatype",
+  "name": "Cat",
+  "fields": [
+    {
+      "name": "color",
+      "type": "Color"
+    }
+  ],
+  "extends": "Pet"
+}

@@ -1,0 +1,17 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/b1752a3c28d3e9c09e9b8db5f2b0e4ba/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "fields": [
+    {
+      "name": "isHungry",
+      "type": "Boolean"
+    },
+    {
+      "name": "owner",
+      "type": "Person"
+    }
+  ]
+}

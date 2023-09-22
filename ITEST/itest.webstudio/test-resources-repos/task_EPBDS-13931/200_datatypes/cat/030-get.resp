@@ -1,0 +1,38 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+  "kind": "Datatype",
+  "name": "Cat",
+  "properties": {
+    "description": "A cat"
+  },
+  "fields": [
+    {
+      "name": "color",
+      "type": "Color"
+    },
+    {
+      "name": "name",
+      "type": "String"
+    },
+    {
+      "name": "age",
+      "type": "Number"
+    },
+    {
+      "name": "birthday",
+      "type": "Date"
+    },
+    {
+      "name": "isHungry",
+      "type": "Boolean"
+    },
+    {
+      "name": "owner",
+      "type": "Person"
+    }
+  ]
+}

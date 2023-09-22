@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "SimpleSpreadsheet",
+  "id": "ef262571777142b68c588757728ae75d",
+  "kind": "Spreadsheet",
+  "name": "doSomething_SimpleSpr_HO",
+  "properties": {
+    "description": "Spreadsheets with steps (horizontal)"
+  },
+  "returnType": "SpreadsheetResult",
+  "steps": [
+    {
+      "name": "Vals",
+      "value": 11
+    },
+    {
+      "name": "Description",
+      "value": "sdsdsd"
+    },
+    {
+      "name": "Foo",
+      "type": "Integer",
+      "value": "= 123"
+    }
+  ]
+}

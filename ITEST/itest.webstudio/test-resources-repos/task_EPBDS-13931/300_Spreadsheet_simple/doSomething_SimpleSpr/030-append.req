@@ -1,0 +1,13 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/6e3e97fd6994ad50150bd2f3d86ec198/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleSpreadsheet",
+  "steps": [
+    {
+      "name": "Step5",
+      "value": "= aaa > 11 ? 1 : 2"
+    }
+  ]
+}

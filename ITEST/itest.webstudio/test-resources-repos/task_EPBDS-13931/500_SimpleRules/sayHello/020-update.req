@@ -1,0 +1,37 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/9805b76ba5af036d6cfc387a5957daa4 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "kind": "SimpleRules",
+  "name": "sayHello",
+  "returnType": "String",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    },
+    {
+      "name": "minute",
+      "type": "Integer"
+    }
+  ],
+  "rules": [
+    {
+      "hour": "<= 12",
+      "return": "Good Morning",
+      "minute": "< 60"
+    },
+    {
+      "hour": "[12; 18)",
+      "return": "Good Afternoon",
+      "minute": "< 60"
+    },
+    {
+      "minute": "< 60",
+      "hour": "[18; 22)",
+      "return": "Good Evening"
+    }
+  ]
+}

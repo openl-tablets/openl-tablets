@@ -1,5 +1,6 @@
 package org.openl.rules.table;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.XlsUrlParser;
@@ -43,5 +44,7 @@ public interface IOpenLTable {
     boolean isCanContainProperties();
 
     MetaInfoReader getMetaInfoReader();
+
+    TableSyntaxNode getSyntaxNode();
 
 }

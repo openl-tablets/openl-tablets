@@ -1,0 +1,17 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/9805b76ba5af036d6cfc387a5957daa4/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "rules": [
+    {
+      "hour": ">= 22",
+      "minute": "< 60",
+      "return": "Good Night"
+    },
+    {
+      "return": "= error (\"Invalid input\")"
+    }
+  ]
+}

@@ -240,7 +240,6 @@ public class TableEditorModel {
 
     public synchronized void setProperty(String name, Object value) {
         List<IUndoableGridTableAction> createdActions = new ArrayList<>();
-        int nColsToInsert = 0;
 
         IGridTable fullTable = getOriginalGridTable();
         IGridRegion fullTableRegion = fullTable.getRegion();
@@ -262,6 +261,7 @@ public class TableEditorModel {
 
         if (!propExists) {
             int tableWidth = fullTable.getWidth();
+            int nColsToInsert = 0;
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }

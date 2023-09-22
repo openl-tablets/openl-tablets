@@ -131,4 +131,9 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     public MetaInfoReader getMetaInfoReader() {
         return tsn.getMetaInfoReader();
     }
+
+    @Override
+    public TableSyntaxNode getSyntaxNode() {
+        return tsn;
+    }
 }
