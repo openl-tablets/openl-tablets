@@ -43,7 +43,7 @@ public class ProjectViewModel {
     public final String path;
 
     @Parameter(description = "Project identifier", required = true)
-    @Hidden
+    @JsonView(GenericView.Full.class)
     public final String id;
 
     @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "LOCAL",
@@ -53,19 +53,19 @@ public class ProjectViewModel {
             "EDITING",
             "CLOSED" }))
     @JsonSerialize(using = ProjectStatusSerializer.class)
-    @Hidden
+    @JsonView(GenericView.Full.class)
     public final ProjectStatus status;
 
     @Parameter(description = "Project Tags")
-    @Hidden
+    @JsonView(GenericView.Full.class)
     public final Map<String, String> tags;
 
     @Parameter(description = "Project Comment")
-    @Hidden
+    @JsonView(GenericView.Full.class)
     public final String comment;
 
     @Parameter(description = "Source Repository")
-    @Hidden
+    @JsonView(GenericView.Full.class)
     public final String repository;
 
     private ProjectViewModel(Builder from) {

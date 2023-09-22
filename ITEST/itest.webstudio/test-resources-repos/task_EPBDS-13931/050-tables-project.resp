@@ -1,0 +1,75 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Cat",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B17:C18"
+  },
+  {
+    "id": "da1f4603fa80458412457592fd5f6459",
+    "tableType": "Vocabulary",
+    "kind": "Datatype",
+    "name": "Color",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B28:B32"
+  },
+  {
+    "id": "6e3e97fd6994ad50150bd2f3d86ec198",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "doSomething_SimpleSpr",
+    "returnType": "SpreadsheetResult",
+    "signature": "doSomething_SimpleSpr(Integer aaa, Pet a)",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B4:C8"
+  },
+  {
+    "id": "ef262571777142b68c588757728ae75d",
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "doSomething_SimpleSpr_HO",
+    "properties": {
+      "description": "Spreadsheets with steps (horizontal)"
+    },
+    "returnType": "SpreadsheetResult",
+    "signature": "doSomething_SimpleSpr_HO()",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B17:E20"
+  },
+  {
+    "id": "8c9074f72b0f996f3dce688449a76dd2",
+    "tableType": "Spreadsheet",
+    "kind": "Spreadsheet",
+    "name": "pamPam",
+    "returnType": "SpreadsheetResult",
+    "signature": "pamPam(Integer aaa)",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B33:F41"
+  },
+  {
+    "id": "35ce2623bfcdb41b66079342a8e78342",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Pet",
+    "properties": {
+      "description": "Datatype"
+    },
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B5:D8"
+  },
+  {
+    "id": "9805b76ba5af036d6cfc387a5957daa4",
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "sayHello",
+    "returnType": "String",
+    "signature": "sayHello(Integer hour)",
+    "file": "EPBDS-13931/Main.xlsx",
+    "pos": "B8:C13"
+  }
+]

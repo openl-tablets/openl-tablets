@@ -1,0 +1,24 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/35ce2623bfcdb41b66079342a8e78342 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Pet",
+  "properties": {
+    "description": "Datatype"
+  },
+  "fields": [
+    {
+      "name": "name",
+      "type": "String",
+      "defaultValue": "Unknown"
+    },
+    {
+      "name": "age",
+      "type": "Integer",
+      "defaultValue": 0
+    }
+  ]
+}

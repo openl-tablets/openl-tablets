@@ -1,5 +1,3 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
 import java.io.IOException;
@@ -8,13 +6,17 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -25,17 +27,46 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
+import org.openl.rules.rest.model.tables.AppendTableView;
+import org.openl.rules.rest.model.tables.DatatypeAppend;
+import org.openl.rules.rest.model.tables.DatatypeView;
+import org.openl.rules.rest.model.tables.EditableTableView;
+import org.openl.rules.rest.model.tables.SimpleRulesAppend;
+import org.openl.rules.rest.model.tables.SimpleRulesView;
+import org.openl.rules.rest.model.tables.SimpleSpreadsheetAppend;
+import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
+import org.openl.rules.rest.model.tables.SpreadsheetView;
+import org.openl.rules.rest.model.tables.SummaryTableView;
+import org.openl.rules.rest.model.tables.TableView;
+import org.openl.rules.rest.model.tables.VocabularyAppend;
+import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.project.ProjectStateValidator;
+import org.openl.rules.rest.service.tables.OpenLTableUtils;
+import org.openl.rules.rest.service.tables.read.EditableTableReader;
+import org.openl.rules.rest.service.tables.read.SummaryTableReader;
+import org.openl.rules.rest.service.tables.write.DatatypeTableWriter;
+import org.openl.rules.rest.service.tables.write.SimpleRulesWriter;
+import org.openl.rules.rest.service.tables.write.SimpleSpreadsheetTableWriter;
+import org.openl.rules.rest.service.tables.write.SpreadsheetTableWriter;
+import org.openl.rules.rest.service.tables.write.TableWriter;
+import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
+import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.OpenLProjectService;
+import org.openl.rules.webstudio.web.SearchScope;
+import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -57,15 +88,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     private final ProjectStateValidator projectStateValidator;
     private final ProjectDependencyResolver projectDependencyResolver;
+    private final SummaryTableReader summaryTableReader;
+    private final List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
             OpenLProjectService projectService,
             ProjectStateValidator projectStateValidator,
-            ProjectDependencyResolver projectDependencyResolver) {
+            ProjectDependencyResolver projectDependencyResolver,
+            SummaryTableReader summaryTableReader,
+            List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers) {
         super(designRepositoryAclService, projectService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
+        this.summaryTableReader = summaryTableReader;
+        this.readers = readers;
     }
 
     @Lookup
@@ -106,7 +143,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return filter;
     }
 
-    @Override
     public void updateProjectStatus(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (model.getStatus() != null && !ALLOWED_STATUSES.contains(model.getStatus())) {
             throw new BadRequestException("invalid.project.status.message");
@@ -128,6 +164,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
+    /**
+     * Save project
+     *
+     * @param project project
+     * @param model project status update model
+     * @throws ProjectException if failed to save project
+     */
     public void save(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
         if (!project.isModified()) {
             return;
@@ -152,7 +195,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    @Override
+    /**
+     * Close project
+     *
+     * @param project project
+     * @throws ProjectException if failed to close project
+     */
     public void close(RulesProject project) throws ProjectException {
         var webStudio = getWebStudio();
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
@@ -180,7 +228,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         project.close();
     }
 
-    @Override
+    /**
+     * Open project
+     *
+     * @param project project
+     * @param openDependencies open project dependencies
+     * @throws ProjectException if failed to open project
+     */
     public void open(RulesProject project, boolean openDependencies) throws ProjectException {
         open(project, openDependencies, new ProjectStatusUpdateModel());
     }
@@ -294,7 +348,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    @Override
+    /**
+     * Create a new branch
+     *
+     * @param project project
+     * @param model branch creation model
+     * @throws ProjectException if failed to create a new branch
+     */
     public void createBranch(RulesProject project, CreateBranchModel model) throws ProjectException {
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
@@ -310,7 +370,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    public boolean hasCreateBranchPermissions(RulesProject project) {
+    private boolean hasCreateBranchPermissions(RulesProject project) {
         if (project.isSupportsBranches()) {
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
@@ -320,5 +380,163 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         return false;
+    }
+
+    /**
+     * Get project tables
+     *
+     * @param project project
+     * @param query filter query
+     * @return project tables
+     */
+    public Collection<SummaryTableView> getTables(RulesProject project, ProjectTableCriteriaQuery query) {
+        var moduleModel = getProjectModel(project);
+
+        var selectors = buildTableSelector(query);
+        return moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
+            .stream()
+            .map(summaryTableReader::read)
+            .collect(Collectors.toList());
+    }
+
+    private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
+        Predicate<TableSyntaxNode> selectors = tsn -> !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
+
+        var tableTypes = query.getKinds()
+            .stream()
+            .map(OpenLTableUtils.getTableTypeItems().inverse()::get)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+
+        if (CollectionUtils.isNotEmpty(tableTypes)) {
+            selectors = selectors.and(tsn -> tableTypes.contains(tsn.getType()));
+        }
+
+        if (query.getName().isPresent()) {
+            var name = query.getName().get();
+            selectors = selectors.and(tsn -> StringUtils.containsIgnoreCase(tsn.getDisplayName(), name));
+        }
+
+        if (CollectionUtils.isNotEmpty(query.getProperties())) {
+            selectors = selectors.and(new TablePropertiesSelector(query.getProperties()));
+        }
+
+        return selectors;
+    }
+
+    private ProjectModel getProjectModel(RulesProject project) {
+        var webstudio = getWebStudio();
+
+        var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
+        var module = projectDescriptor.getModules().stream().findFirst().orElse(null);
+        if (module != null) {
+            webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
+            var moduleModel = webstudio.getModel();
+            while (!moduleModel.isProjectCompilationCompleted()) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Project compilation interrupted", e);
+                }
+            }
+            return moduleModel;
+        } else {
+            throw new NotFoundException("project.identifier.message");
+        }
+    }
+
+    /**
+     * Get table data
+     * 
+     * @param project project
+     * @param tableId table id
+     * @return table data
+     */
+    public TableView getTable(RulesProject project, String tableId) {
+        var table = getOpenLTable(project, tableId);
+        var reader = readers.stream().filter(r -> r.supports(table)).findFirst().orElseThrow();
+        return reader.read(table);
+    }
+
+    private IOpenLTable getOpenLTable(RulesProject project, String tableId) {
+        var moduleModel = getProjectModel(project);
+        var table = moduleModel.getTableById(tableId);
+        if (table == null) {
+            throw new NotFoundException("table.message");
+        }
+        return table;
+    }
+
+    /**
+     * Update table
+     *
+     * @param project project
+     * @param tableId table id
+     * @param tableView new table data
+     * @throws ProjectException if project is locked by another user
+     */
+    public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+        var table = getOpenLTable(project, tableId);
+        var writer = getTableWriter(table, tableView.getTableType());
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        if (writer instanceof VocabularyTableWriter) {
+            ((VocabularyTableWriter) writer).write((VocabularyView) tableView);
+        } else if (writer instanceof DatatypeTableWriter) {
+            ((DatatypeTableWriter) writer).write((DatatypeView) tableView);
+        } else if (writer instanceof SimpleSpreadsheetTableWriter) {
+            ((SimpleSpreadsheetTableWriter) writer).write((SimpleSpreadsheetView) tableView);
+        } else if (writer instanceof SpreadsheetTableWriter) {
+            ((SpreadsheetTableWriter) writer).write((SpreadsheetView) tableView);
+        } else if (writer instanceof SimpleRulesWriter) {
+            ((SimpleRulesWriter) writer).write((SimpleRulesView) tableView);
+        }
+    }
+
+    private TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
+        if (Objects.equals(XlsNodeTypes.XLS_DATATYPE.toString(), table.getType())) {
+            if (VocabularyView.TABLE_TYPE.equals(tableType)) {
+                return new VocabularyTableWriter(table);
+            } else if (DatatypeView.TABLE_TYPE.equals(tableType)) {
+                return new DatatypeTableWriter(table);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_SPREADSHEET.toString(), table.getType())) {
+            if (SimpleSpreadsheetView.TABLE_TYPE.equals(tableType)) {
+                return new SimpleSpreadsheetTableWriter(table);
+            } else if (SpreadsheetView.TABLE_TYPE.equals(tableType)) {
+                return new SpreadsheetTableWriter(table);
+            }
+        } else if (Objects.equals(XlsNodeTypes.XLS_DT.toString(), table.getType())) {
+            if (SimpleRulesView.TABLE_TYPE.equals(tableType)) {
+                return new SimpleRulesWriter(table);
+            }
+        }
+        throw new UnsupportedOperationException("Table type doesn't match writer type");
+    }
+
+    /**
+     * Append new lines to table
+     *
+     * @param project project
+     * @param tableId table id
+     * @param tableView lines to append
+     *
+     * @throws ProjectException if project is locked by another user
+     */
+    public void appendTableLines(RulesProject project,
+            String tableId,
+            AppendTableView tableView) throws ProjectException {
+        var table = getOpenLTable(project, tableId);
+        var writer = getTableWriter(table, tableView.getTableType());
+        getWebStudio().getCurrentProject().tryLockOrThrow();
+        if (writer instanceof VocabularyTableWriter) {
+            ((VocabularyTableWriter) writer).append((VocabularyAppend) tableView);
+        } else if (writer instanceof DatatypeTableWriter) {
+            ((DatatypeTableWriter) writer).append((DatatypeAppend) tableView);
+        } else if (writer instanceof SimpleSpreadsheetTableWriter) {
+            ((SimpleSpreadsheetTableWriter) writer).append((SimpleSpreadsheetAppend) tableView);
+        } else if (writer instanceof SimpleRulesWriter) {
+            ((SimpleRulesWriter) writer).append((SimpleRulesAppend) tableView);
+        }
     }
 }

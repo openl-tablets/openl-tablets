@@ -1,17 +1,15 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.model;
 
 import java.util.Optional;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.rest.model.converters.ProjectStatusDeserializer;
 import org.openl.util.StringUtils;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Model for updating project status
@@ -20,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  */
 public class ProjectStatusUpdateModel {
 
+    @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "OPENED", "CLOSED" }))
     @JsonDeserialize(using = ProjectStatusDeserializer.class)
     private ProjectStatus status;
 
@@ -45,7 +44,7 @@ public class ProjectStatusUpdateModel {
         this.branch = StringUtils.trimToNull(branch);
     }
 
-    public Optional<String>  getRevision() {
+    public Optional<String> getRevision() {
         return Optional.ofNullable(revision);
     }
 

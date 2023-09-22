@@ -95,7 +95,7 @@ public class Base64ProjectConverterTest {
         when(userWorkspace.getProject(projectPath, projectName)).thenThrow(new ProjectException("Not found"));
 
         var ex = assertThrows(NotFoundException.class, () -> projectConverter.convert(projectId));
-        assertEquals("openl.error.404.project.identifier", ex.getErrorCode());
+        assertEquals("openl.error.404.project.identifier.message", ex.getErrorCode());
     }
 
     private String encode(String projectPath, String projectName) {

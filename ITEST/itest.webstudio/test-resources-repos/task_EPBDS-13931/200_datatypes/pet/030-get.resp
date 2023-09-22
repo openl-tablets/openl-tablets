@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "id": "35ce2623bfcdb41b66079342a8e78342",
+  "kind": "Datatype",
+  "name": "Pet",
+  "properties": {
+    "description": "Datatype"
+  },
+  "fields": [
+    {
+      "name": "name",
+      "type": "String",
+      "defaultValue": "Unknown"
+    },
+    {
+      "name": "age",
+      "type": "Integer",
+      "defaultValue": 0
+    }
+  ]
+}

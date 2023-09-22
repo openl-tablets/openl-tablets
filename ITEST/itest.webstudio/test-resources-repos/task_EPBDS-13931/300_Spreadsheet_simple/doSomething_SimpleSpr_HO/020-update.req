@@ -1,0 +1,38 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/ef262571777142b68c588757728ae75d HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "doSomething_SimpleSpr_HO",
+  "properties": {
+    "description": "Spreadsheets with steps (horizontal)"
+  },
+  "returnType": "SpreadsheetResult",
+  "args": [
+    {
+      "name": "foo",
+      "type": "Integer"
+    },
+    {
+      "name": "bar",
+      "type": "Date"
+    }
+  ],
+  "steps": [
+    {
+      "name": "Vals",
+      "value": 11
+    },
+    {
+      "name": "Description",
+      "value": "sdsdsd"
+    },
+    {
+      "name": "Foo",
+      "type": "Integer",
+      "value": "= 123"
+    }
+  ]
+}

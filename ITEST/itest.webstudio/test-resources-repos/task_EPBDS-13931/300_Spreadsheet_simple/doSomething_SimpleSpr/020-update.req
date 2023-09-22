@@ -1,0 +1,35 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE=/tables/6e3e97fd6994ad50150bd2f3d86ec198 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "doSomething_SimpleSpr",
+  "returnType": "SpreadsheetResult",
+  "args": [
+    {
+      "name": "aaa",
+      "type": "Integer"
+    }
+  ],
+  "steps": [
+    {
+      "name": "Step1",
+      "value": "= doSomething_SimpleSpr_HO ()"
+    },
+    {
+      "name": "Step2",
+      "type": "Integer",
+      "value": 11
+    },
+    {
+      "name": "Step3",
+      "value": "= new Date()"
+    },
+    {
+      "name": "Step4",
+      "value": "= new Integer(11)"
+    }
+  ]
+}

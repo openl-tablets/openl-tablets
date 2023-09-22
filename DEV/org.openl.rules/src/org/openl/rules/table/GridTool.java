@@ -239,7 +239,7 @@ public class GridTool {
         }
     }
 
-    private static int getPropertyRowIndex(IGridRegion tableRegion, IGrid grid, String newPropName) {
+    public static int getPropertyRowIndex(IGridRegion tableRegion, IGrid grid, String newPropName) {
         int leftCell = tableRegion.getLeft();
         int topCell = tableRegion.getTop();
         int firstPropertyRow = IGridRegion.Tool.height(grid.getCell(leftCell, topCell).getAbsoluteRegion());

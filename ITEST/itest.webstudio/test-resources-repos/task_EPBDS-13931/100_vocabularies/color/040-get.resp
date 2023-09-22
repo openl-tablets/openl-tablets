@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "Vocabulary",
+  "id": "da1f4603fa80458412457592fd5f6459",
+  "kind": "Datatype",
+  "name": "Color",
+  "type": "String",
+  "values": [
+    {
+      "value": "Black"
+    },
+    {
+      "value": "White"
+    },
+    {
+      "value": "Tortoiseshell"
+    },
+    {
+      "value": "Purple"
+    }
+  ]
+}
