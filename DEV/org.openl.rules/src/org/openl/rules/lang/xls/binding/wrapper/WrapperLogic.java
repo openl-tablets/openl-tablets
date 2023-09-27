@@ -12,7 +12,6 @@ import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.XlsModuleOpenClassHolder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -77,19 +76,8 @@ public final class WrapperLogic {
     }
 
     public static IOpenMethod extractNonLazyMethod(IOpenMethod method) {
-        if (method instanceof IRulesMethodWrapper) {
-            IRulesMethodWrapper rulesMethodWrapper = (IRulesMethodWrapper) method;
-            if (rulesMethodWrapper.getDelegate() instanceof ILazyMethod) {
-                method = rulesMethodWrapper.getDelegate();
-            }
-        }
-        while (method instanceof ILazyMethod || method instanceof MethodDelegator) {
-            if (method instanceof ILazyMethod) {
-                method = ((ILazyMethod) method).getMember();
-            } else {
-                MethodDelegator methodDelegator = (MethodDelegator) method;
-                method = methodDelegator.getMethod();
-            }
+        while (method instanceof MethodDelegator) {
+            method = method.getMethod();
         }
         return method;
     }
@@ -151,11 +139,8 @@ public final class WrapperLogic {
             return openMethod;
         }
 
-        ContextPropertiesInjector contextPropertiesInjector = null;
-        if (!(openMethod instanceof ILazyMethod)) {
-            contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature(),
+        var contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature(),
                 xlsModuleOpenClass.getRulesModuleBindingContext());
-        }
 
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
             return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
@@ -227,9 +212,6 @@ public final class WrapperLogic {
     }
 
     private static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
-        if (wrapper.getDelegate() instanceof ILazyMethod) {
-            return wrapper.getDelegate().invoke(target, params, env);
-        }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {

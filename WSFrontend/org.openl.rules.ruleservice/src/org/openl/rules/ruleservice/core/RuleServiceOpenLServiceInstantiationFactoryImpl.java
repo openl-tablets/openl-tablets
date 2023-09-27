@@ -365,17 +365,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (dependencyManagerMap.containsKey(deployment)) {
             dependencyManager = dependencyManagerMap.get(deployment);
         } else {
-            boolean isLazyCompilation = false;
-            if (instantiationStrategyFactory instanceof RuleServiceInstantiationStrategyFactoryImpl) {
-                isLazyCompilation = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory)
-                    .isLazyCompilation();
-            }
             ClassLoader rootClassLoader = Thread.currentThread().getContextClassLoader();
             dependencyManager = new RuleServiceDependencyManager(deployment,
                 ruleServiceLoader,
                 rootClassLoader,
-                isLazyCompilation,
-                externalParameters);
+                    externalParameters);
             dependencyManagerMap.put(deployment, dependencyManager);
         }
         return dependencyManager;

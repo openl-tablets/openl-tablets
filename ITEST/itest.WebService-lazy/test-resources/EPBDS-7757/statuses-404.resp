@@ -1,7 +1,0 @@
-HTTP/1.1 404
-Content-Type: application/json
-
-{
-  "message": "HTTP 404 Not Found",
-  "type": "SYSTEM"
-}

@@ -18,7 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.rmiPort=31099",
         "ruleservice.publishers=RMI",
-        "ruleservice.instantiation.strategy.lazy = false",
         "production-repository.uri=test-resources/DefaultRmiHandlerTest",
         "production-repository.factory = repo-file"})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })

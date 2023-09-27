@@ -6,12 +6,7 @@
     <!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
     <bean id="instantiationStrategyFactory"
           class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
-        <property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
     </bean>
-
-    <!-- Reset cache on reload Application context -->
-    <bean class="org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache" factory-method="getInstance"
-          destroy-method="reset"/>
 
     <bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"
           class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
