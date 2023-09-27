@@ -36,6 +36,8 @@
                                    filters="securityContextPersistenceFilter,oauth2Filter"/>
             <security:filter-chain pattern="/oauth2/authorization/**"
                                    filters="securityContextPersistenceFilter,oauth2RedirectFilter"/>
+            <security:filter-chain pattern="/rest/**"
+                                   filters="bearerTokenAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor"/>
             <security:filter-chain pattern="/**"
                                    filters="securityContextPersistenceFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
         </security:filter-chain-map>
@@ -45,6 +47,7 @@
 
     <util:list id="authenticationProviders">
         <ref bean="authenticationProviderWrapper"/>
+        <ref bean="oauth2AccessTokenAuthenticationProviderWrapper"/>
     </util:list>
 
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
@@ -123,5 +126,13 @@
         </constructor-arg>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
+    </bean>
+
+    <!-- ============================ OAuth2 Access Token Configuration for Rest API ============================ -->
+    <bean id="auth2Configuration" class="org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration"/>
+
+    <bean id="oauth2AccessTokenAuthenticationProviderWrapper"
+          class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
+        <constructor-arg name="delegate" ref="#{T(org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration).AUTH_PROVIDER_BEAN_NAME}"/>
     </bean>
 </beans>
