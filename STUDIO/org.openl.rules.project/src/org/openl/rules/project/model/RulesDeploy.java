@@ -138,10 +138,12 @@ public class RulesDeploy {
         this.annotationTemplateClassName = annotationTemplateClassName;
     }
 
+    @Deprecated
     public WildcardPattern[] getLazyModulesForCompilationPatterns() {
         return lazyModulesForCompilationPatterns;
     }
 
+    @Deprecated
     public void setLazyModulesForCompilationPatterns(WildcardPattern[] lazyModulesForCompilationPatterns) {
         this.lazyModulesForCompilationPatterns = lazyModulesForCompilationPatterns;
     }

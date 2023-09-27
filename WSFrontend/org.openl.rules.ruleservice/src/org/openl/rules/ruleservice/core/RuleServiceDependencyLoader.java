@@ -6,7 +6,6 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
 
 final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
 
@@ -26,13 +25,12 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
             try {
                 compiledDependency = super.compileDependency();
                 ruleServiceDeploymentRelatedDependencyManager.compilationCompleted(this,
-                    DependencyCompilationType.NONLAZY,
-                    !compiledDependency.getCompiledOpenClass().hasErrors());
+                        !compiledDependency.getCompiledOpenClass().hasErrors());
                 return compiledDependency;
             } finally {
                 if (compiledDependency == null) {
                     ruleServiceDeploymentRelatedDependencyManager
-                        .compilationCompleted(this, DependencyCompilationType.NONLAZY, false);
+                        .compilationCompleted(this, false);
                 }
             }
         } else {

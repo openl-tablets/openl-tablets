@@ -1,2 +1,0 @@
-GET /http-statuses-test/throwOpenLException HTTP/1.1
-
