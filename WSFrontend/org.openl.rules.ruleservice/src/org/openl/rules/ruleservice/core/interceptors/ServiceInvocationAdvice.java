@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -165,7 +164,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             for (Method method : serviceClass.getMethods()) {
-                Annotation[] methodAnnotations = method.getAnnotations();
                 Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(method);
                 IOpenMember openMember = openMemberResolved.getLeft();
                 openMemberMap.put(method, openMember);
@@ -176,12 +174,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     methodMap.put(method, serviceTargetMethod);
                 }
 
-                for (Annotation annotation : methodAnnotations) {
-                    checkForBeforeInterceptor(method, openMember, annotation);
-                    checkForAfterInterceptor(method, openMember, annotation);
-                    checkForAroundInterceptor(method, openMember, annotation);
-                    checkForServiceExtraMethodAnnotation(method, openMember, annotation);
-                }
+                checkForBeforeInterceptor(method, openMember);
+                checkForAfterInterceptor(method, openMember);
+                checkForAroundInterceptor(method, openMember);
+                checkForServiceExtraMethodAnnotation(method, openMember);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -257,10 +253,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         return Pair.of(null, null);
     }
 
-    private void checkForAroundInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
-        if (annotation instanceof ServiceCallAroundInterceptor) {
-            Class<? extends ServiceMethodAroundAdvice<?>> interceptorClass = ((ServiceCallAroundInterceptor) annotation)
-                .value();
+    private void checkForAroundInterceptor(Method method, IOpenMember openMember) {
+        var annotation = method.getAnnotation(ServiceCallAroundInterceptor.class);
+        if (annotation != null) {
+            var interceptorClass = annotation.value();
             try {
                 ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.newInstance();
                 processAware(aroundInterceptor, openMember);
@@ -274,17 +270,14 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private void checkForBeforeInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
-        if (annotation instanceof ServiceCallBeforeInterceptor) {
-            Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
-                .value();
-            List<ServiceMethodBeforeAdvice> interceptors = beforeInterceptors.computeIfAbsent(method,
-                e -> new ArrayList<>());
-            for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
+    private void checkForBeforeInterceptor(Method method, IOpenMember openMember) {
+        var annotations = method.getAnnotationsByType(ServiceCallBeforeInterceptor.class);
+        for (var annotation : annotations) {
+            for (var interceptorClass : annotation.value()) {
                 try {
                     ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
                     processAware(preInterceptor, openMember);
-                    interceptors.add(preInterceptor);
+                    beforeInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
                         "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
@@ -295,10 +288,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private void checkForServiceExtraMethodAnnotation(Method method, IOpenMember openMember, Annotation annotation) {
-        if (annotation instanceof ServiceExtraMethod) {
-            Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation)
-                .value();
+    private void checkForServiceExtraMethodAnnotation(Method method, IOpenMember openMember) {
+        var annotation = method.getAnnotation(ServiceExtraMethod.class);
+        if (annotation != null) {
+            var serviceExtraMethodHandlerClass = annotation.value();
             try {
                 ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.newInstance();
                 processAware(serviceExtraMethodHandler, openMember);
@@ -312,17 +305,14 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private void checkForAfterInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
-        if (annotation instanceof ServiceCallAfterInterceptor) {
-            Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
-                .value();
-            List<ServiceMethodAfterAdvice<?>> interceptors = afterInterceptors.computeIfAbsent(method,
-                e -> new ArrayList<>());
-            for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
+    private void checkForAfterInterceptor(Method method, IOpenMember openMember) {
+        var annotations = method.getAnnotationsByType(ServiceCallAfterInterceptor.class);
+        for (var annotation : annotations) {
+            for (var interceptorClass : annotation.value()) {
                 try {
                     ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.newInstance();
                     processAware(postInterceptor, openMember);
-                    interceptors.add(postInterceptor);
+                    afterInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
                         "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",

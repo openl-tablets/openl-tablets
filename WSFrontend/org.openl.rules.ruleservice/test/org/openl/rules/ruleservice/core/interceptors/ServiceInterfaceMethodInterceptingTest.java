@@ -38,6 +38,7 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
+import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 public class ServiceInterfaceMethodInterceptingTest {
@@ -66,6 +67,87 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     }
 
+    public static class BeforeConverterA implements ServiceMethodBeforeAdvice {
+
+        @Override
+        public void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable {
+            args[1] = "A-" + args[1];
+        }
+    }
+
+    public static class BeforeConverterB implements ServiceMethodBeforeAdvice {
+
+        @Override
+        public void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable {
+            args[1] = "B-" + args[1];
+        }
+    }
+
+    public static class BeforeConverterC implements ServiceMethodBeforeAdvice {
+
+        @Override
+        public void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable {
+            args[1] = "C-" + args[1];
+        }
+    }
+
+    public static class BeforeConverterD implements ServiceMethodBeforeAdvice {
+
+        @Override
+        public void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable {
+            args[1] = "D-" + args[1];
+        }
+    }
+
+    public static class BeforeConverterE implements ServiceMethodBeforeAdvice {
+
+        @Override
+        public void before(Method interfaceMethod, Object serviceTarget, Object... args) throws Throwable {
+            args[1] = "E-" + args[1];
+        }
+    }
+
+    public static class AfterConverter1 extends AbstractServiceMethodAfterReturningAdvice<String> {
+
+        @Override
+        public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
+            return result + "-1";
+        }
+    }
+
+    public static class AfterConverter2 extends AbstractServiceMethodAfterReturningAdvice<String> {
+
+        @Override
+        public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
+            return result + "-2";
+        }
+    }
+
+    public static class AfterConverter3 extends AbstractServiceMethodAfterReturningAdvice<String> {
+
+        @Override
+        public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
+            return result + "-3";
+        }
+    }
+
+    public static class AfterConverter4 extends AbstractServiceMethodAfterReturningAdvice<String> {
+
+        @Override
+        public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
+            return result + "-4";
+        }
+    }
+
+    public static class AfterConverter5 extends AbstractServiceMethodAfterReturningAdvice<String> {
+
+        @Override
+        public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
+            return result + "-5";
+        }
+    }
+
+
     public interface OverloadInterface {
         @ServiceCallAfterInterceptor(value = ResultConverter1.class)
         Double driverRiskScoreOverloadTest(IRulesRuntimeContext runtimeContext, String driverRisk);
@@ -79,6 +161,16 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         @ServiceExtraMethod(LoadClassServiceExtraMethodHandler.class)
         Object loadClassMethod();
+
+        @ServiceCallBeforeInterceptor(BeforeConverterA.class)
+        @ServiceCallBeforeInterceptor({BeforeConverterB.class, BeforeConverterC.class})
+        @ServiceCallBeforeInterceptor(BeforeConverterD.class)
+        @ServiceCallAfterInterceptor(AfterConverter1.class)
+        @ServiceCallAfterInterceptor({AfterConverter2.class, AfterConverter3.class})
+        @ServiceCallAfterInterceptor(AfterConverter4.class)
+        @ServiceCallBeforeInterceptor(BeforeConverterE.class)
+        @ServiceCallAfterInterceptor(AfterConverter5.class)
+        String convert(IRulesRuntimeContext runtimeContext, String text);
     }
 
     public static abstract class AOverload {
@@ -204,6 +296,17 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Test
+    public void testInterceptors() throws Exception {
+        RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
+        instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
+        OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
+        assertTrue(service.getServiceBean() instanceof OverloadInterface);
+        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
+        IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        Assert.assertEquals("E-D-C-B-A-INPUT_-1-2-3-4-5", instance.convert(runtimeContext, "INPUT"));
+    }
+
+    @Test
     public void testResultConverterInterceptor2() throws Exception {
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
@@ -275,14 +378,10 @@ public class ServiceInterfaceMethodInterceptingTest {
                 null,
                 serviceDescription.isProvideRuntimeContext(),
                 serviceDescription.isProvideVariations());
-        for (Method method : OverloadInterface.class.getMethods()) {
-            if (!method.isAnnotationPresent(ServiceExtraMethod.class)) {
-                Method methodGenerated = interfaceForInstantiationStrategy.getMethod(method.getName(),
-                    method.getParameterTypes());
-                assertNotNull(methodGenerated);
-                Assert.assertEquals(Object.class, methodGenerated.getReturnType());
-            }
-        }
+        Assert.assertEquals(3, interfaceForInstantiationStrategy.getMethods().length);
+        Assert.assertEquals(String.class, interfaceForInstantiationStrategy.getMethod("convert", IRulesRuntimeContext.class, String.class).getReturnType());
+        Assert.assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
+        Assert.assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreNoOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
     }
 
     @Test
