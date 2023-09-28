@@ -18,7 +18,6 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
-import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogDatas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -58,29 +57,9 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate) {
-        PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
-        if (prepareStoreLogDatas != null) {
-            prepare(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                postProcessAdvice,
-                predicate,
-                prepareStoreLogDatas.value());
 
-        } else {
-            PrepareStoreLogData prepareStoreLogData = interfaceMethod.getAnnotation(PrepareStoreLogData.class);
-            if (prepareStoreLogData != null) {
-                prepare(interfaceMethod,
-                    args,
-                    result,
-                    lastOccurredException,
-                    postProcessAdvice,
-                    predicate,
-                    new PrepareStoreLogData[] { prepareStoreLogData });
-
-            }
-        }
+        PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
+        prepare(interfaceMethod, args, result, lastOccurredException, postProcessAdvice, predicate, annotations);
     }
 
     private void prepare(Method interfaceMethod,
