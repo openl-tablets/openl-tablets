@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -205,18 +206,27 @@ public class SearchBean {
                     .collect(Collectors.toList());
             String q = query != null ? UriEncoder.decode(query) : null;
             Predicate<TableSyntaxNode> cellValueSelector = new CellValueSelector(q);
+
+            LinkedHashMap<TableSyntaxNode, Integer> result = new LinkedHashMap<>();
             List<TableSyntaxNode> foundTsnes = tnses.stream().filter(cellValueSelector).collect(Collectors.toList());
+            foundTsnes.forEach(e -> result.put(e, 1));
             if (StringUtils.isNotBlank(q)) {
                 SearchResult searchResult = aiSearch.filter(q, tnses);
                 List<TableSyntaxNode> tnsesByAiSearch = searchResult.getTableSyntaxNodes();
                 expectedIndexingDuration = searchResult.getExpectedIndexingDuration();
                 tableCountForIndexing = searchResult.getTableCountForIndexing();
-                foundTsnes.addAll(tnsesByAiSearch);
+                tnsesByAiSearch.forEach(e -> result.compute(e, (key, value) -> (value == null) ? 1 : value + 1));
             } else {
                 expectedIndexingDuration = 0;
                 tableCountForIndexing = 0;
             }
-            searchResults = foundTsnes.stream().map(TableSyntaxNodeAdapter::new).collect(Collectors.toList());
+
+            List<Map.Entry<TableSyntaxNode, Integer>> entryList = new ArrayList<>(result.entrySet());
+            entryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
+            searchResults = entryList.stream()
+                    .map(Map.Entry::getKey)
+                    .map(TableSyntaxNodeAdapter::new)
+                    .collect(Collectors.toList());
         }
     }
 
