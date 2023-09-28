@@ -35,5 +35,10 @@
             <artifactId>org.openl.rules.variation</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

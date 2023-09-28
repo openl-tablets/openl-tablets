@@ -336,12 +336,13 @@ public final class RuleServiceInstantiationFactoryHelper {
         for (Method method : serviceClass.getMethods()) {
             Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(serviceTarget, method);
             IOpenMember openMember = openMemberResolved.getLeft();
+            Method serviceTargetMethod = null;
             if (openMember != null) {
-                Method serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
+                serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
                         method.getName(),
                         openMemberResolved.getRight());
-                methodMap.put(method, serviceTargetMethod);
             }
+            methodMap.put(method, serviceTargetMethod);
         }
         return methodMap;
     }

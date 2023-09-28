@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 
 /**
@@ -62,6 +63,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     @Autowired(required = false)
     private List<ProjectValidator> projectValidators = new ArrayList<>();
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDependencyManager dependencyManager,
@@ -140,9 +144,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service.getOpenClass(),
                 serviceTarget.getLeft(),
                 serviceTarget.getRight(),
-                serviceClass,
                 classLoader,
                 getListServiceInvocationAdviceListeners(),
+                applicationContext,
                 serviceManager != null ? serviceManager.getRulesDeployInProcess() : null);
             Object proxyServiceBean = ASMProxyFactory
                 .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
