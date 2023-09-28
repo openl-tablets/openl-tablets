@@ -9,14 +9,14 @@ public interface ServiceInvocationAdviceListener {
             Object[] args,
             Object result,
             Exception ex,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
     }
 
     default void afterMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
             Exception ex,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
     }
 
     default void beforeServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
@@ -24,7 +24,7 @@ public interface ServiceInvocationAdviceListener {
             Object[] args,
             Object result,
             Exception ex,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
     }
 
     default void afterServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
@@ -32,6 +32,12 @@ public interface ServiceInvocationAdviceListener {
             Object[] args,
             Object result,
             Exception ex,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
+    }
+
+    @FunctionalInterface
+    static interface Instantiator {
+        <T> T instantiate(Class<T> clazz);
+
     }
 }
