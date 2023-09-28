@@ -324,13 +324,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private void beforeInvocation(Method interfaceMethod, IOpenMember openMember, Object... args) throws Throwable {
-        List<ServiceMethodBeforeAdvice> preInterceptors = beforeInterceptors.get(interfaceMethod);
-        if (preInterceptors != null) {
-            for (ServiceMethodBeforeAdvice interceptor : preInterceptors) {
-                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
-                interceptor.before(interfaceMethod, serviceTarget, args);
-                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
-            }
+        for (var interceptor : beforeInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
+            invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
+            interceptor.before(interfaceMethod, serviceTarget, args);
+            invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
         }
     }
 
@@ -349,23 +346,20 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             Object result,
             Exception t,
             Object... args) throws Exception {
-        List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         Object ret = result;
-        if (postInterceptors != null && !postInterceptors.isEmpty()) {
-            for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
-                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
-                if (t == null) {
-                    ret = interceptor.afterReturning(interfaceMethod, ret, args);
-                } else {
-                    try {
-                        ret = interceptor.afterThrowing(interfaceMethod, t, args);
-                        t = null;
-                    } catch (Exception e) {
-                        t = e;
-                    }
+        for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
+            invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
+            if (t == null) {
+                ret = interceptor.afterReturning(interfaceMethod, ret, args);
+            } else {
+                try {
+                    ret = interceptor.afterThrowing(interfaceMethod, t, args);
+                    t = null;
+                } catch (Exception e) {
+                    t = e;
                 }
-                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
             }
+            invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
         }
         if (t != null) {
             throw t;
