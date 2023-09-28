@@ -55,18 +55,18 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException,
-            Consumer<Object> postProcessAdvice,
+            Instantiator postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate) {
 
         PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
         prepare(interfaceMethod, args, result, lastOccurredException, postProcessAdvice, predicate, annotations);
     }
 
-    private void prepare(Method interfaceMethod,
+    private <T> void prepare(Method interfaceMethod,
             Object[] args,
             Object result,
             Exception lastOccurredException,
-            Consumer<Object> postProcessAdvice,
+            Instantiator postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate,
             PrepareStoreLogData[] prepareStoreLogDataArray) {
         Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
@@ -76,9 +76,9 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             for (PrepareStoreLogData storeLogging : prepareStoreLogDataArray) {
                 if (predicate.test(storeLogging)) {
                     StoreLogDataAdvice storeLogDataAdvice = null;
+                    Class<? extends StoreLogDataAdvice> clazz = storeLogging.value();
                     try {
-                        storeLogDataAdvice = storeLogging.value().newInstance();
-                        postProcessAdvice.accept(storeLogDataAdvice);
+                        storeLogDataAdvice = postProcessAdvice.instantiate(clazz);
                         storeLogData = processAwareInterfaces(interfaceMethod,
                             storeLogData,
                             storeLogDataAdvice,
@@ -88,7 +88,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         String msg = String.format(
                             "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                             MethodUtil.printQualifiedMethodName(interfaceMethod),
-                            storeLogging.value().getTypeName());
+                            clazz.getTypeName());
                         log.error(msg, e);
                     }
                     if (storeLogDataAdvice != null) {
@@ -169,7 +169,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
         if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
@@ -186,7 +186,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
         if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
@@ -202,7 +202,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception ex,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
         if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
@@ -218,7 +218,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException,
-            Consumer<Object> postProcessAdvice) {
+            Instantiator postProcessAdvice) {
         if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
