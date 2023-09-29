@@ -100,8 +100,7 @@
         <constructor-arg name="userService">
             <bean class="org.openl.security.oauth2.OpenLOAuth2UserService">
                 <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="syncUserData" ref="syncUserData"/>
-                <constructor-arg name="privilegeMapper" ref="privilegeMapper"/>
+                <constructor-arg name="userInfoClaimsConverter" ref="userInfoClaimsConverter"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -129,6 +128,10 @@
     </bean>
 
     <!-- ============================ OAuth2 Access Token Configuration for Rest API ============================ -->
+    <bean id="oauth2Configuration" class="org.openl.security.oauth2.OAuth2Configuration">
+        <constructor-arg name="issuer" value="#{environment.getProperty('security.oauth2.issuer-uri')}"/>
+    </bean>
+
     <bean id="auth2Configuration" class="org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration"/>
 
     <bean id="oauth2AccessTokenAuthenticationProviderWrapper"

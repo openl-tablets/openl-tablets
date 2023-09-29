@@ -1,21 +1,17 @@
 package org.openl.security.oauth2.config;
 
-import java.util.Collection;
-import java.util.function.BiFunction;
-
-import org.openl.rules.security.Privilege;
-import org.openl.security.oauth2.OpenLOpaqueTokenAuthenticationConverter;
+import org.openl.security.oauth2.OAuth2Configuration;
+import org.openl.security.oauth2.UserInfoClaimsConverter;
+import org.openl.security.oauth2.UserInfoOpaqueTokenIntrospector;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
-import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 
 /**
  * Configuration for OAuth2 opaque access token authentication.
@@ -24,29 +20,22 @@ import org.springframework.security.oauth2.server.resource.introspection.SpringO
 public class OAuth2OpaqueAccessTokenConfiguration {
 
     @Bean(OAuth2AccessTokenConfiguration.AUTH_PROVIDER_BEAN_NAME)
-    public AuthenticationProvider oauth2AccessTokenAuthenticationProvider(OpaqueTokenIntrospector introspector,
-            OpaqueTokenAuthenticationConverter authConverter) {
-
-        var provider = new OpaqueTokenAuthenticationProvider(introspector);
-        provider.setAuthenticationConverter(authConverter);
-        return provider;
+    public AuthenticationProvider oauth2AccessTokenAuthenticationProvider(OpaqueTokenIntrospector introspector) {
+        return new OpaqueTokenAuthenticationProvider(introspector);
     }
 
     @Bean
-    public OpenLOpaqueTokenAuthenticationConverter openLOpaqueTokenAuthenticationConverter(
-            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
-        return new OpenLOpaqueTokenAuthenticationConverter(privilegeMapper);
-    }
-
-    @Bean
-    public OpaqueTokenIntrospector opaqueTokenIntrospector(
-            @Value("${security.oauth2.introspection-uri}") String introspectionUri,
-            ClientRegistrationRepository clientRegistrationRepository) {
-
+    public OpaqueTokenIntrospector opaqueTokenIntrospector(@Qualifier("environment") PropertyResolver propertyResolver,
+            OAuth2Configuration oAuth2Configuration,
+            ClientRegistrationRepository clientRegistrationRepository,
+            UserInfoClaimsConverter userInfoClaimsConverter,
+            JCacheCacheManager cacheManager) {
         var clientRegistration = clientRegistrationRepository.findByRegistrationId("webstudio");
-        return new SpringOpaqueTokenIntrospector(introspectionUri,
-            clientRegistration.getClientId(),
-            clientRegistration.getClientSecret());
+        return new UserInfoOpaqueTokenIntrospector(oAuth2Configuration.getIntrospectionEndpoint().get(),
+            clientRegistration,
+            userInfoClaimsConverter,
+            propertyResolver,
+            cacheManager.getCache("userInfoOAuth2Cache"));
     }
 
 }

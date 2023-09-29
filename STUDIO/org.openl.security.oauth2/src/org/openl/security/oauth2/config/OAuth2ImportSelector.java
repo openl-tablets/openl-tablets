@@ -1,22 +1,22 @@
 package org.openl.security.oauth2.config;
 
-import org.openl.util.StringUtils;
-import org.springframework.context.EnvironmentAware;
+import org.openl.security.oauth2.OAuth2Configuration;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.annotation.ImportSelector;
-import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.lang.NonNull;
 
-/**
- * Selects OAuth2 configuration based on the presence of the introspection-uri property.
- */
-public class OAuth2ImportSelector implements ImportSelector, EnvironmentAware {
+public class OAuth2ImportSelector implements ImportSelector, BeanFactoryAware {
 
-    private Environment environment;
+    private BeanFactory beanFactory;
 
     @Override
-    public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-        var introspectionUri = environment.getProperty("security.oauth2.introspection-uri");
-        if (StringUtils.isNotBlank(introspectionUri)) {
+    @NonNull
+    public String[] selectImports(@NonNull AnnotationMetadata metadata) {
+        var oAuth2Config = beanFactory.getBean(OAuth2Configuration.class);
+
+        if (oAuth2Config.getIntrospectionEndpoint().isPresent()) {
             return new String[] { OAuth2OpaqueAccessTokenConfiguration.class.getName() };
         } else {
             return new String[] { OAuth2JwtAccessTokenConfiguration.class.getName() };
@@ -24,7 +24,7 @@ public class OAuth2ImportSelector implements ImportSelector, EnvironmentAware {
     }
 
     @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setBeanFactory(@NonNull BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 }
