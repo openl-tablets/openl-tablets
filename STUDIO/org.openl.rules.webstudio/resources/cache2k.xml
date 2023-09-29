@@ -17,5 +17,9 @@
             <name>aclCache</name>
             <expireAfterWrite>2m</expireAfterWrite>
         </cache>
+        <cache>
+            <name>userInfoOAuth2Cache</name>
+            <expireAfterWrite>30m</expireAfterWrite>
+        </cache>
     </caches>
 </cache2k>
