@@ -1,35 +1,22 @@
 package org.openl.binding.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
-import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,26 +38,26 @@ public class MethodNodeBinder extends ANodeBinder {
             return errorNode;
         }
 
-        int childrenCount = node.getNumberOfChildren();
+        var childrenCount = node.getNumberOfChildren();
 
-        ISyntaxNode funcNode = node.getChild(childrenCount - 1);
-        String methodName = ((IdentifierNode) funcNode).getIdentifier();
-        IOpenClass[] parameterTypes = IOpenClass.EMPTY;
+        var funcNode = node.getChild(childrenCount - 1);
+        var methodName = ((IdentifierNode) funcNode).getIdentifier();
+        var parameterTypes = IOpenClass.EMPTY;
 
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         boolean errorsAndMessagesPopped = false;
         try {
-            IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-            List<SyntaxNodeException> syntaxNodeExceptions = bindingContext.popErrors();
-            Collection<OpenLMessage> openLMessages = bindingContext.popMessages();
+            var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+            var syntaxNodeExceptions = bindingContext.popErrors();
+            var openLMessages = bindingContext.popMessages();
             errorsAndMessagesPopped = true;
 
             if (syntaxNodeExceptions.isEmpty()) {
 
                 parameterTypes = getTypes(children);
 
-                IMethodCaller methodCaller = bindingContext
+                var methodCaller = bindingContext
                     .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
@@ -107,9 +94,13 @@ public class MethodNodeBinder extends ANodeBinder {
                 }
             }
 
-            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
-            Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
-                .map(t -> makeSugarConstructor(node, bindingContext, t, funcNode));
+            var type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
+            var childNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
+            for (int i = 0; i < childNodes.length; i++) {
+                childNodes[i] = node.getChild(i);
+            }
+            var iBoundNode = Optional.ofNullable(type)
+                .map(t -> ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, t, funcNode));
             if (iBoundNode.isPresent()) {
                 return iBoundNode.get();
             }
@@ -129,111 +120,6 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private IBoundNode makeSugarConstructor(ISyntaxNode node,
-            IBindingContext bindingContext,
-            IOpenClass type,
-            ISyntaxNode typeNode) {
-        bindingContext.pushMessages();
-        bindingContext.pushErrors();
-        try {
-            if (type.getInstanceClass() == null) {
-                return makeErrorNode(MessageUtils
-                    .getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()), typeNode, bindingContext);
-            }
-            List<IBoundNode> params = new ArrayList<>();
-            Map<String, ISyntaxNode> namedParams = new HashMap<>();
-            boolean isAllParamsAssign = true;
-            ISyntaxNode duplicatedParamSyntaxNode = null;
-            boolean isAllParamsNoAssign = true;
-            try {
-                bindingContext.pushLocalVarContext();
-                ILocalVar localVar = bindingContext
-                    .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
-                TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
-                for (int i = 0; i < node.getNumberOfChildren() - 1; i++) {
-                    ISyntaxNode child = node.getChild(i);
-                    String childType = child.getType();
-                    if ("op.assign".equals(childType)) {
-                        isAllParamsNoAssign = false;
-                        IBoundNode iBoundNode = bindChildNode(child, varBindingContext);
-                        ISyntaxNode paramNameSyntaxNode = child.getChild(0);
-                        String paramName = paramNameSyntaxNode.getText();
-                        if (namedParams.containsKey(paramName)) {
-                            duplicatedParamSyntaxNode = paramNameSyntaxNode;
-                        }
-                        namedParams.put(paramName, paramNameSyntaxNode);
-                        params.add(iBoundNode);
-                    } else {
-                        isAllParamsAssign = false;
-                        IBoundNode iBoundNode = bindChildNode(child, bindingContext);
-                        params.add(iBoundNode);
-                    }
-                }
-                IMethodCaller defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
-                if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
-                    cleanErrorsAndMessages(bindingContext);
-                    return makeErrorNode(String.format("Field '%s' has already used.",
-                        duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
-                } else if (isAllParamsAssign && defaultConstructor == null) {
-                    cleanErrorsAndMessages(bindingContext);
-                    return makeErrorNode(String.format("Default constructor is not found in type '%s'.",
-                        type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
-                } else if (defaultConstructor != null && isAllParamsAssign) {
-                    for (Map.Entry<String, ISyntaxNode> e : namedParams.entrySet()) {
-                        IOpenField f = type.getField(e.getKey());
-                        if (f == null) {
-                            cleanErrorsAndMessages(bindingContext);
-                            return makeErrorNode(String.format("Field '%s' is not found.", e.getKey()),
-                                e.getValue(),
-                                bindingContext);
-                        }
-                        if (f.isStatic()) {
-                            cleanErrorsAndMessages(bindingContext);
-                            return makeErrorNode(
-                                String.format("Field '%s' is found, but it is declared with static modifier.",
-                                    e.getKey()),
-                                e.getValue(),
-                                bindingContext);
-                        }
-                        if (!f.isWritable()) {
-                            cleanErrorsAndMessages(bindingContext);
-                            return makeErrorNode(String.format("Field '%s' is found, but it is read only.", e.getKey()),
-                                e.getValue(),
-                                bindingContext);
-                        }
-                    }
-                    MethodBoundNode methodBoundNode = new MethodBoundNode(node, defaultConstructor);
-                    return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
-                } else if (isAllParamsNoAssign && !Date.class.getName().equals(type.getName())) {
-                    IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
-                    IOpenClass[] types = getTypes(children);
-                    IMethodCaller methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
-                    if (methodCaller != null) {
-                        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-                        return new ConstructorParamsNode(
-                            new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
-                    }
-                }
-            } finally {
-                bindingContext.popLocalVarContext();
-            }
-            cleanErrorsAndMessages(bindingContext);
-            return null;
-        } finally {
-            List<SyntaxNodeException> errors = bindingContext.popErrors();
-            Collection<OpenLMessage> messages = bindingContext.popMessages();
-            errors.forEach(bindingContext::addError);
-            messages.forEach(bindingContext::addMessage);
-        }
-    }
-
-    private void cleanErrorsAndMessages(IBindingContext bindingContext) {
-        bindingContext.popErrors();
-        bindingContext.popMessages();
-        bindingContext.pushErrors();
-        bindingContext.pushMessages();
-    }
-
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
             String methodName,
             IOpenClass[] argumentTypes,
@@ -247,14 +133,14 @@ public class MethodNodeBinder extends ANodeBinder {
         if (childrenCount == 2) {
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
-            IOpenField field = argumentType.getField(methodName, false);
+            var field = argumentType.getField(methodName, false);
             if (field != null) {
                 if (!Objects.equals(field.getName(), methodName)) {
                     bindingContext.addMessage(OpenLMessagesUtils
                         .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
                 }
                 if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
-                    IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
+                    var t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
                     if (t != null) {
                         field = new ModuleSpecificOpenField(field, t);
                     }
@@ -268,7 +154,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
         if (log.isTraceEnabled()) {
-            String method = MethodUtil.printMethod(methodName, argumentTypes);
+            var method = MethodUtil.printMethod(methodName, argumentTypes);
             log.trace("Method {} has been binded as {}.", method, bindingType);
         }
     }
@@ -276,22 +162,21 @@ public class MethodNodeBinder extends ANodeBinder {
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) throws Exception {
 
-        IBoundNode errorNode = validateNode(node, bindingContext);
+        var errorNode = validateNode(node, bindingContext);
         if (errorNode != null) {
             return errorNode;
         }
 
-        int childrenCount = node.getNumberOfChildren();
-        ISyntaxNode lastNode = node.getChild(childrenCount - 1);
+        var childrenCount = node.getNumberOfChildren();
+        var lastNode = node.getChild(childrenCount - 1);
 
-        String methodName = ((IdentifierNode) lastNode).getIdentifier();
+        var methodName = ((IdentifierNode) lastNode).getIdentifier();
 
-        IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        IOpenClass[] paramTypes = getTypes(children);
+        var children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        var paramTypes = getTypes(children);
 
-        IOpenClass type = target.getType();
-        IMethodCaller methodCaller = ModuleSpecificOpenMethod
-            .findMethodCaller(type, methodName, paramTypes, bindingContext);
+        var type = target.getType();
+        var methodCaller = ModuleSpecificOpenMethod.findMethodCaller(type, methodName, paramTypes, bindingContext);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller != null) {
