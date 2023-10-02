@@ -6,7 +6,7 @@ ERROR: Operator 'add(int[], int)' is not found.
 ERROR: Operator 'and(int, int)' is not found.
 ERROR: Operator 'or(int, int)' is not found.
 ERROR: Type 'int1' is not found.
-ERROR: Constructor 'java.util.Calendar()' is not found.
+ERROR: Default constructor is not found in type 'Calendar'.
 ERROR: Expected Comparable type for 'Order By' expression.
 ERROR: Operator 'inc(int[])' is not found.
 ERROR: Operator 'dec(int[])' is not found.
