@@ -1894,7 +1894,6 @@ public final class DecisionTableHelper {
                         for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                             if (paramType.isAssignableFrom(header.getSignature().getParameterType(j))) {
                                 usedParamIndexesByField.add(j);
-                                methodParametersToRename.put(param, field.getName());
                                 numberOfCandidates++;
                             }
                         }

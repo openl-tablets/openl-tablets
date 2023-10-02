@@ -16,3 +16,4 @@ WARN: Case insensitive matching to 'someField1'.
 WARN: Case insensitive matching to 'someField2'.
 WARN: Case insensitive matching to 'someAlias'.
 WARN: Case insensitive matching to 'myVar'.
+WARN: Case insensitive matching to 'gender'
