@@ -28,7 +28,7 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 #### Requirements:
 
 * JDK 11
-* Maven 3.8.3
+* Maven 3.9.4
 * Docker 24.0.4
 * Docker compose 1.29.2
 * 512 MiB RAM free
