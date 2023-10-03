@@ -4,8 +4,8 @@ class ByteMappedStorage extends MappedStorage {
 
     private final byte[] bmap;
 
-    ByteMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
-        super(uniqueValues, info);
+    ByteMappedStorage(int[] map, Object[] uniqueValues, IStorage storage, StorageInfo info) {
+        super(uniqueValues, storage, info);
         int size = map.length;
         bmap = new byte[size];
         for (int i = 0; i < size; i++) {
