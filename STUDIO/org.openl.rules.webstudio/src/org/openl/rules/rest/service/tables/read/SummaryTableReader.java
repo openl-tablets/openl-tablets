@@ -38,7 +38,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
                     .relativize(Path.of(url.getWbPath()))
                     .resolve(url.getWbName())
                     .toString();
-            builder.file(file);
+            builder.file(file.replace("\\", "/"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to resolve module location", e);
         }
