@@ -13,6 +13,8 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Before;
@@ -33,8 +35,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
-
-import javax.xml.bind.JAXBException;
 
 public class OpenAPIGenerationTest {
 
@@ -141,8 +141,9 @@ public class OpenAPIGenerationTest {
             for (Pair<ObjectMapper, String> pair : MAPPER_TO_FILE) {
                 String actualOpenAPIStr;
                 try {
-                    actualOpenAPIStr = pair.getValue().endsWith(".json") ? OpenApiSerializationUtils
-                        .toJson(actualOpenAPI) : OpenApiSerializationUtils.toYaml(actualOpenAPI);
+                    actualOpenAPIStr = pair.getValue().endsWith(".json")
+                            ? Json.pretty().writeValueAsString(actualOpenAPI)
+                            : Yaml.pretty().writeValueAsString(actualOpenAPI);
                 } catch (JsonProcessingException e) {
                     error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                     testsFailed = true;

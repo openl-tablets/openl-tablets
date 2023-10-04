@@ -28,7 +28,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
@@ -267,9 +266,7 @@ public class OpenApiGenerator {
         objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
         objectMapperFactoryBean.setClassLoader(serviceClassLoader);
         try {
-            ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
-            OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
-            return objectMapper;
+            return objectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) { // Never happens
             throw new IllegalStateException("Failed to create an object mapper", e);
         }

@@ -6,13 +6,9 @@
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
     </bean>
 
-    <bean id="jaxrsOpenApiObjectMapperConfiguration"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationBean"/>
-
     <bean id="jaxrsSwaggerAndOpenApiObjectMapperParent"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean"
-          scope="prototype" abstract="true"
-          depends-on="jaxrsOpenApiObjectMapperConfiguration">
+          scope="prototype" abstract="true">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
