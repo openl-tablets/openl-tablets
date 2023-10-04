@@ -1,9 +1,8 @@
-## OpenAPI schema customization
+## OpenAPI Schema Customization
 
-OpenL Rule Services WS produces OpenAPI schema for each deployed service automatically from the
+The OpenL Tablets Rule Services web service produces the OpenAPI schema for each deployed service automatically from the
 OpenL projects based on the OpenAPI and JAX-RS annotations.
-To change output of the openapi.json it needs to create `openapi-configuration.json` file, located
-in the working directory or in the root of the classpath:
+To change the output of openapi.json, in the working directory or root of the classpath, create the `openapi-configuration.json` file with the following contents:
 
 ```json
 {
@@ -32,5 +31,4 @@ in the working directory or in the root of the classpath:
 }
 ```
 
-The description of the `openapi-configuration.json` file can be found at the "[Swagger 2.X Integration and Configuration](https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration)"
-page.
+For the description of the `openapi-configuration.json` file, see "[Swagger 2.X Integration and Configuration](https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration)".
