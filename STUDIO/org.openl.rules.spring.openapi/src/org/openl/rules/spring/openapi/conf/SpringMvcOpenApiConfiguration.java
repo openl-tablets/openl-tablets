@@ -3,6 +3,7 @@ package org.openl.rules.spring.openapi.conf;
 import java.util.Collections;
 import java.util.List;
 
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.controller.OpenApiController;
 import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
@@ -29,6 +30,7 @@ public class SpringMvcOpenApiConfiguration {
     @Bean
     public OpenApiServiceImpl openApiService(ApplicationContext context,
             OpenApiSpringMvcReader openApiSpringMvcReader) {
+        OpenAPIConfiguration.configure();
         return new OpenApiServiceImpl(context, openApiSpringMvcReader, Collections.singleton(OpenApiController.class));
     }
 
