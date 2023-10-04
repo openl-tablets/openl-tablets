@@ -45,5 +45,9 @@
             <groupId>org.openl</groupId>
             <artifactId>org.openl.commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
+        </dependency>
     </dependencies>
 </project>
