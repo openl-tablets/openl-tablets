@@ -1,8 +1,8 @@
-# Tracing with OpenTelemetry Java agent
+# Tracing with OpenTelemetry Java Agent
 
 OpenL Docker images come with the [OpenTelemetry](https://opentelemetry.io) Java agent. By default, OpenTelemetry is disabled.
-To enable OpenTelemetry, it is required to set the `OTEL_JAVAAGENT_ENABLED=true` environment variable or define some `OTEL_EXPORTER_******_ENDPOINT` environment property.
-To run OpenL Tablets Rule Services with enabled OpenTelemetry, you can use the following command:
+To enable OpenTelemetry, set the `OTEL_JAVAAGENT_ENABLED=true` environment variable or define the `OTEL_EXPORTER_******_ENDPOINT` environment property.
+To run OpenL Tablets Rule Services with enabled OpenTelemetry, use the following command:
 
 ```bash
 docker run --rm -p 8080:8080 \
@@ -10,13 +10,13 @@ docker run --rm -p 8080:8080 \
     opentablets/ws
 ```
 
-This minimal configuration allows logging both OpenL rules execution and default metrics such as DB queries, HTTP networking, Kafka messaging, etc.
-To suppress some undesired agent instrumentation, you can add `OTEL_INSTRUMENTATION_[NAME]_ENABLED=false` to the configuration where `NAME` is the corresponding instrumentation name.
+This minimal configuration allows logging both OpenL rules execution and default metrics, such as DB queries, HTTP networking, and Kafka messaging.
+To suppress the undesired agent instrumentation, add `OTEL_INSTRUMENTATION_[NAME]_ENABLED=false` to the configuration where `NAME` is the corresponding instrumentation name.
 See [Suppressing specific agent instrumentation](https://opentelemetry.io/docs/instrumentation/java/automatic/agent-config/#suppressing-specific-agent-instrumentation).
 The instrumentation name of the OpenL rules agent is `openl-rules`.
 
-Note: In large projects, when a large number of OpenL methods can be invoked internally (much more than 1,000), it can significantly decrease performance.
-So, in this case, it is reasonable to disable tracing of OpenL rules execution via defining `OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false`:
+Note: In large projects, when a significant number (much more than 1,000) of OpenL methods is invoked internally, it can considerably decrease performance.
+In this case, it is reasonable to disable tracing of OpenL rules execution by defining `OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false` as follows:
 
 ```bash
 docker run --rm -p 8080:8080 \
