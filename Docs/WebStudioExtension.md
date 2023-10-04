@@ -1,10 +1,9 @@
-# Extending OpenL WebStudio UI by external JavaScript
+# Extending OpenL Tablets WebStudio UI by External JavaScript
 
-In cases where one needs to add additional functionality to the OpenL WebStudio UI, it can be achieved by providing the URL to the JavaScript
-within the `webstudio.javascript.url` property.
-This JavaScript will be loaded and executed in the web browser along with the WebStudio UI.
+To extend the OpenL Tablets WebStudio UI functionality, in the `webstudio.javascript.url` property, provide the URL to the corresponding JavaScript.
+This JavaScript will be loaded and executed in a web browser along with the OpenL Tablets WebStudio UI.
 
-### Google Analytics extension.
+### Google Analytics Extension
 
 Create the `gtag.js` JavaScript file with the following content:
 ```javascript
@@ -32,6 +31,7 @@ gtag('config', tag);
 
 ```
 
-Put the file in the location, where it can be accessed by a browser. For example, it can be located in the root of the web application.
+Save the file in the location that can be accessed by a browser, for example, in the root of the web application.
 
-Define the `webstudio.javascript.url` property to this location. E.g. `webstudio.javascript.url=https://example.com/gtag.js` property.
+Set the `webstudio.javascript.url` property to this location, for example, as follows:
+`webstudio.javascript.url=https://example.com/gtag.js`
