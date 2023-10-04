@@ -3,10 +3,15 @@ package org.openl.rules.openapi;
 import java.io.InputStream;
 import java.io.Reader;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.jackson.mixin.SchemaMixin;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.PrimitiveType;
+import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.media.BinarySchema;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.media.XML;
 import org.springframework.core.io.InputStreamSource;
 
 /**
@@ -23,6 +28,10 @@ public class OpenAPIConfiguration {
     static {
         PrimitiveType.customClasses().put("java.util.Locale", PrimitiveType.STRING);
 
+        // Remove needless xml namesapce attribute from the generated OpenAPI schema
+        Json.mapper().addMixIn(Schema.class, OpenApiXmlIgnoreMixIn.class);
+        Yaml.mapper().addMixIn(Schema.class, OpenApiXmlIgnoreMixIn.class);
+
         ModelConverters.getInstance().addConverter((type, context, chain) -> {
             var clazz = Json.mapper().constructType(type.getType()).getRawClass();
 
@@ -36,4 +45,10 @@ public class OpenAPIConfiguration {
             return chain.hasNext() ? chain.next().resolve(type, context, chain) : null;
         });
     }
+
+    public static abstract class OpenApiXmlIgnoreMixIn extends SchemaMixin {
+        @JsonIgnore
+        public abstract XML getXml();
+    }
+
 }
