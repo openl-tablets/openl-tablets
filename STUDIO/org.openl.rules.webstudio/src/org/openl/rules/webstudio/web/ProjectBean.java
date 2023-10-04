@@ -55,7 +55,6 @@ import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.openapi.OpenApiGenerationException;
 import org.openl.rules.project.openapi.OpenApiGenerator;
-import org.openl.rules.project.openapi.OpenApiSerializationUtils;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
@@ -88,6 +87,9 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 import org.openl.validation.ValidatedCompiledOpenClass;
+
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -1067,11 +1069,11 @@ public class ProjectBean {
         String generatedOpenAPISchema;
         switch (openAPIType) {
             case JSON:
-                generatedOpenAPISchema = OpenApiSerializationUtils.toJson(generator.generate());
+                generatedOpenAPISchema = Json.pretty().writeValueAsString(generator.generate());
                 break;
             case YAML:
             case YML:
-                generatedOpenAPISchema = OpenApiSerializationUtils.toYaml(generator.generate());
+                generatedOpenAPISchema = Yaml.pretty().writeValueAsString(generator.generate());
                 break;
             default:
                 throw new IllegalStateException(); // Must newer happened.
