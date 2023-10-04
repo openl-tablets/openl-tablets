@@ -5,6 +5,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.ClassUtils;
 
@@ -23,6 +24,7 @@ public final class SpringInitializer implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        OpenAPIConfiguration.configure();
         ServletContext servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new ClassPathXmlApplicationContext();

@@ -18,6 +18,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
@@ -63,6 +64,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         JDBCDriverRegister.registerDrivers();
+        OpenAPIConfiguration.configure();
 
         ServletContext servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
