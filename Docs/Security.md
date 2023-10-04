@@ -1,6 +1,6 @@
-## Enabling security in the OpenL Rule Services WS
+## Enabling Security in the OpenL Tablets Rule Services Web Service
 
-OpenL Rule Services WS comes with the simple implementation of the OAuth2 authentication.
+OpenL Tablets Rule Services web service comes with the simple implementation of the OAuth2 authentication.
 To enable it, define the following properties:
 
 ```properties
@@ -10,7 +10,7 @@ ruleservice.authentication.jwks = https://www.googleapis.com/oauth2/v3/certs
 #ruleservice.authentication.aud = https://openl-tablets.org
 ```
 
-In the case, when the default security does not meet to the requirements, the custom implementation can be added:
+In case when the default security does not meet the requirements, a custom implementation can be added as follows:
 
 ```java
 package org.openl.rules.ruleservice.spring;
@@ -36,9 +36,9 @@ public class BasicAuthorizationChecker implements AuthorizationChecker {
 }
 ```
 
-There can be several Spring beans. The order of authorization can be defined by `@Order` annotation.
-The authorization is successful if any of the checkers will return `true`.
-The custom access denied handler can be registered which will be called when no checkers are return `true`.
+There can be several Spring beans. The order of authorization can be defined by the `@Order` annotation.
+The authorization is successful if any of checkers returns `true`.
+A custom access denied handler can be registered to be called when no checkers return `true`.
 
 ```java
 package org.openl.rules.ruleservice.spring;
