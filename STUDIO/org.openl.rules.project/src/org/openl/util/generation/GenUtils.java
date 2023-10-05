@@ -1,7 +1,9 @@
 package org.openl.util.generation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openl.rules.variation.VariationsPack;
@@ -18,14 +20,6 @@ import org.openl.util.JavaKeywordUtils;
 public final class GenUtils {
 
     private GenUtils() {
-    }
-
-    public static String[] getParameterNames(Method method) {
-        String[] parameterNames = new String[method.getParameterTypes().length];
-        for (int i = 0; i < method.getParameterTypes().length; i++) {
-            parameterNames[i] = "arg" + i;
-        }
-        return parameterNames;
     }
 
     public static String[] getParameterNames(Method method,
@@ -115,7 +109,7 @@ public final class GenUtils {
                 }
             }
         }
-        return getParameterNames(method);
+        return Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
     }
 
     public static void fixJavaKeyWords(List<String> parameterNames) {

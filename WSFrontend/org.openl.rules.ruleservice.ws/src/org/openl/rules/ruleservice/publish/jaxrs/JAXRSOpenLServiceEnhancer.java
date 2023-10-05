@@ -15,16 +15,6 @@ import org.openl.runtime.ASMProxyFactory;
  */
 public final class JAXRSOpenLServiceEnhancer {
 
-    private boolean resolveMethodParameterNames = true;
-
-    public boolean isResolveMethodParameterNames() {
-        return resolveMethodParameterNames;
-    }
-
-    public void setResolveMethodParameterNames(boolean resolveMethodParameterNames) {
-        this.resolveMethodParameterNames = resolveMethodParameterNames;
-    }
-
     public Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
@@ -32,7 +22,6 @@ public final class JAXRSOpenLServiceEnhancer {
         Class<?> enhancedServiceClass = JAXRSOpenLServiceEnhancerHelper.enhanceInterface(serviceClass,
             service.getServiceBean(),
             classLoader,
-            isResolveMethodParameterNames(),
             service.isProvideRuntimeContext(),
             service.isProvideVariations()
         );
