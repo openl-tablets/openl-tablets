@@ -7,8 +7,6 @@ import java.util.Objects;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.runtime.ASMProxyFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * Utility class for generate JAXRS annotations for service interface.
  *
@@ -27,7 +25,7 @@ public final class JAXRSOpenLServiceEnhancer {
         this.resolveMethodParameterNames = resolveMethodParameterNames;
     }
 
-    public Object decorateServiceBean(OpenLService service, ObjectMapper openApiObjectMapper) throws Exception {
+    public Object decorateServiceBean(OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         ClassLoader classLoader = service.getClassLoader();
@@ -36,8 +34,8 @@ public final class JAXRSOpenLServiceEnhancer {
             classLoader,
             isResolveMethodParameterNames(),
             service.isProvideRuntimeContext(),
-            service.isProvideVariations(),
-            openApiObjectMapper);
+            service.isProvideVariations()
+        );
         if (enhancedServiceClass.getPackage() == null) {
             throw new IllegalStateException("Package cannot be null");
         }

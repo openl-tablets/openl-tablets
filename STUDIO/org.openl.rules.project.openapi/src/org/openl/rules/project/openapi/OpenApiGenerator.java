@@ -97,8 +97,8 @@ public class OpenApiGenerator {
             ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
             Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
                 enhancedInstantiationStrategy.instantiate(),
-                serviceClassLoader,
-                objectMapper);
+                serviceClassLoader
+            );
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
                 throw new OpenApiGenerationException(
@@ -274,16 +274,15 @@ public class OpenApiGenerator {
 
     private Class<?> enhanceWithJAXRS(Class<?> originalClass,
             Object targetService,
-            ClassLoader classLoader,
-            ObjectMapper objectMapper) throws RulesInstantiationException {
+            ClassLoader classLoader) throws RulesInstantiationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 targetService,
                 classLoader,
                 true,
                 isProvidedRuntimeContext(),
-                isProvideVariations(),
-                objectMapper);
+                isProvideVariations()
+            );
         } catch (Exception e) {
             throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
         }
