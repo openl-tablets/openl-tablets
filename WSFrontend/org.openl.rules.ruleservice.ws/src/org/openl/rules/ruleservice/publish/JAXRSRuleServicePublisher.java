@@ -182,7 +182,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, openApiObjectMapper);
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
             svrFactory.setResourceClasses(serviceClass);
