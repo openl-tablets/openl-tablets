@@ -39,6 +39,13 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
         while (pend >= pstart && sourceString.charAt(pend) == ' ') {
             pend--;
         }
+        var s = sourceString.substring(pstart);
+        if (s.startsWith("new ")) {
+            pstart += 4;
+        }
+        while (pstart < pend && sourceString.charAt(pstart) == ' ') {
+            pstart++;
+        }
         return Optional.of(new ConstructorUsage(constructorNode, pstart + startIndex, pend + startIndex, method));
     }
 
