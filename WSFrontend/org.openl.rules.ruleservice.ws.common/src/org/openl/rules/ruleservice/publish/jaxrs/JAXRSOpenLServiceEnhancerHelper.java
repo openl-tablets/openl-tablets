@@ -66,10 +66,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -120,7 +116,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
-        private final ObjectMapper openApiObjectMapper;
         private final Object targetService;
 
         private final Map<String, List<Method>> originalClassMethodsByName;
@@ -131,15 +126,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 ClassLoader classLoader,
                 boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
-                boolean provideVariations,
-                ObjectMapper openApiObjectMapper) {
+                boolean provideVariations) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
-            this.openApiObjectMapper = openApiObjectMapper;
             this.targetService = targetService;
 
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
@@ -176,20 +169,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private <T extends Annotation> T getAnnotationWithObjectMapper(ObjectMapper objectMapper,
-                Class<?> target,
-                Class<T> annotation) {
-            if (objectMapper != null) {
-                BeanDescription beanDescription = objectMapper.getSerializationConfig()
-                    .introspect(TypeFactory.defaultInstance().constructType(target));
-                return beanDescription.getClassAnnotations().get(annotation);
-            } else {
-                return target.getAnnotation(annotation);
-            }
-        }
-
         private String getOpenApiComponentName(Class<?> clazz) {
-            Schema schema = getAnnotationWithObjectMapper(openApiObjectMapper, clazz, Schema.class);
+            Schema schema = clazz.getAnnotation(Schema.class);
             return schema == null ? clazz.getSimpleName() : schema.name();
         }
 
@@ -837,8 +818,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             ClassLoader classLoader,
             boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
-            boolean provideVariations,
-            ObjectMapper openApiObjectMapper) throws Exception {
+            boolean provideVariations) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
@@ -855,8 +835,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 classLoader,
                 resolveMethodParameterNames,
                 provideRuntimeContext,
-                provideVariations,
-                openApiObjectMapper);
+                provideVariations
+            );
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
                 enhancedClassName,
                 InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
