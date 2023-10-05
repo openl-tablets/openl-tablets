@@ -94,8 +94,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     private static final String OPENAPI_YML = "openapi.yml";
     public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI Reconciliation: ";
 
-    private boolean resolveMethodParameterNames = true;
-
     private final Reader reader = new Reader();
 
     private OpenAPI loadOpenAPI(Context context,
@@ -275,7 +273,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
             context.getTargetService(),
             classLoader,
-            isResolveMethodParameterNames(),
             context.isProvideRuntimeContext(),
             context.isProvideVariations()
         );
@@ -1597,13 +1594,5 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         getAndValidateOperation(context, PathItem::getHead, HEAD.class);
         getAndValidateOperation(context, PathItem::getPatch, PATCH.class);
         getAndValidateOperation(context, PathItem::getOptions, OPTIONS.class);
-    }
-
-    public boolean isResolveMethodParameterNames() {
-        return resolveMethodParameterNames;
-    }
-
-    public void setResolveMethodParameterNames(boolean resolveMethodParameterNames) {
-        this.resolveMethodParameterNames = resolveMethodParameterNames;
     }
 }

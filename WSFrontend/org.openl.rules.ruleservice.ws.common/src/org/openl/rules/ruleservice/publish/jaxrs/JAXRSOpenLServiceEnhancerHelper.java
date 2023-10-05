@@ -63,7 +63,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.JAXBUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,7 +111,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final ClassLoader classLoader;
         private Set<String> usedPaths = null;
         private final Set<String> nicknames = new HashSet<>();
-        private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
@@ -124,13 +122,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Class<?> originalClass,
                 Object targetService,
                 ClassLoader classLoader,
-                boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
                 boolean provideVariations) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
-            this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
             this.targetService = targetService;
@@ -458,9 +454,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private String[] resolveParameterNames(Method originalMethod) {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
                 targetService);
-            return resolveMethodParameterNames ? MethodUtils
-                .getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations)
-                                               : GenUtils.getParameterNames(originalMethod);
+            return MethodUtils.getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations);
         }
 
         private boolean isTextMediaType(Class<?> type) {
@@ -816,7 +810,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
     public static Class<?> enhanceInterface(Class<?> originalClass,
             Object targetService,
             ClassLoader classLoader,
-            boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
             boolean provideVariations) throws Exception {
         if (!originalClass.isInterface()) {
@@ -833,7 +826,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 originalClass,
                 targetService,
                 classLoader,
-                resolveMethodParameterNames,
                 provideRuntimeContext,
                 provideVariations
             );

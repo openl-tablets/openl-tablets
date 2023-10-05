@@ -37,13 +37,6 @@
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
     </bean>
 
-    <bean id="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.ServiceConfigurationBooleanFactoryBean" scope="prototype">
-        <property name="propertyName" value="jaxrs.resolveMethodParameterNames"/>
-        <property name="defaultValue" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
-        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
-    </bean>
-
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
         <property name="bus" ref="cxf"/>
     </bean>
@@ -51,11 +44,6 @@
     <!-- Initializes OpenL Engine instances according to Rule Services configuration description and calls RuleServicePublisher
         to expose corresponding web service -->
     <!-- Exposes web services. -->
-    <bean id="jaxrsServiceEnhancer" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer"
-          scope="prototype">
-        <property name="resolveMethodParameterNames"
-                  ref="jaxrsServiceConfigurationResolveMethodParameterNamesFactoryBean"/>
-    </bean>
 
     <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
         <property name="authenticationEnabled" value="${ruleservice.authentication.enabled}"/>
