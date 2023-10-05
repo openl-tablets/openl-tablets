@@ -1402,6 +1402,11 @@
                 <version>${cxf.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-features-logging</artifactId>
+                <version>${cxf.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core-shaded</artifactId>
                 <version>${cassandra.driver.version}</version>
