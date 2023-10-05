@@ -279,7 +279,6 @@ public class OpenApiGenerator {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 targetService,
                 classLoader,
-                true,
                 isProvidedRuntimeContext(),
                 isProvideVariations()
             );

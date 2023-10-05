@@ -64,9 +64,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean authenticationEnabled;
 
     @Autowired
-    private ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
-
-    @Autowired
     @Qualifier("jaxrsServiceServerPrototype")
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
@@ -139,14 +136,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return authenticationEnabled;
     }
 
-    public ObjectFactory<JAXRSOpenLServiceEnhancer> getServiceEnhancerObjectFactory() {
-        return serviceEnhancerObjectFactory;
-    }
-
-    public void setServiceEnhancerObjectFactory(ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory) {
-        this.serviceEnhancerObjectFactory = serviceEnhancerObjectFactory;
-    }
-
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
@@ -194,8 +183,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             svrFactory.setProvider(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
             svrFactory.setProvider(new OpenApiHackContainerResponseFilter());
 
-            JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service);
+            Object proxyServiceBean = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
             svrFactory.setResourceClasses(serviceClass);
