@@ -2,9 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="jaxrsSwaggerAndOpenApiObjectMapperParent"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean"
-          scope="prototype" abstract="true">
+    <bean id="jaxrsOpenApiObjectMapper"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean" scope="prototype">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
@@ -14,9 +13,12 @@
         <property name="jsonTypeInfoId" value="${ruleservice.jackson.jsonTypeInfoId}"/>
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
+        <property name="objectMapperFactory">
+            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
+        </property>
     </bean>
 
-    <bean id="jaxrsProjectJacksonObjectMapperFactoryBean"
+    <bean id="jaxrsServiceObjectMapper"
           class="org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean" scope="prototype">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="caseInsensitiveProperties" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
@@ -42,35 +44,7 @@
         <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
 
-    <bean id="jaxrsOpenApiObjectMapperFactory" parent="jaxrsSwaggerAndOpenApiObjectMapperParent" scope="prototype">
-        <property name="objectMapperFactory">
-            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
-        </property>
-    </bean>
-
-    <bean id="jaxrsOpenApiObjectMapper" factory-bean="jaxrsOpenApiObjectMapperFactory"
-          factory-method="createJacksonObjectMapper" scope="prototype"/>
-
-    <bean id="jaxrsTextPlainDateMessageBodyWriter" scope="prototype"
-          class="org.openl.rules.ruleservice.databinding.TextPlainDateMessageProvider">
-        <property name="objectMapper">
-            <bean factory-bean="jaxrsProjectJacksonObjectMapperFactoryBean" factory-method="createJacksonObjectMapper"/>
-        </property>
-    </bean>
-
-    <bean id="jaxrsJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
-        <constructor-arg>
-            <bean factory-bean="jaxrsProjectJacksonObjectMapperFactoryBean" factory-method="createJacksonObjectMapper"/>
-        </constructor-arg>
-    </bean>
-
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
-        <property name="providers">
-            <list>
-                <ref bean="jaxrsJSONProvider"/>
-                <ref bean="jaxrsTextPlainDateMessageBodyWriter"/>
-            </list>
-        </property>
         <property name="bus" ref="cxf"/>
     </bean>
 
