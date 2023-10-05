@@ -68,25 +68,10 @@
         </constructor-arg>
     </bean>
 
-    <bean id="jaxrs200StatusOutInterceptor"
-          class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
-        <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
-    </bean>
-
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
         <property name="features">
             <list>
                 <ref bean="jaxrsServicesLoggingFeature"/>
-            </list>
-        </property>
-        <property name="outFaultInterceptors">
-            <list>
-                <ref bean="jaxrs200StatusOutInterceptor"/>
-            </list>
-        </property>
-        <property name="outInterceptors">
-            <list>
-                <ref bean="jaxrs200StatusOutInterceptor"/>
             </list>
         </property>
         <property name="providers">
