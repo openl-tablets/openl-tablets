@@ -27,16 +27,13 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.databinding.TextPlainDateMessageProvider;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
-import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
-import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
+import org.openl.rules.ruleservice.storelogdata.CollectRequestMessageInInterceptor;
+import org.openl.rules.ruleservice.storelogdata.CollectResponseMessageOutInterceptor;
+import org.openl.rules.ruleservice.storelogdata.PopulateStoreLogDataInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
-import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
-import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.slf4j.Logger;
@@ -66,9 +63,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Autowired
     @Qualifier("jaxrsServiceServerPrototype")
     private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
-
-    @Autowired
-    private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
 
     @Autowired
     @Qualifier("jaxrsOpenApiObjectMapper")
@@ -119,15 +113,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
     }
 
-    public ObjectFactory<StoreLogDataFeature> getStoreLoggingFeatureObjectFactory() {
-        return storeLoggingFeatureObjectFactory;
-    }
-
-    public void setStoreLoggingFeatureObjectFactory(
-            ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory) {
-        this.storeLoggingFeatureObjectFactory = storeLoggingFeatureObjectFactory;
-    }
-
     public void setAuthenticationEnabled(boolean authenticationEnabled) {
         this.authenticationEnabled = authenticationEnabled;
     }
@@ -159,21 +144,21 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             }
 
             if (getStoreLogDataManager().isEnabled()) {
-                svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
-                ObjectSerializer objectSerializer = new JacksonObjectSerializer(serviceObjectMapper);
-                svrFactory.getInInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(objectSerializer));
-                svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInInterceptors()
-                    .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
-                svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
+                var storeLogDataInInterceptor = new CollectRequestMessageInInterceptor(Integer.MAX_VALUE);
+                svrFactory.getInInterceptors().add(storeLogDataInInterceptor);
+                svrFactory.getInFaultInterceptors().add(storeLogDataInInterceptor);
 
-                svrFactory.getInFaultInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(objectSerializer));
-                svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
-                svrFactory.getInFaultInterceptors()
-                    .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
-                svrFactory.getInFaultInterceptors().add(new CollectOperationResourceInfoInterceptor());
+                var storeLogDataOutInterceptor = new CollectResponseMessageOutInterceptor(Integer.MAX_VALUE, getStoreLogDataManager());
+                svrFactory.getOutInterceptors().add(storeLogDataOutInterceptor);
+                svrFactory.getOutFaultInterceptors().add(storeLogDataOutInterceptor);
+
+                var serviceInterceptor = new PopulateStoreLogDataInterceptor(service, serviceObjectMapper);
+                svrFactory.getInInterceptors().add(serviceInterceptor);
+                svrFactory.getInFaultInterceptors().add(serviceInterceptor);
+
+                var operationResourceInfoInterceptor = new CollectOperationResourceInfoInterceptor();
+                svrFactory.getInInterceptors().add(operationResourceInfoInterceptor);
+                svrFactory.getInFaultInterceptors().add(operationResourceInfoInterceptor);
             }
 
             // Swagger support
