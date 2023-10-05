@@ -2,10 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="jaxrsServicesLoggingFeature" class="org.openl.rules.ruleservice.storelogdata.LoggingFeature">
-        <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
-    </bean>
-
     <bean id="jaxrsSwaggerAndOpenApiObjectMapperParent"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean"
           scope="prototype" abstract="true">
@@ -69,11 +65,6 @@
     </bean>
 
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
-        <property name="features">
-            <list>
-                <ref bean="jaxrsServicesLoggingFeature"/>
-            </list>
-        </property>
         <property name="providers">
             <list>
                 <ref bean="jaxrsJSONProvider"/>

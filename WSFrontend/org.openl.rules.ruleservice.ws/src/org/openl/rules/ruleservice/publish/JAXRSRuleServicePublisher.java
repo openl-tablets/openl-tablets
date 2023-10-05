@@ -15,6 +15,7 @@ import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.info.Info;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
@@ -40,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -86,6 +88,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private Environment env;
+
+    @Value("${ruleservice.logging.enabled}")
+    private boolean loggingEnabled;
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
@@ -156,6 +161,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
+
+            if (loggingEnabled) {
+                svrFactory.getFeatures().add(new LoggingFeature());
+            }
+
             if (getStoreLogDataManager().isEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
                 svrFactory.getInInterceptors()
