@@ -25,6 +25,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.databinding.TextPlainDateMessageProvider;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
@@ -37,6 +38,7 @@ import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
+import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -44,7 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.springframework.core.env.Environment;
 
@@ -74,7 +75,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     @Qualifier("jaxrsOpenApiObjectMapper")
-    private ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper;
+    private ObjectFactory<JacksonObjectMapperFactory> jaxrsOpenApiObjectMapper;
+
+    @Autowired
+    @Qualifier("jaxrsServiceObjectMapper")
+    private ObjectFactory<JacksonObjectMapperFactory> jaxrsServiceObjectMapper;
 
     @Autowired
     @Qualifier("serviceDescriptionInProcess")
@@ -106,14 +111,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
         this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
-
-    public ObjectFactory<ObjectMapper> getJaxrsOpenApiObjectMapper() {
-        return jaxrsOpenApiObjectMapper;
-    }
-
-    public void setJaxrsOpenApiObjectMapper(ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper) {
-        this.jaxrsOpenApiObjectMapper = jaxrsOpenApiObjectMapper;
     }
 
     public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -162,21 +159,28 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
 
+            var serviceObjectMapper = jaxrsServiceObjectMapper.getObject().createJacksonObjectMapper();
+            var openApiObjectMapper = jaxrsOpenApiObjectMapper.getObject().createJacksonObjectMapper();
+
+            svrFactory.setProvider(new TextPlainDateMessageProvider(serviceObjectMapper));
+            svrFactory.setProvider(new JacksonJsonProvider(serviceObjectMapper));
+
             if (loggingEnabled) {
                 svrFactory.getFeatures().add(new LoggingFeature());
             }
 
             if (getStoreLogDataManager().isEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
+                ObjectSerializer objectSerializer = new JacksonObjectSerializer(serviceObjectMapper);
                 svrFactory.getInInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
+                    .add(new CollectObjectSerializerInterceptor(objectSerializer));
                 svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInInterceptors()
                     .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
                 svrFactory.getInInterceptors().add(new CollectOperationResourceInfoInterceptor());
 
                 svrFactory.getInFaultInterceptors()
-                    .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
+                    .add(new CollectObjectSerializerInterceptor(objectSerializer));
                 svrFactory.getInFaultInterceptors().add(new CollectOpenLServiceInterceptor(service));
                 svrFactory.getInFaultInterceptors()
                     .add(new CollectPublisherTypeInterceptor(RulesDeploy.PublisherType.RESTFUL));
@@ -184,12 +188,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             }
 
             // Swagger support
-            ObjectMapper openApiObjectMapper;
             openApiObjectMapperHack = new OpenApiObjectMapperHack();
-            openApiObjectMapperHack.apply(openApiObjectMapper = getJaxrsOpenApiObjectMapper().getObject());
-            ((List) svrFactory.getProviders()).addAll(exceptionMappers);
-            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
-            ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
+            openApiObjectMapperHack.apply(openApiObjectMapper);
+            svrFactory.setProviders(exceptionMappers);
+            svrFactory.setProvider(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
+            svrFactory.setProvider(new OpenApiHackContainerResponseFilter());
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
             Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service);
@@ -218,20 +221,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 openApiObjectMapperHack.revert();
             }
         }
-    }
-
-    private ObjectSerializer getObjectSerializer(JAXRSServerFactoryBean svrFactory) {
-        ObjectMapper objectMapper = getObjectMapper(svrFactory);
-        return objectMapper == null ? null : new JacksonObjectSerializer(objectMapper);
-    }
-
-    private ObjectMapper getObjectMapper(JAXRSServerFactoryBean svrFactory) {
-        for (Object provider : svrFactory.getProviders()) {
-            if (provider instanceof JacksonJsonProvider) {
-                return ((JacksonJsonProvider) provider).locateMapper(null, null);
-            }
-        }
-        return null;
     }
 
     private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass, final OpenLService service) throws Exception {

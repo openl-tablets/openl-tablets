@@ -39,7 +39,11 @@ public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageB
         DATE_TYPE_SET.add(LocalTime.class);
     }
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public TextPlainDateMessageProvider(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -100,9 +104,5 @@ public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageB
             return str;
         }
         return str.substring(1, str.length() - 1);
-    }
-
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
     }
 }
