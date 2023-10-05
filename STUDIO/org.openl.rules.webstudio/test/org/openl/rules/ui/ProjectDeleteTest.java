@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,10 +25,6 @@ public class ProjectDeleteTest {
 
     @Before
     public void init() throws Exception {
-        // FIXME Currently IBM implementation of java for version 1.6 is not supported
-        Assume.assumeFalse(System.getProperty("java.vendor")
-            .startsWith("IBM") && System.getProperty("java.specification.version").equals("1.6"));
-
         // Prepare the project: copy it to the working folder
         projectFolder = tempFolder.getRoot();
         FileUtils.copy(new File("test/rules/locking/"), projectFolder);
