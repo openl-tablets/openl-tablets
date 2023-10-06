@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.SequenceInputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.helpers.IOUtils;
@@ -13,16 +15,16 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedWriter;
 import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
 /**
  * CXF interceptor for collecting request data for logging to external source feature.
  *
  * @author Marat Kamalov
- *
  */
 @NoJSR250Annotations
-public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMessageInterceptor {
+public class CollectRequestMessageInInterceptor extends AbstractPhaseInterceptor<Message> {
 
     public static final String ID_KEY = CollectRequestMessageInInterceptor.class.getName() + ".ID";
 
@@ -30,22 +32,8 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
         super(Phase.RECEIVE);
     }
 
-    public CollectRequestMessageInInterceptor(String phase) {
-        super(phase);
-    }
-
-    public CollectRequestMessageInInterceptor(String id, String phase) {
-        super(id, phase);
-    }
-
-    public CollectRequestMessageInInterceptor(int lim) {
-        this();
-        limit = lim;
-    }
-
-    public CollectRequestMessageInInterceptor(String id, int lim) {
-        this(id, Phase.RECEIVE);
-        limit = lim;
+    static boolean isBinaryContent(String contentType) {
+        return contentType != null && (contentType.startsWith("image/") || contentType.equals("application/octet-stream"));
     }
 
     @Override
@@ -70,35 +58,14 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
             message.getExchange().put(ID_KEY, id);
         }
         message.put(ID_KEY, id);
-        final LoggingMessage buffer = new LoggingMessage("Inbound Message\n----------------------------", id);
+        final LoggingMessage buffer = new LoggingMessage("Request", id);
 
-        if (!Boolean.TRUE.equals(message.get(Message.DECOUPLED_CHANNEL_MESSAGE))) {
-            // avoid logging the default responseCode 200 for the decoupled
-            // responses
-            Integer responseCode = (Integer) message.get(Message.RESPONSE_CODE);
-            if (responseCode != null) {
-                buffer.getResponseCode().append(responseCode);
-            }
-        }
+        append(message.get(Message.RESPONSE_CODE), buffer.getResponseCode());
+        append(message.get(Message.ENCODING), buffer.getEncoding());
+        append(message.get(Message.HTTP_REQUEST_METHOD), buffer.getHttpMethod());
+        append(message.get(Message.CONTENT_TYPE), buffer.getContentType());
+        append(message.get(Message.PROTOCOL_HEADERS), buffer.getHeader());
 
-        String encoding = (String) message.get(Message.ENCODING);
-
-        if (encoding != null) {
-            buffer.getEncoding().append(encoding);
-        }
-        String httpMethod = (String) message.get(Message.HTTP_REQUEST_METHOD);
-        if (httpMethod != null) {
-            buffer.getHttpMethod().append(httpMethod);
-        }
-        String ct = (String) message.get(Message.CONTENT_TYPE);
-        if (ct != null) {
-            buffer.getContentType().append(ct);
-        }
-        Object headers = message.get(Message.PROTOCOL_HEADERS);
-
-        if (headers != null) {
-            buffer.getHeader().append(headers);
-        }
         String uri = (String) message.get(Message.REQUEST_URL);
         if (uri == null) {
             String address = (String) message.get(Message.ENDPOINT_ADDRESS);
@@ -119,26 +86,31 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
             }
         }
 
-        if (!isSaveBinaryContent() && isBinaryContent(ct)) {
-            buffer.getMessage().append(BINARY_CONTENT_MESSAGE).append('\n');
-            handleMessage(message, buffer);
+        if (isBinaryContent((String) message.get(Message.CONTENT_TYPE))) {
+            buffer.getMessage().append("--- Binary Content ---").append('\n');
+            handleMessage(buffer);
             return;
         }
 
         InputStream is = message.getContent(InputStream.class);
         if (is != null) {
-            logInputStream(message, is, buffer, encoding, ct);
+            logInputStream(message, is, buffer, (String) message.get(Message.ENCODING));
         } else {
             Reader reader = message.getContent(Reader.class);
             if (reader != null) {
                 logReader(message, reader, buffer);
             }
         }
-        handleMessage(message, buffer);
+        handleMessage(buffer);
     }
 
-    @Override
-    protected void handleMessage(Message message, LoggingMessage loggingMessage) {
+    private static void append(Object headers, StringBuilder builder) {
+        if (headers != null) {
+            builder.append(headers);
+        }
+    }
+
+    private void handleMessage(LoggingMessage loggingMessage) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.setRequestMessage(loggingMessage);
         storeLogData.setIncomingMessageTime(ZonedDateTime.now());
@@ -150,31 +122,20 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
             IOUtils.copyAndCloseInput(reader, writer);
             message.setContent(Reader.class, writer.getReader());
 
-            if (writer.getTempFile() != null) {
-                // large thing on disk...
-                buffer.getMessage().append("\nMessage (saved to tmp file):\n");
-                buffer.getMessage().append("Filename: ").append(writer.getTempFile().getAbsolutePath()).append("\n");
-            }
-            if (writer.size() > limit && limit != -1) {
-                buffer.getMessage().append("(message truncated to ").append(limit).append(" bytes)\n");
-            }
-            writer.writeCacheTo(buffer.getPayload(), limit);
+            writer.writeCacheTo(buffer.getPayload());
         } catch (Exception e) {
             throw new Fault(e);
         }
     }
 
-    protected void logInputStream(Message message, InputStream is, LoggingMessage buffer, String encoding, String ct) {
+    private void logInputStream(Message message, InputStream is, LoggingMessage buffer, String encoding) {
         try (CachedOutputStream bos = new CachedOutputStream()) {
-            if (threshold > 0) {
-                bos.setThreshold(threshold);
-            }
             // use the appropriate input stream and restore it later
             InputStream bis = is instanceof DelegatingInputStream ? ((DelegatingInputStream) is).getInputStream() : is;
 
             // only copy up to the limit since that's all we need to log
             // we can stream the rest
-            IOUtils.copyAtLeast(bis, bos, limit == -1 ? Integer.MAX_VALUE : limit);
+            bis.transferTo(bos);
             bos.flush();
             bis = new SequenceInputStream(bos.getInputStream(), bis);
 
@@ -185,21 +146,11 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
                 message.setContent(InputStream.class, bis);
             }
 
-            if (bos.getTempFile() != null) {
-                // large thing on disk...
-                buffer.getMessage().append("\nMessage (saved to tmp file):\n");
-                buffer.getMessage().append("Filename: ").append(bos.getTempFile().getAbsolutePath()).append("\n");
-            }
-            if (bos.size() > limit && limit != -1) {
-                buffer.getMessage().append("(message truncated to ").append(limit).append(" bytes)\n");
-            }
-            writePayload(buffer.getPayload(), bos, encoding, ct);
+            // Just transform the XML message when the cos has content
+
+            bos.writeCacheTo(buffer.getPayload(), Objects.requireNonNullElseGet(encoding, StandardCharsets.UTF_8::name));
         } catch (Exception e) {
             throw new Fault(e);
         }
-    }
-
-    protected String formatLoggingMessage(LoggingMessage loggingMessage) {
-        return loggingMessage.toString();
     }
 }

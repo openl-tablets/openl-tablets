@@ -144,11 +144,11 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             }
 
             if (getStoreLogDataManager().isEnabled()) {
-                var storeLogDataInInterceptor = new CollectRequestMessageInInterceptor(Integer.MAX_VALUE);
+                var storeLogDataInInterceptor = new CollectRequestMessageInInterceptor();
                 svrFactory.getInInterceptors().add(storeLogDataInInterceptor);
                 svrFactory.getInFaultInterceptors().add(storeLogDataInInterceptor);
 
-                var storeLogDataOutInterceptor = new CollectResponseMessageOutInterceptor(Integer.MAX_VALUE, getStoreLogDataManager());
+                var storeLogDataOutInterceptor = new CollectResponseMessageOutInterceptor(getStoreLogDataManager());
                 svrFactory.getOutInterceptors().add(storeLogDataOutInterceptor);
                 svrFactory.getOutFaultInterceptors().add(storeLogDataOutInterceptor);
 
