@@ -17,6 +17,10 @@
             <name>EPBDS-8339</name>
             <rules-root path="rules/EPBDS-8339.xlsx"/>
         </module>
+        <module>
+            <name>Complex Comparison</name>
+            <rules-root path="rules/ComplexComparison.xlsx"/>
+        </module>
     </modules>
     <classpath>
         <entry path="lib/*.jar"/>
