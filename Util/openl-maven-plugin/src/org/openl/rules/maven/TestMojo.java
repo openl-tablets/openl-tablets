@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -444,28 +445,28 @@ public final class TestMojo extends BaseOpenLMojo {
                     int rowNum = 0;
                     for (ComparedResult comparisonResult : comparisonResults) {
                         if (comparisonResult.getStatus() != TR_OK) {
-                            if (comparisonResult.getFieldName() == null || ThisField.THIS
-                                .equals(comparisonResult.getFieldName())) {
-                                info("    Expected: <" + comparisonResult
-                                    .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
+                            var fieldName = comparisonResult.getFieldName();
+                            var expectedValue = toString(comparisonResult.getExpectedValue());
+                            var actualValue = toString(comparisonResult.getActualValue());
+                            if (fieldName == null || ThisField.THIS.equals(fieldName)) {
+                                info("    Expected: <" + expectedValue + "> but was: <" + actualValue + ">");
                                 summaryBuilder.append(" expected: <")
-                                    .append(comparisonResult.getExpectedValue())
+                                    .append(expectedValue)
                                     .append("> but was <")
-                                    .append(comparisonResult.getActualValue())
+                                    .append(actualValue)
                                     .append(">");
                             } else {
                                 if (rowNum > 0) {
                                     summaryBuilder.append(",");
                                 }
-                                info("    Field " + comparisonResult.getFieldName() + " expected: <" + comparisonResult
-                                    .getExpectedValue() + "> but was: <" + comparisonResult.getActualValue() + ">");
+                                info("    Field " + fieldName + " expected: <" + expectedValue + "> but was: <" + actualValue + ">");
 
                                 summaryBuilder.append(" field ")
-                                    .append(comparisonResult.getFieldName())
+                                    .append(fieldName)
                                     .append(" expected: <")
-                                    .append(comparisonResult.getExpectedValue())
+                                    .append(expectedValue)
                                     .append("> but was <")
-                                    .append(comparisonResult.getActualValue())
+                                    .append(actualValue)
                                     .append(">");
                             }
                             rowNum++;
@@ -484,6 +485,7 @@ public final class TestMojo extends BaseOpenLMojo {
             }
             num++;
         }
+        info("");
     }
 
     @Override
@@ -501,6 +503,18 @@ public final class TestMojo extends BaseOpenLMojo {
         DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
         df.applyPattern("#.###");
         return time < 0.001 ? "< 0.001" : df.format(time);
+    }
+
+    private String toString(Object value) {
+        if (value != null && value.getClass().isArray()) {
+            if (value instanceof Object[]) {
+                return Arrays.deepToString((Object[]) value);
+            } else {
+                var string = Arrays.deepToString(new Object[]{value});
+                return string.substring(1, string.length() - 1); // Remove the first and the last brackets in [[1, 2, 3]]
+            }
+        }
+        return  Objects.toString(value);
     }
 
     private TestSuiteExecutor createTestSuiteExecutor() {
