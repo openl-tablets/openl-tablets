@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.core;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFacto
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -81,7 +83,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            Pair<Object, Class<?>> serviceTarget = resolveInterfaceAndClassLoader(service,
+            Pair<Object, Map<Method, Method>> serviceTarget = resolveInterfaceAndClassLoader(service,
                 serviceDescription,
                 instantiationStrategy);
             if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
@@ -125,7 +127,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     private void instantiateServiceBean(OpenLService service,
-            Pair<Object, Class<?>> serviceTarget,
+            Pair<Object, Map<Method, Method>> serviceTarget,
             ClassLoader classLoader) throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
         try {
@@ -150,7 +152,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
-    private Pair<Object, Class<?>> resolveInterfaceAndClassLoader(OpenLService service,
+    private Pair<Object, Map<Method, Method>> resolveInterfaceAndClassLoader(OpenLService service,
             ServiceDescription serviceDescription,
             RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException,
                                                               RulesInstantiationException {
@@ -196,7 +198,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceDescription.isProvideVariations());
             service.setServiceClass(serviceClass);
         }
-        return Pair.of(serviceTarget, serviceTargetClass);
+        var methodMap = RuleServiceInstantiationFactoryHelper.getMethodMap(serviceClass, serviceTargetClass, serviceTarget);
+        return Pair.of(serviceTarget, methodMap);
     }
 
     private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException {
