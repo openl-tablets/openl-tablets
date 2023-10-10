@@ -3,14 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
-    <bean id="instantiationStrategyFactory"
-          class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
-    </bean>
-
     <bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"
-          class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
-          depends-on="instantiationStrategyFactory">
+          class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="staticMethod"
                   value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
         <property name="arguments" value="${ruleservice.instantiation.strategy.maxthreadsforcompile}"/>
@@ -20,7 +14,6 @@
           class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl"
           depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"
           autowire="byType">
-        <property name="instantiationStrategyFactory" ref="instantiationStrategyFactory"/>
         <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
         <property name="externalParameters">
             <props>

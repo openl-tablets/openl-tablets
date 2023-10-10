@@ -13,11 +13,13 @@ import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
+import org.openl.dependency.IDependencyManager;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
+import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
@@ -27,8 +29,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
-import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
 
@@ -48,8 +48,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private RuleServiceLoader ruleServiceLoader;
 
-    private RuleServiceInstantiationStrategyFactory instantiationStrategyFactory = new RuleServiceInstantiationStrategyFactoryImpl();
-
     private Map<String, Object> externalParameters;
 
     private final Map<DeploymentDescription, RuleServiceDependencyManager> dependencyManagerMap = new HashMap<>();
@@ -66,8 +64,15 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void initService(ServiceDescription serviceDescription,
             RuleServiceDependencyManager dependencyManager,
             OpenLService service) throws RuleServiceInstantiationException, RulesInstantiationException {
-        RulesInstantiationStrategy baseInstantiationStrategy = instantiationStrategyFactory
-            .getStrategy(serviceDescription, dependencyManager);
+        Objects.requireNonNull(serviceDescription, "serviceDescription cannot be null");
+        Objects.requireNonNull((IDependencyManager) dependencyManager, "dependencyManager cannot be null");
+        Collection<Module> modules = serviceDescription.getModules();
+        int moduleSize = modules.size();
+        if (moduleSize == 0) {
+            throw new IllegalStateException("There are no modules to instantiate.");
+        }
+
+        RulesInstantiationStrategy baseInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
         RulesInstantiationStrategy instantiationStrategy = baseInstantiationStrategy;
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
             .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
@@ -301,16 +306,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void setRuleServiceLoader(RuleServiceLoader ruleServiceLoader) {
         this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleServiceLoader cannot be null");
-    }
-
-    public RuleServiceInstantiationStrategyFactory getInstantiationStrategyFactory() {
-        return instantiationStrategyFactory;
-    }
-
-    public void setInstantiationStrategyFactory(RuleServiceInstantiationStrategyFactory instantiationStrategyFactory) {
-        this.instantiationStrategyFactory = Objects.requireNonNull(instantiationStrategyFactory,
-            "instantiationStrategyFactory cannot be null");
-
     }
 
     public Collection<ServiceInvocationAdviceListener> getListServiceInvocationAdviceListeners() {
