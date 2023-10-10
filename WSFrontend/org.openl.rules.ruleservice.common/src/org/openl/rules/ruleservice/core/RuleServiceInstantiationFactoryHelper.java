@@ -331,6 +331,53 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
     }
 
+    static Map<Method, Method> getMethodMap(Class<?> serviceClass, Class<?> serviceTargetClass, Object serviceTarget) {
+        var methodMap = new HashMap<Method, Method>();
+        for (Method method : serviceClass.getMethods()) {
+            Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(serviceTarget, method);
+            IOpenMember openMember = openMemberResolved.getLeft();
+            if (openMember != null) {
+                Method serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
+                        method.getName(),
+                        openMemberResolved.getRight());
+                methodMap.put(method, serviceTargetMethod);
+            }
+        }
+        return methodMap;
+    }
+
+    private static Pair<IOpenMember, Class<?>[]> findIOpenMember(Object serviceTarget, Method method) {
+        for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
+            try {
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                int i = 0;
+                for (Parameter parameter : method.getParameters()) {
+                    if (parameter.isAnnotationPresent(ExternalParam.class)) {
+                        parameterTypes[i] = null;
+                    } else if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
+                        Class<?> t = parameterTypes[i];
+                        int dim = 0;
+                        while (t.isArray()) {
+                            t = t.getComponentType();
+                            dim++;
+                        }
+                        if (t.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                            parameterTypes[i] = dim > 0 ? Array.newInstance(SpreadsheetResult.class, dim).getClass()
+                                    : SpreadsheetResult.class;
+                        }
+                    }
+                    i++;
+                }
+                parameterTypes = Arrays.stream(parameterTypes).filter(Objects::nonNull).toArray(Class<?>[]::new);
+                Method m = clazz.getMethod(method.getName(), parameterTypes);
+                return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
+                        parameterTypes);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+        return Pair.of(null, null);
+    }
+
     private static Class<?> extractReturnTypeForMethod(IOpenMember openMember,
             boolean toServiceClass,
             Class<? extends ServiceMethodAdvice> serviceMethodAdvice) {
