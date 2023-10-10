@@ -1,18 +1,15 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -25,14 +22,12 @@ import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultBeanClass;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
-import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.BeanToSpreadsheetResultConvert;
@@ -74,26 +69,25 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
 
     private final Object serviceTarget;
-    private final Class<?> serviceTargetClass;
     private final Class<?> serviceClass;
     private final ClassLoader serviceClassLoader;
     private final IOpenClass openClass;
     private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
-    private final Map<Method, Method> methodMap = new HashMap<>();
+    private final Map<Method, Method> methodMap;
     private final RulesDeploy rulesDeploy;
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
-            Class<?> serviceTargetClass,
+            Map<Method, Method> methodMap,
             Class<?> serviceClass,
             ClassLoader serviceClassLoader,
             Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
             RulesDeploy rulesDeploy) {
         this.serviceTarget = serviceTarget;
         this.serviceClass = serviceClass;
-        this.serviceTargetClass = serviceTargetClass;
+        this.methodMap = methodMap;
         this.serviceClassLoader = serviceClassLoader;
         this.openClass = openClass;
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
@@ -163,14 +157,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             for (Method method : serviceClass.getMethods()) {
-                Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(method);
-                IOpenMember openMember = openMemberResolved.getLeft();
-                if (openMember != null) {
-                    Method serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
-                        method.getName(),
-                        openMemberResolved.getRight());
-                    methodMap.put(method, serviceTargetMethod);
-                }
+                IOpenMember openMember = getOpenMember(method);
 
                 checkForBeforeInterceptor(method, openMember);
                 checkForAfterInterceptor(method, openMember);
@@ -219,37 +206,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private Pair<IOpenMember, Class<?>[]> findIOpenMember(Method method) {
-        for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
-            try {
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                int i = 0;
-                for (Parameter parameter : method.getParameters()) {
-                    if (parameter.isAnnotationPresent(ExternalParam.class)) {
-                        parameterTypes[i] = null;
-                    } else if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
-                        Class<?> t = parameterTypes[i];
-                        int dim = 0;
-                        while (t.isArray()) {
-                            t = t.getComponentType();
-                            dim++;
-                        }
-                        if (t.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
-                            parameterTypes[i] = dim > 0 ? Array.newInstance(SpreadsheetResult.class, dim).getClass()
-                                                        : SpreadsheetResult.class;
-                        }
-                    }
-                    i++;
-                }
-                parameterTypes = Arrays.stream(parameterTypes).filter(Objects::nonNull).toArray(Class<?>[]::new);
-                Method m = clazz.getMethod(method.getName(), parameterTypes);
-                return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
-                    parameterTypes);
-            } catch (NoSuchMethodException ignored) {
-            }
-        }
-        return Pair.of(null, null);
-    }
 
     private void checkForAroundInterceptor(Method method, IOpenMember openMember) {
         var annotation = method.getAnnotation(ServiceCallAroundInterceptor.class);
