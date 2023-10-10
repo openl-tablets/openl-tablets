@@ -79,7 +79,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final ClassLoader serviceClassLoader;
     private final IOpenClass openClass;
     private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
-    private final Map<Method, IOpenMember> openMemberMap = new HashMap<>();
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap = new HashMap<>();
     private final RulesDeploy rulesDeploy;
@@ -166,7 +165,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             for (Method method : serviceClass.getMethods()) {
                 Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(method);
                 IOpenMember openMember = openMemberResolved.getLeft();
-                openMemberMap.put(method, openMember);
                 if (openMember != null) {
                     Method serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
                         method.getName(),
@@ -404,10 +402,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Object result = null;
-        IOpenMember openMember = openMemberMap.get(calledMethod);
+        IOpenMember openMember = getOpenMember(calledMethod);
         Method beanMethod = null;
         if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-            beanMethod = methodMap.get(calledMethod);
+            beanMethod = getTargetMember(calledMethod);
             if (beanMethod == null) {
                 var msg = String.format(
                     "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
