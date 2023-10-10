@@ -156,41 +156,47 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                                                               RulesInstantiationException {
         String serviceClassName = service.getServiceClassName();
         Class<?> serviceClass;
+        Class<?> serviceTargetClass;
+        Object serviceTarget;
+        ClassLoader serviceClassLoader = service.getClassLoader();
 
         if (serviceClassName != null) {
             try {
-                serviceClass = service.getClassLoader().loadClass(serviceClassName.trim());
-                if (serviceClass.isInterface()) {
-                    Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-                        .buildInterfaceForInstantiationStrategy(serviceClass,
-                            instantiationStrategy.getClassLoader(),
-                            instantiationStrategy.instantiate(),
-                            serviceDescription.isProvideRuntimeContext(),
-                            serviceDescription.isProvideVariations());
-                    instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
-                    service.setServiceClass(serviceClass);
-                    return Pair.of(instantiationStrategy.instantiate(), interfaceForInstantiationStrategy);
+                serviceClass = serviceClassLoader.loadClass(serviceClassName.trim());
+                if (!serviceClass.isInterface()) {
+                    throw new RuleServiceRuntimeException(
+                            String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
+                                    serviceClass));
                 }
-                throw new RuleServiceRuntimeException(
-                    String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
-                        serviceClass));
+                serviceTargetClass = RuleServiceInstantiationFactoryHelper
+                    .buildInterfaceForInstantiationStrategy(serviceClass,
+                        instantiationStrategy.getClassLoader(),
+                        instantiationStrategy.instantiate(),
+                        serviceDescription.isProvideRuntimeContext(),
+                        serviceDescription.isProvideVariations());
+                instantiationStrategy.setServiceClass(serviceTargetClass);
+                service.setServiceClass(serviceClass);
+                serviceTarget = instantiationStrategy.instantiate();
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new RuleServiceRuntimeException(
                     String.format("Failed to load a service class '%s'.", serviceClassName),
                     e);
             }
+        } else {
+            log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getDeployPath());
+            serviceTargetClass = instantiationStrategy.getInstanceClass();
+            serviceTarget = instantiationStrategy.instantiate();
+            IOpenClass openClass = service.getOpenClass();
+            var annotatedClass = processAnnotatedTemplateClass(serviceDescription, serviceTargetClass, openClass, serviceClassLoader);
+            serviceClass = RuleServiceInstantiationFactoryHelper.buildInterfaceForService(openClass,
+                annotatedClass,
+                serviceClassLoader,
+                serviceTarget,
+                serviceDescription.isProvideRuntimeContext(),
+                serviceDescription.isProvideVariations());
+            service.setServiceClass(serviceClass);
         }
-        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getDeployPath());
-        Class<?> instanceClass = instantiationStrategy.getInstanceClass();
-        Object serviceTarget = instantiationStrategy.instantiate();
-        serviceClass = processGeneratedServiceClass(serviceDescription,
-            service.getOpenClass(),
-            instanceClass,
-            serviceTarget,
-            service.getClassLoader());
-        service.setServiceClassName(null); // Generated class is used.
-        service.setServiceClass(serviceClass);
-        return Pair.of(serviceTarget, instanceClass);
+        return Pair.of(serviceTarget, serviceTargetClass);
     }
 
     private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException {
@@ -212,23 +218,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             service.setRmiServiceClassName(null); // RMI default will be used
         }
         service.setRmiServiceClass(serviceClass);
-    }
-
-    private Class<?> processGeneratedServiceClass(ServiceDescription serviceDescription,
-            IOpenClass openClass,
-            Class<?> serviceClass,
-            Object serviceTarget,
-            ClassLoader serviceClassLoader) {
-        Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription,
-            serviceClass,
-            openClass,
-            serviceClassLoader);
-        return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(openClass,
-            annotatedClass,
-            serviceClassLoader,
-            serviceTarget,
-            serviceDescription.isProvideRuntimeContext(),
-            serviceDescription.isProvideVariations());
     }
 
     private Class<?> processAnnotatedTemplateClass(ServiceDescription serviceDescription,
