@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.core.interceptors;
+package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,15 +25,19 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.ruleservice.core.ExceptionDetails;
-import org.openl.rules.ruleservice.core.ExceptionType;
-import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.BeanToSpreadsheetResultConvert;
 import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
+import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
+import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;
+import org.openl.rules.ruleservice.core.interceptors.RulesDeployAware;
+import org.openl.rules.ruleservice.core.interceptors.ServiceClassLoaderAware;
+import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
+import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
@@ -48,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.Ordered;
 
@@ -82,7 +87,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     private final ThreadLocal<IOpenMember> iOpenMethodHolder = new ThreadLocal<>();
 
-    private final ApplicationContext serviceContext;
+    final ConfigurableApplicationContext serviceContext;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,

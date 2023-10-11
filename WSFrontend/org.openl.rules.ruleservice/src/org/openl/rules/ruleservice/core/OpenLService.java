@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.context.ConfigurableApplicationContext;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
@@ -42,6 +44,7 @@ public final class OpenLService {
     private Throwable exception;
     private Map<String, String> urls = Collections.emptyMap();
     private final DeploymentDescription deployment;
+    private ConfigurableApplicationContext serviceContext;
 
     /**
      * Returns service classloader
@@ -302,6 +305,14 @@ public final class OpenLService {
 
     public DeploymentDescription getDeployment() {
         return deployment;
+    }
+
+    public ConfigurableApplicationContext getServiceContext() {
+        return serviceContext;
+    }
+
+    public void setServiceContext(ConfigurableApplicationContext serviceContext) {
+        this.serviceContext = serviceContext;
     }
 
     /** {@inheritDoc} */

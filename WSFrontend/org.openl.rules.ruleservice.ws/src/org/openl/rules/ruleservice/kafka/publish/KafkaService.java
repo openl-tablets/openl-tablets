@@ -34,7 +34,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
+import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
