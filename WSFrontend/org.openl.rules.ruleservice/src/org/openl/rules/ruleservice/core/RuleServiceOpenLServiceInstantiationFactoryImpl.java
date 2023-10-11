@@ -25,7 +25,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.validation.ProjectValidator;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
-import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
@@ -156,6 +155,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Object proxyServiceBean = ASMProxyFactory
                 .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
+            service.setServiceContext(serviceInvocationAdvice.serviceContext);
         } catch (Exception t) {
             throw new RuleServiceRuntimeException("Failed to create a proxy for service target object.", t);
         }

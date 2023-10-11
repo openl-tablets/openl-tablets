@@ -463,6 +463,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             }
         }
         if (e1 == null) {
+
+            var serviceContext = undeployService.getServiceContext();
+            if (serviceContext != null) {
+                // Null is possible when deployment was unsuccessful
+                serviceContext.close();
+            }
+            undeployService.setServiceContext(null);
             services2.remove(deployPath);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
