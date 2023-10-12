@@ -40,7 +40,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
         Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
         try {
-            StoreLogData storeLogData = null;
+            StoreLogData storeLogData = StoreLogDataHolder.get();
             IdentityHashMap<Inject<?>, Object> cache = new IdentityHashMap<>();
             for (PrepareStoreLogData storeLogging : annotations) {
                 if (predicate.test(storeLogging)) {
@@ -48,11 +48,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     Class<? extends StoreLogDataAdvice> clazz = storeLogging.value();
                     try {
                         storeLogDataAdvice = postProcessAdvice.instantiate(clazz);
-                        storeLogData = processAwareInterfaces(interfaceMethod,
-                            storeLogData,
-                            storeLogDataAdvice,
-                            cache,
-                            destroyFunctions);
+                        injectObjectSerializer(storeLogData.getObjectSerializer(), storeLogDataAdvice);
+                        processAwareInterfaces(interfaceMethod, storeLogDataAdvice, cache, destroyFunctions);
                     } catch (Exception e) {
                         String msg = String.format(
                             "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
@@ -61,10 +58,6 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         log.error(msg, e);
                     }
                     if (storeLogDataAdvice != null) {
-                        if (storeLogData == null) {
-                            storeLogData = StoreLogDataHolder.get(); // Lazy local variable
-                            // initialization
-                        }
                         storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
                     }
                 }
@@ -74,12 +67,10 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
     }
 
-    private StoreLogData processAwareInterfaces(Method interfaceMethod,
-            StoreLogData storeLogData,
+    private void processAwareInterfaces(Method interfaceMethod,
             StoreLogDataAdvice storeLogDataAdvice,
             IdentityHashMap<Inject<?>, Object> cache,
             Collection<Consumer<Void>> destroyFunctions) {
-        storeLogData = injectObjectSerializer(storeLogData, storeLogDataAdvice);
         for (var storeLogDataService : storeLogDataManager.getServices()) {
             for (var inject : storeLogDataService.additionalInjects()) {
                 var annotationClass = inject.getAnnotationClass();
@@ -102,29 +93,17 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                 }
             }
         }
-        return storeLogData;
     }
 
-    private StoreLogData injectObjectSerializer(StoreLogData storeLogData, StoreLogDataAdvice storeLogDataAdvice) {
+    private void injectObjectSerializer(ObjectSerializer objectSerializer, StoreLogDataAdvice storeLogDataAdvice) {
         if (storeLogDataAdvice instanceof ObjectSerializerAware) {
-            ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
-            if (storeLogData == null) {
-                storeLogData = StoreLogDataHolder.get(); // Lazy local
-                // variable
-                // initialization
-            }
-            objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
+            ((ObjectSerializerAware) storeLogDataAdvice).setObjectSerializer(objectSerializer);
         }
         try {
-            inject(storeLogDataAdvice,
-                InjectObjectSerializer.class,
-                e -> StoreLogDataHolder.get().getObjectSerializer());
+            inject(storeLogDataAdvice, InjectObjectSerializer.class, e -> objectSerializer);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Failed to inject a resource through annotation '{}'",
-                InjectObjectSerializer.class.getTypeName(),
-                e);
+            log.error("Failed to inject a resource through @InjectObjectSerializer annotation.", e);
         }
-        return storeLogData;
     }
 
     private Object inject(Object target,
