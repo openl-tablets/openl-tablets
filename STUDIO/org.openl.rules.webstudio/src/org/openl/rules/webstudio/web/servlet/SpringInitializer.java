@@ -19,6 +19,7 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 
 import org.openl.rules.openapi.OpenAPIConfiguration;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
@@ -100,6 +101,9 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
+
+        // Experimental settings
+        HTMLRenderer.MAX_NUM_CELLS = Props.integer("experimental.MAX_NUM_CELLS");
 
         startTimer();
     }
