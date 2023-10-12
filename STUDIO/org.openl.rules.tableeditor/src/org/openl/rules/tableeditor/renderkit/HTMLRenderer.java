@@ -28,7 +28,7 @@ import org.openl.util.StringUtils;
  */
 public class HTMLRenderer {
     public static final int ALL_ROWS = -1;
-    public static final int MAX_NUM_CELLS = 5000;
+    public static Integer MAX_NUM_CELLS = 5000; // Allowed to configure at runtime for
 
     @SuppressWarnings("unchecked")
     protected Set<String> getResourcesWritten() {
@@ -340,6 +340,9 @@ public class HTMLRenderer {
      * @return number of rows to display or {@link #ALL_ROWS} for all rows
      */
     public static int getMaxNumRowsToDisplay(int rows, int cols) {
+        if (MAX_NUM_CELLS == null || MAX_NUM_CELLS <= 0) {
+            return ALL_ROWS;
+        }
         int numCells = rows * cols;
 
         if (numCells > MAX_NUM_CELLS) {
