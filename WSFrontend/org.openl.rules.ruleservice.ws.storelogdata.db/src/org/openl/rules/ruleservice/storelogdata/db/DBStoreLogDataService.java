@@ -77,9 +77,8 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
         if (supportedInjects == null) {
             synchronized (this) {
                 if (supportedInjects == null) {
-                    Collection<Inject<?>> injects = new ArrayList<>();
-                    injects.add(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
-                    supportedInjects = Collections.unmodifiableCollection(injects);
+                    supportedInjects = Collections.singleton(
+                        new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
                 }
             }
         }
