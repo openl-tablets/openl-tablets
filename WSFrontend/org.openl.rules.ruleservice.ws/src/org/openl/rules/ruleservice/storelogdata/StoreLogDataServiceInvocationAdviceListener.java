@@ -38,21 +38,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Predicate<PrepareStoreLogData> predicate) {
 
         PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
-        prepare(interfaceMethod, args, result, lastOccurredException, postProcessAdvice, predicate, annotations);
-    }
-
-    private <T> void prepare(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception lastOccurredException,
-            Instantiator postProcessAdvice,
-            Predicate<PrepareStoreLogData> predicate,
-            PrepareStoreLogData[] prepareStoreLogDataArray) {
         Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
         try {
             StoreLogData storeLogData = null;
             IdentityHashMap<Inject<?>, Object> cache = new IdentityHashMap<>();
-            for (PrepareStoreLogData storeLogging : prepareStoreLogDataArray) {
+            for (PrepareStoreLogData storeLogging : annotations) {
                 if (predicate.test(storeLogging)) {
                     StoreLogDataAdvice storeLogDataAdvice = null;
                     Class<? extends StoreLogDataAdvice> clazz = storeLogging.value();
