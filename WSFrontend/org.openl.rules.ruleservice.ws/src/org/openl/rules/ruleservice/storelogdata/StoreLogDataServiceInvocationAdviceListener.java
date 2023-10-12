@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -38,7 +37,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Predicate<PrepareStoreLogData> predicate) {
 
         PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
-        Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
+        Collection<Runnable> destroyFunctions = new ArrayList<>();
         try {
             StoreLogData storeLogData = StoreLogDataHolder.get();
             IdentityHashMap<Inject<?>, Object> cache = new IdentityHashMap<>();
@@ -63,14 +62,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                 }
             }
         } finally {
-            destroyFunctions.forEach(e -> e.accept(null));
+            destroyFunctions.forEach(Runnable::run);
         }
     }
 
     private void processAwareInterfaces(Method interfaceMethod,
             StoreLogDataAdvice storeLogDataAdvice,
             IdentityHashMap<Inject<?>, Object> cache,
-            Collection<Consumer<Void>> destroyFunctions) {
+            Collection<Runnable> destroyFunctions) {
         for (var storeLogDataService : storeLogDataManager.getServices()) {
             for (var inject : storeLogDataService.additionalInjects()) {
                 var annotationClass = inject.getAnnotationClass();
@@ -81,7 +80,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                             e -> inject.getResource(interfaceMethod, e));
                         cache.put(inject, resource1);
                         if (resource1 != null) {
-                            destroyFunctions.add(e -> inject.destroy(resource1));
+                            destroyFunctions.add(() -> inject.destroy(resource1));
                         }
                     } else {
                         inject(storeLogDataAdvice, annotationClass, e -> resource);
