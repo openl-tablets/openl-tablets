@@ -1,0 +1,12 @@
+POST /rest/projects/ZGVzaWduOkVQQkRTLTE0MDk1/tables/bd101c94c486e5775abd5334a5316db5/lines HTTP/1.1
+Authorization: Basic RVBCRFNfMTQwOTVfdXNlcjE6RVBCRFNfMTQwOTVfdXNlcjE=
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "rules": [
+    {
+      "return": "= error (\"Invalid input\")"
+    }
+  ]
+}
