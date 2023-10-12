@@ -178,6 +178,16 @@
             <version>${log4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+
+        <!--  OpenL dependencies-->
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice</artifactId>
         </dependency>
@@ -188,10 +198,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
         </dependency>
     </dependencies>
 

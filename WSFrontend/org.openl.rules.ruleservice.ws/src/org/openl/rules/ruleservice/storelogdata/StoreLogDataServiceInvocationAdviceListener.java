@@ -4,9 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -20,36 +18,15 @@ import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerialize
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener, InitializingBean {
+@Component
+public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
     private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
-
-    private Map<StoreLogDataService, Collection<Inject<?>>> supportedInjects;
-
-    public StoreLogDataManager getStoreLogDataManager() {
-        return storeLogDataManager;
-    }
-
-    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
-        this.storeLogDataManager = storeLogDataManager;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        Map<StoreLogDataService, Collection<Inject<?>>> injects = new HashMap<>();
-        for (StoreLogDataService storeLogDataService : storeLogDataManager.getServices()) {
-            Collection<Inject<?>> supportedInjects = storeLogDataService.additionalInjects();
-            if (supportedInjects != null) {
-                injects.put(storeLogDataService, storeLogDataService.additionalInjects());
-            }
-        }
-        this.supportedInjects = injects;
-    }
 
     public void process(Method interfaceMethod,
             Object[] args,
@@ -111,8 +88,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             IdentityHashMap<Inject<?>, Object> cache,
             Collection<Consumer<Void>> destroyFunctions) {
         storeLogData = injectObjectSerializer(storeLogData, storeLogDataAdvice);
-        for (Map.Entry<StoreLogDataService, Collection<Inject<?>>> entry : supportedInjects.entrySet()) {
-            for (Inject<?> inject : entry.getValue()) {
+        for (var storeLogDataService : storeLogDataManager.getServices()) {
+            for (Inject<?> inject : storeLogDataService.additionalInjects()) {
                 if (inject != null && inject.getAnnotationClass() != null) {
                     try {
                         Object resource = cache.get(inject);
@@ -134,7 +111,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     }
                 } else {
                     log.error("Aware interface is null. Check store log data service implementation '{}'.",
-                        entry.getKey().getClass().getTypeName());
+                        storeLogDataService.getClass().getTypeName());
                 }
             }
         }
@@ -170,7 +147,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Instantiator postProcessAdvice) {
-        if (getStoreLogDataManager().isEnabled()) {
+        if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -187,7 +164,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Instantiator postProcessAdvice) {
-        if (getStoreLogDataManager().isEnabled()) {
+        if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -203,7 +180,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception ex,
             Instantiator postProcessAdvice) {
-        if (getStoreLogDataManager().isEnabled()) {
+        if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -219,7 +196,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Instantiator postProcessAdvice) {
-        if (getStoreLogDataManager().isEnabled()) {
+        if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
