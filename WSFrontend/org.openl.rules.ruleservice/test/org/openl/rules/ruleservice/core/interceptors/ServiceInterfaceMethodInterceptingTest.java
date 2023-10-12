@@ -184,7 +184,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
         @Override
         public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-            return result + "-5: " + openMethod.getName() + " : " + methodName;
+            return result + "-5: " + openMethod.getName() + " - @" + openMethod.getClass().getSimpleName() + " : " + methodName;
         }
     }
 
@@ -371,7 +371,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Assert.assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert : CONVERT", instance.convert(runtimeContext, "INPUT"));
+        Assert.assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert - @SpreadsheetWrapper : CONVERT", instance.convert(runtimeContext, "INPUT"));
     }
 
     @Test
