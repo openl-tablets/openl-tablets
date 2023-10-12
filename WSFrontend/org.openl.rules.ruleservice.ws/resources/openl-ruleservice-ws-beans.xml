@@ -54,8 +54,7 @@
     </jaxrs:server>
 
     <!-- Bean for configure storages type via openl-ruleservice.properties file. -->
-    <bean id="storeLogDataManager" class="org.openl.rules.ruleservice.storelogdata.StoreLogDataManagerFactoryBean"
-          lazy-init="false"/>
+    <bean id="storeLogDataManager" class="org.openl.rules.ruleservice.storelogdata.SimpleStoreLogDataManager"/>
 
     <bean class="org.openl.rules.ruleservice.storelogdata.StoreLogDataServiceInvocationAdviceListener"/>
 

@@ -1,22 +1,28 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFault;
 
 public final class SimpleStoreLogDataManager implements StoreLogDataManager {
 
+    private final Logger log = LoggerFactory.getLogger(SimpleStoreLogDataManager.class);
     private final Collection<StoreLogDataService> storeLogDataServices;
 
     private final boolean enabled;
 
     public SimpleStoreLogDataManager(Collection<StoreLogDataService> storeLogDataServices) {
         Objects.requireNonNull(storeLogDataServices);
-        this.storeLogDataServices = new ArrayList<>(storeLogDataServices);
+        this.storeLogDataServices = storeLogDataServices;
         this.enabled = !storeLogDataServices.isEmpty();
+        storeLogDataServices.stream()
+            .map(x -> x.getClass().getTypeName())
+            .forEach(x -> log.info("Store log data service '{}' is used.", x));
     }
 
     public Collection<StoreLogDataService> getServices() {
