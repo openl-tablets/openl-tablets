@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "id": "bd101c94c486e5775abd5334a5316db5",
+  "kind": "SimpleRules",
+  "name": "sayHello",
+  "returnType": "String",
+  "args": [
+    {
+      "name": "hour",
+      "type": "Integer"
+    }
+  ],
+  "rules": [
+    {
+      "hour": "<= 12",
+      "return": "Good Morning"
+    },
+    {
+      "hour": "[12; 18)",
+      "return": "Good Afternoon"
+    },
+    {
+      "hour": "[18; 22)",
+      "return": "Good Evening"
+    },
+    {
+      "hour": ">= 22",
+      "return": "Good Night"
+    }
+  ]
+}

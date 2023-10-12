@@ -1,0 +1,15 @@
+PUT /rest/users HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "displayName": "EPBDS-14095 User2",
+  "groups": ["Analysts", "Deployers", "Developers", "Testers", "Viewers"],
+  "username": "EPBDS_14095_user2",
+  "internalPassword": {
+    "password": "EPBDS_14095_user2"
+  },
+  "firstName": "User2",
+  "lastName": "EPBDS-14095",
+  "email": "EPBDS_14095_user2@email"
+}
