@@ -50,7 +50,7 @@ import org.openl.util.ArrayUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -120,7 +120,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             serviceContext.getBeanFactory().registerSingleton("rulesDeploy", rulesDeploy);
         }
         serviceContext.getBeanFactory().registerSingleton("serviceClassLoader", serviceClassLoader);
-        serviceContext.registerBean("openMember", IOpenMember.class, iOpenMethodHolder::get, x -> x.setScope(BeanDefinition.SCOPE_PROTOTYPE));
+        serviceContext.getBeanFactory().registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
         serviceContext.scan("spring");
         serviceContext.refresh();
 
