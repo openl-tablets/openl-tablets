@@ -51,11 +51,9 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
         if (supportedInjects == null) {
             synchronized (this) {
                 if (supportedInjects == null) {
-                    Collection<Inject<?>> injects = new ArrayList<>();
-                    injects.add(new Inject<>(HiveConnection.class,
+                    supportedInjects = Collections.singleton(new Inject<>(HiveConnection.class,
                         (m, a) -> hiveOperations.getConnection(),
                         IOUtils::closeQuietly));
-                    supportedInjects = Collections.unmodifiableCollection(injects);
                 }
             }
         }
