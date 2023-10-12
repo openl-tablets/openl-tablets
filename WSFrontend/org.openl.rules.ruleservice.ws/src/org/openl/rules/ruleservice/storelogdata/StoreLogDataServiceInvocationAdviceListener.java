@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.storelogdata;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -89,29 +90,24 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Collection<Consumer<Void>> destroyFunctions) {
         storeLogData = injectObjectSerializer(storeLogData, storeLogDataAdvice);
         for (var storeLogDataService : storeLogDataManager.getServices()) {
-            for (Inject<?> inject : storeLogDataService.additionalInjects()) {
-                if (inject != null && inject.getAnnotationClass() != null) {
-                    try {
-                        Object resource = cache.get(inject);
-                        if (resource == null) {
-                            Object resource1 = AnnotationUtils.inject(storeLogDataAdvice,
-                                inject.getAnnotationClass(),
-                                e -> inject.getResource(interfaceMethod, e));
-                            cache.put(inject, resource1);
-                            if (resource1 != null) {
-                                destroyFunctions.add(e -> inject.destroy(resource1));
-                            }
-                        } else {
-                            AnnotationUtils.inject(storeLogDataAdvice, inject.getAnnotationClass(), e -> resource);
+            for (var inject : storeLogDataService.additionalInjects()) {
+                var annotationClass = inject.getAnnotationClass();
+                try {
+                    var resource = cache.get(inject);
+                    if (resource == null) {
+                        var resource1 = AnnotationUtils.inject(storeLogDataAdvice, annotationClass,
+                            e -> inject.getResource(interfaceMethod, e));
+                        cache.put(inject, resource1);
+                        if (resource1 != null) {
+                            destroyFunctions.add(e -> inject.destroy(resource1));
                         }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        log.error("Failed to inject a resource through annotation '{}'",
-                            inject.getAnnotationClass().getTypeName(),
-                            e);
+                    } else {
+                        AnnotationUtils.inject(storeLogDataAdvice, annotationClass, e -> resource);
                     }
-                } else {
-                    log.error("Aware interface is null. Check store log data service implementation '{}'.",
-                        storeLogDataService.getClass().getTypeName());
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    log.error("Failed to inject a resource through annotation '{}'",
+                        annotationClass.getTypeName(),
+                        e);
                 }
             }
         }
