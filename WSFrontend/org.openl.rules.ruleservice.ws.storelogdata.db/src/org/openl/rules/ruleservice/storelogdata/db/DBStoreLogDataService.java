@@ -9,10 +9,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
@@ -23,8 +27,6 @@ import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManager;
 import org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")
@@ -35,15 +37,13 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
-    public EntityManagerOperations getHibernateSessionOperations() {
-        return hibernateSessionOperations;
-    }
+    private Collection<Inject<?>> supportedInjects;
 
-    public void setHibernateSessionOperations(EntityManagerOperations hibernateSessionOperations) {
-        this.hibernateSessionOperations = hibernateSessionOperations;
+    @PostConstruct
+    public void setup() {
+        supportedInjects = Collections
+            .singleton(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
     }
-
-    private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
     public boolean isSync(StoreLogData storeLogData) {
@@ -74,14 +74,6 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     public Collection<Inject<?>> additionalInjects() {
-        if (supportedInjects == null) {
-            synchronized (this) {
-                if (supportedInjects == null) {
-                    supportedInjects = Collections.singleton(
-                        new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
-                }
-            }
-        }
         return supportedInjects;
     }
 

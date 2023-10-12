@@ -6,7 +6,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
@@ -17,8 +22,6 @@ import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
@@ -29,15 +32,13 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
-    public CassandraOperations getCassandraOperations() {
-        return cassandraOperations;
-    }
+    private Collection<Inject<?>> supportedInjects;
 
-    public void setCassandraOperations(CassandraOperations cassandraOperations) {
-        this.cassandraOperations = cassandraOperations;
+    @PostConstruct
+    public void setup() {
+        supportedInjects = Collections
+            .singleton(new Inject<>(CassandraSession.class, (m, a) -> cassandraOperations.getCqlSession()));
     }
-
-    private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
     public boolean isSync(StoreLogData storeLogData) {
@@ -51,14 +52,6 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     public Collection<Inject<?>> additionalInjects() {
-        if (supportedInjects == null) {
-            synchronized (this) {
-                if (supportedInjects == null) {
-                    supportedInjects = Collections
-                        .singleton(new Inject<>(CassandraSession.class, (m, a) -> cassandraOperations.getCqlSession()));
-                }
-            }
-        }
         return supportedInjects;
     }
 

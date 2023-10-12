@@ -59,6 +59,10 @@
 			<groupId>com.datastax.oss</groupId>
 			<artifactId>java-driver-mapper-processor</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
 
 		<!-- OpenL dependencies -->
 		<dependency>
@@ -74,5 +78,5 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
 		</dependency>
-	</dependencies>
+    </dependencies>
 </project>

@@ -6,7 +6,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
@@ -18,8 +23,6 @@ import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
@@ -30,10 +33,12 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     @Autowired
     private HiveOperations hiveOperations;
 
-    private volatile Collection<Inject<?>> supportedInjects;
+    private Collection<Inject<?>> supportedInjects;
 
-    public void setHiveOperations(HiveOperations hiveOperations) {
-        this.hiveOperations = hiveOperations;
+    @PostConstruct
+    public void setup() {
+        supportedInjects = Collections.singleton(
+            new Inject<>(HiveConnection.class, (m, a) -> hiveOperations.getConnection(), IOUtils::closeQuietly));
     }
 
     @Override
@@ -48,15 +53,6 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     public Collection<Inject<?>> additionalInjects() {
-        if (supportedInjects == null) {
-            synchronized (this) {
-                if (supportedInjects == null) {
-                    supportedInjects = Collections.singleton(new Inject<>(HiveConnection.class,
-                        (m, a) -> hiveOperations.getConnection(),
-                        IOUtils::closeQuietly));
-                }
-            }
-        }
         return supportedInjects;
     }
 
