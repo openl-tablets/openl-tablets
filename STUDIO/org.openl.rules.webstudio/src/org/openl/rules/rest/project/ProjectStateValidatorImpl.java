@@ -22,7 +22,7 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
         if (project == null || project.isDeleted()) {
             return false;
         }
-        return !project.isLocalOnly() && (!project.isLocked() || project.isLockedByMe());
+        return !project.isLocalOnly() && !project.isOpenedForEditing() && !project.isOpened();
     }
 
     @Override

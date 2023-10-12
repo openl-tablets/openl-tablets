@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "bd101c94c486e5775abd5334a5316db5",
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "sayHello",
+    "returnType": "String",
+    "signature": "sayHello(Integer hour)",
+    "file": "EPBDS-14095/Main 2.xlsx",
+    "pos": "B8:C13"
+  }
+]
