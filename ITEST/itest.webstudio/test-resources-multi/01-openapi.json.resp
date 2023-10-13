@@ -1281,6 +1281,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/SimpleRulesView"
+          },
+          {
+            "$ref": "#/components/schemas/SmartRulesView"
           }
         ]
       },
@@ -1381,6 +1384,88 @@ Content-Type: application/json
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/SpreadsheetStepView"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "SmartRulesAppend": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AppendTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "rules": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "SmartRulesHeaderView": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "SmartRulesView": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EditableTableView"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "args": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ArgumentView"
+                }
+              },
+              "headers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SmartRulesHeaderView"
+                }
+              },
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "properties": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                }
+              },
+              "returnType": {
+                "type": "string"
+              },
+              "rules": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object"
+                  }
                 }
               }
             }
@@ -1624,6 +1709,9 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/SimpleRulesAppend"
+          },
+          {
+            "$ref": "#/components/schemas/SmartRulesAppend"
           }
         ]
       },

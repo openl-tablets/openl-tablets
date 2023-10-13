@@ -16,12 +16,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
         @JsonSubTypes.Type(value = VocabularyView.class, name = VocabularyView.TABLE_TYPE),
         @JsonSubTypes.Type(value = SpreadsheetView.class, name = SpreadsheetView.TABLE_TYPE),
         @JsonSubTypes.Type(value = SimpleSpreadsheetView.class, name = SimpleSpreadsheetView.TABLE_TYPE),
-        @JsonSubTypes.Type(value = SimpleRulesView.class, name = SimpleRulesView.TABLE_TYPE) })
+        @JsonSubTypes.Type(value = SimpleRulesView.class, name = SimpleRulesView.TABLE_TYPE),
+        @JsonSubTypes.Type(value = SmartRulesView.class, name = SmartRulesView.TABLE_TYPE) })
 @Schema(oneOf = { DatatypeView.class,
         VocabularyView.class,
         SpreadsheetView.class,
         SimpleSpreadsheetView.class,
-        SimpleRulesView.class })
+        SimpleRulesView.class,
+        SmartRulesView.class })
 public interface EditableTableView {
 
     @JsonIgnore

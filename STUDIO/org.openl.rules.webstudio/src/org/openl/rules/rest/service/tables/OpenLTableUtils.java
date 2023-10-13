@@ -4,9 +4,10 @@ import java.util.Objects;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
+import org.openl.rules.rest.model.tables.SmartRulesView;
 import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
-import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.ITable;
 import org.openl.util.StringUtils;
 
 import com.google.common.collect.BiMap;
@@ -86,11 +87,25 @@ public abstract class OpenLTableUtils {
      * @return {@code true} if provided table is a simple rules table, {@code false} otherwise
      */
     public static boolean isSimpleRules(IOpenLTable table) {
+        return isRules(table, SimpleRulesView.TABLE_TYPE);
+    }
+
+    /**
+     * Checks if provided table is a smart rules table.
+     *
+     * @param table table to check
+     * @return {@code true} if provided table is a smart rules table, {@code false} otherwise
+     */
+    public static boolean isSmartRules(IOpenLTable table) {
+        return isRules(table, SmartRulesView.TABLE_TYPE);
+    }
+
+    private static boolean isRules(IOpenLTable table, String tableType) {
         if (isRulesTable(table)) {
             var headerSource = table.getSyntaxNode().getHeader().getSourceString();
             var first = StringUtils.firstNonSpace(headerSource, 0, headerSource.length());
             var last = StringUtils.first(headerSource, first, headerSource.length(), StringUtils::isSpaceOrControl);
-            return first < last && Objects.equals(headerSource.substring(first, last), SimpleRulesView.TABLE_TYPE);
+            return first < last && Objects.equals(headerSource.substring(first, last), tableType);
         }
         return false;
     }
@@ -137,7 +152,7 @@ public abstract class OpenLTableUtils {
      * @param table table to get height
      * @return height of provided table without empty rows
      */
-    public static int getHeightWithoutEmptyRows(ILogicalTable table) {
+    public static int getHeightWithoutEmptyRows(ITable<?> table) {
         var height = table.getHeight();
         while (isRowEmpty(table, height - 1)) {
             height--;
@@ -145,7 +160,7 @@ public abstract class OpenLTableUtils {
         return height;
     }
 
-    private static boolean isRowEmpty(ILogicalTable table, int row) {
+    private static boolean isRowEmpty(ITable<?> table, int row) {
         for (int col = 0; col < table.getWidth(); col++) {
             if (table.getCell(col, row).getObjectValue() != null) {
                 return false;
@@ -160,7 +175,7 @@ public abstract class OpenLTableUtils {
      * @param table table to get width
      * @return width of provided table without empty columns
      */
-    public static int getWidthWithoutEmptyColumns(ILogicalTable table) {
+    public static int getWidthWithoutEmptyColumns(ITable<?> table) {
         var width = table.getWidth();
         while (isColumnEmpty(table, width - 1)) {
             width--;
@@ -168,7 +183,7 @@ public abstract class OpenLTableUtils {
         return width;
     }
 
-    private static boolean isColumnEmpty(ILogicalTable table, int col) {
+    private static boolean isColumnEmpty(ITable<?> table, int col) {
         for (int row = 0; row < table.getHeight(); row++) {
             if (table.getCell(col, row).getObjectValue() != null) {
                 return false;

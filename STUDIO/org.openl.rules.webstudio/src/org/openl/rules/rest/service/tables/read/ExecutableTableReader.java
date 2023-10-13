@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import org.openl.rules.rest.model.tables.ArgumentView;
 import org.openl.rules.rest.model.tables.ExecutableView;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.util.StringUtils;
 
 /**
  * Abstract class for reading executable tables.
@@ -32,8 +31,8 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         int start = pos;
         pos = rollIdentifier(headerSource, pos);
         if (start < pos) {
-            // it is probably table kind
-            builder.kind(headerSource.substring(start, pos));
+            // it is probably table type
+            builder.tableType(headerSource.substring(start, pos));
         }
         pos = rollWhitespaces(headerSource, pos);
         start = pos;
@@ -55,14 +54,6 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
             args = parseArguments(headerSource, pos);
         }
         builder.args(args);
-    }
-
-    public static List<ArgumentView> getArgs(String headerSource, int start) {
-        var pos = StringUtils.first(headerSource, start, headerSource.length(), x -> x == '(');
-        if (pos < 0) {
-            return List.of();
-        }
-        return parseArguments(headerSource, pos);
     }
 
     private static List<ArgumentView> parseArguments(String headerSource, int pos) {
