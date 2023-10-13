@@ -38,6 +38,8 @@ import org.openl.rules.rest.model.tables.SimpleRulesAppend;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetAppend;
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
+import org.openl.rules.rest.model.tables.SmartRulesAppend;
+import org.openl.rules.rest.model.tables.SmartRulesView;
 import org.openl.rules.rest.model.tables.SpreadsheetView;
 import org.openl.rules.rest.model.tables.SummaryTableView;
 import org.openl.rules.rest.model.tables.TableView;
@@ -50,6 +52,7 @@ import org.openl.rules.rest.service.tables.read.SummaryTableReader;
 import org.openl.rules.rest.service.tables.write.DatatypeTableWriter;
 import org.openl.rules.rest.service.tables.write.SimpleRulesWriter;
 import org.openl.rules.rest.service.tables.write.SimpleSpreadsheetTableWriter;
+import org.openl.rules.rest.service.tables.write.SmartRulesWriter;
 import org.openl.rules.rest.service.tables.write.SpreadsheetTableWriter;
 import org.openl.rules.rest.service.tables.write.TableWriter;
 import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
@@ -490,6 +493,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ((SpreadsheetTableWriter) writer).write((SpreadsheetView) tableView);
         } else if (writer instanceof SimpleRulesWriter) {
             ((SimpleRulesWriter) writer).write((SimpleRulesView) tableView);
+        } else if (writer instanceof SmartRulesWriter) {
+            ((SmartRulesWriter) writer).write((SmartRulesView) tableView);
         }
     }
 
@@ -509,6 +514,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         } else if (Objects.equals(XlsNodeTypes.XLS_DT.toString(), table.getType())) {
             if (SimpleRulesView.TABLE_TYPE.equals(tableType)) {
                 return new SimpleRulesWriter(table);
+            } else if (SmartRulesView.TABLE_TYPE.equals(tableType)) {
+                return new SmartRulesWriter(table);
             }
         }
         throw new UnsupportedOperationException("Table type doesn't match writer type");
@@ -537,6 +544,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ((SimpleSpreadsheetTableWriter) writer).append((SimpleSpreadsheetAppend) tableView);
         } else if (writer instanceof SimpleRulesWriter) {
             ((SimpleRulesWriter) writer).append((SimpleRulesAppend) tableView);
+        } else if (writer instanceof SmartRulesWriter) {
+            ((SmartRulesWriter) writer).append((SmartRulesAppend) tableView);
         }
     }
 }

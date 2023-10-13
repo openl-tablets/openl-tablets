@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "tableType": "SimpleRules",
   "id": "9805b76ba5af036d6cfc387a5957daa4",
-  "kind": "SimpleRules",
+  "kind": "Rules",
   "name": "sayHello",
   "returnType": "String",
   "args": [

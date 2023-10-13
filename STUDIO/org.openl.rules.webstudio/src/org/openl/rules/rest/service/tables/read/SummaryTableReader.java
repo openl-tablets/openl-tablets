@@ -8,6 +8,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
+import org.openl.rules.rest.model.tables.SmartRulesView;
 import org.openl.rules.rest.model.tables.SummaryTableView;
 import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
@@ -34,10 +35,10 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var url = table.getUriParser();
         try {
             var file = new File("").getCanonicalFile()
-                    .toPath()
-                    .relativize(Path.of(url.getWbPath()))
-                    .resolve(url.getWbName())
-                    .toString();
+                .toPath()
+                .relativize(Path.of(url.getWbPath()))
+                .resolve(url.getWbName())
+                .toString();
             builder.file(file.replace("\\", "/"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to resolve module location", e);
@@ -49,7 +50,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         if (member instanceof AMethod) {
             var methodHeader = ((AMethod) member).getHeader();
             builder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
-                    .returnType(MethodUtil.printType(methodHeader.getType()));
+                .returnType(MethodUtil.printType(methodHeader.getType()));
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {
@@ -58,6 +59,8 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             builder.tableType(SimpleSpreadsheetView.TABLE_TYPE);
         } else if (OpenLTableUtils.isSimpleRules(table)) {
             builder.tableType(SimpleRulesView.TABLE_TYPE);
+        } else if (OpenLTableUtils.isSmartRules(table)) {
+            builder.tableType(SmartRulesView.TABLE_TYPE);
         } else {
             builder.tableType(OpenLTableUtils.getTableTypeItems().get(table.getType()));
         }
