@@ -30,6 +30,7 @@ import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
+import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.rest.model.tables.AppendTableView;
 import org.openl.rules.rest.model.tables.DatatypeAppend;
 import org.openl.rules.rest.model.tables.DatatypeView;
@@ -116,6 +117,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     @Lookup
     public WebStudio getWebStudio() {
         return null;
+    }
+
+    public ProjectViewModel getProject(RulesProject project) {
+        return mapProjectResponse(project);
     }
 
     @Override
