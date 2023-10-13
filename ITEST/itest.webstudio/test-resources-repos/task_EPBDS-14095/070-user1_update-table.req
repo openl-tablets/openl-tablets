@@ -6,7 +6,7 @@ Content-Type: application/json
   "tableType": "SimpleRules",
   "rules": [
     {
-      "return": "= error (\"Invalid input\")"
+      "RETURN": "= error (\"Invalid input\")"
     }
   ]
 }
