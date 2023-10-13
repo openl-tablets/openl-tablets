@@ -1293,6 +1293,18 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "args": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ArgumentView"
+                }
+              },
+              "headers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SimpleRuleHeaderView"
+                }
+              },
               "id": {
                 "type": "string"
               },
@@ -1311,12 +1323,6 @@ Content-Type: application/json
               "returnType": {
                 "type": "string"
               },
-              "args": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/ArgumentView"
-                }
-              },
               "rules": {
                 "type": "array",
                 "items": {
@@ -1329,6 +1335,14 @@ Content-Type: application/json
             }
           }
         ]
+      },
+      "SimpleRuleHeaderView": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        }
       },
       "SimpleSpreadsheetView": {
         "type": "object",

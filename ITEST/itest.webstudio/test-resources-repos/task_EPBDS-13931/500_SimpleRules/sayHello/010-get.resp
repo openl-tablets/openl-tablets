@@ -13,22 +13,30 @@ Content-Type: application/json
       "type": "Integer"
     }
   ],
+  "headers": [
+    {
+      "title": "hour"
+    },
+    {
+      "title": "RETURN"
+    }
+  ],
   "rules": [
     {
       "hour": "<= 12",
-      "return": "Good Morning"
+      "RETURN": "Good Morning"
     },
     {
       "hour": "[12; 18)",
-      "return": "Good Afternoon"
+      "RETURN": "Good Afternoon"
     },
     {
       "hour": "[18; 22)",
-      "return": "Good Evening"
+      "RETURN": "Good Evening"
     },
     {
       "hour": ">= 22",
-      "return": "Good Night"
+      "RETURN": "Good Night"
     }
   ]
 }

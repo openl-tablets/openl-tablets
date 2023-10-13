@@ -6,12 +6,12 @@ Content-Type: application/json
   "tableType": "SimpleRules",
   "rules": [
     {
-      "hour": ">= 22",
-      "minute": "< 60",
-      "return": "Good Night"
+      "Hours": ">= 22",
+      "Minutes": "< 60",
+      "Greeting": "Good Night"
     },
     {
-      "return": "= error (\"Invalid input\")"
+      "Greeting": "= error (\"Invalid input\")"
     }
   ]
 }

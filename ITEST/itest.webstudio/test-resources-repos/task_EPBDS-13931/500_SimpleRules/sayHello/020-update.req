@@ -17,21 +17,32 @@ Content-Type: application/json
       "type": "Integer"
     }
   ],
+  "headers": [
+    {
+      "title": "Hours"
+    },
+    {
+      "title": "Minutes"
+    },
+    {
+      "title": "Greeting"
+    }
+  ],
   "rules": [
     {
-      "hour": "<= 12",
-      "return": "Good Morning",
-      "minute": "< 60"
+      "Hours": "<= 12",
+      "Greeting": "Good Morning",
+      "Minutes": "< 60"
     },
     {
-      "hour": "[12; 18)",
-      "return": "Good Afternoon",
-      "minute": "< 60"
+      "Hours": "[12; 18)",
+      "Greeting": "Good Afternoon",
+      "Minutes": "< 60"
     },
     {
-      "minute": "< 60",
-      "hour": "[18; 22)",
-      "return": "Good Evening"
+      "Minutes": "< 60",
+      "Hours": "[18; 22)",
+      "Greeting": "Good Evening"
     }
   ]
 }

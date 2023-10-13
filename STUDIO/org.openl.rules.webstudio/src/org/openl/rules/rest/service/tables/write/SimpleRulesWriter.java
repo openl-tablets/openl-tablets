@@ -3,10 +3,11 @@ package org.openl.rules.rest.service.tables.write;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.model.tables.SimpleRulesAppend;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
-import org.openl.rules.rest.service.tables.read.ExecutableTableReader;
+import org.openl.rules.rest.service.tables.read.SimpleRulesTableReader;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.LogicalTableHelper;
 
 /**
  * Writes {@link SimpleRulesView} model to {@code SimpleRules} table.
@@ -14,8 +15,6 @@ import org.openl.rules.table.IOpenLTable;
  * @author Vladyslav Pikus
  */
 public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
-
-    private static final String RETURN_ATTR = "return";
 
     public SimpleRulesWriter(IOpenLTable table) {
         super(table);
@@ -29,10 +28,9 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
         int colMax = 0;
         for (var rule : tableView.rules) {
             int col = 0;
-            for (var arg : tableView.args) {
-                createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(arg.name));
+            for (var header : tableView.headers) {
+                createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(header.title));
             }
-            createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(RETURN_ATTR));
             colMax = Math.max(colMax, col);
             row++;
         }
@@ -52,25 +50,24 @@ public class SimpleRulesWriter extends ExecutableTableWriter<SimpleRulesView> {
 
     private void writeConditionHeaders(IGridTable tableBody, SimpleRulesView tableView) {
         int col = 0;
-        for (var arg : tableView.args) {
-            createOrUpdateCell(tableBody, buildCellKey(col, 0), arg.name);
+        for (var arg : tableView.headers) {
+            createOrUpdateCell(tableBody, buildCellKey(col, 0), arg.title);
             col++;
         }
-        createOrUpdateCell(tableBody, buildCellKey(col, 0), RETURN_ATTR.toUpperCase());
     }
 
     public void append(SimpleRulesAppend tableAppend) {
         try {
             table.getGridTable().edit();
-            var args = ExecutableTableReader.getArgs(table.getGridTable().getCell(0, 0).getStringValue(), 0);
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
+            var headers = SimpleRulesTableReader
+                .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
             int row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var rule : tableAppend.getRules()) {
                 int col = 0;
-                for (var arg : args) {
-                    createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(arg.name));
+                for (var header : headers) {
+                    createOrUpdateCell(tableBody, buildCellKey(col++, row), rule.get(header.title));
                 }
-                createOrUpdateCell(tableBody, buildCellKey(col, row), rule.get(RETURN_ATTR));
                 row++;
             }
             save();

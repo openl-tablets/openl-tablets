@@ -17,29 +17,40 @@ Content-Type: application/json
       "type": "Integer"
     }
   ],
+  "headers": [
+    {
+      "title": "Hours"
+    },
+    {
+      "title": "Minutes"
+    },
+    {
+      "title": "Greeting"
+    }
+  ],
   "rules": [
     {
-      "hour": "<= 12",
-      "minute": "< 60",
-      "return": "Good Morning"
+      "Hours": "<= 12",
+      "Minutes": "< 60",
+      "Greeting": "Good Morning"
     },
     {
-      "hour": "[12; 18)",
-      "minute": "< 60",
-      "return": "Good Afternoon"
+      "Hours": "[12; 18)",
+      "Minutes": "< 60",
+      "Greeting": "Good Afternoon"
     },
     {
-      "hour": "[18; 22)",
-      "minute": "< 60",
-      "return": "Good Evening"
+      "Hours": "[18; 22)",
+      "Minutes": "< 60",
+      "Greeting": "Good Evening"
     },
     {
-      "hour": ">= 22",
-      "minute": "< 60",
-      "return": "Good Night"
+      "Hours": ">= 22",
+      "Minutes": "< 60",
+      "Greeting": "Good Night"
     },
     {
-      "return": "= error (\"Invalid input\")"
+      "Greeting": "= error (\"Invalid input\")"
     }
   ]
 }
