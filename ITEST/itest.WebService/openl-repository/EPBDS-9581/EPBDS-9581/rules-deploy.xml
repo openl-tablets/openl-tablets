@@ -9,7 +9,7 @@
     <configuration>
         <entry>
             <string>rootClassNamesBinding</string>
-            <string>org.example.custom.mixin.CustomerMixIn</string>
+            <string>org.example.custom.mixin.CustomerMixIn, org.example.custom.mixin.CustomerMixIn2</string>
         </entry>
     </configuration>
 </rules-deploy>

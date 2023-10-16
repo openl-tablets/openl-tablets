@@ -196,6 +196,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             }
             MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
             if (mixInRulesClass != null) {
+                Arrays.stream(mixInRulesClass.types()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
                 for (String className : mixInRulesClass.value()) {
                     try {
                         Class<?> useForClass = loadClass(className);
