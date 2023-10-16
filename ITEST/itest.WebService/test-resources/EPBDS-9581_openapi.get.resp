@@ -16,7 +16,6 @@ Content-Type: application/json
   "paths": {
     "/proxyCustomer": {
       "post": {
-        "summary": "Customer proxyCustomer(Customer)",
         "description": "Rules method: org.openl.generated.beans.Customer proxyCustomer(org.openl.generated.beans.Customer c)",
         "operationId": "proxyCustomer",
         "requestBody": {
@@ -29,20 +28,36 @@ Content-Type: application/json
           }
         },
         "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            },
+            "description": "Successful operation"
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
                 },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
                 "examples": {
                   "Example 1": {
                     "description": "Example 1",
@@ -59,65 +74,166 @@ Content-Type: application/json
                       "type": "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 }
               }
-            }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
           },
           "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
                 "example": {
                   "message": "Failed to load lazy method.",
                   "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 }
               }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary": "Customer proxyCustomer(Customer)"
+      }
+    },
+    "/proxyCustomer2": {
+      "post": {
+        "description": "Rules method: org.openl.generated.beans.Customer2 proxyCustomer2(org.openl.generated.beans.Customer2 c)",
+        "operationId": "proxyCustomer2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer2"
+              }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer2"
+                }
+              }
+            },
+            "description": "Successful operation"
           },
           "204": {
             "description": "Successful operation"
           },
-          "200": {
-            "description": "Successful operation",
+          "400": {
             "content": {
               "application/json": {
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                },
                 "schema": {
-                  "$ref": "#/components/schemas/Customer"
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
+                },
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary": "Customer2 proxyCustomer2(Customer2)"
       }
     }
   },
   "components": {
     "schemas": {
-      "JAXRSUserErrorResponse": {
+      "Customer": {
         "type": "object",
         "properties": {
-          "message": {
+          "cusomerID": {
             "type": "string"
           },
-          "code": {
+          "dob": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "genderCd": {
+            "type": "string",
+            "default": "other",
+            "example": "male"
+          }
+        }
+      },
+      "Customer2": {
+        "type": "object",
+        "properties": {
+          "cusomerID": {
             "type": "string"
+          },
+          "dob": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gCd": {
+            "type": "string",
+            "default": "female",
+            "example": "male"
           }
         }
       },
@@ -129,24 +245,25 @@ Content-Type: application/json
           },
           "type": {
             "type": "string",
-            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
           }
         }
       },
-      "Customer": {
+      "JAXRSUserErrorResponse": {
         "type": "object",
         "properties": {
-          "cusomerID": {
+          "code": {
             "type": "string"
           },
-          "genderCd": {
-            "type": "string",
-            "example": "male",
-            "default": "other"
-          },
-          "dob": {
-            "type": "string",
-            "format": "date-time"
+          "message": {
+            "type": "string"
           }
         }
       }
