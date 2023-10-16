@@ -155,7 +155,9 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     int j = 0;
                     for (Parameter parameter : templateMethod.getParameters()) {
                         if (!parameter.isAnnotationPresent(ExternalParam.class)) {
-                            argumentTypes[i] = originalMethodArgumentTypes[j];
+                            if (!parameter.isAnnotationPresent(RulesType.class) || isObjectType(parameter.getType())) {
+                                argumentTypes[i] = originalMethodArgumentTypes[j];
+                            }
                             j++;
                         }
                         i++;
@@ -184,6 +186,13 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 }
             }
             return super.visitMethod(access, name, descriptor, signature, exceptions);
+        }
+
+        private static boolean isObjectType(Class<?> type) {
+            while (type.isArray()) {
+                type = type.getComponentType();
+            }
+            return type.equals(Object.class);
         }
     }
 

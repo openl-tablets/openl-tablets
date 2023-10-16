@@ -8,11 +8,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.openl.itest.service.internal.InputInterceptor;
 import org.openl.itest.service.internal.MyType;
+import org.openl.itest.service.internal.ExtraType;
 import org.openl.itest.service.internal.OutputInterceptor;
+import org.openl.itest.service.internal.PrepareInterceptor;
 import org.openl.itest.service.internal.ResponseInterceptor;
 import org.openl.itest.service.internal.VirtualMethodHandler;
 import org.openl.rules.ruleservice.core.annotations.Name;
@@ -75,5 +76,8 @@ interface MyService {
 
     @ServiceCallAfterInterceptor(value = [OpenLTypeServiceMethodAfterAdvice.class])
     Double parse6(String num);
+
+    @ServiceCallBeforeInterceptor([PrepareInterceptor.class])
+    String toStr(@RulesType("RuleType") ExtraType type);
 }
 

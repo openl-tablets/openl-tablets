@@ -188,7 +188,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceDescription.isProvideVariations());
             service.setServiceClass(serviceClass);
         }
-        var methodMap = RuleServiceInstantiationFactoryHelper.getMethodMap(serviceClass, serviceTargetClass, serviceTarget);
+        var methodMap = RuleServiceInstantiationFactoryHelper.getMethodMap(serviceClass, serviceTargetClass, serviceTarget, serviceClassLoader, service.getOpenClass());
         return Pair.of(serviceTarget, methodMap);
     }
 

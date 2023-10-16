@@ -264,18 +264,8 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean provideVariations) {
         if (toServiceClass && method.isAnnotationPresent(RulesType.class)) {
             RulesType rulesType = method.getAnnotation(RulesType.class);
-            try {
-                Class<?> loadedType = findOrLoadType(rulesType, openClass, classLoader);
-                Class<?> t = method.getReturnType();
-                while (t.isArray()) {
-                    t = t.getComponentType();
-                    loadedType = Array.newInstance(loadedType, 0).getClass();
-                }
-                return loadedType;
-            } catch (ClassNotFoundException e) {
-                throw new InstantiationException(
-                    String.format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
-            }
+            Class<?> originType = method.getReturnType();
+            return findOrLoadType(openClass, classLoader, rulesType, originType);
         }
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
             .getAnnotation(ServiceCallAfterInterceptor.class);
@@ -296,6 +286,21 @@ public final class RuleServiceInstantiationFactoryHelper {
             return extractReturnTypeForMethod(openMember, toServiceClass, serviceMethodAroundAdvice);
         }
         return null;
+    }
+
+    private static Class<?> findOrLoadType(IOpenClass openClass, ClassLoader classLoader, RulesType rulesType, Class<?> originType) {
+        try {
+            Class<?> loadedType = findOrLoadType(rulesType, openClass, classLoader);
+            Class<?> t = originType;
+            while (t.isArray()) {
+                t = t.getComponentType();
+                loadedType = Array.newInstance(loadedType, 0).getClass();
+            }
+            return loadedType;
+        } catch (ClassNotFoundException e) {
+            throw new InstantiationException(
+                String.format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+        }
     }
 
     public static Class<?> findOrLoadType(RulesType rulesType,
@@ -331,10 +336,10 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
     }
 
-    static Map<Method, Method> getMethodMap(Class<?> serviceClass, Class<?> serviceTargetClass, Object serviceTarget) {
+    static Map<Method, Method> getMethodMap(Class<?> serviceClass, Class<?> serviceTargetClass, Object serviceTarget, ClassLoader serviceClassLoader, IOpenClass openClass) {
         var methodMap = new HashMap<Method, Method>();
         for (Method method : serviceClass.getMethods()) {
-            Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(serviceTarget, method);
+            Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(serviceTarget, method, serviceClassLoader, openClass);
             IOpenMember openMember = openMemberResolved.getLeft();
             Method serviceTargetMethod = null;
             if (openMember != null) {
@@ -347,7 +352,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         return methodMap;
     }
 
-    private static Pair<IOpenMember, Class<?>[]> findIOpenMember(Object serviceTarget, Method method) {
+    private static Pair<IOpenMember, Class<?>[]> findIOpenMember(Object serviceTarget, Method method, ClassLoader serviceClassLoader, IOpenClass openClass) {
         for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
             try {
                 Class<?>[] parameterTypes = method.getParameterTypes();
@@ -366,6 +371,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                             parameterTypes[i] = dim > 0 ? Array.newInstance(SpreadsheetResult.class, dim).getClass()
                                     : SpreadsheetResult.class;
                         }
+                    } else if (parameter.isAnnotationPresent(RulesType.class)) {
+                        parameterTypes[i] = findOrLoadType(openClass, serviceClassLoader, parameter.getAnnotation(RulesType.class), parameterTypes[i]);
                     }
                     i++;
                 }
@@ -445,7 +452,15 @@ public final class RuleServiceInstantiationFactoryHelper {
             List<Class<?>> parameterTypes = new ArrayList<>();
             for (Parameter parameter : method.getParameters()) {
                 if (!parameter.isAnnotationPresent(ExternalParam.class)) {
-                    parameterTypes.add(parameter.getType());
+                    RulesType rulesType = parameter.getAnnotation(RulesType.class);
+                    Class<?> originType = parameter.getType();
+                    if (rulesType != null) {
+                        Class<?> type = RuleServiceInstantiationFactoryHelper
+                            .findOrLoadType(openClass, classLoader, rulesType, originType);
+                        parameterTypes.add(type);
+                    } else {
+                        parameterTypes.add(originType);
+                    }
                 }
             }
             openMember = RuleServiceOpenLServiceInstantiationHelper
@@ -523,7 +538,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             } else {
                 Class<?> methodParamType = method.getParameterTypes()[i];
                 Boolean paramTypeSprToBeanConversation = Boolean.FALSE;
-                if (parameter.isAnnotationPresent(RulesType.class)) {
+                if (parameter.getType().equals(Object.class) && parameter.isAnnotationPresent(RulesType.class)) {
                     RulesType rulesType = parameter.getAnnotation(RulesType.class);
                     try {
                         Class<?> loadedType = findOrLoadType(rulesType, openClass, classLoader);
