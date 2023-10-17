@@ -213,7 +213,13 @@ public final class RuleServiceInstantiationFactoryHelper {
             provideRuntimeContext,
             provideVariations);
 
-        Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, !toServiceClass);
+        Set<Method> methodsToRemove = new HashSet<>();
+        for (Method method : serviceClass.getMethods()) {
+            if (ITableProperties.class.isAssignableFrom(method.getReturnType())
+                    || (!toServiceClass && method.isAnnotationPresent(ServiceExtraMethod.class))) {
+                methodsToRemove.add(method);
+            }
+        }
 
         if (methodsWithSignatureNeedsChange.isEmpty() && methodsToRemove.isEmpty()) {
             return serviceClass;
@@ -600,25 +606,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             i++;
         }
         return f ? (Pair<Class<?>, Boolean>[]) methodParamTypes.toArray(new Pair[0]) : null;
-    }
-
-    /**
-     * Look through all methods of the specified class in order to find all methods which must be excluded from
-     * interface
-     *
-     * @param serviceClass Class to be analyzed.
-     * @param removeServiceExtraMethods {@code true} if methods annotated by {@link ServiceExtraMethod} must be excluded
-     * @return Methods which have after interceptors.
-     */
-    private static Set<Method> getMethodsToRemove(Class<?> serviceClass, boolean removeServiceExtraMethods) {
-        Set<Method> ret = new HashSet<>();
-        for (Method method : serviceClass.getMethods()) {
-            if (ITableProperties.class.isAssignableFrom(method
-                .getReturnType()) || (removeServiceExtraMethods && method.isAnnotationPresent(ServiceExtraMethod.class))) {
-                ret.add(method);
-            }
-        }
-        return ret;
     }
 
     private static class MethodSignatureChanges {
