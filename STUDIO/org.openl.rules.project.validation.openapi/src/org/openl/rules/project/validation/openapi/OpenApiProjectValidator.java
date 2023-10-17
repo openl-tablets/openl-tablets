@@ -1,7 +1,10 @@
 package org.openl.rules.project.validation.openapi;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,21 +33,28 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
+import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
-import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
+import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
@@ -86,15 +96,24 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.parser.core.models.ParseOptions;
 import io.swagger.v3.parser.util.RefUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectValidator {
+public class OpenApiProjectValidator {
 
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";
     private static final String OPENAPI_YML = "openapi.yml";
     public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI Reconciliation: ";
+    private static final Logger LOG = LoggerFactory.getLogger(OpenApiProjectValidator.class);
+    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private final Reader reader = new Reader();
+    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private boolean provideRuntimeContext = true;
+    private boolean provideVariations;
+    private RulesDeploy rulesDeploy;
+    private ClassLoader classLoader;
 
     private OpenAPI loadOpenAPI(Context context,
             ProjectDescriptor projectDescriptor,
@@ -143,7 +162,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return null;
     }
 
-    @Override
     public CompiledOpenClass validate(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         final CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
@@ -198,9 +216,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             Class<?> enhancedServiceClass;
             try {
-                enhancedServiceClass = enhanceWithJAXRS(context,
-                    serviceClass,
-                    serviceClassLoader);
+                enhancedServiceClass = enhanceWithJAXRS(context, serviceClass, serviceClassLoader);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
                     OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
@@ -274,8 +290,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             context.getTargetService(),
             classLoader,
             context.isProvideRuntimeContext(),
-            context.isProvideVariations()
-        );
+            context.isProvideVariations());
     }
 
     private Pair<String, PathItem> findPathItem(io.swagger.v3.oas.models.Paths paths, String path) {
@@ -1214,6 +1229,152 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         }
         return null;
+    }
+
+    protected ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader,
+            ProjectDescriptor projectDescriptor,
+            String name) {
+        ProjectResource[] projectResources = projectResourceLoader.loadResource(name);
+        return Arrays.stream(projectResources)
+            .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    protected RulesDeploy loadRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
+        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(compiledOpenClass);
+        ProjectResource projectResource = loadProjectResource(projectResourceLoader,
+            projectDescriptor,
+            RULES_DEPLOY_XML);
+        if (projectResource != null) {
+            try {
+                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
+            } catch (FileNotFoundException | JAXBException e) {
+                LOG.debug("Ignored error: ", e);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    protected RulesDeploy getRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
+        if (rulesDeploy == null) {
+            rulesDeploy = loadRulesDeploy(projectDescriptor, compiledOpenClass);
+        }
+        return rulesDeploy;
+    }
+
+    protected ClassLoader resolveServiceClassLoader(
+            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+        if (classLoader == null) {
+            ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
+                .getOpenClassWithErrors()).getClassGenerationClassLoader();
+            OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
+            openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
+            openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
+            classLoader = openLClassLoader;
+        }
+        return classLoader;
+    }
+
+    protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
+            RulesInstantiationStrategy rulesInstantiationStrategy,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (provideVariations) {
+            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        if (provideRuntimeContext) {
+            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        return rulesInstantiationStrategy;
+    }
+
+    protected Class<?> resolveInterface(RulesDeploy rulesDeploy,
+            RulesInstantiationStrategy rulesInstantiationStrategy,
+            ValidatedCompiledOpenClass validatedCompiledOpenClass,
+            boolean provideRuntimeContext,
+            boolean provideVariations) throws RulesInstantiationException {
+        if (rulesDeploy != null && rulesDeploy.getServiceClass() != null) {
+            final String serviceClassName = rulesDeploy.getServiceClass().trim();
+            if (!org.apache.commons.lang3.StringUtils.isEmpty(serviceClassName)) {
+                try {
+                    Class<?> serviceClass = validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
+                    if (serviceClass.isInterface()) {
+                        return serviceClass;
+                    } else {
+                        throw new RulesInstantiationException(
+                            String.format("Interface is expected for service class '%s', but class is found.",
+                                serviceClassName));
+                    }
+                } catch (ClassNotFoundException | NoClassDefFoundError e) {
+                    throw new RulesInstantiationException(
+                        String
+                            .format("An error is occurred during loading a service class '%s'.%s",
+                                serviceClassName,
+                                org.apache.commons.lang3.StringUtils
+                                    .isNotBlank(e.getMessage()) ? " " + e.getMessage()
+                                                                : org.apache.commons.lang3.StringUtils.EMPTY));
+                }
+            }
+        }
+        String annotationTemplateClassName = null;
+        if (rulesDeploy != null) {
+            annotationTemplateClassName = rulesDeploy.getAnnotationTemplateClassName() != null ? rulesDeploy
+                .getAnnotationTemplateClassName() : rulesDeploy.getInterceptingTemplateClassName();
+            if (annotationTemplateClassName != null) {
+                annotationTemplateClassName = annotationTemplateClassName.trim();
+            }
+        }
+        Class<?> serviceClass = rulesInstantiationStrategy.getInstanceClass();
+        ClassLoader resolveServiceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
+        if (!org.apache.commons.lang3.StringUtils.isEmpty(annotationTemplateClassName)) {
+            try {
+                Class<?> annotationTemplateClass = resolveServiceClassLoader.loadClass(annotationTemplateClassName);
+                if (annotationTemplateClass.isInterface() || Modifier
+                    .isAbstract(annotationTemplateClass.getModifiers())) {
+                    serviceClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
+                        annotationTemplateClass,
+                        rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
+                        resolveServiceClassLoader);
+                } else {
+                    throw new RulesInstantiationException(String.format(
+                        "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                        annotationTemplateClassName));
+                }
+            } catch (RulesInstantiationException e) {
+                throw e;
+            } catch (Exception | NoClassDefFoundError e) {
+                throw new RulesInstantiationException(
+                    String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                        annotationTemplateClassName,
+                        org.apache.commons.lang3.StringUtils.isNotBlank(
+                            e.getMessage()) ? " " + e.getMessage() : org.apache.commons.lang3.StringUtils.EMPTY));
+            }
+        }
+        return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(
+            rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
+            serviceClass,
+            resolveServiceClassLoader,
+            rulesInstantiationStrategy.instantiate(true),
+            provideRuntimeContext,
+            provideVariations);
+    }
+
+    public boolean isProvideRuntimeContext() {
+        return provideRuntimeContext;
+    }
+
+    public void setProvideRuntimeContext(boolean provideRuntimeContext) {
+        this.provideRuntimeContext = provideRuntimeContext;
+    }
+
+    public boolean isProvideVariations() {
+        return provideVariations;
+    }
+
+    public void setProvideVariations(boolean provideVariations) {
+        this.provideVariations = provideVariations;
     }
 
     private static class KeyBySchemasRef {

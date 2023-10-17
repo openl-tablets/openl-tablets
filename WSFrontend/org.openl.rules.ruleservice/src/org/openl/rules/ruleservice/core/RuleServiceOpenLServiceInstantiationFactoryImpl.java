@@ -2,11 +2,9 @@ package org.openl.rules.ruleservice.core;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,7 +19,6 @@ import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategy
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.validation.ProjectValidator;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -60,9 +57,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     @Lazy
     private ServiceManagerImpl serviceManager;
 
-    @Autowired(required = false)
-    private List<ProjectValidator> projectValidators = new ArrayList<>();
-
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -92,7 +86,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
                 resolveRmiInterface(service);
             }
-            validate(service, baseInstantiationStrategy);
             instantiateServiceBean(service, serviceTarget, serviceClassLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -114,18 +107,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private void compileOpenClass(OpenLService service,
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         CompiledOpenClass compiledOpenClass = instantiationStrategy.compile();
-        service.setCompiledOpenClass(compiledOpenClass);
-    }
-
-    private void validate(OpenLService service,
-            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
-        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
-        if (!service.getModules().isEmpty()) {
-            for (ProjectValidator projectValidator : getProjectValidators()) {
-                compiledOpenClass = projectValidator.validate(service.getModules().iterator().next().getProject(),
-                    instantiationStrategy);
-            }
-        }
         service.setCompiledOpenClass(compiledOpenClass);
     }
 
@@ -340,14 +321,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     public void setExternalParameters(Map<String, Object> externalParameters) {
         this.externalParameters = externalParameters;
-    }
-
-    public List<ProjectValidator> getProjectValidators() {
-        return projectValidators;
-    }
-
-    public void setProjectValidators(List<ProjectValidator> projectValidators) {
-        this.projectValidators = projectValidators;
     }
 
     @Override
