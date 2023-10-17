@@ -35,15 +35,17 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
+import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.NullOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.generation.GenUtils;
 
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
@@ -199,8 +201,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate interface is optional.
             if (interfaceClass != null) {
                 Class<?> interfaceClass = factory.getInterfaceClass();
-                IOpenClass openClass = compiledOpenClass.getOpenClass();
-                writeInterface(interfaceClass, openClass);
+                writeInterface(interfaceClass, factory.newInstance());
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
@@ -313,7 +314,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JCodeModelException {
+    private void writeInterface(Class<?> clazz, Object service) throws IOException, JCodeModelException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
         CodeHelper helper = new CodeHelper();
@@ -337,8 +338,10 @@ public final class GenerateMojo extends BaseOpenLMojo {
             Class<?> returnType = method.getReturnType();
             debug("   method: ", returnType, "   ", name, "()");
             JMethod jm = java.method(JMod.NONE, helper.get(returnType), name);
-            String[] argNames = GenUtils
-                .getParameterNames(method, openClass, isProvideRuntimeContext, isProvideVariations);
+            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, service);
+
+            String[] argNames = MethodUtils
+                .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];
