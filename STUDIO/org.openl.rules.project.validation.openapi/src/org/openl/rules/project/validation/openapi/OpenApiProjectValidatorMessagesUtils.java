@@ -26,7 +26,7 @@ final class OpenApiProjectValidatorMessagesUtils {
     private OpenApiProjectValidatorMessagesUtils() {
     }
 
-    public static void addError(Context context, String summary) {
+    private static void addError(Context context, String summary) {
         ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
         if (isNotExistingError(validatedCompiledOpenClass, summary)) {
             validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(summary));
@@ -42,29 +42,12 @@ final class OpenApiProjectValidatorMessagesUtils {
         return true;
     }
 
-    public static void addWarning(Context context, String summary) {
-        ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
-        if (isNotExistingWarning(summary, validatedCompiledOpenClass)) {
-            validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(summary));
-        }
-    }
-
-    private static boolean isNotExistingWarning(String summary, ValidatedCompiledOpenClass validatedCompiledOpenClass) {
-        for (OpenLMessage openLMessage : validatedCompiledOpenClass.getAllMessages()) {
-            if (openLMessage.getSeverity().equals(Severity.WARN) && Objects.equals(openLMessage.getSummary(),
-                summary)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static void addMethodError(Context context, String summary) {
         addMethodError(context, context.getOpenMethod(), summary);
     }
 
     @SuppressWarnings("rawtypes")
-    public static void addMethodError(Context context, IOpenMethod method, String summary) {
+    private static void addMethodError(Context context, IOpenMethod method, String summary) {
         if (method instanceof OpenMethodDispatcher) {
             OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
@@ -154,12 +137,20 @@ final class OpenApiProjectValidatorMessagesUtils {
     }
 
     public static void addMethodWarning(Context context, String summary) {
-        TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
-        if (tableSyntaxNode != null && isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
-            OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, tableSyntaxNode);
-            context.getValidatedCompiledOpenClass().addMessage(openLMessage);
-        } else {
-            addWarning(context, summary);
-        }
+
+        var compiledOpenClass = context.getValidatedCompiledOpenClass();
+        compiledOpenClass.getAllMessages()
+            .stream()
+            .filter(x -> x.getSeverity().equals(Severity.WARN))
+            .filter(x -> Objects.equals(x.getSummary(), summary))
+            .findFirst()
+            .ifPresentOrElse(x -> {}, () -> addWarn(summary, compiledOpenClass, context));
+    }
+
+    private static void addWarn(String summary, ValidatedCompiledOpenClass compiledOpenClass, Context context) {
+        var tsn = extractTableSyntaxNode(context.getOpenMethod());
+        var message = tsn == null ? OpenLMessagesUtils.newWarnMessage(summary)
+                                  : OpenLMessagesUtils.newWarnMessage(summary, tsn);
+        compiledOpenClass.addMessage(message);
     }
 }
