@@ -204,20 +204,17 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean provideVariations) {
         Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
 
-        Map<Method, MethodSignatureChanges> methodsWithSignatureNeedsChange = getMethodsWithSignatureNeedsChange(
-            openClass,
-            serviceClass,
-            classLoader,
-            toServiceClass,
-            serviceTarget,
-            provideRuntimeContext,
-            provideVariations);
-
+        Map<Method, MethodSignatureChanges> methodsWithSignatureNeedsChange = new HashMap<>();
         Set<Method> methodsToRemove = new HashSet<>();
         for (Method method : serviceClass.getMethods()) {
             if (ITableProperties.class.isAssignableFrom(method.getReturnType())
                     || (!toServiceClass && method.isAnnotationPresent(ServiceExtraMethod.class))) {
                 methodsToRemove.add(method);
+            } else {
+                var changes = getMethodSignatureChanges(method, openClass, classLoader, toServiceClass, serviceTarget, provideRuntimeContext, provideVariations);
+                if (changes != null) {
+                    methodsWithSignatureNeedsChange.put(method, changes);
+                }
             }
         }
 
@@ -435,85 +432,79 @@ public final class RuleServiceInstantiationFactoryHelper {
             .isAnnotationPresent(ServiceCallAroundInterceptor.class);
     }
 
-    /**
-     * Look through all methods of the specified class in order to find all methods annotated by
-     * {@link ServiceCallAfterInterceptor}.
-     *
-     * @param serviceClass Class to be analyzed.
-     * @return Methods which have after interceptors.
-     */
-    private static Map<Method, MethodSignatureChanges> getMethodsWithSignatureNeedsChange(IOpenClass openClass,
-            Class<?> serviceClass,
+    private static MethodSignatureChanges getMethodSignatureChanges(Method method,
+            IOpenClass openClass,
             ClassLoader classLoader,
             boolean toServiceClass,
             Object serviceTarget,
             boolean provideRuntimeContext,
             boolean provideVariations) {
-        Map<Method, MethodSignatureChanges> ret = new HashMap<>();
-        for (Method method : serviceClass.getMethods()) {
-            IOpenMember openMember = null;
-            if (toServiceClass && !method.isAnnotationPresent(ServiceExtraMethod.class)) {
-                List<Class<?>> parameterTypes = new ArrayList<>();
-                for (Parameter parameter : method.getParameters()) {
-                    if (!parameter.isAnnotationPresent(ExternalParam.class)) {
-                        parameterTypes.add(parameter.getType());
-                    }
-                }
-                openMember = RuleServiceOpenLServiceInstantiationHelper
-                    .getOpenMember(method.getName(), parameterTypes.toArray(new Class<?>[0]), serviceTarget);
-                if (openMember == null) {
-                    throw new IllegalStateException("Open member is not found.");
+        MethodSignatureChanges changes;
+        IOpenMember openMember = null;
+        if (toServiceClass && !method.isAnnotationPresent(ServiceExtraMethod.class)) {
+            List<Class<?>> parameterTypes = new ArrayList<>();
+            for (Parameter parameter : method.getParameters()) {
+                if (!parameter.isAnnotationPresent(ExternalParam.class)) {
+                    parameterTypes.add(parameter.getType());
                 }
             }
-            Pair<Class<?>, Boolean>[] newParamTypes = resolveNewMethodParamTypes(method,
+            openMember = RuleServiceOpenLServiceInstantiationHelper
+                .getOpenMember(method.getName(), parameterTypes.toArray(new Class<?>[0]), serviceTarget);
+            if (openMember == null) {
+                throw new IllegalStateException("Open member is not found.");
+            }
+        }
+        Pair<Class<?>, Boolean>[] newParamTypes = resolveNewMethodParamTypes(method,
                 openClass,
                 classLoader,
-                openMember,
+            openMember,
                 toServiceClass,
                 provideRuntimeContext);
-            Class<?> newReturnType = resolveNewMethodReturnType(openClass,
+        Class<?> newReturnType = resolveNewMethodReturnType(openClass,
                 method,
-                openMember,
+            openMember,
                 classLoader,
                 toServiceClass,
                 provideVariations);
-            if (newReturnType != null) {
-                ret.put(method, new MethodSignatureChanges(newParamTypes, newReturnType, false));
-            } else if (openMember != null && !isTypeChangingAnnotationPresent(method)) {
-                IOpenClass type = openMember.getType();
-                int dim = 0;
-                while (type.isArray()) {
-                    type = type.getComponentClass();
-                    dim++;
-                }
-                if (provideVariations && method.getReturnType().equals(VariationsResult.class)) {
-                    ret.put(method, new MethodSignatureChanges(newParamTypes, VariationsResult.class, true));
-                } else if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
-                    Class<?> t;
-                    if (type instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) type)
-                        .isGenerateBeanClass()) {
-                        t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
-                    } else if (type instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) type)
-                        .getModule() != null) {
-                        t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
-                    } else {
-                        t = Map.class;
-                    }
-                    if (dim > 0) {
-                        t = Array.newInstance(t, new int[dim]).getClass();
-                    }
-                    ret.put(method, new MethodSignatureChanges(newParamTypes, t, true));
-                } else if (JavaOpenClass.OBJECT.equals(type) && !JavaOpenClass.OBJECT.equals(openMember.getType())) {
-                    ret.put(method,
-                        new MethodSignatureChanges(newParamTypes, openMember.getType().getInstanceClass(), true));
-                } else if (newParamTypes != null) {
-                    ret.put(method, new MethodSignatureChanges(newParamTypes, null, false));
-                }
-            } else if (newParamTypes != null) {
-                ret.put(method, new MethodSignatureChanges(newParamTypes, null, false));
+        if (newReturnType != null) {
+            changes = new MethodSignatureChanges(newParamTypes, newReturnType, false);
+        } else if (openMember != null && !isTypeChangingAnnotationPresent(method)) {
+            IOpenClass type = openMember.getType();
+            int dim = 0;
+            while (type.isArray()) {
+                type = type.getComponentClass();
+                dim++;
             }
+            if (provideVariations && method.getReturnType().equals(VariationsResult.class)) {
+                changes = new MethodSignatureChanges(newParamTypes, VariationsResult.class, true);
+            } else if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
+                Class<?> t;
+                if (type instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) type)
+                    .isGenerateBeanClass()) {
+                    t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
+                } else if (type instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) type)
+                    .getModule() != null) {
+                    t = ((SpreadsheetResultOpenClass) type).toCustomSpreadsheetResultOpenClass().getBeanClass();
+                } else {
+                    t = Map.class;
+                }
+                if (dim > 0) {
+                    t = Array.newInstance(t, new int[dim]).getClass();
+                }
+                changes = new MethodSignatureChanges(newParamTypes, t, true);
+            } else if (JavaOpenClass.OBJECT.equals(type) && !JavaOpenClass.OBJECT.equals(openMember.getType())) {
+                changes = new MethodSignatureChanges(newParamTypes, openMember.getType().getInstanceClass(), true);
+            } else if (newParamTypes != null) {
+                changes = new MethodSignatureChanges(newParamTypes, null, false);
+            } else {
+                changes = null;
+            }
+        } else if (newParamTypes != null) {
+            changes = new MethodSignatureChanges(newParamTypes, null, false);
+        } else {
+            changes = null;
         }
-        return ret;
+        return changes;
     }
 
     @SuppressWarnings("unchecked")
