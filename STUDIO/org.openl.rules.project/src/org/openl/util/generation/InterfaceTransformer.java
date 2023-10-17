@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
@@ -48,6 +47,22 @@ public class InterfaceTransformer {
     private final Class<?> classToTransform;
     private final String className;
     private final Function<Integer, Integer> methodParameterAdaptor;
+
+    private static final Comparator<Method> METHOD_COMPARATOR = Comparator.comparing(Method::getName)
+            .thenComparingInt(Method::getParameterCount)
+            .thenComparing(Method::getParameterTypes, InterfaceTransformer::compareNames);
+
+    private static int compareNames(Class<?>[] p1, Class<?>[] p2) {
+        for (int i = 0; i < p1.length; i++) {
+            String name1 = p1[i].getName();
+            String name2 = p2[i].getName();
+            int cmp = name1.compareTo(name2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        return 0;
+    }
 
     /**
      * @param interfaceToTransform Base class for generations.
@@ -125,8 +140,8 @@ public class InterfaceTransformer {
                     }
                 }
             }
-            List<Method> declaredMethods = Arrays.asList(x.getDeclaredMethods());
-            declaredMethods = MethodUtils.sort(declaredMethods);
+            Method[] declaredMethods = x.getDeclaredMethods();
+            Arrays.sort(declaredMethods, METHOD_COMPARATOR);
             for (Method method : declaredMethods) {
                 if (!method.isSynthetic()) {
                     MethodKey methodKey = new MethodKey(method.getName(),
