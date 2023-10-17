@@ -424,10 +424,6 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
     }
 
-    private static boolean isMethodWithServiceExtraMethodAnnotation(Method method) {
-        return method.getAnnotation(ServiceExtraMethod.class) != null;
-    }
-
     private static boolean isTypeChangingAnnotationPresent(Method method) {
         return method.isAnnotationPresent(ServiceCallAfterInterceptor.class) || method
             .isAnnotationPresent(ServiceCallAroundInterceptor.class);
@@ -618,7 +614,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         Set<Method> ret = new HashSet<>();
         for (Method method : serviceClass.getMethods()) {
             if (ITableProperties.class.isAssignableFrom(method
-                .getReturnType()) || (removeServiceExtraMethods && isMethodWithServiceExtraMethodAnnotation(method))) {
+                .getReturnType()) || (removeServiceExtraMethods && method.isAnnotationPresent(ServiceExtraMethod.class))) {
                 ret.add(method);
             }
         }
