@@ -6,10 +6,16 @@ service WebstudioAIService {
   rpc editCell (EditCellRequest) returns (EditCellReply) {}
   rpc search (SearchRequest) returns (SearchReply) {}
   rpc chat (ChatRequest) returns (ChatReply) {}
+  rpc rate (RateRequest) returns (Empty) {}
   rpc recreateKnowledgeBase (Empty) returns (Empty) {}
 }
 
 message Empty {}
+
+message RateRequest {
+  ChatRequest chatRequest = 1;
+  bool rate = 2;
+}
 
 message EditCellRequest {
   string table = 1;
@@ -32,10 +38,10 @@ message SearchRequest {
 
 message TableSyntaxNode {
   string table = 1;
-  string businessDimensionProperties = 2;
+  optional string businessDimensionProperties = 2;
   string type = 3;
   string uri = 4;
-  string description = 5;
+  optional string description = 5;
 }
 
 message SearchReply {
@@ -60,6 +66,7 @@ enum MessageType {
 
 enum ChatType {
   KNOWLEDGE = 0;
+  RATE = 1;
 }
 
 message ChatMessage {

@@ -218,6 +218,10 @@
                 transform: rotate(360deg);
             }
         }
+
+        .yes-cursor {
+            cursor: pointer;
+        }
     </style>
 
     <img id="smartAssistantChatIcon"
@@ -334,7 +338,7 @@
             // clean messageHistory
             smartAssistantHistory = [];
             // add first message
-            smartAssistantAddMessage("Hi, how can I help you?", null)
+            smartAssistantAddMessage("Hi, how can I help you?", null, false)
             // clean userInput
             const userInput = document.getElementById("smartAssistantUserInput");
             userInput.value = "";
@@ -367,7 +371,7 @@
             chatBody.scrollTop = chatBody.scrollHeight;
         }
 
-        function smartAssistantAddMessage(receivedMessage, refs) {
+        function smartAssistantAddMessage(receivedMessage, refs, rate) {
             const chatMessages = document.getElementById("smartAssistantChatMessages");
             const receivedWrapper = document.createElement("div")
             receivedWrapper.classList.add("smartAssistantReceived")
@@ -379,7 +383,16 @@
                     hrefs += "<a class=\"smartAssistantReceivedHref\" href='" + ref.url + "' target='_blank'>" + ref.title + "</a>";
                 });
             }
-            receivedMessageElement.innerHTML = "<p><b>Assistant: </b></p>" + "<p>" + receivedMessage + "</p>";
+
+            let like_dislike = "";
+            if (rate) {
+                let index = smartAssistantHistory.size() - 1;
+                like_dislike = "<span style=\"float: right;\"><img class=\"yes-cursor\" id=\"like-image" + index + "\" src=\"#{contextPath}/webresource/images/like.png\" alt=\"Like\" style=\"width: 14px; height: 14px; margin-right: 5px;\" onclick=\"smartAssistantRate(true, " + index + ")\"/>" +
+                    "<img class=\"yes-cursor\" id=\"dislike-image" + index + "\" src=\"#{contextPath}/webresource/images/dislike.png\" alt=\"Dislike\" style=\"width: 14px; height: 14px; margin-right: 5px;\" onclick=\"smartAssistantRate(false, " + index + ")\"></span>";
+            }
+
+            receivedMessageElement.innerHTML = "<p><b>Assistant: </b>" + like_dislike + "</p>" + "<p>" + receivedMessage + "</p>";
+
             // if hrefs is not null and length > 0
             if (hrefs !== "") {
                 receivedMessageElement.innerHTML += "<p>" + hrefs + "</p>";
@@ -389,6 +402,42 @@
 
             // Automatically scroll to the bottom of the chatBody
             scrollToBottom();
+        }
+
+        function smartAssistantRate(rate, index) {
+            let history = smartAssistantHistory.slice(0, index).filter((message) => message.text !== "");
+            const cleanHistory = history.map(({ receivedMessage, ...rest }) => rest);
+            console.log("hello");
+            cleanHistory.push(smartAssistantHistory[index].receivedMessage);
+
+            const data = JSON.stringify({
+                "messages": cleanHistory,
+                "rate": rate
+            });
+            fetch('#{contextPath}/web/assistant/rate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: data
+            })
+                .then(response => {
+                    let likeImage = document.querySelector('#like-image' + index);
+                    let dislikeImage = document.querySelector('#dislike-image' + index);
+                    likeImage.classList.remove("yes-cursor");
+                    dislikeImage.classList.remove("yes-cursor");
+                    if (rate) {
+                        likeImage.src = '#{contextPath}/webresource/images/like-selected.png';
+                        dislikeImage.src = '#{contextPath}/webresource/images/dislike.png';
+                        dislikeImage.classList.add("yes-cursor");
+                    } else {
+                        likeImage.src = '#{contextPath}/webresource/images/like.png';
+                        dislikeImage.src = '#{contextPath}/webresource/images/dislike-selected.png';
+                        likeImage.classList.add("yes-cursor");
+                    }
+                }).catch(() => {
+            });
+
         }
 
         function formattedMessage(inputText) {
@@ -435,7 +484,7 @@
             }
         }
 
-        function smartAssistantCallAjax() {
+        function getTableId() {
             // if url without parameters ends with "table" - get id from url
             let tableId = null;
             if (window.location.href.split('?')[0].endsWith("table")) {
@@ -444,9 +493,15 @@
                     tableId = urlSearchParams.get('id');
                 }
             }
+            return tableId;
+        }
+
+        function smartAssistantCallAjax() {
+            const history = smartAssistantHistory.filter((message) => message.text !== "")
+            const cleanHistory = history.map(({ receivedMessage, ...rest }) => rest)
             const data = JSON.stringify({
-                "tableId": tableId,
-                "messages": smartAssistantHistory.filter((message) => message.text !== "")
+                "tableId": getTableId(),
+                "messages": cleanHistory
             });
             // Show the spinner
             smartAssistantId += 1;
@@ -467,9 +522,13 @@
                         return;
                     }
                     response.forEach((receivedMessage) => {
-                        smartAssistantHistory.push({text: receivedMessage["text"], type: "ASSISTANT"});
+                        smartAssistantHistory.push({
+                            text: receivedMessage["text"],
+                            type: "ASSISTANT",
+                            receivedMessage: receivedMessage
+                        });
                         // visibility of smartAssistantRegenerateLastMessage
-                        smartAssistantAddMessage(formattedMessage(receivedMessage["text"]), receivedMessage["refs"]);
+                        smartAssistantAddMessage(formattedMessage(receivedMessage["text"]), receivedMessage["refs"], true);
                     });
                     // Hide the spinner
                     smartAssistantWaitingResponses = 0;
@@ -480,7 +539,7 @@
                     return;
                 }
                 smartAssistantHistory.push({text: "", type: "ASSISTANT"});
-                smartAssistantAddMessage("Something went wrong. Please try again later.", null, "received");
+                smartAssistantAddMessage("Something went wrong. Please try again later.", null, false);
                 // Hide the spinner in case of error
                 smartAssistantWaitingResponses = 0;
                 displaySmartAssistantStopGeneratingButton(false);
