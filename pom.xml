@@ -2051,11 +2051,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.project.validation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.project.validation.openapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
