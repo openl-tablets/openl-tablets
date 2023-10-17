@@ -173,7 +173,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean provideVariations) {
         return processInterface(null,
             serviceClass,
-            true,
             false,
             classLoader,
             serviceTarget,
@@ -189,7 +188,6 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean provideVariations) {
         return processInterface(openClass,
             serviceClass,
-            false,
             true,
             classLoader,
             serviceTarget,
@@ -197,9 +195,8 @@ public final class RuleServiceInstantiationFactoryHelper {
             provideVariations);
     }
 
-    public static Class<?> processInterface(IOpenClass openClass,
+    private static Class<?> processInterface(IOpenClass openClass,
             Class<?> serviceClass,
-            boolean removeServiceExtraMethods,
             boolean toServiceClass,
             ClassLoader classLoader,
             Object serviceTarget,
@@ -216,7 +213,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             provideRuntimeContext,
             provideVariations);
 
-        Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, removeServiceExtraMethods);
+        Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, !toServiceClass);
 
         if (methodsWithSignatureNeedsChange.isEmpty() && methodsToRemove.isEmpty()) {
             return serviceClass;
