@@ -17,7 +17,7 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
-import org.openl.util.generation.GenUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public final class MethodUtils {
                 j++;
             }
         }
-        GenUtils.fixJavaKeyWords(Arrays.asList(parameterNames));
+        fixJavaKeyWords(parameterNames);
         int i = 0;
         for (Parameter parameter : method.getParameters()) {
             Name name = parameter.getAnnotation(Name.class);
@@ -105,5 +105,29 @@ public final class MethodUtils {
         }
         validateAndUpdateParameterNames(parameterNames);
         return parameterNames;
+    }
+
+    private static void fixJavaKeyWords(String[] parameterNames) {
+        for (int i = 0; i < parameterNames.length; i++) {
+            if (JavaKeywordUtils.isJavaKeyword(parameterNames[i])) {
+                int k = 0;
+                boolean f = false;
+                while (!f) {
+                    k++;
+                    String s = parameterNames[i] + k;
+                    boolean g = true;
+                    for (int j = 0; j < parameterNames.length; j++) {
+                        if (j != i && s.equals(parameterNames[j])) {
+                            g = false;
+                            break;
+                        }
+                    }
+                    if (g) {
+                        f = true;
+                    }
+                }
+                parameterNames[i] += k;
+            }
+        }
     }
 }
