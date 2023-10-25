@@ -39,7 +39,7 @@
             <security:filter-chain pattern="/oauth2/authorization/**"
                                    filters="securityContextPersistenceFilter,oauth2RedirectFilter"/>
             <security:filter-chain pattern="/rest/**"
-                                   filters="bearerTokenAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor"/>
+                                   filters="securityContextPersistenceFilter,bearerTokenAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor"/>
             <security:filter-chain pattern="/**"
                                    filters="securityContextPersistenceFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
         </security:filter-chain-map>
