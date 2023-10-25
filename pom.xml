@@ -82,11 +82,11 @@
         <!-- Managing dependencies versions -->
         <!-- Spring -->
         <spring.framework.version>5.3.30</spring.framework.version>
-        <spring.boot.version>2.7.16</spring.boot.version>
+        <spring.boot.version>2.7.17</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
-        <spring.security.version>5.8.7</spring.security.version>
+        <spring.security.version>5.8.8</spring.security.version>
         <opensaml.version>4.3.0</opensaml.version>
         <jose4j.version>0.9.3</jose4j.version>
         <json-smart.version>2.4.11</json-smart.version>
@@ -115,7 +115,7 @@
         <thrift.version>0.19.0</thrift.version>
         <ant.version>1.10.14</ant.version>
         <netty.version>4.1.100.Final</netty.version>
-        <reactor-netty-http.version>1.1.11</reactor-netty-http.version>
+        <reactor-netty-http.version>1.1.12</reactor-netty-http.version>
 
         <!-- REST -->
         <jackson.version>2.14.3</jackson.version>
@@ -129,7 +129,7 @@
         <swagger.parser.version>2.0.15</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.20.0</log4j.version>
+        <log4j.version>2.21.0</log4j.version>
         <slf4j.version>1.7.36</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
@@ -141,7 +141,7 @@
         <jetty.version>10.0.17</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.565</amazonaws.version>
+        <amazonaws.version>1.12.572</amazonaws.version>
         <azure.version>12.24.0</azure.version>
         <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
@@ -197,9 +197,9 @@
         <poi.version>5.2.4</poi.version>
         <aspectj.version>1.9.20.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
-        <guava.version>32.1.2-jre</guava.version>
+        <guava.version>32.1.3-jre</guava.version>
         <joda-time.version>2.12.5</joda-time.version>
-        <xmlsec.version>2.3.3</xmlsec.version>
+        <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <activiti.version>5.18.0</activiti.version>
