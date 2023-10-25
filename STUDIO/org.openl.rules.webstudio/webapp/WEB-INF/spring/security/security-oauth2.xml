@@ -30,6 +30,8 @@
             <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
             <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
             <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
+            <security:filter-chain pattern="/web/public/**" filters="none"/>
+            <security:filter-chain pattern="/rest/api-docs/**" filters="none"/>
             <security:filter-chain pattern="/logout"
                                    filters="securityContextPersistenceFilter,logoutFilter"/>
             <security:filter-chain pattern="/login/oauth2/code/**"
