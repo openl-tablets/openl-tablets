@@ -1,7 +1,7 @@
 package org.openl.opentelemetry.javaagent.extension;
 
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.CODE_FUNCTION;
-import static io.opentelemetry.semconv.trace.attributes.SemanticAttributes.CODE_NAMESPACE;
+import static io.opentelemetry.semconv.SemanticAttributes.CODE_FUNCTION;
+import static io.opentelemetry.semconv.SemanticAttributes.CODE_NAMESPACE;
 
 import javax.annotation.Nullable;
 
