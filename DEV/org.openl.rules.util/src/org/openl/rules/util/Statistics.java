@@ -37,6 +37,22 @@ public final class Statistics {
         });
     }
 
+    public static <T extends Number> Double standardPopulationDeviation(T... values) {
+        Double avg = Avg.avg(values);
+        return process(values, new Result<T, Double>() {
+            @Override
+            public void processNonNull(T value) {
+                double doubleValue = value.doubleValue();
+                result = result == null ? Math.pow((doubleValue-avg), 2) : (result + Math.pow((doubleValue-avg), 2));
+            }
+
+            @Override
+            public Double result() {
+                return result == null ? null : Math.sqrt(result / counter);
+            }
+        });
+    }
+
     static <V, R> R process(V[] values, Processor<V, R> processor) {
         if (values == null || values.length == 0) {
             return null;

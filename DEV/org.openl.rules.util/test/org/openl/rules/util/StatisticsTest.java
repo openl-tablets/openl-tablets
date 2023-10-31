@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.openl.rules.util.Avg.avg;
 import static org.openl.rules.util.Statistics.max;
 import static org.openl.rules.util.Statistics.min;
+import static org.openl.rules.util.Statistics.standardPopulationDeviation;
 import static org.openl.rules.util.Sum.sum;
 
 import java.math.BigDecimal;
@@ -86,5 +87,31 @@ public class StatisticsTest {
         assertEquals(BigDecimal.valueOf(3.5), avg(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
         assertEquals(new BigDecimal("5.333333333333333333333333333333333", MathContext.DECIMAL128),
                 avg(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+    }
+
+    @Test
+    public void testStandardPopulationDeviation() {
+        assertNull(standardPopulationDeviation(null));
+        assertNull(standardPopulationDeviation(new Double[0]));
+        assertNull(standardPopulationDeviation(new Double[] { null, null }));
+
+        assertEquals(Double.valueOf(4.0276819911981905), standardPopulationDeviation(1, 10, 9));
+        assertEquals(Double.valueOf(0.0), standardPopulationDeviation(9.5));
+        assertEquals(Double.valueOf(3), standardPopulationDeviation(8, null, 2));
+        assertEquals(Double.valueOf(7.788880963698615), standardPopulationDeviation(-10.0, 6.0, 7.0));
+
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation((byte) 3, (byte) 4, (byte) 8));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation((short) 3, (short) 4, (short) 8));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation(3, 4, 8));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation(3L, 4L, 8L));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation(3f, 4f, 8f));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation(3d, 4d, 8d));
+        assertEquals(Double.valueOf(2.160246899469287), standardPopulationDeviation((byte) 3, (short) 4, 8));
+        assertEquals(Double.valueOf(2.160246899469287),
+            standardPopulationDeviation(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
+        assertEquals(Double.valueOf(0.5), standardPopulationDeviation(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
+        assertEquals(Double.valueOf(2.0548046676563256),
+            standardPopulationDeviation(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+
     }
 }
