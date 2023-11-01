@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.openl.rules.util.Avg.avg;
 import static org.openl.rules.util.Statistics.max;
 import static org.openl.rules.util.Statistics.min;
+import static org.openl.rules.util.Statistics.populationVariance;
 import static org.openl.rules.util.Statistics.standardPopulationDeviation;
 import static org.openl.rules.util.Sum.sum;
 
@@ -112,6 +113,32 @@ public class StatisticsTest {
         assertEquals(Double.valueOf(0.5), standardPopulationDeviation(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
         assertEquals(Double.valueOf(2.0548046676563256),
             standardPopulationDeviation(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+
+    }
+
+    @Test
+    public void testPopulationVariance() {
+        assertNull(populationVariance(null));
+        assertNull(populationVariance(new Double[0]));
+        assertNull(populationVariance(new Double[] { null, null }));
+
+        assertEquals(Double.valueOf(16.22222222222222), populationVariance(1, 10, 9));
+        assertEquals(Double.valueOf(0.0), populationVariance(9.5));
+        assertEquals(Double.valueOf(9.0), populationVariance(8, null, 2));
+        assertEquals(Double.valueOf(60.666666666666664), populationVariance(-10.0, 6.0, 7.0));
+
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance((byte) 3, (byte) 4, (byte) 8));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance((short) 3, (short) 4, (short) 8));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance(3, 4, 8));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance(3L, 4L, 8L));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance(3f, 4f, 8f));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance(3d, 4d, 8d));
+        assertEquals(Double.valueOf(4.666666666666667), populationVariance((byte) 3, (short) 4, 8));
+        assertEquals(Double.valueOf(4.666666666666667),
+                populationVariance(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
+        assertEquals(Double.valueOf(0.25), populationVariance(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
+        assertEquals(Double.valueOf(4.222222222222222),
+                populationVariance(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
 
     }
 }
