@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.openl.rules.util.Avg.avg;
+import static org.openl.rules.util.Statistics.correlationCoefficient;
 import static org.openl.rules.util.Statistics.max;
 import static org.openl.rules.util.Statistics.min;
+import static org.openl.rules.util.Statistics.populationCovariance;
 import static org.openl.rules.util.Statistics.populationVariance;
+import static org.openl.rules.util.Statistics.sampleCovariance;
 import static org.openl.rules.util.Statistics.samplePopulationDeviation;
-import static org.openl.rules.util.Statistics.sampleVariance;
 import static org.openl.rules.util.Statistics.standardPopulationDeviation;
 import static org.openl.rules.util.Sum.sum;
 
@@ -99,7 +101,7 @@ public class StatisticsTest {
         assertNull(standardPopulationDeviation(new Double[] { null, null }));
 
         assertEquals(Double.valueOf(4.0276819911981905), standardPopulationDeviation(1, 10, 9));
-        assertEquals(Double.valueOf(0.0), standardPopulationDeviation(9.5));
+        assertNull(standardPopulationDeviation(9.5));
         assertEquals(Double.valueOf(3), standardPopulationDeviation(8, null, 2));
         assertEquals(Double.valueOf(7.788880963698615), standardPopulationDeviation(-10.0, 6.0, 7.0));
 
@@ -125,7 +127,7 @@ public class StatisticsTest {
         assertNull(populationVariance(new Double[] { null, null }));
 
         assertEquals(Double.valueOf(16.22222222222222), populationVariance(1, 10, 9));
-        assertEquals(Double.valueOf(0.0), populationVariance(9.5));
+        assertNull(populationVariance(9.5));
         assertEquals(Double.valueOf(9.0), populationVariance(8, null, 2));
         assertEquals(Double.valueOf(60.666666666666664), populationVariance(-10.0, 6.0, 7.0));
 
@@ -151,7 +153,7 @@ public class StatisticsTest {
         assertNull(samplePopulationDeviation(new Double[] { null, null }));
 
         assertEquals(Double.valueOf(4.932882862316247), samplePopulationDeviation(1, 10, 9));
-        assertEquals(Double.NaN, samplePopulationDeviation(9.5), 0);
+        assertNull(samplePopulationDeviation(9.5));
         assertEquals(Double.valueOf(4.242640687119285), samplePopulationDeviation(8, null, 2));
         assertEquals(Double.valueOf(9.539392014169456), samplePopulationDeviation(-10.0, 6.0, 7.0));
 
@@ -171,28 +173,79 @@ public class StatisticsTest {
     }
 
     @Test
-    public void testSampleVariance() {
-        assertNull(sampleVariance(null));
-        assertNull(sampleVariance(new Double[0]));
-        assertNull(sampleVariance(new Double[] { null, null }));
+    public void testSampleCovariance() {
+        assertNull(sampleCovariance(null, null));
+        assertNull(sampleCovariance(new Double[0], new Double[0]));
+        assertNull(sampleCovariance(new Double[]{1.0, null}, new Double[]{null, null}));
+        assertNull(sampleCovariance(new Double[]{1.0, 2.0}, new Double[]{null, null}));
 
-        assertEquals(Double.valueOf(24.333333333333332), sampleVariance(1, 10, 9));
-        assertEquals(Double.NaN, sampleVariance(9.5), 0);
-        assertEquals(Double.valueOf(18.0), sampleVariance(8, null, 2));
-        assertEquals(Double.valueOf(91.0), sampleVariance(-10.0, 6.0, 7.0));
+        assertNull(sampleCovariance(new Double[]{9.5}, new Double[]{5.0}));
+        assertEquals(Double.valueOf(24.333333333333332), sampleCovariance(new Double[]{1.0, 10.0, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(32), sampleCovariance(new Double[]{1.0, null, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(-20), sampleCovariance(new Double[]{-1.0, 10.0, 9.0}, new Double[]{1.0, -15.0, 9.0}));
 
-        assertEquals(Double.valueOf(7), sampleVariance((byte) 3, (byte) 4, (byte) 8));
-        assertEquals(Double.valueOf(7), sampleVariance((short) 3, (short) 4, (short) 8));
-        assertEquals(Double.valueOf(7), sampleVariance(3, 4, 8));
-        assertEquals(Double.valueOf(7), sampleVariance(3L, 4L, 8L));
-        assertEquals(Double.valueOf(7), sampleVariance(3f, 4f, 8f));
-        assertEquals(Double.valueOf(7), sampleVariance(3d, 4d, 8d));
-        assertEquals(Double.valueOf(7), sampleVariance((byte) 3, (short) 4, 8));
+        assertNull(populationCovariance(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Byte[]{(byte) 3, (byte) 4, (byte) 8}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Short[]{(short) 3, (short) 4, (short) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Integer[]{3, 4, 8}, new Integer[]{3, 4, 8}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L, 8L}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Float[]{3f, 4f, 8f}, new Float[]{3f, 4f, 8f}));
+        assertEquals(Double.valueOf(7), sampleCovariance(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
         assertEquals(Double.valueOf(7),
-                sampleVariance(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
-        assertEquals(Double.valueOf(0.5), sampleVariance(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
-        assertEquals(Double.valueOf(6.333333333333333),
-                sampleVariance(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+                sampleCovariance(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)},
+                        new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}));
+        assertEquals(Double.valueOf(0.5), sampleCovariance(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}, new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}));
 
+    }
+
+    @Test
+    public void testPopulationCovariance() {
+        assertNull(populationCovariance(null, null));
+        assertNull(populationCovariance(new Double[0], new Double[0]));
+        assertNull(populationCovariance(new Double[]{1.0, null}, new Double[]{null, null}));
+        assertNull(populationCovariance(new Double[]{1.0, 2.0}, new Double[]{null, null}));
+
+        assertEquals(0, populationCovariance(new Double[]{9.5}, new Double[]{5.0}), 0);
+        assertEquals(Double.valueOf(16.22222222222222), populationCovariance(new Double[]{1.0, 10.0, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(16), populationCovariance(new Double[]{1.0, null, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(-13.333333333333334), populationCovariance(new Double[]{-1.0, 10.0, 9.0}, new Double[]{1.0, -15.0, 9.0}));
+
+        assertNull(populationCovariance(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Byte[]{(byte) 3, (byte) 4, (byte) 8}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Short[]{(short) 3, (short) 4, (short) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Integer[]{3, 4, 8}, new Integer[]{3, 4, 8}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L, 8L}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Float[]{3f, 4f, 8f}, new Float[]{3f, 4f, 8f}));
+        assertEquals(Double.valueOf(4.666666666666667), populationCovariance(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
+        assertEquals(Double.valueOf(4.666666666666667),
+                populationCovariance(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)},
+                        new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}));
+        assertEquals(Double.valueOf(0.25), populationCovariance(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}, new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}));
+
+    }
+
+    @Test
+    public void testCorrelationCoefficient() {
+        assertNull(correlationCoefficient(null, null));
+        assertNull(correlationCoefficient(new Double[0], new Double[0]));
+        assertNull(correlationCoefficient(new Double[]{1.0, null}, new Double[]{null, null}));
+        assertNull(correlationCoefficient(new Double[]{1.0, 2.0}, new Double[]{null, null}));
+
+        assertNull(correlationCoefficient(new Double[]{9.5}, new Double[]{5.0}));
+        assertEquals(Double.valueOf(1), correlationCoefficient(new Double[]{1.0, 10.0, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(1.1467643581619917), correlationCoefficient(new Double[]{1.0, null, 9.0}, new Double[]{1.0, 10.0, 9.0}));
+        assertEquals(Double.valueOf(-0.2690610012503157), correlationCoefficient(new Double[]{-1.0, 10.0, 9.0}, new Double[]{1.0, -15.0, 9.0}));
+
+        assertNull(correlationCoefficient(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Byte[]{(byte) 3, (byte) 4, (byte) 8}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Short[]{(short) 3, (short) 4, (short) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Integer[]{3, 4, 8}, new Integer[]{3, 4, 8}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L, 8L}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Float[]{3f, 4f, 8f}, new Float[]{3f, 4f, 8f}));
+        assertEquals(Double.valueOf(0.9999999999999999), correlationCoefficient(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Short[]{(short) 3, (short) 4, (short) 8}));
+        assertEquals(Double.valueOf(0.9999999999999999),
+                correlationCoefficient(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)},
+                        new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}));
+        assertEquals(Double.valueOf(0.9999999999999998), correlationCoefficient(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}, new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}));
     }
 }
