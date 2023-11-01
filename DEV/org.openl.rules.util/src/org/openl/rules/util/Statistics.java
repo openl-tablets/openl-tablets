@@ -58,6 +58,27 @@ public final class Statistics {
         });
     }
 
+    public static <T extends Number> Double samplePopulationDeviation(T... values) {
+        Double sampleVariance = sampleVariance(values);
+        return sampleVariance == null ? null : Math.sqrt(sampleVariance);
+    }
+
+    public static <T extends Number> Double sampleVariance(T... values) {
+        Double avg = Avg.avg(values);
+        return process(values, new Result<>() {
+            @Override
+            public void processNonNull(T value) {
+                double doubleValue = value.doubleValue();
+                result = result == null ? Math.pow((doubleValue-avg), 2) : (result + Math.pow((doubleValue-avg), 2));
+            }
+
+            @Override
+            public Double result() {
+                return result == null ? null : result / (counter-1);
+            }
+        });
+    }
+
 
     static <V, R> R process(V[] values, Processor<V, R> processor) {
         if (values == null || values.length == 0) {

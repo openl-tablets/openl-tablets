@@ -7,6 +7,8 @@ import static org.openl.rules.util.Avg.avg;
 import static org.openl.rules.util.Statistics.max;
 import static org.openl.rules.util.Statistics.min;
 import static org.openl.rules.util.Statistics.populationVariance;
+import static org.openl.rules.util.Statistics.samplePopulationDeviation;
+import static org.openl.rules.util.Statistics.sampleVariance;
 import static org.openl.rules.util.Statistics.standardPopulationDeviation;
 import static org.openl.rules.util.Sum.sum;
 
@@ -139,6 +141,58 @@ public class StatisticsTest {
         assertEquals(Double.valueOf(0.25), populationVariance(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
         assertEquals(Double.valueOf(4.222222222222222),
                 populationVariance(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+
+    }
+
+    @Test
+    public void testSamplePopulationDeviation() {
+        assertNull(samplePopulationDeviation(null));
+        assertNull(samplePopulationDeviation(new Double[0]));
+        assertNull(samplePopulationDeviation(new Double[] { null, null }));
+
+        assertEquals(Double.valueOf(4.932882862316247), samplePopulationDeviation(1, 10, 9));
+        assertEquals(Double.NaN, samplePopulationDeviation(9.5), 0);
+        assertEquals(Double.valueOf(4.242640687119285), samplePopulationDeviation(8, null, 2));
+        assertEquals(Double.valueOf(9.539392014169456), samplePopulationDeviation(-10.0, 6.0, 7.0));
+
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation((byte) 3, (byte) 4, (byte) 8));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation((short) 3, (short) 4, (short) 8));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation(3, 4, 8));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation(3L, 4L, 8L));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation(3f, 4f, 8f));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation(3d, 4d, 8d));
+        assertEquals(Double.valueOf(2.6457513110645907), samplePopulationDeviation((byte) 3, (short) 4, 8));
+        assertEquals(Double.valueOf(2.6457513110645907),
+                samplePopulationDeviation(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
+        assertEquals(Double.valueOf(0.7071067811865476), samplePopulationDeviation(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
+        assertEquals(Double.valueOf(2.516611478423583),
+                samplePopulationDeviation(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+
+    }
+
+    @Test
+    public void testSampleVariance() {
+        assertNull(sampleVariance(null));
+        assertNull(sampleVariance(new Double[0]));
+        assertNull(sampleVariance(new Double[] { null, null }));
+
+        assertEquals(Double.valueOf(24.333333333333332), sampleVariance(1, 10, 9));
+        assertEquals(Double.NaN, sampleVariance(9.5), 0);
+        assertEquals(Double.valueOf(18.0), sampleVariance(8, null, 2));
+        assertEquals(Double.valueOf(91.0), sampleVariance(-10.0, 6.0, 7.0));
+
+        assertEquals(Double.valueOf(7), sampleVariance((byte) 3, (byte) 4, (byte) 8));
+        assertEquals(Double.valueOf(7), sampleVariance((short) 3, (short) 4, (short) 8));
+        assertEquals(Double.valueOf(7), sampleVariance(3, 4, 8));
+        assertEquals(Double.valueOf(7), sampleVariance(3L, 4L, 8L));
+        assertEquals(Double.valueOf(7), sampleVariance(3f, 4f, 8f));
+        assertEquals(Double.valueOf(7), sampleVariance(3d, 4d, 8d));
+        assertEquals(Double.valueOf(7), sampleVariance((byte) 3, (short) 4, 8));
+        assertEquals(Double.valueOf(7),
+                sampleVariance(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
+        assertEquals(Double.valueOf(0.5), sampleVariance(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
+        assertEquals(Double.valueOf(6.333333333333333),
+                sampleVariance(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
 
     }
 }
