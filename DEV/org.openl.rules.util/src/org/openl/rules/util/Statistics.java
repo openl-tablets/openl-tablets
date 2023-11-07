@@ -78,7 +78,8 @@ public final class Statistics {
     }
 
     private static Double variance(Double value, Double avg, Double result) {
-        return result == null ? Math.pow((value - avg), 2) : (result + Math.pow((value - avg), 2));
+        Double tmp = Math.pow((value - avg), 2);
+        return result == null ? tmp : result + tmp;
     }
 
     public static <T extends Number> Double sampleCovariance(T[] y, T[] x) {
@@ -91,10 +92,8 @@ public final class Statistics {
             if (inputStats.x.length == 1) {
                 return null;
             }
-
             Double avgX = inputStats.getAvgX();
             Double avgY = inputStats.getAvgY();
-
             return biProcess(inputStats.y, inputStats.x, new Result<>() {
                 @Override
                 public void processNonNull(Double y, Double x) {
@@ -133,20 +132,19 @@ public final class Statistics {
     }
 
     private static Double covariance(Double y, Double x, Double avgY, Double avgX, Double result) {
-        return result == null ? (x - avgX) * (y - avgY) : result + (x - avgX) * (y - avgY);
+        Double tmp = (x - avgX) * (y - avgY);
+        return result == null ? tmp : result + tmp;
     }
 
     public static <T extends Number> Double pearsonPopulationCorrelationCoefficient(T[] y, T[] x) {
         //correl
         InputStats inputStats = loadInputStats(y, x);
-
         if (inputStats != null) {
             Double covariance = sampleCovariance(inputStats);
             Double deviationX = sampleStandardDeviation(inputStats.x);
             Double deviationY = sampleStandardDeviation(inputStats.y);
             return covariance == null || deviationX == null || deviationY == null ? null : covariance / (deviationX * deviationY);
         }
-
         return null;
     }
 
@@ -174,7 +172,7 @@ public final class Statistics {
             Double avgY = inputStats.getAvgY();
             Double avgX = inputStats.getAvgX();
             Double slopeB = slope(inputStats);
-            return avgX == null? avgY : avgY - (slopeB * avgX);
+            return avgX == null ? avgY : avgY - (slopeB * avgX);
         }
         return null;
     }
