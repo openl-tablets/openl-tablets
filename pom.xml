@@ -227,7 +227,6 @@
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
-        <openl.info>main</openl.info>
     </properties>
 
     <modules>
@@ -328,7 +327,6 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.info>${openl.info}</openl.info>
                             <openl.config.location />
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
@@ -411,10 +409,6 @@
                             <systemProperty>
                                 <name>openl.home</name>
                                 <value>${project.build.directory}/openl-jetty-${openl.start.milli}</value>
-                            </systemProperty>
-                            <systemProperty>
-                                <name>openl.info</name>
-                                <value>${openl.info}</value>
                             </systemProperty>
                             <systemProperty>
                                 <name>java.io.tmpdir</name>
