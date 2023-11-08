@@ -37,12 +37,12 @@ public final class Statistics {
         });
     }
 
-    public static <T extends Number> Double standardPopulationDeviation(T... values) {
-        Double populationVariance = populationVariance(values);
+    public static <T extends Number> Double stdevP(T... values) {
+        Double populationVariance = varP(values);
         return populationVariance != null ? Math.sqrt(populationVariance) : null;
     }
 
-    public static <T extends Number> Double populationVariance(T... values) {
+    public static <T extends Number> Double varP(T... values) {
         Double avg = Avg.avg(values);
         return avg == null ? null : values.length == 1 ? Double.valueOf(0) : process(values, new Result<>() {
             @Override
@@ -57,12 +57,12 @@ public final class Statistics {
         });
     }
 
-    public static <T extends Number> Double sampleStandardDeviation(T... values) {
-        Double sampleVariance = sampleVariance(values);
+    public static <T extends Number> Double stdevS(T... values) {
+        Double sampleVariance = varS(values);
         return sampleVariance == null ? null : Math.sqrt(sampleVariance);
     }
 
-    public static <T extends Number> Double sampleVariance(T... values) {
+    public static <T extends Number> Double varS(T... values) {
         Double avg = Avg.avg(values);
         return avg == null || values.length == 1 ? null : process(values, new Result<>() {
             @Override
@@ -82,7 +82,7 @@ public final class Statistics {
         return result == null ? tmp : result + tmp;
     }
 
-    public static <T extends Number> Double sampleCovariance(T[] y, T[] x) {
+    public static <T extends Number> Double covarS(T[] y, T[] x) {
         return sampleCovariance(loadInputStats(y, x));
     }
 
@@ -109,7 +109,7 @@ public final class Statistics {
         return null;
     }
 
-    public static <T extends Number> Double populationCovariance(T[] y, T[] x) {
+    public static <T extends Number> Double covarP(T[] y, T[] x) {
         //covarP
         InputStats inputStats = loadInputStats(y, x);
 
@@ -136,20 +136,20 @@ public final class Statistics {
         return result == null ? tmp : result + tmp;
     }
 
-    public static <T extends Number> Double pearsonPopulationCorrelationCoefficient(T[] y, T[] x) {
+    public static <T extends Number> Double correl(T[] y, T[] x) {
         //correl
         InputStats inputStats = loadInputStats(y, x);
         if (inputStats != null) {
             Double covariance = sampleCovariance(inputStats);
-            Double deviationX = sampleStandardDeviation(inputStats.x);
-            Double deviationY = sampleStandardDeviation(inputStats.y);
+            Double deviationX = stdevS(inputStats.x);
+            Double deviationY = stdevS(inputStats.y);
             return covariance == null || deviationX == null || deviationY == null ? null : covariance / (deviationX * deviationY);
         }
         return null;
     }
 
-    public static <T extends Number> Double RSQ(T[] y, T[] x) {
-        Double result = pearsonPopulationCorrelationCoefficient(y, x);
+    public static <T extends Number> Double rsq(T[] y, T[] x) {
+        Double result = correl(y, x);
         return result == null ? null : Math.pow(result, 2);
     }
 
@@ -160,7 +160,7 @@ public final class Statistics {
     private static Double slope(InputStats inputStats) {
         if (inputStats != null) {
             Double sampleCovariance = sampleCovariance(inputStats);
-            Double sampleVariance = sampleVariance(inputStats.x);
+            Double sampleVariance = varS(inputStats.x);
             return sampleCovariance == null || sampleVariance == null ? null : sampleCovariance / sampleVariance;
         }
         return null;
