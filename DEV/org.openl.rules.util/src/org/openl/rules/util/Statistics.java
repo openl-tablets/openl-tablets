@@ -191,7 +191,10 @@ public final class Statistics {
         if (knownX == null || knownY == null) {
             return null;
         }
-        int len = Math.min(knownX.length, knownY.length);
+        if (knownX.length != knownY.length) {
+            throw new IndexOutOfBoundsException("The size of two arrays must be equals: x[" + knownX.length +"] and y[" + knownY.length + "]");
+        }
+        int len = knownY.length;
         InputStats inputStats = new InputStats(len);
         int j = 0;
         for (int i = 0; i < len; i++) {
