@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.util.Date dateType(java.util.Date d)",
         "operationId" : "dateType",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -108,6 +116,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: org.openl.generated.beans.DateWrapper getAllDateTypes()",
         "operationId" : "getAllDateTypes",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -189,6 +205,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.time.Instant instantProxy(java.time.Instant d)",
         "operationId" : "instantProxy",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -281,6 +305,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.time.LocalDate localDateProxy(java.time.LocalDate d)",
         "operationId" : "localDateProxy",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -373,6 +405,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.time.LocalDateTime localDateTimeProxy(java.time.LocalDateTime d)",
         "operationId" : "localDateTimeProxy",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -465,6 +505,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.time.LocalTime localTimeProxy(java.time.LocalTime d)",
         "operationId" : "localTimeProxy",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -555,6 +603,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.DateWrapper spr(org.openl.generated.beans.DateWrapper sw)",
         "operationId" : "spr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -645,6 +701,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.time.ZonedDateTime zonedDateTypeProxy(java.time.ZonedDateTime d)",
         "operationId" : "zonedDateTypeProxy",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {

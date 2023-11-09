@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigDecimal proxyBigDecimal(java.math.BigDecimal x)",
         "operationId" : "proxyBigDecimal",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -106,6 +114,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigDecimal[] proxyBigDecimalArray(java.math.BigDecimal[] x)",
         "operationId" : "proxyBigDecimalArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -202,6 +218,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigDecimal proxyBigDecimalValue(java.math.BigDecimal x)",
         "operationId" : "proxyBigDecimalValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -292,6 +316,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigDecimal[] proxyBigDecimalValueArray(java.math.BigDecimal[] x)",
         "operationId" : "proxyBigDecimalValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -388,6 +420,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigInteger proxyBigInteger(java.math.BigInteger x)",
         "operationId" : "proxyBigInteger",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -478,6 +518,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigInteger[] proxyBigIntegerArray(java.math.BigInteger[] x)",
         "operationId" : "proxyBigIntegerArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -574,6 +622,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigInteger proxyBigIntegerValue(java.math.BigInteger x)",
         "operationId" : "proxyBigIntegerValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -664,6 +720,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.math.BigInteger[] proxyBigIntegerValueArray(java.math.BigInteger[] x)",
         "operationId" : "proxyBigIntegerValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -760,6 +824,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Boolean proxyBoolean(java.lang.Boolean x)",
         "operationId" : "proxyBoolean",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -850,6 +922,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Boolean[] proxyBooleanArray(java.lang.Boolean[] x)",
         "operationId" : "proxyBooleanArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -947,6 +1027,13 @@ Content-Type: application/json
         "description" : "Rules method: boolean proxyBooleanPrim(boolean x)",
         "operationId" : "proxyBooleanPrim",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -1032,6 +1119,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: boolean[] proxyBooleanPrimArray(boolean[] x)",
         "operationId" : "proxyBooleanPrimArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1129,6 +1224,13 @@ Content-Type: application/json
         "description" : "Rules method: char proxyChar(char x)",
         "operationId" : "proxyChar",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -1214,6 +1316,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: char[] proxyCharArray(char[] x)",
         "operationId" : "proxyCharArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1310,6 +1420,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Character proxyCharacter(java.lang.Character x)",
         "operationId" : "proxyCharacter",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -1400,6 +1518,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Character[] proxyCharacterArray(java.lang.Character[] x)",
         "operationId" : "proxyCharacterArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1496,6 +1622,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double proxyDouble(java.lang.Double x)",
         "operationId" : "proxyDouble",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -1588,6 +1722,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double[] proxyDoubleArray(java.lang.Double[] x)",
         "operationId" : "proxyDoubleArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1687,6 +1829,13 @@ Content-Type: application/json
         "description" : "Rules method: double proxyDoublePrim(double x)",
         "operationId" : "proxyDoublePrim",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -1774,6 +1923,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: double[] proxyDoublePrimArray(double[] x)",
         "operationId" : "proxyDoublePrimArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1872,6 +2029,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double proxyDoubleValue(java.lang.Double x)",
         "operationId" : "proxyDoubleValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -1964,6 +2129,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double[] proxyDoubleValueArray(java.lang.Double[] x)",
         "operationId" : "proxyDoubleValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2062,6 +2235,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Float proxyFloat(java.lang.Float x)",
         "operationId" : "proxyFloat",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -2154,6 +2335,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Float[] proxyFloatArray(java.lang.Float[] x)",
         "operationId" : "proxyFloatArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2253,6 +2442,13 @@ Content-Type: application/json
         "description" : "Rules method: float proxyFloatPrim(float x)",
         "operationId" : "proxyFloatPrim",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -2340,6 +2536,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: float[] proxyFloatPrimArray(float[] x)",
         "operationId" : "proxyFloatPrimArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2438,6 +2642,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Float proxyFloatValue(java.lang.Float x)",
         "operationId" : "proxyFloatValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -2530,6 +2742,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Float[] proxyFloatValueArray(java.lang.Float[] x)",
         "operationId" : "proxyFloatValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2629,6 +2849,13 @@ Content-Type: application/json
         "description" : "Rules method: int proxyInt(int x)",
         "operationId" : "proxyInt",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -2716,6 +2943,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: int[] proxyIntArray(int[] x)",
         "operationId" : "proxyIntArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2814,6 +3049,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer proxyIntValue(java.lang.Integer x)",
         "operationId" : "proxyIntValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -2906,6 +3149,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer[] proxyIntValueArray(java.lang.Integer[] x)",
         "operationId" : "proxyIntValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3004,6 +3255,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer proxyInteger(java.lang.Integer x)",
         "operationId" : "proxyInteger",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -3096,6 +3355,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer[] proxyIntegerArray(java.lang.Integer[] x)",
         "operationId" : "proxyIntegerArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3194,6 +3461,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Long proxyLong(java.lang.Long x)",
         "operationId" : "proxyLong",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -3286,6 +3561,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Long[] proxyLongArray(java.lang.Long[] x)",
         "operationId" : "proxyLongArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3385,6 +3668,13 @@ Content-Type: application/json
         "description" : "Rules method: long proxyLongPrim(long x)",
         "operationId" : "proxyLongPrim",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -3472,6 +3762,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: long[] proxyLongPrimArray(long[] x)",
         "operationId" : "proxyLongPrimArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3570,6 +3868,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Long proxyLongValue(java.lang.Long x)",
         "operationId" : "proxyLongValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -3662,6 +3968,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Long[] proxyLongValueArray(java.lang.Long[] x)",
         "operationId" : "proxyLongValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3760,6 +4074,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyType proxyMyType(org.openl.generated.beans.MyType x)",
         "operationId" : "proxyMyType",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3850,6 +4172,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyType[] proxyMyTypeArray(org.openl.generated.beans.MyType[] x)",
         "operationId" : "proxyMyTypeArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3946,6 +4276,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Short proxyShort(java.lang.Short x)",
         "operationId" : "proxyShort",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -4038,6 +4376,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Short[] proxyShortArray(java.lang.Short[] x)",
         "operationId" : "proxyShortArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -4137,6 +4483,13 @@ Content-Type: application/json
         "description" : "Rules method: short proxyShortPrim(short x)",
         "operationId" : "proxyShortPrim",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "x",
           "required" : true,
@@ -4224,6 +4577,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Short proxyShortValue(java.lang.Short x)",
         "operationId" : "proxyShortValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -4316,6 +4677,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Short[] proxyShortValueArray(java.lang.Short[] x)",
         "operationId" : "proxyShortValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -4414,6 +4783,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String proxyString(java.lang.String x)",
         "operationId" : "proxyString",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -4504,6 +4881,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String[] proxyStringArray(java.lang.String[] x)",
         "operationId" : "proxyStringArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -4600,6 +4985,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String proxyStringValue(java.lang.String x)",
         "operationId" : "proxyStringValue",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -4690,6 +5083,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String[] proxyStringValueArray(java.lang.String[] x)",
         "operationId" : "proxyStringValueArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -4786,6 +5187,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: short[] proxyshortArray(short[] x)",
         "operationId" : "proxyshortArray",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

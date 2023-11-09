@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.House[] homeRule(java.lang.Integer level)",
         "operationId" : "homeRule",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -110,6 +118,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.Mansion homeRule2(java.lang.Integer level)",
         "operationId" : "homeRule2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {

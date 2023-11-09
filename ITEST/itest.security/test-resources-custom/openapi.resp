@@ -19,6 +19,15 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer mul(int x, java.lang.Integer y)",
         "operationId" : "mul",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string",
+            "example" : null
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -112,6 +121,15 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: java.lang.String ping()",
         "operationId" : "ping",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string",
+            "example" : null
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -195,6 +213,15 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer twice(java.lang.Integer num)",
         "operationId" : "twice",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string",
+            "example" : null
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {

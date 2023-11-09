@@ -42,6 +42,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
@@ -427,6 +428,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             nicknames.add(nickname);
             addSwaggerMethodAnnotation(mv, originalMethod, nickname);
             addOpenApiResponsesMethodAnnotation(mv, originalMethod);
+            addOpenApiAcceptLanguageHeader(mv, originalMethod);
             return mv;
         }
 
@@ -613,6 +615,21 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av1.visitEnd();
 
                 av.visitEnd();
+            }
+        }
+
+        private void addOpenApiAcceptLanguageHeader(MethodVisitor mv, Method originalMethod) {
+            if (!originalMethod.isAnnotationPresent(Parameters.class) && !originalMethod
+                .isAnnotationPresent(io.swagger.v3.oas.annotations.Parameter.class)) {
+                // empty response body can be only for void or non-primitive types
+                var acceptLanguage = mv.visitAnnotation("Lio/swagger/v3/oas/annotations/Parameter;", true);
+                acceptLanguage.visit("name", "Accept-Language");
+                acceptLanguage.visitEnum("in", "Lio/swagger/v3/oas/annotations/enums/ParameterIn;", "HEADER");
+                acceptLanguage.visit("example", "en-GB");
+                var av1 = acceptLanguage.visitAnnotation("schema", "Lio/swagger/v3/oas/annotations/media/Schema;");
+                av1.visit("name", "string");
+                av1.visitEnd();
+                acceptLanguage.visitEnd();
             }
         }
 

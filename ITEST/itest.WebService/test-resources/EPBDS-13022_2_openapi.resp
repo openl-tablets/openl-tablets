@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmain1 main1(SpreadsheetResultm4 m4)",
         "operationId" : "main1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -106,6 +114,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmain2 main2(SpreadsheetResultx4 x4)",
         "operationId" : "main2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

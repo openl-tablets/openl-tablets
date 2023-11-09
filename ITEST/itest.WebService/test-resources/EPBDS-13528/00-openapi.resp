@@ -16,6 +16,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: org.openl.generated.beans.Animal getAnimal()",
         "operationId" : "getAnimal",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -97,6 +105,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: org.openl.generated.beans.Cat getCat()",
         "operationId" : "getCat",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -178,6 +194,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.Animal processAnimal(org.openl.generated.beans.Animal animal)",
         "operationId" : "processAnimal",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -268,6 +292,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.Cat processCat(org.openl.generated.beans.Cat cat)",
         "operationId" : "processCat",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

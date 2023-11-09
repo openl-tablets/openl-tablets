@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double CarPrice(java.lang.String country, java.lang.String carBrand, java.lang.String carModel)",
         "operationId" : "CarPrice",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -107,6 +115,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double DriverPremium1(java.lang.String driverAge, java.lang.String driverMaritalStatus)",
         "operationId" : "DriverPremium1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -198,6 +214,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double DriverPremium2(java.lang.String driverAge, java.lang.String driverMaritalStatus)",
         "operationId" : "DriverPremium2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -289,6 +313,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double DriverPremium3(java.lang.String driverAge, java.lang.String driverMaritalStatus)",
         "operationId" : "DriverPremium3",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -380,6 +412,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double DriverPremium4(java.lang.String driverAge, java.lang.String driverMaritalStatus)",
         "operationId" : "DriverPremium4",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -471,6 +511,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double DriverPremium5(java.lang.String driverAge, java.lang.String driverdriverMaritalStatus)",
         "operationId" : "DriverPremium5",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -562,6 +610,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String Greeting(java.lang.Integer hour)",
         "operationId" : "Greeting",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -652,6 +708,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String Greeting1(java.lang.Integer hour)",
         "operationId" : "Greeting1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -742,6 +806,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String Greeting2(java.lang.Integer hour)",
         "operationId" : "Greeting2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -832,6 +904,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String Greeting3(java.lang.Integer hour)",
         "operationId" : "Greeting3",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -922,6 +1002,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String Greeting4(java.lang.Integer hour)",
         "operationId" : "Greeting4",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1012,6 +1100,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: void Greeting5(java.lang.Integer hour)",
         "operationId" : "Greeting5",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultS1 S1(SpreadsheetResultS5[] calculatedCensus)",
         "operationId" : "S1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -109,6 +117,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultS2 S2(SpreadsheetResultS5[] param)",
         "operationId" : "S2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -202,6 +218,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultS3 S3(SpreadsheetResultS4 calculatedClass)",
         "operationId" : "S3",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -292,6 +316,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultS4 S4(SpreadsheetResultS5[] calculatedCensus)",
         "operationId" : "S4",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -385,6 +417,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultS5 S5()",
         "operationId" : "S5",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -466,6 +506,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultS6 S6(SpreadsheetResultS1 ageBandClaimCost)",
         "operationId" : "S6",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

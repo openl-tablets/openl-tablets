@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: java.lang.Object inputMyDatatype(org.openl.generated.beans.MyDatatype)",
         "operationId" : "inputMyDatatype",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -106,6 +114,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double myRule(org.openl.generated.beans.MyDatatype inputParam)",
         "operationId" : "myRule",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -197,6 +213,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyDatatype[] myRule(org.openl.generated.beans.MyDatatype inputParam, java.lang.String x)",
         "operationId" : "myRule_1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -290,6 +314,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Double myRule2(org.openl.generated.beans.MyDatatype[] inputParam, java.lang.String x)",
         "operationId" : "myRule2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -381,6 +413,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyDatatype returnMyDatatype(org.openl.generated.beans.MyDatatype)",
         "operationId" : "returnMyDatatype",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
