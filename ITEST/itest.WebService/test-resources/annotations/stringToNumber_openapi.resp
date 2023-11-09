@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: int notExcludedBecauseof_p_(java.lang.String str)",
         "operationId" : "notExcludedBecauseof_p_",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -104,6 +112,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer parse(java.lang.String str)",
         "operationId" : "parse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -196,6 +212,13 @@ Content-Type: application/json
         "description" : "Rules method: java.lang.Integer parse3(java.lang.String str)",
         "operationId" : "parse3",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "num",
           "required" : true,
@@ -285,6 +308,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer parse2(java.lang.String str)",
         "operationId" : "parse2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -375,6 +406,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer parse5(java.lang.String str)",
         "operationId" : "parse5",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -466,6 +505,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer parse6(java.lang.String str)",
         "operationId" : "parse6",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -557,6 +604,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer parse4(java.lang.String str)",
         "operationId" : "parse4",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -648,6 +703,13 @@ Content-Type: application/json
         "description" : "Rules method: java.lang.Integer parse4PathParam(java.lang.String str)",
         "operationId" : "parse4PathParam",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "path",
           "name" : "num",
           "required" : true,
@@ -737,6 +799,13 @@ Content-Type: application/json
         "description" : "Rules method: java.lang.Integer parse4QueryParam(java.lang.String str)",
         "operationId" : "parse4QueryParam",
         "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
           "in" : "query",
           "name" : "numParam",
           "schema" : {
@@ -824,6 +893,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.itest.service.internal.MyType ping(org.openl.itest.service.internal.MyType input)",
         "operationId" : "ping",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -914,6 +991,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.RuleType process(java.lang.String nick, int month)",
         "operationId" : "process",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1004,6 +1089,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String toStr(org.openl.generated.beans.RuleType x)",
         "operationId" : "toStr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1094,6 +1187,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: java.lang.Double virtual(java.lang.String)",
         "operationId" : "virtual",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -1185,6 +1286,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: java.lang.Double virtual2(java.lang.String, java.lang.String)",
         "operationId" : "virtual2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

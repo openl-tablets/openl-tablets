@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.Foo GetOptionalResponse(java.lang.Boolean cond)",
         "operationId" : "GetOptionalResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -106,6 +114,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: int IntResponse()",
         "operationId" : "IntResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -194,6 +210,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Integer IntegerResponse(java.lang.Boolean cond)",
         "operationId" : "IntegerResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -285,6 +309,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String StringResponse(java.lang.Boolean cond)",
         "operationId" : "StringResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -375,6 +407,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.String StringValueResponse(java.lang.Boolean cond)",
         "operationId" : "StringValueResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -465,6 +505,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: void VoidResponse()",
         "operationId" : "VoidResponse",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -545,6 +593,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: java.lang.Void VoidResponse2()",
         "operationId" : "VoidResponse2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

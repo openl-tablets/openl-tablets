@@ -581,6 +581,9 @@ public class OpenApiProjectValidator {
             final String methodName = openMethod != null ? openMethod.getName() : method.getName();
             for (Parameter parameter : actualOperation.getParameters()) {
                 Parameter actualParameter = context.getActualOpenAPIResolver().resolve(parameter, Parameter::get$ref);
+                if ("header".equalsIgnoreCase(actualParameter.getIn()) && !Boolean.TRUE.equals(actualParameter.getRequired())) {
+                    continue;
+                }
                 boolean found = false;
                 if (!CollectionUtils.isEmpty(expectedOperation.getParameters())) {
                     for (Parameter p : expectedOperation.getParameters()) {
@@ -627,6 +630,7 @@ public class OpenApiProjectValidator {
                             getMethodRelatedPathStringPart(methodName, context.getActualPath())));
                 }
             }
+            if (expectedOperation.getParameters() != null) {
             for (Parameter parameter : expectedOperation.getParameters()) {
                 Parameter expectedParameter = context.getExpectedOpenAPIResolver()
                     .resolve(parameter, Parameter::get$ref);
@@ -635,10 +639,10 @@ public class OpenApiProjectValidator {
                     for (Parameter p : actualOperation.getParameters()) {
                         Parameter actualParameter = context.getActualOpenAPIResolver().resolve(p, Parameter::get$ref);
                         if (Objects.equals(actualParameter.getIn(), expectedParameter.getIn())) {
-                            int index = findParameterIndex(context.getMethod(),
-                                actualParameter.getIn(),
-                                actualParameter.getName());
                             if ("path".equalsIgnoreCase(actualParameter.getIn())) {
+                                int index = findParameterIndex(context.getMethod(),
+                                        actualParameter.getIn(),
+                                        actualParameter.getName());
                                 String s = extractPathParameterName(context.getExpectedPath(), index);
                                 if (s != null && Objects.equals(s, expectedParameter.getName())) {
                                     found = true;
@@ -662,6 +666,7 @@ public class OpenApiProjectValidator {
                             methodName,
                             getMethodRelatedPathStringPart(methodName, context.getActualPath())));
                 }
+            }
             }
         }
 

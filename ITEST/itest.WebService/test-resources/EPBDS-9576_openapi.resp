@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: java.lang.Integer[] getMyData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyData",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -110,6 +118,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmySpr mySpr(java.lang.Integer a)",
         "operationId" : "mySpr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

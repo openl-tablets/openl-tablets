@@ -5,6 +5,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer add(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "add",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -109,6 +110,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer m2(org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "m2",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -203,6 +205,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer m1(org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "m1",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -297,6 +300,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer m3(org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "m3",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -392,6 +396,7 @@
         "description": "Rules method: java.lang.Integer addWrong2(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "addWrong2",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
@@ -494,6 +499,7 @@
         "description": "Rules method: java.lang.Integer addWrong1(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "addWrong1",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "path",
             "name": "x1",
@@ -597,6 +603,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer addWrong(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "addWrong",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -702,6 +709,7 @@
         "description": "Rules method: java.lang.Integer method2(java.lang.Integer a, org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "method2",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
@@ -806,6 +814,7 @@
         "description": "Rules method: java.lang.Integer addWrongHere2(java.lang.String a, java.lang.Integer b)",
         "operationId": "addWrongHere2",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
@@ -907,6 +916,7 @@
         "description": "Rules method: java.lang.Integer add2(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "add2",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
@@ -1009,6 +1019,7 @@
         "description": "Rules method: java.lang.Integer addWrongHere1(java.lang.String a, java.lang.String b)",
         "operationId": "addWrongHere1",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "path",
             "name": "x1",
@@ -1110,6 +1121,7 @@
       "post": {
         "description": "Rules method: java.lang.Integer addWrongHere(java.lang.String a, java.lang.Integer b)",
         "operationId": "addWrongHere",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -1214,6 +1226,7 @@
         "description": "Rules method: java.lang.Integer method1(java.lang.Integer a, org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "method1",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
@@ -1318,6 +1331,7 @@
         "description": "Rules method: java.lang.Integer add1(java.lang.Integer a, java.lang.Integer b)",
         "operationId": "add1",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "path",
             "name": "x1",
@@ -1422,6 +1436,7 @@
         "description": "Rules method: java.lang.Integer method3(java.lang.Integer a, org.openl.generated.beans.MyDatatype myDatatype)",
         "operationId": "method3",
         "parameters": [
+          {"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}},
           {
             "in": "query",
             "name": "x",
