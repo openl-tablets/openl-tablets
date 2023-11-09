@@ -2,668 +2,629 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "openapi": "3.#.#",
-  "info": {
-    "description": "***",
-    "title": "annotation-template-abstract-class / String Parser",
-    "version": "1.0.0"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "Auto-generated OpenAPI schema from the OpenL rules",
+    "title" : "annotation-template-abstract-class / String Parser",
+    "version" : "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://***"
-    }
-  ],
-  "paths": {
-    "/parse": {
-      "post": {
-        "summary": "Integer parse(String)",
-        "description": "Rules method: java.lang.Integer parse(java.lang.String str)",
-        "operationId": "parse",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+  "servers" : [ {
+    "url" : "http://example.com/EPBDS-12644/EPBDS-12644"
+  } ],
+  "paths" : {
+    "/parse" : {
+      "post" : {
+        "description" : "Rules method: java.lang.Integer parse(java.lang.String str)",
+        "operationId" : "parse",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "text/plain;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "integer",
+                  "format" : "int32"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "text/plain;charset=UTF-8": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "Integer parse(String)"
       }
     },
-    "/parse1": {
-      "post": {
-        "tags": [
-          "Resource"
-        ],
-        "summary": "Should add @ApiResponses when @Operation present and responses not added",
-        "operationId": "parse1",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse1" : {
+      "post" : {
+        "operationId" : "parse1",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "text/plain;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "text/plain;charset=UTF-8": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "Should add @ApiResponses when @Operation present and responses not added",
+        "tags" : [ "Resource" ]
       }
     },
-    "/parse2": {
-      "post": {
-        "tags": [
-          "Resource"
-        ],
-        "summary": "Should not add @ApiResponses when responses added in @Operation",
-        "operationId": "parse2",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse2" : {
+      "post" : {
+        "operationId" : "parse2",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "description" : "Response 200 added in @Operation"
+          },
+          "204" : {
+            "description" : "Response 204 added in @Operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Response 200 added in @Operation"
-          },
-          "204": {
-            "description": "Response 204 added in @Operation"
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "Should not add @ApiResponses when responses added in @Operation",
+        "tags" : [ "Resource" ]
       }
     },
-    "/parse3": {
-      "post": {
-        "tags": [
-          "Resource"
-        ],
-        "summary": "Should not add @ApiResponses when @Operation present and @ApiResponses added on method",
-        "operationId": "parse3",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse3" : {
+      "post" : {
+        "operationId" : "parse3",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "description" : "Response 200 added in @ApiResponse"
+          },
+          "204" : {
+            "description" : "Response 204 added in @ApiResponse"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Response 200 added in @ApiResponse"
-          },
-          "204": {
-            "description": "Response 204 added in @ApiResponse"
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "Should not add @ApiResponses when @Operation present and @ApiResponses added on method",
+        "tags" : [ "Resource" ]
       }
     },
-    "/parse4": {
-      "post": {
-        "tags": [
-          "Resource"
-        ],
-        "summary": "Should not add @ApiResponses when @Operation present and @ApiResponse added on method",
-        "operationId": "parse4",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse4" : {
+      "post" : {
+        "operationId" : "parse4",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "description" : "Response 200 added in @ApiResponse"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Response 200 added in @ApiResponse"
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "Should not add @ApiResponses when @Operation present and @ApiResponse added on method",
+        "tags" : [ "Resource" ]
       }
     },
-    "/parse5": {
-      "post": {
-        "summary": "String parse5(String)",
-        "description": "Rules method: java.lang.Integer parse5(java.lang.String str)",
-        "operationId": "parse5",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse5" : {
+      "post" : {
+        "description" : "Rules method: java.lang.Integer parse5(java.lang.String str)",
+        "operationId" : "parse5",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "description" : "Response 200 added in @ApiResponse"
+          },
+          "204" : {
+            "description" : "Response 204 added in @ApiResponse"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Response 200 added in @ApiResponse"
-          },
-          "204": {
-            "description": "Response 204 added in @ApiResponse"
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "String parse5(String)"
       }
     },
-    "/parse6": {
-      "post": {
-        "summary": "String parse6(String)",
-        "description": "Rules method: java.lang.Integer parse6(java.lang.String str)",
-        "operationId": "parse6",
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "type": "string"
+    "/parse6" : {
+      "post" : {
+        "description" : "Rules method: java.lang.Integer parse6(java.lang.String str)",
+        "operationId" : "parse6",
+        "requestBody" : {
+          "content" : {
+            "text/plain" : {
+              "schema" : {
+                "type" : "string"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "description" : "Response 200 added in @ApiResponse"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "200": {
-            "description": "Response 200 added in @ApiResponse"
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "String parse6(String)"
       }
     }
   },
-  "components": {
-    "schemas": {
-      "JAXRSUserErrorResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string"
+  "components" : {
+    "schemas" : {
+      "JAXRSErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
           },
-          "message": {
-            "type": "string"
+          "type" : {
+            "type" : "string",
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
           }
         }
       },
-      "JAXRSErrorResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
+      "JAXRSUserErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
           },
-          "type": {
-            "type": "string",
-            "enum": [
-              "USER_ERROR",
-              "RULES_RUNTIME",
-              "COMPILATION",
-              "SYSTEM",
-              "BAD_REQUEST",
-              "VALIDATION"
-            ]
-            }
+          "message" : {
+            "type" : "string"
           }
         }
       }
