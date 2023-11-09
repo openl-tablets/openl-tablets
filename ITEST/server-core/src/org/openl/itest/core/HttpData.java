@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
@@ -145,6 +146,14 @@ class HttpData {
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(httpData.body);
             }
+        }
+    }
+
+    void writeBodyTo(String responseFile) throws IOException {
+        try (var rf = new RandomAccessFile(responseFile, "rw")) {
+            while (!rf.readLine().isEmpty()); // find the first empty string
+            rf.setLength(rf.getFilePointer()); // truncate
+            rf.write(body); // append new body
         }
     }
 

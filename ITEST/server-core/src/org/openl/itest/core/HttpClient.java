@@ -68,7 +68,7 @@ public class HttpClient {
     }
 
     public void send(String reqRespFiles) {
-        send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
+        send("test-resources/" + reqRespFiles + ".req", "test-resources/" + reqRespFiles + ".resp");
     }
 
     public void test() {
@@ -156,6 +156,11 @@ public class HttpClient {
             if (c != null && !c.isBlank()) {
                 cookie.set(c);
             }
+
+            // Bulk update of OpenAPI files
+//            if (Files.readAllLines(Paths.get(requestFile)).get(0).contains("/openapi.")) {
+//                header.writeBodyTo(responseFile);
+//            }
 
             HttpData respHeader = HttpData.readFile(responseFile);
 
