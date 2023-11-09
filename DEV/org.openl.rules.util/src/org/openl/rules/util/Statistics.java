@@ -82,7 +82,7 @@ public final class Statistics {
         return result == null ? tmp : result + tmp;
     }
 
-    public static <T extends Number> Double covarS(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double covarS(Y[] y, X[] x) {
         return sampleCovariance(loadInputStats(y, x));
     }
 
@@ -109,7 +109,7 @@ public final class Statistics {
         return null;
     }
 
-    public static <T extends Number> Double covarP(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double covarP(Y[] y, X[] x) {
         //covarP
         InputStats inputStats = loadInputStats(y, x);
 
@@ -136,7 +136,7 @@ public final class Statistics {
         return result == null ? tmp : result + tmp;
     }
 
-    public static <T extends Number> Double correl(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double correl(Y[] y, X[] x) {
         //correl
         InputStats inputStats = loadInputStats(y, x);
         if (inputStats != null) {
@@ -148,12 +148,12 @@ public final class Statistics {
         return null;
     }
 
-    public static <T extends Number> Double rsq(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double rsq(Y[] y, X[] x) {
         Double result = correl(y, x);
         return result == null ? null : Math.pow(result, 2);
     }
 
-    public static <T extends Number> Double slope(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double slope(Y[] y, X[] x) {
         return slope(loadInputStats(y, x));
     }
 
@@ -166,7 +166,7 @@ public final class Statistics {
         return null;
     }
 
-    public static <T extends Number> Double intercept(T[] y, T[] x) {
+    public static <X extends Number, Y extends Number> Double intercept(Y[] y, X[] x) {
         InputStats inputStats = loadInputStats(y, x);
         if (inputStats != null && inputStats.y.length > 1) {
             Double avgY = inputStats.getAvgY();
@@ -177,7 +177,7 @@ public final class Statistics {
         return null;
     }
 
-    public static <T extends Number> Double forecast(T x, T[] knownY, T[] knownX) {
+    public static <X extends Number, Y extends Number> Double forecast(X x, Y[] knownY, X[] knownX) {
         InputStats inputStats = loadInputStats(knownY, knownX);
         if (inputStats != null) {
             Double slopeB = slope(inputStats);
@@ -187,7 +187,7 @@ public final class Statistics {
         return null;
     }
 
-    private static <T extends Number> InputStats loadInputStats(T[] knownY, T[] knownX) {
+    private static <X extends Number, Y extends Number> InputStats loadInputStats(Y[] knownY, X[] knownX) {
         if (knownX == null || knownY == null) {
             return null;
         }
