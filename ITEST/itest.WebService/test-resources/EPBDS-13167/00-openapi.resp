@@ -16,6 +16,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Method: org.openl.generated.beans.MyError[] getErrorData()",
         "operationId" : "getErrorData",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -104,6 +112,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultmakeError makeError()",
         "operationId" : "makeError",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -189,6 +205,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultthrowMyError throwMyError()",
         "operationId" : "throwMyError",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -274,6 +298,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultthrowMyErrorArr throwMyErrorArr()",
         "operationId" : "throwMyErrorArr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -359,6 +391,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultthrowMyErrorSPR throwMyErrorSPR()",
         "operationId" : "throwMyErrorSPR",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {
@@ -444,6 +484,14 @@ Content-Type: application/json
       "get" : {
         "description" : "Rules method: SpreadsheetResultthrowMyErrorSPRArr throwMyErrorSPRArr()",
         "operationId" : "throwMyErrorSPRArr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "responses" : {
           "200" : {
             "content" : {

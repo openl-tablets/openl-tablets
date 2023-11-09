@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultSpr1 Spr1(java.lang.Double param)",
         "operationId" : "Spr1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -107,6 +115,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultSpr2 Spr2(java.lang.Double param, java.lang.Double b)",
         "operationId" : "Spr2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -197,6 +213,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultSpr3 Spr3(java.lang.Double param)",
         "operationId" : "Spr3",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -288,6 +312,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyDatatype inputRule(SpreadsheetResultsprSmartRules a)",
         "operationId" : "inputRule",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -378,6 +410,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyDatatype inputRule2(SRSpr1 & SRSpr2 & SRSpr3 a)",
         "operationId" : "inputRule2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -468,6 +508,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmainSpr mainSpr(java.lang.Double a, java.lang.Double b)",
         "operationId" : "mainSpr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -558,6 +606,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: org.openl.generated.beans.MyDatatype myMethod(java.lang.Double s)",
         "operationId" : "myMethod",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "text/plain" : {
@@ -649,6 +705,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultsprSmartRules sprSmartRules(java.lang.Double a, java.lang.Double b, java.lang.String param)",
         "operationId" : "sprSmartRules",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: java.lang.Double getMaxLimit(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMaxLimit",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -107,6 +115,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.rules.variation.VariationsResult getMaxLimit(org.openl.rules.context.IRulesRuntimeContext, org.openl.rules.variation.VariationsPack)",
         "operationId" : "getMaxLimit_1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -197,6 +213,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyType[] getMyTypes(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyTypes",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -290,6 +314,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.rules.variation.VariationsResult getMyTypes(org.openl.rules.context.IRulesRuntimeContext, org.openl.rules.variation.VariationsPack)",
         "operationId" : "getMyTypes_1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {

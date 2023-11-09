@@ -16,6 +16,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyType1Data",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -109,6 +117,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyType2Data",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -202,6 +218,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyType3Data",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -295,6 +319,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId" : "getMyType4Data",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -388,6 +420,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod myMethod(org.openl.generated.beans.MyType1 myType1, org.openl.generated.beans.MyType2 myType2, org.openl.generated.beans.MyType3 myType3, org.openl.generated.beans.MyType4 myType4)",
         "operationId" : "myMethod",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -478,6 +518,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod2 myMethod2(org.openl.generated.beans.MyType1 myType1, org.openl.generated.beans.MyType2 myType2, org.openl.generated.beans.MyType3 myType3, org.openl.generated.beans.MyType4 myType4)",
         "operationId" : "myMethod2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -568,6 +616,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod3 myMethod3(org.openl.generated.beans.MyType1 myType1, org.openl.generated.beans.MyType2 myType2, org.openl.generated.beans.MyType3 myType3)",
         "operationId" : "myMethod3",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -658,6 +714,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod4 myMethod4()",
         "operationId" : "myMethod4",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -748,6 +812,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod5 myMethod5()",
         "operationId" : "myMethod5",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -838,6 +910,14 @@ Content-Type: application/json
       "post" : {
         "description" : "Rules method: SpreadsheetResultmyMethod6 myMethod6()",
         "operationId" : "myMethod6",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
         "requestBody" : {
           "content" : {
             "application/json" : {
