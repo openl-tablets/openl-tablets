@@ -2,636 +2,622 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "openapi": "3.#.#",
-  "info": {
-    "description": "***",
-    "title": "EPBDS-12769_EPBDS-12769",
-    "version": "1.0.0"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "Auto-generated OpenAPI schema from the OpenL rules",
+    "title" : "EPBDS-12769_EPBDS-12769",
+    "version" : "1.0.0"
   },
-  "servers": [
-    {
-      "url": "http://***"
-    }
-  ],
-  "paths": {
-    "/S1": {
-      "post": {
-        "summary": "S1 S1(S5[])",
-        "description": "Rules method: SpreadsheetResultS1 S1(SpreadsheetResultS5[] calculatedCensus)",
-        "operationId": "S1",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/S5"
+  "servers" : [ {
+    "url" : "http://example.com/EPBDS-12769/EPBDS-12769"
+  } ],
+  "paths" : {
+    "/S1" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultS1 S1(SpreadsheetResultS5[] calculatedCensus)",
+        "operationId" : "S1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/S5"
                 }
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S1"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S1"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "S1 S1(S5[])"
       }
     },
-    "/S2": {
-      "post": {
-        "summary": "S2 S2(S5[])",
-        "description": "Rules method: SpreadsheetResultS2 S2(SpreadsheetResultS5[] param)",
-        "operationId": "S2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/S5"
+    "/S2" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultS2 S2(SpreadsheetResultS5[] param)",
+        "operationId" : "S2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/S5"
                 }
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S2"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S2"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "S2 S2(S5[])"
       }
     },
-    "/S3": {
-      "post": {
-        "summary": "S3 S3(S4)",
-        "description": "Rules method: SpreadsheetResultS3 S3(SpreadsheetResultS4 calculatedClass)",
-        "operationId": "S3",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/S4"
+    "/S3" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultS3 S3(SpreadsheetResultS4 calculatedClass)",
+        "operationId" : "S3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/S4"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S3"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S3"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "S3 S3(S4)"
       }
     },
-    "/S4": {
-      "post": {
-        "summary": "S4 S4(S5[])",
-        "description": "Rules method: SpreadsheetResultS4 S4(SpreadsheetResultS5[] calculatedCensus)",
-        "operationId": "S4",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/S5"
+    "/S4" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultS4 S4(SpreadsheetResultS5[] calculatedCensus)",
+        "operationId" : "S4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/S5"
                 }
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
-                },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
-                    }
-                  },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
-                    }
-                  }
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S4"
                 }
               }
-            }
+            },
+            "description" : "Successful operation"
           },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S4"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/S5": {
-      "get": {
-        "summary": "S5 S5()",
-        "description": "Rules method: SpreadsheetResultS5 S5()",
-        "operationId": "S5",
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
-                },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S5"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "S4 S4(S5[])"
       }
     },
-    "/S6": {
-      "post": {
-        "summary": "S6 S6(S1)",
-        "description": "Rules method: SpreadsheetResultS6 S6(SpreadsheetResultS1 ageBandClaimCost)",
-        "operationId": "S6",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/S1"
+    "/S5" : {
+      "get" : {
+        "description" : "Rules method: SpreadsheetResultS5 S5()",
+        "operationId" : "S5",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S5"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "S5 S5()"
+      }
+    },
+    "/S6" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultS6 S6(SpreadsheetResultS1 ageBandClaimCost)",
+        "operationId" : "S6",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/S1"
               }
             }
           }
         },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    }, {
-                      "$ref": "#/components/schemas/JAXRSErrorResponse"
-                    }
-                  ]
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/S6"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
                 },
-                "examples": {
-                  "Example 1": {
-                    "description": "Example 1",
-                    "value": {
-                      "message": "Some message",
-                      "type": "USER_ERROR"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
                     }
                   },
-                  "Example 2": {
-                    "description": "Example 2",
-                    "value": {
-                      "message": "Some message",
-                      "code": "code.example",
-                      "type": "USER_ERROR"
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
                     }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
                 },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
                 }
               }
-            }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
           },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
                 },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
                 }
               }
-            }
-          },
-          "204": {
-            "description": "Successful operation"
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/S6"
-                }
-              }
-            }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
-        }
+        },
+        "summary" : "S6 S6(S1)"
       }
     }
   },
-  "components": {
-    "schemas": {
-      "JAXRSUserErrorResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string"
+  "components" : {
+    "schemas" : {
+      "JAXRSErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
           },
-          "message": {
-            "type": "string"
+          "type" : {
+            "type" : "string",
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
           }
         }
       },
-      "JAXRSErrorResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
+      "JAXRSUserErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
           },
-          "type": {
-            "type": "string",
-            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          "message" : {
+            "type" : "string"
           }
         }
       },
-      "S1": {
-        "type": "object",
-        "properties": {
-          "AgeBand": {
-            "type": "string"
+      "S1" : {
+        "type" : "object",
+        "properties" : {
+          "AgeBand" : {
+            "type" : "string"
           }
         }
       },
-      "S5": {
-        "type": "object",
-        "properties": {
-          "p2": {
-            "type": "string"
+      "S2" : {
+        "type" : "object"
+      },
+      "S3" : {
+        "type" : "object",
+        "properties" : {
+          "AgeBandedRateCards" : {
+            "$ref" : "#/components/schemas/S6"
           }
         }
       },
-      "S2": {
-        "type": "object"
-      },
-      "S3": {
-        "type": "object",
-        "properties": {
-          "AgeBandedRateCards": {
-            "$ref": "#/components/schemas/S6"
+      "S4" : {
+        "type" : "object",
+        "properties" : {
+          "AgeBandedRateCards" : {
+            "$ref" : "#/components/schemas/S1"
           }
         }
       },
-      "S6": {
-        "type": "object",
-        "properties": {
-          "AgeBand": {
-            "type": "string"
+      "S5" : {
+        "type" : "object",
+        "properties" : {
+          "p2" : {
+            "type" : "string"
           }
         }
       },
-      "S4": {
-        "type": "object",
-        "properties": {
-          "AgeBandedRateCards": {
-            "$ref": "#/components/schemas/S1"
+      "S6" : {
+        "type" : "object",
+        "properties" : {
+          "AgeBand" : {
+            "type" : "string"
           }
         }
       }
