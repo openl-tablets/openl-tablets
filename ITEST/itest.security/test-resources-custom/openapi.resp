@@ -24,8 +24,7 @@ Content-Type: application/json
           "in" : "header",
           "name" : "Accept-Language",
           "schema" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           }
         } ],
         "requestBody" : {
@@ -43,8 +42,7 @@ Content-Type: application/json
               "text/plain;charset=UTF-8" : {
                 "schema" : {
                   "type" : "integer",
-                  "format" : "int32",
-                  "example" : null
+                  "format" : "int32"
                 }
               }
             },
@@ -88,7 +86,6 @@ Content-Type: application/json
                   }
                 },
                 "schema" : {
-                  "example" : null,
                   "oneOf" : [ {
                     "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
                   }, {
@@ -126,8 +123,7 @@ Content-Type: application/json
           "in" : "header",
           "name" : "Accept-Language",
           "schema" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           }
         } ],
         "responses" : {
@@ -135,8 +131,7 @@ Content-Type: application/json
             "content" : {
               "text/plain;charset=UTF-8" : {
                 "schema" : {
-                  "type" : "string",
-                  "example" : null
+                  "type" : "string"
                 }
               }
             },
@@ -180,7 +175,6 @@ Content-Type: application/json
                   }
                 },
                 "schema" : {
-                  "example" : null,
                   "oneOf" : [ {
                     "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
                   }, {
@@ -218,8 +212,7 @@ Content-Type: application/json
           "in" : "header",
           "name" : "Accept-Language",
           "schema" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           }
         } ],
         "requestBody" : {
@@ -227,8 +220,7 @@ Content-Type: application/json
             "text/plain" : {
               "schema" : {
                 "type" : "integer",
-                "format" : "int32",
-                "example" : null
+                "format" : "int32"
               }
             }
           }
@@ -239,8 +231,7 @@ Content-Type: application/json
               "text/plain;charset=UTF-8" : {
                 "schema" : {
                   "type" : "integer",
-                  "format" : "int32",
-                  "example" : null
+                  "format" : "int32"
                 }
               }
             },
@@ -284,7 +275,6 @@ Content-Type: application/json
                   }
                 },
                 "schema" : {
-                  "example" : null,
                   "oneOf" : [ {
                     "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
                   }, {
@@ -318,51 +308,38 @@ Content-Type: application/json
     "schemas" : {
       "JAXRSErrorResponse" : {
         "type" : "object",
-        "example" : null,
         "properties" : {
           "message" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           },
           "type" : {
             "type" : "string",
-            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ],
-            "example" : null
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
           }
         }
       },
       "JAXRSUserErrorResponse" : {
         "type" : "object",
-        "example" : null,
         "properties" : {
           "code" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           },
           "message" : {
-            "type" : "string",
-            "example" : null
+            "type" : "string"
           }
         }
       },
       "MulRequest" : {
         "type" : "object",
-        "example" : null,
         "properties" : {
           "x" : {
             "type" : "integer",
-            "format" : "int32",
-            "example" : null
+            "format" : "int32"
           },
           "y" : {
             "type" : "integer",
-            "format" : "int32",
-            "example" : null
+            "format" : "int32"
           }
-        },
-        "xml" : {
-          "name" : "MulRequest",
-          "namespace" : "http://jaxrs.openl.org"
         }
       }
     },
