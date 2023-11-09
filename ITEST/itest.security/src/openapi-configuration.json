@@ -1,7 +1,4 @@
 {
-  "prettyPrint": false,
-  "sortOutput": true,
-  "cacheTTL": -1,
   "openAPI": {
     "info": {
       "version": "x.x.x",
