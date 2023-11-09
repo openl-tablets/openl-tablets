@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -42,8 +43,13 @@ public class OpenAPIConfiguration {
 
         Json.mapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Json.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+        Json.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
+
         Yaml.mapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Yaml.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+        Yaml.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Yaml.mapper().enable(SerializationFeature.INDENT_OUTPUT);
 
         ModelConverters.getInstance().addConverter((type, context, chain) -> {
             var clazz = Json.mapper().constructType(type.getType()).getRawClass();
