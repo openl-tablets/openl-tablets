@@ -16,12 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.ext.ExceptionMapper;
 
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser;
-import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -83,13 +82,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private List<ExceptionMapper> exceptionMappers;
 
     @Autowired
+    private List<Feature> features;
+
+    @Autowired
     private Environment env;
-
-    @Value("${ruleservice.logging.enabled}")
-    private boolean loggingEnabled;
-
-    @Value("${ruleservice.gzip.threshold}")
-    private Integer gzipThreshold;
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
@@ -120,21 +116,13 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
 
+            svrFactory.getFeatures().addAll(features);
+
             var serviceObjectMapper = jaxrsServiceObjectMapper.getObject().createJacksonObjectMapper();
             var openApiObjectMapper = jaxrsOpenApiObjectMapper.getObject().createJacksonObjectMapper();
 
             svrFactory.setProvider(new TextPlainDateMessageProvider(serviceObjectMapper));
             svrFactory.setProvider(new JacksonJsonProvider(serviceObjectMapper));
-
-            if (loggingEnabled) {
-                svrFactory.getFeatures().add(new LoggingFeature());
-            }
-
-            if (gzipThreshold != null) {
-                var gzipFeature = new GZIPFeature();
-                gzipFeature.setThreshold(gzipThreshold);
-                svrFactory.getFeatures().add(gzipFeature);
-            }
 
             if (getStoreLogDataManager().isEnabled()) {
                 var storeLogDataInInterceptor = new CollectRequestMessageInInterceptor();
