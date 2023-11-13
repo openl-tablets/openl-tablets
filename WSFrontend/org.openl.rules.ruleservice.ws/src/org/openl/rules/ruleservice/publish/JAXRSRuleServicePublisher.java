@@ -1,5 +1,12 @@
 package org.openl.rules.ruleservice.publish;
 
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.ServletConfigContextUtils;
+import io.swagger.v3.oas.integration.ClasspathOpenApiConfigurationLoader;
+import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
+import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.info.Info;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -8,19 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.ext.ExceptionMapper;
 
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
-import io.swagger.v3.jaxrs2.integration.ServletConfigContextUtils;
-import io.swagger.v3.oas.integration.ClasspathOpenApiConfigurationLoader;
-import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
-import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
-import io.swagger.v3.oas.models.info.Info;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -31,22 +42,12 @@ import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
+import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectRequestMessageInInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectResponseMessageOutInterceptor;
 import org.openl.rules.ruleservice.storelogdata.PopulateStoreLogDataInterceptor;
-import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import org.springframework.core.env.Environment;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
@@ -60,11 +61,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
 
+    @Value("${ruleservice.authentication.enabled}")
     private boolean authenticationEnabled;
-
-    @Autowired
-    @Qualifier("jaxrsServiceServerPrototype")
-    private ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory;
 
     @Autowired
     @Qualifier("jaxrsOpenApiObjectMapper")
@@ -109,23 +107,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
     }
 
-    public ObjectFactory<JAXRSServerFactoryBean> getServerFactoryBeanObjectFactory() {
-        return serverFactoryBeanObjectFactory;
-    }
-
-    public void setServerFactoryBeanObjectFactory(
-            ObjectFactory<JAXRSServerFactoryBean> serverFactoryBeanObjectFactory) {
-        this.serverFactoryBeanObjectFactory = serverFactoryBeanObjectFactory;
-    }
-
-    public void setAuthenticationEnabled(boolean authenticationEnabled) {
-        this.authenticationEnabled = authenticationEnabled;
-    }
-
-    public boolean isAuthenticationEnabled() {
-        return authenticationEnabled;
-    }
-
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
@@ -134,7 +115,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         OpenApiObjectMapperHack openApiObjectMapperHack = null;
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
+            var svrFactory = new JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean();
+            svrFactory.setApplicationContext(service.getServiceContext());
             String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
 
