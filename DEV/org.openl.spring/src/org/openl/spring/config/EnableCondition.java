@@ -5,6 +5,8 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.MultiValueMap;
 
+import org.openl.util.StringUtils;
+
 class EnableCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
@@ -14,7 +16,7 @@ class EnableCondition implements Condition {
                 String[] properties = (String[]) value;
                 for (String property : properties) {
                     String propValue = context.getEnvironment().getProperty(property);
-                    if (!Boolean.parseBoolean(propValue)) {
+                    if ("false".equalsIgnoreCase(propValue) || StringUtils.isBlank(propValue)) {
                         return false;
                     }
                 }
