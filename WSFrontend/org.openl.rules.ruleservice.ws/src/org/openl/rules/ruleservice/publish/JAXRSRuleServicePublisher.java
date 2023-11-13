@@ -20,6 +20,7 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -36,6 +37,7 @@ import org.openl.rules.ruleservice.storelogdata.PopulateStoreLogDataInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -87,6 +89,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Value("${ruleservice.logging.enabled}")
     private boolean loggingEnabled;
+
+    @Value("${ruleservice.gzip.threshold}")
+    private Integer gzipThreshold;
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
@@ -141,6 +146,12 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
             if (loggingEnabled) {
                 svrFactory.getFeatures().add(new LoggingFeature());
+            }
+
+            if (gzipThreshold != null) {
+                var gzipFeature = new GZIPFeature();
+                gzipFeature.setThreshold(gzipThreshold);
+                svrFactory.getFeatures().add(gzipFeature);
             }
 
             if (getStoreLogDataManager().isEnabled()) {
