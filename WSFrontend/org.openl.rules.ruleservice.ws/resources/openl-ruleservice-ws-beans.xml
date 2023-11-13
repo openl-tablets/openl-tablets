@@ -22,14 +22,6 @@
                           ReceiveTimeout="${ruleservice.http.receiveTimeout}"/>
     </http-conf:conduit>
 
-    <cxf:bus>
-        <cxf:features>
-            <bean class="org.apache.cxf.transport.common.gzip.GZIPFeature">
-                <property name="threshold" value="${ruleservice.gzip.threshold}"/>
-            </bean>
-        </cxf:features>
-    </cxf:bus>
-
     <util:map id="uiConfig" key-type="java.lang.String">
         <entry key="deployerEnabled" value="${ruleservice.deployer.enabled}" value-type="java.lang.Boolean"/>
         <entry key="url" value="${openl.site}" value-type="java.lang.String"/>
