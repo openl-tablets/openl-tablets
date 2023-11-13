@@ -9,6 +9,9 @@ Content-Type: application/json
     }, {
       "name": "simple_simple",
       "url": "simple/openapi.json"
+    }, {
+      "name": "spring",
+      "url": "spring/spring/openapi.json"
     }
   ]
 }

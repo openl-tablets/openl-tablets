@@ -54,6 +54,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -121,7 +122,14 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
         serviceContext.getBeanFactory().registerSingleton("serviceClassLoader", serviceClassLoader);
         serviceContext.getBeanFactory().registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
-        serviceContext.scan("spring");
+        try {
+            Class<?> configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
+            if (configurationClass.isAnnotationPresent(Configuration.class)) {
+                serviceContext.register(configurationClass);
+            }
+        } catch (ClassNotFoundException ignore) {
+            // Ignore
+        }
         serviceContext.refresh();
 
         this.serviceContext = serviceContext;

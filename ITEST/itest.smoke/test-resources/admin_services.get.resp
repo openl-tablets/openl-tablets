@@ -30,5 +30,15 @@ Content-Type: application/json
     "hasManifest": false,
     "deploymentName": "simple",
     "status": "DEPLOYED"
+  }, {
+    "startedTime": "#####",
+    "name": "spring",
+    "servicePath": "spring/spring",
+    "urls": {
+      "RESTFUL": "spring/spring"
+    },
+    "hasManifest": false,
+    "deploymentName": "spring",
+    "status": "DEPLOYED"
   }
 ]

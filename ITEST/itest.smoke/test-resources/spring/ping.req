@@ -1,0 +1,2 @@
+GET /spring/spring/ping HTTP/1.1
+
