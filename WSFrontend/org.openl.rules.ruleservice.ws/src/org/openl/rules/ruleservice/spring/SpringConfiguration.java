@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.spring;
 
-import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,12 +21,6 @@ public class SpringConfiguration {
         var gzipFeature = new GZIPFeature();
         gzipFeature.setThreshold(gzipThreshold);
         return gzipFeature;
-    }
-
-    @Bean
-    @ConditionalOnEnable("ruleservice.logging.enabled")
-    LoggingFeature loggingFeature() {
-        return new LoggingFeature();
     }
 
 }
