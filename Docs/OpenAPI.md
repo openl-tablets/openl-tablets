@@ -7,9 +7,6 @@ in the working directory or in the root of the classpath:
 
 ```json
 {
-  "prettyPrint": false,
-  "sortOutput": true,
-  "cacheTTL": -1,
   "openAPI": {
     "info": {
       "version": "2.4.7",

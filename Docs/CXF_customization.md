@@ -5,6 +5,8 @@ the Spring Framework.
 
 ### Enable logging feature
 
+Configuration of LoggingFeature described at https://cxf.apache.org/docs/message-logging.html
+
 ```java
 package org.openl.rules.ruleservice.spring;
 
@@ -25,4 +27,13 @@ public class LoggingConfiguration {
         return loggingFeature;
     }
 }
+```
+or
+```xml
+<?xml version='1.0'?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean class="org.apache.cxf.ext.logging.LoggingFeature"/>
+</beans>
 ```
