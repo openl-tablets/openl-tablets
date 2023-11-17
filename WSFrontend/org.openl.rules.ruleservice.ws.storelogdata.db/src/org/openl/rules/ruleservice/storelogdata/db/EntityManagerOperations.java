@@ -1,25 +1,19 @@
 package org.openl.rules.ruleservice.storelogdata.db;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.PersistenceException;
-
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,15 +21,17 @@ import org.springframework.stereotype.Component;
 public class EntityManagerOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(EntityManagerOperations.class);
 
-    @Autowired
-    private HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder;
+    private final HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder;
+
+    public EntityManagerOperations(HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder) {
+        this.hibernateSessionFactoryBuilder = hibernateSessionFactoryBuilder;
+    }
 
     private static class Key {
         final Set<Class<?>> entityClasses;
 
         public Key(Class<?>[] entityClasses) {
-            this.entityClasses = new HashSet<>(
-                Arrays.asList(Objects.requireNonNull(entityClasses, "entityClasses cannot be null")));
+            this.entityClasses = Set.of(Objects.requireNonNull(entityClasses, "entityClasses cannot be null"));
         }
 
         @Override
@@ -56,29 +52,36 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
         }
     }
 
-    private final AtomicReference<Map<Key, EntityManagerFactory>> entityManagers = new AtomicReference<>(
+    private final AtomicReference<Map<Key, SessionFactory>> entityManagers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
 
-    public void save(Class<?>[] entityClasses, Object entity) throws PersistenceException {
+    public void save(Class<?>[] entityClasses, Object entity) {
         if (entity == null) {
             return;
         }
-        EntityManager entityManager = getEntityManagerFactory(entityClasses).createEntityManager();
-        EntityTransaction tx = entityManager.getTransaction();
-        tx.begin();
-        entityManager.merge(entity);
-        tx.commit();
-        entityManager.close();
+        try (var session = getSessionFactory(entityClasses).openSession()) {
+            Transaction tx = null;
+            try {
+                tx = session.beginTransaction();
+                session.merge(entity);
+                tx.commit();
+            } catch (RuntimeException e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                throw e;
+            }
+        }
     }
 
-    public EntityManagerFactory getEntityManagerFactory(Class<?>[] entityClasses) {
-        EntityManagerFactory entityManagerFactory = null;
-        Map<Key, EntityManagerFactory> current;
-        Map<Key, EntityManagerFactory> next;
+    public SessionFactory getSessionFactory(Class<?>[] entityClasses) {
+        SessionFactory entityManagerFactory = null;
+        Map<Key, SessionFactory> current;
+        Map<Key, SessionFactory> next;
         do {
             current = entityManagers.get();
             Key key = new Key(entityClasses);
-            EntityManagerFactory currentEntityManager = current.get(key);
+            SessionFactory currentEntityManager = current.get(key);
             if (currentEntityManager != null) {
                 return currentEntityManager;
             } else {
@@ -99,14 +102,14 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
 
     @Override
     public void onUndeploy(String deployPath) {
+        var emToClose = entityManagers.get();
         entityManagers.set(Collections.emptyMap());
-    }
-
-    public HibernateSessionFactoryBuilder getHibernateSessionFactoryBuilder() {
-        return hibernateSessionFactoryBuilder;
-    }
-
-    public void setHibernateSessionFactoryBuilder(HibernateSessionFactoryBuilder hibernateSessionFactoryBuilder) {
-        this.hibernateSessionFactoryBuilder = hibernateSessionFactoryBuilder;
+        for (SessionFactory sf : emToClose.values()) {
+            try {
+                sf.close();
+            } catch (RuntimeException e) {
+                log.error("Failed to close SessionFactory", e);
+            }
+        }
     }
 }
