@@ -115,10 +115,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                 classLoader,
                 executionMode);
         } else {
-            Collection<Module> modules = getModules();
-            if (modules.isEmpty()) {
-                throw new IllegalStateException("Expected at least one module in the project.");
-            }
             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(getModules(),
                 dependencyManager,
                 classLoader,
