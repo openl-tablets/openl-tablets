@@ -118,15 +118,13 @@
         <reactor-netty-http.version>1.1.13</reactor-netty-http.version>
 
         <!-- REST -->
-        <jackson.version>2.14.3</jackson.version>
+        <jackson.version>2.16.0</jackson.version>
         <cxf.version>3.6.2</cxf.version>
         <stax-ex.version>1.8.3</stax-ex.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.1.13</swagger.core.version>
-        <!-- Cannot bump to 2.0.16 version or higher to inline with swagger-core version -->
-        <!-- Because some behaviour is changed and a lot of tests fails as a result. -->
-        <swagger.parser.version>2.0.15</swagger.parser.version>
+        <swagger.core.version>2.2.19</swagger.core.version>
+        <swagger.parser.version>2.1.18</swagger.parser.version>
 
         <!-- Logging -->
         <log4j.version>2.22.0</log4j.version>

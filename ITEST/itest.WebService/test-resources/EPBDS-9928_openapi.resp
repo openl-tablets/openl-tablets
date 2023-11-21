@@ -1235,7 +1235,8 @@ Content-Type: application/json
           "name" : "x",
           "required" : true,
           "schema" : {
-            "type" : "string"
+            "type" : "string",
+            "pattern" : ".*"
           }
         } ],
         "responses" : {

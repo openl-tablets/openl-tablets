@@ -42,10 +42,14 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
         if (defaultValue instanceof String) {
             Class<?> t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
             Class<?> rawType = t == null ? a.getRawType() : t;
-            IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
-            if (convertor != null) {
-                Object o = convertor.parse((String) defaultValue, null);
-                return processDates(o);
+            try {
+                IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
+                if (convertor != null) {
+                    Object o = convertor.parse((String) defaultValue, null);
+                    return processDates(o);
+                }
+            } catch (Exception ignore) {
+                return null;
             }
         }
         return defaultValue;

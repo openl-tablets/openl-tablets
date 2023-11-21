@@ -195,7 +195,8 @@ Content-Type: application/json
             "type" : "array",
             "default" : [ "Hello, World", "Greeting" ],
             "items" : {
-              "type" : "string"
+              "type" : "string",
+              "default" : "Hello\\, World, Greeting"
             }
           },
           "x1" : {
