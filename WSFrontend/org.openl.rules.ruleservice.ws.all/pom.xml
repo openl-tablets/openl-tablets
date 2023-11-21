@@ -15,9 +15,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-    <properties>
-        <generate-application.properties>prepare-package</generate-application.properties>
-    </properties>
     <build>
         <finalName>webservice-all</finalName>
         <plugins>

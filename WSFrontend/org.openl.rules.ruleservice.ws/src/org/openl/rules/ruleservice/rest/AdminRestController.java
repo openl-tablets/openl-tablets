@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.rest;
 
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +21,7 @@ import org.openl.info.SysInfo;
 import org.openl.rules.ruleservice.loader.DeployClasspathJarsBean;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
+import org.openl.spring.env.DefaultPropertySource;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
@@ -146,7 +147,6 @@ public class AdminRestController {
     @Path("/config/application.properties")
     @Produces("text/plain;charset=UTF-8") // Because of the source code is encoded as UTF-8
     public Response getApplicationProperties() {
-        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("application-example.properties");
-        return Response.ok(resourceAsStream).build();
+        return Response.ok((StreamingOutput) DefaultPropertySource::transferAllOpenLDefaultProperties).build();
     }
 }

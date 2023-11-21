@@ -16,7 +16,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <generate-application.properties>prepare-package</generate-application.properties>
         <sonar.sources>src,webapp</sonar.sources>
     </properties>
     <build>
