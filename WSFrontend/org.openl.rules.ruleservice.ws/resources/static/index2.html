@@ -54,6 +54,7 @@
         #main a {
             margin-right: 10px;
         }
+
         #main .urls {
             float: right;
             position: relative;
@@ -119,11 +120,24 @@
         #main > div {
             border-bottom: #cccccc dotted 1px;
             padding: 2px 0;
-
         }
 
         #main > div:last-child {
             border: 0;
+        }
+
+        #main > div:hover {
+            background-color: #f8f8f8;
+        }
+
+        #main > div::before {
+            counter-increment: index;
+            content: counter(index);
+            min-width: 20px;
+            display: inline-block;
+            text-align: right;
+            color: gray;
+            padding-right: 5px;
         }
 
         .download-button {
@@ -131,6 +145,7 @@
             font-size: 22px;
             line-height: 22px;
         }
+
         .download-button:before {
             content: "⬇";
             color: #0078D0;
@@ -144,7 +159,7 @@
             background-color: inherit;
             background-repeat: no-repeat;
             background-position: center;
-            cursor:pointer;
+            cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='70 0 360 500'%3E%3Cpath d='m210 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='darkred'/%3E%3C/svg%3E");
         }
 
@@ -217,6 +232,7 @@
     <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
     <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
     <a class="version" href="${url}/release-notes?ver=${version}" target="_blank" title="Built on ${buildDate}">v${version}</a>
+    <a class="link" target="_blank" href="admin/info/sys.json" style="float: right">System Info</a>
 </div>
 <script>
     // <![CDATA[
@@ -291,8 +307,8 @@
                 let bSp = b.servicePath.toUpperCase().split("/");
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
-            services.forEach(function (service, index) {
-                var html = createServiceHtml(index, service, deployerEnabled);
+            services.forEach(function (service) {
+                var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
@@ -319,7 +335,7 @@
             .replaceAll("${url}", servicesResponse.url)
             .replaceAll("${email}", servicesResponse.email)
             .replaceAll("${buildDate}", buildDate)
-            .replaceAll("${year}", buildDate.substr(0,4))
+            .replaceAll("${year}", buildDate.substring(0, 4))
             .replaceAll("${version}", servicesResponse.version)
             .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
         footerBlock.innerHTML = html;
@@ -364,11 +380,14 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(index, service, deployerEnabled) {
+    function createServiceHtml(service, deployerEnabled) {
         let deploymentName = service.deploymentName;
         var serviceHtml = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
         var urlsHtml = "";
         // URLs
+        if (service.hasManifest) {
+            urlsHtml += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>";
+        }
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
@@ -382,13 +401,9 @@
                 urlsHtml += "<a href='" + url + "' class='urls'\>" + name + "</a>";
             }
         });
-        if (service.hasManifest) {
-            urlsHtml += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>";
-        }
 
-        var html = "<span style='display: inline-block; min-width: 15px; color: gray; padding-right: 5px; text-align: right'>" + (index + 1) + "</span>";
         // Name
-        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + serviceHtml + "</h3>";
+        var html = "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + serviceHtml + "</h3>";
 
         if (deployerEnabled) {
             html += "<button type='button' class='delete-button' title='Delete'></button>";
