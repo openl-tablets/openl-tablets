@@ -1,19 +1,22 @@
 package org.openl.rules.rest.common;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.security.Privileges;
+import org.openl.spring.env.DefaultPropertySource;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertyBean;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,11 +66,11 @@ public class PropertyController {
     }
 
     @Operation(summary = "config.download-app-props.summary", description = "config.download-app-props.desc")
-    @GetMapping(value = "/application.properties", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<ClassPathResource> getApplicationProperties() throws IOException {
-        return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(new ClassPathResource("application-example.properties"));
+    @GetMapping(value = "/application.properties", produces = "text/plain;charset=UTF-8")
+    public String getApplicationProperties() throws IOException {
+        var baos = new ByteArrayOutputStream();
+        DefaultPropertySource.transferAllOpenLDefaultProperties(baos);
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     }
 
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
