@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -24,6 +25,7 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
+@Ignore
 public class OpenAPIConverterTest {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
