@@ -1,10 +1,11 @@
-package org.openl.rules.ruleservice.databinding;
+package org.openl.rules.ruleservice.publish;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -26,11 +27,16 @@ import org.openl.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("rawtypes")
-public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageBodyReader {
+public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyReader {
 
     private static final Set<Class<?>> DATE_TYPE_SET = new HashSet<>();
 
     static {
+        DATE_TYPE_SET.add(Double.class);
+        DATE_TYPE_SET.add(Double.TYPE);
+        DATE_TYPE_SET.add(Float.class);
+        DATE_TYPE_SET.add(Float.TYPE);
+        DATE_TYPE_SET.add(BigDecimal.class);
         DATE_TYPE_SET.add(Date.class);
         DATE_TYPE_SET.add(Instant.class);
         DATE_TYPE_SET.add(ZonedDateTime.class);
@@ -41,7 +47,7 @@ public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageB
 
     private final ObjectMapper objectMapper;
 
-    public TextPlainDateMessageProvider(ObjectMapper objectMapper) {
+    public TextPlainMessageProvider(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -100,7 +106,7 @@ public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageB
     }
 
     private String unquote(String str) {
-        if (StringUtils.isEmpty(str)) {
+        if (StringUtils.isEmpty(str) || !str.startsWith("\"") || !str.endsWith("\"")) {
             return str;
         }
         return str.substring(1, str.length() - 1);

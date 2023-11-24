@@ -1,0 +1,4 @@
+POST /simple/echoBigDecimal HTTP/1.1
+Content-Type: text/plain;charset=iso-8859-1
+
+12345678901234567890123456789000000000000000000000000.00000

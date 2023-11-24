@@ -1,0 +1,15 @@
+POST /simple/numbers HTTP/1.1
+Content-Type: application/json;charset=ISO-8859-1
+
+{
+  "i1": 10,
+  "l1": 20,
+  "d1": 30.00000,
+  "f1": 40.00000,
+  "i2": 50,
+  "l2": 60,
+  "d2": 70.00000,
+  "f2": 80.00000,
+  "bigInt": 90,
+  "bigDec": 100.00000
+}
