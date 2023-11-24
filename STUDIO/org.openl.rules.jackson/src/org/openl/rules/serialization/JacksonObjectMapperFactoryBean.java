@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -161,6 +163,12 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             .registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule());
 
+        mapper.registerModule(new SimpleModule()
+            .addSerializer(Double.class, new DoubleSerializer(Double.class))
+            .addSerializer(Double.TYPE, new DoubleSerializer(Double.TYPE))
+            .addSerializer(Float.class, new FloatSerializer())
+            .addSerializer(Float.TYPE, new FloatSerializer()));
+
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
             TypeFactory.defaultInstance());
@@ -277,6 +285,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, false); // OpenL uses ENUMs names
         mapper.configure(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING, true);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+        mapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
 
         if (getDefaultDateFormat() != null) {
             mapper.setDateFormat(getDefaultDateFormat());

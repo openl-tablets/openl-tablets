@@ -5,7 +5,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * A set of functions to work with numbers
@@ -14,7 +13,7 @@ public final class Numbers {
 
     public static final String POSITIVE_INFINITY_SIGN = "∞";
     public static final String NEGATIVE_INFINITY_SIGN = "-∞";
-    private static final Pattern TRAILING_ZERO = Pattern.compile("(\\.0+$)|(?<=\\.\\d{0,20})0+$");
+    public static final String NOT_A_NUMBER = "NaN";
 
     private Numbers() {
         //Utility class
@@ -35,18 +34,31 @@ public final class Numbers {
             Double doubleNumber = (Double) number;
             if (doubleNumber.isInfinite()) {
                 return doubleNumber > 0 ? POSITIVE_INFINITY_SIGN : NEGATIVE_INFINITY_SIGN;
-            } 
+            } else if (doubleNumber.isNaN()) {
+                return NOT_A_NUMBER;
+            }
         } else if (number instanceof Float) {
             Float floatNumber = (Float) number;
             if (floatNumber.isInfinite()) {
                 return floatNumber > 0 ? POSITIVE_INFINITY_SIGN : NEGATIVE_INFINITY_SIGN;
+            } else if (floatNumber.isNaN()) {
+                return NOT_A_NUMBER;
             }
         }
-        if (number instanceof Double || number instanceof Float || number instanceof BigDecimal) {
-            return TRAILING_ZERO.matcher(number.toString()).replaceAll(""); // remove zeros
+        if (number instanceof Double || number instanceof Float) {
+            return toString(new BigDecimal(number.toString())); // number.toString() is more accurate than just number
+        } else if (number instanceof BigDecimal) {
+            return toString((BigDecimal) number);
         } else {
             return number.toString();
         }
+    }
+
+    private static String toString(BigDecimal bd) {
+        if (bd.scale() > 10000 || bd.scale() < -10000) {
+            return bd.toString(); // Avoid DoS
+        }
+        return bd.stripTrailingZeros().toPlainString();
     }
 
     /**

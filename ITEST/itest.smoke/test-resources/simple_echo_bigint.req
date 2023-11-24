@@ -1,0 +1,4 @@
+POST /simple/echoBigInteger HTTP/1.1
+Content-Type: text/plain;charset=iso-8859-1
+
+123456789012345678901234567890
