@@ -36,7 +36,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
-import org.openl.rules.ruleservice.databinding.TextPlainDateMessageProvider;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerResponseFilter;
@@ -121,7 +120,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             var serviceObjectMapper = jaxrsServiceObjectMapper.getObject().createJacksonObjectMapper();
             var openApiObjectMapper = jaxrsOpenApiObjectMapper.getObject().createJacksonObjectMapper();
 
-            svrFactory.setProvider(new TextPlainDateMessageProvider(serviceObjectMapper));
+            svrFactory.setProvider(new TextPlainMessageProvider(serviceObjectMapper));
             svrFactory.setProvider(new JacksonJsonProvider(serviceObjectMapper));
 
             if (getStoreLogDataManager().isEnabled()) {

@@ -75,8 +75,8 @@ public class NumbersTest {
         assertEquals("0.01", Numbers.toString(0.01d));
         assertEquals("-0.01", Numbers.toString(-0.01d));
 
-        double reallySmallValue = -2.2250738585072014E-308;
-        assertEquals("-2.2250738585072014E-308", Numbers.toString(reallySmallValue));
+        double reallySmallValue = -2.22507385850720143E-30;
+        assertEquals("-0.0000000000000000000000000000022250738585072013", Numbers.toString(reallySmallValue));
 
         assertEquals("100.500", Numbers.toString(number100dot5, "0.000"));
         assertEquals("0100.500", Numbers.toString(number100dot5, "0000.000"));
@@ -98,7 +98,7 @@ public class NumbersTest {
         assertEquals("#3%%", Numbers.toString(numberDot033, "'#'0%'%'"));
 
         double reallyBigValue = 85070591730234620000000000000000000000D;
-        assertEquals("8.507059173023462E37", Numbers.toString(reallyBigValue));
+        assertEquals("85070591730234620000000000000000000000", Numbers.toString(reallyBigValue));
     }
 
     @Test
@@ -129,9 +129,17 @@ public class NumbersTest {
         assertEquals("1000", Numbers.toString(new BigDecimal("1000.000")));
         assertEquals("1000", Numbers.toString(new BigDecimal("1000")));
         assertEquals("100.001", Numbers.toString(new BigDecimal("100.00100")));
+        assertEquals("0.00000001", Numbers.toString(new BigDecimal("0.00000001")));
+        assertEquals("0.00000001", Numbers.toString(new BigDecimal("00000000000.000000010000000000000000")));
+        assertEquals("10000000000", Numbers.toString(new BigDecimal("1e10")));
+        assertEquals("0.0000000001", Numbers.toString(new BigDecimal("1e-10")));
+        assertEquals("1" + "0".repeat(10000), Numbers.toString(new BigDecimal("1e10000")));
+        assertEquals("0." + "0".repeat(9999) + "1", Numbers.toString(new BigDecimal("1e-10000")));
+        assertEquals("1E+10001", Numbers.toString(new BigDecimal("1e10001")));
+        assertEquals("1E-10001", Numbers.toString(new BigDecimal("1e-10001")));
 
-        BigDecimal reallySmallValue = BigDecimal.valueOf(-2.2250738585072014E-307);
-        assertEquals("-2.2250738585072014E-307", Numbers.toString(reallySmallValue));
+        BigDecimal reallySmallValue = BigDecimal.valueOf(-2.2250738585072013E-30);
+        assertEquals("-0.0000000000000000000000000000022250738585072013", Numbers.toString(reallySmallValue));
 
         assertEquals("85070591730234615847396907784232501.249", Numbers.toString(reallyBigValueWithPoint, "0.000"));
         assertEquals("85070,591730,234615,847396,907784,232501.249", Numbers.toString(reallyBigValueWithPoint, "#,######.000"));
@@ -183,7 +191,7 @@ public class NumbersTest {
         assertEquals("-0.01", Numbers.toString(-0.01f));
 
         float reallySmallValue = -25E-10f;
-        assertEquals("-2.5E-9", Numbers.toString(reallySmallValue));
+        assertEquals("-0.0000000025", Numbers.toString(reallySmallValue));
 
         assertEquals("1.2345", Numbers.toString(1.2345));
 
@@ -207,6 +215,6 @@ public class NumbersTest {
         assertEquals("#3%%", Numbers.toString(numberDot033, "'#'0%'%'"));
 
         float reallyBigValue = 85070590000000000000000000000000000000f;
-        assertEquals("8.507059E37", Numbers.toString(reallyBigValue));
+        assertEquals("85070590000000000000000000000000000000", Numbers.toString(reallyBigValue));
     }
 }
