@@ -74,15 +74,6 @@ public class AdminRestController {
     }
 
     /**
-     * @return a list of method descriptors of the given OpenL service.
-     */
-    @GET
-    @Path("/services/{deployPath:.+}/methods/")
-    public Response getServiceMethodNames(@PathParam("deployPath") final String deployPath) {
-        return okOrNotFound(serviceManager.getServiceMethods(deployPath));
-    }
-
-    /**
      * @return a list of messages of the given OpenL service.
      */
     @GET
