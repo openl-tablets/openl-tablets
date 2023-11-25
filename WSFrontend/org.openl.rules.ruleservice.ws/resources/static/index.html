@@ -5,7 +5,7 @@
     <title>OpenL Tablets Rule Services</title>
     <script type="text/javascript">
         var path = location.pathname;
-        if (path.lastIndexOf('/') !== (path.length - 1)) { /* endWith does not work under IE 10 */
+        if (!path.endsWith('/') && !path.endsWith(".html")) {
             document.write("<base href='" + path + "/' />");
             history.replaceState(null, null, path + '/');
         }
@@ -16,7 +16,7 @@
             margin: 0;
             color: #444;
             font-family: verdana, helvetica, arial, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         h2 {
@@ -28,8 +28,9 @@
 
         h3 {
             font-weight: normal;
-            font-size: 14px;
-            display: inline;
+            font-size: 13px;
+            display: inline-block;
+            margin: 2px;
         }
 
         a {
@@ -45,13 +46,19 @@
         }
 
         #main {
-            padding: 0 20px 40px;
+            padding: 0 10px 40px;
             color: #444;
             white-space: nowrap;
         }
 
         #main a {
             margin-right: 10px;
+        }
+
+        #main .urls {
+            float: right;
+            position: relative;
+            top: 4px;
         }
 
         #footer {
@@ -100,29 +107,60 @@
             color: #666;
         }
 
-        .note {
+        .time {
             color: #9a9a9a;
             font-size: 10px;
-            margin: 3px 0;
+            padding: 0 8px;
+            vertical-align: bottom;
+            float: right;
+            position: relative;
+            top: 4px;
         }
 
         #main > div {
             border-bottom: #cccccc dotted 1px;
-            padding: 10px 0;
-
+            padding: 2px 0;
         }
 
         #main > div:last-child {
             border: 0;
         }
 
+        #main > div:hover {
+            background-color: #f8f8f8;
+        }
+
+        #main > div::before {
+            counter-increment: index;
+            content: counter(index);
+            min-width: 20px;
+            display: inline-block;
+            text-align: right;
+            color: gray;
+            padding-right: 5px;
+        }
+
         .download-button {
             float: right;
+            font-size: 22px;
+            line-height: 22px;
+        }
+
+        .download-button:before {
+            content: "⬇";
+            color: #0078D0;
         }
 
         .delete-button {
             float: right;
-            margin-left: 5px;
+            width: 22px;
+            height: 22px;
+            border: none;
+            background-color: inherit;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='70 0 360 500'%3E%3Cpath d='m210 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='darkred'/%3E%3C/svg%3E");
         }
 
         .deploy-button {
@@ -194,6 +232,7 @@
     <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
     <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
     <a class="version" href="${url}/release-notes?ver=${version}" target="_blank" title="Built on ${buildDate}">v${version}</a>
+    <a class="link" target="_blank" href="admin/info/sys.json" style="float: right">System Info</a>
 </div>
 <script>
     // <![CDATA[
@@ -224,7 +263,7 @@
             if (button.classList.contains("collapse")) {
                 // Expand the node
                 var childArray = button.parentElement.childNodes
-                var target = childArray[2];
+                var target = childArray[4];
                 var fun;
                 var data;
                 if (serviceData.serviceStatus === "FAILED") {
@@ -252,7 +291,7 @@
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
             } else if (button.className === "delete-button") {
-                deleteProject(serviceData.deploymentName);
+                deleteProject(serviceData);
             }
         })
     }
@@ -268,14 +307,13 @@
                 let bSp = b.servicePath.toUpperCase().split("/");
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
-            mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {
                 var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
-                el.dataset.deploymentName = encodeURI(service.deploymentName);
+                el.dataset.deploymentName = service.deploymentName;
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
             });
@@ -297,21 +335,21 @@
             .replaceAll("${url}", servicesResponse.url)
             .replaceAll("${email}", servicesResponse.email)
             .replaceAll("${buildDate}", buildDate)
-            .replaceAll("${year}", buildDate.substr(0,4))
+            .replaceAll("${year}", buildDate.substring(0, 4))
             .replaceAll("${version}", servicesResponse.version)
             .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
         footerBlock.innerHTML = html;
         footerBlock.style.display = "";
     }
 
-    function deleteProject(servicePath) {
-        if (confirm("Are you sure you want to delete this project?")) {
+    function deleteProject(service) {
+        if (confirm("Are you sure you want to delete\n\n'" + service.deploymentName + "'\n\ndeployment?")) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "admin/deploy/" + servicePath, true);
+            xhr.open("DELETE", "admin/deploy/" + encodeURI(service.deploymentName), true);
             xhr.send();
         }
     }
@@ -343,37 +381,43 @@
 
     // Creating innerHTML of one service
     function createServiceHtml(service, deployerEnabled) {
-        var html = "";
-        // Name
-        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.servicePath + "</h3>";
-
-        // Some useful info
-        html += "<ul class='info'></ul>";
-
-        // Date and time
-        html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
+        let deploymentName = service.deploymentName;
+        var serviceHtml = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
+        var urlsHtml = "";
         // URLs
+        if (service.hasManifest) {
+            urlsHtml += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>";
+        }
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
             if (name === "RESTFUL") {
-                html += "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>Swagger UI</a>";
-                html += "<a href='" + url + "/openapi.json'\>OpenAPI.JSON</a>";
-                html += "<a href='" + url + "/openapi.yaml'\>OpenAPI.YAML</a>";
+                serviceHtml = "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>" + serviceHtml + "</a>"
+                urlsHtml += "<a href='" + url + "/openapi.json' class='urls'\>OpenAPI.JSON</a>";
+                urlsHtml += "<a href='" + url + "/openapi.yaml' class='urls'\>OpenAPI.YAML</a>";
             } else if (url == null) {
-                html += "<span>" + name + "&nbsp;&nbsp;</span>";
+                urlsHtml += "<span class='urls'>" + name + "&nbsp;&nbsp;</span>";
             } else {
-                html += "<a href='" + url + "'\>" + name + "</a>";
+                urlsHtml += "<a href='" + url + "' class='urls'\>" + name + "</a>";
             }
         });
-        if (service.hasManifest) {
-            html += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
-        }
+
+        // Name
+        var html = "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + serviceHtml + "</h3>";
+
         if (deployerEnabled) {
-            html += "&nbsp";
-            html += "<button type='button' class='delete-button'>Delete</button>";
-            html += "<a href='admin/deploy/" + encodeURI(service.deploymentName) + ".zip' class='download-button'\>Download</a>";
+            html += "<button type='button' class='delete-button' title='Delete'></button>";
+            html += "<a href='admin/deploy/" + encodeURI(deploymentName) + ".zip' class='download-button' title='Download' \></a>";
         }
+
+        // Date and time
+        let startedAt = new Date(service.startedTime);
+        html += "<div class='time' title='" + startedAt.toLocaleString() + "'>" + startedAt.toLocaleDateString() + "&nbsp;&nbsp;&nbsp;" + startedAt.toLocaleTimeString() + "</div>";
+
+        // Some useful info
+        html += "<ul class='info'></ul>";
+
+        html += urlsHtml;
 
         return html;
     }
