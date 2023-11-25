@@ -1,8 +1,6 @@
 package org.openl.rules.ruleservice.management;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,7 +39,6 @@ import org.openl.rules.ruleservice.loader.DataSourceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
-import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.util.CollectionUtils;
@@ -301,31 +298,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             return null;
         }
         return service.getManifest();
-    }
-
-    @Override
-    public Collection<MethodDescriptor> getServiceMethods(String deployPath) {
-        OpenLService service = getServiceByDeploy(deployPath);
-        if (service != null) {
-            try {
-                return Arrays.stream(service.getServiceClass().getMethods())
-                    .map(this::toDescriptor)
-                    .sorted(Comparator.comparing(MethodDescriptor::getName, String.CASE_INSENSITIVE_ORDER))
-                    .collect(Collectors.toList());
-            } catch (RuleServiceInstantiationException ignore) {
-                // Ignore
-            }
-        }
-        return null;
-    }
-
-    private MethodDescriptor toDescriptor(Method method) {
-        String name = method.getName();
-        String returnType = method.getReturnType().getSimpleName();
-        List<String> paramTypes = Arrays.stream(method.getParameterTypes())
-            .map(Class::getSimpleName)
-            .collect(Collectors.toList());
-        return new MethodDescriptor(name, returnType, paramTypes);
     }
 
     @Override
