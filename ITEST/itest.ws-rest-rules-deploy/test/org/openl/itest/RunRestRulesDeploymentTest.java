@@ -36,14 +36,12 @@ public class RunRestRulesDeploymentTest {
 
         client.send("rules-to-deploy.deploy.post");
         client.send("deployed-rules_services.get");
-        client.send("deployed-rules_methods.get");
         client.send("rules-to-deploy.download.get");
         client.send("deployed-rules_hello.post");
 
         // should be always redeployed
         client.send("rules-to-deploy_v2.deploy.post");
         client.send("deployed-rules_services.get");
-        client.send("deployed-rules_methods.get");
         client.send("deployed-rules_ui-info.get");
         client.send("deployed-rules_hello_2.post");
 
@@ -65,8 +63,6 @@ public class RunRestRulesDeploymentTest {
 
         client.send("multiple-deployment_v1.deploy.post");
         client.send("yaml_project_services.get");
-        client.send("project1_methods.get");
-        client.send("yaml_project_project2_methods.get");
         client.send("project1_sayHello.post");
 
         // should be updated
@@ -80,7 +76,6 @@ public class RunRestRulesDeploymentTest {
     @Test
     public void testMissingServiceMethods() {
         client.send("admin_services_no_services.json.get");
-        client.send("missing-service_methods.get");
         client.send("missing-service.delete");
         client.send("missing-service.get");
         client.send("missing-service_errors.get");

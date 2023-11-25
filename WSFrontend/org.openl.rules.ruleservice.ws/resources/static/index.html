@@ -188,7 +188,6 @@
         }
 
         .icon {
-            cursor: pointer;
             font-size: 16px;
             padding-right: 5px;
         }
@@ -199,6 +198,7 @@
         }
 
         .failed:before {
+            cursor: pointer;
             content: "✘";
             color: #C00000;
         }
@@ -255,35 +255,21 @@
     function addMainBlockEventListener() {
         var mainBlock = document.getElementById("main");
         mainBlock.addEventListener('click', function (event) {
-            var button = event.target || event.srcElement;
+            var button = event.target;
             var serviceData = button.parentElement.dataset;
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
             var serviceName = encodeURI(serviceData.serviceName);
-            if (button.classList.contains("collapse")) {
+            if (button.classList.contains("collapse") && serviceData.serviceStatus === "FAILED") {
                 // Expand the node
-                var childArray = button.parentElement.childNodes
-                var target = childArray[4];
-                var fun;
-                var data;
-                if (serviceData.serviceStatus === "FAILED") {
-                    fun = function (error) {
-                        return "<pre>" + error + "</pre>";
-                    };
-                    data = "/errors";
-                } else {
-                    fun = function (method) {
-                        return "<li>" + method.returnType + " <b>" + method.name + "</b> (" + method.paramTypes.join(", ") + ")</li>";
-                    };
-                    data = "/methods";
-                }
-
                 var xmlHttpMethods = new XMLHttpRequest();
+
                 xmlHttpMethods.onload = function () {
-                    var methods = JSON.parse(this.response);
-                    target.innerHTML = methods.map(fun).join("");
+                    var errors = JSON.parse(this.response);
+                    let infoBlock = button.parentElement.getElementsByClassName("info").item(0);
+                    infoBlock.innerHTML = errors.map(function (x) {return "<pre>" + x + "</pre>"}).join("");
                 };
-                xmlHttpMethods.open("GET", "admin/services/" + serviceName + data, true);
+                xmlHttpMethods.open("GET", "admin/services/" + serviceName + "/errors", true);
                 xmlHttpMethods.send();
 
                 button.classList.replace("collapse", "expand");

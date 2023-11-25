@@ -16,11 +16,6 @@ public interface ServiceInfoProvider {
     Manifest getManifest(String deployPath);
 
     /**
-     * Returns a list of available methods for the successfully deployed service.
-     */
-    Collection<MethodDescriptor> getServiceMethods(String deployPath);
-
-    /**
      * Returns a list of deployed services.
      */
     Collection<ServiceInfo> getServicesInfo();
