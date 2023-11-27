@@ -51,7 +51,7 @@
         allow-spec-file-download="true"
         allow-server-selection="false">
     <div slot='header' style='display:flex; margin:0 16px;'>
-        <label for="select-api" style="display: none">
+        <label for="select-api">
             <span>Select a definition</span>
             <select id="select-api"></select>
         </label>
@@ -60,54 +60,46 @@
 </rapi-doc>
 
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const rapiDoc = document.getElementById("swagger-ui");
-        const selectApi = document.getElementById("select-api");
+    const rapiDoc = document.getElementById("swagger-ui");
+    const selectApi = document.getElementById("select-api");
 
-        const toAbsoluteURL = (url) => {
-            return  new URL(url, document.baseURI).href;
+    var specs = {};
+    var theFirst;
+
+    function loadSpecAPI() {
+        let selectedApiName = new URLSearchParams(document.location.search).get("urls.primaryName");
+        let specAPI = specs[selectedApiName];
+        if (specAPI == null) {
+            selectedApiName = theFirst;
+            specAPI = specs[theFirst];
         }
+        if (specAPI != null) {
+            selectApi.value = selectedApiName;
+            rapiDoc.setAttribute('spec-url', new URL(specAPI, document.baseURI).href);
+        }
+    }
 
+    window.addEventListener('popstate', loadSpecAPI);
+
+    document.addEventListener('DOMContentLoaded', () => {
         const initializeRapiDoc = (serviceUrls) => {
-            const selectedApiName = new URLSearchParams(document.location.search).get("urls.primaryName");
-            let selectedUri = null;
             serviceUrls.forEach((it) => {
+                theFirst = theFirst || it.name;
+                specs[it.name]= it.url;
                 let option = document.createElement('option');
-                option.value = it.url;
-                option.textContent = it.name;
+                option.text = it.name;
+                option.value = it.name;
                 selectApi.appendChild(option);
-                if (it.name === selectedApiName) {
-                    selectedUri = it.url;
-                }
             });
             selectApi.addEventListener("change", (e) => {
-                let state = {
-                    specUrl: selectApi.value
-                }
-                let searchParams = new URLSearchParams(window.location.search);
-                serviceUrls.some((it) => {
-                    if (it.url === selectApi.value) {
-                        state.name = it.name;
-                        searchParams.set("urls.primaryName", it.name);
-                        return true;
-                    }
-                    return false;
-                });
-                if (!e.initial) {
-                    let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString();
-                    window.history.pushState(state, '', newurl);
-                } else {
-                    window.history.replaceState(state, '');
-                }
-                rapiDoc.setAttribute('spec-url', toAbsoluteURL(selectApi.value))
+                let searchParams = new URLSearchParams("");
+                searchParams.set("urls.primaryName", selectApi.value);
+                let newUrl = new URL(document.baseURI);
+                newUrl.search = searchParams.toString();
+                window.history.pushState({}, '', newUrl.href);
+                loadSpecAPI();
             });
-            if (serviceUrls.length > 0) {
-                selectApi.parentElement.style.removeProperty("display")
-                selectApi.value = selectedUri || serviceUrls[0].url
-                let event = new Event('change');
-                event.initial = true;
-                selectApi.dispatchEvent(event)
-            }
+            loadSpecAPI();
         }
 
         const xmlhttp = new XMLHttpRequest();
@@ -117,14 +109,6 @@
         };
         xmlhttp.open("GET", "admin/swagger-ui.json", true);
         xmlhttp.send();
-
-        window.addEventListener('popstate', function (e) {
-            var state = e.state;
-            if (state !== null && state.specUrl !== null) {
-                selectApi.value = state.specUrl;
-                rapiDoc.setAttribute('spec-url', toAbsoluteURL(state.specUrl));
-            }
-        });
     });
 </script>
 </body>
