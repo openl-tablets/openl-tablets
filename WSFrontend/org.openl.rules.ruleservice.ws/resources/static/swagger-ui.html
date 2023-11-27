@@ -73,14 +73,6 @@
             a.href = url;
             return a.href;
         }
-        rapiDoc.addEventListener("before-render", (e) => {
-            const specUrl = rapiDoc.getAttribute("spec-url");
-            // convert dotted "server.url" in OpenAPI to the absolute URL
-            const targetUrl = specUrl.split("/").slice(0,-1).join("/")
-            let server = e.detail.spec.servers[0];
-            server.url = targetUrl;
-            server.computedUrl = targetUrl;
-        });
 
         const initializeRapiDoc = (serviceUrls) => {
             const selectedApiName = new URLSearchParams(document.location.search).get("urls.primaryName");
