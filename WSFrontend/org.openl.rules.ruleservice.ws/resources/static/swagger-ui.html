@@ -69,9 +69,7 @@
         rapiDoc.appendChild(openlLogo);
 
         const toAbsoluteURL = (url) => {
-            let a = document.createElement("a");
-            a.href = url;
-            return a.href;
+            return  new URL(url, document.baseURI).href;
         }
 
         const initializeRapiDoc = (serviceUrls) => {
