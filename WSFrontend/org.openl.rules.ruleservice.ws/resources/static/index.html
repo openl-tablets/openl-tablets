@@ -210,21 +210,14 @@
             color: #C00000;
         }
 
-        .expand ~ .info {
+        .expand ~ .errors {
             display: block;
         }
 
-        .info {
+        .errors {
             margin-top: 2px;
             display: none;
         }
-
-        .info > li {
-            margin-top: 2px;
-            font-size: 11px;
-        }
-
-
     </style>
 </head>
 
@@ -271,17 +264,17 @@
             var serviceData = button.parentElement.dataset;
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
-            var serviceName = encodeURI(serviceData.serviceName);
             if (button.classList.contains("collapse") && button.classList.contains("failed")) {
                 // Expand the node
-                var xmlHttpMethods = new XMLHttpRequest();
+                let infoBlock = button.parentElement.getElementsByClassName("errors").item(0);
+                let uriForErrors = infoBlock.dataset.uri;
 
+                var xmlHttpMethods = new XMLHttpRequest();
                 xmlHttpMethods.onload = function () {
                     var errors = JSON.parse(this.response);
-                    let infoBlock = button.parentElement.getElementsByClassName("info").item(0);
                     infoBlock.innerHTML = errors.map(function (x) {return "<pre>" + x + "</pre>"}).join("");
                 };
-                xmlHttpMethods.open("GET", "admin/services/" + serviceName + "/errors", true);
+                xmlHttpMethods.open("GET", uriForErrors, true);
                 xmlHttpMethods.send();
 
                 button.classList.replace("collapse", "expand");
@@ -375,8 +368,9 @@
         var serviceHtml = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
         var urlsHtml = "";
         // URLs
+        let servicePathURI = encodeURI(service.servicePath);
         if (service.hasManifest) {
-            urlsHtml += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>";
+            urlsHtml += "<a href='admin/services/${servicePathURI}/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>".replace("${servicePathURI}", servicePathURI);
         }
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
@@ -400,7 +394,7 @@
         html += "<div class='time' title='" + startedAt.toLocaleString() + "'>" + startedAt.toLocaleDateString() + "&nbsp;&nbsp;&nbsp;" + startedAt.toLocaleTimeString() + "</div>";
 
         // Some useful info
-        html += "<ul class='info'></ul>";
+        html += "<ul class='errors' data-uri='admin/services/${servicePathURI}/errors'></ul>".replace("${servicePathURI}", servicePathURI);
 
         html += urlsHtml;
 
