@@ -39,10 +39,30 @@
 
         #header {
             border-bottom: 1px solid #ccc;
+            padding: 7px 11px;
+        }
+
+        #header .title {
             font-family: georgia, verdana, helvetica, arial, sans-serif;
+            margin: 4px;
             font-size: 20px;
             color: #777;
-            padding: 11px 15px;
+            display: inline-block;
+        }
+
+        .deploy-button {
+            padding: 6px 6px 6px 26px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3 0 3 3 0 3 0 5 3 5 3 8 5 8 5 5 8 5 8 3 5 3 5 0Z' fill='gray'/%3E%3C/svg%3E");
+            background-position: 4px;
+            background-repeat: no-repeat;
+            background-size: 18px;
+            border-radius: 8px;
+            position: absolute;
+            right: 24px;
+        }
+
+        .deploy-disabled .deploy-button {
+            display: none;
         }
 
         #main {
@@ -167,30 +187,6 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='70 0 360 500'%3E%3Cpath d='m210 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='gray'/%3E%3C/svg%3E");
         }
 
-        .deploy-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50px;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .deploy-button:hover {
-            animation-name: heartbeat;
-            animation-timing-function: easy;
-            animation-iteration-count: infinite;
-            animation-duration: 750ms;
-            animation-delay: 3s;
-        }
-
-        @keyframes heartbeat {
-            0%   {width: 100px;}
-            10%  {width: 300px;height: 300px;background-color: red;}
-            20%  {width: 200px;height: 200px;}
-            30%  {width: 220px;height: 220px;background-color: inherit;}
-            100% {width: 100px;border-radius: 150px;}
-        }
-
         .icon {
             font-size: 16px;
             padding-right: 5px;
@@ -225,8 +221,12 @@
     </style>
 </head>
 
-<body>
-<div id="header">OpenL Tablets Rule Services</div>
+<body class="deploy-disabled">
+<div id="header">
+    <div class="title">OpenL Tablets Rule Services</div>
+    <input id='file-input' type='file' name='name' style='display: none;'/>
+    <button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button></div>
+</div>
 <div id="main"></div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
@@ -248,6 +248,7 @@
 
     xmlhttp.onload = function () {
         var servicesResponse = JSON.parse(this.response);
+        document.body.className = servicesResponse.deployerEnabled ? "deploy-enabled" : "deploy-disabled";
         renderVersion(servicesResponse);
         renderServices(servicesResponse);
     };
@@ -309,12 +310,6 @@
             });
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
-        }
-        if (deployerEnabled) {
-            var el = document.createElement("DIV");
-            var html = createServiceButtons();
-            el.innerHTML = html;
-            mainBlock.appendChild(el);
         }
     }
 
@@ -411,14 +406,6 @@
 
         return html;
     }
-
-    function createServiceButtons() {
-        var html = "";
-        html += "<input id='file-input' type='file' name='name' style='display: none;'/>";
-        html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
-        return html;
-    }
-
     // ]]>
 </script>
 </body>
