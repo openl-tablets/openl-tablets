@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Swagger UI</title>
+    <title>OpenL - Swagger UI</title>
 
     <link rel="icon" href="favicon.ico" sizes="48x48"/>
     <link rel="icon" href="favicon.svg" sizes="any" type="image/svg+xml"/>
@@ -79,6 +79,7 @@
             specAPI = specs[theFirst];
         }
         if (specAPI != null) {
+            document.title = "OpenL - Swagger UI: " + selectedApiName;
             selectApi.value = selectedApiName;
             rapiDoc.setAttribute('spec-url', new URL(specAPI, document.baseURI).href);
         }
