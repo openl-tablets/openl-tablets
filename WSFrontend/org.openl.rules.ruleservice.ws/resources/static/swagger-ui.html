@@ -56,17 +56,13 @@
             <select id="select-api"></select>
         </label>
     </div>
+    <img id="openl-logo" slot="logo" src="openl-logo.svg">
 </rapi-doc>
 
 <script>
     document.addEventListener('DOMContentLoaded', (event) => {
         const rapiDoc = document.getElementById("swagger-ui");
         const selectApi = document.getElementById("select-api");
-        let openlLogo = document.createElement("img");
-        openlLogo.setAttribute("id", "openl-logo")
-        openlLogo.setAttribute('slot', "logo");
-        openlLogo.setAttribute('src', "openl-logo.svg");
-        rapiDoc.appendChild(openlLogo);
 
         const toAbsoluteURL = (url) => {
             return  new URL(url, document.baseURI).href;
