@@ -25,7 +25,7 @@ public class SpringBootWebAppTest {
     @Test
     public void favicon() {
         byte[] response = restTemplate.getForObject("/favicon.ico", byte[].class);
-        assertThat(response).hasSize(1086);
+        assertThat(response).hasSize(15086);
     }
 
     @Test
