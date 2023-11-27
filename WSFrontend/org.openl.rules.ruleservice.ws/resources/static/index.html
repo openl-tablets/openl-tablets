@@ -83,6 +83,16 @@
             margin-right: 10px;
         }
 
+        .manifest {
+            float: right;
+            position: relative;
+            top: 4px;
+            display: none;
+        }
+        .hasManifest .manifest {
+            display: block;
+        }
+
         #main .urls {
             float: right;
             position: relative;
@@ -304,6 +314,9 @@
                 el.dataset.servicePath = service.servicePath;
                 el.dataset.deploymentName = service.deploymentName;
                 el.innerHTML = html;
+                if (service.hasManifest) {
+                    el.classList.add("hasManifest")
+                }
                 mainBlock.appendChild(el);
             });
         } else {
@@ -369,9 +382,7 @@
         var urlsHtml = "";
         // URLs
         let servicePathURI = encodeURI(service.servicePath);
-        if (service.hasManifest) {
-            urlsHtml += "<a href='admin/services/${servicePathURI}/MANIFEST.MF' class='urls'\>MANIFEST.MF</a>".replace("${servicePathURI}", servicePathURI);
-        }
+        urlsHtml += "<a href='admin/services/${servicePathURI}/MANIFEST.MF' class='manifest'\>MANIFEST.MF</a>".replace("${servicePathURI}", servicePathURI);
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
