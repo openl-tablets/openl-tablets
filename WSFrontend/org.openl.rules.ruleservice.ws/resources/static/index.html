@@ -267,7 +267,7 @@
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
             var serviceName = encodeURI(serviceData.serviceName);
-            if (button.classList.contains("collapse") && serviceData.serviceStatus === "FAILED") {
+            if (button.classList.contains("collapse") && button.classList.contains("failed")) {
                 // Expand the node
                 var xmlHttpMethods = new XMLHttpRequest();
 
@@ -303,7 +303,6 @@
                 var html = createServiceHtml(service);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
-                el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
                 el.dataset.deploymentName = service.deploymentName;
                 el.innerHTML = html;
