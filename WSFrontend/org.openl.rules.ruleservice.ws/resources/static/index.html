@@ -61,6 +61,8 @@
             right: 24px;
         }
 
+        .deploy-disabled .delete-button,
+        .deploy-disabled .download-button,
         .deploy-disabled .deploy-button {
             display: none;
         }
@@ -291,7 +293,6 @@
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
         var services = servicesResponse.services;
-        var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             services.sort((a, b) => {
                 let aSp = a.servicePath.toUpperCase().split("/");
@@ -299,7 +300,7 @@
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
             services.forEach(function (service) {
-                var html = createServiceHtml(service, deployerEnabled);
+                var html = createServiceHtml(service);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
@@ -365,7 +366,7 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service, deployerEnabled) {
+    function createServiceHtml(service) {
         let deploymentName = service.deploymentName;
         var serviceHtml = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
         var urlsHtml = "";
@@ -389,11 +390,8 @@
 
         // Name
         var html = "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + serviceHtml + "</h3>";
-
-        if (deployerEnabled) {
-            html += "<button type='button' class='delete-button' title='Delete'></button>";
-            html += "<a href='admin/deploy/" + encodeURI(deploymentName) + ".zip' class='download-button' title='Download' \></a>";
-        }
+        html += "<button type='button' class='delete-button' title='Delete'></button>";
+        html += "<a href='admin/deploy/" + encodeURI(deploymentName) + ".zip' class='download-button' title='Download' \></a>";
 
         // Date and time
         let startedAt = new Date(service.startedTime);
