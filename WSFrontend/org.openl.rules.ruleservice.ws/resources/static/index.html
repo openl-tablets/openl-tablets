@@ -379,8 +379,6 @@
             var url = urls[name];
             if (name === "RESTFUL") {
                 serviceHtml = "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>" + serviceHtml + "</a>"
-                urlsHtml += "<a href='" + url + "/openapi.json' class='urls'\>OpenAPI.JSON</a>";
-                urlsHtml += "<a href='" + url + "/openapi.yaml' class='urls'\>OpenAPI.YAML</a>";
             } else if (url == null) {
                 urlsHtml += "<span class='urls'>" + name + "&nbsp;&nbsp;</span>";
             } else {
