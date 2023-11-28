@@ -30,6 +30,7 @@
         <entry key="buildNumber" value="${openl.build.number}" value-type="java.lang.String"/>
         <entry key="startedAt" value="${openl.start.time}" value-type="java.lang.String"/>
         <entry key="startedMilli" value="${openl.start.milli}" value-type="java.lang.String"/>
+        <entry key="appTitle" value="${openl.application.title}" value-type="java.lang.String"/>
     </util:map>
 
     <bean class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" id="deployer" lazy-init="true"/>

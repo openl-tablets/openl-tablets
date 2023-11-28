@@ -1,0 +1,57 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "appTitle": "OpenL Tablets Rule Service",
+  "buildDate": "*",
+  "buildNumber": "*",
+  "deployerEnabled": false,
+  "services": [
+    {
+      "deploymentName": "multimodule",
+      "hasManifest": false,
+      "name": "multi_project_project1",
+      "servicePath": "multimodule/project1",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "multi_project/project1"
+      }
+    },
+    {
+      "deploymentName": "multimodule",
+      "hasManifest": false,
+      "name": "multi_project_project2",
+      "servicePath": "multimodule/project2",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {}
+    },
+    {
+      "deploymentName": "simple",
+      "hasManifest": false,
+      "name": "simple_simple",
+      "servicePath": "simple/simple",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "simple"
+      }
+    },
+    {
+      "deploymentName": "spring",
+      "hasManifest": false,
+      "name": "spring",
+      "servicePath": "spring/spring",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "spring/spring"
+      }
+    }
+  ],
+  "startedAt": "*",
+  "startedMilli": "*",
+  "url": "https://openl-tablets.org",
+  "version": "*"
+}
