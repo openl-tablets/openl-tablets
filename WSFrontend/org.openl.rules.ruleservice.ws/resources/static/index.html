@@ -57,8 +57,7 @@
             background-repeat: no-repeat;
             background-size: 18px;
             border-radius: 8px;
-            position: absolute;
-            right: 24px;
+            margin-left: 30px;
         }
 
         .deploy-disabled .delete-button,
@@ -153,6 +152,10 @@
             display: inline;
         }
 
+        .showSwaggerOnly .noSwagger {
+            display: none;
+        }
+
         .noSwagger .swagger-ui {
             pointer-events: none;
             cursor: default;
@@ -224,7 +227,10 @@
 <div id="header">
     <div class="title">OpenL Tablets Rule Services</div>
     <input id='file-input' type='file' name='name' style='display: none;'/>
-    <button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button></div>
+    <div class="right-block">
+        Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)"/>
+        <button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>
+    </div>
 </div>
 <div id="main"></div>
 <div style="display: none" id="template">
@@ -259,6 +265,14 @@
     // <![CDATA[
     "use strict";
     const mainBlock = document.getElementById("main");
+
+    function showAll(value) {
+        if (value) {
+            mainBlock.classList.remove("showSwaggerOnly")
+        } else {
+            mainBlock.classList.add("showSwaggerOnly")
+        }
+    }
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
