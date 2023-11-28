@@ -44,12 +44,16 @@
 
         #header {
             border-bottom: 1px solid #ccc;
-            padding: 7px 11px;
+            padding: 7px 0;
+            position: fixed;
+            z-index: 1;
+            background: white;
+            width: 100%;
         }
 
         #header .title {
             font-family: georgia, verdana, helvetica, arial, sans-serif;
-            margin: 4px;
+            margin: 4px 16px;
             font-size: 20px;
             color: #777;
             display: inline-block;
@@ -65,14 +69,12 @@
             margin-left: 30px;
         }
 
-        .deploy-disabled .delete-button,
-        .deploy-disabled .download-button,
-        .deploy-disabled .deploy-button {
+        .deploy-disabled .forDeploy {
             display: none;
         }
 
         #main {
-            padding: 0 10px 40px;
+            padding: 75px 10px 40px;
             color: #444;
             white-space: nowrap;
             counter-reset: index;
@@ -167,6 +169,7 @@
             text-decoration: none;
             color: black;
         }
+
         .manifest {
             display: none;
         }
@@ -237,23 +240,36 @@
     <input id='file-input' type='file' name='name' style='display: none;'/>
     <div class="right-block">
         Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)"/>
-        <button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>
+        <button type='button' onclick='uploadProject()' class='deploy-button forDeploy'>Deploy</button>
+    </div>
+    <div style="position: absolute; top: 46px; width: 100%; font-size: 13px; font-weight: bold; color: grey; background-color: white; padding: 5px 0">
+        <div style="display: inline-block">
+            <span style="padding: 0 23px;">#</span>
+            <span>Service Name</span>
+        </div>
+        <div class="right-block">
+            <span style="padding-right: 25px;">Services & Links</span>
+            <span style="padding-right: 30px;">Started Time</span>
+            <span class="forDeploy">Actions</span>
+        </div>
     </div>
 </div>
 <div id="main"></div>
 <div style="display: none" id="template">
-        <span class="icon collapse ${status}" data-uri="admin/services/${servicePathURI}/errors"></span>
-        <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
-        <div class="right-block">
-            ${urls}
-            <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
-            <span class="time">${startedAt}</span>
-            <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
-                <button type='deploy' class='download-button' title='Download'>&nbsp;</button>
-            </form>
-            <button type="button" class="delete-button" title="Delete" data-uri="admin/deploy/${deploymentNameURI}">&nbsp;</button>
-        </div>
-        <div class="errors"></div>
+    <span class="icon collapse ${status}" data-uri="admin/services/${servicePathURI}/errors"></span>
+    <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
+    <div class="right-block">
+        ${urls}
+        <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
+        <span class="time">${startedAt}</span>
+        <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
+            <button type='deploy' class='download-button forDeploy' title='Download'>&nbsp;</button>
+        </form>
+        <button type="button" class="delete-button forDeploy" title="Delete"
+                data-uri="admin/deploy/${deploymentNameURI}">&nbsp;
+        </button>
+    </div>
+    <div class="errors"></div>
 </div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
