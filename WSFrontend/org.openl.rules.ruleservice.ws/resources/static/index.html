@@ -46,7 +46,7 @@
             width: 100%;
         }
 
-        #header .title {
+        #title {
             font-family: georgia, verdana, helvetica, arial, sans-serif;
             margin: 4px 16px;
             font-size: 20px;
@@ -230,8 +230,8 @@
 </head>
 
 <body class="deploy-disabled">
-<div id="header">
-    <div class="title">OpenL Tablets Rule Services</div>
+<div id="header" style="display: none">
+    <div id="title"></div>
     <input id='file-input' type='file' name='name' style='display: none;'/>
     <div class="right-block">
         Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)"/>
@@ -301,7 +301,7 @@
         var servicesResponse = JSON.parse(this.response);
         document.body.className = servicesResponse.deployerEnabled ? "deploy-enabled" : "deploy-disabled";
         mainBlock.innerHTML = '';
-        renderVersion(servicesResponse);
+        renderHeaderAndFooter(servicesResponse);
         renderServices(servicesResponse);
     };
 
@@ -367,7 +367,7 @@
         }
     }
 
-    function renderVersion(servicesResponse) {
+    function renderHeaderAndFooter(servicesResponse) {
         var buildDate = servicesResponse.buildDate;
         var footerBlock = document.getElementById("footer");
         var html = footerBlock.innerHTML
@@ -378,7 +378,11 @@
             .replaceAll("${version}", servicesResponse.version)
             .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
         footerBlock.innerHTML = html;
+        document.getElementById("title").innerText = servicesResponse.appTitle;
+        document.title = servicesResponse.appTitle;
         footerBlock.style.display = "";
+        document.getElementById("header").style.display = "";
+
     }
 
     function deleteProject(deploymentUri) {

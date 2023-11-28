@@ -1,0 +1,2 @@
+GET /admin/ui/info HTTP/1.1
+

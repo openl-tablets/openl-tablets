@@ -2,6 +2,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
+  "appTitle": "*",
   "startedMilli": "#####",
   "deployerEnabled": true,
   "startedAt": "####-##-##T##:##:##.###*****",
