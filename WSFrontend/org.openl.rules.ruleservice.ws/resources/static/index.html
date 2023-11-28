@@ -187,6 +187,7 @@
             width: 16px;
             height: 16px;
             margin: 3px;
+            padding: 0;
             border: none;
             background-color: inherit;
             background-repeat: no-repeat;
@@ -234,7 +235,7 @@
     <div id="title"></div>
     <input id='file-input' type='file' name='name' style='display: none;'/>
     <div class="right-block">
-        Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)"/>
+        Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)" style="margin-top: 10px;"/>
         <button type='button' onclick='uploadProject()' class='deploy-button forDeploy'>Deploy</button>
     </div>
     <div style="position: absolute; top: 46px; width: 100%; font-size: 13px; font-weight: bold; color: grey; background-color: white; padding: 5px 0">
@@ -257,6 +258,7 @@
         ${urls}
         <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
         <span class="time">${startedAt}</span>
+        <div style="display: inline-block; padding-top: 4px;">&nbsp;</div>
         <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
             <button type='deploy' class='download-button forDeploy' title='Download'>&nbsp;</button>
         </form>
