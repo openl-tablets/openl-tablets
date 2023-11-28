@@ -242,7 +242,7 @@
 </div>
 <div id="main"></div>
 <div style="display: none" id="template">
-        <span class="icon collapse ${status}"></span>
+        <span class="icon collapse ${status}" data-uri="admin/services/${servicePathURI}/errors"></span>
         <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
         <div class="right-block">
             ${urls}
@@ -251,9 +251,9 @@
             <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
                 <button type='deploy' class='download-button' title='Download'>&nbsp;</button>
             </form>
-            <button type="button" class="delete-button" title="Delete">&nbsp;</button>
+            <button type="button" class="delete-button" title="Delete" data-uri="admin/deploy/${deploymentNameURI}">&nbsp;</button>
         </div>
-        <div class="errors" data-uri="admin/services/${servicePathURI}/errors"></div>
+        <div class="errors"></div>
 </div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
@@ -301,14 +301,11 @@
     function addMainBlockEventListener() {
         mainBlock.addEventListener('click', function (event) {
             var button = event.target;
-            var serviceData = button.parentElement.dataset;
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
             if (button.classList.contains("collapse") && button.classList.contains("failed")) {
                 // Expand the node
                 let infoBlock = button.parentElement.getElementsByClassName("errors").item(0);
-                let uriForErrors = infoBlock.dataset.uri;
-
                 var xmlHttpMethods = new XMLHttpRequest();
                 xmlHttpMethods.onload = function () {
                     var errors = JSON.parse(this.response);
@@ -316,7 +313,7 @@
                         return "<pre>" + x + "</pre>"
                     }).join("");
                 };
-                xmlHttpMethods.open("GET", uriForErrors, true);
+                xmlHttpMethods.open("GET", button.dataset.uri, true);
                 xmlHttpMethods.send();
 
                 button.classList.replace("collapse", "expand");
@@ -324,7 +321,7 @@
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
             } else if (button.className === "delete-button") {
-                deleteProject(serviceData);
+                deleteProject(button.dataset.uri);
             }
         })
     }
@@ -342,14 +339,11 @@
             const template = document.getElementById("template").innerHTML;
             services.forEach(function (service) {
                 var el = document.createElement("DIV");
-                el.dataset.serviceName = service.servicePath;
-                el.dataset.servicePath = service.servicePath;
-                el.dataset.deploymentName = service.deploymentName;
                 if (service.hasManifest) {
-                    el.classList.add("hasManifest")
+                    el.classList.add("hasManifest");
                 }
                 if (service.urls.RESTFUL == null) {
-                    el.classList.add("noSwagger")
+                    el.classList.add("noSwagger");
                 } else {
                     delete service.urls.RESTFUL;
                 }
@@ -376,14 +370,14 @@
         footerBlock.style.display = "";
     }
 
-    function deleteProject(service) {
-        if (confirm("Are you sure you want to delete\n\n'" + service.deploymentName + "'\n\ndeployment?")) {
+    function deleteProject(deploymentUri) {
+        if (confirm("Are you sure you want to delete a deployment?")) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "admin/deploy/" + encodeURI(service.deploymentName), true);
+            xhr.open("DELETE", deploymentUri, true);
             xhr.send();
         }
     }
