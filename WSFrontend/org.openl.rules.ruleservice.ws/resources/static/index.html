@@ -79,26 +79,6 @@
             counter-reset: index;
         }
 
-        #main a {
-            margin-right: 10px;
-        }
-
-        .manifest {
-            float: right;
-            position: relative;
-            top: 4px;
-            display: none;
-        }
-        .hasManifest .manifest {
-            display: block;
-        }
-
-        #main .urls {
-            float: right;
-            position: relative;
-            top: 4px;
-        }
-
         #footer {
             border-top: 1px solid #ccc;
             font-size: 11px;
@@ -145,16 +125,6 @@
             color: #666;
         }
 
-        .time {
-            color: #9a9a9a;
-            font-size: 10px;
-            padding: 0 8px;
-            vertical-align: bottom;
-            float: right;
-            position: relative;
-            top: 4px;
-        }
-
         #main > div {
             border-bottom: #cccccc dotted 1px;
             padding: 2px 0;
@@ -178,21 +148,38 @@
             padding-right: 5px;
         }
 
-        .download-button {
-            float: right;
-            width: 16px;
-            height: 16px;
-            margin: 3px;
-            border: none;
-            background-color: inherit;
-            background-repeat: no-repeat;
-            background-position: center;
-            text-decoration: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3 0 3 5 1 5 4 8 7 5 5 5 5 0Z' fill='gray'/%3E%3C/svg%3E");
+        .right-block {
+            display: inline-block;
+            position: absolute;
+            right: 16px;
         }
 
-        .delete-button {
-            float: right;
+        .right-block form {
+            display: inline;
+        }
+
+        .noSwagger .swagger-ui {
+            pointer-events: none;
+            cursor: default;
+            text-decoration: none;
+            color: black;
+        }
+        .manifest {
+            display: none;
+        }
+
+        .hasManifest .manifest {
+            display: inline;
+        }
+
+        .time {
+            color: #9a9a9a;
+            padding: 0 8px;
+        }
+
+        .delete-button,
+        .download-button {
+            display: inline-block;
             width: 16px;
             height: 16px;
             margin: 3px;
@@ -201,7 +188,14 @@
             background-repeat: no-repeat;
             background-position: center;
             cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='70 0 360 500'%3E%3Cpath d='m210 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='gray'/%3E%3C/svg%3E");
+        }
+
+        .download-button {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3 0 3 5 1 5 4 8 7 5 5 5 5 0Z' fill='gray'/%3E%3C/svg%3E");
+        }
+
+        .delete-button {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 500'%3E%3Cpath d='M140 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='gray'/%3E%3C/svg%3E");
         }
 
         .icon {
@@ -238,10 +232,28 @@
     <button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button></div>
 </div>
 <div id="main"></div>
+<div style="display: none" id="template">
+        <span class="icon collapse ${status}"></span>
+        <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
+        <div class="right-block">
+            ${urls}
+            <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
+            <span class="time">${startedAt}</span>
+            <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
+                <button type='deploy' class='download-button' title='Download'>&nbsp;</button>
+            </form>
+            <button type="button" class="delete-button" title="Delete">&nbsp;</button>
+        </div>
+        <div class="errors" data-uri="admin/services/${servicePathURI}/errors"></div>
+</div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
-    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Installation%20Guide.pdf" title="Installation Guide">Installation Guide</a>
-    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Rule%20Services%20Usage%20and%20Customization%20Guide.pdf" title="Rule Services Usage and Customization Guide">Customization Guide</a>
+    <a class="link" target="_blank"
+       href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Installation%20Guide.pdf"
+       title="Installation Guide">Installation Guide</a>
+    <a class="link" target="_blank"
+       href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Rule%20Services%20Usage%20and%20Customization%20Guide.pdf"
+       title="Rule Services Usage and Customization Guide">Customization Guide</a>
     <span class="copyright">© ${year}</span>
     <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
     <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
@@ -251,6 +263,7 @@
 <script>
     // <![CDATA[
     "use strict";
+    const mainBlock = document.getElementById("main");
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
@@ -268,7 +281,6 @@
     addMainBlockEventListener();
 
     function addMainBlockEventListener() {
-        var mainBlock = document.getElementById("main");
         mainBlock.addEventListener('click', function (event) {
             var button = event.target;
             var serviceData = button.parentElement.dataset;
@@ -282,7 +294,9 @@
                 var xmlHttpMethods = new XMLHttpRequest();
                 xmlHttpMethods.onload = function () {
                     var errors = JSON.parse(this.response);
-                    infoBlock.innerHTML = errors.map(function (x) {return "<pre>" + x + "</pre>"}).join("");
+                    infoBlock.innerHTML = errors.map(function (x) {
+                        return "<pre>" + x + "</pre>"
+                    }).join("");
                 };
                 xmlHttpMethods.open("GET", uriForErrors, true);
                 xmlHttpMethods.send();
@@ -307,16 +321,22 @@
                 let bSp = b.servicePath.toUpperCase().split("/");
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
+            const template = document.getElementById("template").innerHTML;
             services.forEach(function (service) {
-                var html = createServiceHtml(service);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.servicePath = service.servicePath;
                 el.dataset.deploymentName = service.deploymentName;
-                el.innerHTML = html;
                 if (service.hasManifest) {
                     el.classList.add("hasManifest")
                 }
+                if (service.urls.RESTFUL == null) {
+                    el.classList.add("noSwagger")
+                } else {
+                    delete service.urls.RESTFUL;
+                }
+                var html = createServiceHtml(template, service);
+                el.innerHTML = html;
                 mainBlock.appendChild(el);
             });
         } else {
@@ -376,41 +396,32 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service) {
+    function createServiceHtml(template, service) {
         let deploymentName = service.deploymentName;
-        var serviceHtml = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
+        let serviceText = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
         var urlsHtml = "";
         // URLs
-        let servicePathURI = encodeURI(service.servicePath);
-        urlsHtml += "<a href='admin/services/${servicePathURI}/MANIFEST.MF' class='manifest'\>MANIFEST.MF</a>".replace("${servicePathURI}", servicePathURI);
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (name === "RESTFUL") {
-                serviceHtml = "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>" + serviceHtml + "</a>"
-            } else if (url == null) {
-                urlsHtml += "<span class='urls'>" + name + "&nbsp;&nbsp;</span>";
+            if (url == null) {
+                urlsHtml += "<span class='urls'>" + name + "</span>&nbsp;&nbsp;";
             } else {
-                urlsHtml += "<a href='" + url + "' class='urls'\>" + name + "</a>";
+                urlsHtml += "<a href='" + url + "' class='urls'\>" + name + "</a>&nbsp;&nbsp;";
             }
         });
 
-        // Name
-        var html = "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + serviceHtml + "</h3>";
-        html += "<button type='button' class='delete-button' title='Delete'></button>";
-        html += "<a href='admin/deploy/" + encodeURI(deploymentName) + ".zip' class='download-button' title='Download' \></a>";
-
-        // Date and time
-        let startedAt = new Date(service.startedTime);
-        html += "<div class='time' title='" + startedAt.toLocaleString() + "'>" + startedAt.toLocaleDateString() + "&nbsp;&nbsp;&nbsp;" + startedAt.toLocaleTimeString() + "</div>";
-
-        // Some useful info
-        html += "<ul class='errors' data-uri='admin/services/${servicePathURI}/errors'></ul>".replace("${servicePathURI}", servicePathURI);
-
-        html += urlsHtml;
+        var html = template.replace("${status}", service.status.toLowerCase())
+            .replaceAll("${serviceText}", serviceText)
+            .replaceAll("${serviceNameURI}", encodeURIComponent(service.name))
+            .replaceAll("${servicePathURI}", encodeURI(service.servicePath))
+            .replaceAll("${startedAt}", new Date(service.startedTime).toLocaleString())
+            .replaceAll("${urls}", urlsHtml)
+            .replaceAll("${deploymentNameURI}", encodeURI(deploymentName));
 
         return html;
     }
+
     // ]]>
 </script>
 </body>
