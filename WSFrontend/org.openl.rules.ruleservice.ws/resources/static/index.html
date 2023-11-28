@@ -121,20 +121,20 @@
             color: #666;
         }
 
-        #main > div {
+        .row {
             border-bottom: #cccccc dotted 1px;
             padding: 2px 0;
         }
 
-        #main > div:last-child {
+        .row:last-child {
             border: 0;
         }
 
-        #main > div:hover {
+        .row:hover {
             background-color: #f8f8f8;
         }
 
-        #main > div::before {
+        .row::before {
             counter-increment: index;
             content: counter(index);
             min-width: 20px;
@@ -249,8 +249,8 @@
         </div>
     </div>
 </div>
-<div id="main"></div>
-<div style="display: none" id="template">
+<div id="main" style="display: none;">
+<div class="row ${row-classes}">
     <span class="icon collapse ${status}" data-uri="admin/services/${servicePathURI}/errors"></span>
     <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
     <div class="right-block">
@@ -265,6 +265,7 @@
         </button>
     </div>
     <div class="errors"></div>
+</div>
 </div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
@@ -284,6 +285,8 @@
     // <![CDATA[
     "use strict";
     const mainBlock = document.getElementById("main");
+    const template = mainBlock.innerHTML;
+    mainBlock.innerHTML = "";
 
     function showAll(value) {
         if (value) {
@@ -331,7 +334,7 @@
             } else if (button.classList.contains("expand")) {
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
-            } else if (button.className === "delete-button") {
+            } else if (button.classList.contains("delete-button")) {
                 deleteProject(button.dataset.uri);
             }
         })
@@ -347,24 +350,29 @@
                 let bSp = b.servicePath.toUpperCase().split("/");
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
-            const template = document.getElementById("template").innerHTML;
+
             services.forEach(function (service) {
-                var el = document.createElement("DIV");
+
+                let hasSwagger = service.urls.RESTFUL != null;
+                if (hasSwagger) {
+                    delete service.urls.RESTFUL;
+                }
+                let html = createServiceHtml(template, service);
+                let el = document.createElement("DIV");
+                el.innerHTML = html;
+                el = el.firstElementChild;
                 if (service.hasManifest) {
                     el.classList.add("hasManifest");
                 }
-                if (service.urls.RESTFUL == null) {
+                if (!hasSwagger) {
                     el.classList.add("noSwagger");
-                } else {
-                    delete service.urls.RESTFUL;
                 }
-                var html = createServiceHtml(template, service);
-                el.innerHTML = html;
                 mainBlock.appendChild(el);
             });
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
         }
+        mainBlock.style.display = "";
     }
 
     function renderHeaderAndFooter(servicesResponse) {
