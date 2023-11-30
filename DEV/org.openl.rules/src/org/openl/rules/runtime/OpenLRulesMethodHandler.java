@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.runtime.OpenLMethodHandler;
@@ -36,12 +37,17 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
             StringBuilder output = null;
             if (LoggingHandler.isEnabled()) {
                 output = new StringBuilder();
-                output.append("Method: ").append(targetMethod.getDisplayName(0));
-                output.append("\nRuntime Context: ").append(LoggingHandler.convert(getRuntimeContext()));
+                var sourceClass = targetMethod.getDeclaringClass();
+                if (sourceClass instanceof XlsModuleOpenClass) {
+                    output.append("\tModule Name: ").append(((XlsModuleOpenClass) sourceClass).getModuleName())
+                            .append('\n');
+                }
+                output.append("\tMethod: ").append(targetMethod.getDisplayName(0));
+                output.append("\n\tRuntime Context: ").append(LoggingHandler.convert(getRuntimeContext()));
                 if (args.length == 1) {
                     output.append("\nArgs: ").append(LoggingHandler.convert(args[0]));
                 } else if (args.length > 1) {
-                    output.append("\nArgs: {");
+                    output.append("\n\tArgs: {");
                     for (int i = 0; i < args.length; i++) {
                         output.append('"')
                             .append(((IOpenMethod) targetMethod).getSignature().getParameterName(i))
@@ -68,9 +74,9 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
             }
             if (output != null) {
                 if (exception == null) {
-                    output.append("\nResult: ").append(LoggingHandler.convert(result));
+                    output.append("\n\tResult: ").append(LoggingHandler.convert(result));
                 } else {
-                    output.append("\nException: ").append(LoggingHandler.convert(exception));
+                    output.append("\n\tException: ").append(LoggingHandler.convert(exception));
                 }
                 LoggingHandler.log(output);
             }
