@@ -1,0 +1,119 @@
+name: Trivy
+
+on:
+  schedule:
+    # Every day at 24:00 UTC+3
+    - cron:  '0 21 * * *'
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      registry:
+        type: choice
+        description: 'Docker registry'
+        options:
+          - openltablets
+          - ghcr.io/openl-tablets
+        default: 'openltablets'
+      version:
+        description: 'Image version'
+        required: false
+
+env:
+  REGISTRY: ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
+  VERSION: ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
+
+run-name: Trivy scan for 
+  ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
+  ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
+
+jobs:
+  trivy:
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - demo
+          - webstudio
+          - ws
+          - ws-all
+        version:
+          - ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
+        exclude:
+          - image: ws-all
+            version: latest
+
+    runs-on: ubuntu-latest
+
+    env:
+      NAME: ${{ matrix.image == 'ws-all' && 'ws' || matrix.image }}
+      SUFFIX: ${{ matrix.image == 'ws-all' && '-all' || '' }}
+
+    name: ${{ matrix.image }}
+
+    container: ghcr.io/aquasecurity/trivy
+
+    steps:
+      - name: Run Trivy vulnerability scanner for ${{ env.IMAGE_REF }}
+        env:
+          IMAGE_REF: ${{ env.REGISTRY }}/${{ env.NAME }}:${{ env.VERSION }}${{ env.SUFFIX }}
+        run: >-
+          trivy image $IMAGE_REF
+          --output report.html
+          --format template
+          --template '
+            <body>
+            {{- if . }}
+              {{- range . }}
+                <details>
+                    <summary>{{ len .Vulnerabilities }} vulnerabilities in <code>{{ escapeXML .Target }}</code></summary>
+                    <table>
+                        <tr>
+                            <th>Package</th>
+                            <th>ID</th>
+                            <th>Severity</th>
+                            <th>Installed Version</th>
+                            <th>Fixed Version</th>
+                        </tr>
+                        {{- range .Vulnerabilities }}
+                        <tr>
+                            <td><code>{{ escapeXML .PkgName }}</code></td>
+                            <td>{{ escapeXML .VulnerabilityID }}</td>
+                            <td>{{ escapeXML .Severity }}</td>
+                            <td>{{ escapeXML .InstalledVersion }}</td>
+                            <td>{{ escapeXML .FixedVersion }}</td>
+                        </tr>
+                        {{- end }}
+                    </table>
+                </details>
+                {{- if not (eq (len .Misconfigurations ) 0) }}
+                <h4>Misconfigurations</h4>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>ID</th>
+                        <th>Check</th>
+                        <th>Severity</th>
+                        <th>Message</th>
+                    </tr>
+                    {{- range .Misconfigurations }}
+                    <tr>
+                        <td>{{ escapeXML .Type }}</td>
+                        <td>{{ escapeXML .ID }}</td>
+                        <td>{{ escapeXML .Title }}</td>
+                        <td>{{ escapeXML .Severity }}</td>
+                        <td>
+                          {{ escapeXML .Message }}
+                          <br><a href={{ escapeXML .PrimaryURL | printf "%q" }}>{{ escapeXML .PrimaryURL }}</a></br>
+                        </td>
+                    </tr>
+                    {{- end }}
+                </table>
+                {{- end }}
+              {{- end }}
+            {{- else }}
+                <h3>Trivy Returned Empty Report</h3>
+            {{- end }}
+            </body>
+            '
+          
+          cat report.html >> $GITHUB_STEP_SUMMARY
