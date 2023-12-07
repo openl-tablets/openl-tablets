@@ -136,6 +136,15 @@ public class String2DateConvertorTest {
             result = converter.parse("2021-01-01T01:01:01.000+00", null);
             assertEquals(createDate(2021, 1, 1, 3, 1, 1, 0), result);
 
+            result = converter.parse("2021-02-03T14:15:16.123+05", null);
+            assertEquals(createDate(2021, 2, 3, 11, 15, 16, 123), result);
+
+            result = converter.parse("2021-02-03T14:15:16.123+05:30", null);
+            assertEquals(createDate(2021, 2, 3, 10, 45, 16, 123), result);
+
+            result = converter.parse("2021-02-03T14:15:16.1239+00:00", null);
+            assertEquals(createDate(2021, 2, 3, 16, 15, 16, 123), result);
+
             result = converter.parse("2021-01-01T01:01:01.000+02", null);
             assertEquals(createDate(2021, 1, 1, 1, 1, 1, 0), result);
             // Day saving time
