@@ -56,8 +56,6 @@ public class DeployClasspathJarsBeanTest {
 
         // Finalize deployer initialization.
         classpathDeployer.afterPropertiesSet();
-        // Start deploy process
-        classpathDeployer.initializeDeploy();
 
         // Waiting until the deployer will finish its work.
         TimeUnit.SECONDS.sleep(4);
