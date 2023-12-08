@@ -121,7 +121,8 @@ public class S3Repository implements Repository, Closeable {
     public void initialize() {
         var builder = S3Client.builder();
         if (!StringUtils.isBlank(serviceEndpoint)) {
-            builder.endpointOverride(URI.create(serviceEndpoint)).region(Region.of(regionName));
+            builder.endpointOverride(URI.create(serviceEndpoint)).region(Region.of(regionName))
+                    .forcePathStyle(true);
         } else {
             builder.region(Region.of(regionName));
         }
