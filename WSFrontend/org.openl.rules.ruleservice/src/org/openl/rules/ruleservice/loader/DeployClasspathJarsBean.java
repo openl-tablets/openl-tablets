@@ -21,8 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -106,6 +104,9 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         if (archives != null) {
             processResources(archives);
         }
+
+        scheduledPool = Executors.newSingleThreadScheduledExecutor();
+        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     private static String createClasspathPattern(String fileName) {
@@ -127,8 +128,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
                 } else if ("file".equals(resourceURL.getProtocol())) {
                     file = org.springframework.util.ResourceUtils.getFile(resourceURL);
                 } else {
-                    throw new RuleServiceRuntimeException(
-                        "Protocol for URL is not supported! URL: " + resourceURL);
+                    throw new RuleServiceRuntimeException("Protocol for URL is not supported! URL: " + resourceURL);
                 }
             } catch (Exception e) {
                 log.error("Failed to load a resource.", e);
@@ -190,18 +190,6 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         } else {
             throw new IllegalStateException("Unknown deploy strategy: " + deployStrategy);
         }
-    }
-
-    /**
-     * Initialize deploying of JAR files to the remote repository after context readiness
-     */
-    @EventListener(ContextRefreshedEvent.class)
-    public void initializeDeploy() {
-        if (!isEnabled()) {
-            return;
-        }
-        scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     public boolean isDone() {

@@ -36,6 +36,7 @@ import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.DataSourceListener;
+import org.openl.rules.ruleservice.loader.DeploymentsUpdatedEvent;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 
 /**
  * Handles data source modifications and controls all services.
@@ -108,6 +110,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
+    @EventListener(DeploymentsUpdatedEvent.class)
     public void onDeploymentAdded() {
         log.info("Assembling services after data source modification.");
         processServices();

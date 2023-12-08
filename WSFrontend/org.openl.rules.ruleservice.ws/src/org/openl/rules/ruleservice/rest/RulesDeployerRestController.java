@@ -19,11 +19,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.openl.rules.ruleservice.loader.DeploymentsUpdatedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.management.ServiceManager;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
@@ -40,6 +42,9 @@ public class RulesDeployerRestController {
     @Autowired
     private ServiceManager serviceManager;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     /**
      * Deploys target zip input stream
      */
@@ -49,6 +54,7 @@ public class RulesDeployerRestController {
     public Response deploy(@Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
+            notifyDeploymentsUpdated();
             return Response.status(Status.CREATED).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -66,6 +72,7 @@ public class RulesDeployerRestController {
             @Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(deployPath, request.getInputStream(), true);
+            notifyDeploymentsUpdated();
             return Response.status(Status.CREATED).build();
         } catch (IllegalArgumentException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -111,6 +118,13 @@ public class RulesDeployerRestController {
         }
         boolean deleted = rulesDeployerService.delete(deploymentName,
             services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
+        if (deleted) {
+            notifyDeploymentsUpdated();
+        }
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
+    }
+
+    private void notifyDeploymentsUpdated() {
+        eventPublisher.publishEvent(new DeploymentsUpdatedEvent(this));
     }
 }
