@@ -10,8 +10,7 @@
     </bean>
 
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
-        <constructor-arg name="repository" ref="repository"/>
-        <constructor-arg name="baseDeployPath" value="${production-repository.base.path}"/>
+        <constructor-arg name="properties" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
