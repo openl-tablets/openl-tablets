@@ -1,28 +1,25 @@
 package org.openl.rules.repository.aws;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 
 class LazyFileData extends FileData {
     static final String METADATA_AUTHOR = "author";
     static final String METADATA_COMMENT = "comment";
 
-    private AmazonS3 s3;
+    private S3Client s3;
     private final String bucketName;
 
-    public LazyFileData(AmazonS3 s3, String bucketName) {
+    public LazyFileData(S3Client s3, String bucketName) {
         this.s3 = s3;
         this.bucketName = bucketName;
     }
@@ -52,12 +49,12 @@ class LazyFileData extends FileData {
     }
 
     private void verifyLoaded() {
-        AmazonS3 api = s3;
+        S3Client api = s3;
         if (api != null) {
-            GetObjectMetadataRequest request = new GetObjectMetadataRequest(bucketName, getName(), getVersion());
-            ObjectMetadata metadata = api.getObjectMetadata(request);
+            var request = HeadObjectRequest.builder().bucket(bucketName).key(getName()).versionId(getVersion()).build();
 
-            Map<String, String> userMetadata = metadata.getUserMetadata();
+            var response = api.headObject(request);
+            Map<String, String> userMetadata = response.metadata();
             super.setAuthor(new UserInfo(decode(userMetadata.get(METADATA_AUTHOR))));
             super.setComment(decode(userMetadata.get(METADATA_COMMENT)));
 
@@ -66,30 +63,16 @@ class LazyFileData extends FileData {
     }
 
     static String encode(String url) {
-        String encodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
-        try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8").replaceAll("\\+", "%20");
-        } catch (UnsupportedEncodingException e) {
-            Logger log = LoggerFactory.getLogger(LazyFileData.class);
-            log.error(e.getMessage(), e);
-        }
-        return encodedUrl;
+        return URLEncoder.encode(url, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
     }
 
     static String decode(String url) {
-        String decodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
-        try {
-            decodedUrl = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Logger log = LoggerFactory.getLogger(LazyFileData.class);
-            log.error(e.getMessage(), e);
-        }
-        return decodedUrl;
+        return URLDecoder.decode(url, StandardCharsets.UTF_8);
     }
 }

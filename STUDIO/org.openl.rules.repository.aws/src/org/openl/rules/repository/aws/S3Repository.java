@@ -3,9 +3,14 @@ package org.openl.rules.repository.aws;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -22,27 +27,39 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.CopyObjectResult;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3VersionSummary;
-import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
-import com.amazonaws.services.s3.model.VersionListing;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.BucketVersioningStatus;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteMarkerEntry;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.GetBucketVersioningRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectVersionsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.ObjectVersion;
+import software.amazon.awssdk.services.s3.model.PutBucketVersioningRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.VersioningConfiguration;
 
 public class S3Repository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);
 
     private static final String MODIFICATION_FILE = ".openl-settings/.modification";
+
+    private static final Comparator<FileData> FILE_DATA_COMPARATOR = Comparator.comparing(FileData::getModifiedAt);
 
     private String serviceEndpoint;
     private String bucketName;
@@ -52,7 +69,7 @@ public class S3Repository implements Repository, Closeable {
     private String sseAlgorithm;
     private int listenerTimerPeriod = 10;
 
-    private AmazonS3 s3;
+    private S3Client s3;
     private ChangesMonitor monitor;
     private String id;
     private String name;
@@ -95,42 +112,54 @@ public class S3Repository implements Repository, Closeable {
             monitor.release();
             monitor = null;
         }
+        if (s3 != null) {
+            s3.close();
+            s3 = null;
+        }
     }
 
     public void initialize() {
-        AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
+        var builder = S3Client.builder();
         if (!StringUtils.isBlank(serviceEndpoint)) {
-            builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, regionName));
+            builder.endpointOverride(URI.create(serviceEndpoint)).region(Region.of(regionName));
         } else {
-            builder.withRegion(regionName);
+            builder.region(Region.of(regionName));
         }
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
-            builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
+            builder.credentialsProvider(
+                StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)));
         } else {
-            builder.withCredentials(new DefaultAWSCredentialsProviderChain());
+            builder.credentialsProvider(DefaultCredentialsProvider.create());
         }
         s3 = builder.build();
 
         try {
-            if (!s3.doesBucketExistV2(bucketName)) {
-                s3.createBucket(bucketName);
+            try {
+                s3.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
+            } catch (NoSuchBucketException e) {
+                log.debug(e.getMessage(), e);
+                // If the bucket does not exist, create it
+                s3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
             }
             try {
-                String status = s3.getBucketVersioningConfiguration(bucketName).getStatus();
-                if (!BucketVersioningConfiguration.ENABLED.equals(status)) {
+                var verResp = s3.getBucketVersioning(GetBucketVersioningRequest.builder().bucket(bucketName).build());
+                if (BucketVersioningStatus.ENABLED != verResp.status()) {
                     try {
-                        s3.setBucketVersioningConfiguration(new SetBucketVersioningConfigurationRequest(bucketName,
-                            new BucketVersioningConfiguration(BucketVersioningConfiguration.ENABLED)));
-                    } catch (SdkClientException e) {
+                        s3.putBucketVersioning(PutBucketVersioningRequest.builder()
+                            .bucket(bucketName)
+                            .versioningConfiguration(
+                                VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
+                            .build());
+                    } catch (S3Exception | SdkClientException e) {
                         // Possibly don't have permission
-                        String message = "Bucket versioning status: " + status + ". Cannot enable versioning. Error message: " + e
-                            .getMessage();
-                        log.warn(message);
+                        log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
+                            verResp.status(),
+                            e.getMessage());
                     }
                 }
-            } catch (SdkClientException e) {
+            } catch (S3Exception | SdkClientException e) {
                 // Possibly don't have permission
-                log.warn("Cannot detect bucket versioning configuration.");
+                log.warn("Cannot detect bucket versioning configuration: {}.", e.getMessage());
             }
         } catch (SdkClientException e) {
             log.warn("Failed to initialize a repository", e);
@@ -143,16 +172,16 @@ public class S3Repository implements Repository, Closeable {
     public void validateConnection() throws IOException {
         try {
             // Check the connection
-            s3.listObjectsV2(bucketName);
+            s3.listObjectsV2(ListObjectsV2Request.builder().bucket(bucketName).build());
         } catch (Exception e) {
             throw new IOException(e);
         }
         try {
-            String status = s3.getBucketVersioningConfiguration(bucketName).getStatus();
-            if (!BucketVersioningConfiguration.ENABLED.equals(status)) {
+            var verResp = s3.getBucketVersioning(GetBucketVersioningRequest.builder().bucket(bucketName).build());
+            if (!BucketVersioningStatus.ENABLED.equals(verResp.status())) {
                 throw new IOException("Versioning for the bucket is not enabled");
             }
-        } catch (SdkClientException e) {
+        } catch (S3Exception | SdkClientException e) {
             // Possibly don't have permission
             log.warn("Cannot detect bucket versioning configuration.", e);
         }
@@ -180,22 +209,28 @@ public class S3Repository implements Repository, Closeable {
     public List<FileData> list(String path) throws IOException {
         try {
             List<FileData> result = new ArrayList<>();
-
-            VersionListing versionListing = null;
-
+            var request = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(path);
             do {
-                versionListing = versionListing == null ? s3.listVersions(bucketName, path)
-                                                        : s3.listNextBatchOfVersions(versionListing);
-                List<S3VersionSummary> versionSummaries = versionListing.getVersionSummaries();
-                if (versionSummaries.isEmpty()) {
-                    return result;
-                }
-                for (S3VersionSummary versionSummary : versionSummaries) {
+                var response = s3.listObjectVersions(request.build());
+                var versionSummaries = response.versions();
+                for (var versionSummary : versionSummaries) {
                     if (versionSummary.isLatest()) {
                         result.add(createFileData(versionSummary));
                     }
                 }
-            } while (versionListing.isTruncated());
+                for (var deleteMarkers : response.deleteMarkers()) {
+                    if (deleteMarkers.isLatest()) {
+                        result.add(createFileData(deleteMarkers));
+                    }
+                }
+
+                if (response.isTruncated()) {
+                    request.keyMarker(response.nextKeyMarker());
+                    request.versionIdMarker(response.nextVersionIdMarker());
+                } else {
+                    request = null;
+                }
+            } while (request != null);
 
             return result;
         } catch (SdkClientException e) {
@@ -203,48 +238,50 @@ public class S3Repository implements Repository, Closeable {
         }
     }
 
-    private FileData createFileData(S3VersionSummary latest) {
-        FileData data = latest.isDeleteMarker() ? new FileData() : new LazyFileData(s3, bucketName);
-        data.setName(latest.getKey());
-        data.setSize(latest.getSize());
-        data.setModifiedAt(latest.getLastModified());
-        data.setVersion(latest.getVersionId());
-        data.setDeleted(latest.isDeleteMarker());
+    private FileData createFileData(ObjectVersion latest) {
+        var data = new LazyFileData(s3, bucketName);
+        data.setName(latest.key());
+        data.setSize(latest.size());
+        data.setModifiedAt(Date.from(latest.lastModified()));
+        data.setVersion(latest.versionId());
+        return data;
+    }
+
+    private FileData createFileData(DeleteMarkerEntry latest) {
+        var data = new FileData();
+        data.setName(latest.key());
+        data.setModifiedAt(Date.from(latest.lastModified()));
+        data.setVersion(latest.versionId());
+        data.setDeleted(true);
         return data;
     }
 
     @Override
     public FileData check(String name) throws IOException {
         try {
-            VersionListing versionListing = null;
-
-            S3VersionSummary latest = null;
-
+            var request = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(name);
             do {
-                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
-                                                        : s3.listNextBatchOfVersions(versionListing);
-                List<S3VersionSummary> versionSummaries = versionListing.getVersionSummaries();
-                if (versionSummaries.isEmpty()) {
-                    return null;
-                }
-                for (S3VersionSummary versionSummary : versionSummaries) {
-                    if (versionSummary.getKey().equals(name) && versionSummary.isLatest()) {
-                        latest = versionSummary;
-                        break;
+                var response = s3.listObjectVersions(request.build());
+                var versionSummaries = response.versions();
+                for (var versionSummary : versionSummaries) {
+                    if (versionSummary.isLatest() && Objects.equals(versionSummary.key(), name)) {
+                        return createFileData(versionSummary);
                     }
                 }
-            } while (versionListing.isTruncated());
-
-            if (latest == null) {
-                // Should never occur. But if occurred, get last version in the list
-                List<S3VersionSummary> summaries = versionListing.getVersionSummaries();
-                if (summaries.isEmpty()) {
-                    return null;
+                for (var deleteMarker : response.deleteMarkers()) {
+                    if (deleteMarker.isLatest() && Objects.equals(deleteMarker.key(), name)) {
+                        return createFileData(deleteMarker);
+                    }
                 }
-                latest = summaries.get(0);
-            }
+                if (response.isTruncated()) {
+                    request.keyMarker(response.nextKeyMarker());
+                    request.versionIdMarker(response.nextVersionIdMarker());
+                } else {
+                    request = null;
+                }
+            } while (request != null);
 
-            return createFileData(latest);
+            return null;
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
@@ -253,62 +290,68 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public FileItem read(String name) throws IOException {
         try {
-            FileData fileData = check(name);
-            if (fileData == null) {
+            var fileData = check(name);
+            if (fileData == null || fileData.isDeleted()) {
                 return null;
             }
-            InputStream objectContent = null;
-            if (!fileData.isDeleted()) {
-                S3Object object = s3.getObject(bucketName, name);
-                objectContent = object.getObjectContent();
-            }
-            return objectContent == null ? null : new FileItem(fileData, new DrainableInputStream(objectContent));
+            return new FileItem(fileData, new DrainableInputStream(doRead(name, null)));
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
     }
 
+    private InputStream doRead(String name, String versionId) {
+        var request = GetObjectRequest.builder().bucket(bucketName).key(name).versionId(versionId).build();
+        return s3.getObject(request);
+    }
+
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
         try {
-            ObjectMetadata metaData = createInsertFileMetadata(data);
-
-            s3.putObject(bucketName, data.getName(), stream, metaData);
-
+            doSave(data, stream);
             onModified();
-
             return check(data.getName());
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
     }
 
-    private ObjectMetadata createInsertFileMetadata(FileData data) {
-        ObjectMetadata metaData = new ObjectMetadata();
-        metaData.setContentType("application/zip");
+    private void doSave(FileData data, InputStream stream) {
+        var request = PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(data.getName())
+            .metadata(createInsertFileMetadata(data))
+            .build();
+
+        s3.putObject(request, RequestBody.fromInputStream(stream, data.getSize()));
+    }
+
+    private Map<String, String> createInsertFileMetadata(FileData data) {
+        Map<String, String> userMetadata = new HashMap<>();
+
+        userMetadata.put("Content-Type", "application/zip");
+
         if (!StringUtils.isBlank(sseAlgorithm)) {
-            metaData.setSSEAlgorithm(sseAlgorithm);
+            userMetadata.put("sseAlgorithm", sseAlgorithm);
         }
-        if (data.getSize() != FileData.UNDEFINED_SIZE) {
-            metaData.setContentLength(data.getSize());
-        }
+
         String username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
         if (!StringUtils.isBlank(username)) {
-            metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(username));
+            userMetadata.put(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(username));
         }
+
         if (!StringUtils.isBlank(data.getComment())) {
-            metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
+            userMetadata.put(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));
         }
-        return metaData;
+
+        return userMetadata;
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         try {
             for (FileItem fileItem : fileItems) {
-                FileData data = fileItem.getData();
-                ObjectMetadata metaData = createInsertFileMetadata(data);
-                s3.putObject(bucketName, data.getName(), fileItem.getStream(), metaData);
+                doSave(fileItem.getData(), fileItem.getStream());
             }
         } catch (SdkClientException e) {
             throw new IOException(e);
@@ -324,7 +367,8 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public boolean delete(FileData data) throws IOException {
         try {
-            s3.deleteObject(bucketName, data.getName());
+            var request = DeleteObjectRequest.builder().bucket(bucketName).key(data.getName()).build();
+            s3.deleteObject(request);
             onModified();
             return true;
         } catch (SdkClientException e) {
@@ -340,7 +384,8 @@ public class S3Repository implements Repository, Closeable {
         }
         for (FileData f : data) {
             try {
-                s3.deleteObject(bucketName, f.getName());
+                var request = DeleteObjectRequest.builder().bucket(bucketName).key(f.getName()).build();
+                s3.deleteObject(request);
             } catch (SdkClientException e) {
                 log.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
@@ -361,10 +406,18 @@ public class S3Repository implements Repository, Closeable {
 
         @Override
         public Object getRevision() {
-            FileData fileData;
             try {
-                fileData = check(MODIFICATION_FILE);
-                return fileData == null ? null : fileData.getVersion();
+                var fileData = check(MODIFICATION_FILE);
+                if (fileData == null) {
+                    log.warn("Failed to detect changes. '{}' is not found.", MODIFICATION_FILE);
+                    return null;
+                }
+                String version = fileData.getVersion();
+                Object revision = version;
+                if (StringUtils.isBlank(version) || "null".equalsIgnoreCase(version)) {
+                    revision = fileData.getModifiedAt();
+                }
+                return revision;
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
                 return null;
@@ -376,23 +429,29 @@ public class S3Repository implements Repository, Closeable {
     public List<FileData> listHistory(String name) throws IOException {
         try {
             List<FileData> result = new ArrayList<>();
-            VersionListing versionListing = null;
 
+            var request = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(name);
             do {
-                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
-                                                        : s3.listNextBatchOfVersions(versionListing);
-                for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    if (versionSummary.getKey().equals(name)) {
-                        result.add(createFileData(versionSummary));
+                var response = s3.listObjectVersions(request.build());
+                for (ObjectVersion version : response.versions()) {
+                    if (version.key().equals(name)) {
+                        result.add(createFileData(version));
                     }
                 }
-            } while (versionListing.isTruncated());
+                for (DeleteMarkerEntry deleteMarkers : response.deleteMarkers()) {
+                    if (deleteMarkers.key().equals(name)) {
+                        result.add(createFileData(deleteMarkers));
+                    }
+                }
+                if (response.isTruncated()) {
+                    request.keyMarker(response.nextKeyMarker());
+                    request.versionIdMarker(response.nextVersionIdMarker());
+                } else {
+                    request = null;
+                }
+            } while (request != null);
 
-            // OpenL expects that the last element in the list is last version.
-            // AWS S3 returns last version first and older versions later.
-            // So we reverse result to convert AWS S3 order to OpenL.
-            Collections.reverse(result);
-
+            result.sort(FILE_DATA_COMPARATOR);
             return result;
         } catch (SdkClientException e) {
             throw new IOException(e);
@@ -402,17 +461,26 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
         try {
-            VersionListing versionListing = null;
-
+            var request = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(name);
             do {
-                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
-                                                        : s3.listNextBatchOfVersions(versionListing);
-                for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
+                var response = s3.listObjectVersions(request.build());
+                for (ObjectVersion versionSummary : response.versions()) {
+                    if (versionSummary.key().equals(name) && versionSummary.versionId().equals(version)) {
                         return createFileData(versionSummary);
                     }
                 }
-            } while (versionListing.isTruncated());
+                for (DeleteMarkerEntry deleteMarkers : response.deleteMarkers()) {
+                    if (deleteMarkers.key().equals(name) && deleteMarkers.versionId().equals(version)) {
+                        return createFileData(deleteMarkers);
+                    }
+                }
+                if (response.isTruncated()) {
+                    request.keyMarker(response.nextKeyMarker());
+                    request.versionIdMarker(response.nextVersionIdMarker());
+                } else {
+                    request = null;
+                }
+            } while (request != null);
 
             return null;
         } catch (SdkClientException e) {
@@ -423,24 +491,22 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
         try {
-            VersionListing versionListing = null;
-
+            var request = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(name);
             do {
-                versionListing = versionListing == null ? s3.listVersions(bucketName, name)
-                                                        : s3.listNextBatchOfVersions(versionListing);
-                for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                    if (versionSummary.getKey().equals(name) && versionSummary.getVersionId().equals(version)) {
-                        InputStream content = null;
-                        if (!versionSummary.isDeleteMarker()) {
-                            S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
-                            content = object.getObjectContent();
-                        }
-                        return content == null ? null
-                                               : new FileItem(checkHistory(name, version),
-                                                   new DrainableInputStream(content));
+                var response = s3.listObjectVersions(request.build());
+                for (var versionSummary : response.versions()) {
+                    if (versionSummary.key().equals(name) && versionSummary.versionId().equals(version)) {
+                        return new FileItem(checkHistory(name, version),
+                            new DrainableInputStream(doRead(name, version)));
                     }
                 }
-            } while (versionListing.isTruncated());
+                if (response.isTruncated()) {
+                    request.keyMarker(response.nextKeyMarker());
+                    request.versionIdMarker(response.nextVersionIdMarker());
+                } else {
+                    request = null;
+                }
+            } while (request != null);
 
             return null;
         } catch (SdkClientException e) {
@@ -456,9 +522,9 @@ public class S3Repository implements Repository, Closeable {
         try {
             if (version == null) {
                 deleteAllVersions(name);
-
             } else {
-                s3.deleteVersion(bucketName, name, version);
+                var request = DeleteObjectRequest.builder().bucket(bucketName).key(name).versionId(version).build();
+                s3.deleteObject(request);
             }
             onModified();
             return true;
@@ -471,33 +537,34 @@ public class S3Repository implements Repository, Closeable {
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
-            CopyObjectRequest request = new CopyObjectRequest(bucketName,
-                srcName,
-                version,
-                bucketName,
-                destData.getName());
-            CopyObjectResult result = s3.copyObject(request);
+            var request = CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(srcName)
+                .sourceVersionId(version)
+                .destinationBucket(bucketName)
+                .destinationKey(destData.getName())
+                .build();
 
+            var response = s3.copyObject(request);
             onModified();
-
-            return checkHistory(destData.getName(), result.getVersionId());
+            return checkHistory(destData.getName(), response.versionId());
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
     }
 
     @Override
-    public List<FileData> listFolders(String path) throws IOException {
+    public List<FileData> listFolders(String path) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<FileData> listFiles(String path, String version) throws IOException {
+    public List<FileData> listFiles(String path, String version) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) {
         throw new UnsupportedOperationException();
     }
 
@@ -511,14 +578,17 @@ public class S3Repository implements Repository, Closeable {
         deleteAllVersions(MODIFICATION_FILE);
 
         // Create new version of modification marker file with new id
-        ObjectMetadata metaData = new ObjectMetadata();
-        metaData.setContentLength(0);
-
+        var metadataMap = new HashMap<String, String>();
         if (StringUtils.isNotBlank(sseAlgorithm)) {
-            metaData.setSSEAlgorithm(sseAlgorithm);
+            metadataMap.put("sseAlgorithm", sseAlgorithm);
         }
 
-        s3.putObject(bucketName, MODIFICATION_FILE, InputStream.nullInputStream(), metaData);
+        var request = PutObjectRequest.builder()
+            .bucket(bucketName)
+            .key(MODIFICATION_FILE)
+            .metadata(metadataMap)
+            .build();
+        s3.putObject(request, RequestBody.empty());
 
         // Invoke listener if exist
         if (monitor != null) {
@@ -527,16 +597,35 @@ public class S3Repository implements Repository, Closeable {
     }
 
     private void deleteAllVersions(String name) {
-        VersionListing versionListing = null;
-
+        var listVersionsRequest = ListObjectVersionsRequest.builder().bucket(bucketName).prefix(name);
         do {
-            versionListing = versionListing == null ? s3.listVersions(bucketName, name)
-                                                    : s3.listNextBatchOfVersions(versionListing);
-            for (S3VersionSummary versionSummary : versionListing.getVersionSummaries()) {
-                if (versionSummary.getKey().equals(name)) {
-                    s3.deleteVersion(bucketName, name, versionSummary.getVersionId());
+            var response = s3.listObjectVersions(listVersionsRequest.build());
+
+            var versions = new ArrayList<ObjectIdentifier>();
+            for (var version : response.versions()) {
+                if (version.key().equals(name)) {
+                    versions.add(ObjectIdentifier.builder().key(name).versionId(version.versionId()).build());
                 }
             }
-        } while (versionListing.isTruncated());
+            for (var deleteMarker : response.deleteMarkers()) {
+                if (deleteMarker.key().equals(name)) {
+                    versions.add(ObjectIdentifier.builder().key(name).versionId(deleteMarker.versionId()).build());
+                }
+            }
+            if (!versions.isEmpty()) {
+                var batchDeleteRequest = DeleteObjectsRequest.builder()
+                    .bucket(bucketName)
+                    .delete(Delete.builder().objects(versions).build())
+                    .build();
+                s3.deleteObjects(batchDeleteRequest);
+            }
+
+            if (response.isTruncated()) {
+                listVersionsRequest.keyMarker(response.nextKeyMarker());
+                listVersionsRequest.versionIdMarker(response.nextVersionIdMarker());
+            } else {
+                listVersionsRequest = null;
+            }
+        } while (listVersionsRequest != null);
     }
 }

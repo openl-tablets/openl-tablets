@@ -139,7 +139,7 @@
         <jetty.version>10.0.18</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.604</amazonaws.version>
+        <amazonaws.version>2.21.40</amazonaws.version>
         <azure.version>12.25.0</azure.version>
         <jgit.version>6.8.0.202311291450-openl</jgit.version>
 
@@ -1352,14 +1352,33 @@
                 <version>${hessian.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
                 <version>${amazonaws.version}</version>
+                <exclusions>
+                    <!-- Classes from the following dependency are duplicated by spring-jcl
+                    @see https://github.com/spring-projects/spring-framework/issues/20611
+                    -->
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>software.amazon.awssdk</groupId>
+                        <artifactId>netty-nio-client</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-sts</artifactId>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>sts</artifactId>
                 <version>${amazonaws.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>software.amazon.awssdk</groupId>
+                        <artifactId>netty-nio-client</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.azure</groupId>
