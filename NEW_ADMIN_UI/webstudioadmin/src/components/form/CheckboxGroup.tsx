@@ -7,58 +7,55 @@ type CheckboxProps = {
   name: string,
   option: string,
   fields: any
-}
+};
 
 type CheckboxGroupProps = {
   name: string,
   options: string[]
-}
+};
 const CheckboxGroup: FC<CheckboxGroupProps> = ({
-  name,
-  options = [],
-}) => {
-  return (
+    name,
+    options = [],
+}) => (
     <FieldArray name={name}>
-      {({ fields }) => {
-          return (
-              <Row>
-                {options.map(option => (
-                  <Checkbox
-                    name={name}
-                    key={option}
-                    fields={fields}
-                    option={option}
-                  />
-                )
-                )}
+        {({ fields }) => (
+            <Row>
+                {options.map((option) => (
+                    <Checkbox
+                        key={option}
+                        fields={fields}
+                        name={name}
+                        option={option}
+                    />
+                ))}
 
-              </Row>
-          )}}
+            </Row>
+        )}
 
     </FieldArray>
-  )}
-
+)
 
 const Checkbox: FC<CheckboxProps> = ({ name, fields, option }) => {
-  const isChecked = useMemo(() => fields.value.includes(option), [fields.value]);
+    const isChecked = useMemo(() => fields.value.includes(option), [ fields.value, option ])
 
-  const toggleCheckbox = (event: CheckboxChangeEvent) => {
-    if (event.target.checked) {
-      fields.push(option);
+    const toggleCheckbox = (event: CheckboxChangeEvent) => {
+        if (event.target.checked) {
+            fields.push(option)
+        } else {
+            const optionIndex = fields.value.indexOf(option)
+            if (optionIndex > -1) {
+                fields.remove(optionIndex)
+            }
+        }
     }
-    else {
-      const optionIndex = fields.value.indexOf(option);
-      if (optionIndex > -1) {
-        fields.remove(optionIndex);
-      }
-    }
-  }
 
-  return (
-      <Col span={8} key={option}>
-        <AntdCheckbox name={name} checked={isChecked} onChange={toggleCheckbox}>{option}</AntdCheckbox>
-      </Col>
-  )
+    return (
+        <Col key={option} span={8}>
+            <AntdCheckbox checked={isChecked} name={name} onChange={toggleCheckbox}>
+                {option}
+            </AntdCheckbox>
+        </Col>
+    )
 }
 
 export default CheckboxGroup

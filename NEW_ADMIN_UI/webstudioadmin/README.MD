@@ -1,49 +1,27 @@
-# webstudioadmin
+# WebStudio Admin UI
 
-<div align="center" style="margin: 30px;">
-    <a href="https://refine.dev">
-    <img src="https://refine.ams3.cdn.digitaloceanspaces.com/refine_logo.png"  align="center" />
-    </a>
-</div>
-<br/>
+## Project source structure
 
-This [refine](https://github.com/pankod/refine) project was generated with [superplate](https://github.com/pankod/refine).
+- `components/`: This directory contains shared or generic UI components that can be used across your application.
+- `constants/`: This directory contains constants that are used across your application.
+- `containers/`: This directory is used to group your stateful container components if you're using Redux or a similar state management library.
+- `hooks/`: This directory contains custom React hooks.
+- `layouts/`: This directory contains components that dictate the major page structure.
+- `pages/`: This directory contains components that are directly used as routes. These are the top-level components, each corresponding to a different route in your application.
+- `routes/`: This directory contains all the route definitions for your application.
+- `services/`: This directory contains service utilities, such as API clients or other services that you use to perform the main business logic.
+- `store/`: This directory contains Redux-specific pieces, such as actions and reducers.
+- `utils/`: This directory contains utility functions that can be used across your application.
 
-## Getting Started
 
-**refine** is a React-based framework for building data-intensive applications in no time ✨
+### Installing dependencies.
 
-Refine offers lots of out-of-the box functionality for rapid development, without compromising extreme customizability. Use-cases include, but are not limited to admin panels, B2B applications and dashboards.
-
-## Available Scripts
+```bash
+    npm install
+```
 
 ### Running the development server.
 
 ```bash
-    npm run dev
-```
-
-### Building for production.
-
-```bash
-    npm run build
-```
-
-### Running the production server.
-
-```bash
     npm run start
 ```
-
-## Learn More
-
-To learn more about **refine**, please check out the [Documentation](https://refine.dev/docs)
-
-- **Ant Design** [Docs](https://refine.dev/docs/ui-frameworks/antd/tutorial/)
-- **React Router** [Docs](https://refine.dev/docs/core/providers/router-provider/)
-- **REST Data Provider** [Docs](https://refine.dev/docs/core/providers/data-provider/#overview)
-
-
-## License
-
-MIT
