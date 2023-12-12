@@ -170,6 +170,8 @@
         <datasource-proxy.version>1.9</datasource-proxy.version>
         <xmlunit.version>2.9.1</xmlunit.version>
         <testcontainers.version>1.19.3</testcontainers.version>
+        <minio.version>8.5.7</minio.version>
+        <system-rules.version>1.19.0</system-rules.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- javax & Jakarta APIs -->
@@ -687,6 +689,18 @@
                         <artifactId>cassandra-driver-core</artifactId>
                     </exclusion>
                 </exclusions>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>minio</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
