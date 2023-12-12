@@ -94,7 +94,7 @@ public class VerifyMojo extends BaseOpenLMojo {
 
         // Remove log4j due LOG4J2-3657 and needeless to log to the file.
         openlJars.remove("org.apache.logging.log4j:log4j-core");
-        openlJars.remove("org.apache.logging.log4j:log4j-slf4j-impl");
+        openlJars.remove("org.apache.logging.log4j:log4j-slf4j2-impl");
 
         var world = new ClassWorld();
         var jettyClassLoader = world.newRealm("jetty");
