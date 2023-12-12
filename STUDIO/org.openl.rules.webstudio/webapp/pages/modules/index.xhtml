@@ -1065,6 +1065,10 @@
                         projectName = projectName.substring(0, queryIndex);
                     }
                     let repoEndIdx = projectName.indexOf("/");
+                    let secondSlashIndex = projectName.substring(repoEndIdx + 1).indexOf("/");
+                    if (secondSlashIndex >= 0) {
+                        projectName = projectName.substring(0, repoEndIdx + secondSlashIndex + 1);
+                    }
                     let repoId = projectName.substring(0, repoEndIdx);
                     projectName = projectName.substring(repoEndIdx + 1);
 
