@@ -4,26 +4,23 @@
 
 <html
     xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
     xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
-    <h:head>
-        <title><h:outputText value="#{param.title}" /></title>
+    <head>
+        <title>Trace</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
         <link rel="icon" href="#{contextPath}/icons/favicon.ico" sizes="48x48" />
         <link rel="icon" href="#{contextPath}/icons/favicon.svg" sizes="any" type="image/svg+xml"/>
         <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png"/>
         <link rel="manifest" href="#{contextPath}/icons/site.webmanifest" />
-    </h:head>
+    </head>
 
-    <frameset cols="#{treeViewBean.pagesWidth}">
-        <frame name="leftFrame" src="#{contextPath}/#{treeViewBean.treePage}" scrolling="auto" />
-
-        <frame name="#{empty param.mainframe ? 'mainFrame' : param.mainframe}"
-            src="#{contextPath}/#{treeViewBean.mainPage}" scrolling="auto" />
+    <frameset cols="*,65%">
+        <frame name="leftFrame" src="#{contextPath}/faces/pages/modules/trace/tree.xhtml" scrolling="auto" />
+        <frame name="mainFrame" src="#{contextPath}faces/pages/modules/trace/showTraceTable.xhtml" scrolling="auto" />
     </frameset>
 
 </html>
