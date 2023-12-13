@@ -136,9 +136,6 @@ echo.
 @setlocal
 @pushd %~dp0
 
-@rem Apply security policy for demo
-@if exist demo-java.policy set JETTY_OPT=-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%SystemRoot%\Sun\Java\lib\ext
-
 @rem Init Default repository
 @if not defined OPENL_HOME (
   @if exist %userprofile%\Desktop\OpenL_Home (
