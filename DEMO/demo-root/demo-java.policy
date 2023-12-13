@@ -116,6 +116,8 @@ grant codeBase "file:${jetty.home}/webapps/webstudio/-" {
         permission java.net.NetPermission "getProxySelector";
         permission java.security.SecurityPermission "insertProvider.BC";
         permission java.security.SecurityPermission "putProviderProperty.BC";
+        permission java.lang.RuntimePermission "manageProcess";
+        permission java.lang.RuntimePermission "manageProcess";
 
         //app server
         permission java.net.NetPermission "specifyStreamHandler";
