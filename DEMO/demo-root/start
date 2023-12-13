@@ -50,10 +50,6 @@ if [[ "$CONTAINER" != "true" ]]; then
   fi
 fi
 
-
-# Java extensions can be outside of JAVA_HOME. Needed for security manager
-[[ -f demo-java.policy ]] && JETTY_OPTS="-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=/usr/java/packages/lib/ext"
-
 # Init Default repository
 if [[ -z "$OPENL_HOME" ]]; then
   if [[ -d "$HOME/Desktop/OpenL_Home" ]] ; then
