@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.openl.util.CollectionUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +20,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePropertySource;
 
 /**
  * Application properties can be get as combinations of locations and names. If a location is a folder then it is
@@ -87,8 +89,8 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private final String appName;
     private final String[] profiles;
     private final PropertyResolver resolver;
-    private final LinkedList<EnumerablePropertySource> source = new LinkedList<>();
-    private final LinkedList<EnumerablePropertySource<?>> profiledSource = new LinkedList<>();
+    private final Map<String, String> source = new HashMap<>();
+    private final Map<String, String> profiledSource = new HashMap<>();
 
     ApplicationPropertySource(PropertyResolver resolver, String appName, String... profiles) {
         super(PROPS_NAME, new LinkedList<>());
@@ -141,33 +143,27 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
                 ConfigLog.LOG.debug("- No app name: '{}'", location);
             } else {
                 location = location.replace(APP_NAME_TAG, appName);
-                addLocation(location, true);
+            }
+        }
+        if (location.contains(PROFILE_TAG)) {
+            if (CollectionUtils.isEmpty(profiles)) {
+                ConfigLog.LOG.debug("- No profiles: '{}'", location);
+            } else {
+                for (String profile : profiles) {
+                    addLocation(location.replace(PROFILE_TAG, profile), true);
+                }
             }
         } else {
             addLocation(location, false);
         }
     }
 
-    private void addLocation(String location, boolean appNameResolved) {
-        if (location.contains(PROFILE_TAG)) {
-            if (CollectionUtils.isEmpty(profiles)) {
-                ConfigLog.LOG.debug("- No profiles: '{}'", location);
-            } else {
-                for (String profile : profiles) {
-                    addLocation(location.replace(PROFILE_TAG, profile), appNameResolved, true);
-                }
-            }
-        } else {
-            addLocation(location, appNameResolved, false);
-        }
-    }
-
-    private void addLocation(String location, boolean appNameResolved, boolean isProfiled) {
+    private void addLocation(String location, boolean isProfiled) {
         Resource[] resources;
         try {
             resources = new PathMatchingResourcePatternResolver().getResources(location);
         } catch (IOException e) {
-            ConfigLog.LOG.debug("!     Error: '{}'", new Object[] { location, e });
+            ConfigLog.LOG.debug("!     Error: '{}'", location, e);
             return;
         }
         if (CollectionUtils.isEmpty(resources)) {
@@ -181,25 +177,17 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         for (Resource resource : resources) {
             try {
                 if (resource.exists()) {
-                    EnumerablePropertySource<?> propertySource;
-                    if (appNameResolved || StringUtils.isBlank(appName)) {
-                        propertySource = new ResourcePropertySource(resource);
-                    } else {
-                        propertySource = new ResourcePropertySource(resource) {
-                            @Override
-                            public Object getProperty(String name) {
-                                // get the first appName.property.name, and then property.name
-                                Object property = super.getProperty(appName + "." + name);
-                                return property != null ? property : super.getProperty(name);
-                            }
-                        };
+                    Map<String, String> props = new HashMap<>();
+                    try( var in = resource.getInputStream()) {
+                        PropertiesUtils.load(in, props::put);
                     }
                     if (isProfiled) {
-                        profiledSource.addFirst(propertySource);
+                        profiledSource.putAll(props);
                     } else {
-                        source.addFirst(propertySource);
+                        source.putAll(props);
                     }
-                    ConfigLog.LOG.info("+       Load: [{}] '{}' ({} properties)", location, getInfo(resource), propertySource.getPropertyNames().length);
+                    ConfigLog.LOG.info("+       Load: [{}] '{}' ({} properties)", location, getInfo(resource), props.size());
+
                 } else {
                     ConfigLog.LOG.debug("- Not exist: [{}] '{}'", location, getInfo(resource));
                 }
@@ -222,45 +210,23 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     }
 
     private Object getPropertyInternal(String name) {
-        for (PropertySource<?> propertySource : profiledSource) {
-            Object candidate = propertySource.getProperty(name);
-            if (candidate != null) {
-                return candidate;
-            }
+        Object candidate = profiledSource.get(name);
+        if (candidate != null) {
+            return candidate;
         }
-        for (PropertySource<?> propertySource : source) {
-            Object candidate = propertySource.getProperty(name);
-            if (candidate != null) {
-                return candidate;
-            }
-        }
-        return null;
+        return source.get(name);
     }
 
     @Override
     public boolean containsProperty(String name) {
-        for (PropertySource<?> propertySource : profiledSource) {
-            if (propertySource.containsProperty(name)) {
-                return true;
-            }
-        }
-        for (PropertySource<?> propertySource : source) {
-            if (propertySource.containsProperty(name)) {
-                return true;
-            }
-        }
-        return false;
+        return profiledSource.containsKey(name) || source.containsKey(name);
     }
 
     @Override
     public String[] getPropertyNames() {
-        Set<String> names = new LinkedHashSet<>();
-        for (EnumerablePropertySource<?> propertySource : profiledSource) {
-            names.addAll(Arrays.asList(propertySource.getPropertyNames()));
-        }
-        for (EnumerablePropertySource<?> propertySource : source) {
-            names.addAll(Arrays.asList(propertySource.getPropertyNames()));
-        }
-        return names.toArray(new String[0]);
+        Set<String> names = new TreeSet<>();
+        names.addAll(profiledSource.keySet());
+        names.addAll(source.keySet());
+        return names.toArray(StringUtils.EMPTY_STRING_ARRAY);
     }
 }
