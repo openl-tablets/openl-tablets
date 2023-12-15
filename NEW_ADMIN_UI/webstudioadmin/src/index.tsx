@@ -4,7 +4,12 @@ import { createRoot } from 'react-dom/client'
 import reportWebVitals from './reportWebVitals'
 import App from './App'
 
-const container = document.getElementById('root') as HTMLElement
+import './i18n_init'
+import './i18n'
+
+import './index.scss'
+
+const container = document.getElementById('admin_ui_root') as HTMLElement
 const root = createRoot(container)
 
 root.render(

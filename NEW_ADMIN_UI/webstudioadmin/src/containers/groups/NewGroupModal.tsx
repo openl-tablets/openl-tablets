@@ -157,22 +157,22 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
 
     return (
         <div>
-            <Button style={{ marginTop: 15, color: 'green', borderColor: 'green' }} onClick={showModal}>
+            <Button onClick={showModal} style={{ marginTop: 15, color: 'green', borderColor: 'green' }}>
                 Add new group
             </Button>
             <Modal
                 className="new-group-modal"
+                onCancel={hideModal}
+                open={isModalOpen}
+                title="Create new group"
+                width={850}
                 footer={[
                     <Button key="back" onClick={hideModal}>
                         Cancel
                     </Button>,
-                    <Button key="submit" style={{ marginTop: 15, color: 'green', borderColor: 'green' }} onClick={handleSubmit}>
+                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: 'green', borderColor: 'green' }}>
                         Create
                     </Button> ]}
-                open={isModalOpen}
-                title="Create new group"
-                width={850}
-                onCancel={hideModal}
             >
                 <div>
                     <Form layout="vertical" style={{ width: 800 }}>
@@ -180,10 +180,10 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                             <b>Account</b>
                         </Form.Item>
                         <Form.Item label="Name">
-                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+                            <Input id="name" onChange={(e) => setName(e.target.value)} value={name} />
                         </Form.Item>
                         <Form.Item label="Description">
-                            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                            <Input id="description" onChange={(e) => setDescription(e.target.value)} value={description} />
                         </Form.Item>
                         <Form.Item>
                             <b>Group</b>

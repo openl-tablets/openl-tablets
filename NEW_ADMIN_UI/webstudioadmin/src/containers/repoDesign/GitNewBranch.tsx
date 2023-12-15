@@ -62,6 +62,7 @@ export function GitNewBranch() {
                     <Input />
                 </Form.Item>
                 <Form.Item
+                    tooltip={{ title: 'Details', icon: InvalidBranchModal }}
                     label={(
                         <span>
                             Invalid branch name
@@ -70,7 +71,6 @@ export function GitNewBranch() {
                             message hint &nbsp;
                         </span>
                     )}
-                    tooltip={{ title: 'Details', icon: InvalidBranchModal }}
                 >
                     <Input />
                 </Form.Item>

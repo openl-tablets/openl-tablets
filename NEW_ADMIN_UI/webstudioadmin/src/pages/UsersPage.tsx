@@ -1,9 +1,9 @@
 import React from 'react'
 import DefaultLayout from 'layouts/DefaultLayout'
-import { Tags } from 'containers/Tags'
+import { Users } from 'containers/Users'
 
-export const TagsPage: React.FC = () => (
+export const UsersPage: React.FC = () => (
     <DefaultLayout>
-        <Tags />
+        <Users />
     </DefaultLayout>
 )

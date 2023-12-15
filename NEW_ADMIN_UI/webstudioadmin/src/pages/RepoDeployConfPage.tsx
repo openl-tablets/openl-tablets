@@ -62,9 +62,9 @@ export const RepoDeployConfPage: React.FC = () => {
                             <Form.Item label={(<span>Type &nbsp;</span>)}>
                                 <Select
                                     defaultActiveFirstOption
+                                    onChange={(value) => setType(value)}
                                     options={typeOptions}
                                     value={type}
-                                    onChange={(value) => setType(value)}
                                 />
                             </Form.Item>
                             {type === 'Git' ? (

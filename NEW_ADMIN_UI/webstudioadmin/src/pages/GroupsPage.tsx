@@ -1,9 +1,11 @@
 import React from 'react'
 import DefaultLayout from 'layouts/DefaultLayout'
-import { Tags } from 'containers/Tags'
+import { Groups } from 'containers/Groups'
 
-export const TagsPage: React.FC = () => (
+
+export const GroupsPage: React.FC = () => (
     <DefaultLayout>
-        <Tags />
+        <Groups />
     </DefaultLayout>
 )
+

@@ -114,9 +114,9 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
           title: (
               <div>
                   <Button
+                      onClick={() => selectPrivileges('administrators')}
                       style={{ width: 95 }}
                       type="text"
-                      onClick={() => selectPrivileges('administrators')}
                   >
                       Administrators
                   </Button>
@@ -129,7 +129,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       {
           title: (
               <div>
-                  <Button style={{ width: 70 }} type="text" onClick={() => selectPrivileges('analysts')}>
+                  <Button onClick={() => selectPrivileges('analysts')} style={{ width: 70 }} type="text">
                       Analysts
                   </Button>
               </div>
@@ -141,7 +141,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       {
           title: (
               <div>
-                  <Button style={{ width: 70 }} type="text" onClick={() => selectPrivileges('deployers')}>
+                  <Button onClick={() => selectPrivileges('deployers')} style={{ width: 70 }} type="text">
                       Deployers
                   </Button>
               </div>
@@ -153,7 +153,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       {
           title: (
               <div>
-                  <Button style={{ width: 70 }} type="text" onClick={() => selectPrivileges('developers')}>
+                  <Button onClick={() => selectPrivileges('developers')} style={{ width: 70 }} type="text">
                       Developers
                   </Button>
               </div>
@@ -165,7 +165,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       {
           title: (
               <div>
-                  <Button style={{ width: 70 }} type="text" onClick={() => selectPrivileges('testers')}>
+                  <Button onClick={() => selectPrivileges('testers')} style={{ width: 70 }} type="text">
                       Testers
                   </Button>
               </div>
@@ -177,7 +177,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       {
           title: (
               <div>
-                  <Button style={{ width: 70 }} type="text" onClick={() => selectPrivileges('viewers')}>
+                  <Button onClick={() => selectPrivileges('viewers')} style={{ width: 70 }} type="text">
                       Viewers
                   </Button>
               </div>
@@ -195,10 +195,10 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                   <b>Account</b>
               </Form.Item>
               <Form.Item label="Name">
-                  <Input id="name" value={name} onChange={handleNameInputChange} />
+                  <Input id="name" onChange={handleNameInputChange} value={name} />
               </Form.Item>
               <Form.Item label="Description">
-                  <Input id="description" value={description} onChange={handleDescriptionInputChange} />
+                  <Input id="description" onChange={handleDescriptionInputChange} value={description} />
               </Form.Item>
               <Form.Item>
                   <b>Group</b>
@@ -218,8 +218,8 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                   <Row style={{ float: 'right' }}>
                       <Button
                           key="submit"
-                          style={{ color: 'green', borderColor: 'green' }}
                           onClick={handleSave}
+                          style={{ color: 'green', borderColor: 'green' }}
                       >
                           Save
                       </Button>

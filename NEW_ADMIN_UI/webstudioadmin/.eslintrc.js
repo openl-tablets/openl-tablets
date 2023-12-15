@@ -45,10 +45,10 @@ module.exports = {
         '@stylistic/jsx/jsx-props-no-multi-spaces': 'error',
         '@stylistic/jsx/jsx-self-closing-comp': [ 'error', { 'component': true, 'html': true }],
         '@stylistic/jsx/jsx-sort-props': [ 'warn', {
-            'callbacksLast': true,
+            'callbacksLast': false,
             'shorthandFirst': true,
             'shorthandLast': false,
-            'multiline': 'ignore',
+            'multiline': 'last',
             'ignoreCase': true,
             'noSortAlphabetically': false,
             'reservedFirst': true,

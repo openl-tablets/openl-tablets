@@ -3,12 +3,10 @@ import MainMenu from 'components/MainMenu'
 
 function DefaultLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                <MainMenu key="admin-menu" />
-                <div>
-                    {children}
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
+            <MainMenu />
+            <div style={{ padding: 20, width: '100%' }}>
+                {children}
             </div>
         </div>
     )

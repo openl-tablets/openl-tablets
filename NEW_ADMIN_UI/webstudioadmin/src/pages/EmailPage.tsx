@@ -1,9 +1,10 @@
 import React from 'react'
 import DefaultLayout from 'layouts/DefaultLayout'
-import { Tags } from 'containers/Tags'
+import { Email } from 'containers/Email'
 
-export const TagsPage: React.FC = () => (
+export const EmailPage: React.FC = () => (
     <DefaultLayout>
-        <Tags />
+        <Email />
     </DefaultLayout>
 )
+

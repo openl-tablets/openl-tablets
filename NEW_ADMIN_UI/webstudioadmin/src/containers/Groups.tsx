@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col, Modal } from 'antd'
+import { Button, Table, Tag, Form, Input, Divider, Row, Col, Modal } from 'antd'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { NewGroupModal } from 'containers/groups/NewGroupModal'
 import { EditGroupModal } from 'containers/groups/EditGroupModal'
-import DefaultLayout from 'layouts/DefaultLayout'
 import { apiCall } from 'services'
-import './GroupPage.scss'
+import './Groups.scss'
+import { useTranslation } from 'react-i18next'
 
 interface Group {
-  name: string;
-  id: number;
-  description: string;
-  roles: string[];
-  privileges: string[];
+    name: string;
+    id: number;
+    description: string;
+    roles: string[];
+    privileges: string[];
 }
 
-export const GroupPage: React.FC = () => {
+export const Groups: React.FC = () => {
+    const { t } = useTranslation()
     const [ isModalOpen, setIsModalOpen ] = useState(false)
     const [ groupData, setGroupData ] = useState<Group[]>([])
     const [ selectedGroup, setSelectedGroup ] = useState<any>({})
@@ -54,8 +55,8 @@ export const GroupPage: React.FC = () => {
     const removeGroup = (id: number) => {
         Modal.confirm({
             className: 'confirm-group-modal',
-            title: 'Confirm Deletion',
-            content: 'Are you sure you want to delete this group?',
+            title: t('groups:confirm_deletion_title'),
+            content: t('groups:confirm_deletion'),
             onOk: () => {
                 apiCall(`/admin/management/groups/${id}`, {
                     method: 'DELETE'
@@ -77,7 +78,7 @@ export const GroupPage: React.FC = () => {
 
     const columns = [
         {
-            title: 'Name',
+            title: t('groups:table.name'),
             dataIndex: 'groupName',
             key: 'name',
             render: (text: string) => (
@@ -87,12 +88,12 @@ export const GroupPage: React.FC = () => {
             ),
         },
         {
-            title: 'Description',
+            title: t('groups:table.description'),
             dataIndex: 'description',
             key: 'description',
         },
         {
-            title: 'Roles',
+            title: t('groups:table.roles'),
             key: 'roles',
             render: (data: { roles: string[], privileges: string[] }) => (
                 <div>
@@ -130,59 +131,57 @@ export const GroupPage: React.FC = () => {
             ),
         },
         {
-            title: 'Action',
+            title: t('groups:table.actions'),
             dataIndex: 'Action',
             key: 'Action',
             render: (text: string, record: any) => (
                 <Button
                     icon={<CloseCircleOutlined />}
-                    type="text"
                     onClick={() => removeGroup(record.id)}
+                    type="text"
                 />
             ),
         },
     ]
 
     return (
-        <DefaultLayout>
-            <Card style={{ margin: 20, width: 900 }}>
-                <Form>
-                    <Form.Item label={(<span>Default group for all users * &nbsp;</span>)}>
-                        <Row>
-                            <Col flex="auto">
-                                <Input />
-                            </Col>
-                            <Col offset={1}>
-                                <Button style={{ color: 'green', borderColor: 'green' }}>Apply and Restart</Button>
-                            </Col>
-                        </Row>
-                    </Form.Item>
-                </Form>
-                <Divider />
-                <Table
-                    columns={columns}
-                    dataSource={groupData}
-                    pagination={{ hideOnSinglePage: true }}
-                    onRow={(record) => ({
-                        onDoubleClick: () => handleDoubleRowClick(record),
-                    })}
-                />
-                <NewGroupModal fetchGroups={fetchGroups} />
-                <Modal
-                    className="edit-group-modal"
-                    footer={null}
-                    open={isModalOpen}
-                    onCancel={hideEditGroupModal}
-                >
-                    {isModalOpen && (
-                        <EditGroupModal
-                            group={selectedGroup}
-                            updateGroup={updateGroup}
-                            onSave={hideEditGroupModal}
-                        />
-                    )}
-                </Modal>
-            </Card>
-        </DefaultLayout>
+        <>
+            <Form>
+                <Form.Item label={t('groups:default_group_for_all_users')}>
+                    <Row>
+                        <Col flex="auto">
+                            <Input />
+                        </Col>
+                        <Col offset={1}>
+                            <Button style={{ color: 'green', borderColor: 'green' }}>{t('groups:apply')}</Button>
+                        </Col>
+                    </Row>
+                </Form.Item>
+            </Form>
+            <Divider />
+            <Table
+                columns={columns}
+                dataSource={groupData}
+                pagination={{ hideOnSinglePage: true }}
+                onRow={(record) => ({
+                    onDoubleClick: () => handleDoubleRowClick(record),
+                })}
+            />
+            <NewGroupModal fetchGroups={fetchGroups} />
+            <Modal
+                className="edit-group-modal"
+                footer={null}
+                onCancel={hideEditGroupModal}
+                open={isModalOpen}
+            >
+                {isModalOpen && (
+                    <EditGroupModal
+                        group={selectedGroup}
+                        onSave={hideEditGroupModal}
+                        updateGroup={updateGroup}
+                    />
+                )}
+            </Modal>
+        </>
     )
 }
