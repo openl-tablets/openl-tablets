@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +33,8 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.project.impl.local.DummyLockEngine;
+import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -97,7 +99,11 @@ public class OpenAPIProjectCreatorTest {
         when(userWorkspaceMock.getDesignTimeRepository()).thenReturn(designTimeRepoMock);
         when(userWorkspaceMock.getUser()).thenReturn(new WorkspaceUserImpl("USER_MOCK",
             (username) -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
-        when(userWorkspaceMock.getProjectsLockEngine()).thenReturn(new DummyLockEngine());
+        LockEngine lockEngine = mock(LockEngine.class);
+        when(lockEngine.tryLock(nullable(String.class), nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(true);
+        when(lockEngine.getLockInfo(nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(LockInfo.NO_LOCK);
+
+        when(userWorkspaceMock.getProjectsLockEngine()).thenAnswer((x) -> lockEngine);
     }
 
     @Test
