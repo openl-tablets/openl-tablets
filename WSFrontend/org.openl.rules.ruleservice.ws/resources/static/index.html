@@ -250,7 +250,7 @@
     <div id="title"></div>
     <input id='file-input' type='file' name='name' style='display: none;'/>
     <div class="right-block">
-        Show all deployments: <input type="checkbox" checked="checked" onchange="showAll(this.checked)" style="margin-top: 10px;"/>
+        Show all deployments: <input type="checkbox" id="showAll" checked="checked" onchange="showAll(this.checked)" style="margin-top: 10px;"/>
         <button type='button' onclick='uploadProject()' class='deploy-button forDeploy'>Deploy</button>
     </div>
     <div style="position: absolute; top: 46px; width: 100%; font-size: 13px; font-weight: bold; color: grey; background-color: white; padding: 5px 0">
@@ -311,7 +311,15 @@
         } else {
             mainBlock.classList.add("hideNonImportant")
         }
+        localStorage.hideNonImportant = !value; // Store checkbox state in the Web storage
     }
+
+    window.addEventListener('load', function() {
+        // Restore checkbox state after the page is opened after closing
+        let ch = localStorage['hideNonImportant'] !== "true";
+        showAll(ch);
+        document.getElementById("showAll").checked = ch;
+    });
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
