@@ -163,23 +163,29 @@
             display: inline;
         }
 
-        .showSwaggerOnly .noSwagger {
+        .hideNonImportant .row:not(.service-RESTFUL).status-deployed {
             display: none;
         }
 
-        .noSwagger .swagger-ui {
+        .manifest,
+        .urls {
+            margin-left: 10px;
+        }
+
+        .urls-RESTFUL {
+            display: none;
+        }
+
+        .urls[href="null"],
+        .row:not(.service-RESTFUL) .swagger-ui {
             pointer-events: none;
             cursor: default;
             text-decoration: none;
             color: black;
         }
 
-        .manifest {
+        .row:not(.hasManifest) .manifest {
             display: none;
-        }
-
-        .hasManifest .manifest {
-            display: inline;
         }
 
         .time {
@@ -217,12 +223,12 @@
             padding-right: 5px;
         }
 
-        .deployed:before {
+        .status-deployed .icon:before {
             content: "✔";
             color: #00C000;
         }
 
-        .failed:before {
+        .status-failed .icon:before {
             cursor: pointer;
             content: "✘";
             color: #C00000;
@@ -261,7 +267,7 @@
 </div>
 <div id="main" style="display: none;">
 <div class="row ${row-classes}">
-    <span class="icon collapse ${status}" data-uri="admin/services/${servicePathURI}/errors"></span>
+    <span class="icon collapse" data-uri="admin/services/${servicePathURI}/errors"></span>
     <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
     <div class="right-block">
         ${urls}
@@ -301,9 +307,9 @@
 
     function showAll(value) {
         if (value) {
-            mainBlock.classList.remove("showSwaggerOnly")
+            mainBlock.classList.remove("hideNonImportant")
         } else {
-            mainBlock.classList.add("showSwaggerOnly")
+            mainBlock.classList.add("hideNonImportant")
         }
     }
 
@@ -363,22 +369,8 @@
             });
 
             services.forEach(function (service) {
-
-                let hasSwagger = service.urls.RESTFUL != null;
-                if (hasSwagger) {
-                    delete service.urls.RESTFUL;
-                }
                 let html = createServiceHtml(template, service);
-                let el = document.createElement("DIV");
-                el.innerHTML = html;
-                el = el.firstElementChild;
-                if (service.hasManifest) {
-                    el.classList.add("hasManifest");
-                }
-                if (!hasSwagger) {
-                    el.classList.add("noSwagger");
-                }
-                mainBlock.appendChild(el);
+                mainBlock.insertAdjacentHTML('beforeend', html);
             });
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
@@ -445,19 +437,22 @@
     function createServiceHtml(template, service) {
         let deploymentName = service.deploymentName;
         let serviceText = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
+
+        var classes = "status-" + service.status.toLowerCase();
+        if (service.hasManifest) {
+            classes += " hasManifest";
+        }
+
         var urlsHtml = "";
         // URLs
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (url == null) {
-                urlsHtml += "<span class='urls'>" + name + "</span>&nbsp;&nbsp;";
-            } else {
-                urlsHtml += "<a href='" + url + "' class='urls'\>" + name + "</a>&nbsp;&nbsp;";
-            }
+            urlsHtml += "<a href='" + url + "' class='urls urls-" + name + "'\>" + name + "</a> ";
+            classes += " service-" + name;
         });
 
-        var html = template.replace("${status}", service.status.toLowerCase())
+        var html = template.replaceAll("${row-classes}", classes)
             .replaceAll("${serviceText}", serviceText)
             .replaceAll("${serviceNameURI}", encodeURIComponent(service.name))
             .replaceAll("${servicePathURI}", encodeURI(service.servicePath))
