@@ -64,10 +64,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Objects.requireNonNull(serviceDescription, "serviceDescription cannot be null");
         Objects.requireNonNull((IDependencyManager) dependencyManager, "dependencyManager cannot be null");
         Collection<Module> modules = serviceDescription.getModules();
-        int moduleSize = modules.size();
-        if (moduleSize == 0) {
-            throw new IllegalStateException("There are no modules to instantiate.");
-        }
 
         RulesInstantiationStrategy baseInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
         RulesInstantiationStrategy instantiationStrategy = baseInstantiationStrategy;

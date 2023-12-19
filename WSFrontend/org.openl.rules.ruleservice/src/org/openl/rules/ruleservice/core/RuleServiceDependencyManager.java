@@ -107,9 +107,12 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         for (IProject aProject : rslDeployment.getProjects()) {
             String projectName = aProject.getName();
             try {
-                Collection<Module> modules = ruleServiceLoader
-                    .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
-                ProjectDescriptor project = null;
+                var project = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
+                if (project == null) {
+                    // Not an OpenL project
+                    continue;
+                }
+                Collection<Module> modules = project.getModules();
                 if (!modules.isEmpty()) {
                     project = modules.iterator().next().getProject();
 

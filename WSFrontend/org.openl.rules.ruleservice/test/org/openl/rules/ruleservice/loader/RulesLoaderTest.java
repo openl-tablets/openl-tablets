@@ -25,6 +25,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -100,9 +101,9 @@ public class RulesLoaderTest {
 
         CommonVersion commonVersion = new CommonVersionImpl("1");
         Collection<Module> modules = ruleServiceLoader
-            .resolveModulesForProject("org.openl.tablets.tutorial4", commonVersion, "org.openl.tablets.tutorial4");
+            .resolveProject("org.openl.tablets.tutorial4", commonVersion, "org.openl.tablets.tutorial4").getModules();
         assertNotNull(modules);
-        assertTrue(modules.size() > 0);
+        assertFalse(modules.isEmpty());
         Module module = modules.iterator().next();
         assertEquals("Tutorial 4 - UServ Product Derby", module.getName());
     }
