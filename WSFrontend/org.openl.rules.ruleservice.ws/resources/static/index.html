@@ -342,7 +342,7 @@
             var button = event.target;
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
-            if (button.classList.contains("collapse") && button.classList.contains("failed")) {
+            if (button.classList.contains("collapse") && button.parentElement.classList.contains("status-failed")) {
                 // Expand the node
                 let infoBlock = button.parentElement.getElementsByClassName("errors").item(0);
                 var xmlHttpMethods = new XMLHttpRequest();
