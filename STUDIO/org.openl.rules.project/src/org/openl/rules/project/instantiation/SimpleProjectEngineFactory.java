@@ -63,11 +63,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         }
 
         public SimpleProjectEngineFactoryBuilder<T> setExternalParameters(Map<String, Object> externalParameters) {
-            if (externalParameters != null) {
-                this.externalParameters = externalParameters;
-            } else {
-                this.externalParameters = Collections.emptyMap();
-            }
+            this.externalParameters = Objects.requireNonNullElse(externalParameters, Collections.emptyMap());
             return this;
         }
 
@@ -176,9 +172,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         if (rulesInstantiationStrategy == null) {
-            if (modules.isEmpty()) {
-                throw new IllegalStateException("There are no modules to instantiate");
-            }
             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
                 dependencyManager,
                 classLoader,

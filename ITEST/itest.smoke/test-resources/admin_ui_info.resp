@@ -28,6 +28,26 @@ Content-Type: application/json
       "urls": {}
     },
     {
+      "startedTime": "#####",
+      "name": "no-xlsx_common",
+      "servicePath": "no-xlsx/common",
+      "urls": {},
+      "hasManifest": false,
+      "deploymentName": "no-xlsx",
+      "status": "DEPLOYED"
+    },
+    {
+      "startedTime": "#####",
+      "name": "no-xlsx_service",
+      "servicePath": "no-xlsx/service",
+      "urls": {
+        "RESTFUL": "no-xlsx"
+      },
+      "hasManifest": false,
+      "deploymentName": "no-xlsx",
+      "status": "DEPLOYED"
+    },
+    {
       "deploymentName": "simple",
       "hasManifest": false,
       "name": "simple_simple",

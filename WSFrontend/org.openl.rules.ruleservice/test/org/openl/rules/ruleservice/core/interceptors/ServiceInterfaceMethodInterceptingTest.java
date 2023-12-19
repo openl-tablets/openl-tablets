@@ -315,7 +315,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     }
 
     @Before
-    public void before() {
+    public void before() throws Exception {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         deploymentDescription = new DeploymentDescription("someDeploymentName", version);
 
@@ -335,9 +335,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         assertNotNull(instantiationFactory);
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
 
-        when(ruleServiceLoader.resolveModulesForProject(deploymentDescription.getName(),
+        when(ruleServiceLoader.resolveProject(deploymentDescription.getName(),
             deploymentDescription.getVersion(),
-            projectDescriptor.getName())).thenReturn(modules);
+            projectDescriptor.getName())).thenReturn(projectDescriptor);
         Deployment deployment = mock(Deployment.class);
         List<IProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
@@ -349,8 +349,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()),
             eq(deploymentDescription.getVersion()))).thenReturn(deployment);
         when(ruleServiceLoader
-            .resolveModulesForProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
-                .thenReturn(modules);
+            .resolveProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
+                .thenReturn(projectDescriptor);
     }
 
     @Test

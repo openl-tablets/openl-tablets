@@ -75,8 +75,12 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                 }
                 String projectName = project.getName();
                 try {
-                    Collection<Module> modulesOfProject = ruleServiceLoader
-                        .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
+                    var pd = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
+                    if (pd == null) {
+                        // Not an OpenL project
+                        continue;
+                    }
+                    Collection<Module> modulesOfProject = pd.getModules();
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(isProvideRuntimeContext())
                         .setProvideVariations(isSupportVariations())
@@ -86,7 +90,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
                     ResourceLoader resourceLoader = new ResourceLoaderImpl(project);
                     serviceDescriptionBuilder.setResourceLoader(resourceLoader);
-                    if (!modulesOfProject.isEmpty()) {
                         RulesDeploy rulesDeploy = null;
                         try {
                             IProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
@@ -161,7 +164,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                     serviceDescription.getDeployPath());
                             }
                         }
-                    }
                 } catch (Exception e) {
                     log.error(
                         "Failed to load a project from the repository. Project '{}' in deployment '{}' has been skipped.",

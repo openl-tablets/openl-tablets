@@ -7,6 +7,9 @@ Content-Type: application/json
       "name": "multi_project_project1",
       "url": "multi_project/project1/openapi.json"
     }, {
+      "name": "no-xlsx_service",
+      "url": "no-xlsx/openapi.json"
+    }, {
       "name": "simple_simple",
       "url": "simple/openapi.json"
     }, {

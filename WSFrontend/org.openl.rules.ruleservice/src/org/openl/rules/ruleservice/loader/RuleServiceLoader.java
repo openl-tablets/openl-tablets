@@ -5,6 +5,8 @@ import java.util.Collection;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
@@ -34,9 +36,7 @@ public interface RuleServiceLoader {
      * @param projectName
      * @return
      */
-    Collection<Module> resolveModulesForProject(String deploymentName,
-            CommonVersion deploymentVersion,
-            String projectName);
+    ProjectDescriptor resolveProject(String deploymentName, CommonVersion deploymentVersion, String projectName) throws ProjectResolvingException;
 
     /**
      * Gets a deployment from data source.
