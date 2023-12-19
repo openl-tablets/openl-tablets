@@ -31,7 +31,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.abstraction.IProjectArtefact;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
@@ -81,9 +80,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Module> resolveModulesForProject(String deploymentName,
+    public ProjectDescriptor resolveProject(String deploymentName,
             CommonVersion deploymentVersion,
-            String projectName) {
+            String projectName) throws ProjectResolvingException {
         Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
         Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
         Objects.requireNonNull(projectName, "projectName cannot be null");
@@ -112,17 +111,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             String stringValue = project.getArtefactPath().getStringValue();
             projectFolder = tempPath.resolve(stringValue);
         }
-        List<Module> result = Collections.emptyList();
-        try {
-            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
-            if (projectDescriptor != null) {
-                List<Module> modules = projectDescriptor.getModules();
-                result = Collections.unmodifiableList(modules);
-            }
-        } catch (ProjectResolvingException e) {
-            log.error("Project resolving has been failed.", e);
-        }
-        return result;
+        return projectResolver.resolve(projectFolder);
     }
 
     @Override

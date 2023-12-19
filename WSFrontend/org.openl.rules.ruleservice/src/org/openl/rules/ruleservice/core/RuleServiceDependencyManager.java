@@ -24,7 +24,6 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WildcardPattern;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
@@ -154,9 +153,12 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         for (IProject aProject : rslDeployment.getProjects()) {
             String projectName = aProject.getName();
             try {
-                Collection<Module> modules = ruleServiceLoader
-                    .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
-                ProjectDescriptor project = null;
+                var project = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
+                if (project == null) {
+                    // Not an OpenL project
+                    continue;
+                }
+                Collection<Module> modules = project.getModules();
                 Set<String> wildcardPatterns = new HashSet<>();
                 if (!modules.isEmpty()) {
                     project = modules.iterator().next().getProject();
