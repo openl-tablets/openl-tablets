@@ -3,6 +3,7 @@ package org.openl.itest.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
@@ -30,6 +33,8 @@ public class HttpClient {
     private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
 
+    private final int retryTimeout;
+
     private HttpClient(URL baseURL) {
         this.baseURL = baseURL;
         var builder = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1);
@@ -38,7 +43,11 @@ public class HttpClient {
         if (connectTimeout > 0) {
             builder.connectTimeout(Duration.ofMillis(connectTimeout));
         }
-
+        int retryTimeout = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
+        if (retryTimeout <= 0) {
+            retryTimeout = 120_000; // 2 minutes
+        }
+        this.retryTimeout = retryTimeout;
         this.client = builder.build();
     }
 
@@ -95,7 +104,7 @@ public class HttpClient {
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end-start) + "ms)");
                     return false;
-                } catch (Exception ex) {
+                } catch (Exception | AssertionError ex) {
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end-start) + "ms)");
                     ex.printStackTrace();
@@ -150,24 +159,54 @@ public class HttpClient {
      */
     private void send(String requestFile, String responseFile) {
         try {
-            HttpData header = HttpData.send(baseURL, requestFile, cookie.get());
-
-            var c = header.getCookie();
-            if (c != null && !c.isBlank()) {
-                cookie.set(c);
+            HttpData request = HttpData.readFile(requestFile);
+            if (request == null) {
+                throw new FileNotFoundException(requestFile);
             }
 
-            // Bulk update of OpenAPI files
-//            if (Files.readAllLines(Paths.get(requestFile)).get(0).contains("/openapi.")) {
-//                header.writeBodyTo(responseFile);
-//            }
+            var assertResponse = Objects.requireNonNullElse(HttpData.readFile(responseFile), HttpData.ok());
+            String retry = request.getSetting("Retry");
+            long timeout = System.currentTimeMillis();
+            if ("yes".equals(retry)) {
+                timeout += retryTimeout;
+            }
 
-            HttpData respHeader = HttpData.readFile(responseFile);
+            AssertionError error = null;
+            HttpData response;
+            do {
+                if (error != null) {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                }
+                response = HttpData.send(baseURL, request, cookie.get());
 
-            header.assertTo(respHeader);
+                var c = response.getCookie();
+                if (c != null && !c.isBlank()) {
+                    cookie.set(c);
+                }
+
+                // Bulk update of OpenAPI files
+//                if (Files.readAllLines(Paths.get(requestFile)).get(0).contains("/openapi.")) {
+//                    response.writeBodyTo(responseFile);
+//                }
+
+
+                try {
+                    response.assertTo(assertResponse);
+                    error = null;
+                } catch (AssertionError e) {
+                    error = e;
+                }
+            } while (error != null && System.currentTimeMillis() < timeout);
+
+            if (error != null) {
+                response.log(requestFile);
+                throw error;
+            }
 
         } catch (IOException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

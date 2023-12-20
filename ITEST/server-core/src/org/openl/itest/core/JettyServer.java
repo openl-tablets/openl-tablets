@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,7 +132,7 @@ public class JettyServer {
     /**
      * Starts Jetty Server and executes a set of http requests.
      */
-    public static void test(String profile, boolean waitUntilReady) throws Exception {
+    public static void test(String profile) throws Exception {
         Map<String, String> params = null;
         if (profile != null) {
             params = Map.of("spring.profiles.active", profile);
@@ -152,22 +151,6 @@ public class JettyServer {
             jetty.server.start();
             try {
                 var httpClient = jetty.client();
-                if (waitUntilReady) {
-                    boolean ready = false;
-                    long started = System.currentTimeMillis();
-                    while (!ready && (started - System.currentTimeMillis()) < MAX_READINESS_WAIT_TIMEOUT_MS) {
-                        try {
-                            httpClient.getForObject("/admin/healthcheck/readiness", String.class, 200);
-                            ready = true;
-                        } catch (AssertionError ignored) {
-                            System.out.println("Not ready yet. Wait 500 ms and retry");
-                            TimeUnit.MILLISECONDS.sleep(500);
-                        }
-                    }
-                    if (!ready) {
-                        fail("Not Ready!");
-                    }
-                }
                 httpClient.test(testFolder);
             } finally {
                 jetty.stop();
@@ -176,10 +159,6 @@ public class JettyServer {
             Locale.setDefault(DEFAULT_LOCALE);
             TimeZone.setDefault(DEFAULT_TIMEZONE);
         }
-    }
-
-    public static void test(String profile) throws Exception {
-        test(profile, false);
     }
 
     public static void test() throws Exception {
