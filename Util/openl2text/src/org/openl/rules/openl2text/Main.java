@@ -14,11 +14,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.util.FileUtils;
+import org.slf4j.Logger;
 
 import me.tongfei.progressbar.ProgressBar;
 import picocli.CommandLine;
@@ -28,7 +27,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "open2text", description = "CLI tool that converts OpenL Tablets rules to text format.")
 public class Main implements Runnable {
 
-    private static final Log log = LogFactory.getLog(Main.class);
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(Main.class);
 
     @Parameters(index = "0..*", description = "Input files or folders")
     private List<File> inputFiles;
@@ -152,7 +151,7 @@ public class Main implements Runnable {
                     }
                     zipOutputStream.closeEntry();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("Failed to create zip file: " + zipFilePath, e);
                 }
             });
         }
