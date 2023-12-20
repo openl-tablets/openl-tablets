@@ -23,6 +23,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -31,28 +32,25 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
 
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
-    private boolean enabled = false;
-    private boolean ignoreIfExists = false;
-
-    private RulesDeployerService rulesDeployerService;
+    private final boolean enabled;
+    private final RulesDeployerService rulesDeployerService;
+    private final DeployStrategy deployStrategy;
     private Queue<File> filesToDeploy = new LinkedList<>();
     private ScheduledExecutorService scheduledPool;
     private long retryPeriod = 10;
 
+    public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
+            DeployStrategy deployStrategy,
+            PropertyResolver propertyResolver) {
+        var repositoryFactory = propertyResolver.getProperty("production-repository.factory");
+        this.enabled = !"repo-jar"
+            .equals(repositoryFactory) && deployStrategy != null && deployStrategy != DeployStrategy.NEVER;
+        this.rulesDeployerService = rulesDeployerService;
+        this.deployStrategy = deployStrategy;
+    }
+
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
-        this.rulesDeployerService = rulesDeployerService;
-    }
-
-    public void setIgnoreIfExists(boolean ignoreIfExists) {
-        this.ignoreIfExists = ignoreIfExists;
     }
 
     public void setRetryPeriod(long retryPeriod) {
@@ -163,7 +161,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
                     return;
                 }
 
-                rulesDeployerService.deploy(file, ignoreIfExists);
+                rulesDeployerService.deploy(file, getIgnoreIfExists());
                 // File was deployed successfully. Remove it from the queue.
                 filesToDeploy.remove();
 
@@ -181,6 +179,16 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         } catch (Throwable e) {
             log.warn("Cannot to complete deploy of jars", e);
             throw e;
+        }
+    }
+
+    private boolean getIgnoreIfExists() {
+        if (deployStrategy == DeployStrategy.IF_ABSENT) {
+            return false;
+        } else if (deployStrategy == DeployStrategy.ALWAYS) {
+            return true;
+        } else {
+            throw new IllegalStateException("Unknown deploy strategy: " + deployStrategy);
         }
     }
 
