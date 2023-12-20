@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,16 +46,22 @@ class HttpData {
     private static final Set<String> BLOB_TYPES = Stream.of("application/zip").collect(Collectors.toSet());
 
     private final String firstLine;
-    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String> settings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
-    private final String resource;
     private String cookie;
 
-    private HttpData(String firstLine, Map<String, String> headers, byte[] body, String resource) {
+    private HttpData(String firstLine, Map<String, String> headers, byte[] body) {
         this.firstLine = firstLine;
-        this.resource = resource;
         this.headers.putAll(headers);
+        var settings = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
+        this.settings.putAll(settings);
+        settings.clear();
         this.body = body;
+    }
+
+    String getSetting(String key) {
+        return settings.get("X-OpenL-Test-" + key);
     }
 
     private int getResponseCode() {
@@ -81,11 +88,11 @@ class HttpData {
         }
     }
 
-    static HttpData send(URL baseURL, String resource, String cookie) throws IOException {
-        HttpData httpData = readFile(resource);
-        if (httpData == null) {
-            throw new FileNotFoundException(resource);
-        }
+    static HttpData ok() {
+        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
+    }
+
+    static HttpData send(URL baseURL, HttpData httpData, String cookie) throws IOException {
         if (httpData.headers.containsKey("Cookie")) {
             cookie = null;
         }
@@ -93,7 +100,7 @@ class HttpData {
             httpData.getHttpMethod(),
             cookie);
         write(connection, httpData);
-        return readData(connection, resource);
+        return readData(connection);
     }
 
     private static HttpURLConnection openConnection(URL url, String httpMethod, String cookie) throws IOException {
@@ -134,12 +141,8 @@ class HttpData {
         }
     }
 
-    void assertTo(HttpData expected) {
+    void assertTo(HttpData expected) throws Exception, AssertionError {
         try {
-            if (expected == null) {
-                assertEquals("Status code: ", 200, this.getResponseCode());
-                return;
-            }
             assertEquals("Status code: ", expected.getResponseCode(), this.getResponseCode());
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {
                 String headerName = r.getKey();
@@ -193,8 +196,7 @@ class HttpData {
                     }
             }
         } catch (Exception | AssertionError ex) {
-            log(expected != null ? expected.resource : resource, firstLine, headers, body);
-            throw new RuntimeException(ex);
+            throw ex;
         }
     }
 
@@ -212,7 +214,7 @@ class HttpData {
         return out.toByteArray();
     }
 
-    static void log(String resourceName, String firstLine, Map<String, String> headers, byte[] body) {
+    void log(String resourceName) {
         try {
             System.err.println("--------------------");
             System.err.println(firstLine);
@@ -235,7 +237,7 @@ class HttpData {
         }
     }
 
-    private static HttpData readData(HttpURLConnection connection, String resource) throws IOException {
+    private static HttpData readData(HttpURLConnection connection) throws IOException {
         connection.getResponseCode();
         InputStream input = connection.getErrorStream();
         if (input == null) {
@@ -259,7 +261,7 @@ class HttpData {
             }
 
             byte[] body = input != null ? input.readAllBytes() : new byte[0];
-            HttpData httpData = new HttpData(firstLine, headers, body, resource);
+            HttpData httpData = new HttpData(firstLine, headers, body);
             httpData.setCookie(cookie);
             return httpData;
         } finally {
@@ -339,7 +341,7 @@ class HttpData {
             body = input.readAllBytes();
         }
 
-        return new HttpData(firstLine, headers, body, resource);
+        return new HttpData(firstLine, headers, body);
     }
 
     private static InputStream getStream(String fileRes) {

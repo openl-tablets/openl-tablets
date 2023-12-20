@@ -12,7 +12,7 @@ public class RunUnpackClasspathZipTest {
 
     @Test
     public void testDeployToRemoteRepoFromClasspath() throws Exception {
-        JettyServer.test("remote", true);
+        JettyServer.test("remote");
     }
 
 }

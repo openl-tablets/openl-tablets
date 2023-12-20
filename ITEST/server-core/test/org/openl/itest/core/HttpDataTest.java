@@ -11,7 +11,7 @@ import org.junit.Test;
 public class HttpDataTest {
 
     @Test
-    public void testReadFile() throws IOException {
+    public void testReadFile() throws Exception {
         HttpData chuncked = HttpData.readFile("/chuncked.resp");
         HttpData clHeader = HttpData.readFile("/content-length.resp");
         HttpData undefined = HttpData.readFile("/undefined-length.resp");
@@ -23,16 +23,15 @@ public class HttpDataTest {
         try {
             undefined.assertTo(clHeader);
             fail("Non reachable");
-        } catch (RuntimeException er) {
-            assertEquals("java.lang.AssertionError: Content-Length expected:<14> but was:<null>", er.getMessage());
+        } catch (AssertionError er) {
+            assertEquals("Content-Length expected:<14> but was:<null>", er.getMessage());
         }
 
         try {
             undefined.assertTo(chuncked);
             fail("Non reachable");
-        } catch (RuntimeException er) {
-            assertEquals("java.lang.AssertionError: Transfer-Encoding expected:<chunked> but was:<null>",
-                er.getMessage());
+        } catch (AssertionError er) {
+            assertEquals("Transfer-Encoding expected:<chunked> but was:<null>", er.getMessage());
         }
     }
 
@@ -80,7 +79,7 @@ public class HttpDataTest {
     }
 
     @Test
-    public void testResponse204() throws IOException {
+    public void testResponse204() throws Exception {
         final HttpData fullNoContent = HttpData.readFile("/no-content-full.resp");
         final HttpData shortNoContent = HttpData.readFile("/no-content-short.resp");
         final HttpData noContentWithBody = HttpData.readFile("/no-content-non-standard.resp");
