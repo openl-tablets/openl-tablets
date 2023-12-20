@@ -7,7 +7,12 @@ service WebstudioAIService {
   rpc search (SearchRequest) returns (SearchReply) {}
   rpc chat (ChatRequest) returns (ChatReply) {}
   rpc rate (RateRequest) returns (Empty) {}
-  rpc recreateKnowledgeBase (Empty) returns (Empty) {}
+  rpc recreateKnowledgeBase (RecreateKnowledgeBaseRequest) returns (Empty) {}
+}
+
+message RecreateKnowledgeBaseRequest {
+  string confluenceWikiUsername = 1;
+  string confluenceWikiPassword = 2;
 }
 
 message Empty {}

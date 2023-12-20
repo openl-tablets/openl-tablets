@@ -31,17 +31,10 @@
         </h1>
         <c:if test="#{searchBean.tableCountForIndexing > 0}">
             <div class="page-header">
-                <c:if test="#{searchBean.expectedIndexingDuration > 0}">
-                    <h:outputFormat value="#{msg['ws.search.indexing']}">
-                        <f:param value="#{searchBean.expectedIndexingDuration}"/>
-                        <f:param value="#{searchBean.tableCountForIndexing}"/>
-                    </h:outputFormat>
-                </c:if>
-                <c:if test="#{searchBean.expectedIndexingDuration == 0}">
-                    <h:outputFormat value="#{msg['ws.search.indexing.zero']}">
-                        <f:param value="#{searchBean.tableCountForIndexing}"/>
-                    </h:outputFormat>
-                </c:if>
+                <h:outputFormat value="#{msg['ws.search.indexing']}">
+                    <f:param value="#{searchBean.expectedIndexingDuration}"/>
+                    <f:param value="#{searchBean.tableCountForIndexing}"/>
+                </h:outputFormat>
             </div>
         </c:if>
 
