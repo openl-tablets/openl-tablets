@@ -104,7 +104,7 @@ public class HttpClient {
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end-start) + "ms)");
                     return false;
-                } catch (Exception ex) {
+                } catch (Exception | AssertionError ex) {
                     long end = System.currentTimeMillis();
                     System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end-start) + "ms)");
                     ex.printStackTrace();
