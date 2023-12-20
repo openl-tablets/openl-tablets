@@ -43,12 +43,12 @@
         }
 
         #header {
-            border-bottom: 1px solid #ccc;
             padding: 7px 0;
             position: fixed;
             z-index: 1;
             background: white;
             width: 100%;
+            height: 24px;
         }
 
         #title {
@@ -60,7 +60,7 @@
             background-size: 28px;
             background-repeat: no-repeat;
             padding: 4px 16px 4px 40px;
-            margin-left: 16px;
+            margin: 0 0 5px 16px;
         }
 
         .deploy-button {
@@ -253,7 +253,7 @@
         Show all deployments: <input type="checkbox" id="showAll" checked="checked" onchange="showAll(this.checked)" style="margin-top: 10px;"/>
         <button type='button' onclick='uploadProject()' class='deploy-button forDeploy'>Deploy</button>
     </div>
-    <div style="position: absolute; top: 46px; width: 100%; font-size: 13px; font-weight: bold; color: grey; background-color: white; padding: 5px 0">
+    <div style="font-size: 13px; font-weight: bold; color: grey; background-color: white; padding-top: 6px; border-top: 1px solid #ccc;">
         <div style="display: inline-block">
             <span style="padding: 0 23px;">#</span>
             <span>Service Name</span>
