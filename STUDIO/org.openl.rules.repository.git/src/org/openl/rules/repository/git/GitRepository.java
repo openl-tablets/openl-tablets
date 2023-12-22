@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -76,6 +77,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectIdRef;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
@@ -329,13 +331,20 @@ public class GitRepository implements BranchRepository, Closeable {
         IOUtils.copyAndClose(stream, new FileOutputStream(file));
 
         git.add().addFilepattern(fileInRepository).call();
-        return git.commit()
+
+        var commitCommand = git.commit()
             .setMessage(formatComment(CommitType.SAVE, data))
             .setOnly(fileInRepository)
-            .setNoVerify(noVerify)
-            .setCommitter(data.getAuthor().getDisplayName(),
-                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
-            .call();
+            .setNoVerify(noVerify);
+        var authorName = data.getAuthor().getDisplayName();
+        var authorEmail = Optional.ofNullable(data.getAuthor().getEmail()).orElse("");
+        if (data.getModifiedAt() != null) {
+            commitCommand
+                .setCommitter(new PersonIdent(authorName, authorEmail, data.getModifiedAt(), TimeZone.getDefault()));
+        } else {
+            commitCommand.setCommitter(authorName, authorEmail);
+        }
+        return commitCommand.call();
     }
 
     @Override
@@ -2230,11 +2239,15 @@ public class GitRepository implements BranchRepository, Closeable {
             removeAbsentFiles(basePath, folder, savedFiles);
         }
 
-        CommitCommand commitCommand = git.commit()
-            .setNoVerify(noVerify)
-            .setMessage(formatComment(CommitType.SAVE, folderData))
-            .setCommitter(folderData.getAuthor().getDisplayName(),
-                Optional.ofNullable(folderData.getAuthor().getEmail()).orElse(""));
+        var commitCommand = git.commit().setNoVerify(noVerify).setMessage(formatComment(CommitType.SAVE, folderData));
+        var authorName = folderData.getAuthor().getDisplayName();
+        var authorEmail = Optional.ofNullable(folderData.getAuthor().getEmail()).orElse("");
+        if (folderData.getModifiedAt() != null) {
+            commitCommand.setCommitter(
+                new PersonIdent(authorName, authorEmail, folderData.getModifiedAt(), TimeZone.getDefault()));
+        } else {
+            commitCommand.setCommitter(authorName, authorEmail);
+        }
 
         return commitChangedFiles(commitCommand);
     }
