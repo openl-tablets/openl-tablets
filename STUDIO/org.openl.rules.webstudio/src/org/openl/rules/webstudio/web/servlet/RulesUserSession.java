@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.servlet;
 import java.util.Optional;
 
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -13,6 +14,8 @@ public class RulesUserSession {
     private String userName;
 
     private UserWorkspace userWorkspace;
+
+    private WebStudio webStudio;
 
     private MultiUserWorkspaceManager workspaceManager;
 
@@ -62,5 +65,13 @@ public class RulesUserSession {
 
     public void setUserManagementService(UserManagementService userManagementService) {
         this.userManagementService = userManagementService;
+    }
+
+    public WebStudio getWebStudio() {
+        return webStudio;
+    }
+
+    public void setWebStudio(WebStudio webStudio) {
+        this.webStudio = webStudio;
     }
 }

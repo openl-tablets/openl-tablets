@@ -177,22 +177,32 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
     private boolean needRedirect;
 
-    public WebStudio(HttpSession session) {
-        model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
-        userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
-        designRepositoryAclService = WebStudioUtils.getBean("designRepositoryAclService", RepositoryAclService.class);
-        productionRepositoryAclService = WebStudioUtils.getBean("productionRepositoryAclService",
-            SimpleRepositoryAclService.class);
-        pdArtefactResolver = WebStudioUtils.getBean("projectDescriptorArtefactResolver",
-            ProjectDescriptorArtefactResolver.class);
-        zipFilter = WebStudioUtils.getBean("zipFilter", PathFilter.class);
-        zipCharsetDetector = WebStudioUtils.getBean(ZipCharsetDetector.class);
-        pdSerializerFactory = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class);
-        rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
-        propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
-        deploymentManager = WebStudioUtils.getBean(DeploymentManager.class);
+    public WebStudio(RulesUserSession rulesUserSession,
+            TestSuiteExecutor testSuiteExecutor,
+            UserSettingManagementService userSettingManagementService,
+            RepositoryAclService designRepositoryAclService,
+            SimpleRepositoryAclService productionRepositoryAclService,
+            ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector,
+            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+            PropertyResolver propertyResolver,
+            DeploymentManager deploymentManager
+
+    ) {
+        model = new ProjectModel(this, testSuiteExecutor);
+        this.userSettingsManager = userSettingManagementService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.productionRepositoryAclService = productionRepositoryAclService;
+        this.pdArtefactResolver = projectDescriptorArtefactResolver;
+        this.zipFilter = zipFilter;
+        this.zipCharsetDetector = zipCharsetDetector;
+        this.pdSerializerFactory =projectDescriptorSerializerFactory;
+        this.rulesUserSession = rulesUserSession;
+        this.propertyResolver = propertyResolver;
+        this.deploymentManager = deploymentManager;
         authentication = SecurityContextHolder.getContext().getAuthentication();
-        initWorkspace(session);
+        initWorkspace(rulesUserSession.getUserWorkspace());
         initUserSettings();
         projectResolver = ProjectResolver.getInstance();
         externalProperties = new HashMap<>();
@@ -210,9 +220,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         externalProperties.put(key, value);
     }
 
-    private void initWorkspace(HttpSession session) {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-
+    private void initWorkspace(UserWorkspace userWorkspace) {
         if (userWorkspace == null) {
             return;
         }
