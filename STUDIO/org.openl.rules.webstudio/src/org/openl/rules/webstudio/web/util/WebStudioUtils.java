@@ -11,13 +11,12 @@ import javax.servlet.http.HttpSession;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -48,28 +47,21 @@ public abstract class WebStudioUtils {
     public static RulesUserSession getRulesUserSession(HttpSession session, boolean create) {
         RulesUserSession rulesUserSession = getRulesUserSession(session);
         if (rulesUserSession == null && create) {
-            rulesUserSession = new RulesUserSession();
-
-            rulesUserSession.setUserName(
-                ((CurrentUserInfo) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-                    .getBean("currentUserInfo")).getUserName());
-            rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
-                .getWebApplicationContext(session.getServletContext())
-                .getBean("workspaceManager"));
-            rulesUserSession.setUserManagementService(
-                (UserManagementService) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-                    .getBean("userManagementService"));
+            ApplicationContext appContext = SpringInitializer.getApplicationContext(session.getServletContext());
+            rulesUserSession = appContext.getBean(RulesUserSession.class);
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
         }
         return rulesUserSession;
     }
 
     public static WebStudio getWebStudio() {
-        return (WebStudio) getExternalContext().getSessionMap().get(STUDIO_ATTR);
+        var rulesUserSession = getRulesUserSession();
+        return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
     }
 
     public static WebStudio getWebStudio(HttpSession session) {
-        return session == null ? null : (WebStudio) session.getAttribute(STUDIO_ATTR);
+        var rulesUserSession = getRulesUserSession(session);
+        return rulesUserSession == null ? null : rulesUserSession.getWebStudio();
     }
 
     public static TraceHelper getTraceHelper() {
@@ -91,7 +83,7 @@ public abstract class WebStudioUtils {
         HttpSession session = (HttpSession) getExternalContext().getSession(true);
         WebStudio studio = getWebStudio(session);
         if (studio == null) {
-            studio = new WebStudio(session);
+            studio = getRulesUserSession(session, true).getWebStudio();
             session.setAttribute(STUDIO_ATTR, studio);
         }
         return studio;
@@ -122,12 +114,6 @@ public abstract class WebStudioUtils {
         ServletContext servletContext = (ServletContext) getExternalContext().getContext();
         WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
         return appContext.getBean(clazz);
-    }
-
-    public static <T> T getBean(String name, Class<T> clazz) {
-        ServletContext servletContext = (ServletContext) getExternalContext().getContext();
-        WebApplicationContext appContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-        return appContext.getBean(name, clazz);
     }
 
     @Deprecated
