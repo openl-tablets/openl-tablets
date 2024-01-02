@@ -18,14 +18,12 @@ import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -38,21 +36,17 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class ShowTraceTableBean {
 
-    private final ITracerObject tto;
+    private ITracerObject tto;
 
-    public ShowTraceTableBean() {
-        TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
-
-        String traceElementIdParam = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-        int traceElementId = -100;
-        if (traceElementIdParam != null) {
-            traceElementId = Integer.parseInt(traceElementIdParam);
-        }
-        tto = traceHelper.getTableTracer(traceElementId);
+    public void setTraceId(int id) {
+        tto = WebStudioUtils.getTraceHelper().getTableTracer(id);
         if (tto == null) {
-            throw new NullPointerException(
-                String.format("A trace object with ID=[%s] is absent.", traceElementIdParam));
+            throw new NullPointerException(String.format("A trace object with ID=[%s] is absent.", id));
         }
+    }
+
+    public boolean isInit() {
+        return tto != null;
     }
 
     public IOpenLTable getTraceTable() {
