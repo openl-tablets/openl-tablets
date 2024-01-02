@@ -24,7 +24,7 @@
             <h:outputText value="#{parameterTreeBuilder.tableToHtml(parameter)}" escape="false" />
         </h:panelGroup>
 
-        <h:panelGroup id="objectParam"
+        <h:panelGroup styleClass="prmt"
             rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
 
             <!-- New approach for lazy parameter loading (when requestId is passed) -->
@@ -34,7 +34,7 @@
                         <div class="rf-trn">
                             <ui:param name="objectParameterUrl" value="#{contextPath}/faces/pages/modules/test/objectParameter.xhtml?paramRootId=#{parameterTreeBuilder.getParameterId(requestId, parameter)}&amp;requestId=#{requestId}"/>
 
-                            <a href="javascript:void(0)" onclick="$j(#{rich:element('objectParam')}).load('#{objectParameterUrl}'); ws.ui.hideLoader();"
+                            <a href="javascript:void(0)" onclick="$j(this).closest('.prmt').load('#{objectParameterUrl}'); ws.ui.hideLoader();"
                                style="font-family:Arial,Verdana,sans-serif; color:inherit; text-decoration: none"><span class="rf-trn-hnd rf-trn-hnd-colps">
                                 </span><span class="rf-trn-cnt rf-trn-lbl">
                                     #{parameterTreeBuilder.getRoot(parameter)}
@@ -50,8 +50,8 @@
                 <div class="rf-tr param-tree">
                     <div class="rf-tr-nd">
                         <div class="rf-trn">
-                            <a4j:commandLink render="objectParam" execute="@this"
-                                oncomplete="$j(#{rich:element('objectParam')}).find('.rf-trn-hnd:first').click()"
+                            <a4j:commandLink execute="@this"
+                                oncomplete="$j(this).closest('.prmt').find('.rf-trn-hnd:first').click()"
                                 style="font-family:Arial,Verdana,sans-serif; color:inherit; text-decoration: none">
                                 <a4j:param name="loaded" value="true" /><span class="rf-trn-hnd rf-trn-hnd-colps">
                                 </span><span class="rf-trn-cnt rf-trn-lbl">
