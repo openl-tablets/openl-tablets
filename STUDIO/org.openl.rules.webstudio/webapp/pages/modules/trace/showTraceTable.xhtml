@@ -16,11 +16,11 @@
     <ui:define name="content">
         <script src="#{contextPath}/webresource/js/prototype/prototype-1.6.1.js"></script>
         <script src="#{contextPath}/webresource/js/tooltip.js"></script>
-        <h:panelGroup rendered="#{not empty param.first}">
+        <h:panelGroup rendered="#{empty param.id}">
             <b>Select a trace element on the left and you will see its trace here.</b>
         </h:panelGroup>
 
-        <h:panelGroup rendered="#{empty param.first}">
+        <h:panelGroup rendered="#{not empty param.id}">
 
             <div style="border-bottom: 1px solid #dddddd; padding-bottom: 5px">
             <table>
