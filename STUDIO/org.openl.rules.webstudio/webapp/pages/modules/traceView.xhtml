@@ -2,54 +2,59 @@
 <!DOCTYPE html>
 
 <html
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:c="http://java.sun.com/jsp/jstl/core">
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+<c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
-    <head>
-        <title>Trace</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<head>
+    <title>Trace</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
-        <link rel="icon" href="#{contextPath}/icons/favicon.ico?v=studio" sizes="48x48" />
-        <link rel="icon" href="#{contextPath}/icons/favicon.svg?v=studio" sizes="any" type="image/svg+xml"/>
-        <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
-        <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio" />
+    <link rel="icon" href="#{contextPath}/icons/favicon.ico?v=studio" sizes="48x48"/>
+    <link rel="icon" href="#{contextPath}/icons/favicon.svg?v=studio" sizes="any" type="image/svg+xml"/>
+    <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
+    <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio"/>
 
     <style>
         body {
-            margin:0;
-            padding:0;
+            margin: 0;
+            padding: 0;
         }
+
         .disable-events iframe {
             pointer-events: none;
         }
+
         .container {
             display: flex;
             height: 100%;
             width: 100%;
             position: absolute;
         }
+
         .left {
-            min-width:200px;
-            width:35%;
+            min-width: 200px;
+            width: 35%;
             border: none;
             overflow: auto;
         }
+
         #resizer {
             width: 1px;
             border: 5px solid white;
             background-color: gray;
             cursor: ew-resize;
         }
+
         .main {
-            min-width:200px;
-            flex:1;
+            min-width: 200px;
+            flex: 1;
             overflow: auto;
             border: none;
         }
     </style>
-    </head>
+</head>
 
 <body>
 
