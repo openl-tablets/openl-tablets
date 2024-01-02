@@ -3,11 +3,15 @@
 
 <html
         xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rules="http://openl-tablets.sourceforge.net/jsf"
         xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
-<head>
+<h:head>
     <title>Trace</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 
@@ -16,7 +20,7 @@
     <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
     <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio"/>
 
-    <link href="#{contextPath}/css/common.css?10" rel="stylesheet" />
+    <link href="#{contextPath}/css/common.css?9" rel="stylesheet" />
     <script src="#{contextPath}/javascript/common.js?12" />
 
     <link href="#{contextPath}/css/ui.fancytree.min.css" rel="stylesheet" />
@@ -30,10 +34,6 @@
             padding: 0;
         }
 
-        .disable-events iframe {
-            pointer-events: none;
-        }
-
         .container {
             display: flex;
             height: 100%;
@@ -44,7 +44,6 @@
         .left {
             min-width: 200px;
             width: 35%;
-            border: none;
             overflow: auto;
             margin: 5px;
         }
@@ -60,7 +59,7 @@
             min-width: 200px;
             flex: 1;
             overflow: auto;
-            border: none;
+            margin: 5px;
         }
 
         .traceTreeParams {
@@ -161,6 +160,10 @@
             display: none;
         }
 
+        .tr-middle-align {
+            vertical-align: middle;
+        }
+
         #loadingPanel {
             top: 0
         }
@@ -170,9 +173,88 @@
             top: 3px;
         }
     </style>
-</head>
+    <script>
+        //<![CDATA[
+        var loadingPanel;
+
+        function showLoader() {
+            if (loadingPanel.is(":hidden")) {
+                showAnimatedPanel(loadingPanel);
+            }
+
+        }
+        function hideLoader() {
+            if (loadingPanel.is(":visible")) {
+                loadingPanel.hide();
+            }
+        }
+
+        var ws = {
+            ui: {
+                success: function(content) {
+                    message(content, 4000, true, "success");
+                },
+                error: function(content) {
+                    message(content, -1, true, "error");
+                },
+                info: function(content) {
+                    message(content, 8000, true);
+                },
+                showLoader: function () {
+                    if (loadingPanel.is(":hidden")) {
+                        showAnimatedPanel(loadingPanel);
+                    }
+                },
+                hideLoader: function () {
+                    if (loadingPanel.is(":visible")) {
+                        loadingPanel.hide();
+                    }
+                }
+
+            }
+        };
+        const $j = $.noConflict();
+        $j(function () {
+            loadingPanel = $j("#loadingPanel");
+
+            $j.ajaxSetup({
+                beforeSend: showLoader,
+                complete: hideLoader
+            });
+
+            $j("#tree").fancytree({
+                toggleEffect: false,
+                activate: function (event, data) {
+                    if (!isNaN(data.node.key)) {
+                        showTrace(data.node.key);
+                    }
+                },
+                lazyLoad: function (event, data) {
+                    data.result = {
+                        url: "#{contextPath}/web/trace/nodes",
+                        data: {
+                            id: data.node.key,
+                            showRealNumbers: "#{studio.showRealNumbers}"
+                        }
+                    };
+                },
+                source: {
+                    url: "#{contextPath}/web/trace/nodes",
+                    data: {showRealNumbers: "#{studio.showRealNumbers}"}
+                },
+                init: function () {
+                    // Select the first node to display
+                    $j.ui.fancytree.getTree("#tree").getFirstChild().setActive();
+                }
+            });
+        });
+        //]]>
+    </script>
+</h:head>
 
 <body>
+<script src="#{contextPath}/webresource/js/prototype/prototype-1.6.1.js"></script>
+<script src="#{contextPath}/webresource/js/tableeditor.min.js?1"></script>
 
 <div class="container">
     <div class="left">
@@ -183,52 +265,101 @@
         <div id="tree"/>
     </div>
     <div id="resizer"/>
-    <iframe class="main" name="mainFrame" src="#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml"
-            scrolling="auto"/>
+    <h:panelGroup styleClass="main" id="tracePanel" layout="block">
+        <h:panelGroup rendered="#{not showTraceTableBean.isInit()}">
+            <b>Select a trace element on the left and you will see its trace here.</b>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{showTraceTableBean.isInit()}">
+
+            <div style="border-bottom: 1px solid #dddddd; padding-bottom: 5px">
+                <table>
+                    <tr class="tr-middle-align">
+                        <td  style="padding-right: 5px; font-size: 143%"><b>Input parameters: </b></td>
+                        <td>
+                            <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
+                                <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <span>
+                                    <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
+                                </span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{!showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <span>
+                                    <ui:include src="/pages/modules/test/parameter.xhtml">
+                                        <ui:param name="parameter" value="#{parameter}" />
+                                        <ui:param name="lazy" value="true" />
+                                        <ui:param name="trace" value="true"/>
+                                        <ui:param name="requestId" value="#{mainBean.requestId}" />
+                                    </ui:include>
+                                </span>
+                                </h:panelGroup>
+                            </ui:repeat>
+                        </td>
+                        <h:panelGroup rendered="#{!empty showTraceTableBean.context}">
+                            <td>
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{showTraceTableBean.context}" />
+                                    <ui:param name="lazy" value="false" />
+                                    <ui:param name="trace" value="true"/>
+                                </ui:include>
+                            </td>
+                        </h:panelGroup>
+                        <h:panelGroup>
+                            <td style="vertical-align: top">
+                                <ui:include src="/pages/common/tableViewMenu.xhtml" />
+                            </td>
+                        </h:panelGroup>
+                    </tr>
+                </table>
+
+                <table >
+                    <tr class="tr-middle-align">
+                        <td style="padding-right: 5px; font-size: 143%"><b>Returned result: </b></td>
+                        <c:set var="result" value="#{showTraceTableBean.returnResult}"/>
+                        <td>
+                            <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(result.value)}">
+                                <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(result.value)}" escape="false" />
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(result.value)}">
+                                <ui:include src="/pages/modules/test/parameter.xhtml">
+                                    <ui:param name="parameter" value="#{result}"/>
+                                    <ui:param name="lazy" value="false" />
+                                    <ui:param name="trace" value="true"/>
+                                    <ui:param name="showRealNumbers" value="#{studio.showRealNumbers}"/>
+                                </ui:include>
+                            </h:panelGroup>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <c:set var="errors" value="#{showTraceTableBean.errors}" />
+            <h:panelGroup rendered="#{not empty errors}">
+                <ui:include src="/pages/modules/messages.xhtml">
+                    <ui:param name="messages" value="#{errors}" />
+                    <ui:param name="editable" value="false" />
+                </ui:include>
+                <p />
+            </h:panelGroup>
+
+            <br />
+
+            <rules:tableEditor table="#{showTraceTableBean.traceTable}" filters="#{showTraceTableBean.traceFilters}"
+                               editable="false" view="#{studio.tableView}" />
+
+        </h:panelGroup>
+    </h:panelGroup>
 </div>
 
 <div id="loadingPanel" style="display: none">
     <img src="#{contextPath}/webresource/images/ajax-loader.gif" />
 </div>
 
-<script type="text/javascript">
-    //<![CDATA[
-    $(function () {
-        const loadingPanel = $("#loadingPanel");
-
-        $.ajaxSetup({
-            beforeSend: () => showAnimatedPanel(loadingPanel),
-            complete: () => loadingPanel.hide()
-        });
-
-        $("#tree").fancytree({
-            toggleEffect: false,
-            activate: function (event, data) {
-                if (!isNaN(data.node.key)) {
-                    window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
-                }
-            },
-            lazyLoad: function (event, data) {
-                data.result = {
-                    url: "#{contextPath}/web/trace/nodes",
-                    data: {
-                        id: data.node.key,
-                        showRealNumbers: "#{studio.showRealNumbers}"
-                    }
-                };
-            },
-            source: {
-                url: "#{contextPath}/web/trace/nodes",
-                data: {showRealNumbers: "#{studio.showRealNumbers}"}
-            },
-            init: function () {
-                // Select the first node to display
-                $.ui.fancytree.getTree("#tree").getFirstChild().setActive();
-            }
-        });
-    });
-    //]]>
-</script>
+<h:form>
+    <a4j:jsFunction name="showTrace" render="tracePanel">
+        <a4j:param name="traceId" assignTo="#{showTraceTableBean.traceId}"/>
+    </a4j:jsFunction>
+</h:form>
 <script>
     let m_pos;
     const resize_el = document.getElementById("resizer");
@@ -243,13 +374,11 @@
 
     resize_el.addEventListener("mousedown", function (e) {
         m_pos = e.x;
-        document.body.classList.add("disable-events"); // Disable catching mouse events in the IFRAME tags
         document.addEventListener("mousemove", resize, false);
     }, false);
 
     document.addEventListener("mouseup", function () {
         document.removeEventListener("mousemove", resize, false);
-        document.body.classList.remove("disable-events");
     }, false);
 
 </script>
