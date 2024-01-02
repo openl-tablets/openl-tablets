@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<!DOCTYPE html>
 
 <html
     xmlns="http://www.w3.org/1999/xhtml"
@@ -16,11 +15,76 @@
         <link rel="icon" href="#{contextPath}/icons/favicon.svg?v=studio" sizes="any" type="image/svg+xml"/>
         <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
         <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio" />
+
+    <style>
+        body {
+            margin:0;
+            padding:0;
+        }
+        .disable-events iframe {
+            pointer-events: none;
+        }
+        .container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+        .left {
+            min-width:200px;
+            width:35%;
+            border: none;
+            overflow: auto;
+        }
+        #resizer {
+            width: 1px;
+            border: 5px solid white;
+            background-color: gray;
+            cursor: ew-resize;
+        }
+        .main {
+            min-width:200px;
+            flex:1;
+            overflow: auto;
+            border: none;
+        }
+    </style>
     </head>
 
-    <frameset cols="*,65%">
-        <frame name="leftFrame" src="#{contextPath}/faces/pages/modules/trace/tree.xhtml" scrolling="auto" />
-        <frame name="mainFrame" src="#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml" scrolling="auto" />
-    </frameset>
+<body>
+
+<div class="container">
+    <iframe class="left" name="leftFrame" src="#{contextPath}/faces/pages/modules/trace/tree.xhtml" scrolling="auto"/>
+    <div id="resizer"/>
+    <iframe class="main" name="mainFrame" src="#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml"
+            scrolling="auto"/>
+</div>
+
+<script>
+    let m_pos;
+    const resize_el = document.getElementById("resizer");
+
+    function resize(e) {
+        const leftBlock = resize_el.previousElementSibling;
+        const dx = e.x - m_pos;
+        m_pos = e.x;
+        let newWidth = leftBlock.getBoundingClientRect().width + dx;
+        leftBlock.style.width = newWidth + "px";
+    }
+
+    resize_el.addEventListener("mousedown", function (e) {
+        m_pos = e.x;
+        document.body.classList.add("disable-events"); // Disable catching mouse events in the IFRAME tags
+        document.addEventListener("mousemove", resize, false);
+    }, false);
+
+    document.addEventListener("mouseup", function () {
+        document.removeEventListener("mousemove", resize, false);
+        document.body.classList.remove("disable-events");
+    }, false);
+
+</script>
+
+</body>
 
 </html>
