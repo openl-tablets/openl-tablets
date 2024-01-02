@@ -215,7 +215,7 @@
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
 
     <div id="unitsMenu" style="display: none; min-width: 300px">
-        <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml" />
+        <c:set var="traceUrl" value="#{contextPath}/faces/pages/modules/traceView.xhtml" />
         <h:form prependId="false">
             <h:panelGroup id="runModuleOnlySetting" layout="block">
                 <div style="margin: 10px 15px 0; white-space:nowrap;" title="Within Current Module Only">
@@ -491,7 +491,7 @@
                     <td>
                         <h:form id="inputArgsForm" onsubmit="return checkInput()">
                             <c:set var="runLink" value="#{studio.url('test/run')}?id=#{tableBean.id}" />
-                            <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml" />
+                            <c:set var="traceUrl" value="#{contextPath}/faces/pages/modules/traceView.xhtml" />
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
