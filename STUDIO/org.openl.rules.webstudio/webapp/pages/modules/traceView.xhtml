@@ -16,6 +16,14 @@
     <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
     <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio"/>
 
+    <link href="#{contextPath}/css/common.css?10" rel="stylesheet" />
+    <script src="#{contextPath}/javascript/common.js?12" />
+
+    <link href="#{contextPath}/css/ui.fancytree.min.css" rel="stylesheet" />
+    <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js" />
+    <script src="#{contextPath}/javascript/vendor/jquery-ui-1.8.16.custom.min.js" />
+    <script src="#{contextPath}/javascript/vendor/jquery.fancytree-2.15.0.min.js" />
+
     <style>
         body {
             margin: 0;
@@ -38,6 +46,7 @@
             width: 35%;
             border: none;
             overflow: auto;
+            margin: 5px;
         }
 
         #resizer {
@@ -53,18 +62,173 @@
             overflow: auto;
             border: none;
         }
+
+        .traceTreeParams {
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 5px;
+        }
+
+        .traceTreeParams input[type="checkbox"] {
+            vertical-align: middle;
+        }
+
+        .traceTreeFieldName {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .tree {
+            padding-top: 5px;
+        }
+
+        .fancytree-ico-c span.fancytree-icon,
+        .fancytree-ico-e span.fancytree-icon,
+        .fancytree-has-children.fancytree-ico-c span.fancytree-icon,
+        .fancytree-ico-c span.fancytree-icon:hover,
+        .fancytree-ico-e span.fancytree-icon:hover,
+        .fancytree-has-children.fancytree-ico-c span.fancytree-icon:hover {
+            background-position: 0 0;
+        }
+
+        ul.fancytree-container {
+            /* reserve 17px to fix scroll overlapping of the last node in tree */
+            padding-bottom: 17px;
+        }
+
+        .decisiontable .fancytree-icon {
+            background-image: url("webresource/images/ruleset.gif");
+        }
+
+        .rule .fancytree-icon {
+            background-image: url("webresource/images/test_ok.gif");
+        }
+
+        .cmatch .fancytree-icon, .wcmatch .fancytree-icon, .wcmScore .fancytree-icon {
+            background-image: url("webresource/images/cmatch.gif");
+        }
+
+        .cmResult .fancytree-icon {
+            background-image: url("webresource/images/cmatch-check.gif");
+        }
+
+        .cmMatch .fancytree-icon {
+            background-image: url("webresource/images/cmatch-match.gif");
+        }
+
+        .tbasic .fancytree-icon {
+            background-image: url("webresource/images/tbasic.gif");
+        }
+
+        .tbasicMethod .fancytree-icon, .method .fancytree-icon {
+            background-image: url("webresource/images/method.gif");
+        }
+
+        .tbasicOperation .fancytree-icon {
+            background-image: url("webresource/images/tbasic-operation.gif");
+        }
+
+        /* TODO: icons for spreadsheet, method, overloadedMethodChoise in trace */
+        .spreadsheet .fancytree-icon {
+            background-image: url("webresource/images/spreadsheet.gif");
+        }
+
+        .spreadsheetCell .fancytree-icon {
+            background-image: url("webresource/images/value.gif");
+        }
+
+        .overloadedMethodChoice .fancytree-icon {
+            background-image: url("webresource/images/tableview.gif");
+        }
+
+        .dtRule.result .fancytree-icon, .dtRule.no_result .fancytree-icon {
+            background-image: url("webresource/images/test_success.png");
+        }
+
+        .dtRule.fail .fancytree-icon {
+            background-image: url("webresource/images/test_fail.png");
+        }
+
+        .result > .fancytree-title {
+            font-weight: bold;
+        }
+
+        .fail > .fancytree-title,
+        .no_result > .fancytree-title {
+            font-style: italic;
+        }
+
+        .hide_details .fancytree-node.fail, .hide_details .fancytree-node.no_result {
+            display: none;
+        }
+
+        #loadingPanel {
+            top: 0
+        }
+
+        #loadingPanel img {
+            left: 200px;
+            top: 3px;
+        }
     </style>
 </head>
 
 <body>
 
 <div class="container">
-    <iframe class="left" name="leftFrame" src="#{contextPath}/faces/pages/modules/trace/tree.xhtml" scrolling="auto"/>
+    <div class="left">
+        <div class="traceTreeParams">
+            <span class="traceTreeFieldName">Detailed trace tree</span><input checked="checked" type="checkbox"
+                                                                              onchange="$('#tree').toggleClass('hide_details', !this.checked)"></input>
+        </div>
+        <div id="tree"/>
+    </div>
     <div id="resizer"/>
     <iframe class="main" name="mainFrame" src="#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml"
             scrolling="auto"/>
 </div>
 
+<div id="loadingPanel" style="display: none">
+    <img src="#{contextPath}/webresource/images/ajax-loader.gif" />
+</div>
+
+<script type="text/javascript">
+    //<![CDATA[
+    $(function () {
+        const loadingPanel = $("#loadingPanel");
+
+        $.ajaxSetup({
+            beforeSend: () => showAnimatedPanel(loadingPanel),
+            complete: () => loadingPanel.hide()
+        });
+
+        $("#tree").fancytree({
+            toggleEffect: false,
+            activate: function (event, data) {
+                if (!isNaN(data.node.key)) {
+                    window.open("#{contextPath}/faces/pages/modules/trace/showTraceTable.xhtml?id=" + data.node.key, "mainFrame");
+                }
+            },
+            lazyLoad: function (event, data) {
+                data.result = {
+                    url: "#{contextPath}/web/trace/nodes",
+                    data: {
+                        id: data.node.key,
+                        showRealNumbers: "#{studio.showRealNumbers}"
+                    }
+                };
+            },
+            source: {
+                url: "#{contextPath}/web/trace/nodes",
+                data: {showRealNumbers: "#{studio.showRealNumbers}"}
+            },
+            init: function () {
+                // Select the first node to display
+                $.ui.fancytree.getTree("#tree").getFirstChild().setActive();
+            }
+        });
+    });
+    //]]>
+</script>
 <script>
     let m_pos;
     const resize_el = document.getElementById("resizer");
