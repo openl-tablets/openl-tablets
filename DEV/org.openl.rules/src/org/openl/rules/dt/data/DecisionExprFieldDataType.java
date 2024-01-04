@@ -7,21 +7,29 @@ import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DTColumnsDefinitionField;
 import org.openl.types.IOpenField;
 
-class DecisionExprFieldDataType extends ComponentOpenClass {
+public class DecisionExprFieldDataType extends ComponentOpenClass {
     private final DecisionTableDataType decisionTableDataType;
+
+    private boolean exprParameterFieldIsUsed = false;
 
     DecisionExprFieldDataType(DecisionTableDataType decisionTableDataType, OpenL openl) {
         super(DecisionExprFieldDataType.class.getSimpleName(), openl);
         this.decisionTableDataType = decisionTableDataType;
     }
 
+    public boolean isExprParameterFieldIsUsed() {
+        return exprParameterFieldIsUsed;
+    }
+
     @Override
     public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField openField = decisionTableDataType.getField(name, strictMatch);
         if (openField instanceof DecisionRowField) {
+            exprParameterFieldIsUsed = true;
             DecisionRowField decisionRowField = (DecisionRowField) openField;
             return new ExprDecisionRowField(decisionRowField, getOpenl());
         } else if (openField instanceof ConditionOrActionDirectParameterField) {
+            exprParameterFieldIsUsed = true;
             return new ExprParameterField((ConditionOrActionDirectParameterField) openField);
         } else if (openField instanceof DTColumnsDefinitionField) {
             return new ExprParameterDTColumnsDefinitionField((DTColumnsDefinitionField) openField);

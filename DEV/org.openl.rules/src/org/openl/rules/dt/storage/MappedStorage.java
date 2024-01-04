@@ -5,7 +5,7 @@ import org.openl.rules.dt.Expr;
 abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
     private final Object[] uniqueValues;
-    private final IStorage storage;
+    private IStorage storage;
 
     MappedStorage(Object[] uniqueValues, IStorage storage, StorageInfo info) {
         super(info);
@@ -40,4 +40,8 @@ abstract class MappedStorage extends ReadOnlyStorage<Object> {
         return storage.getExprValue(index);
     }
 
+    @Override
+    public void removeExprs() {
+        this.storage = null;
+    }
 }

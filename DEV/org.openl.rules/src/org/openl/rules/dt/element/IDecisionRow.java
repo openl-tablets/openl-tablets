@@ -35,6 +35,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     void clearParamValues();
 
+    void clearExprs();
+
     boolean isAction();
 
     boolean isCondition();

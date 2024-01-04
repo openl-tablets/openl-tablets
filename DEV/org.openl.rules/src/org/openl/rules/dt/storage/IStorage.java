@@ -26,6 +26,8 @@ public interface IStorage<T> {
 
     Expr getExprValue(int index);
 
+    void removeExprs();
+
     enum StorageType {
         VALUE,
         SPACE,

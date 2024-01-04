@@ -26,6 +26,7 @@ import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
+import org.openl.rules.dt.data.DecisionExprFieldDataType;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
@@ -174,7 +175,25 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         prepareActions(ruleExecutionType, bindingContext);
 
         baseInfo = new IndexInfo().withTable(table);
-        return buildAlgorithm();
+        IDecisionTableAlgorithm algorithm = buildAlgorithm();
+        clearMemoryAfterDTCompilationCompleted(ruleExecutionType);
+        return algorithm;
+    }
+
+    private void clearMemoryAfterDTCompilationCompleted(DecisionTableDataType ruleExecutionType) {
+        IOpenField exprOpenField = ruleExecutionType.getField(DecisionTableDataType.EXPR_FIELD_NAME);
+        if (exprOpenField != null && exprOpenField.getType() instanceof DecisionExprFieldDataType) {
+            DecisionExprFieldDataType decisionExprFieldDataType = (DecisionExprFieldDataType) exprOpenField.getType();
+            if (!decisionExprFieldDataType.isExprParameterFieldIsUsed()) {
+                // $Expr.* field is not used in expressions, so we can clear all related data to save memory
+                for (IBaseCondition condition : table.getConditionRows()) {
+                    ((IDecisionRow) condition).clearExprs();
+                }
+                for (IBaseAction action : table.getActionRows()) {
+                    ((IDecisionRow) action).clearExprs();
+                }
+            }
+        }
     }
 
     private void prepareActions(DecisionTableDataType ruleExecutionType,

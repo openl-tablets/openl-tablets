@@ -64,4 +64,8 @@ class EmptyStorage implements IStorage<Object> {
     public void setFormula(int index, Object formula) {
 
     }
+
+    @Override
+    public void removeExprs() {
+    }
 }
