@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
@@ -36,6 +37,8 @@ import org.openl.types.IParameterDeclaration;
  */
 
 public class DecisionTableDataType extends ComponentOpenClass {
+
+    public static String EXPR_FIELD_NAME = SpreadsheetStructureBuilder.DOLLAR_SIGN + "Expr";
 
     private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
     private final Map<String, List<IOpenField>> nonConflictConditionParamNamesNonStrictMatch = new HashMap<>();

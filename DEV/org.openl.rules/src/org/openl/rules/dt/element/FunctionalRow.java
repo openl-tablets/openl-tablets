@@ -777,6 +777,15 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
+    public void clearExprs() {
+        if (this.storage != null) {
+            for (IStorage<?> st : this.storage) {
+                st.removeExprs();
+            }
+        }
+    }
+
+    @Override
     public boolean isEqual(int rule1, int rule2) {
         int n = getNumberOfParams();
         for (int i = 0; i < n; i++) {

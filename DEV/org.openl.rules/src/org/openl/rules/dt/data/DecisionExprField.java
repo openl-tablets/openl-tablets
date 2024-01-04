@@ -1,7 +1,6 @@
 package org.openl.rules.dt.data;
 
 import org.openl.OpenL;
-import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -69,7 +68,7 @@ class DecisionExprField implements IOpenField {
 
     @Override
     public String getName() {
-        return SpreadsheetStructureBuilder.DOLLAR_SIGN + "Expr";
+        return DecisionTableDataType.EXPR_FIELD_NAME;
     }
 
 }

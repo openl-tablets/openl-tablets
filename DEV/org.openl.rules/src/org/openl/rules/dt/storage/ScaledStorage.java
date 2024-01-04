@@ -6,7 +6,7 @@ import org.openl.rules.dt.Expr;
 public class ScaledStorage extends ReadOnlyStorage {
 
     private final RowScale scale;
-    private final IStorage s;
+    private IStorage s;
 
     ScaledStorage(RowScale scale, IStorage s, StorageInfo info) {
         super(info);
@@ -48,4 +48,8 @@ public class ScaledStorage extends ReadOnlyStorage {
         return scale.getActualIndex(index);
     }
 
+    @Override
+    public void removeExprs() {
+        this.s.removeExprs();
+    }
 }
