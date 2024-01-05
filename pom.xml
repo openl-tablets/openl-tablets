@@ -78,8 +78,8 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.23</org.springframework.version>
-        <org.springsecurity.version>5.7.5</org.springsecurity.version>
+        <org.springframework.version>5.3.31</org.springframework.version>
+        <org.springsecurity.version>5.8.9</org.springsecurity.version>
         <org.hibernate.version>5.4.33.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
@@ -90,10 +90,11 @@
         <!-- Kafka 3.0.0 is not supported by Kafka-Junit yet -->
         <kafka.version>2.8.1</kafka.version>
         <kafka-junit.version>2.8.0</kafka-junit.version>
+        <snappy-java.version>1.1.10.4</snappy-java.version>
         <cassandra.driver.version>4.13.0</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.11.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.5.4</org.apache.cxf.version>
+        <org.apache.cxf.version>3.5.5</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
@@ -102,13 +103,14 @@
         <log4j.version>2.18.0</log4j.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.71.1</org.bouncycastle.version>
+        <org.bouncycastle.version>1.77</org.bouncycastle.version>
+        <guava.version>32.0.0-jre</guava.version>
         <com.fasterxml.jackson.version>2.14.0</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.49.v20220914</jetty.server.version>
-        <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.21</elasticsearch.version>
+        <elasticsearch-cluster-runner.version>7.10.2.0</elasticsearch-cluster-runner.version>
+        <elasticsearch.version>7.17.16</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
@@ -1201,6 +1203,11 @@
                 <version>2.11.1</version>
             </dependency>
             <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.codelibs</groupId>
                 <artifactId>elasticsearch-cluster-runner</artifactId>
                 <version>${elasticsearch-cluster-runner.version}</version>
@@ -1289,7 +1296,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.19</version>
+                <version>1.4.20</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1577,6 +1584,12 @@
                 <artifactId>kafka-log4j-appender</artifactId>
                 <version>${kafka.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>${snappy-java.version}</version>
+                <scope>runtime</scope>
+            </dependency>
             <!-- //Kafka -->
             <!-- OpenTracing -->
             <dependency>
@@ -1639,7 +1652,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.9.3</version>
+                <version>4.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
