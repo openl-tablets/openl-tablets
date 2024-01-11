@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/REST/EPBDS-9519_2/EPBDS-9519",
-      "variables": {}
+      "url": "/REST/EPBDS-9519_2/EPBDS-9519"
     }
   ],
   "paths": {

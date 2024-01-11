@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/rules-serializationInclusionAlways",
-      "variables": {}
+      "url": "/rules-serializationInclusionAlways"
     }
   ],
   "paths": {

@@ -9,8 +9,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/REST/Tutorial1/Tutorial1",
-      "variables": {}
+      "url": "/REST/Tutorial1/Tutorial1"
     }
   ],
   "paths": {

@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/service%20name%20with%20spaces",
-      "variables": {}
+      "url": "/service%20name%20with%20spaces"
     }
   ],
   "paths": {

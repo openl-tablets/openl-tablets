@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/EPBDS-9928-rs",
-      "variables": {}
+      "url": "/EPBDS-9928-rs"
     }
   ],
   "paths": {
@@ -3552,7 +3551,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": ".*"
             }
           }
         ],

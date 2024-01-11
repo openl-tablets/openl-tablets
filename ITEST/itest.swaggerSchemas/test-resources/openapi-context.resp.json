@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/rules-with-runtime-context",
-      "variables": {}
+      "url": "/rules-with-runtime-context"
     }
   ],
   "paths": {

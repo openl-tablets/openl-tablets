@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/rules-without-runtime-context",
-      "variables": {}
+      "url": "/rules-without-runtime-context"
     }
   ],
   "paths": {
