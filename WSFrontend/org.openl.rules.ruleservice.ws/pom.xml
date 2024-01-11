@@ -119,11 +119,31 @@
                         <id>copy-dependencies</id>
                         <phase>prepare-package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
-                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
+                            <artifactItems>
+                                <!-- Logging -->
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-slf4j2-impl</artifactId>
+                                    <version>${log4j.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-core</artifactId>
+                                    <version>${log4j.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <version>${log4j.version}</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -293,20 +313,6 @@
                     <groupId>jakarta.xml.ws</groupId>
                     <artifactId>jakarta.xml.ws-api</artifactId>
                     <version>2.3.2</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>slf4j-log4j</id>
-            <activation>
-                <property>
-                    <name>!noSlf4j-log4j</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
                 </dependency>
             </dependencies>
         </profile>

@@ -11,7 +11,7 @@
     <name>ITEST - Spring Boot: Application</name>
 
     <properties>
-        <spring-boot.version>2.7.5</spring-boot.version>
+        <spring-boot.version>2.7.18</spring-boot.version>
     </properties>
 
     <dependencies>
@@ -40,10 +40,6 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
     </dependencies>
 

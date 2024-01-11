@@ -100,8 +100,8 @@
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <io.swagger.core.v3.version>2.2.19</io.swagger.core.v3.version>
-        <log4j.version>2.18.0</log4j.version>
-        <org.slf4j.version>1.7.36</org.slf4j.version>
+        <log4j.version>2.22.1</log4j.version>
+        <org.slf4j.version>2.0.11</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.77</org.bouncycastle.version>
         <guava.version>32.0.0-jre</guava.version>
@@ -644,7 +644,7 @@
                         <dependencies>
                             <dependency>
                                 <groupId>org.apache.logging.log4j</groupId>
-                                <artifactId>log4j-slf4j-impl</artifactId>
+                                <artifactId>log4j-slf4j2-impl</artifactId>
                                 <version>${log4j.version}</version>
                             </dependency>
                             <dependency>
@@ -982,7 +982,7 @@
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-slf4j-impl</artifactId>
+                <artifactId>log4j-slf4j2-impl</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
