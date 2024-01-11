@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/REST/deployment3/simple3",
-      "variables": {}
+      "url": "/REST/deployment3/simple3"
     }
   ],
   "paths": {

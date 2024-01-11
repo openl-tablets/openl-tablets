@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/REST/spreadsheetresult",
-      "variables": {}
+      "url": "/REST/spreadsheetresult"
     }
   ],
   "paths": {

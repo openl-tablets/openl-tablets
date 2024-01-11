@@ -9,8 +9,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/EPBDS-8931/EPBDS-8931",
-      "variables": {}
+      "url": "/EPBDS-8931/EPBDS-8931"
     }
   ],
   "paths": {
@@ -98,7 +97,8 @@ Content-Type: application/json
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "pattern": ".*"
             }
           }
         ],

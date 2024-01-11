@@ -6,8 +6,7 @@
   },
   "servers": [
     {
-      "url": "/upcs",
-      "variables": {}
+      "url": "/upcs"
     }
   ],
   "paths": {
