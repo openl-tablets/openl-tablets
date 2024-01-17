@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { Button, Form, Input, Modal, Table } from 'antd'
 import type { CheckboxValueType } from 'antd/es/checkbox/Group'
 import { stringify } from 'querystring'
-import './NewGroupModal.scss'
 import { CheckOutlined } from '@ant-design/icons'
 import { apiCall } from '../../services'
 
@@ -122,7 +121,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
 
         return Object.keys(allPrivileges).map((key) => ({
             key,
-            title: allPrivileges[ key ],
+            title: allPrivileges[key],
             ...groupData,
         }))
     }, [ allPrivileges, groupData ])
@@ -147,7 +146,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                 key: groupKey,
                 render: (value: any) => {
                     const privilege = value.key
-                    const group = value[ groupKey ]
+                    const group = value[groupKey]
                     const hasPrivilege = group.privileges?.includes(privilege)
                     return hasPrivilege ? <CheckOutlined /> : null
                 },

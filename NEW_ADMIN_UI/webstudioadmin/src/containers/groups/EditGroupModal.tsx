@@ -92,7 +92,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
   }
 
   const selectPrivileges = (privilege: string) => {
-      const selectedRows = CreateGroupDataSource.filter((row) => row[ privilege ] === '✓')
+      const selectedRows = CreateGroupDataSource.filter((row) => row[privilege] === '✓')
       const privileges = selectedRows.map((row) => row.key) as CheckboxValueType[]
       setPrivileges(privileges)
   }
@@ -189,8 +189,8 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
   ]
 
   return (
-      <div style={{ width: 850 }}>
-          <Form layout="vertical" style={{ width: 850 }}>
+      <div>
+          <Form layout="vertical">
               <Form.Item>
                   <b>Account</b>
               </Form.Item>

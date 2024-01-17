@@ -4,3 +4,9 @@ html, body {
   line-height: 22px;
   color: rgba(0, 0, 0, 0.88);
 }
+
+// Ant Design Modal
+.ant-modal .ant-modal-content {
+  max-height: 80vh;
+  overflow: auto;
+}

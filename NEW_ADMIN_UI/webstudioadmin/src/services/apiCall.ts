@@ -14,7 +14,7 @@ const apiCall = async (url: string, params?: RequestInit) => {
 
     if (authorisationHeader) {
         if (responseParams.headers instanceof Headers) {
-            responseParams.headers.append('Authorization', authorisationHeader)
+            responseParams.headers.set('Authorization', authorisationHeader)
         } else {
             responseParams.headers = new Headers({
                 ...responseParams.headers,

@@ -4,7 +4,6 @@ import { CloseCircleOutlined } from '@ant-design/icons'
 import { NewGroupModal } from 'containers/groups/NewGroupModal'
 import { EditGroupModal } from 'containers/groups/EditGroupModal'
 import { apiCall } from 'services'
-import './Groups.scss'
 import { useTranslation } from 'react-i18next'
 
 interface Group {
@@ -173,6 +172,7 @@ export const Groups: React.FC = () => {
                 footer={null}
                 onCancel={hideEditGroupModal}
                 open={isModalOpen}
+                width={1000}
             >
                 {isModalOpen && (
                     <EditGroupModal

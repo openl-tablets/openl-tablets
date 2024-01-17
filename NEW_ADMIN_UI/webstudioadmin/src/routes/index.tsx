@@ -17,6 +17,7 @@ const RootRoutes: React.FC = () => {
         <BrowserRouter basename={basePath}>
             <Routes>
                 <Route element={<SystemPage />} path="/index.xhtml" />
+                <Route element={<SystemPage />} path="/" />
                 <Route element={<SystemPage />} path="/system" />
                 <Route element={<UsersPage />} path="/users" />
                 <Route element={<GroupsPage />} path="/admin/management/groups" />

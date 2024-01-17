@@ -1,6 +1,9 @@
 import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'tags', {
+    extensible: 'Extensible',
+    nullable: 'Nullable',
+    // Description
     tag_types_and_values: 'Tag Types and Values',
     tag_type_description: '<0>Tag type</0> is a category that includes tag values of the same group. For example, the Product tag type can include tags Auto, Life, and Home. <1>Proceed as follows:</1>',
     tag_type_instruction_p1: 'To add a tag type, in the <0>New Tag Type field</0>, enter the tag type name and press <0>Enter</0> or <0>Tab</0>. The tag type is added, and fields for tag values appear',
