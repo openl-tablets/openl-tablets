@@ -38,17 +38,8 @@ export const Users: React.FC = () => {
     }
 
     const fetchUsers = async () => {
-        try {
-            const response = await apiCall('/users')
-            if (response.ok) {
-                const jsonResponse = await response.json()
-                setUserData(jsonResponse.map((user: any, index: any) => ({ ...user, key: index })))
-            } else {
-                console.error('Failed to fetch users:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error fetching users:', error)
-        }
+        const response = await apiCall('/users')
+        setUserData(response.map((user: any, index: any) => ({ ...user, key: index })))
     }
 
     useEffect(() => {
@@ -102,8 +93,6 @@ export const Users: React.FC = () => {
                 },
                 body: JSON.stringify(userDataMapped),
             })
-        } catch (error) {
-            console.error('Error updating user:', error)
         } finally {
             hideAddAndEditUserModal()
         }
@@ -201,6 +190,7 @@ export const Users: React.FC = () => {
                 </Button>
             </Row>
             <Modal
+                destroyOnClose
                 className="edit-user-modal"
                 footer={null}
                 onCancel={hideAddAndEditUserModal}

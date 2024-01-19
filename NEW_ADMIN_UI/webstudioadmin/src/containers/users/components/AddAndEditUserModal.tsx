@@ -92,18 +92,9 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
     }, [ user ])
 
     const fetchGroupData = async () => {
-        try {
-            const response = await apiCall('/admin/management/groups')
-            if (response.ok) {
-                const responseObject = await response.json()
-                const names = Object.keys(responseObject)
-                setGroupNames(names)
-            } else {
-                console.error('Failed to fetch groups:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error fetching groups:', error)
-        }
+        const response = await apiCall('/admin/management/groups')
+        const names = Object.keys(response)
+        setGroupNames(names)
     }
 
     useEffect(() => {

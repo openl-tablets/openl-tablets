@@ -29,22 +29,13 @@ export const Groups: React.FC = () => {
     }
 
     const fetchGroups = async () => {
-        try {
-            const response = await apiCall('/admin/management/groups')
-            if (response.ok) {
-                const responseObject = await response.json()
-                const groups = Object.entries(responseObject).map(([ groupName, group ]: [string, unknown]) => ({
-                    groupName,
-                    ...(group as Group),
-                    privileges: (group as Group).privileges || [],
-                }))
-                setGroupData(groups)
-            } else {
-                console.error('Failed to fetch groups:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error fetching groups:', error)
-        }
+        const response = await apiCall('/admin/management/groups')
+        const groups = Object.entries(response).map(([ groupName, group ]: [string, unknown]) => ({
+            groupName,
+            ...(group as Group),
+            privileges: (group as Group).privileges || [],
+        }))
+        setGroupData(groups)
     }
 
     useEffect(() => {
@@ -168,6 +159,7 @@ export const Groups: React.FC = () => {
             />
             <NewGroupModal fetchGroups={fetchGroups} />
             <Modal
+                destroyOnClose
                 className="edit-group-modal"
                 footer={null}
                 onCancel={hideEditGroupModal}

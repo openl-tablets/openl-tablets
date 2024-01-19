@@ -13,83 +13,39 @@ export const Tags: React.FC = () => {
     const [ tagTypes, setTagTypes ] = useState<TagType[]>([])
 
     const fetchTagTypes = async () => {
-        try {
-            const response = await apiCall('/admin/tag-config/types')
-            if (response.ok) {
-                const responseObject = await response.json()
-                setTagTypes(responseObject)
-            } else {
-                console.error('Failed to fetch tags:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error fetching tags:', error)
-        }
+        const response = await apiCall('/admin/tag-config/types')
+        setTagTypes(response)
     }
 
     const updateTagType = async (tagType: TagType) => {
-        try {
-            const headers = new Headers()
-            headers.append('Content-Type', 'application/json')
-            // headers.append('Accept', 'application/json')
+        const headers = new Headers()
+        headers.append('Content-Type', 'application/json')
 
-            const response = await apiCall(`/admin/tag-config/types/${tagType.id}`, {
-                method: 'PUT',
-                headers,
-                body: JSON.stringify(tagType),
-            })
-            if (response.ok) {
-                const responseObject = await response.json()
-                console.warn(responseObject)
-            } else {
-                console.error('Failed to create tag:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error creating tag:', error)
-        }
+        await apiCall(`/admin/tag-config/types/${tagType.id}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(tagType),
+        })
     }
 
     const createTag = async (tagName: string, tagTypeId: number) => {
-        try {
-            const response = await apiCall(`/admin/tag-config/types/${tagTypeId}/tags`, {
-                method: 'POST',
-                body: tagName,
-            })
-            if (response.ok) {
-                const responseObject = await response.json()
-                console.warn(responseObject)
-            } else {
-                console.error('Failed to create tag:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error creating tag:', error)
-        }
+        await apiCall(`/admin/tag-config/types/${tagTypeId}/tags`, {
+            method: 'POST',
+            body: tagName,
+        })
     }
 
     const updateTag = async (tag: Tag) => {
-        try {
-            const response = await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
-                method: 'PUT',
-                body: tag.name,
-            })
-            if (!response.ok) {
-                console.error('Failed to update tag:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error updating tag:', error)
-        }
+        await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
+            method: 'PUT',
+            body: tag.name,
+        })
     }
 
     const deleteTag = async (tag: Tag) => {
-        try {
-            const response = await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
-                method: 'DELETE'
-            })
-            if (!response.ok) {
-                console.error('Failed to delete tag:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error deleting tag:', error)
-        }
+        await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
+            method: 'DELETE'
+        })
     }
 
     const onCreateTag = async (tagName: string, tagTypeId: number) => {

@@ -6,7 +6,7 @@ i18next.addResourceBundle('en', 'system', {
     verify_on_edit: 'Verify on Edit',
     testing: 'Testing',
     thread_number_for_tests: 'Thread Number for Tests',
-    webstudio_settings: 'WebStudio Settings',
+    reset_settings: 'Reset Settings',
     restore_defaults_warning: '<0>WARNING!</0> If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.',
     restore_defaults_and_restart: 'Restore Defaults and Restart',
     user_workspace: 'User Workspace',

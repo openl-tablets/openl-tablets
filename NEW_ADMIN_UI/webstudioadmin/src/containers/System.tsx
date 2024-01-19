@@ -35,19 +35,6 @@ export const System: React.FC = () => {
             </Form>
             <Divider />
             <Typography.Title level={4}>
-                {t('system:webstudio_settings')}
-            </Typography.Title>
-            <p>
-                <WarningFilled style={{ color: 'red' }} />
-                <Trans components={[ <b style={{ color: 'red' }} /> ]} i18nKey="system:restore_defaults_warning" />
-            </p>
-            <Row justify="end">
-                <Button danger style={{ marginTop: 15 }}>
-                    {t('system:restore_defaults_and_restart')}
-                </Button>
-            </Row>
-            <Divider />
-            <Typography.Title level={4}>
                 {t('system:user_workspace')}
             </Typography.Title>
             <Form
@@ -99,6 +86,19 @@ export const System: React.FC = () => {
             <Row justify="end">
                 <Button style={{ marginTop: 5 }} type="primary">
                     {t('system:apply')}
+                </Button>
+            </Row>
+            <Divider />
+            <Typography.Title level={4} style={{ color: 'red' }}>
+                {t('system:reset_settings')}
+            </Typography.Title>
+            <p>
+                <WarningFilled style={{ color: 'red' }} />
+                <Trans components={[ <b style={{ color: 'red' }} /> ]} i18nKey="system:restore_defaults_warning" />
+            </p>
+            <Row justify="end">
+                <Button danger style={{ marginTop: 15 }}>
+                    {t('system:restore_defaults_and_restart')}
                 </Button>
             </Row>
         </>
