@@ -52,6 +52,8 @@ public class SearchBean {
             new SelectItem(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties"),
             new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other") };
 
+    private static final int MAX_TABLES_FOR_AI_SEARCH_TO_IGNORE_XLS_OTHER = 1000;
+
     private boolean active;
     private String query;
     private String[] tableTypes;
@@ -199,11 +201,11 @@ public class SearchBean {
             projectModel.compileProject(true, true);
 
             List<TableSyntaxNode> tnses = projectModel.getSearchScopeData(searchScope)
-                    .stream()
-                    .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
-                    .filter(tsn -> !projectModel.isGapOverlap(tsn))
-                    .filter(selectors)
-                    .collect(Collectors.toList());
+                .stream()
+                .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+                .filter(tsn -> !projectModel.isGapOverlap(tsn))
+                .filter(selectors)
+                .collect(Collectors.toList());
             String q = query != null ? UriEncoder.decode(query) : null;
             Predicate<TableSyntaxNode> cellValueSelector = new CellValueSelector(q);
 
@@ -211,6 +213,12 @@ public class SearchBean {
             List<TableSyntaxNode> foundTsnes = tnses.stream().filter(cellValueSelector).collect(Collectors.toList());
             foundTsnes.forEach(e -> result.put(e, 1));
             if (StringUtils.isNotBlank(q)) {
+                // AI search is expensive operation. It is better to use only actual tables for it.
+                if (tnses.size() > MAX_TABLES_FOR_AI_SEARCH_TO_IGNORE_XLS_OTHER) {
+                    tnses = tnses.stream()
+                        .filter(e -> !e.getType().equals(XlsNodeTypes.XLS_OTHER.toString()))
+                        .collect(Collectors.toList());
+                }
                 SearchResult searchResult = aiSearch.filter(q, tnses);
                 List<TableSyntaxNode> tnsesByAiSearch = searchResult.getTableSyntaxNodes();
                 expectedIndexingDuration = searchResult.getExpectedIndexingDuration();
@@ -224,9 +232,9 @@ public class SearchBean {
             List<Map.Entry<TableSyntaxNode, Integer>> entryList = new ArrayList<>(result.entrySet());
             entryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
             searchResults = entryList.stream()
-                    .map(Map.Entry::getKey)
-                    .map(TableSyntaxNodeAdapter::new)
-                    .collect(Collectors.toList());
+                .map(Map.Entry::getKey)
+                .map(TableSyntaxNodeAdapter::new)
+                .collect(Collectors.toList());
         }
     }
 

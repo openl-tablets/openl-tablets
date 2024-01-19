@@ -35,6 +35,7 @@ public class AIServiceImpl implements AIService {
                     // Create a channel to connect to the server
                     this.channel = ManagedChannelBuilder.forAddress(parts[0], Integer.parseInt(parts[1]))
                         .usePlaintext()
+                        .maxInboundMessageSize(1024 * 1024 * 1024) // 1GB
                         .build();
                 }
             }
