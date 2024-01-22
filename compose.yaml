@@ -1,0 +1,245 @@
+services:
+
+  studio:
+    build:
+      context: .
+      args:
+        "APP": STUDIO/org.openl.rules.webstudio/target/webapp
+    image: openltablets/webstudio
+    container_name: studio
+    ports:
+      - "8181:8080" # HTTP
+      - "5501:5501" # Debug port
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: '1G'
+        reservations:
+          memory: 512M
+    volumes:
+      - jars:/opt/openl/lib
+      - openl-home:/opt/openl/shared
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/db?currentSchema=studio
+      DB_USER: user
+      DB_PASSWORD: s3cr3t
+      SECURITY_ADMINISTRATORS: admin
+      JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5501'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  services:
+    build:
+      context: .
+      args:
+        "APP": WSFrontend/org.openl.rules.ruleservice.ws/target/webapp
+    image: openltablets/ws
+    container_name: services
+    ports:
+      - "8182:8080" # HTTP
+      - "5502:5502" # Debug port
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          memory: 512M
+    volumes:
+      - jars:/opt/openl/lib
+    environment:
+      PRODUCTION-REPOSITORY__REF_: repo-jdbc
+      PRODUCTION-REPOSITORY_URI: jdbc:postgresql://postgres:5432/db?currentSchema=repository
+      PRODUCTION-REPOSITORY_LOGIN: user
+      PRODUCTION-REPOSITORY_PASSWORD: s3cr3t
+      RULESERVICE_DEPLOYER_ENABLED: "true"
+      ruleservice.datasource.deploy.classpath.jars: "true"
+      cors.allowed.origins: "*"
+      JAVA_OPTS: '-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=*:5502'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 8M
+        reservations:
+          memory: 6M
+    volumes:
+      - www_cache:/var/cache/nginx
+      - www_conf:/etc/nginx
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: s3cr3t
+      POSTGRES_DB: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d db -U user"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          memory: 192M
+    volumes:
+      - initdb:/docker-entrypoint-initdb.d
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+
+  init:
+    image: busybox
+    container_name: init
+    command:
+      - /bin/sh
+      - -c
+      - |
+        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.1.jar
+        echo "--- Initialization of the DB
+
+        CREATE SCHEMA studio;
+        CREATE SCHEMA repository;
+        " > /initdb/init.sql
+
+        [ -e /openl-home/.properties ] && echo /openl-home/.properties exists || echo '.version=LATEST
+        webstudio.configured=true
+        demo.init=true
+        user.mode=single
+        #user.mode=multi
+        production-repository-configs = production
+        repository.production.name = Deployment
+        repository.production.$$ref = repo-jdbc
+        repository.production.base.path.$$ref = repo-default.production.base.path
+        repository.production.uri = jdbc:postgresql://postgres:5432/db?currentSchema=repository
+        repository.production.login = $${db.user}
+        repository.production.password = $${db.password}
+        repository.deploy-config.use-repository = design
+        ' > /openl-home/.properties
+        chown 1000:999 /openl-home/.properties
+        
+        mkdir /www/nginx
+        echo '
+        events {
+          worker_connections  1024;
+        }
+
+        http {
+          proxy_redirect          off;
+          proxy_set_header        Host                $$host;
+          proxy_set_header        X-Real-IP           $$remote_addr;
+          proxy_set_header        X-Forwarded-For     $$proxy_add_x_forwarded_for;
+          proxy_set_header        X-Forwarded-Proto   $$scheme;
+          proxy_set_header        X-Forwarded-Host    $$http_host;
+          proxy_set_header        X-Forwarded-Prefix  $$forwarded_prefix;
+          proxy_cookie_path       /                   $$forwarded_prefix/;
+        #  proxy_set_header        X-Forwarded-Port   80;
+
+          map $$request_uri $$forwarded_prefix {
+            default        "";
+            ~^/([^/]+)     /$$1;
+          }
+
+          server {
+            listen 80;
+
+            #listen 443 ssl;
+            #ssl_certificate         /etc/nginx/ssl/sslcerts/server.crt;
+            #ssl_certificate_key     /etc/nginx/ssl/sslcerts/server.key;
+
+            location /services/ {
+              proxy_pass http://services:8080/;
+            }
+
+            location /studio/ {
+              proxy_pass http://studio:8080/;
+            }
+
+            location / {
+              alias /etc/nginx/;
+            }
+          }
+
+        }
+        ' > /www/nginx.conf
+
+
+        echo '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OpenL Tablets</title>
+        <style>
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .links {
+            text-align: center;
+          }
+          .links a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            display: inline-block;
+          }
+          p {
+            margin: 10px 0 50px;
+          }
+        </style>
+        </head>
+        <body>
+          <div class="links">
+            <a href="/studio">OpenL Studio</a>
+            <p>Username: admin <br> Password: admin</p>
+            <a href="/services">Rule Services</a>
+          </div>
+        </body>
+        </html>
+
+        ' > /www/index.html
+    volumes:
+      - jars:/jars
+      - initdb:/initdb
+      - www_conf:/www
+      - openl-home:/openl-home
+
+
+volumes:
+  jars:
+  initdb:
+  www_conf:
+  www_cache:
+  openl-home:
