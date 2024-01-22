@@ -32,7 +32,6 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - demo
           - webstudio
           - ws
           - ws-all
