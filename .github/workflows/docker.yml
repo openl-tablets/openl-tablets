@@ -113,18 +113,6 @@ jobs:
           rm app.war.asc
           rm app.war
 
-      - name: Download DEMO
-        run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app"
-          downloadUrl="$artifactUrl/$version/openl-demo-app-$version.zip"
-          # Download artifact.
-          wget --progress=dot:giga -O openl-tablets-demo.zip "$downloadUrl"
-          wget --progress=dot:giga -O demo.zip.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
-          rm demo.zip.asc
-
       - name: Download OpenTelemetry extension
         run: |
           # Define urls
@@ -144,19 +132,6 @@ jobs:
           docker run --privileged --rm tonistiigi/binfmt --install all
           docker buildx create --use
           docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Push DEMO
-        env:
-          appName: demo
-        run: >
-          eval docker buildx build
-          $tags_11
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=openl-tablets-demo.zip
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          -f DEMO/Dockerfile .
 
       - name: Push Rule Services (All)
         run: >
