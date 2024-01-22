@@ -57,6 +57,6 @@ Artifacts:
 * **RuleService WS** - WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war
 * **DEMO App** - DEMO/target/openl-tablets-demo.zip
 
-#### Build Docker images:
+#### Run OpenL Docker images with the typical configuration:
 
-`docker-compose build`
+`docker-compose up --build`

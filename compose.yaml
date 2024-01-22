@@ -1,0 +1,228 @@
+services:
+
+  webstudio:
+    build:
+      context: .
+      args:
+        "APP": STUDIO/org.openl.rules.webstudio/target/webapp
+    image: openltablets/webstudio
+    container_name: webstudio
+    ports:
+      - "8181:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 384M
+        reservations:
+          memory: 32M
+    volumes:
+      - jars:/opt/openl/lib
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/db?currentSchema=webstudio
+      DB_USER: user
+      DB_PASSWORD: s3cr3t
+      PRODUCTION-REPOSITORY-CONFIGS: production
+      REPOSITORY_PRODUCTION_NAME: Deployment
+      REPOSITORY_PRODUCTION__REF_: repo-jdbc
+      REPOSITORY_PRODUCTION_BASE_PATH__REF_: repo-default.production.base.path
+      REPOSITORY_PRODUCTION_URI: jdbc:postgresql://postgres:5432/db?currentSchema=repository
+      REPOSITORY_PRODUCTION_LOGIN: user
+      REPOSITORY_PRODUCTION_PASSWORD: s3cr3t
+      REPOSITORY_DEPLOY-CONFIG_USE-REPOSITORY: design
+      USER_MODE: multi
+      SECURITY_ADMINISTRATORS: admin
+      WEBSTUDIO_CONFIGURED: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ws:
+    build:
+      context: .
+      args:
+        "APP": WSFrontend/org.openl.rules.ruleservice.ws/target/webapp
+    image: openltablets/ws
+    container_name: ws
+    ports:
+      - "8182:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          memory: 32M
+    volumes:
+      - jars:/opt/openl/lib
+      - ./arpr-from-db.zip:/opt/openl/app/webapps/ROOT/WEB-INF/classes/openl/arpr-from-db.zip
+    environment:
+      PRODUCTION-REPOSITORY__REF_: repo-jdbc
+      PRODUCTION-REPOSITORY_URI: jdbc:postgresql://postgres:5432/db?currentSchema=repository
+      PRODUCTION-REPOSITORY_LOGIN: user
+      PRODUCTION-REPOSITORY_PASSWORD: s3cr3t
+      ruleservice.deployer.enabled: "true"
+      ruleservice.datasource.deploy.classpath.jars: "true"
+      genesis.jdbc.url: jdbc:postgresql://postgres:5432/db?currentSchema=rating
+      genesis.jdbc.username: user
+      genesis.jdbc.password: s3cr3t
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 8M
+        reservations:
+          memory: 2M
+    volumes:
+      - www_cache:/var/cache/nginx
+      - www_conf:/etc/nginx
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: s3cr3t
+      POSTGRES_DB: db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d db -U user"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 128M
+        reservations:
+          memory: 32M
+    volumes:
+      - initdb:/docker-entrypoint-initdb.d
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  init:
+    image: busybox
+    container_name: init
+    command:
+      - /bin/sh
+      - -c
+      - |
+        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.1.jar
+        echo "--- Initialization of the DB
+
+        CREATE SCHEMA webstudio;
+        CREATE SCHEMA repository;
+        " > /initdb/init.sql
+
+        mkdir /www/nginx
+        echo '
+        events {
+          worker_connections  1024;
+        }
+
+        http {
+          proxy_redirect          off;
+          proxy_set_header        Host              $$host;
+          proxy_set_header        X-Real-IP         $$remote_addr;
+          proxy_set_header        X-Forwarded-For   $$proxy_add_x_forwarded_for;
+          proxy_set_header        X-Forwarded-Proto $$scheme;
+          proxy_set_header        X-Forwarded-Host  $$http_host;
+        #  proxy_set_header        X-Forwarded-Port  80;
+
+          server {
+            listen 80;
+
+            #listen 443 ssl;
+            #ssl_certificate         /etc/nginx/ssl/sslcerts/server.crt;
+            #ssl_certificate_key     /etc/nginx/ssl/sslcerts/server.key;
+
+            location /services/ {
+              proxy_pass http://ws:8080/;
+              proxy_set_header X-Forwarded-Prefix /services;
+              proxy_cookie_path / /services/;
+            }
+
+            location /studio/ {
+              proxy_pass http://webstudio:8080/;
+              proxy_set_header X-Forwarded-Prefix /studio;
+              proxy_cookie_path / /studio/;
+            }
+
+            location / {
+              alias /etc/nginx/;
+            }
+          }
+
+        }
+        ' > /www/nginx.conf
+
+
+        echo '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OpenL Tablets</title>
+        <style>
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .links {
+            text-align: center;
+          }
+          .links a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            display: inline-block;
+          }
+          p {
+            margin: 10px 0 50px;
+          }
+        </style>
+        </head>
+        <body>
+          <div class="links">
+            <a href="/studio">OpenL Studio</a>
+            <p>Username: admin <br> Password: admin</p>
+            <a href="/services">Rule Services</a>
+          </div>
+        </body>
+        </html>
+
+        ' > /www/index.html
+    volumes:
+      - jars:/jars
+      - initdb:/initdb
+      - www_conf:/www
+
+volumes:
+  jars:
+  initdb:
+  www_conf:
+  www_cache:
