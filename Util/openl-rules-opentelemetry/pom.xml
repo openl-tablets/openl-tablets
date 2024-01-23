@@ -30,10 +30,6 @@
             <artifactId>opentelemetry-javaagent-extension-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.opentelemetry.instrumentation</groupId>
-            <artifactId>opentelemetry-instrumentation-api-semconv</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
             <optional>true</optional>

@@ -1,7 +1,6 @@
 package org.openl.opentelemetry.javaagent.extension;
 
-import static io.opentelemetry.semconv.SemanticAttributes.CODE_FUNCTION;
-import static io.opentelemetry.semconv.SemanticAttributes.CODE_NAMESPACE;
+import static io.opentelemetry.api.common.AttributeKey.stringKey;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +20,8 @@ import org.openl.rules.method.ExecutableRulesMethod;
 public class OpenLMethodAttributeExtractor implements AttributesExtractor<ExecutableRulesMethod, Object> {
 
     private static final AttributeKey<String> OPENL_TABLE_TYPE = AttributeKey.stringKey("openl.table.type");
+    private static final AttributeKey<String> CODE_FUNCTION = stringKey("code.function"); // semconv v1.24.0
+    private static final AttributeKey<String> CODE_NAMESPACE = stringKey("code.namespace"); // semconv v1.24.0
 
     @Override
     public void onStart(AttributesBuilder attributes, Context parentContext, ExecutableRulesMethod request) {
