@@ -9,6 +9,8 @@ import { RepoDeploymentPage } from 'pages/RepoDeploymentPage'
 import { UsersPage } from '../pages/UsersPage'
 import { RepoDeployConfPage } from 'pages/RepoDeployConfPage'
 import { GroupsPage } from '../pages/GroupsPage'
+import { RedirectRoute } from './RedirectRoute'
+import { NoMatch } from './NoMatch'
 
 const basePath = process.env.REACT_APP_BASE_PATH || ''
 
@@ -27,6 +29,8 @@ const RootRoutes: React.FC = () => {
                 <Route element={<RepoDesignPage />} path="/repository/design" />
                 <Route element={<RepoDeployConfPage />} path="/repository/config" />
                 <Route element={<RepoDeploymentPage />} path="/repository/deployment" />
+                <Route element={<RedirectRoute />} path="/redirect/:page" />
+                <Route element={<NoMatch />} path="*" />
             </Routes>
         </BrowserRouter>
     )
