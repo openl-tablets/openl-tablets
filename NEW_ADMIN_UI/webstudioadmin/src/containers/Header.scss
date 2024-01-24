@@ -1,0 +1,24 @@
+header.ant-layout-header {
+  background-color: #fff;
+  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  line-height: 48.5px;
+  height: 48.5px;
+
+  .header__logo {
+    line-height: 14px;
+    padding-right: 9px;
+
+    img {
+      height: 24px;
+    }
+  }
+
+  .header__title {
+    font-size: 20px;
+    font-family: Georgia, Verdana, Helvetica, Arial, serif;
+    color: rgb(56, 79, 129);
+  }
+}
