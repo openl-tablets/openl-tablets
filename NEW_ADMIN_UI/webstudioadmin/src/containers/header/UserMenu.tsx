@@ -3,6 +3,10 @@ import { Col, Drawer, Menu, Row, Typography } from 'antd'
 import './UserMenu.scss'
 import { UserLogo } from '../../components/UserLogo'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { RootState } from '../../store/store'
+import { useSelector } from 'react-redux'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -10,6 +14,10 @@ interface UserMenuProps {
 }
 
 export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
+    const { t } = useTranslation()
+    const navigate = useNavigate()
+
+    const { username, email } = useSelector((state: RootState) => state.user.profile)
 
     const Title = (
         <Row align="middle">
@@ -19,11 +27,11 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             <Col>
                 <div className="user-menu-title">
                     <div className="user-menu-title-username">
-                        TODO: username
+                        {username}
                     </div>
                     <div className="user-menu-title-email">
-                        <Typography.Text type="secondary">
-                            TODO: username@email.com
+                        <Typography.Text style={{ fontWeight: 500 }} type="secondary">
+                            {email}
                         </Typography.Text>
                     </div>
                 </div>
@@ -40,14 +48,28 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             placement="right"
             title={Title}
         >
-            <Menu>
-                <Menu.Item key="1" icon={<UserOutlined />}>TODO: My Profile</Menu.Item>
-                <Menu.Item key="2" icon={<SettingOutlined />}>TODO: My Settings</Menu.Item>
+            <Menu
+                selectedKeys={[]}
+                onClick={({ key }) => {
+                    navigate(key)
+                    onClose()
+                }}
+            >
+                <Menu.Item key="/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
+                <Menu.Item key="/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item key="3" icon={<ToolOutlined />}>TODO: Administration</Menu.Item>
+                <Menu.Item key="/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item key="3" icon={<QuestionOutlined />}>TODO: Help</Menu.Item>
-                <Menu.Item key="3" icon={<LogoutOutlined />}>TODO: Sing Out</Menu.Item>
+                <Menu.Item key="3" icon={<QuestionOutlined />}>
+                    TODO:
+                    {' '}
+                    {t('common:user_menu.help')}
+                </Menu.Item>
+                <Menu.Item key="3" icon={<LogoutOutlined />}>
+                    TODO:
+                    {' '}
+                    {t('common:user_menu.sign_out')}
+                </Menu.Item>
             </Menu>
         </Drawer>
     )

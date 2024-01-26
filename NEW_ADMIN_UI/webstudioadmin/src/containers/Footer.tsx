@@ -18,7 +18,6 @@ export const Footer = () => {
     const loadInfo = async () => {
         const response = await apiCall('/public/info/openl.json')
         setInfo(response)
-        console.log('loadInfo', response) // eslint-disable-line no-console
     }
 
     useEffect(() => {
@@ -26,8 +25,16 @@ export const Footer = () => {
     }, [])
 
     const year = useMemo(() => {
-        const y = info['openl.build.date']
-        return y ? y.split('-')[0] : ''
+        const y = info && info['openl.build.date']
+        return y ? y.split('-')[0] : new Date().getFullYear()
+    }, [ info ])
+
+    const site = useMemo(() => {
+        return (info && info['openl.site']) || '/'
+    }, [ info ])
+
+    const version = useMemo(() => {
+        return (info && info['openl.version']) || ''
     }, [ info ])
 
     return (
@@ -41,13 +48,13 @@ export const Footer = () => {
                         { year }
                         {' '}
                     </Typography.Text>
-                    <Link style={{ fontSize: '12px' }} to={info['openl.site']}>{t('common:openl_tables')}</Link>
+                    <Link style={{ fontSize: '12px' }} to={site}>{t('common:openl_tables')}</Link>
                     <Typography.Text style={{ margin: '0 10px', fontSize: '12px' }} type="secondary">|</Typography.Text>
                     <Link style={{ fontSize: '12px' }} to="https://github.com/openl-tablets/openl-tablets/issues/">{t('common:report_a_problem')}</Link>
                 </Col>
                 <Col>
                     <Typography.Text style={{ fontSize: '12px' }} type="secondary">
-                        {info['openl.version']}
+                        {version}
                     </Typography.Text>
                 </Col>
             </Row>
