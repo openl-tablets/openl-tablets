@@ -7,10 +7,7 @@ import { Input, Select } from 'components'
 import { FormApi } from 'final-form'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
-
-const DISPLAY_NAME_FIRST_LAST = 'firstLast'
-const DISPLAY_NAME_LAST_FIRST = 'lastFirst'
-const DISPLAY_NAME_OTHER = 'other'
+import { DISPLAY_USER_NAME_FIRST_LAST, DISPLAY_USER_NAME_LAST_FIRST, DISPLAY_USER_NAME_OTHER } from 'constants/'
 
 interface EditUserProps {
     user: {
@@ -54,15 +51,15 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
     const displayNameOptions = useMemo(() => (
         [
             {
-                value: DISPLAY_NAME_FIRST_LAST,
+                value: DISPLAY_USER_NAME_FIRST_LAST,
                 label: t('users:first_last'),
             },
             {
-                value: DISPLAY_NAME_LAST_FIRST,
+                value: DISPLAY_USER_NAME_LAST_FIRST,
                 label: t('users:last_first'),
             },
             {
-                value: DISPLAY_NAME_OTHER,
+                value: DISPLAY_USER_NAME_OTHER,
                 label: t('users:other'),
             },
         ]
@@ -71,12 +68,12 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
     const initialValues = useMemo(() => {
         const displayNameSelectInitialValue = () => {
             if (user.displayName === `${user.firstName} ${user.lastName}`) {
-                return DISPLAY_NAME_FIRST_LAST
+                return DISPLAY_USER_NAME_FIRST_LAST
             }
             if (user.displayName === `${user.lastName} ${user.firstName}`) {
-                return DISPLAY_NAME_LAST_FIRST
+                return DISPLAY_USER_NAME_LAST_FIRST
             }
-            return DISPLAY_NAME_OTHER
+            return DISPLAY_USER_NAME_OTHER
         }
 
         return {
@@ -107,10 +104,10 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
 
     // TODO: values is object with all form values. create a type for it
     const displayNameSetter = (values: any, form: FormApi) => {
-        if (values.displayNameSelect === DISPLAY_NAME_OTHER) {
+        if (values.displayNameSelect === DISPLAY_USER_NAME_OTHER) {
             setIsDisplayNameFieldDisabled(false)
         } else {
-            if (values.displayNameSelect === DISPLAY_NAME_FIRST_LAST) {
+            if (values.displayNameSelect === DISPLAY_USER_NAME_FIRST_LAST) {
                 form.change('displayName', `${values.firstName} ${values.lastName}`)
             } else {
                 form.change('displayName', `${values.lastName} ${values.firstName}`)

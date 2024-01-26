@@ -13,7 +13,7 @@ export const RepositoryPage: React.FC = () => {
 
     return (
         <div>
-            <Row style={{ margin: 20, width: 900 }}>
+            <Row style={{ marginBottom: 20, width: 900 }}>
                 <Menu
                     mode="horizontal"
                     selectedKeys={selectedKeys}

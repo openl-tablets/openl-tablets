@@ -27,8 +27,11 @@ const apiCall = async (url: string, params?: RequestInit) => {
 
     return fetch(`${baseURL}${url}`, responseParams)
         .then(response => {
-            if (response.status < 300) {
+            const { status } = response
+            if (status === 200) {
                 return response.json()
+            } if (status > 200 && status < 300) {
+                return true
             } else {
                 throw new Error('Something went wrong on API server!')
             }
