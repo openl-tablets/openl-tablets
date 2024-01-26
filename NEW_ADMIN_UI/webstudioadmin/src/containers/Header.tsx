@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Layout, Row, Col, Menu } from 'antd'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
-import { UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 
@@ -49,7 +48,6 @@ export const Header = () => {
                     <Menu
                         mode="horizontal"
                         onClick={({ key }) => {
-                            console.log(key)
                             navigate(key)
                         }}
                         style={{

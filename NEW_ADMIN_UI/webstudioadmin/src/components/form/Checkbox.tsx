@@ -1,35 +1,29 @@
 import React, { FC } from 'react'
 import { Field } from 'react-final-form'
-import { Input as AntdInput, Form } from 'antd'
+import { Checkbox as AntdCheckbox, Form } from 'antd'
 
 type InputProps = {
     name: string
     label?: string
-    type?: string
     disabled?: boolean,
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,
-    placeholder?: string
-    defaultValue?: string
 };
 
-const Input: FC<InputProps> = ({
+const Checkbox: FC<InputProps> = ({
     name,
     label,
-    type = 'text',
     disabled,
     style,
     formItemStyle,
-    placeholder,
-    defaultValue,
 }) => (
-    <Field name={name} type={type}>
+    <Field name={name} type="checkbox">
         {({ input }) => (
             <Form.Item label={label} style={formItemStyle}>
-                <AntdInput {...input} defaultValue={defaultValue} disabled={disabled} placeholder={placeholder} style={style} />
+                <AntdCheckbox {...input} disabled={disabled} style={style} />
             </Form.Item>
         )}
     </Field>
 )
 
-export default Input
+export default Checkbox
