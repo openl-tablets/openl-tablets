@@ -1,9 +1,11 @@
-import Input from './Input'
+import Checkbox from './Checkbox'
 import CheckboxGroup from './CheckboxGroup'
+import Input from './Input'
 import Select from './Select'
 
 export {
-    Input,
+    Checkbox,
     CheckboxGroup,
+    Input,
     Select,
 }
