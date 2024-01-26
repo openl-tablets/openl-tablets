@@ -17,4 +17,15 @@ i18next.addResourceBundle('en', 'common', {
         tags: 'Tags',
         mail: 'Mail',
     },
+    user_menu: {
+        my_profile: 'My Profile',
+        my_settings: 'My Settings',
+        administration: 'Administration',
+        help: 'Help',
+        sign_out: 'Sign Out',
+    },
+    btn: {
+        save: 'Save',
+        cancel: 'Cancel',
+    }
 })

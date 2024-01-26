@@ -1,12 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Button, Typography, Row } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { setNotification } from './notificationSlice'
+import { RootState, useAppDispatch, useAppSelector } from 'store'
 
 const { TextArea } = Input
 
 export const Notification: React.FC = () => {
     const { t } = useTranslation()
+    const dispatch = useAppDispatch()
     const [ text, setText ] = useState('')
+
+    const notificationMessage = useAppSelector((state: RootState) => state.notification.notification)
+
+    useEffect(() => {
+        setText(notificationMessage || '')
+    }, [ notificationMessage ])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value)
@@ -14,6 +23,15 @@ export const Notification: React.FC = () => {
 
     const handleClear = () => {
         setText('')
+        postNotification('')
+    }
+
+    const handleNotify = () => {
+        postNotification(text)
+    }
+
+    const postNotification = (notification: string) => {
+        dispatch(setNotification(notification))
     }
 
     // TODO: Add form
@@ -30,7 +48,7 @@ export const Notification: React.FC = () => {
                 <Button onClick={handleClear} style={{ marginTop: 20, marginRight: 20 }}>
                     { t('notification:clear') }
                 </Button>
-                <Button type="primary">
+                <Button onClick={handleNotify} type="primary">
                     { t('notification:notify') }
                 </Button>
             </Row>
