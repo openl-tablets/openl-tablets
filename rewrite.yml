@@ -1,0 +1,31 @@
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: org.openl.rewrite.Recipe
+displayName: Use static import example
+recipeList:
+  - org.openrewrite.java.UseStaticImport:
+      methodPattern: org.junit..* *(..)
+  - org.openrewrite.java.RemoveUnusedImports
+  - org.openrewrite.java.OrderImports
+#  - org.openrewrite.java.format.AutoFormat
+
+---
+type: specs.openrewrite.org/v1beta/style
+name: org.openl.rewrite.Style
+styleConfigs:
+  - org.openrewrite.java.IntelliJ
+  - org.openrewrite.java.style.ImportLayoutStyle:
+      classCountToUseStarImport: 50
+      nameCountToUseStarImport: 30
+      layout:
+        - import static all other imports
+        - <blank line>
+        - import static org.openl.*
+        - <blank line>
+        - import java.*
+        - import javax.*
+        - import jakarta.*
+        - <blank line>
+        - import all other imports
+        - <blank line>
+        - import org.openl.*

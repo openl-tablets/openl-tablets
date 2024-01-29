@@ -429,6 +429,21 @@
                     <version>7.1.1</version>
                 </plugin>
                 <plugin>
+                    <!-- See https://docs.openrewrite.org/recipes/java -->
+                    <!-- Usage:    mvn rewrite:run   -->
+                    <groupId>org.openrewrite.maven</groupId>
+                    <artifactId>rewrite-maven-plugin</artifactId>
+                    <version>5.21.0</version>
+                    <configuration>
+                        <activeRecipes>
+                            <recipe>org.openl.rewrite.Recipe</recipe>
+                        </activeRecipes>
+                        <activeStyles>
+                            <style>org.openl.rewrite.Style</style>
+                        </activeStyles>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring.boot.version}</version>
