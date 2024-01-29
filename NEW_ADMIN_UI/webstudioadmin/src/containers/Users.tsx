@@ -156,10 +156,6 @@ export const Users: React.FC = () => {
         },
     ]
 
-    // const updateUser = (updatedUser: any) => {
-    //     setUserData((userData) => userData.map((user: any) => (user.username === updatedUser.username ? updatedUser : user)))
-    // }
-
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record })
         showAddAndEditUserModal()
