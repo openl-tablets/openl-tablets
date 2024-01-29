@@ -14,7 +14,6 @@ import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.helpers.ArraySplitter;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;

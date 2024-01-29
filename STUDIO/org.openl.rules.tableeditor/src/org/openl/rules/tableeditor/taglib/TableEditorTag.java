@@ -5,7 +5,6 @@ import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tableeditor.util.Constants;
 
 import java.util.List;

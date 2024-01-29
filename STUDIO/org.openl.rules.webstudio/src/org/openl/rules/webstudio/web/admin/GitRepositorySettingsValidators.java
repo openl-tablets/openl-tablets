@@ -8,10 +8,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
 
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
 
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
     public void localRepositoryPath(FacesContext context, UIComponent toValidate, Object value) {

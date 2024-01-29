@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 public class ContextParameterTreeNode extends ComplexParameterTreeNode {

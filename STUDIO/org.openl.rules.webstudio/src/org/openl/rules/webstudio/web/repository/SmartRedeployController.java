@@ -2,11 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.stereotype.Service;
 

@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.IDeployment;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
