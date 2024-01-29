@@ -1,11 +1,12 @@
 import React, { FC } from 'react'
-import { Table } from 'antd'
+import { Popconfirm, Table } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { TagTableCheckboxCell } from './TagTableCheckboxCell'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import { TagTableNameCell } from './TagTableNameCell'
 import { TagTableTagsCell } from './TagTableTagsCell'
 import './TagTable.scss'
+import { DeleteOutlined } from '@ant-design/icons'
 
 export interface Tag {
     id: number;
@@ -29,6 +30,7 @@ export interface TagType {
 
 export interface TagTypeActions {
     updateTagType: (tagType: TagType) => boolean | Promise<boolean>;
+    deleteTagType: (tagType: TagType) => void;
 }
 
 interface TagTableProps extends TagActions, TagTypeActions {
@@ -36,7 +38,7 @@ interface TagTableProps extends TagActions, TagTypeActions {
     isLoading: boolean;
 }
 
-export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, deleteTag, updateTagType, isLoading }) => {
+export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, deleteTag, deleteTagType, updateTagType, isLoading }) => {
     const { t } = useTranslation()
 
     const onUpdateTagType = (tagType: TagType, name: string | null = null, extensible: boolean | null = null, nullable: boolean | null = null) => {
@@ -62,6 +64,10 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
 
     const onChangeTagTypeNullable = (tagType: TagType) => (e: CheckboxChangeEvent) => {
         onUpdateTagType(tagType, null, null, e.target.checked)
+    }
+
+    const handleDelete = (tagType: TagType) => {
+        deleteTagType(tagType)
     }
 
     const columns = [
@@ -98,6 +104,16 @@ export const TagTable: FC<TagTableProps> = ({ tagTypes, createTag, updateTag, de
                     tagTypeId={tagType.id}
                     updateTag={updateTag}
                 />
+            ),
+        },
+        {
+            title: t('tags:actions'),
+            key: 'actions',
+            width: '100px',
+            render: (tagType: TagType) => (
+                <Popconfirm onConfirm={() => handleDelete(tagType)} title="Sure to delete?">
+                    <DeleteOutlined style={{ cursor: 'pointer', color: 'red' }} />
+                </Popconfirm>
             ),
         },
     ]
