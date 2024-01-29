@@ -1,4 +1,4 @@
-import { Input, Divider, Button, Row, Typography } from 'antd'
+import { Input, Divider, Button, Row, Typography, Col } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -48,6 +48,14 @@ export const Tags: React.FC = () => {
         return result
     }
 
+    const deleteTagType = async (tagType: TagType) => {
+        setIsLoading(true)
+        await apiCall(`/admin/tag-config/types/${tagType.id}`, {
+            method: 'DELETE'
+        })
+        setIsLoading(false)
+    }
+
     const createTag = async (tagName: string, tagTypeId: number) => {
         setIsLoading(true)
         await apiCall(`/admin/tag-config/types/${tagTypeId}/tags`, {
@@ -86,6 +94,13 @@ export const Tags: React.FC = () => {
         const result = await updateTagType(tagType)
         await fetchTagTypes()
         return result
+    }
+
+    const onDeleteTagType = async (tagType: TagType) => {
+        setIsLoading(true)
+        await deleteTagType(tagType)
+        await fetchTagTypes()
+        setIsLoading(false)
     }
 
     const onCreateTag = async (tagName: string, tagTypeId: number) => {
@@ -140,16 +155,19 @@ export const Tags: React.FC = () => {
                 tagTypes={tagTypes}
                 updateTag={onUpdateTag}
                 updateTagType={onUpdateTagType}
+                deleteTagType={onDeleteTagType}
             />
-            <Input
-                name="tag-type"
-                onBlur={onCreateTagType}
-                onChange={(e) => setNewTagTypeName(e.target.value)}
-                onPressEnter={onCreateTagType}
-                placeholder={t('tags:tag_input_placeholder')}
-                style={{ width: 400 }}
-                value={newTagTypeName}
-            />
+            <Row justify="end" style={{ marginTop: 20 }}>
+                <Input
+                    name="tag-type"
+                    onBlur={onCreateTagType}
+                    onChange={(e) => setNewTagTypeName(e.target.value)}
+                    onPressEnter={onCreateTagType}
+                    placeholder={t('tags:tag_input_placeholder')}
+                    style={{ width: 400 }}
+                    value={newTagTypeName}
+                />
+            </Row>
             <Divider />
             <Typography.Title level={4}>
                 {t('tags:tags_from_a_project_name')}
