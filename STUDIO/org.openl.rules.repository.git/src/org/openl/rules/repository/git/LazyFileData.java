@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class LazyFileData extends FileData {
-    private final Logger log = LoggerFactory.getLogger(GitRepository.class);
+    private final Logger log = LoggerFactory.getLogger(LazyFileData.class);
 
     private final String fullPath;
     private final GitRepository gitRepo;

@@ -19,7 +19,7 @@ public class WebStudioCXFServlet extends CXFServlet {
         } catch (NoSuchBeanDefinitionException e) {
             // In Install Wizard CXF is not configured and it's ok that spring bean for CXF is not found.
             // Finish servlet initialization correctly: initialize the bus ourselves (and lately destroy it ourselves).
-            log.info("Bean '" + e.getBeanName() + "' is not found. Create bus ourselves.");
+            log.info("Bean '{}' is not found. Create bus ourselves.", e.getBeanName());
 
             setBus(BusFactory.newInstance().createBus());
             busCreated = true;

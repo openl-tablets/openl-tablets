@@ -41,7 +41,7 @@ public class SamlLogoutSuccessHandler extends SecurityContextLogoutHandler imple
             logoutHandler.onLogoutSuccess(request, response, authentication);
             response.getWriter().flush();
         } catch (IOException e) {
-            log.error(e.getMessage());
+            log.error("", e);
         }
     }
 }

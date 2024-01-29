@@ -322,7 +322,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     String newPath = prevPath.substring(0, index + 1) + logicalName;
                     boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
                     if (!renamed) {
-                        log.warn("Cannot rename folder from " + prevPath + " to " + newPath);
+                        log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
                     }
                 }
             }

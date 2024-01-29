@@ -346,7 +346,7 @@ public class TableViewer {
                 bs.setStyle("dashed");
                 break;
             default:
-                log.warn("Unknown border style: " + xlsStyle);
+                log.warn("Unknown border style: {}", xlsStyle);
                 bs.setWidth(1);
                 bs.setStyle("solid");
         }
