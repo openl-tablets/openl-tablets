@@ -17,7 +17,7 @@ export const RepoDesignPage: React.FC = () => {
         <>
             <RepositoryPage />
             <Row>
-                <Card style={{ width: 205, marginLeft: 20 }}>
+                <Card style={{ width: 205 }}>
                     <Col>
                         <Row>
                             <List style={{ justifyContent: 'left', alignContent: 'middle' }}>

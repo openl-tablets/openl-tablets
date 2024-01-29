@@ -25,7 +25,7 @@ export const RepoDeployConfPage: React.FC = () => {
             {active && (
                 <Card
                     bordered
-                    style={{ width: 900, marginLeft: 20 }}
+                    style={{ width: 900  }}
                 >
                     <Form
                         labelAlign="left"
