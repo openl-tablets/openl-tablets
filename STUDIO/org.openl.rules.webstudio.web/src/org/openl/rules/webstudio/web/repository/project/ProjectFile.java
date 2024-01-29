@@ -6,9 +6,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.richfaces.model.UploadedFile;
+
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.richfaces.model.UploadedFile;
 
 public class ProjectFile {
 

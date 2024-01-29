@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -50,7 +52,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.LoggerFactory;
 
 /**
  * Binding context for xls rules.

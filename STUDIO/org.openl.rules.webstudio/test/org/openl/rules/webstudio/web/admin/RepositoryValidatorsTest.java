@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static org.openl.rules.webstudio.web.admin.RepositoryValidators.getMostSpecificMessage;
 
-
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;

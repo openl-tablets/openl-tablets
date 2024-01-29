@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
-
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 
 class OpenClassPropertiesResolver {
     private final Context context;

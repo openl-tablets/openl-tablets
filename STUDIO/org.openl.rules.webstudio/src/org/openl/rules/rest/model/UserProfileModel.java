@@ -1,9 +1,9 @@
 package org.openl.rules.rest.model;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.ui.tree.view.RulesProfile;
-
-import io.swagger.v3.oas.annotations.Parameter;
 
 public class UserProfileModel extends UserProfileBaseModel {
 

@@ -7,10 +7,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openl.rules.security.Group;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+
+import org.openl.rules.security.Group;
 
 public class RoleHierarchyImpl implements RoleHierarchy {
 

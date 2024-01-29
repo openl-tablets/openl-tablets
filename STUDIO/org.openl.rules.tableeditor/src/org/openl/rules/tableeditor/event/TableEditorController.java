@@ -2,13 +2,17 @@ package org.openl.rules.tableeditor.event;
 
 import java.io.IOException;
 import java.util.Date;
-
 import javax.el.ELContext;
 import javax.el.MethodExpression;
 import javax.faces.context.FacesContext;
 
+import com.sdicons.json.mapper.JSONMapper;
+import com.sdicons.json.mapper.MapperException;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.service.TableServiceException;
 import org.openl.rules.table.ICell;
@@ -29,11 +33,6 @@ import org.openl.util.BooleanUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sdicons.json.mapper.JSONMapper;
-import com.sdicons.json.mapper.MapperException;
 
 /**
  * Table editor controller.

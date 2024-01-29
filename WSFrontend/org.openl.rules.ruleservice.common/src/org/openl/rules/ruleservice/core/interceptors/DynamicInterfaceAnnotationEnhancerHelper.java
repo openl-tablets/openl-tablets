@@ -18,6 +18,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
@@ -27,8 +30,6 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class DynamicInterfaceAnnotationEnhancerHelper {
 

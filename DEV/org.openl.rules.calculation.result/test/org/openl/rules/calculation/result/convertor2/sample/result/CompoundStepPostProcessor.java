@@ -3,6 +3,7 @@ package org.openl.rules.calculation.result.convertor2.sample.result;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 

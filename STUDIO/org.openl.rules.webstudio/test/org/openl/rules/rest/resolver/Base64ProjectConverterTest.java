@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;

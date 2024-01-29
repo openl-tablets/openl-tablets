@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import org.openl.util.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import org.openl.util.StringUtils;
 
 /**
  * OAuth2 configuration.

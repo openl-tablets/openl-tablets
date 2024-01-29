@@ -16,7 +16,7 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/MultiModuleDispatchingTest",
-		"production-repository.factory = repo-file"})
+  "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";

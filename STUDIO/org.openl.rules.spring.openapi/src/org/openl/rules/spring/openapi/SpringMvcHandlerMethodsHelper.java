@@ -4,13 +4,14 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.openl.util.StreamUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import org.openl.util.StreamUtils;
 
 /**
  * Spring MVC Helper

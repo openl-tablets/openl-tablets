@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.regex.Pattern;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 

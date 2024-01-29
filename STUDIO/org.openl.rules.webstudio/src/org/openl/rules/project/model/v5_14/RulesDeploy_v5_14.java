@@ -1,22 +1,22 @@
 package org.openl.rules.project.model.v5_14;
 
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.project.xml.v5_14.PublisherTypeXmlAdapter_v5_14;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHERS_TAG;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHER_TAG;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG;
 
+import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Map;
 
-import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHERS_TAG;
-import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHER_TAG;
-import static org.openl.rules.project.xml.XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.project.xml.v5_14.PublisherTypeXmlAdapter_v5_14;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name=RULES_DEPLOY_DESCRIPTOR_TAG)
+@XmlRootElement(name = RULES_DEPLOY_DESCRIPTOR_TAG)
 public class RulesDeploy_v5_14 {
 
     private Boolean isProvideRuntimeContext;

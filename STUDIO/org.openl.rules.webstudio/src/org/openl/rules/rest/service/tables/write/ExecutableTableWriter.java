@@ -1,10 +1,10 @@
 package org.openl.rules.rest.service.tables.write;
 
+import java.util.stream.Collectors;
+
 import org.openl.rules.rest.model.tables.ExecutableView;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.util.CollectionUtils;
-
-import java.util.stream.Collectors;
 
 /**
  * Base writer for executable tables

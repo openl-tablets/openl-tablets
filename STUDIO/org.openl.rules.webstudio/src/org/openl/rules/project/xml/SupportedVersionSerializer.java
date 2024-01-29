@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.openl.util.PropertiesUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.PropertiesUtils;
+import org.openl.util.StringUtils;
 
 public class SupportedVersionSerializer {
     // Filename ".setting" is used instead of ".settings" because the latter is a reserved folder name in old deprecated

@@ -13,20 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.Features;
-import org.openl.rules.repository.api.FeaturesBuilder;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -53,6 +41,18 @@ import software.amazon.awssdk.services.s3.model.PutBucketVersioningRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.VersioningConfiguration;
+
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.rules.repository.common.RevisionGetter;
+import org.openl.util.StringUtils;
 
 public class S3Repository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);

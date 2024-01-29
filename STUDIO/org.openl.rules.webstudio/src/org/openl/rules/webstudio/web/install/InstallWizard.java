@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.application.FacesMessage;
@@ -30,21 +29,6 @@ import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
-import org.openl.config.InMemoryProperties;
-import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.webstudio.util.WebStudioValidationUtils;
-import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
-import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.RepositoryEditor;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryValidators;
-import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.spring.env.DynamicPropertySource;
-import org.openl.util.PropertiesUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -53,6 +37,22 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.config.InMemoryProperties;
+import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.util.WebStudioValidationUtils;
+import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
+import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryValidators;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.DynamicPropertySource;
+import org.openl.util.PropertiesUtils;
+import org.openl.util.StringUtils;
 
 @Service
 @SessionScope

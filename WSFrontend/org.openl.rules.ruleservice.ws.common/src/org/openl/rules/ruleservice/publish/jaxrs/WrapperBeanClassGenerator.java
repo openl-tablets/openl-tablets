@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
 import org.openl.gen.TypeDescription;

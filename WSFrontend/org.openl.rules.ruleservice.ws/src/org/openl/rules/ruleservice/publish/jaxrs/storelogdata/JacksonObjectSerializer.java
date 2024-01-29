@@ -1,10 +1,10 @@
 package org.openl.rules.ruleservice.publish.jaxrs.storelogdata;
 
-import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
-import org.openl.rules.ruleservice.storelogdata.ProcessingException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
+import org.openl.rules.ruleservice.storelogdata.ProcessingException;
 
 public class JacksonObjectSerializer implements ObjectSerializer {
 

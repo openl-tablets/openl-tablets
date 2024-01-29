@@ -6,12 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExcelDiffController extends AbstractDiffController {
     private static final String FORMATTING_OR_METADATA = "Content of excel file hasn't been changed, possibly differences are name, formatting or metadata.";

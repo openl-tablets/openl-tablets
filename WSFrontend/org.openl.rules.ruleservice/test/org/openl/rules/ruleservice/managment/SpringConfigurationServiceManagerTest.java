@@ -19,8 +19,8 @@ import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {
-		"production-repository.factory = repo-zip",
-		"production-repository.uri = test-resources/openl-repository/deploy"})
+  "production-repository.factory = repo-zip",
+  "production-repository.uri = test-resources/openl-repository/deploy"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {

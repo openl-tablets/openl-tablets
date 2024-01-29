@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.event;
 
-import javax.faces.context.FacesContext;
 import java.util.Map;
+import javax.faces.context.FacesContext;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;

@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -21,8 +24,6 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IModuleInfo;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class XlsHelper {
     private XlsHelper() {

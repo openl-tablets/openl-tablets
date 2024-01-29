@@ -13,10 +13,11 @@ package org.openl.rules.calculation.result.convertor2;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.result.SpreadsheetResultHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.result.SpreadsheetResultHelper;
 
 /*
  * The example of flat spreadsheet result structure.

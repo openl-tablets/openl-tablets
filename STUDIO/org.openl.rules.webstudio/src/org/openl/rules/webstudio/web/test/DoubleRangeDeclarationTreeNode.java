@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DoubleRangeDeclarationTreeNode extends SimpleParameterTreeNode {
     private static final Logger LOG = LoggerFactory.getLogger(DoubleRangeDeclarationTreeNode.class);

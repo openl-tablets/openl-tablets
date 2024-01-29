@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.core.interceptors.converters;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -18,8 +20,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceClassLoaderAware;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServiceMethodAfterReturningAdvice<T> implements IOpenClassAware, IOpenMemberAware, RulesDeployAware, ServiceClassLoaderAware {
 

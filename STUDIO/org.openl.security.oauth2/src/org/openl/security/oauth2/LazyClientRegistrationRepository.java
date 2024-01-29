@@ -1,6 +1,5 @@
 package org.openl.security.oauth2;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -9,6 +8,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrations;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
+import org.openl.util.StringUtils;
 
 /**
  * Lazy ClientRegistrationRepository initialization, for the case when AS is not available for some reason.

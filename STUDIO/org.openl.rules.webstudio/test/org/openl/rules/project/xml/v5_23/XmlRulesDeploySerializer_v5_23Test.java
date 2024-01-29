@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.openl.rules.project.xml.BaseRulesDeploySerializerTest.generateRulesDeployForTest;
 
-
 import java.io.FileInputStream;
 import java.util.Map;
 

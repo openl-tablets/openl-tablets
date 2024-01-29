@@ -23,10 +23,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.openl.types.impl.MethodKey;
-import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.types.impl.MethodKey;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  * This class is similar to {@link ClassReader} from ASM framework. But it can be used only for interface generation.

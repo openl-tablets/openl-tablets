@@ -3,7 +3,6 @@ package org.openl.rules.repository;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.List;

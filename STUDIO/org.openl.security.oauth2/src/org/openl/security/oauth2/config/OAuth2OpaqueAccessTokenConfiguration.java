@@ -1,8 +1,5 @@
 package org.openl.security.oauth2.config;
 
-import org.openl.security.oauth2.OAuth2Configuration;
-import org.openl.security.oauth2.UserInfoClaimsConverter;
-import org.openl.security.oauth2.UserInfoOpaqueTokenIntrospector;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +9,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+
+import org.openl.security.oauth2.OAuth2Configuration;
+import org.openl.security.oauth2.UserInfoClaimsConverter;
+import org.openl.security.oauth2.UserInfoOpaqueTokenIntrospector;
 
 /**
  * Configuration for OAuth2 opaque access token authentication.

@@ -1,15 +1,11 @@
 package org.openl.rules.table.properties.def;
 
-import java.util.Date;
-
 import org.openl.message.Severity;
-import org.openl.rules.enumeration.*;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
-import org.openl.types.java.JavaOpenClass;
 
 /**
  * Definitions of supported properties.

@@ -3,6 +3,9 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.EnumToStringCast;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -17,8 +20,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ContextPropertiesInjector {
     private static final Logger LOG = LoggerFactory.getLogger(ContextPropertiesInjector.class);

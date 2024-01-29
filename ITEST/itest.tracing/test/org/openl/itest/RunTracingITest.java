@@ -6,7 +6,6 @@ import static org.awaitility.Awaitility.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;

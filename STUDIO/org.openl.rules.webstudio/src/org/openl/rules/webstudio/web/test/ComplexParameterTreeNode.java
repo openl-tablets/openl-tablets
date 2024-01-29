@@ -5,6 +5,9 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -13,8 +16,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final Logger LOG = LoggerFactory.getLogger(ComplexParameterTreeNode.class);

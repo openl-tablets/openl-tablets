@@ -11,16 +11,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestStatus;
 import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.impl.ThisField;

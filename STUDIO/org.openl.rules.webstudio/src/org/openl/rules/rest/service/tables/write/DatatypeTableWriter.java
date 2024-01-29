@@ -1,7 +1,5 @@
 package org.openl.rules.rest.service.tables.write;
 
-import java.util.Collection;
-
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.model.tables.DatatypeAppend;
 import org.openl.rules.rest.model.tables.DatatypeFieldView;

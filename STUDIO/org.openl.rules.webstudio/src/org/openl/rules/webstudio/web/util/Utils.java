@@ -3,8 +3,9 @@ package org.openl.rules.webstudio.web.util;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.PostConstruct;
+
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -14,7 +15,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
 
 @Service
 public class Utils {

@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.spring;
 
 import java.util.Map;
-
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.core.MediaType;
@@ -9,9 +8,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.springframework.stereotype.Component;
 
 @Component
 @Provider

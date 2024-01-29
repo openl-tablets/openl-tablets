@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -7,9 +9,6 @@ import org.openl.rules.repository.git.WildcardBranchNameFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
-
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
     public void localRepositoryPath(FacesContext context, UIComponent toValidate, Object value) {

@@ -1,6 +1,11 @@
 package org.openl.rules.diff.tree;
 
-import static org.openl.rules.diff.tree.DiffStatus.*;
+import static org.openl.rules.diff.tree.DiffStatus.ADDED;
+import static org.openl.rules.diff.tree.DiffStatus.DIFFERS;
+import static org.openl.rules.diff.tree.DiffStatus.EQUALS;
+import static org.openl.rules.diff.tree.DiffStatus.ORIGINAL;
+import static org.openl.rules.diff.tree.DiffStatus.ORIGINAL_ABSENT;
+import static org.openl.rules.diff.tree.DiffStatus.REMOVED;
 
 import org.openl.rules.diff.hierarchy.Projection;
 

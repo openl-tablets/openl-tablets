@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -28,8 +31,6 @@ import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.openl.util.db.SqlDBUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 abstract class DBRepository implements Repository, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(DBRepository.class);

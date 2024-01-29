@@ -1,13 +1,12 @@
 package org.openl.rules.tableeditor.taglib;
 
+import java.util.List;
 import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 
 import org.openl.rules.table.ICell;
 import org.openl.rules.tableeditor.util.Constants;
-
-import java.util.List;
 
 public class TableEditorTag extends TableViewerTag {
 

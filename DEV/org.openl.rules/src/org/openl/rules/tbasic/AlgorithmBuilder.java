@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -23,8 +26,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AlgorithmBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(AlgorithmBuilder.class);

@@ -1,11 +1,11 @@
 package org.openl.spring.env;
 
 import java.util.Collections;
-
 import javax.servlet.ServletContext;
 
-import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
+
+import org.openl.util.StringUtils;
 
 public class ServletContextPropertySource extends EnumerablePropertySource<ServletContext> {
 

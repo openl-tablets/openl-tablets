@@ -21,14 +21,15 @@ import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
 import org.openl.rules.xls.merge.diff.SheetDiffResult;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.rules.xls.merge.diff.XlsMatch;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This services helps to merge two conflicted revisions based on base revision

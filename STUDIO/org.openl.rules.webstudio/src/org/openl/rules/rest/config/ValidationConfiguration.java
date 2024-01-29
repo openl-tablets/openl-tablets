@@ -1,6 +1,8 @@
 package org.openl.rules.rest.config;
 
-import org.openl.rules.rest.validation.BeanValidationProvider;
+import java.util.List;
+import javax.validation.ValidatorFactory;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.MessageSource;
@@ -11,8 +13,7 @@ import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 
-import javax.validation.ValidatorFactory;
-import java.util.List;
+import org.openl.rules.rest.validation.BeanValidationProvider;
 
 /**
  * WebStudio validation configuration

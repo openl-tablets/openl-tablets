@@ -3,6 +3,9 @@ package org.openl.runtime;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
@@ -10,8 +13,6 @@ import org.openl.types.IOpenMember;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
     private static final Logger LOG = LoggerFactory.getLogger(AOpenLEngineFactory.class);

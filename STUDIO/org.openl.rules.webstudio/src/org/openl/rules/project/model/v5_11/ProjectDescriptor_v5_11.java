@@ -1,10 +1,12 @@
 package org.openl.rules.project.model.v5_11;
 
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.CLASSPATH_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULES_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULE_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PATH_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
+
 import java.util.List;
-
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,11 +14,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.CLASSPATH_TAG;
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULES_TAG;
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULE_TAG;
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PATH_TAG;
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 
 
 @XmlRootElement(name = PROJECT_DESCRIPTOR_TAG)

@@ -1,6 +1,7 @@
 package org.openl.rules.dt.data;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.types.IMemberMetaInfo;

@@ -7,13 +7,14 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.core.GrantedAuthority;
+
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.util.StringUtils;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Converts OAuth2 user info claims to {@link SimpleUser}.

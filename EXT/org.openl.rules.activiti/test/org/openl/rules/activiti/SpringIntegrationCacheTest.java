@@ -3,7 +3,6 @@ package org.openl.rules.activiti;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.util.HashMap;
 import java.util.Map;
 

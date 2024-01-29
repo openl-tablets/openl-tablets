@@ -3,14 +3,14 @@ package org.openl.rules.rest.validation;
 import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
-
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.util.StringUtils;
 
 /**
  * Validator for new branch name.

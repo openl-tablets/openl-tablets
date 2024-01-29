@@ -9,6 +9,7 @@ import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+
 import org.openl.rules.xls.merge.diff.XlsMatch;
 
 /**

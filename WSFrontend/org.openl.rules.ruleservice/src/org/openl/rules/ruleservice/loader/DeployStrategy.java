@@ -1,8 +1,9 @@
 package org.openl.rules.ruleservice.loader;
 
-import org.openl.util.StringUtils;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.core.convert.support.DefaultConversionService;
+
+import org.openl.util.StringUtils;
 
 public enum DeployStrategy {
 

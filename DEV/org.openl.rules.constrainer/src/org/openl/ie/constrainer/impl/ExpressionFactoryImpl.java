@@ -5,7 +5,13 @@ import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Expression;
+import org.openl.ie.constrainer.ExpressionFactory;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.Undo;
+import org.openl.ie.constrainer.UndoImpl;
+import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 

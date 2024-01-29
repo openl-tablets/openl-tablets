@@ -7,15 +7,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.rules.repository.api.Offset;
-import org.openl.rules.repository.api.Page;
-import org.openl.rules.repository.api.Pageable;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import org.openl.rules.repository.api.Offset;
+import org.openl.rules.repository.api.Page;
+import org.openl.rules.repository.api.Pageable;
 
 /**
  * REST API {@link Pageable} parameter type resolver. Resolves {@link Offset} or {@link Page} types from {@code offset},

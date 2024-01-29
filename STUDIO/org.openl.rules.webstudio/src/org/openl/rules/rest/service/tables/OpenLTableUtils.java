@@ -2,6 +2,10 @@ package org.openl.rules.rest.service.tables;
 
 import java.util.Objects;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
+
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.model.tables.SmartRulesView;
@@ -9,10 +13,6 @@ import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITable;
 import org.openl.util.StringUtils;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.Maps;
 
 /**
  * Utility class for rule tables.

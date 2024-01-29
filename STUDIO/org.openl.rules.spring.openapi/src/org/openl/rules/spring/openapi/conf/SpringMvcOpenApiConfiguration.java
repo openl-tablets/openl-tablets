@@ -3,23 +3,24 @@ package org.openl.rules.spring.openapi.conf;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.openapi.OpenAPIConfiguration;
-import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
-import org.openl.rules.spring.openapi.controller.OpenApiController;
-import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
-import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import org.openl.rules.openapi.OpenAPIConfiguration;
+import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
+import org.openl.rules.spring.openapi.controller.OpenApiController;
+import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
+import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
+
 /**
  * Main Spring Configuration for Spring OpenAPI Generator
  */
 @Configuration
-@ComponentScan(basePackages = { "org.openl.rules.spring.openapi.controller",
-        "org.openl.rules.spring.openapi.service",
-        "org.openl.rules.spring.openapi.converter" })
+@ComponentScan(basePackages = {"org.openl.rules.spring.openapi.controller",
+    "org.openl.rules.spring.openapi.service",
+    "org.openl.rules.spring.openapi.converter"})
 public class SpringMvcOpenApiConfiguration {
 
     @Bean

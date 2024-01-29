@@ -1,14 +1,11 @@
 package org.openl.rules.activiti.util;
 
-import java.util.Date;
-import java.util.Locale;
-
 import org.activiti.engine.delegate.DelegateExecution;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
-import org.openl.rules.enumeration.*;
 
 public final class IRulesRuntimeContextUtils {
     // IRulesRuntimeContextUtils converts only simple OpenL types, so we can hold it in static field.

@@ -10,10 +10,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.openl.binding.MethodUtil;
-import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.binding.MethodUtil;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor

@@ -1,19 +1,19 @@
 package org.openl.rules.project.model;
 
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.METHOD_FILTER_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.WEBSTUDIO_CONFIGURATION;
 
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.Optional;
 
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.METHOD_FILTER_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.WEBSTUDIO_CONFIGURATION;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "module")

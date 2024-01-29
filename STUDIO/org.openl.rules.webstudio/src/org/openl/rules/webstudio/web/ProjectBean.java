@@ -20,11 +20,20 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 import javax.xml.bind.JAXBException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.core.util.Yaml;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.PathMatcher;
+import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.common.ProjectException;
@@ -87,17 +96,6 @@ import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 import org.openl.validation.ValidatedCompiledOpenClass;
-
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.core.util.Yaml;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.PathMatcher;
-import org.springframework.web.context.annotation.RequestScope;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 @RequestScope

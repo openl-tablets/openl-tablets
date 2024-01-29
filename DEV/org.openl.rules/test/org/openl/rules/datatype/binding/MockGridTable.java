@@ -1,6 +1,12 @@
 package org.openl.rules.datatype.binding;
 
-import org.openl.rules.table.*;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.AGridTable;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 
 /**
  * Default implementation for IGridTable. Is based on the two-dimensional array, the analog of the grid.

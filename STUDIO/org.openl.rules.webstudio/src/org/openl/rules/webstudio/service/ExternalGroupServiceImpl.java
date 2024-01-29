@@ -6,12 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.Group;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * External groups service implementation

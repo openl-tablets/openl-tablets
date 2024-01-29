@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.service;
 
+import java.util.Objects;
+
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.security.standalone.dao.UserSettingDao;
 import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
-
-import java.util.Objects;
 
 public class UserSettingManagementService {
 

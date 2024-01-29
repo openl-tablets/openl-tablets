@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
@@ -14,7 +16,6 @@ import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.types.impl.AMethod;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads any OpenL table to {@link SummaryTableView} model.

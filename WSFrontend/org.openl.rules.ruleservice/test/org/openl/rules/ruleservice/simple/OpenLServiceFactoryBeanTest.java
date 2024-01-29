@@ -11,8 +11,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesFrontendTest",
-		"ruleservice.isProvideRuntimeContext=false",
-		"production-repository.factory = repo-file"})
+  "ruleservice.isProvideRuntimeContext=false",
+  "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml"})
 public class OpenLServiceFactoryBeanTest {
 

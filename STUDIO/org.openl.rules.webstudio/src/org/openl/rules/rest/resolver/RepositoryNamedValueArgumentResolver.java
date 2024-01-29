@@ -4,10 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.util.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -15,6 +11,11 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerMapping;
+
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.StringUtils;
 
 /**
  * <p>An @{@link DesignRepository} is a named value that gets resolved from a URI template variable.

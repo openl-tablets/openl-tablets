@@ -6,12 +6,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.spring.env.RefPropertySource;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertyResolver;
+
+import org.openl.spring.env.RefPropertySource;
 
 public class InMemoryProperties extends ReadOnlyPropertiesHolder {
 

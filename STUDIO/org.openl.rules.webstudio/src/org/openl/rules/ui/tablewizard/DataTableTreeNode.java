@@ -3,8 +3,9 @@ package org.openl.rules.ui.tablewizard;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.openl.rules.table.xls.builder.DataTableField;
 import org.richfaces.model.TreeNode;
+
+import org.openl.rules.table.xls.builder.DataTableField;
 
 /**
  * A tree node, containing description of Data Table's field columns

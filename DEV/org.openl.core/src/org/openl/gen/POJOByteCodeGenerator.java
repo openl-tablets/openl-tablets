@@ -18,6 +18,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import org.openl.gen.writers.BeanByteCodeWriter;
 import org.openl.gen.writers.ConstructorWithParametersWriter;
 import org.openl.gen.writers.DefaultConstructorWriter;

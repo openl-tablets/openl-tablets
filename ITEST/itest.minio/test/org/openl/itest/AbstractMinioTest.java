@@ -3,7 +3,6 @@ package org.openl.itest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

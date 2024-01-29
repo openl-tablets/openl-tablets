@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -18,10 +21,7 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RuleServiceDependencyManager extends AbstractDependencyManager {
 

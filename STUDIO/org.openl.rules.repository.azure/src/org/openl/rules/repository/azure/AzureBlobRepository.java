@@ -20,21 +20,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.map.PassiveExpiringMap;
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.Features;
-import org.openl.rules.repository.api.FeaturesBuilder;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
@@ -51,6 +36,21 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.apache.commons.collections4.map.PassiveExpiringMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.util.StringUtils;
 
 /**
  * Azure Blob Storage repository.<br/>

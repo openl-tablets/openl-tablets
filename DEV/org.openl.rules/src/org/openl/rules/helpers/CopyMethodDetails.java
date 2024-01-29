@@ -2,9 +2,9 @@ package org.openl.rules.helpers;
 
 import java.util.Objects;
 
-import org.openl.binding.impl.cast.MethodDetails;
-
 import com.rits.cloning.Cloner;
+
+import org.openl.binding.impl.cast.MethodDetails;
 
 public class CopyMethodDetails implements MethodDetails {
     private final Cloner cloner;

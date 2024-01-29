@@ -4,8 +4,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Base64;
 import java.util.List;
-
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -14,10 +18,6 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
 
 /**
  * Resolves {@link AProject} from base64 projectId. It's used to remove duplicated code in Spring Controllers and make

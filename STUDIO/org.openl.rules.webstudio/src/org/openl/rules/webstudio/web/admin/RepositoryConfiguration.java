@@ -1,11 +1,19 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.math.BigInteger;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -15,9 +23,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 public class RepositoryConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfiguration.class);

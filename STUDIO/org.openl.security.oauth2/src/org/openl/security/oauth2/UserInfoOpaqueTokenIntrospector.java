@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
@@ -29,6 +27,9 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleUser;
 
 /**
  * Extends {@link SpringOpaqueTokenIntrospector} to create a {@link SimpleUser} based on {@link OAuth2User}.

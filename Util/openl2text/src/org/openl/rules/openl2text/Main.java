@@ -14,15 +14,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.util.FileUtils;
+import me.tongfei.progressbar.ProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import me.tongfei.progressbar.ProgressBar;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
+
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.util.FileUtils;
 
 @Command(name = "open2text", description = "CLI tool that converts OpenL Tablets rules to text format.")
 public class Main implements Runnable {

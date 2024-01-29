@@ -4,21 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.rest.model.MailConfigModel;
-import org.openl.rules.rest.model.NotificationModel;
-import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.User;
-import org.openl.rules.webstudio.mail.MailSender;
-import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.spring.env.DynamicPropertySource;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
@@ -32,9 +22,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.rules.rest.exception.ForbiddenException;
+import org.openl.rules.rest.model.MailConfigModel;
+import org.openl.rules.rest.model.NotificationModel;
+import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.User;
+import org.openl.rules.webstudio.mail.MailSender;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.spring.env.DynamicPropertySource;
 
 @RestController
 @RequestMapping("/mail")

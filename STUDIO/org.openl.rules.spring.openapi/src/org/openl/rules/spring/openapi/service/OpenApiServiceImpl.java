@@ -5,17 +5,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openl.util.RuntimeExceptionWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import io.swagger.v3.core.util.Json;
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.models.OpenAPI;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class OpenApiServiceImpl implements OpenApiService {
 

@@ -40,7 +40,7 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
-@WebFilter(value = "/*", initParams = @WebInitParam(name = "xForwardedPrefixStrategy", value = "PREPEND") )
+@WebFilter(value = "/*", initParams = @WebInitParam(name = "xForwardedPrefixStrategy", value = "PREPEND"))
 public class RuleServicesFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(RuleServicesFilter.class);

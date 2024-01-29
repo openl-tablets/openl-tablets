@@ -5,6 +5,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
+
 import org.openl.rules.rest.model.InternalPasswordModel;
 import org.openl.util.StringUtils;
 

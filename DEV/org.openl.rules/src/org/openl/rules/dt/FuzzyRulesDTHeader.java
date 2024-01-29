@@ -1,6 +1,7 @@
 package org.openl.rules.dt;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 
 public class FuzzyRulesDTHeader extends DTHeader {

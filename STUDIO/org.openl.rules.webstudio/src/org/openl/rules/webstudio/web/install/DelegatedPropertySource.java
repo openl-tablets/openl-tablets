@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.install;
 
-import org.openl.config.PropertiesHolder;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
+
+import org.openl.config.PropertiesHolder;
 
 public class DelegatedPropertySource extends PropertySource<PropertiesHolder> {
     DelegatedPropertySource(PropertiesHolder propertiesHolder) {

@@ -2,13 +2,13 @@ package org.openl.rules.webstudio.grpc;
 
 import javax.annotation.PreDestroy;
 
-import org.openl.rules.webstudio.ai.WebstudioAIServiceGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Component;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import org.openl.rules.webstudio.ai.WebstudioAIServiceGrpc;
 
 @Component("aiService")
 public class AIServiceImpl implements AIService {

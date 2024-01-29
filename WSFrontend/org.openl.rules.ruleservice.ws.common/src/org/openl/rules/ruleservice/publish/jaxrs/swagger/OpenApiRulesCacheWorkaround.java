@@ -3,11 +3,10 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.integration.OpenApiContextLocator;
 import io.swagger.v3.oas.integration.api.OpenApiContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class OpenApiRulesCacheWorkaround {
 

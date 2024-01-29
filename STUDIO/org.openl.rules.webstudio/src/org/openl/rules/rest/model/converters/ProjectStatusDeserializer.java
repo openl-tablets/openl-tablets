@@ -2,11 +2,11 @@ package org.openl.rules.rest.model.converters;
 
 import java.io.IOException;
 
-import org.openl.rules.project.abstraction.ProjectStatus;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+
+import org.openl.rules.project.abstraction.ProjectStatus;
 
 /**
  * Custom deserializer for {@link ProjectStatus} enum.

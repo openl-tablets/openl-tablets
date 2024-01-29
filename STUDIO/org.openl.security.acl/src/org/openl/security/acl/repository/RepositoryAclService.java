@@ -3,9 +3,10 @@ package org.openl.security.acl.repository;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
+
+import org.openl.rules.project.abstraction.AProjectArtefact;
 
 public interface RepositoryAclService extends SimpleRepositoryAclService {
 

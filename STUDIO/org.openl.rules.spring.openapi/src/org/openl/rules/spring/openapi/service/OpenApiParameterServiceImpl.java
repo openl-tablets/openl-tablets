@@ -12,17 +12,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 
-import org.openl.rules.spring.openapi.model.MethodInfo;
-import org.openl.rules.spring.openapi.model.ParameterInfo;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverter;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.util.ParameterProcessor;
+import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -33,17 +38,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.core.converter.AnnotatedType;
-import io.swagger.v3.core.converter.ModelConverter;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.util.ParameterProcessor;
-import io.swagger.v3.core.util.ReflectionUtils;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.parameters.Parameter;
+import org.openl.rules.spring.openapi.model.MethodInfo;
+import org.openl.rules.spring.openapi.model.ParameterInfo;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * OpenAPI Parameter service helps to parse and build OpenAPI parameters from API annotation and Spring declaration

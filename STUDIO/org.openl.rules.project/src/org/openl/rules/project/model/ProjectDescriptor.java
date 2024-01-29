@@ -1,5 +1,10 @@
 package org.openl.rules.project.model;
 
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,12 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.util.FileUtils;
-import org.openl.util.RuntimeExceptionWrapper;
-import org.springframework.util.AntPathMatcher;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -34,13 +33,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
+import org.springframework.util.AntPathMatcher;
+
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name=PROJECT_DESCRIPTOR_TAG)
+@XmlRootElement(name = PROJECT_DESCRIPTOR_TAG)
 public class ProjectDescriptor {
     @XmlTransient
     private String id;

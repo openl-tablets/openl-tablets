@@ -2,7 +2,6 @@ package org.openl.rules.calculation.result.convertor2.sample;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.io.File;
 import java.util.List;
 

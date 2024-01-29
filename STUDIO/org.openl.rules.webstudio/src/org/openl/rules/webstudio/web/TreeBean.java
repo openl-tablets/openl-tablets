@@ -2,14 +2,15 @@ package org.openl.rules.webstudio.web;
 
 import java.util.List;
 
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
 import org.richfaces.model.TreeNode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.

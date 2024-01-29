@@ -8,8 +8,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
+
+import org.openl.util.StringUtils;
 
 public final class Comments {
     /**

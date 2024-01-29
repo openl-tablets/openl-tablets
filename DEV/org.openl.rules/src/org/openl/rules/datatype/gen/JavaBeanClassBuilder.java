@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.objectweb.asm.ClassWriter;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
 import org.openl.gen.TypeDescription;

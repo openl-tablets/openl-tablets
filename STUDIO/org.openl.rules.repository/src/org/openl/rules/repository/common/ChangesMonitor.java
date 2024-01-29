@@ -5,9 +5,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.openl.rules.repository.api.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.repository.api.Listener;
 
 /**
  * For monitoring changes in a repository. If the difference is detected then a {@link Listener#onChange()} will be

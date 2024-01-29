@@ -1,11 +1,17 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.ListIterator;
+import java.util.Map;
 
-import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.types.java.JavaOpenClass;
 
 public class MapParameterTreeNode extends CollectionParameterTreeNode {
     private final Logger log = LoggerFactory.getLogger(MapParameterTreeNode.class);

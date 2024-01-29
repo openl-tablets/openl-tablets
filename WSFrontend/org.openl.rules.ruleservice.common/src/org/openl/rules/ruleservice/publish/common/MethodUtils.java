@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.annotations.ExternalParam;
@@ -17,9 +20,6 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class MethodUtils {
     private MethodUtils() {

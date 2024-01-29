@@ -12,10 +12,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
+
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
@@ -25,8 +27,6 @@ import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenMember;
 import org.openl.util.ClassUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RequestMessageDeserializer implements Deserializer<RequestMessage> {
 

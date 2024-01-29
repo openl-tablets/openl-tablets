@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.openl.rules.project.openapi.OpenAPIRefResolver;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
+
+import org.openl.rules.project.openapi.OpenAPIRefResolver;
 
 final class OpenAPIResolver {
     private final OpenAPIRefResolver openAPIRefResolver;

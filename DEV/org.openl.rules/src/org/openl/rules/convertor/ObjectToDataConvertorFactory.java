@@ -1,10 +1,5 @@
 package org.openl.rules.convertor;
 
-import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.rules.helpers.IntRange;
-import org.openl.util.RuntimeExceptionWrapper;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,6 +13,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+
+import org.openl.rules.helpers.IntRange;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Gives convertors from one class to another.

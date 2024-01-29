@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.diff;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-
 import javax.faces.component.UIComponent;
 
 import org.richfaces.component.UITree;

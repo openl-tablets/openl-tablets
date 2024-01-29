@@ -1,8 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.openl.rules.security.standalone.persistence.User;
-
 import java.util.List;
+
+import org.openl.rules.security.standalone.persistence.User;
 
 /**
  * User dao.

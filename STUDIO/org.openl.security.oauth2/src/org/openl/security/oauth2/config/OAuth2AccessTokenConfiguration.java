@@ -4,9 +4,6 @@ import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.security.oauth2.UserInfoClaimsConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +12,10 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.security.oauth2.UserInfoClaimsConverter;
 
 /**
  * Configuration for OAuth2 access token authentication.

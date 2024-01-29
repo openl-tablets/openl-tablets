@@ -1,13 +1,13 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.openl.rules.security.standalone.persistence.TagTemplate;
 
 public class TagTemplateDaoImpl extends BaseHibernateDao<TagTemplate> implements TagTemplateDao {
 

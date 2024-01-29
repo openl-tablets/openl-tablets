@@ -1,12 +1,12 @@
 package org.openl.rules.project.xml;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Writer;
 
 public class JAXBSerializer {
     private Marshaller jaxbMarshaller;

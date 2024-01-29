@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import javax.xml.bind.JAXBException;
+
 import org.xml.sax.SAXParseException;
 
-import javax.xml.bind.JAXBException;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 
 public final class ProjectDescriptorUtils {
     private ProjectDescriptorUtils() {

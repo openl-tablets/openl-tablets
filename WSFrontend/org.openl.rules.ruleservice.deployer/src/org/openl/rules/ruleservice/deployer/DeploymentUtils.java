@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.InputStream;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;

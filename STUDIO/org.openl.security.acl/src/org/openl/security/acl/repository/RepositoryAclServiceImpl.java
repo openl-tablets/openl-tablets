@@ -4,13 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.impl.local.ProjectState;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
-import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.security.acl.MutableAclService;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -19,6 +12,14 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.security.acl.MutableAclService;
 
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 

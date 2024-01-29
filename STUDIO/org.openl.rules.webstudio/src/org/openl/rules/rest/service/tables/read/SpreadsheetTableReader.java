@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SpreadsheetCellView;
 import org.openl.rules.rest.model.tables.SpreadsheetColumnView;
 import org.openl.rules.rest.model.tables.SpreadsheetRowView;
@@ -11,7 +13,6 @@ import org.openl.rules.rest.model.tables.SpreadsheetView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads legacy {@code Spreadsheet} table to {@link SpreadsheetView} model.

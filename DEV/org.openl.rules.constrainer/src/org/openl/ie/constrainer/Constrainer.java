@@ -19,7 +19,14 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.openl.ie.constrainer.impl.*;
+import org.openl.ie.constrainer.impl.ExpressionFactoryImpl;
+import org.openl.ie.constrainer.impl.GoalStack;
+import org.openl.ie.constrainer.impl.IntBoolVarImpl;
+import org.openl.ie.constrainer.impl.IntVarImpl;
+import org.openl.ie.constrainer.impl.UndoFastVectorAdd;
+import org.openl.ie.constrainer.impl.UndoStack;
+import org.openl.ie.constrainer.impl.UndoableIntImpl;
+import org.openl.ie.constrainer.impl.UndoableOnceImpl;
 import org.openl.ie.tools.FastStack;
 import org.openl.ie.tools.FastVector;
 

@@ -1,7 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
@@ -9,9 +8,10 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.hibernate.Session;
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
 import org.openl.rules.security.standalone.persistence.Group;
-import org.springframework.stereotype.Component;
 
 /**
  * External Groups data access object implementation. This implementation doesn't care about transactions. All

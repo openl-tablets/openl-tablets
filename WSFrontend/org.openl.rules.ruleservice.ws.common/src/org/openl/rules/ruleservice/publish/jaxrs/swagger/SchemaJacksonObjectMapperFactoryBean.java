@@ -1,9 +1,9 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
-import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
 public final class SchemaJacksonObjectMapperFactoryBean extends ProjectJacksonObjectMapperFactoryBean {
 

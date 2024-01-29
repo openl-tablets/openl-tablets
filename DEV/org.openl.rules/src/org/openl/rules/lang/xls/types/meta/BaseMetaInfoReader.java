@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
@@ -26,8 +29,6 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements MetaInfoReader {
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);

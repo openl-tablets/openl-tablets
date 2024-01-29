@@ -3,10 +3,11 @@ package org.openl.rules.webstudio.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.dao.OpenLProjectDao;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
-import org.springframework.transaction.annotation.Transactional;
 
 public class OpenLProjectService {
 

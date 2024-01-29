@@ -3,11 +3,12 @@ package org.openl.rules.rest.resolver;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import org.openl.rules.repository.api.Page;
-import org.openl.rules.repository.api.Pageable;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import org.openl.rules.repository.api.Page;
+import org.openl.rules.repository.api.Pageable;
 
 /**
  * REST API {@link Page} parameter type resolver. Resolves {@link Page} type from {@code page} and {@code size} query

@@ -3,7 +3,6 @@ package org.openl.rules.binding;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 

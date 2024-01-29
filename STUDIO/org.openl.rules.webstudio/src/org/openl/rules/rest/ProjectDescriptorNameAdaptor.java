@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.folder.FileAdaptor;
 import org.openl.util.IOUtils;
-
-import javax.xml.bind.JAXBException;
 
 public class ProjectDescriptorNameAdaptor implements FileAdaptor {
 

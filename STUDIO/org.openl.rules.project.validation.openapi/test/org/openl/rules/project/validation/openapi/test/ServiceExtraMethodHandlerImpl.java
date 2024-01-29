@@ -2,7 +2,6 @@ package org.openl.rules.project.validation.openapi.test;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;

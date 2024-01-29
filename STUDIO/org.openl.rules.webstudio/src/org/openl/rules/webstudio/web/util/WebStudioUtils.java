@@ -8,12 +8,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.servlet.RulesUserSession;
-import org.openl.rules.webstudio.web.servlet.SpringInitializer;
-import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +16,13 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.servlet.SpringInitializer;
+import org.openl.rules.workspace.uw.UserWorkspace;
 
 /**
  * Contains utility methods, which can be used from any class.

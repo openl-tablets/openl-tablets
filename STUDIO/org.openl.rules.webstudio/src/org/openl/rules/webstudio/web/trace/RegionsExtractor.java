@@ -5,8 +5,21 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openl.rules.table.*;
-import org.openl.rules.webstudio.web.trace.node.*;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.ITable;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
+import org.openl.rules.webstudio.web.trace.node.MethodTableTraceObject;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 
 public class RegionsExtractor {
     static List<IGridRegion> getGridRegions(ITracerObject obj) {

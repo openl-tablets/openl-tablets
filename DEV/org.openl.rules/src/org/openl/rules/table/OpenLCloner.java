@@ -1,16 +1,17 @@
 package org.openl.rules.table;
 
 import java.lang.reflect.InvocationHandler;
+
+import com.rits.cloning.Cloner;
+import com.rits.cloning.IInstantiationStrategy;
 import groovy.lang.MetaClass;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import org.objenesis.instantiator.ObjectInstantiator;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
 
-import com.rits.cloning.Cloner;
-import com.rits.cloning.IInstantiationStrategy;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMember;
 
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning instances of them.

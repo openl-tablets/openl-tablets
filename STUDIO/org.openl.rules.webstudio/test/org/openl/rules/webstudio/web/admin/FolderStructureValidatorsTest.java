@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import javax.faces.validator.ValidatorException;
 
 import org.junit.jupiter.api.Test;

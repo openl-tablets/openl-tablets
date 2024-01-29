@@ -1,6 +1,7 @@
 package org.openl.internal.verify.lib;
 
 import javax.ws.rs.ext.Provider;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 

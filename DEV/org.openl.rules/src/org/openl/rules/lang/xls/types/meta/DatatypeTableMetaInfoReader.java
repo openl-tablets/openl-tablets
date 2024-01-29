@@ -4,6 +4,9 @@ import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSou
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -22,8 +25,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ParserUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTableBoundNode> {
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableMetaInfoReader.class);

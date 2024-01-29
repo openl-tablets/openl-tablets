@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.openl.config.PropertiesHolder;
-
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
+
+import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
     private String serviceEndpoint;

@@ -1,8 +1,8 @@
 package org.openl.rules.table.xls.formatters;
 
-import org.openl.util.formatters.DateFormatter;
-
 import java.util.regex.Pattern;
+
+import org.openl.util.formatters.DateFormatter;
 
 /**
  * @author snshor

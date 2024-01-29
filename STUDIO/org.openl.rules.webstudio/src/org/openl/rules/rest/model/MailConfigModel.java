@@ -1,8 +1,8 @@
 package org.openl.rules.rest.model;
 
-import org.openl.rules.rest.validation.MailConfigConstraint;
-
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.rules.rest.validation.MailConfigConstraint;
 
 @MailConfigConstraint
 public class MailConfigModel {

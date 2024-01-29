@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
@@ -21,9 +20,9 @@ import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/VariationsSupportTest",
-		"ruleservice.isProvideRuntimeContext=false",
-		"ruleservice.isSupportVariations=true",
-		"production-repository.factory = repo-file"})
+  "ruleservice.isProvideRuntimeContext=false",
+  "ruleservice.isSupportVariations=true",
+  "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class VariationsSupportTest {
     public static final String STANDARD = "Standard Driver";

@@ -2,7 +2,6 @@ package org.openl.rules.xls.merge;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,8 +33,8 @@ import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class,
-		UserManagementConfiguration.class,
-		AclServiceTestConfiguration.class})
+  UserManagementConfiguration.class,
+  AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password ="})
 public class GroupManagementTest {
 

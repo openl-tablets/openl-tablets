@@ -2,7 +2,10 @@ package org.openl.rules.rest.config;
 
 import java.util.List;
 
-import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -28,10 +31,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 /**
  * Spring WebStudio API Configuration
@@ -39,7 +39,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * @author Vladyslav Pikus
  */
 @Configuration
-@Import({ ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class })
+@Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
 @EnableWebMvc
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {

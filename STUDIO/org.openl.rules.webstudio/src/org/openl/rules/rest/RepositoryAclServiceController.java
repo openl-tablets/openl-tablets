@@ -6,23 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.security.standalone.dao.GroupDao;
-import org.openl.rules.security.standalone.dao.UserDao;
-import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -43,13 +38,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.security.standalone.dao.GroupDao;
+import org.openl.rules.security.standalone.dao.UserDao;
+import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
 @RestController
 @RequestMapping("/acl/repo")

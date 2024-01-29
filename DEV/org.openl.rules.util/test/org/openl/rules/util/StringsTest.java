@@ -22,16 +22,12 @@ import static org.openl.rules.util.Strings.removeStart;
 import static org.openl.rules.util.Strings.replace;
 import static org.openl.rules.util.Strings.startsWith;
 import static org.openl.rules.util.Strings.substring;
-import static org.openl.rules.util.Strings.textJoin;
-import static org.openl.rules.util.Strings.textSplit;
 import static org.openl.rules.util.Strings.toDouble;
 import static org.openl.rules.util.Strings.toInteger;
 import static org.openl.rules.util.Strings.toLocale;
 import static org.openl.rules.util.Strings.toNumber;
-import static org.openl.rules.util.Strings.toString;
 import static org.openl.rules.util.Strings.trim;
 import static org.openl.rules.util.Strings.upperCase;
-
 
 import java.math.BigDecimal;
 import java.util.Calendar;

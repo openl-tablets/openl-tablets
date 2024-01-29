@@ -7,20 +7,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.openl.util.ClassUtils;
-import org.openl.util.JAXBUtils;
-
 import com.fasterxml.jackson.databind.JavaType;
-
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.oas.models.media.Schema;
+
+import org.openl.util.ClassUtils;
+import org.openl.util.JAXBUtils;
 
 public class OpenApiSupportConverter implements ModelConverter {
     public Schema<?> resolve(AnnotatedType annotatedType,

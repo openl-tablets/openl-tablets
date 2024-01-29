@@ -2,7 +2,6 @@ package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterAll;

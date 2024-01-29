@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.excel.builder.export.DataTableExporter;
 import org.openl.rules.excel.builder.export.DatatypeTableExporter;
 import org.openl.rules.excel.builder.export.EnvironmentTableExporter;
@@ -32,8 +35,6 @@ import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Build the xlsx datatype spreadsheet from the given data type list

@@ -4,6 +4,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.richfaces.model.TreeNode;
+import org.richfaces.model.TreeNodeImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -26,10 +31,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.richfaces.model.TreeNode;
-import org.richfaces.model.TreeNodeImpl;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author DLiauchuk

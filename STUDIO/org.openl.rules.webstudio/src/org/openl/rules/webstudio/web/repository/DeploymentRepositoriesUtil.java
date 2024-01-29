@@ -5,12 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.acls.model.Permission;
+
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.security.acls.model.Permission;
 
 public class DeploymentRepositoriesUtil {
     private DeploymentRepositoriesUtil() {

@@ -3,12 +3,12 @@ package org.openl.rules.serialization.spr;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import org.openl.rules.calc.SpreadsheetCell;
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+
+import org.openl.rules.calc.SpreadsheetCell;
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 
 abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
 

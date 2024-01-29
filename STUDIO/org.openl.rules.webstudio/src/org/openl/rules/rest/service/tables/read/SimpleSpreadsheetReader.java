@@ -3,11 +3,12 @@ package org.openl.rules.rest.service.tables.read;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
 import org.openl.rules.rest.model.tables.SpreadsheetStepView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads simpple {@code Spreadsheet} table to {@link SimpleSpreadsheetView} model.

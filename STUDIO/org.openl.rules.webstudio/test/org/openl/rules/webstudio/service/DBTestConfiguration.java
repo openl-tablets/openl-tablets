@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import static org.mockito.Mockito.mock;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;

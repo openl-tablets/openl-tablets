@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;

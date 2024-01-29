@@ -2,7 +2,11 @@ package org.openl.ie.constrainer.impl;
 
 import java.util.Arrays;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Domain;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*

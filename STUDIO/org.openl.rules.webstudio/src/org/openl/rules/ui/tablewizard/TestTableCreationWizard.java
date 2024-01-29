@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.model.SelectItem;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
@@ -28,7 +27,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Aliaksandr Antonik.
  */
-@GroupSequence({ TestTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({TestTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class TestTableCreationWizard extends TableCreationWizard {
 
     private SelectItem[] tableItems;

@@ -8,16 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.openl.rules.spring.openapi.model.MethodInfo;
-import org.openl.rules.spring.openapi.model.ParameterInfo;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.RequestEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
@@ -27,6 +17,16 @@ import io.swagger.v3.oas.models.media.Encoding;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.RequestEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+
+import org.openl.rules.spring.openapi.model.MethodInfo;
+import org.openl.rules.spring.openapi.model.ParameterInfo;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * OpenAPI RequestBody service helps to parse and build OpenAPI request bodies from API annotation and Spring

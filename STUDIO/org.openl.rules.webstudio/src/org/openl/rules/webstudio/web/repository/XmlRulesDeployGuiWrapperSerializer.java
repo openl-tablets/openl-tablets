@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
@@ -13,8 +14,6 @@ import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-
-import javax.xml.bind.JAXBException;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",

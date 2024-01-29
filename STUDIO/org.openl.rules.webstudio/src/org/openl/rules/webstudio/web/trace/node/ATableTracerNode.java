@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.runtime.IRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.runtime.IRuntimeContext;
 
 public class ATableTracerNode extends SimpleTracerObject {
     private static final Logger LOG = LoggerFactory.getLogger(ATableTracerNode.class);

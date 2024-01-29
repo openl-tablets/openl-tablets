@@ -1,13 +1,13 @@
 package org.openl.rules.rest.validation;
 
 import java.util.function.Function;
-
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.BranchRepository;
-import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 
 /**
  * Factory for {@link NewBranchValidator}.

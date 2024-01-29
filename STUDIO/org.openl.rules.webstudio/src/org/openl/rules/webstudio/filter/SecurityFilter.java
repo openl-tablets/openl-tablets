@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -13,11 +12,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.web.WebAttributes;
+
+import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 
 public class SecurityFilter implements Filter {
 

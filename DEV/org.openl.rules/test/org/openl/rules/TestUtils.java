@@ -2,7 +2,6 @@ package org.openl.rules;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;

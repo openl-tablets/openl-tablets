@@ -3,9 +3,10 @@ package org.openl.rules.ruleservice.spring;
 import org.apache.cxf.Bus;
 import org.apache.cxf.management.counters.CounterRepository;
 import org.apache.cxf.management.jmx.InstrumentationManagerImpl;
-import org.openl.spring.config.ConditionalOnEnable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import org.openl.spring.config.ConditionalOnEnable;
 
 /**
  * Registering of CXF MBeans.

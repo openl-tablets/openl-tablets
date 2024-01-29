@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;

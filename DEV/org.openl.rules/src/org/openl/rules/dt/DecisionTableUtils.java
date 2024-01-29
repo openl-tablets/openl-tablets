@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
+
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.impl.IdentifierSequenceBinder;
 import org.openl.rules.dt.element.ICondition;

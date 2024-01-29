@@ -5,16 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.grpc.StatusRuntimeException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.ai.OpenL2TextUtils;
 import org.openl.rules.webstudio.ai.WebstudioAIServiceGrpc;
 import org.openl.rules.webstudio.ai.WebstudioAi;
 import org.openl.rules.webstudio.grpc.AIService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import io.grpc.StatusRuntimeException;
 
 @Component
 public class AISearchImpl implements AISearch {

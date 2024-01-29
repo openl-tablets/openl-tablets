@@ -1,6 +1,7 @@
 package org.openl.rules.table;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+
 import org.openl.rules.table.ui.ICellStyle;
 
 /**

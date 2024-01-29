@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -12,9 +11,10 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.core.env.Environment;
+
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.Environment;
 
 @WebFilter("/*")
 public class CorsFilter implements Filter {

@@ -9,12 +9,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
-import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.db.enabled")

@@ -3,7 +3,6 @@ package org.openl.security.oauth2;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.rules.security.SimpleUser;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -11,6 +10,8 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+
+import org.openl.rules.security.SimpleUser;
 
 /**
  * Extends OidcUserService to create a SimpleUser based on OidcUser.

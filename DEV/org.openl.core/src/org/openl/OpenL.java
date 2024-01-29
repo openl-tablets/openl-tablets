@@ -6,7 +6,11 @@
 
 package org.openl;
 
-import org.openl.conf.*;
+import org.openl.conf.IOpenLBuilder;
+import org.openl.conf.IUserContext;
+import org.openl.conf.OpenLConfigurationException;
+import org.openl.conf.OpenLConfigurator;
+import org.openl.conf.UserContext;
 import org.openl.util.ClassUtils;
 
 /**

@@ -12,9 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.security.acl.MutableAclService;
-import org.openl.util.StringUtils;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
@@ -30,6 +27,10 @@ import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.security.acl.MutableAclService;
+import org.openl.util.StringUtils;
 
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
     protected final MutableAclService aclService;

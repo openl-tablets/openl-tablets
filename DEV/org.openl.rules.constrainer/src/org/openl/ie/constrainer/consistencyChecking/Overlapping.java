@@ -8,7 +8,11 @@ package org.openl.ie.constrainer.consistencyChecking;
  * @author unascribed
  * @version 1.0
  */
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;

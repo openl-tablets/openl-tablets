@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -32,12 +39,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
 
 @Service("localUpload")
 @ViewScope

@@ -9,6 +9,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.util.StringUtils;
 

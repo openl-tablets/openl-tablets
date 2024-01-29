@@ -3,8 +3,6 @@ package org.openl.security.oauth2.config;
 import java.util.Collection;
 import java.util.function.BiFunction;
 
-import org.openl.rules.security.Privilege;
-import org.openl.security.oauth2.OpenLJwtGrantedAuthoritiesConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +21,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
+import org.openl.rules.security.Privilege;
+import org.openl.security.oauth2.OpenLJwtGrantedAuthoritiesConverter;
 
 /**
  * Configuration for OAuth2 JWT access token authentication.

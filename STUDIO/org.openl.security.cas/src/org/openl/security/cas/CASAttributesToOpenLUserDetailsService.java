@@ -7,15 +7,16 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.jasig.cas.client.validation.Assertion;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertionUserDetailsService {
     private final String firstNameAttribute;

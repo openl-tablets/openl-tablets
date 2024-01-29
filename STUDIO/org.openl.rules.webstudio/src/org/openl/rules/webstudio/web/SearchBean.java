@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.faces.model.SelectItem;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+import org.yaml.snakeyaml.util.UriEncoder;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -25,9 +28,6 @@ import org.openl.rules.webstudio.web.search.SearchResult;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
-import org.yaml.snakeyaml.util.UriEncoder;
 
 @Service
 @RequestScope

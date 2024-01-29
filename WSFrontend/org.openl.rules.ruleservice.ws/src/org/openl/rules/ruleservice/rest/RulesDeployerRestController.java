@@ -5,7 +5,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,13 +18,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.openl.rules.ruleservice.loader.DeploymentsUpdatedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
+import org.openl.rules.ruleservice.loader.DeploymentsUpdatedEvent;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service

@@ -2,7 +2,6 @@ package org.openl.itest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

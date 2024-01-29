@@ -6,11 +6,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.richfaces.model.TreeNode;
+
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
-import org.richfaces.model.TreeNode;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COLLECTION_TYPE = "collection";

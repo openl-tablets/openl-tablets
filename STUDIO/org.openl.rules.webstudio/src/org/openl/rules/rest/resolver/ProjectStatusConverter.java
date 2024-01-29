@@ -2,9 +2,10 @@ package org.openl.rules.rest.resolver;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.rules.project.abstraction.ProjectStatus;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import org.openl.rules.project.abstraction.ProjectStatus;
 
 /**
  * Custom converter for {@link ProjectStatus} enum.

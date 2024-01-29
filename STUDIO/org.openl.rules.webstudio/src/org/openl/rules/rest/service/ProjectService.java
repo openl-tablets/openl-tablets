@@ -1,7 +1,6 @@
 package org.openl.rules.rest.service;
 
 import java.util.List;
-
 import javax.annotation.Nonnull;
 
 import org.openl.rules.project.abstraction.AProject;

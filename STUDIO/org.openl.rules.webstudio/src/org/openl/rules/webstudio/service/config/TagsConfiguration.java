@@ -1,14 +1,15 @@
 package org.openl.rules.webstudio.service.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+
 import org.openl.rules.security.standalone.dao.OpenLProjectDao;
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.dao.TagTypeDao;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Tags configuration beans.

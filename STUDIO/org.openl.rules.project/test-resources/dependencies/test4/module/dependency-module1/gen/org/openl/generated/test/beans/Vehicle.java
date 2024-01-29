@@ -4,10 +4,9 @@
 
 package org.openl.generated.test.beans;
 
-import java.lang.String;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.ArrayUtils;
 
 public class Vehicle {
     protected String name;

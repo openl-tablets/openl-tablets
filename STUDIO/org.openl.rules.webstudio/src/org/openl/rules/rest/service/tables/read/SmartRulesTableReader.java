@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SmartRulesHeaderView;
 import org.openl.rules.rest.model.tables.SmartRulesView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads {@code SmartRules} table to {@link SmartRulesView} model.

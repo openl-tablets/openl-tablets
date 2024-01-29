@@ -12,9 +12,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+import org.slf4j.LoggerFactory;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
 import org.openl.rules.table.ILogicalTable;
@@ -24,7 +25,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
-import org.slf4j.LoggerFactory;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.

@@ -1,10 +1,10 @@
 package org.openl.binding.impl;
 
-import org.openl.util.StringPool;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigInteger;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.openl.util.StringPool;
 
 @XmlRootElement
 public class NumericComparableString implements Comparable<NumericComparableString> {

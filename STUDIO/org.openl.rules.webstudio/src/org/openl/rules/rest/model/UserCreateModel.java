@@ -1,14 +1,13 @@
 package org.openl.rules.rest.model;
 
 import java.util.Set;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 import org.openl.rules.rest.validation.InternalPasswordConstraint;
 import org.openl.rules.rest.validation.UsernameExistsConstraint;
-
-import io.swagger.v3.oas.annotations.Parameter;
 import org.openl.rules.security.standalone.persistence.UsernameConstraints;
 
 public class UserCreateModel extends UserEditModel {

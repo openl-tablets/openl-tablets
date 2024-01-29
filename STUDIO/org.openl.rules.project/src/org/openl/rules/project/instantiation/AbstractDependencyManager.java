@@ -17,6 +17,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.AmbiguousDependencyException;
@@ -33,8 +36,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDependencyManager implements IDependencyManager {
 

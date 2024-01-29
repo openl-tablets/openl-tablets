@@ -4,11 +4,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.openl.rules.rest.common.model.BaseError;
-import org.openl.rules.rest.common.model.ValidationError;
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
@@ -33,6 +28,12 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
+
+import org.openl.rules.rest.common.model.BaseError;
+import org.openl.rules.rest.common.model.ValidationError;
+import org.openl.rules.rest.exception.RestRuntimeException;
+import org.openl.rules.rest.exception.ValidationException;
+import org.openl.util.StringUtils;
 
 /**
  * API Exception Handler

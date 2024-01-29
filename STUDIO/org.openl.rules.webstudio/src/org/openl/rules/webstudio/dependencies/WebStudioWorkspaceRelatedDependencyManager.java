@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
@@ -28,8 +31,6 @@ import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.types.NullOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependencyManager {
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceRelatedDependencyManager.class);

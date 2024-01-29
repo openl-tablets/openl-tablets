@@ -2,7 +2,6 @@ package org.openl.rules.project.validation.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-
 import java.util.Locale;
 import java.util.TimeZone;
 

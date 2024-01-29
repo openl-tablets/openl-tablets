@@ -1,11 +1,12 @@
 package org.openl.excel.grid;
 
 import org.apache.poi.ss.usermodel.Sheet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to prevent full xls load using User API (DOM approach). Base class loads the file fully when gets

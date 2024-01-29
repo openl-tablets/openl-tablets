@@ -2,14 +2,15 @@ package org.openl.rules.rest.resolver;
 
 import java.lang.reflect.Method;
 
-import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.util.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.util.StringUtils;
 
 /**
  * An abstract REST API {@link Pageable} type resolver.

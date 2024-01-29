@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.eclipse.jgit.lib.Constants;
+
 import org.openl.util.StringUtils;
 
 /**

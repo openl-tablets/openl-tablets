@@ -15,16 +15,15 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.openl.util.StringUtils;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.openl.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
 public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyReader {

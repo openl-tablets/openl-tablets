@@ -9,7 +9,6 @@ import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_
 import static org.openl.security.acl.permission.AclPermission.EDIT;
 import static org.openl.security.acl.permission.AclPermission.VIEW;
 
-
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,8 +34,8 @@ import org.openl.security.acl.repository.RepositoryAclService;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
-		"db.user =",
-		"db.password ="})
+  "db.user =",
+  "db.password ="})
 @WithMockUser(value = "admin", authorities = "ADMIN")
 public class RepositoryAclServiceTest {
 

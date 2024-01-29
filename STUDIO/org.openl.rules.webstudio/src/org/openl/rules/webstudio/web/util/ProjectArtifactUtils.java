@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.util;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectState;

@@ -14,9 +14,9 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {
-		"production-repository.uri=test-resources/RuleServiceDeploymentRelatedDependencyManagerTest",
-		"ruleservice.isProvideRuntimeContext=false",
-		"production-repository.factory = repo-file"})
+  "production-repository.uri=test-resources/RuleServiceDeploymentRelatedDependencyManagerTest",
+  "ruleservice.isProvideRuntimeContext=false",
+  "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class RuleServiceDeploymentRelatedDependencyManagerTest {
 

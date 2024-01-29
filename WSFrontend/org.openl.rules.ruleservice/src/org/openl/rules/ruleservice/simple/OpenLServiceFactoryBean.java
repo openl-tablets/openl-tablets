@@ -1,9 +1,10 @@
 package org.openl.rules.ruleservice.simple;
 
-import org.openl.runtime.ASMProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.openl.runtime.ASMProxyFactory;
 
 /**
  * Creates a proxy object for defined service.

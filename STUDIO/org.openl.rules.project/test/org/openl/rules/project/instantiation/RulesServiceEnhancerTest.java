@@ -2,7 +2,6 @@ package org.openl.rules.project.instantiation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

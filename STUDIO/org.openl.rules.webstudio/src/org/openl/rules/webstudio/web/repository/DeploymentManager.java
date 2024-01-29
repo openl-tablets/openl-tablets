@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -35,9 +39,6 @@ import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Deployment manager

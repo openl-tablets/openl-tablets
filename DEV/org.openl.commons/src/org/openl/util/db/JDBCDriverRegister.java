@@ -3,9 +3,10 @@ package org.openl.util.db;
 import java.net.URL;
 import java.sql.Driver;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.StringUtils;
 
 /**
  * A utility class which register all supported drivers in the classloader.

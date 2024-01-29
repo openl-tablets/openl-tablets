@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SimpleRuleHeaderView;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads {@code SimpleRules} table to {@link SimpleRulesView} model.

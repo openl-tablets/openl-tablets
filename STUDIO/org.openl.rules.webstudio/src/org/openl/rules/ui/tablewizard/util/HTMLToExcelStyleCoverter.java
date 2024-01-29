@@ -10,10 +10,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openl.rules.table.xls.PoiExcelHelper;
-import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
+
+import org.openl.rules.table.xls.PoiExcelHelper;
+import org.openl.util.StringUtils;
 
 public class HTMLToExcelStyleCoverter {
     private final static String TOP = "Top";

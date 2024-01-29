@@ -1,7 +1,6 @@
 package org.openl.util;
 
 import java.lang.reflect.ParameterizedType;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 

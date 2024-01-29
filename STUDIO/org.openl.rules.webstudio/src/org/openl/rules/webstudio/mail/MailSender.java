@@ -5,7 +5,6 @@ import static org.openl.rules.rest.MailController.MAIL_VERIFY_TOKEN;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -14,15 +13,16 @@ import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.openl.rules.security.User;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import org.openl.rules.security.User;
+import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 
 /**

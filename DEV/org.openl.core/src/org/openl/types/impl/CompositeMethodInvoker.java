@@ -1,5 +1,8 @@
 package org.openl.types.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.IOpenRunner;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
@@ -8,8 +11,6 @@ import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.ControlSignalReturn;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Invoker for {@link CompositeMethod}.

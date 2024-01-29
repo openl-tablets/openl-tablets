@@ -1,4 +1,5 @@
 package org.openl.ie.constrainer.impl;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 

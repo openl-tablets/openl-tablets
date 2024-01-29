@@ -2,6 +2,8 @@ package org.openl.rules.project.validation.openapi;
 
 import java.util.Objects;
 
+import io.swagger.v3.oas.models.media.Schema;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -18,8 +20,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.validation.ValidatedCompiledOpenClass;
-
-import io.swagger.v3.oas.models.media.Schema;
 
 final class OpenApiProjectValidatorMessagesUtils {
 

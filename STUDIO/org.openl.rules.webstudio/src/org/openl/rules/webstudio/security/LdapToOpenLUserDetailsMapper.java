@@ -6,7 +6,6 @@ import java.util.Hashtable;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import javax.naming.CompositeName;
 import javax.naming.ConfigurationException;
 import javax.naming.Context;
@@ -18,11 +17,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -35,6 +29,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
+import org.openl.util.StringUtils;
 
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);

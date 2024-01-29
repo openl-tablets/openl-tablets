@@ -5,11 +5,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WebStudioWorkspaceDependencyManagerFactory {
     private final Logger log = LoggerFactory.getLogger(WebStudioWorkspaceDependencyManagerFactory.class);

@@ -2,6 +2,7 @@ package org.openl.gen;
 
 import java.util.Objects;
 import java.util.Optional;
+
 import org.objectweb.asm.Type;
 
 /**

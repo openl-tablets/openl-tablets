@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;

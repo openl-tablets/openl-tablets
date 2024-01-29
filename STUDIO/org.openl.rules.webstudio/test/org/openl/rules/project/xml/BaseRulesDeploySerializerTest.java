@@ -1,10 +1,10 @@
 package org.openl.rules.project.xml;
 
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.WildcardPattern;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.WildcardPattern;
 
 public class BaseRulesDeploySerializerTest {
 
