@@ -16,12 +16,12 @@ public class ArrayIndexTest {
 
     @Test
     public void testArray1() {// ShortValue
-        assertEquals(new Short((short) -10), TestUtils.invoke(instance, "isWork1"));
+        assertEquals(Short.valueOf((short) -10), TestUtils.invoke(instance, "isWork1"));
     }
 
     @Test
     public void testArray2() {// IntValue
-        assertEquals(new Integer(-10), TestUtils.invoke(instance, "isWork2"));
+        assertEquals(Integer.valueOf(-10), TestUtils.invoke(instance, "isWork2"));
     }
 
     @Test

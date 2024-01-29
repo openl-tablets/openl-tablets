@@ -11,7 +11,7 @@ public class String2CharConvertorTest {
     public void testParse() {
         String2CharConvertor converter = new String2CharConvertor();
         Character result = converter.parse("X", null);
-        assertEquals(new Character('X'), result);
+        assertEquals(Character.valueOf('X'), result);
     }
 
     @Test(expected = IllegalArgumentException.class)

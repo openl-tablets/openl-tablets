@@ -321,7 +321,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public Object newInstance(IRuntimeEnv env) {
         try {
-            return getInstanceClass().newInstance();
+            return getInstanceClass().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
@@ -527,7 +527,7 @@ public class JavaOpenClass extends AOpenClass {
                         }
                     }
                 }
-                return generatedImplClass.newInstance();
+                return generatedImplClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }

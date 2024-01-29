@@ -51,7 +51,7 @@ public class JDBCDriverRegister {
             }
             String path = getPath(aClass);
             try {
-                Driver dr = Driver.class.cast(aClass.newInstance());
+                Driver dr = Driver.class.cast(aClass.getDeclaredConstructor().newInstance());
                 int majorVersion = dr.getMajorVersion();
                 int minorVersion = dr.getMinorVersion();
 

@@ -99,7 +99,7 @@ public class ActionInvoker implements Invokable {
             }
             if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
                 try {
-                    return addReturnValues((Map<Object, Object>) type.getInstanceClass().newInstance(),
+                    return addReturnValues((Map<Object, Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(),
                         returnValues,
                         keyValues,
                         f);
@@ -118,7 +118,7 @@ public class ActionInvoker implements Invokable {
             }
             if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
                 try {
-                    return addReturnValues((Collection<Object>) type.getInstanceClass().newInstance(), returnValues, f);
+                    return addReturnValues((Collection<Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(), returnValues, f);
                 } catch (Exception e) {
                     throw new OpenLRuntimeException(e);
                 }

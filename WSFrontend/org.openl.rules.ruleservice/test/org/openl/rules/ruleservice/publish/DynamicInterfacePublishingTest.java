@@ -107,7 +107,7 @@ public class DynamicInterfacePublishingTest {
         Class<?> myClassClass = service.getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
-        Object myClassInstance = myClassClass.newInstance();
+        Object myClassInstance = myClassClass.getDeclaredConstructor().newInstance();
         Method setNameMethod = myClassClass.getMethod("setName", String.class);
         final String someValue = "someValue";
         setNameMethod.invoke(myClassInstance, someValue);
@@ -118,7 +118,7 @@ public class DynamicInterfacePublishingTest {
         Object name = getNameMethod.invoke(result);
         Assert.assertEquals(someValue, name);
         Class<?> myTypeClass = service.getServiceClass().getClassLoader().loadClass("org.openl.generated.beans.MyType");
-        Object myTypeInstance = myTypeClass.newInstance();
+        Object myTypeInstance = myTypeClass.getDeclaredConstructor().newInstance();
         result = frontend.execute("dynamic-interface-test3", "method2", context, myTypeInstance);
         Assert.assertNull(result);
         frontend.execute("dynamic-interface-test3", "method3", context, myClassInstance);

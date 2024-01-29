@@ -199,7 +199,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     public Object newInstance(IRuntimeEnv env) {
         Object instance = null;
         try {
-            instance = getInstanceClass().newInstance();
+            instance = getInstanceClass().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             LOG.error("{}", this, e);
         }
