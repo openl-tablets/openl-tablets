@@ -10,11 +10,12 @@ package org.openl.ie.constrainer;
  */
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 public class TestConstrainerObjectImpl extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestConstrainerObjectImpl.class));
+        TestRunner.run(new TestSuite(TestConstrainerObjectImpl.class));
     }
 
     public TestConstrainerObjectImpl(String name) {

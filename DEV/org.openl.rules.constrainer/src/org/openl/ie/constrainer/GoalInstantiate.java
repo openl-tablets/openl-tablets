@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -30,7 +32,7 @@ public class GoalInstantiate extends GoalImpl {
     /**
      * An internal interface for the instantiation of the variable.
      */
-    interface Impl extends java.io.Serializable {
+    interface Impl extends Serializable {
         /**
          * Instantiate variable with a chosen_value.
          */

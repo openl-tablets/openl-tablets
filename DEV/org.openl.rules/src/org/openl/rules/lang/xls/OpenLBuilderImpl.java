@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.conf.*;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -71,7 +72,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                 thisNamespaceLibrary.addJavalib(javaLib);
 
                 JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
-                    org.openl.binding.impl.cast.CastFactory.class.getName());
+                    CastFactory.class.getName());
                 typeCastFactory.addJavaCast(javaCastComponent);
 
             }

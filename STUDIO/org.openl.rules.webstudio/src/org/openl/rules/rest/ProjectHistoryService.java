@@ -3,10 +3,7 @@ package org.openl.rules.rest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -140,9 +137,9 @@ public class ProjectHistoryService {
         }
     }
 
-    static class DeleteHistoryVisitor extends SimpleFileVisitor<java.nio.file.Path> {
+    static class DeleteHistoryVisitor extends SimpleFileVisitor<Path> {
         @Override
-        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             FileVisitResult fileVisitResult = super.visitFile(file, attrs);
             File f = file.toFile();
             if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {

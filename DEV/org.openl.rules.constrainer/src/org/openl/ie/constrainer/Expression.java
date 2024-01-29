@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -21,7 +23,7 @@ package org.openl.ie.constrainer;
  * An interface for the constrained integer and floating-point expressions.
  */
 
-public interface Expression extends Subject, EventOfInterest.Constants, java.io.Serializable {
+public interface Expression extends Subject, EventOfInterest.Constants, Serializable {
 
     /**
      * Checks wether the expression is linear or not.

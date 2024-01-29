@@ -54,7 +54,7 @@ public class AppServer {
             int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
             var client = HttpClient.newBuilder()
                     .executor(Runnable::run) // To prevent memory leak via the default thread pool
-                    .version(java.net.http.HttpClient.Version.HTTP_1_1)
+                    .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
                     .build();
             var uri = new URL("http", "localhost", port, "/admin/healthcheck/readiness").toURI();

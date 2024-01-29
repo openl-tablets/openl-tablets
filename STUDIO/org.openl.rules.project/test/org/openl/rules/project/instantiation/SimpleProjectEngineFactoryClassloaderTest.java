@@ -15,7 +15,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
         Assert.assertNotNull(instance);
     }
 
-    @Test(expected = org.openl.rules.project.instantiation.RulesInstantiationException.class)
+    @Test(expected = RulesInstantiationException.class)
     public void singleModuleWithoutDepTest() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
             .setProject("test-resources/classpath/project2")

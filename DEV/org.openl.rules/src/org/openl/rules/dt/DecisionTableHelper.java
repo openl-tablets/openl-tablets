@@ -3,6 +3,8 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -115,13 +117,13 @@ public final class DecisionTableHelper {
         long.class,
         java.lang.Byte.class,
         java.lang.Short.class,
-        java.lang.Integer.class,
-        java.lang.Long.class,
-        java.math.BigInteger.class);
+        Integer.class,
+        Long.class,
+        BigInteger.class);
     private static final List<Class<?>> DOUBLE_TYPES = Arrays
-        .asList(float.class, double.class, java.lang.Float.class, java.lang.Double.class, java.math.BigDecimal.class);
-    private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
-    private static final List<Class<?>> STRING_TYPES = Arrays.asList(java.lang.String.class);
+        .asList(float.class, double.class, java.lang.Float.class, java.lang.Double.class, BigDecimal.class);
+    private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, Character.class);
+    private static final List<Class<?>> STRING_TYPES = Arrays.asList(String.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
     private static final List<Class<?>> RANGE_TYPES = Arrays
         .asList(IntRange.class, DoubleRange.class, CharRange.class, StringRange.class, DateRange.class);
@@ -137,14 +139,14 @@ public final class DecisionTableHelper {
         void.class,
         java.lang.Byte.class,
         java.lang.Short.class,
-        java.lang.Integer.class,
-        java.lang.Long.class,
+        Integer.class,
+        Long.class,
         java.lang.Float.class,
         java.lang.Double.class,
-        java.lang.Character.class,
-        java.lang.String.class,
-        java.math.BigInteger.class,
-        java.math.BigDecimal.class,
+        Character.class,
+        String.class,
+        BigInteger.class,
+        BigDecimal.class,
         Date.class,
         IntRange.class,
         DoubleRange.class,
@@ -1196,7 +1198,7 @@ public final class DecisionTableHelper {
                     boolean isKey = false;
                     String header;
                     if (isCollect && tableSyntaxNode.getHeader()
-                        .getCollectParameters().length > 1 && i == 0 && org.openl.util.ClassUtils
+                        .getCollectParameters().length > 1 && i == 0 && ClassUtils
                             .isAssignable(decisionTable.getType().getInstanceClass(), Map.class)) {
                         header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
                         isKey = true;

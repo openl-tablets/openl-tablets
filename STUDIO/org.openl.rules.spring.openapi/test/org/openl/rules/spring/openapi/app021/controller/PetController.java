@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.openl.rules.spring.openapi.app020.model.ApiResponse;
 import org.openl.rules.spring.openapi.app020.model.Pet;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -171,7 +172,7 @@ public class PetController {
             "application/octet-stream" })
     public ResponseEntity<ApiResponse> uploadFile(
             @Parameter(description = "ID of pet to update") @PathVariable("petId") Long petId,
-            @RequestBody(required = false) org.springframework.core.io.Resource body) {
+            @RequestBody(required = false) Resource body) {
         return ResponseEntity.ok().build();
     }
 

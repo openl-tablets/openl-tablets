@@ -14,6 +14,7 @@ package org.openl.ie.tools;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -26,7 +27,7 @@ import java.util.Vector;
  * @see Reusable
  */
 // "implements serializable" was added by Eugeny Tseitlin 18.06.2003
-public abstract class ReusableFactory implements java.io.Serializable {
+public abstract class ReusableFactory implements Serializable {
     /**
      * All created factories.
      */

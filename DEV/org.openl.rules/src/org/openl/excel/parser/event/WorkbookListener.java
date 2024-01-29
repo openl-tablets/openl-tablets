@@ -11,20 +11,7 @@ import java.util.Map;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
-import org.apache.poi.hssf.record.BOFRecord;
-import org.apache.poi.hssf.record.BoolErrRecord;
-import org.apache.poi.hssf.record.BoundSheetRecord;
-import org.apache.poi.hssf.record.CellValueRecordInterface;
-import org.apache.poi.hssf.record.DateWindow1904Record;
-import org.apache.poi.hssf.record.DimensionsRecord;
-import org.apache.poi.hssf.record.FormulaRecord;
-import org.apache.poi.hssf.record.LabelRecord;
-import org.apache.poi.hssf.record.LabelSSTRecord;
-import org.apache.poi.hssf.record.MergeCellsRecord;
-import org.apache.poi.hssf.record.NumberRecord;
-import org.apache.poi.hssf.record.RKRecord;
-import org.apache.poi.hssf.record.SSTRecord;
-import org.apache.poi.hssf.record.StringRecord;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -68,7 +55,7 @@ public class WorkbookListener implements HSSFListener {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         int row;
         int column;
         Object value;

@@ -171,7 +171,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
         if (CollectionUtils.isNotEmpty(objectSchema.getProperties())) {
             var content = new Content();
             for (String consume : methodInfo.getConsumes()) {
-                var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(objectSchema);
+                var mediaType = new MediaType().schema(objectSchema);
                 if (!encodingMap.isEmpty()) {
                     mediaType.encoding(encodingMap);
                 }

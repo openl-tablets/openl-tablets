@@ -1069,7 +1069,7 @@ public class GitRepository implements BranchRepository, Closeable {
         this.gcAutoDetach = gcAutoDetach;
     }
 
-    private static TreeWalk buildTreeWalk(org.eclipse.jgit.lib.Repository repository,
+    private static TreeWalk buildTreeWalk(Repository repository,
             String path,
             RevTree tree) throws IOException {
         TreeWalk treeWalk;
@@ -1711,7 +1711,7 @@ public class GitRepository implements BranchRepository, Closeable {
             readLock.lock();
             initLfsCredentials();
 
-            org.eclipse.jgit.lib.Repository repository = git.getRepository();
+            Repository repository = git.getRepository();
             if (isEmpty()) {
                 return command.apply(repository, null, path);
             }
@@ -3129,7 +3129,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     public interface WalkCommand<T> {
-        T apply(org.eclipse.jgit.lib.Repository repository, TreeWalk rootWalk, String baseFolder) throws IOException,
+        T apply(Repository repository, TreeWalk rootWalk, String baseFolder) throws IOException,
                                                                                                   GitAPIException;
     }
 
@@ -3171,7 +3171,7 @@ public class GitRepository implements BranchRepository, Closeable {
         }
 
         @Override
-        public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
+        public List<FileData> apply(Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
             if (rootWalk != null) {
@@ -3212,7 +3212,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class ListFoldersCommand implements WalkCommand<List<FileData>> {
         @Override
-        public List<FileData> apply(org.eclipse.jgit.lib.Repository repository,
+        public List<FileData> apply(Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
             if (rootWalk != null) {
@@ -3247,7 +3247,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class CheckCommand implements WalkCommand<FileData> {
         @Override
-        public FileData apply(org.eclipse.jgit.lib.Repository repository,
+        public FileData apply(Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
@@ -3260,7 +3260,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class ReadCommand implements WalkCommand<FileItem> {
         @Override
-        public FileItem apply(org.eclipse.jgit.lib.Repository repository,
+        public FileItem apply(Repository repository,
                 TreeWalk rootWalk,
                 String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
@@ -3274,7 +3274,7 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     private class ListHistoryVisitor implements HistoryVisitor<List<FileData>> {
-        private final org.eclipse.jgit.lib.Repository repository;
+        private final Repository repository;
         private final List<FileData> history = new ArrayList<>();
         private FileData last;
 
@@ -3321,7 +3321,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class ListFilesHistoryVisitor implements HistoryVisitor<List<FileData>> {
         private final String version;
-        private final org.eclipse.jgit.lib.Repository repository;
+        private final Repository repository;
         private final List<FileData> history = new ArrayList<>();
 
         private ListFilesHistoryVisitor(String version) {
@@ -3354,7 +3354,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class CheckHistoryVisitor implements HistoryVisitor<FileData> {
         private final String version;
-        private final org.eclipse.jgit.lib.Repository repository;
+        private final Repository repository;
         private FileData result;
 
         private CheckHistoryVisitor(String version) {
@@ -3387,7 +3387,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class ReadHistoryVisitor implements HistoryVisitor<FileItem> {
         private final String version;
-        private final org.eclipse.jgit.lib.Repository repository;
+        private final Repository repository;
         private FileItem result;
 
         private ReadHistoryVisitor(String version) {

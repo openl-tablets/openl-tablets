@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
+
 import org.openl.ie.constrainer.*;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +31,7 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * An interface for transforming publisher and subscriber masks.
      */
-    interface EventMap extends java.io.Serializable {
+    interface EventMap extends Serializable {
         /**
          * Transform publisher mask to subscriber mask.
          */

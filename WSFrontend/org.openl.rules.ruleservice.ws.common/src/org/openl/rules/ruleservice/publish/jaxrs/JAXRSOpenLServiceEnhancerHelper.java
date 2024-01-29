@@ -160,8 +160,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             // Error responses annotation
             if (!originalClass
-                .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponses.class) && !originalClass
-                    .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponse.class)) {
+                .isAnnotationPresent(ApiResponses.class) && !originalClass
+                    .isAnnotationPresent(ApiResponse.class)) {
                 addOpenApiResponsesAnnotation(this);
             }
         }
@@ -713,7 +713,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
             AnnotationVisitor av = cv
-                .visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
+                .visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
             AnnotationVisitor arrayAv = av.visitArray("value");
 
             List<Class<?>> allUserApiResponses = new ArrayList<>();
@@ -753,7 +753,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Class<?>[] responseTypes,
                 String... jsonExamples) {
             AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
-                Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
+                Type.getDescriptor(ApiResponse.class));
             apiResponseAv.visit("responseCode", String.valueOf(code));
             apiResponseAv.visit("description", message);
 

@@ -18,6 +18,7 @@ import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -279,7 +280,7 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
+        return IntRange.class == type.getInstanceClass();
     }
 
     private String getRangeExpression(TableSyntaxNode tableSyntaxNode,

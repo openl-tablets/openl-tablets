@@ -14,8 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 package org.openl.ie.tools;
 
+import java.io.Serializable;
+
 // "implements serializable"  was added by Eugeny Tseitlin 18.06.2003
-public final class FastVectorInt implements Cloneable, java.io.Serializable {
+public final class FastVectorInt implements Cloneable, Serializable {
 
     static final int DEFAULT_CAPACITY = 10;
 

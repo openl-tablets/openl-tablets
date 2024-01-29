@@ -38,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
@@ -376,7 +377,7 @@ public class OpenApiResponseServiceImpl implements OpenApiResponseService {
     @SuppressWarnings("rawtypes")
     private Content createContent(Schema schema, String[] produces) {
         var content = new Content();
-        var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(schema);
+        var mediaType = new MediaType().schema(schema);
         AnnotationsUtils.applyTypes(new String[0], produces, content, mediaType);
         return content;
     }

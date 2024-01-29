@@ -2,6 +2,7 @@ package org.openl.ie.constrainer.lpsolver.impl;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
 
 /**
  * <p>
@@ -24,7 +25,7 @@ import junit.framework.TestSuite;
 public class TestLPIntegerProblemImpl extends TestCase {
 
     public static void main(String[] args) {
-        junit.textui.TestRunner.run(new TestSuite(TestLPIntegerProblemImpl.class));
+        TestRunner.run(new TestSuite(TestLPIntegerProblemImpl.class));
     }
 
     public TestLPIntegerProblemImpl(String name) {

@@ -1,5 +1,8 @@
-@javax.xml.bind.annotation.XmlSchema(
+@XmlSchema(
         namespace = "http://meta.openl.org",
-        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED
+        elementFormDefault = XmlNsForm.QUALIFIED
 )
 package org.openl.meta;
+
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;

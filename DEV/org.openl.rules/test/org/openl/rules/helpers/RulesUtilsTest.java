@@ -881,7 +881,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallByte() {
-        java.lang.Byte[] array = { 10, 32, 35, 25 };
+        Byte[] array = { 10, 32, 35, 25 };
         assertSame(instance.testByteSmall(array, 1), (byte) 10);
         assertSame(instance.testByteSmall(array, 2), (byte) 25);
         assertSame(instance.testByteSmall(array, 3), (byte) 32);
@@ -892,7 +892,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallShort() {
-        java.lang.Short[] array = { 10, 32, 35, 25 };
+        Short[] array = { 10, 32, 35, 25 };
         assertSame(instance.testShortSmall(array, 1), (short) 10);
         assertSame(instance.testShortSmall(array, 2), (short) 25);
         assertSame(instance.testShortSmall(array, 3), (short) 32);
@@ -903,7 +903,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallInteger() {
-        java.lang.Integer[] array = { 10, 32, 35, 25 };
+        Integer[] array = { 10, 32, 35, 25 };
         assertSame(instance.testIntegerSmall(array, 1), 10);
         assertSame(instance.testIntegerSmall(array, 2), 25);
         assertSame(instance.testIntegerSmall(array, 3), 32);
@@ -914,18 +914,18 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallLong() {
-        java.lang.Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
-        assertTrue(instance.testLongSmall(array, 1) == java.lang.Long.valueOf(10));
-        assertTrue(instance.testLongSmall(array, 2) == java.lang.Long.valueOf(25));
-        assertTrue(instance.testLongSmall(array, 3) == java.lang.Long.valueOf(32));
-        assertTrue(instance.testLongSmall(array, 4) == java.lang.Long.valueOf(35));
+        Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
+        assertTrue(instance.testLongSmall(array, 1) == Long.valueOf(10));
+        assertTrue(instance.testLongSmall(array, 2) == Long.valueOf(25));
+        assertTrue(instance.testLongSmall(array, 3) == Long.valueOf(32));
+        assertTrue(instance.testLongSmall(array, 4) == Long.valueOf(35));
 
         instance.testLongSmall(array, 0);
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallFloat() {
-        java.lang.Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
+        Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
         assertTrue(instance.testFloatSmall(array, 1).equals((float) 10.4));
         assertTrue(instance.testFloatSmall(array, 2).equals((float) 25.7));
         assertTrue(instance.testFloatSmall(array, 3).equals((float) 32.1));
@@ -936,7 +936,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testSmallDouble() {
-        java.lang.Double[] array = { 10.4, 32.2, 35.6, 25.2 };
+        Double[] array = { 10.4, 32.2, 35.6, 25.2 };
         assertTrue(instance.testDoubleSmall(array, 1).equals(10.4));
         assertTrue(instance.testDoubleSmall(array, 2).equals(25.2));
         assertTrue(instance.testDoubleSmall(array, 3).equals(32.2));
@@ -1041,51 +1041,51 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigByte() {
-        java.lang.Byte[] array = { 10, 32, 35, 25 };
-        assertTrue(instance.testByteBig(array, 4) == java.lang.Byte.valueOf((byte) 10));
-        assertTrue(instance.testByteBig(array, 3) == java.lang.Byte.valueOf((byte) 25));
-        assertTrue(instance.testByteBig(array, 2) == java.lang.Byte.valueOf((byte) 32));
-        assertTrue(instance.testByteBig(array, 1) == java.lang.Byte.valueOf((byte) 35));
+        Byte[] array = { 10, 32, 35, 25 };
+        assertTrue(instance.testByteBig(array, 4) == Byte.valueOf((byte) 10));
+        assertTrue(instance.testByteBig(array, 3) == Byte.valueOf((byte) 25));
+        assertTrue(instance.testByteBig(array, 2) == Byte.valueOf((byte) 32));
+        assertTrue(instance.testByteBig(array, 1) == Byte.valueOf((byte) 35));
 
         instance.testByteBig(array, 0);
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigShort() {
-        java.lang.Short[] array = { 10, 32, 35, 25 };
-        assertTrue(instance.testShortBig(array, 4) == java.lang.Short.valueOf((short) 10));
-        assertTrue(instance.testShortBig(array, 3) == java.lang.Short.valueOf((short) 25));
-        assertTrue(instance.testShortBig(array, 2) == java.lang.Short.valueOf((short) 32));
-        assertTrue(instance.testShortBig(array, 1) == java.lang.Short.valueOf((short) 35));
+        Short[] array = { 10, 32, 35, 25 };
+        assertTrue(instance.testShortBig(array, 4) == Short.valueOf((short) 10));
+        assertTrue(instance.testShortBig(array, 3) == Short.valueOf((short) 25));
+        assertTrue(instance.testShortBig(array, 2) == Short.valueOf((short) 32));
+        assertTrue(instance.testShortBig(array, 1) == Short.valueOf((short) 35));
 
         instance.testShortBig(array, 0);
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigInteger() {
-        java.lang.Integer[] array = { 10, 32, 35, 25 };
-        assertTrue(instance.testIntegerBig(array, 4) == java.lang.Integer.valueOf(10));
-        assertTrue(instance.testIntegerBig(array, 3) == java.lang.Integer.valueOf(25));
-        assertTrue(instance.testIntegerBig(array, 2) == java.lang.Integer.valueOf(32));
-        assertTrue(instance.testIntegerBig(array, 1) == java.lang.Integer.valueOf(35));
+        Integer[] array = { 10, 32, 35, 25 };
+        assertTrue(instance.testIntegerBig(array, 4) == Integer.valueOf(10));
+        assertTrue(instance.testIntegerBig(array, 3) == Integer.valueOf(25));
+        assertTrue(instance.testIntegerBig(array, 2) == Integer.valueOf(32));
+        assertTrue(instance.testIntegerBig(array, 1) == Integer.valueOf(35));
 
         instance.testIntegerBig(array, 0);
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigLong() {
-        java.lang.Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
-        assertTrue(instance.testLongBig(array, 4) == java.lang.Long.valueOf(10));
-        assertTrue(instance.testLongBig(array, 3) == java.lang.Long.valueOf(25));
-        assertTrue(instance.testLongBig(array, 2) == java.lang.Long.valueOf(32));
-        assertTrue(instance.testLongBig(array, 1) == java.lang.Long.valueOf(35));
+        Long[] array = { (long) 10, (long) 32, (long) 35, (long) 25 };
+        assertTrue(instance.testLongBig(array, 4) == Long.valueOf(10));
+        assertTrue(instance.testLongBig(array, 3) == Long.valueOf(25));
+        assertTrue(instance.testLongBig(array, 2) == Long.valueOf(32));
+        assertTrue(instance.testLongBig(array, 1) == Long.valueOf(35));
 
         instance.testLongBig(array, 0);
     }
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigFloat() {
-        java.lang.Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
+        Float[] array = { (float) 10.4, (float) 32.1, (float) 35.3, (float) 25.7 };
         assertTrue(instance.testFloatBig(array, 4).equals((float) 10.4));
         assertTrue(instance.testFloatBig(array, 3).equals((float) 25.7));
         assertTrue(instance.testFloatBig(array, 2).equals((float) 32.1));
@@ -1096,7 +1096,7 @@ public class RulesUtilsTest {
 
     @Test(expected = OpenLRuntimeException.class)
     public void testBigDouble() {
-        java.lang.Double[] array = { 10.4, 32.2, 35.6, 25.2 };
+        Double[] array = { 10.4, 32.2, 35.6, 25.2 };
         assertTrue(instance.testDoubleBig(array, 4).equals(10.4));
         assertTrue(instance.testDoubleBig(array, 3).equals(25.2));
         assertTrue(instance.testDoubleBig(array, 2).equals(32.2));

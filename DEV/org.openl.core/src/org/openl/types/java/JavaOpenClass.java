@@ -162,7 +162,7 @@ public class JavaOpenClass extends AOpenClass {
             for (Field field : ff) {
                 if (isPublic(field)) {
                     openFields.put(field.getName(), new JavaOpenField(field));
-                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                    if (Modifier.isStatic(field.getModifiers())) {
                         staticOpenFields.put(field.getName(), new JavaOpenField(field));
                     }
                 }

@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.record.CellValueRecordInterface;
-import org.apache.poi.hssf.record.ExtendedFormatRecord;
-import org.apache.poi.hssf.record.FontRecord;
-import org.apache.poi.hssf.record.FormatRecord;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 
 public class StyleTrackingListener implements HSSFListener {
@@ -23,7 +20,7 @@ public class StyleTrackingListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         if (record instanceof FormatRecord) {
             FormatRecord fr = (FormatRecord) record;
             customFormats.put(fr.getIndexCode(), fr);

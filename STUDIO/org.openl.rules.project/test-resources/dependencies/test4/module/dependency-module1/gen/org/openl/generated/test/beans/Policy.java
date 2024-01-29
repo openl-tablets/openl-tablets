@@ -9,15 +9,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Policy {
-    protected java.lang.String name;
+    protected String name;
 
-    protected java.lang.String clientTier;
+    protected String clientTier;
 
-    protected java.lang.String clientTerm;
+    protected String clientTerm;
 
-    protected org.openl.generated.test.beans.Driver[] drivers;
+    protected Driver[] drivers;
 
-    protected org.openl.generated.test.beans.Vehicle[] vehicles;
+    protected Vehicle[] vehicles;
 
     public Policy() {
         super();
@@ -56,7 +56,7 @@ public class Policy {
         return builder.isEquals();
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return name;
     }
 
@@ -65,39 +65,39 @@ public class Policy {
                 .toString(getDrivers()) + " vehicles=" + ArrayUtils.toString(getVehicles()) + " }";
     }
 
-    public void setName(java.lang.String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public java.lang.String getClientTier() {
+    public String getClientTier() {
         return clientTier;
     }
 
-    public void setClientTier(java.lang.String clientTier) {
+    public void setClientTier(String clientTier) {
         this.clientTier = clientTier;
     }
 
-    public java.lang.String getClientTerm() {
+    public String getClientTerm() {
         return clientTerm;
     }
 
-    public void setClientTerm(java.lang.String clientTerm) {
+    public void setClientTerm(String clientTerm) {
         this.clientTerm = clientTerm;
     }
 
-    public org.openl.generated.test.beans.Driver[] getDrivers() {
+    public Driver[] getDrivers() {
         return drivers;
     }
 
-    public void setDrivers(org.openl.generated.test.beans.Driver[] drivers) {
+    public void setDrivers(Driver[] drivers) {
         this.drivers = drivers;
     }
 
-    public org.openl.generated.test.beans.Vehicle[] getVehicles() {
+    public Vehicle[] getVehicles() {
         return vehicles;
     }
 
-    public void setVehicles(org.openl.generated.test.beans.Vehicle[] vehicles) {
+    public void setVehicles(Vehicle[] vehicles) {
         this.vehicles = vehicles;
     }
 

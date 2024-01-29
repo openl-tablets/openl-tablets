@@ -1,5 +1,7 @@
 package org.openl.ie.tools;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -24,7 +26,7 @@ package org.openl.ie.tools;
  * @see ReusableFactory
  */
 // "implements serializable" was added by Eugeny Tseitlin 18.06.2003
-public interface Reusable extends java.io.Serializable {
+public interface Reusable extends Serializable {
     /**
      * Clean-up the object and returns it to the factory that owns this object.
      */

@@ -13,7 +13,7 @@ public final class GoalStack implements Serializable {
     /**
      * A placeholder for the information about the choice point.
      */
-    static public class ChoicePoint implements java.io.Serializable {
+    static public class ChoicePoint implements Serializable {
         final Goal _goal;
         final ChoicePointLabel _label;
         final FastStack _exeStack;

@@ -2,7 +2,7 @@ package org.openl.rules.data;
 
 public class Type2 {
 
-    private java.lang.String name;
+    private String name;
     private Type1[] types;
 
     public Type2() {
@@ -15,11 +15,11 @@ public class Type2 {
         this.types = types;
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(java.lang.String name) {
+    public void setName(String name) {
         this.name = name;
     }
 

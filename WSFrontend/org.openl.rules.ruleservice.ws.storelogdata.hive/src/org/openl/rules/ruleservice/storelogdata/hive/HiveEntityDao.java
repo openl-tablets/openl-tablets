@@ -112,7 +112,7 @@ public class HiveEntityDao {
         } else if (ZonedDateTime.class.equals(field.getType())) {
             ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
             preparedStatement.setTimestamp(index,
-                zonedDateTime == null ? null : java.sql.Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
+                zonedDateTime == null ? null : Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
         } else if (LocalDateTime.class.equals(field.getType())) {
             LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
             preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));

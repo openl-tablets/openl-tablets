@@ -50,7 +50,7 @@ public class Group implements Serializable {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = {
             @JoinColumn(name = "includedGroupID") })
     public Set<Group> getIncludedGroups() {

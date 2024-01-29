@@ -17,6 +17,7 @@ import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.AbstractOpenLMethodHandler;
@@ -85,7 +86,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
             SimpleRulesRuntimeEnv runtimeEnv;
             runtimeEnv = (SimpleRulesRuntimeEnv) ((IEngineWrapper) serviceClassInstance).getRuntimeEnv();
 
-            runtimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_WRITE);
+            runtimeEnv.changeMethodArgumentsCacheMode(CacheMode.READ_WRITE);
             runtimeEnv.setMethodArgumentsCacheEnable(true);
             runtimeEnv.getArgumentCachingStorage().resetOriginalCalculationSteps();
             runtimeEnv.getArgumentCachingStorage().resetMethodArgumentsCache();
@@ -207,7 +208,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(CacheMode.READ_ONLY);
                     simpleRulesRuntimeEnv.setOriginalCalculation(false);
                     simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
                     simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();

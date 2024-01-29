@@ -1,5 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.openl.ie.constrainer.*;
@@ -7,7 +8,7 @@ import org.openl.ie.constrainer.*;
 /**
  * An implementation of the array of bits.
  */
-final class BitArray implements java.io.Serializable {
+final class BitArray implements Serializable {
 
     private static final int BITS_PER_WORD = 32;
 

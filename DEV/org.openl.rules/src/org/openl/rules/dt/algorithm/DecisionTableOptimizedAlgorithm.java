@@ -37,7 +37,10 @@ import org.openl.rules.dt.type.DoubleRangeForIntRangeAdaptor;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 import org.openl.rules.dt.type.StringRangeAdaptor;
+import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
 import org.openl.types.IAggregateInfo;
@@ -241,15 +244,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private static boolean isDoubleRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.DoubleRange.class == type.getInstanceClass();
+        return DoubleRange.class == type.getInstanceClass();
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
+        return IntRange.class == type.getInstanceClass();
     }
 
     private static boolean isCharRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.CharRange.class == type.getInstanceClass();
+        return CharRange.class == type.getInstanceClass();
     }
 
     private static boolean isStringRangeType(IOpenClass type) {

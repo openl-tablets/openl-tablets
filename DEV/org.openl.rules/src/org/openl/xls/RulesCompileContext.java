@@ -1,7 +1,7 @@
 package org.openl.xls;
 
 import org.openl.impl.DefaultCompileContext;
-import org.openl.rules.validation.MethodUnreachableStatementValidator;
+import org.openl.rules.validation.*;
 
 /**
  * The current implementation of compile context used for rules projects and contains part of code that is auto
@@ -24,9 +24,9 @@ public class RulesCompileContext extends DefaultCompileContext {
 
     // implicit validators
     {
-        addValidator(new org.openl.rules.validation.GapOverlapValidator());
-        addValidator(new org.openl.rules.validation.DimensionalPropertyValidator());
-        addValidator(new org.openl.rules.validation.UniqueMethodParameterNamesValidator());
+        addValidator(new GapOverlapValidator());
+        addValidator(new DimensionalPropertyValidator());
+        addValidator(new UniqueMethodParameterNamesValidator());
         addValidator(MethodUnreachableStatementValidator.getInstance());
     }
 }

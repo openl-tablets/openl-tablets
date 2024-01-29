@@ -9,6 +9,7 @@ package org.openl.ie.constrainer.consistencyChecking;
  * @version 1.0
  */
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openl.ie.constrainer.*;
@@ -29,7 +30,7 @@ public class DTCheckerImpl implements DTChecker {
             this.overrideAscending = overrideAscending;
             int nbRules = data.length;
             _rules = new IntBoolExp[nbRules];
-            java.util.Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
+            Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
             for (int i = 0; i < data.length; i++) {
                 int nbVars = data[i].length;
                 for (int j = 0; j < nbVars; j++) {

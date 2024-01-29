@@ -14,6 +14,8 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+import java.io.Serializable;
+
 import org.openl.ie.tools.Reusable;
 
 /**
@@ -21,7 +23,7 @@ import org.openl.ie.tools.Reusable;
  *
  * @see Undoable
  */
-public interface Undo extends Reusable, java.io.Serializable {
+public interface Undo extends Reusable, Serializable {
     /**
      * Restores the state of the undoable object to the state it had just before this undo was created.
      */

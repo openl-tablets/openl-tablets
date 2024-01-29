@@ -16,27 +16,7 @@ import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
 import org.apache.poi.hssf.model.HSSFFormulaParser;
-import org.apache.poi.hssf.record.BOFRecord;
-import org.apache.poi.hssf.record.BlankRecord;
-import org.apache.poi.hssf.record.BoolErrRecord;
-import org.apache.poi.hssf.record.BoundSheetRecord;
-import org.apache.poi.hssf.record.CellValueRecordInterface;
-import org.apache.poi.hssf.record.ContinueRecord;
-import org.apache.poi.hssf.record.DrawingRecord;
-import org.apache.poi.hssf.record.EscherAggregate;
-import org.apache.poi.hssf.record.FormulaRecord;
-import org.apache.poi.hssf.record.LabelRecord;
-import org.apache.poi.hssf.record.LabelSSTRecord;
-import org.apache.poi.hssf.record.NoteRecord;
-import org.apache.poi.hssf.record.NumberRecord;
-import org.apache.poi.hssf.record.ObjRecord;
-import org.apache.poi.hssf.record.PaletteRecord;
-import org.apache.poi.hssf.record.RKRecord;
-import org.apache.poi.hssf.record.RecordBase;
-import org.apache.poi.hssf.record.RecordFactoryInputStream;
-import org.apache.poi.hssf.record.SSTRecord;
-import org.apache.poi.hssf.record.StringRecord;
-import org.apache.poi.hssf.record.TextObjectRecord;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.usermodel.HSSFComment;
@@ -104,7 +84,7 @@ public class TableStyleListener implements HSSFListener {
                     // Include ContinueRecord items
                     RecordFactoryInputStream recordStream = new RecordFactoryInputStream(in, true);
 
-                    org.apache.poi.hssf.record.Record r;
+                    Record r;
                     while ((r = recordStream.nextRecord()) != null) {
                         formatListener.processRecord(r);
                     }
@@ -136,7 +116,7 @@ public class TableStyleListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         processFormula(record);
 
         switch (record.getSid()) {
@@ -203,7 +183,7 @@ public class TableStyleListener implements HSSFListener {
         }
     }
 
-    private void processFormula(org.apache.poi.hssf.record.Record record) {
+    private void processFormula(Record record) {
         if (currentFormula != null) {
             int row = currentFormula.getRow();
             short column = currentFormula.getColumn();
@@ -276,7 +256,7 @@ public class TableStyleListener implements HSSFListener {
         int size = shapeRecords.size();
         for (int i = 0; i < size; i++) {
             RecordBase rb = shapeRecords.get(i);
-            if (rb instanceof org.apache.poi.hssf.record.Record && ((org.apache.poi.hssf.record.Record) rb).getSid() == DrawingRecord.sid) {
+            if (rb instanceof Record && ((Record) rb).getSid() == DrawingRecord.sid) {
                 return i;
             }
         }

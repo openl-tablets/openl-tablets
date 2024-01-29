@@ -3,15 +3,7 @@ package org.openl.rules.security.standalone.persistence;
 import java.io.Serializable;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.openl.rules.security.UserExternalFlags;
 
@@ -44,7 +36,7 @@ public class User implements Serializable {
     /**
      * User's groups.
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "OpenL_User2Group", joinColumns = { @JoinColumn(name = "loginName") }, inverseJoinColumns = {
             @JoinColumn(name = "groupID") })
     public Set<Group> getGroups() {

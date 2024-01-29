@@ -29,6 +29,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -212,7 +213,7 @@ public abstract class TableCreationWizard extends BaseWizard {
                 wizardFinished = true;
             }
             doSave();
-            WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+            WebStudioUtils.getExternalContext().getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
         } catch (Exception e) {
             log.error("Could not save table: ", e);
             throw e;
