@@ -1,20 +1,24 @@
 package org.openl.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class StringPoolTest {
 
-    @After
+    @AfterEach
     public void cleanUp() {
         StringPool.STRING_POOL.clear();
     }
 
     @Test
     public void testEmpty() {
-        assertTrue("String pool is not empty on before usage", StringPool.STRING_POOL.isEmpty());
+        assertTrue(StringPool.STRING_POOL.isEmpty(), "String pool is not empty on before usage");
     }
 
     @Test
@@ -22,9 +26,9 @@ public class StringPoolTest {
         String str = "FirstIntern";
         String res = StringPool.intern(str);
 
-        assertSame("The returned string has not the same reference", str, res);
-        assertTrue("String pool has wrong key", StringPool.STRING_POOL.containsKey(str));
-        assertEquals("String pool has wrong size", 1, StringPool.STRING_POOL.size());
+        assertSame(str, res, "The returned string has not the same reference");
+        assertTrue(StringPool.STRING_POOL.containsKey(str), "String pool has wrong key");
+        assertEquals(1, StringPool.STRING_POOL.size(), "String pool has wrong size");
     }
 
     @Test
@@ -34,21 +38,21 @@ public class StringPoolTest {
         String str2 = new String("intern");
         String res2 = StringPool.intern(str2);
 
-        assertNotSame("The test params has the same reference", str1, str2);
-        assertSame("The returned string has not the same reference", str1, res1);
-        assertSame("The returned string has not the same reference", res1, res2);
-        assertTrue("String pool has wrong key", StringPool.STRING_POOL.containsKey("intern"));
-        assertEquals("String pool has wrong size", 1, StringPool.STRING_POOL.size());
+        assertNotSame(str1, str2, "The test params has the same reference");
+        assertSame(str1, res1, "The returned string has not the same reference");
+        assertSame(res1, res2, "The returned string has not the same reference");
+        assertTrue(StringPool.STRING_POOL.containsKey("intern"), "String pool has wrong key");
+        assertEquals(1, StringPool.STRING_POOL.size(), "String pool has wrong size");
     }
 
     @Test
     public void testPoolMemory() {
         StringPool.intern("intern1");
         StringPool.intern("intern2");
-        assertFalse("String pool has wrong key", StringPool.STRING_POOL.containsKey("intern"));
-        assertTrue("String pool has wrong key", StringPool.STRING_POOL.containsKey("intern1"));
-        assertTrue("String pool has wrong key", StringPool.STRING_POOL.containsKey("intern2"));
-        assertEquals("String pool has wrong size", 2, StringPool.STRING_POOL.size());
+        assertFalse(StringPool.STRING_POOL.containsKey("intern"), "String pool has wrong key");
+        assertTrue(StringPool.STRING_POOL.containsKey("intern1"), "String pool has wrong key");
+        assertTrue(StringPool.STRING_POOL.containsKey("intern2"), "String pool has wrong key");
+        assertEquals(2, StringPool.STRING_POOL.size(), "String pool has wrong size");
     }
 
     @Test
@@ -58,9 +62,9 @@ public class StringPoolTest {
         StringPool.intern(str);
         StringPool.intern(new String("intern3"));
         System.gc();
-        assertFalse("String pool has garbage collected string", StringPool.STRING_POOL.containsKey("intern1"));
-        assertTrue("String pool has not strong referenced string", StringPool.STRING_POOL.containsKey("intern2"));
-        assertFalse("String pool has garbage collected string", StringPool.STRING_POOL.containsKey("intern3"));
+        assertFalse(StringPool.STRING_POOL.containsKey("intern1"), "String pool has garbage collected string");
+        assertTrue(StringPool.STRING_POOL.containsKey("intern2"), "String pool has not strong referenced string");
+        assertFalse(StringPool.STRING_POOL.containsKey("intern3"), "String pool has garbage collected string");
         str.isEmpty(); // Strong Reference for IBM's JDK
     }
 }

@@ -1,11 +1,14 @@
 package org.openl.rules.webstudio.service;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.security.acl.permission.AclPermission;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -16,16 +19,16 @@ import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { DBTestConfiguration.class, AclServiceTestConfiguration.class })
-@TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
-        "db.user =",
-        "db.password =" })
+import org.openl.security.acl.permission.AclPermission;
+
+@SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
+@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
+		"db.user =",
+		"db.password ="})
 public class AclServiceTest {
 
     @Autowired
@@ -33,7 +36,7 @@ public class AclServiceTest {
 
     @Test
     public void exists() {
-        Assert.assertNotNull(aclService);
+        assertNotNull(aclService);
     }
 
     @Test
@@ -65,13 +68,13 @@ public class AclServiceTest {
         try {
             acl = (MutableAcl) aclService.readAclById(oi);
         } catch (NotFoundException nfe) {
-            Assert.fail("ACL is not found!");
+            fail("ACL is not found!");
         }
 
-        Assert.assertTrue(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid), false));
-        Assert.assertTrue(acl.isGranted(List.of(AclPermission.VIEW), List.of(sid), false));
-        Assert.assertFalse(acl.isGranted(List.of(AclPermission.DELETE), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(AclPermission.VIEW), List.of(sid), false));
+        assertFalse(acl.isGranted(List.of(AclPermission.DELETE), List.of(sid), false));
         // Authority Permissions
-        Assert.assertFalse(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid1), false));
+        assertFalse(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid1), false));
     }
 }

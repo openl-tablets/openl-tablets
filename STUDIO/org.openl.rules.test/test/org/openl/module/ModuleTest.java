@@ -2,6 +2,14 @@
  * Created Nov 9, 2006
  */
 package org.openl.module;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.OpenL;
 import org.openl.binding.impl.BindingContext;
@@ -20,16 +28,12 @@ import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import junit.framework.TestCase;
 
 /**
  * @author snshor
  *
  */
-public class ModuleTest extends TestCase {
+public class ModuleTest {
     private final Logger log = LoggerFactory.getLogger(ModuleTest.class);
 
     /**
@@ -265,7 +269,7 @@ public class ModuleTest extends TestCase {
      *
      * @see junit.framework.TestCase#setUp()
      */
-    @Override
+    @BeforeEach
     public void setUp() {
         Person person = new Person();
         person.setName("John Smith");
@@ -286,6 +290,7 @@ public class ModuleTest extends TestCase {
         orderValue = 10 + order.getPrice() * order.getQuantity() / 1.05;
     }
 
+    @Test
     public void testModule() throws SyntaxNodeException {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
@@ -328,6 +333,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample "assert" expressions is OpenL
      */
+    @Test
     public void testOpenL() throws SyntaxNodeException {
         boolean b;
         long t = System.currentTimeMillis();
@@ -342,6 +348,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample "get" expression in OpenL
      */
+    @Test
     public void testOpenLGet() throws SyntaxNodeException {
         Object obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
         assertSame(obj, data.getAddress());
@@ -350,6 +357,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample arithemtic expression in OpenL
      */
+    @Test
     public void testOpenLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
@@ -369,6 +377,7 @@ public class ModuleTest extends TestCase {
         assertEquals(orderValue, value, 0.00001);
     }
 
+    @Test
     public void testOpenLOGNLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions

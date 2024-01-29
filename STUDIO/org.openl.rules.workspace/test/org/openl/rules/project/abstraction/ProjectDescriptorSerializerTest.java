@@ -1,7 +1,9 @@
 package org.openl.rules.project.abstraction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -12,27 +14,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.bind.JAXBException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.util.IOUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
+import org.openl.rules.common.ProjectDescriptor;
+import org.openl.rules.common.impl.CommonVersionImpl;
+import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.util.IOUtils;
+
 public class ProjectDescriptorSerializerTest {
 
     private ProjectDescriptorSerializer serializer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws JAXBException {
         this.serializer = new ProjectDescriptorSerializer();
     }
@@ -98,7 +99,7 @@ public class ProjectDescriptorSerializerTest {
     @SuppressWarnings("rawtypes")
     public void deserializeBlack() throws JAXBException {
         List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(""));
-        Assert.assertNull(result);
+        assertNull(result);
     }
 
     @SuppressWarnings("rawtypes")

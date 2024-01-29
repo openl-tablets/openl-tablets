@@ -1,6 +1,7 @@
 package org.openl.rules.project.openapi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +14,20 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -26,15 +35,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import io.swagger.v3.oas.models.OpenAPI;
 
 public class OpenAPIGenerationTest {
 
@@ -50,7 +50,7 @@ public class OpenAPIGenerationTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -58,7 +58,7 @@ public class OpenAPIGenerationTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
@@ -66,7 +66,7 @@ public class OpenAPIGenerationTest {
 
     @Test
     public void testAll() {
-        assertFalse("Test is failed.", run(DIR));
+        assertFalse(run(DIR), "Test is failed.");
     }
 
     public boolean run(String path) {

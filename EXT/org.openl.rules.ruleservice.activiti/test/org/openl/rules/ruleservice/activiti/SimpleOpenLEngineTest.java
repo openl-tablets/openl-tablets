@@ -1,30 +1,30 @@
 package org.openl.rules.ruleservice.activiti;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.task.Task;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
-        "production-repository.uri=test-resources/datasource",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })
+@TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
+		"production-repository.uri=test-resources/datasource",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class SimpleOpenLEngineTest {
 
     @Autowired
     private ProcessEngine processEngine;
 
-    @Before
+    @BeforeEach
     public void deploy() {
         processEngine.getRepositoryService()
             .createDeployment()
@@ -34,7 +34,7 @@ public class SimpleOpenLEngineTest {
 
     @Test
     public void test() {
-        Assert.assertNotNull(processEngine);
+        assertNotNull(processEngine);
         Map<String, Object> variables = new HashMap<>();
 
         variables.put("driverAge", "Standard Driver");
@@ -44,7 +44,7 @@ public class SimpleOpenLEngineTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        Assert.assertEquals("result task 1", task.getName());
+        assertEquals("result task 1", task.getName());
 
         processEngine.getTaskService().complete(task.getId());
 
@@ -56,7 +56,7 @@ public class SimpleOpenLEngineTest {
 
         task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        Assert.assertEquals("result task 2", task.getName());
+        assertEquals("result task 2", task.getName());
 
         processEngine.getTaskService().complete(task.getId());
     }

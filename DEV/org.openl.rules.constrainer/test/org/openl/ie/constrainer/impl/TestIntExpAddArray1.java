@@ -1,22 +1,21 @@
 package org.openl.ie.constrainer.impl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.openl.ie.constrainer.*;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 
-public class TestIntExpAddArray1 extends TestCase {
+public class TestIntExpAddArray1 {
     private final Constrainer C = new Constrainer("TestIntExpAddArray1");
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestIntExpAddArray1.class));
-    }
-
-    public TestIntExpAddArray1(String name) {
-        super(name);
-    }
-
+    @Test
     public void testAttachDetachObserver() {
         IntExpAddArray1 sum = new IntExpAddArray1(C, new IntExpArray(C, C.addIntVar(-5, 5)));
         class TestObserver extends Observer {
@@ -69,6 +68,7 @@ public class TestIntExpAddArray1 extends TestCase {
 
     } // end of testAttachDetachObserver()
 
+    @Test
     public void testMaxMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, 10, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
@@ -88,6 +88,7 @@ public class TestIntExpAddArray1 extends TestCase {
         assertEquals(-55, sum.min());
     }
 
+    @Test
     public void testRemoveValue() {
         IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
@@ -102,6 +103,7 @@ public class TestIntExpAddArray1 extends TestCase {
         }
     }
 
+    @Test
     public void testSetMax() {
         IntExpArray array = new IntExpArray(C, 10, 1, 10, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
@@ -157,6 +159,7 @@ public class TestIntExpAddArray1 extends TestCase {
         }
     }
 
+    @Test
     public void testSetMin() {
         IntExpArray array = new IntExpArray(C, 10, -10, -1, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);
@@ -207,6 +210,7 @@ public class TestIntExpAddArray1 extends TestCase {
         }
     }
 
+    @Test
     public void testSetValue() {
         IntExpArray array = new IntExpArray(C, 10, 0, 5, "array");
         IntExpAddArray1 sum = new IntExpAddArray1(C, array);

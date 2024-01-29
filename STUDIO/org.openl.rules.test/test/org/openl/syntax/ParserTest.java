@@ -6,11 +6,16 @@
 
 package org.openl.syntax;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.OpenL;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.CharNodeBinder;
@@ -56,8 +61,8 @@ public class ParserTest {
 
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
-        Assert.assertEquals(res, ln.getText());
-        Assert.assertEquals(type, ln.getType());
+        assertEquals(res, ln.getText());
+        assertEquals(type, ln.getType());
     }
 
     public void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
@@ -65,11 +70,11 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
-        Assert.assertEquals(0, pc.getErrors().length);
+        assertEquals(0, pc.getErrors().length);
 
         ISyntaxNode syntaxNode = pc.getTopNode();
 
-        Assert.assertEquals(type, syntaxNode.getType());
+        assertEquals(type, syntaxNode.getType());
     }
 
     @SuppressWarnings("unchecked")
@@ -102,22 +107,22 @@ public class ParserTest {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         ISyntaxNode bn = search(pc.getTopNode(), type);
-        Assert.assertNotNull(bn);
+        assertNotNull(bn);
 
-        Assert.assertEquals(type, bn.getType());
+        assertEquals(type, bn.getType());
     }
 
     @Test
     public void testOfMethod() {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
     }
 
     @Test
@@ -125,16 +130,16 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
     }
 
@@ -148,8 +153,8 @@ public class ParserTest {
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
         LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
-        Assert.assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
-        Assert.assertEquals(res, literalBoundNode.getValue());
+        assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
+        assertEquals(res, literalBoundNode.getValue());
     }
 
     @Test
@@ -234,7 +239,7 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
         ILocation loc = pc.getTopNode().getSourceLocation();
-        Assert.assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
+        assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
 
     }
 
@@ -246,31 +251,31 @@ public class ParserTest {
     @Test
     public void testOperator() throws OpenLConfigurationException {
         BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x-3", "op.binary.subtract");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x%3", "op.binary.rem");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is less than 3", "op.binary.lt");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is  less  than 3", "op.binary.lt");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x or y", "op.binary.or");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x and y", "op.binary.and");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         NaryNode naryNode = _testOperator("x?y: z", "op.ternary.qmark");
-        Assert.assertNotNull(naryNode);
+        assertNotNull(naryNode);
 
         naryNode = _testOperator("x?y:z", "op.ternary.qmark");
-        Assert.assertNotNull(naryNode);
+        assertNotNull(naryNode);
     }
 
     @Test

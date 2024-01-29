@@ -1,8 +1,9 @@
 package org.openl.rules.project.xml;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.io.FileInputStream;
 import java.nio.file.Paths;
@@ -10,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;

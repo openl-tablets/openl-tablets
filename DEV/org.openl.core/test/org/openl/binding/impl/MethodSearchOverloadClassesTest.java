@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.exception.AmbiguousMethodException;
 
 public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {

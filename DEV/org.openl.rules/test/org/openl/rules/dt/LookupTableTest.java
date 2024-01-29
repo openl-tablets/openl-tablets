@@ -1,9 +1,10 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class LookupTableTest {
@@ -24,7 +25,7 @@ public class LookupTableTest {
 
     private ILookupTableTest instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<>(SRC, ILookupTableTest.class);
 

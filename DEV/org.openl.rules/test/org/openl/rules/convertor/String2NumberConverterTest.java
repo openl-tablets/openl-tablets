@@ -1,25 +1,27 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class String2NumberConverterTest {
 
     private Locale defaultLocale;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.GERMAN);
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
@@ -149,36 +151,46 @@ public class String2NumberConverterTest {
         assertEquals(Double.NEGATIVE_INFINITY, result);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseNotNumber() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        converter.parse("3.1415d", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2NumberConverter<Number> converter = getNumberConverter();
+            converter.parse("3.1415d", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseEmpty() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        // skip using a String Pool in runtime
-        converter.parse("", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2NumberConverter<Number> converter = getNumberConverter();
+            // skip using a String Pool in runtime
+            converter.parse("", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParsePercentSign() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        // skip using a String Pool in runtime
-        converter.parse("%", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2NumberConverter<Number> converter = getNumberConverter();
+            // skip using a String Pool in runtime
+            converter.parse("%", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseNotENumber() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        converter.parse("1e1", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2NumberConverter<Number> converter = getNumberConverter();
+            converter.parse("1e1", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseWithSpaces() {
-        String2NumberConverter<Number> converter = getNumberConverter();
-        converter.parse("1 ", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2NumberConverter<Number> converter = getNumberConverter();
+            converter.parse("1 ", null);
+        });
     }
 
     private String2NumberConverter<Number> getNumberConverter() {

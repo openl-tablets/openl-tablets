@@ -1,10 +1,11 @@
 package org.openl.gen;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,11 +17,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
-import org.junit.Test;
+import groovy.lang.GroovyClassLoader;
+import org.junit.jupiter.api.Test;
+
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 import org.openl.gen.groovy.GroovyInterfaceScriptGenerator;
-
-import groovy.lang.GroovyClassLoader;
 
 public class GroovyInterfaceScriptGeneratorTest {
 
@@ -218,7 +219,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
-        assertTrue("Interface must be public", (interfaceClass.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((interfaceClass.getModifiers() & Modifier.PUBLIC) != 0, "Interface must be public");
         assertEquals(expectedName, interfaceClass.getName());
     }
 

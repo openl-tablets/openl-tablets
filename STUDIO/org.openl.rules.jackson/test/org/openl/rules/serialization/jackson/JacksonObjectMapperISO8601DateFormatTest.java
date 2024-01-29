@@ -1,6 +1,7 @@
 package org.openl.rules.serialization.jackson;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.Calendar;
 import java.util.Date;
@@ -8,17 +9,14 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@RunWith(Parameterized.class)
 public class JacksonObjectMapperISO8601DateFormatTest {
 
     private static final Locale DEFAULT_LOCALE;
@@ -35,13 +33,12 @@ public class JacksonObjectMapperISO8601DateFormatTest {
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
-    @Parameters(name = "{0} corresponds to {1} in local time zone")
     public static Object[] data() {
         return new Object[][] { { "2016-12-31T22:00:00", createDate(2016, 12, 31, 22) },
                 { "2016-12-31T22:00:00Z", createDate(2017, 1, 1, 0) },
@@ -52,11 +49,11 @@ public class JacksonObjectMapperISO8601DateFormatTest {
                 { "1483142400000", createDate(2016, 12, 31, 2) } };
     }
 
-    private final String json;
-    private final Date target;
-    private final ObjectMapper objectMapper;
+    private String json;
+    private Date target;
+    private ObjectMapper objectMapper;
 
-    public JacksonObjectMapperISO8601DateFormatTest(String source, Date target) {
+    public void initJacksonObjectMapperISO8601DateFormatTest(String source, Date target) {
         this.json = "{\n\t\"currentDate\": \"" + source + "\"\n}";
         this.target = target;
 
@@ -70,8 +67,10 @@ public class JacksonObjectMapperISO8601DateFormatTest {
         this.objectMapper = objectMapper;
     }
 
-    @Test
-    public void test() throws Exception {
+    @MethodSource("data")
+    @ParameterizedTest(name = "{0} corresponds to {1} in local time zone")
+    public void test(String source, Date target) throws Exception {
+        initJacksonObjectMapperISO8601DateFormatTest(source, target);
         IRulesRuntimeContext context = objectMapper.readValue(json, IRulesRuntimeContext.class);
         assertEquals(target, context.getCurrentDate());
     }

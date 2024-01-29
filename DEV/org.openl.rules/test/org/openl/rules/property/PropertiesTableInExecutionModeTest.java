@@ -1,11 +1,17 @@
 package org.openl.rules.property;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.Collection;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.Severity;
 import org.openl.rules.enumeration.RegionsEnum;

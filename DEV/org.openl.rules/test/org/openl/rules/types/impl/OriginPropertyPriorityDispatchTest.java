@@ -1,9 +1,10 @@
 package org.openl.rules.types.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 /**
@@ -14,7 +15,7 @@ public class OriginPropertyPriorityDispatchTest {
 
     private Rules instance;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }

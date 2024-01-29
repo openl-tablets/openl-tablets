@@ -1,5 +1,18 @@
 package org.openl.rules.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,10 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.xml.bind.JAXBException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ChangesetType;
@@ -39,20 +54,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 
-import javax.xml.bind.JAXBException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class ZipProjectSaveStrategyTest {
 
     private static final String BASE_RULES_LOCATION = "DESIGN/";
@@ -63,7 +64,7 @@ public class ZipProjectSaveStrategyTest {
     private ArgumentCaptor<FileData> fileDataCaptor;
     private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws JAXBException {
         this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);

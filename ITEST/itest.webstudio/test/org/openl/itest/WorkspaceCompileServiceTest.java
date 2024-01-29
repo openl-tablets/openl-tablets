@@ -1,26 +1,32 @@
 package org.openl.itest;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class WorkspaceCompileServiceTest {
 
     private static JettyServer server;
     private static HttpClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = JettyServer.start("simple");
         client = server.client();
     }
 
-    @Test(timeout = 15_000)
+    @Test
+    @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
     public void compile() {
         // Initialize WebStudio.
         client.send("workspace-compile/empty.get");
@@ -54,7 +60,7 @@ public class WorkspaceCompileServiceTest {
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
     }

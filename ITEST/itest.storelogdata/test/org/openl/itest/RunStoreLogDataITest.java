@@ -2,11 +2,12 @@ package org.openl.itest;
 
 import static org.awaitility.Awaitility.given;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -24,9 +25,13 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-
 import javax.persistence.Entity;
 
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
+import com.datastax.oss.driver.api.core.servererrors.QueryExecutionException;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -36,9 +41,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.h2.tools.Server;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
+
 import org.openl.itest.cassandra.CassandraFields;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
@@ -54,17 +65,6 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.CassandraContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
-
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
-import com.datastax.oss.driver.api.core.servererrors.QueryExecutionException;
-import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
 public class RunStoreLogDataITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
@@ -92,7 +92,7 @@ public class RunStoreLogDataITest {
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
         DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
@@ -655,7 +655,7 @@ public class RunStoreLogDataITest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
 
         server.stop();

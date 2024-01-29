@@ -1,6 +1,11 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DateRangeParsingTest {
 
@@ -576,8 +581,8 @@ public class DateRangeParsingTest {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertTrue(String.format("The range %s must include a date '%s'", range.toString(), s),
-                range.contains(toDate(s)));
+            assertTrue(range.contains(toDate(s)),
+                String.format("The range %s must include a date '%s'", range.toString(), s));
         }
     }
 
@@ -585,8 +590,8 @@ public class DateRangeParsingTest {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertFalse(String.format("The range %s must not include a date '%s'", range.toString(), s),
-                range.contains(toDate(s)));
+            assertFalse(range.contains(toDate(s)),
+                String.format("The range %s must not include a date '%s'", range.toString(), s));
         }
     }
 

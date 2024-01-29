@@ -1,12 +1,14 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2ConstructorConvertorTest {
 
@@ -37,13 +39,17 @@ public class String2ConstructorConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseNoConstructor() {
-        new String2ConstructorConvertor<>(Object.class);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new String2ConstructorConvertor<>(Object.class);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFormatNoConstructor() {
-        new String2ConstructorConvertor<>(Object.class);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new String2ConstructorConvertor<>(Object.class);
+        });
     }
 }

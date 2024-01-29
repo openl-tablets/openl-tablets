@@ -1,20 +1,22 @@
 package org.openl.rules.project.impl.local;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.File;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.util.FileUtils;
 
 public class PropertiesEngineTest {
     private final File ROOT = new File("target/test-file-repository/");
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         FileUtils.deleteQuietly(ROOT);
         assertFalse(ROOT.exists());
@@ -60,6 +62,6 @@ public class PropertiesEngineTest {
             assertEquals("Folder '" + folder1.getPath() + "' is absent.", e.getMessage());
         }
 
-        assertFalse("We shouldn't recreate deleted folder", folder1.exists());
+        assertFalse(folder1.exists(), "We shouldn't recreate deleted folder");
     }
 }

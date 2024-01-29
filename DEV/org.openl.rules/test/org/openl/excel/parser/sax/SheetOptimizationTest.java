@@ -1,11 +1,13 @@
 package org.openl.excel.parser.sax;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.FolderUtils;

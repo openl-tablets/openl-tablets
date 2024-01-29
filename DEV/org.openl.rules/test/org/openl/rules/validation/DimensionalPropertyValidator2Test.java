@@ -1,9 +1,12 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.validation.DimensionalPropertyValidator.OverlapState;
 
 public class DimensionalPropertyValidator2Test {
@@ -12,7 +15,7 @@ public class DimensionalPropertyValidator2Test {
     private OverlapState startState;
     private String[] vResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         validator = new DimensionalPropertyValidator();
         startState = OverlapState.UNKNOWN;

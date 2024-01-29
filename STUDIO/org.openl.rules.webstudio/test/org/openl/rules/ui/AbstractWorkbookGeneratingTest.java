@@ -11,19 +11,19 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
+
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
 public abstract class AbstractWorkbookGeneratingTest {
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    public File tempFolder;
 
     protected List<Module> getModules() throws ProjectResolvingException {
-        File rulesFolder = tempFolder.getRoot();
+        File rulesFolder = tempFolder;
         ProjectDescriptor projectDescriptor = ProjectResolver.getInstance().resolve(rulesFolder);
         return projectDescriptor.getModules();
     }
@@ -41,7 +41,7 @@ public abstract class AbstractWorkbookGeneratingTest {
     }
 
     protected void writeBook(Workbook wb, String file) throws IOException {
-        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(tempFolder.getRoot(), file)))) {
+        try (OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(tempFolder, file)))) {
             wb.write(os);
         }
     }

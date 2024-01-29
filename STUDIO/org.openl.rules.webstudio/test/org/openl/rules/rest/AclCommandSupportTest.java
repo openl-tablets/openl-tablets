@@ -1,62 +1,64 @@
 package org.openl.rules.rest;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 public class AclCommandSupportTest {
     @Test
     public void invalidFormats() {
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(AclCommandSupport.MSG1, e.getMessage());
+            assertEquals(AclCommandSupport.MSG1, e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add1:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(String.format(AclCommandSupport.MSG5, "add1"), e.getMessage());
+            assertEquals(String.format(AclCommandSupport.MSG5, "add1"), e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:x:username:VIEW");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(String.format(AclCommandSupport.MSG6, "x"), e.getMessage());
+            assertEquals(String.format(AclCommandSupport.MSG6, "x"), e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN1/design1:/DESIGN/rules/Project1:user:username:VIEW");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(String.format(AclCommandSupport.MSG7, "DESIGN1"), e.getMessage());
+            assertEquals(String.format(AclCommandSupport.MSG7, "DESIGN1"), e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(AclCommandSupport.MSG2, e.getMessage());
+            assertEquals(AclCommandSupport.MSG2, e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:ADD1");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(
+            assertEquals(
                 String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
                 e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD1");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(
+            assertEquals(
                 String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
                 e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN:/DESIGN/rules/Project1:user:username:VIEW,ADD1");
-            Assert.fail();
+            fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(AclCommandSupport.MSG4, e.getMessage());
+            assertEquals(AclCommandSupport.MSG4, e.getMessage());
         }
     }
 

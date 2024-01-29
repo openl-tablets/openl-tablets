@@ -8,15 +8,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.Test;
-import org.openl.rules.ruleservice.deployer.RulesDeployerService;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.env.PropertyResolver;
+
+import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 public class DeployClasspathJarsBeanTest {
     @Test

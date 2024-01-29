@@ -1,24 +1,22 @@
 package org.openl.rules.ruleservice.multimodule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/DomainSharingTest",
-        "ruleservice.isProvideRuntimeContext=false",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration(value = { "classpath:openl-ruleservice-beans.xml" })
+import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
+@TestPropertySource(properties = {"production-repository.uri=test-resources/DomainSharingTest",
+		"ruleservice.isProvideRuntimeContext=false",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class DomainSharingTest {
 
     @Autowired

@@ -1,27 +1,29 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class String2CalendarConvertorTest {
 
     private Locale defaultLocale;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
@@ -44,16 +46,20 @@ public class String2CalendarConvertorTest {
         assertEquals(time, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseEmpty() {
-        String2CalendarConvertor converter = new String2CalendarConvertor();
-        converter.parse("", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2CalendarConvertor converter = new String2CalendarConvertor();
+            converter.parse("", null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseWrongValue() {
-        String2CalendarConvertor converter = new String2CalendarConvertor();
-        converter.parse("Kin-Dza-Dza", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2CalendarConvertor converter = new String2CalendarConvertor();
+            converter.parse("Kin-Dza-Dza", null);
+        });
     }
 
     @Test

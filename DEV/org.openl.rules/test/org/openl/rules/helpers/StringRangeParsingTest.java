@@ -1,8 +1,13 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.range.Range;
 
@@ -434,17 +439,19 @@ public class StringRangeParsingTest {
         assertFalse(range.contains("Z"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testParseException() {
-        new StringRange(null);
+        assertThrows(RuntimeException.class, () -> {
+            new StringRange(null);
+        });
     }
 
     private void assertInclude(StringRange range, String... args) {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertTrue(String.format("The range %s must include a string '%s'", range.toString(), s),
-                range.contains(s));
+            assertTrue(range.contains(s),
+                String.format("The range %s must include a string '%s'", range.toString(), s));
         }
     }
 
@@ -452,8 +459,8 @@ public class StringRangeParsingTest {
         assertNotNull(range);
         assertTrue(args.length > 0);
         for (String s : args) {
-            assertFalse(String.format("The range %s must not include a string '%s'", range.toString(), s),
-                range.contains(s));
+            assertFalse(range.contains(s),
+                String.format("The range %s must not include a string '%s'", range.toString(), s));
         }
     }
 

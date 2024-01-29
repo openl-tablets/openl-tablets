@@ -1,5 +1,20 @@
 package org.openl.rules.ruleservice.deployer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,10 +31,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -28,21 +44,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@Ignore
+@Disabled
 public class RulesDeployerServiceTest {
 
     private static final String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
@@ -56,7 +58,7 @@ public class RulesDeployerServiceTest {
     private ArgumentCaptor<InputStream> streamCaptor;
     private ArgumentCaptor<FileChangesFromZip> fileChangesFromZipCaptor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
         streamCaptor = ArgumentCaptor.forClass(InputStream.class);
@@ -158,7 +160,7 @@ public class RulesDeployerServiceTest {
         final FileData actualFileData = fileDataCaptor.getValue();
         assertNotNull(actualFileData);
         assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
-        assertTrue("Content size must be greater thar 0", actualFileData.getSize() > 0);
+        assertTrue(actualFileData.getSize() > 0, "Content size must be greater thar 0");
         assertEquals(expectedName, actualFileData.getName());
     }
 
@@ -305,7 +307,7 @@ public class RulesDeployerServiceTest {
             final FileData actualFileData = actualFileItem.getData();
             assertNotNull(actualFileData);
             assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
-            assertTrue("Content size must be greater than 0", actualFileData.getSize() > 0);
+            assertTrue(actualFileData.getSize() > 0, "Content size must be greater than 0");
             if (namesToVerify.contains(actualFileData.getName())) {
                 namesToVerify.remove(actualFileData.getName());
             } else {

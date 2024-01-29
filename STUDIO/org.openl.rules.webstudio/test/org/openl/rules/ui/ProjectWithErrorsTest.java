@@ -1,9 +1,10 @@
 package org.openl.rules.ui;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -11,27 +12,23 @@ import java.util.Arrays;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import org.openl.rules.project.resolving.ProjectResolver;
 
-@RunWith(Parameterized.class)
 public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
     private static final String SHEET_NAME = "Test";
     private static final String MAIN_MODULE_FILE_NAME = "MainModule.xls";
     private ProjectModel pm;
-
-    @Parameterized.Parameter
     public boolean singleModuleMode;
 
-    @Parameterized.Parameters(name = "singleModuleMode: {0}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] { { true }, { false } });
     }
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         createMainModule();
 
@@ -42,8 +39,10 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         pm.setModuleInfo(getModules().get(0));
     }
 
-    @Test
-    public void testTypesAndTestMethodsCount() {
+    @MethodSource("data")
+    @ParameterizedTest(name = "singleModuleMode: {0}")
+    public void testTypesAndTestMethodsCount(boolean singleModuleMode) {
+        initProjectWithErrorsTest(singleModuleMode);
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 
         assertEquals(1, pm.getAllTestMethods().length);
@@ -77,5 +76,9 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         createTable(sheet, greetingTestTable);
         createTable(sheet, incorrectTestTable);
         writeBook(book, MAIN_MODULE_FILE_NAME);
+    }
+
+    public void initProjectWithErrorsTest(boolean singleModuleMode) {
+        this.singleModuleMode = singleModuleMode;
     }
 }

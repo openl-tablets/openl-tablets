@@ -1,17 +1,20 @@
 package org.openl.rules;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+
 import org.openl.message.OpenLMessage;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.syntax.exception.CompositeOpenlException;
 
-@Ignore("Auxiliary class")
+@Disabled("Auxiliary class")
 public class TestUtils {
 
     public static final int CYCLIC_DEPENDENCY_THRESHOLD = 100;
@@ -87,7 +90,7 @@ public class TestUtils {
                 }
             }
             if (! messageIsFound) {
-                Assert.fail("Message \"" + expectedMessage + "\" is expected, but has not been found");
+                fail("Message \"" + expectedMessage + "\" is expected, but has not been found");
             }
         }
     }
@@ -96,7 +99,7 @@ public class TestUtils {
         for (String nonExpectedMessage: nonExpectedMessages) {
             for (OpenLMessage message: messages) {
                 if (message.getSummary().contains(nonExpectedMessage)) {
-                    Assert.fail("Message \"" + nonExpectedMessage + "\" is not expected but has been found");
+                    fail("Message \"" + nonExpectedMessage + "\" is not expected but has been found");
                 }
             }
         }
@@ -110,7 +113,7 @@ public class TestUtils {
             assertEx(ex, errorMessages);
             return;
         }
-        Assert.fail();
+        fail();
     }
 
     public static <T> T create(String sourceFile, Class<T> tClass) {

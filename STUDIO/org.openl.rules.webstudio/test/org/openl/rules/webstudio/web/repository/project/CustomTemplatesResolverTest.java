@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 
 /**
@@ -21,15 +22,15 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
     private static final String CUSTOM_TEMPLATES_CATEGORY = "Custom templates";
     private static final String RATING_TEMPLATES_CATEGORY = "Rating Templates";
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    public File tempFolder;
 
     private String webStudioHomePath;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        webStudioHomePath = tempFolder.getRoot().getPath();
-        File webStudioHome = tempFolder.newFolder(CustomTemplatesResolver.PROJECT_TEMPLATES_FOLDER);
+        webStudioHomePath = tempFolder.getPath();
+        File webStudioHome = newFolder(tempFolder, CustomTemplatesResolver.PROJECT_TEMPLATES_FOLDER);
 
         // Create project templates
         File sample1Folder = createFolder(new File(webStudioHome, CUSTOM_TEMPLATES_CATEGORY), "Sample1 project");
@@ -52,7 +53,7 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         assertEquals(2, categories.size());
         assertTrue(categories.containsAll(Arrays.asList(CUSTOM_TEMPLATES_CATEGORY, RATING_TEMPLATES_CATEGORY)));
 
-        String absentWebStudioHome = tempFolder.getRoot().getPath() + "/not-exist";
+        String absentWebStudioHome = tempFolder.getPath() + "/not-exist";
         Collection<String> categories2 = new CustomTemplatesResolver(absentWebStudioHome).getCategories();
         assertTrue(categories2.isEmpty());
     }
@@ -102,5 +103,14 @@ public class CustomTemplatesResolverTest extends TemplatesResolverTest {
         if (!file.createNewFile()) {
             throw new IllegalStateException();
         }
+    }
+
+    private static File newFolder(File root, String... subDirs) throws IOException {
+        String subFolder = String.join("/", subDirs);
+        File result = new File(root, subFolder);
+        if (!result.mkdirs()) {
+            throw new IOException("Couldn't create folders " + root);
+        }
+        return result;
     }
 }

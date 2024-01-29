@@ -1,26 +1,27 @@
 package org.openl.rules.util;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class NumbersTest {
     private static Locale defaultLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.GERMANY);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         Locale.setDefault(defaultLocale);
     }

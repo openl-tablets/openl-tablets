@@ -1,12 +1,14 @@
 package org.openl.rules.ui.tree;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -17,7 +19,7 @@ import org.openl.types.IOpenMethod;
 public class TestVersionedTreeNode {
     private final Map<String, TableSyntaxNode> tables = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void getTables() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/Versions_Test.xls");
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();

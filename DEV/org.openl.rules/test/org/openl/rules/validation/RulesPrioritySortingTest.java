@@ -1,14 +1,16 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -27,13 +29,13 @@ public class RulesPrioritySortingTest {
 
     private static String csr;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         csr = System.getProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, csr);
     }
@@ -66,7 +68,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
@@ -86,7 +88,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
@@ -106,7 +108,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setLob(lob);
             Double res = instance.driverRiskScoreOverloadTest3("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 }

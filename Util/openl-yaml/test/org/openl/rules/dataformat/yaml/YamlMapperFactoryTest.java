@@ -1,9 +1,10 @@
 package org.openl.rules.dataformat.yaml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -13,9 +14,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * TODO description
@@ -28,7 +29,7 @@ public class YamlMapperFactoryTest {
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
@@ -36,7 +37,7 @@ public class YamlMapperFactoryTest {
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);

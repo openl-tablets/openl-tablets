@@ -1,16 +1,17 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
-
 import javax.ws.rs.core.Response;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JAXRSMethodHandlerTest {
 
@@ -19,23 +20,29 @@ public class JAXRSMethodHandlerTest {
         new JAXRSMethodHandler(new Object(), new HashMap<>());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void checkNullTargetConstructorArgument() {
-        new JAXRSMethodHandler(null, new HashMap<>());
+        assertThrows(NullPointerException.class, () -> {
+            new JAXRSMethodHandler(null, new HashMap<>());
+        });
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void checkNullMethodsConstructorArgument() {
-        new JAXRSMethodHandler(new Object(), null);
+        assertThrows(NullPointerException.class, () -> {
+            new JAXRSMethodHandler(new Object(), null);
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void checkInvokeOnUnknownMethod() throws Throwable {
-        Object target = new Object();
-        HashMap<Method, Method> methods = new HashMap<>();
-        JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
-        Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
-        handler.invoke(unknownMethod, null);
+        assertThrows(IllegalStateException.class, () -> {
+            Object target = new Object();
+            HashMap<Method, Method> methods = new HashMap<>();
+            JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
+            Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
+            handler.invoke(unknownMethod, null);
+        });
     }
 
     @Test

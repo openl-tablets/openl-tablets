@@ -1,19 +1,17 @@
 package org.openl.rules.ruleservice.multimodule;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
 @TestPropertySource(properties = {"production-repository.uri=test-resources/MultipleProjectsInDeploymentTest",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({"classpath:openl-ruleservice-beans.xml"})
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class MultipleProjectsInDeploymentTest {
 
     @Autowired

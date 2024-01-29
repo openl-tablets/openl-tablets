@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assume.assumeNoException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assumptions.abort;
+
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -11,7 +12,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ZipCharsetDetectorTest {
     private static final String TEST_RULES_XML = "test-resources/upload/zip/test-rules-xml.zip";
@@ -81,7 +82,7 @@ public class ZipCharsetDetectorTest {
         try {
             Charset.forName(charsetName);
         } catch (UnsupportedCharsetException e) {
-            assumeNoException("Necessary for test encoding is absent. Skip it.", e);
+            abort("Necessary for test encoding is absent. Skip it.");
         }
     }
 }

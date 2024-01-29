@@ -1,14 +1,16 @@
 package org.openl.main;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.util.text.ILocation;
 import org.openl.util.text.IPosition;
 import org.openl.util.text.TextInterval;

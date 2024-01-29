@@ -1,7 +1,10 @@
 package org.openl.rules.project.instantiation;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 public class SimpleProjectEngineFactoryClassloaderTest {
@@ -12,15 +15,17 @@ public class SimpleProjectEngineFactoryClassloaderTest {
             .setProject("test-resources/classpath/project1")
             .build();
         Object instance = factory.newInstance();
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
     }
 
-    @Test(expected = RulesInstantiationException.class)
+    @Test
     public void singleModuleWithoutDepTest() throws Exception {
-        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/classpath/project2")
-            .build();
-        factory.newInstance();
+        assertThrows(RulesInstantiationException.class, () -> {
+            SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
+                .setProject("test-resources/classpath/project2")
+                .build();
+            factory.newInstance();
+        });
     }
 
     @Test
@@ -30,7 +35,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
             .setProject("test-resources/classpath/project2")
             .build();
         Object instance = factory.newInstance();
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
     }
 
     @Test
@@ -41,7 +46,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
             .setProject("test-resources/classpath/project2")
             .build();
         Object instance = factory.newInstance();
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
     }
 
     @Test
@@ -53,7 +58,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
             .setProject("test-resources/classpath/project2")
             .build();
         Object instance = factory.newInstance();
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
     }
 
     @Test
@@ -64,7 +69,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
             .setProject("test-resources/classpath/project2")
             .build();
         Object instance = factory.newInstance();
-        Assert.assertNotNull(instance);
+        assertNotNull(instance);
     }
 
 }

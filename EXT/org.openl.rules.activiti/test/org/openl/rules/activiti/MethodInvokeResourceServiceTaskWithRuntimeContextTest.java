@@ -1,22 +1,23 @@
 package org.openl.rules.activiti;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.task.Task;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.enumeration.UsStatesEnum;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })
+import org.openl.rules.enumeration.UsStatesEnum;
+
+@SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
     @Autowired
@@ -24,7 +25,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
     private ProcessEngine processEngine;
 
-    @Before
+    @BeforeEach
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
@@ -36,7 +37,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
     @Test
     public void test() {
-        Assert.assertNotNull(processEngine);
+        assertNotNull(processEngine);
         Map<String, Object> variables = new HashMap<>();
 
         variables.put("usState", UsStatesEnum.AK);
@@ -50,7 +51,7 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
         Double result = (Double) processEngine.getRuntimeService()
             .getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(500.0d, result, 1e-3);
+        assertEquals(500.0d, result, 1e-3);
 
         processEngine.getTaskService().complete(task.getId());
 
@@ -66,6 +67,6 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(510.0d, result, 1e-3);
+        assertEquals(510.0d, result, 1e-3);
     }
 }

@@ -1,9 +1,10 @@
 package org.openl.rules.types.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,8 +16,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -33,7 +35,7 @@ public class DispatchingTest {
 
     private Rules instance;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }
@@ -103,7 +105,7 @@ public class DispatchingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 

@@ -1,16 +1,18 @@
 package org.openl.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.test.RulesInFolderTestRunner;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -27,7 +29,7 @@ public final class OpenLTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -35,7 +37,7 @@ public final class OpenLTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
@@ -57,18 +59,18 @@ public final class OpenLTest {
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
-            assertEquals("Module name must be initialized", "Main", testSuiteMethod.getModuleName());
+            assertEquals("Main", testSuiteMethod.getModuleName(), "Module name must be initialized");
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
             Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
-            assertEquals("Unexpected test name", "HelloTest12()", testUnitsResults.getName());
-            assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
-            assertTrue("Should have a context", testUnitsResults.hasContext());
-            assertEquals("Unexpected number of test cases", 19, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Unexpected number of failures", 11, testUnitsResults.getNumberOfFailures());
-            assertEquals("Unexpected number of errors", 1, testUnitsResults.getNumberOfErrors());
-            assertEquals("Unexpected number of assertions", 10, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("HelloTest12()", testUnitsResults.getName(), "Unexpected test name");
+            assertTrue(testUnitsResults.getExecutionTime() > 0, "Unexpected execution time");
+            assertTrue(testUnitsResults.hasContext(), "Should have a context");
+            assertEquals(19, testUnitsResults.getNumberOfTestUnits(), "Unexpected number of test cases");
+            assertEquals(11, testUnitsResults.getNumberOfFailures(), "Unexpected number of failures");
+            assertEquals(1, testUnitsResults.getNumberOfErrors(), "Unexpected number of errors");
+            assertEquals(10, testUnitsResults.getNumberOfAssertionFailures(), "Unexpected number of assertions");
         }
 
         {
@@ -76,18 +78,18 @@ public final class OpenLTest {
             assertNotNull(method);
             assertTrue(method instanceof TestSuiteMethod);
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
-            assertEquals("Module name must be initialized", "Second Module", testSuiteMethod.getModuleName());
+            assertEquals("Second Module", testSuiteMethod.getModuleName(), "Module name must be initialized");
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
             Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
-            assertEquals("Unexpected test name", "GreetingTest()", testUnitsResults.getName());
-            assertTrue("Unexpected execution time", testUnitsResults.getExecutionTime() > 0);
-            assertFalse("Should not have a context", testUnitsResults.hasContext());
-            assertEquals("Unexpected number of test cases", 4, testUnitsResults.getNumberOfTestUnits());
-            assertEquals("Unexpected number of failures", 0, testUnitsResults.getNumberOfFailures());
-            assertEquals("Unexpected number of errors", 0, testUnitsResults.getNumberOfErrors());
-            assertEquals("Unexpected number of assertions", 0, testUnitsResults.getNumberOfAssertionFailures());
+            assertEquals("GreetingTest()", testUnitsResults.getName(), "Unexpected test name");
+            assertTrue(testUnitsResults.getExecutionTime() > 0, "Unexpected execution time");
+            assertFalse(testUnitsResults.hasContext(), "Should not have a context");
+            assertEquals(4, testUnitsResults.getNumberOfTestUnits(), "Unexpected number of test cases");
+            assertEquals(0, testUnitsResults.getNumberOfFailures(), "Unexpected number of failures");
+            assertEquals(0, testUnitsResults.getNumberOfErrors(), "Unexpected number of errors");
+            assertEquals(0, testUnitsResults.getNumberOfAssertionFailures(), "Unexpected number of assertions");
         }
 
     }
@@ -95,18 +97,18 @@ public final class OpenLTest {
     @Test
     public void testAllFailures() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(true, false);
-        assertFalse("Test is failed.", rulesInFolderTestRunner.run(FAILURES_DIR));
+        assertFalse(rulesInFolderTestRunner.run(FAILURES_DIR), "Test is failed.");
     }
 
     @Test
     public void testAll() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, false);
-        assertFalse("Test is failed.", rulesInFolderTestRunner.run(DIR));
+        assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }
 
     @Test
     public void testAllInExecutionMode() {
         final RulesInFolderTestRunner rulesInFolderTestRunner = new RulesInFolderTestRunner(false, true);
-        assertFalse("Test is failed.", rulesInFolderTestRunner.run(DIR));
+        assertFalse(rulesInFolderTestRunner.run(DIR), "Test is failed.");
     }
 }

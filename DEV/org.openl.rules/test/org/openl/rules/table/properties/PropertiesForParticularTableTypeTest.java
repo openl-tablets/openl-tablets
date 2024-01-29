@@ -1,10 +1,15 @@
 package org.openl.rules.table.properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
@@ -52,12 +57,12 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals(RegionsEnum.NCSA.name(), ((RegionsEnum[]) categoryProperties.get("region"))[0].name());
 
             Map<String, Object> allProperties = tableProperties.getAllProperties();
-            assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties",
-                10,
-                allProperties.size());
+            assertEquals(10,
+                allProperties.size(),
+                "AllProperties size is 10, ignore property 'scope' and including default properties");
             assertFalse(
-                    "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
-                    allProperties.containsKey("scope"));
+                    allProperties.containsKey("scope"),
+                    "There is no property 'scope' applied for this table, as it cannot be defined in such table type");
 
         } else {
             fail();

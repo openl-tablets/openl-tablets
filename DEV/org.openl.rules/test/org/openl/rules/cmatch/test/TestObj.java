@@ -1,8 +1,8 @@
 package org.openl.rules.cmatch.test;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("Auxiliary class")
+@Disabled("Auxiliary class")
 public class TestObj {
     private String tempLevel;
     private Integer wind;

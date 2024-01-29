@@ -1,5 +1,8 @@
 package org.openl.itest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,11 +24,10 @@ import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.h2.tools.Server;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -45,7 +47,7 @@ public class UsersRestTest {
     private static Connection h2Connection;
     private static final String DB_DUMP_FILE = String.format("target/dump-%s.sql", System.currentTimeMillis());
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
@@ -68,7 +70,7 @@ public class UsersRestTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
         h2Connection.close();
@@ -76,7 +78,7 @@ public class UsersRestTest {
         smtpServer.stop();
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws SQLException, IOException, FolderException {
         try (Statement statement = h2Connection.createStatement()) {
             statement.execute("DROP ALL OBJECTS DELETE FILES;");
@@ -153,39 +155,39 @@ public class UsersRestTest {
         client.putForObject("/web/mail/settings", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
 
         MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
-        Assert.assertEquals("password", mailConfig.password);
-        Assert.assertEquals("username@email", mailConfig.username);
-        Assert.assertEquals(mailUrl, mailConfig.url);
+        assertEquals("password", mailConfig.password);
+        assertEquals("username@email", mailConfig.username);
+        assertEquals(mailUrl, mailConfig.url);
 
         int receivedMessagesCounter = 0;
         client.send("users-service/users-1.get");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, receivedMessagesCounter);
 
         client.send("users-service/users-create.put");
         client.send("users-service/users-2.get");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
         client.send("users-service/users-update.put");
         client.send("users-service/users-3.get");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
         client.send("users-service/users-profile-1.get");
 
         client.send("users-service/users-profile-update.put");
         client.send("users-service/users-profile-2.get");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
         client.send("users-service/users-delete-1.delete");
         client.send("users-service/users-info-update.put");
         client.send("users-service/users-4.get");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
         client.send("users-service/mail/users-mail-send.post");
-        Assert.assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
+        assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
         MimeMessage message = smtpServer.getReceivedMessages()[smtpServer.getReceivedMessages().length - 1];
-        Assert.assertEquals("admin@email", message.getRecipients(Message.RecipientType.TO)[0].toString());
-        Assert.assertEquals("username@email", message.getFrom()[0].toString());
+        assertEquals("admin@email", message.getRecipients(Message.RecipientType.TO)[0].toString());
+        assertEquals("username@email", message.getFrom()[0].toString());
 
         InputStreamReader inputStreamReader = new InputStreamReader(message.getInputStream());
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);

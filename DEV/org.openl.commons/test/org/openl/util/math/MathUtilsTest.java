@@ -1,6 +1,11 @@
 package org.openl.util.math;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -9,7 +14,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author DLiauchuk
@@ -210,9 +215,11 @@ public class MathUtilsTest {
         assertEquals(0, MathUtils.quotient(nullObj, nullObj));
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testQuaotientBigDecimalOfZero() {
-        MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0));
+        assertThrows(ArithmeticException.class, () -> {
+            MathUtils.quotient(BigDecimal.valueOf(3.22), BigDecimal.valueOf(0));
+        });
     }
 
     @Test

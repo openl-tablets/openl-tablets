@@ -1,11 +1,13 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,9 +15,10 @@ import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
@@ -31,13 +34,13 @@ public class GitMultiUserWorkTest {
     private Path root;
     private GitRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl");
         repo = createRepository(root.resolve("design-repository"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();
@@ -68,12 +71,12 @@ public class GitMultiUserWorkTest {
                         createCommitAndCheck(branchRepo, path, text);
                         if ((commitNo + 1) % 10 == 0) {
                             repo.merge(branchName, new UserInfo("admin", "admin@email", "Admin"), null);
-                            assertTrue("Branch must be merged to the master",
-                                repo.isMergedInto(branchName, repo.getBranch()));
+                            assertTrue(repo.isMergedInto(branchName, repo.getBranch()),
+                                "Branch must be merged to the master");
                         }
                     }
                     repo.deleteBranch(projectPath, branchName);
-                    assertFalse("Branch must be removed", repo.getBranches(projectPath).contains(branchName));
+                    assertFalse(repo.getBranches(projectPath).contains(branchName), "Branch must be removed");
                 } catch (Error | Exception e) {
                     passedStatus.set(false);
                     e.printStackTrace();
@@ -83,7 +86,7 @@ public class GitMultiUserWorkTest {
             }).start();
         }
         countDown.await();
-        assertTrue("Test was failed!", passedStatus.get());
+        assertTrue(passedStatus.get(), "Test was failed!");
     }
 
     private static void createCommitAndCheck(GitRepository repo, String path, String text) throws IOException {

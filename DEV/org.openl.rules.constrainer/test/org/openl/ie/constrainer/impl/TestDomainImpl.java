@@ -1,34 +1,23 @@
 package org.openl.ie.constrainer.impl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
-public class TestDomainImpl extends TestCase {
+public class TestDomainImpl {
     private final Constrainer C = new Constrainer("TestDomainImpl");
     private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
     private final DomainImpl _probeDomainImpl = new DomainImpl(_var, _var.min(), _var.max());
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestDomainImpl.class));
-    }
-
-    public TestDomainImpl(String name) {
-        super(name);
-    }
-
-    public void forceSize(int val) {
-        DomainImpl db = new DomainImpl(_var, _var.min() + 5, _var.max());
-        db.forceSize(125);
-        assertEquals(db.size(), 125);
-    }
-
-    public void setValue(int value) {
+    @Test
+    public void setValue() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
             assertFalse(db.setValue(db.max() + 1));
@@ -50,6 +39,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testContains() {
         int[] goodArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
@@ -59,6 +49,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testIterateDomain() {
         IntVar intvar = C.addIntVar(0, 10);
         DomainImpl db = new DomainImpl(intvar, intvar.min(), intvar.max());
@@ -81,6 +72,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveRange() {
         IntVar var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
         DomainImpl di = new DomainImpl(var, var.min(), var.max());
@@ -152,6 +144,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveValue() {
         DomainImpl db = new DomainImpl(_var, _var.min(), _var.max());
         int start_size = db.size();
@@ -177,6 +170,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testSetMax() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
@@ -203,6 +197,7 @@ public class TestDomainImpl extends TestCase {
         }
     }
 
+    @Test
     public void testSetMin() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {

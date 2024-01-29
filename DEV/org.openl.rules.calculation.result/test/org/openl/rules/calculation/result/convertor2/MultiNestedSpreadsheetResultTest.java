@@ -1,15 +1,17 @@
 package org.openl.rules.calculation.result.convertor2;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.openl.rules.calc.SpreadsheetResult;
 
 public class MultiNestedSpreadsheetResultTest {

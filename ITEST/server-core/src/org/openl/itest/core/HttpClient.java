@@ -1,7 +1,8 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class HttpClient {
                     return true;
                 }
             }).filter(p -> p).count();
-            assertEquals("Failed requests: ", 0, errors);
+            assertEquals(0, errors, "Failed requests: ");
         } catch (IOException e) {
             fail("Test folder is not found: " + path);
         }
@@ -123,7 +124,7 @@ public class HttpClient {
                     .GET()
                     .build();
             var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-            assertEquals("URL :" + url, status, resp.statusCode());
+            assertEquals(status, resp.statusCode(), "URL :" + url);
             if (cl == String.class) {
                 return (T) resp.body();
             }
@@ -142,7 +143,7 @@ public class HttpClient {
                     .build();
 
             var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
-            assertEquals("URL :" + url, 204, resp.statusCode());
+            assertEquals(204, resp.statusCode(), "URL :" + url);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

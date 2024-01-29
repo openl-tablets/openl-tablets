@@ -1,9 +1,11 @@
 package org.openl.rules.serialization;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
 
 public class ObjectMapperCacheTest {
@@ -25,17 +27,17 @@ public class ObjectMapperCacheTest {
     public void getObjectMapperTest_notNull() {
         KeyClass key = new KeyClass("Project1");
         ObjectMapper objectMapper1 = ObjectMapperCache.getObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper1);
+        assertNotNull(objectMapper1);
     }
 
     @Test
     public void getObjectMapperTest_Cached() {
         KeyClass key = new KeyClass("Project2");
         ObjectMapper objectMapper1 = ObjectMapperCache.getObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper1);
+        assertNotNull(objectMapper1);
         ObjectMapper objectMapper2 = ObjectMapperCache.getObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper2);
-        Assert.assertEquals(objectMapper1, objectMapper2);
+        assertNotNull(objectMapper2);
+        assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
@@ -50,7 +52,7 @@ public class ObjectMapperCacheTest {
             e.printStackTrace();
         }
         ObjectMapper objectMapper2 = ObjectMapperCache.getObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertEquals(objectMapper1, objectMapper2);
+        assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
@@ -67,7 +69,7 @@ public class ObjectMapperCacheTest {
         }
         key = new KeyClass("Project3");
         ObjectMapper objectMapper2 = ObjectMapperCache.getObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotEquals(objectMapper1, objectMapper2);
+        assertNotEquals(objectMapper1, objectMapper2);
     }
 
 }

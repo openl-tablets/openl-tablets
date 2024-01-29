@@ -1,10 +1,11 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import javax.mail.MessagingException;
 import javax.mail.Transport;
@@ -12,23 +13,20 @@ import javax.mail.Transport;
 import com.icegreen.greenmail.smtp.SmtpServer;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private static GreenMail smtpServer;
@@ -37,12 +35,12 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
     @Autowired
     private MailSender mailSender;
 
-    @After
+    @AfterEach
     public void reset_mocks() {
         Mockito.reset(mailSender);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
@@ -52,7 +50,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         smtpServer.stop();
     }

@@ -1,11 +1,10 @@
 package org.openl.ie.constrainer.impl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Undo;
-
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 /**
  * <p>
@@ -25,17 +24,10 @@ import junit.textui.TestRunner;
  * @version 1.0
  */
 
-public class TestUndoableIntImpl extends TestCase {
+public class TestUndoableIntImpl {
     private final Constrainer C = new Constrainer("TestUndoableIntImpl");
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestUndoableIntImpl.class));
-    }
-
-    public TestUndoableIntImpl(String name) {
-        super(name);
-    }
-
+    @Test
     public void testCreateUndo() {
         UndoableIntImpl undoableInt = new UndoableIntImpl(C, 10);
         Undo[] stages = new Undo[100];

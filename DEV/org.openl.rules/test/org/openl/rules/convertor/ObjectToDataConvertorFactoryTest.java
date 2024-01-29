@@ -1,10 +1,14 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.convertor.ObjectToDataConvertorFactory.MatchedConstructorConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory.StaticMethodConvertor;
 

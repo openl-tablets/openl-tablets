@@ -1,22 +1,23 @@
 package org.openl.rules.serialization.jackson;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.serialization.JsonUtils;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.serialization.JsonUtils;
 
 public class JsonUtilsTest {
 
@@ -26,11 +27,11 @@ public class JsonUtilsTest {
                                                  IllegalAccessException {
         Method getDefaultJacksonObjectMapperMethod = JsonUtils.class.getDeclaredMethod("getDefaultJacksonObjectMapper");
         getDefaultJacksonObjectMapperMethod.setAccessible(true);
-        Assert.assertNotEquals(
-            JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
-                .getName() + " must return different instances.",
+        assertNotEquals(
             getDefaultJacksonObjectMapperMethod.invoke(null),
-            getDefaultJacksonObjectMapperMethod.invoke(null));
+            getDefaultJacksonObjectMapperMethod.invoke(null),
+            JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
+                .getName() + " must return different instances.");
     }
 
     @Test
@@ -52,15 +53,15 @@ public class JsonUtilsTest {
             "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}",
             SpreadsheetResult.class);
 
-        Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
-        Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
-        Assert.assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
+        assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
+        assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
+        assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
 
         spResult = JsonUtils.fromJSON(json, SpreadsheetResult.class);
 
-        Assert.assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
-        Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
-        Assert.assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
+        assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
+        assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
+        assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
 
     }
 
@@ -161,17 +162,17 @@ public class JsonUtilsTest {
     public void getObjectMapperTest_notNull() {
         KeyClass key = new KeyClass("Project1");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper1);
+        assertNotNull(objectMapper1);
     }
 
     @Test
     public void getObjectMapperTest_Cached() {
         KeyClass key = new KeyClass("Project2");
         ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper1);
+        assertNotNull(objectMapper1);
         ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotNull(objectMapper2);
-        Assert.assertEquals(objectMapper1, objectMapper2);
+        assertNotNull(objectMapper2);
+        assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
@@ -186,7 +187,7 @@ public class JsonUtilsTest {
             e.printStackTrace();
         }
         ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertEquals(objectMapper1, objectMapper2);
+        assertEquals(objectMapper1, objectMapper2);
     }
 
     @Test
@@ -203,7 +204,7 @@ public class JsonUtilsTest {
         }
         key = new KeyClass("Project4");
         ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
-        Assert.assertNotEquals(objectMapper1, objectMapper2);
+        assertNotEquals(objectMapper1, objectMapper2);
     }
 
     @Test

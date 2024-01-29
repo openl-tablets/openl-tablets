@@ -1,13 +1,15 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
@@ -17,13 +19,13 @@ public class RunFileRepoRestRulesDeploymentTest {
     private static JettyServer server;
     private static HttpClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = JettyServer.start("file");
         client = server.client();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
     }
@@ -111,7 +113,7 @@ public class RunFileRepoRestRulesDeploymentTest {
     }
 
     @Test
-    @Ignore("Check EPBDS-10940 issue")
+    @Disabled("Check EPBDS-10940 issue")
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
 

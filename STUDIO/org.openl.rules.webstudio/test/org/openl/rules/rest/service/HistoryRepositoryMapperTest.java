@@ -1,7 +1,17 @@
 package org.openl.rules.rest.service;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+
+import java.io.IOException;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -10,14 +20,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.aws.S3Repository;
 import org.openl.rules.rest.model.PageResponse;
 import org.openl.rules.rest.model.ProjectRevision;
-import org.springframework.core.env.PropertyResolver;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HistoryRepositoryMapperTest {
 
@@ -39,7 +41,7 @@ public class HistoryRepositoryMapperTest {
         HistoryRepositoryMapper historyRepositoryMapper = new HistoryRepositoryMapper(repository, comments);
 
         PageResponse<ProjectRevision> revisionHistory = historyRepositoryMapper.getProjectHistory("name", "filter", false, Pageable.unpaged());
-        Assert.assertEquals(history.size(), revisionHistory.getContent().size());
+        assertEquals(history.size(), revisionHistory.getContent().size());
     }
 
 }

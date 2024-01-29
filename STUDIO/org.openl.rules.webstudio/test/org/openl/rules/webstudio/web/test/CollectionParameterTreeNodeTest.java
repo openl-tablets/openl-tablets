@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.types.java.JavaOpenClass;
 
 public class CollectionParameterTreeNodeTest {

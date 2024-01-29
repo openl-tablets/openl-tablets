@@ -1,7 +1,8 @@
 package org.openl.rules.xls.merge;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,15 +20,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class XlsSheetCopierTest {
 
     private static final Path FUNC_TEST = Paths.get("test-resources/functional-copy");
     private static final Path TARGET = Paths.get("target/test-merged");
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         ZipSecureFile.setMinInflateRatio(0.001);
     }

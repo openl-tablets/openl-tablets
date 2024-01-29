@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
+
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,15 +13,15 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class HiveEntityDaoTest {
     Connection connection;
     PreparedStatement preparedStatement;
 
-    @Before
+    @BeforeEach
     public void init() throws SQLException {
         connection = Mockito.mock(Connection.class);
         preparedStatement = Mockito.mock(PreparedStatement.class);
@@ -66,9 +68,11 @@ public class HiveEntityDaoTest {
         hiveEntityDao.insert(connection, defaultHiveEntity);
     }
 
-    @Test(expected = UnsupportedFieldTypeException.class)
+    @Test
     public void insertTest_unsupportedType() throws UnsupportedFieldTypeException {
-        new HiveEntityDao(WrongTypeEntity.class);
+        assertThrows(UnsupportedFieldTypeException.class, () -> {
+            new HiveEntityDao(WrongTypeEntity.class);
+        });
     }
 
     private DefaultHiveEntity getDefaultHiveEntity() {

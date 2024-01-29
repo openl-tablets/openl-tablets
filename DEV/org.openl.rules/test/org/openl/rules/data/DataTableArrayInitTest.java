@@ -1,12 +1,17 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Field;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,13 +29,13 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
 
     private static String csr;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "true");
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
     }

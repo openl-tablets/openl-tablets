@@ -1,8 +1,17 @@
 package org.openl.rules.repository.file;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,7 +21,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -42,24 +52,24 @@ public class FileSystemRepositoryTest {
             FileSystemRepository repo = new FileSystemRepository();
             repo.setRoot(root);
             repo.initialize();
-            assertFalse("Repo folder must not be created after initialize().", root.exists());
+            assertFalse(root.exists(), "Repo folder must not be created after initialize().");
 
             assertList(repo, "", 0);
-            assertFalse("We didn't modify repository. Repo folder must not be created.", root.exists());
+            assertFalse(root.exists(), "We didn't modify repository. Repo folder must not be created.");
 
             assertSave(repo, "folder1/text", "The file in the folder");
-            assertTrue("We added the file to repo. Repo folder must exist.", root.exists());
+            assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
 
             assertSave(repo, "folder2/text", "The file in the folder");
-            assertTrue("We added the file to repo. Repo folder must exist.", root.exists());
+            assertTrue(root.exists(), "We added the file to repo. Repo folder must exist.");
 
             assertDelete(repo, "folder2/text", true);
-            assertTrue("Repo still contains at least 1 file. Repo folder must exist.", root.exists());
+            assertTrue(root.exists(), "Repo still contains at least 1 file. Repo folder must exist.");
 
             assertDelete(repo, "folder1/text", true);
-            assertFalse("Repo folder must be deleted when all files in it were deleted.", root.exists());
+            assertFalse(root.exists(), "Repo folder must be deleted when all files in it were deleted.");
 
-            assertTrue("Repository's base folder must not be deleted: Repo is not responsible for it.", base.exists());
+            assertTrue(base.exists(), "Repository's base folder must not be deleted: Repo is not responsible for it.");
         } finally {
             // Cleanup
             FileUtils.deleteQuietly(base);
@@ -116,18 +126,18 @@ public class FileSystemRepositoryTest {
 
     private void assertNoRead(Repository repo, String name) throws IOException {
         FileItem result = repo.read(name);
-        assertNull("Null value should be returned for the absent file", result);
+        assertNull(result, "Null value should be returned for the absent file");
     }
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
         try (var result = repo.read(name)) {
-            assertNotNull("The file is not found.", result);
+            assertNotNull(result, "The file is not found.");
             FileData data = result.getData();
-            assertNotNull("The file descriptor is missing.", data);
-            assertEquals("Wrong file name", name, data.getName());
+            assertNotNull(data, "The file descriptor is missing.");
+            assertEquals(name, data.getName(), "Wrong file name");
             InputStream stream = result.getStream();
             String text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-            assertEquals("Unexpected content in the file.", value, text);
+            assertEquals(value, text, "Unexpected content in the file.");
         }
     }
 
@@ -135,12 +145,12 @@ public class FileSystemRepositoryTest {
         FileData fileData = new FileData();
         fileData.setName(name);
         boolean result = repo.delete(fileData);
-        assertEquals("The deleting of the file has been failed", expected, result);
+        assertEquals(expected, result, "The deleting of the file has been failed");
     }
 
     private void assertList(Repository repo, String path, int size) throws IOException {
         List<FileData> list = repo.list(path);
-        assertEquals("Unexpected size of the directory [" + path + "]", size, list.size());
+        assertEquals(size, list.size(), "Unexpected size of the directory [" + path + "]");
     }
 
     private void assertSave(Repository repo, String name, String text) throws IOException {
@@ -155,12 +165,12 @@ public class FileSystemRepositoryTest {
         }
 
         FileData result = repo.save(data, IOUtils.toInputStream(text));
-        assertEquals("Wrong file length", text.length(), result.getSize());
+        assertEquals(text.length(), result.getSize(), "Wrong file length");
         assertRead(repo, name, text);
-        assertEquals("Wrong file name", name, result.getName());
+        assertEquals(name, result.getName(), "Wrong file name");
 
         if (modifiedAt != null) {
-            assertEquals("Wrong modifiedAt date", modifiedAt, result.getModifiedAt());
+            assertEquals(modifiedAt, result.getModifiedAt(), "Wrong modifiedAt date");
         }
     }
 
@@ -189,12 +199,12 @@ public class FileSystemRepositoryTest {
         repo.save(folder, changes, ChangesetType.FULL);
         for (String name : fileNames) {
             FileData result = repo.check(name);
-            assertEquals("Wrong file length", text.length(), result.getSize());
+            assertEquals(text.length(), result.getSize(), "Wrong file length");
             assertRead(repo, name, text);
-            assertEquals("Wrong file name", name, result.getName());
+            assertEquals(name, result.getName(), "Wrong file name");
 
             if (modifiedAt != null) {
-                assertEquals("Wrong modifiedAt date", modifiedAt, result.getModifiedAt());
+                assertEquals(modifiedAt, result.getModifiedAt(), "Wrong modifiedAt date");
             }
         }
     }
@@ -208,9 +218,9 @@ public class FileSystemRepositoryTest {
             FileData data = new FileData();
             data.setName(name);
             FileData result = repo.save(data, inputStream);
-            assertEquals("Wrong file length", text.length(), result.getSize());
+            assertEquals(text.length(), result.getSize(), "Wrong file length");
             assertRead(repo, name, text);
-            assertEquals("Wrong file name", name, result.getName());
+            assertEquals(name, result.getName(), "Wrong file name");
         }
     }
 

@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.icegreen</groupId>
-            <artifactId>greenmail-junit4</artifactId>
+            <artifactId>greenmail-junit5</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,9 +1,12 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;

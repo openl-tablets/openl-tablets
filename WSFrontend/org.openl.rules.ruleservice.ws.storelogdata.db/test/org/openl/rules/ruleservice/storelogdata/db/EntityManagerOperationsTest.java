@@ -1,25 +1,26 @@
 package org.openl.rules.ruleservice.storelogdata.db;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+
 import javax.persistence.PersistenceException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.Strict.class)
+@ExtendWith(MockitoExtension.class)
 public class EntityManagerOperationsTest {
 
     @InjectMocks
@@ -37,7 +38,7 @@ public class EntityManagerOperationsTest {
     @Mock
     private Transaction transaction;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         when(hibernateSessionFactoryBuilder.buildSessionFactory(any())).thenReturn(sessionFactory);
         when(sessionFactory.openSession()).thenReturn(session);

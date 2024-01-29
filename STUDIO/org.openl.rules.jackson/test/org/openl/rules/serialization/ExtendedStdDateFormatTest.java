@@ -1,7 +1,9 @@
 package org.openl.rules.serialization;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,14 +11,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ExtendedStdDateFormatTest {
 
     private ExtendedStdDateFormat df;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         df = new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     }
@@ -58,10 +60,12 @@ public class ExtendedStdDateFormatTest {
         assertEquals(expected, actual);
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseException() throws ParseException {
-        df.parse("asasas");
-        fail("Oooops...");
+        assertThrows(ParseException.class, () -> {
+            df.parse("asasas");
+            fail("Oooops...");
+        });
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour, int minute, int seconds) {

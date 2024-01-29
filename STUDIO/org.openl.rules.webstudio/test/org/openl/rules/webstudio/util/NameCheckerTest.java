@@ -1,9 +1,13 @@
 package org.openl.rules.webstudio.util;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class NameCheckerTest extends TestCase {
+import org.junit.jupiter.api.Test;
 
+public class NameCheckerTest {
+
+    @Test
     public void testCheckNameBad() {
         final String[] badNames = { "\\f",
                 "f/g",
@@ -33,6 +37,7 @@ public class NameCheckerTest extends TestCase {
         }
     }
 
+    @Test
     public void testCheckNameOk() {
         final String[] okNames = { "a-b", "1,2,3", "hello world", "PublicClass$InnerClass" };
 

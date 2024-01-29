@@ -1,10 +1,12 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -19,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -113,20 +116,24 @@ public class ProjectDescriptorManagerTest {
         }
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testReadDescriptor2() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        manager.readDescriptor("test-resources/descriptor/rules2.xml");
+        assertThrows(ValidationException.class, () -> {
+            ProjectDescriptorManager manager = new ProjectDescriptorManager();
+            manager.readDescriptor("test-resources/descriptor/rules2.xml");
+        });
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void zipArchive_testReadDescriptor2() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
-        }
+        assertThrows(ValidationException.class, () -> {
+            try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
+                new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
+            }
+        });
     }
 
-    @Test()
+    @Test
     public void testReadDescriptor3() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
@@ -134,7 +141,7 @@ public class ProjectDescriptorManagerTest {
         assertTrue(modules.isEmpty());
     }
 
-    @Test()
+    @Test
     public void zipArchive_testReadDescriptor3() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
@@ -253,7 +260,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(expected, dest.toString());
     }
 
-    @Test()
+    @Test
     public void testWriteDescriptor2() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");

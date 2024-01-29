@@ -1,17 +1,22 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.validation.BindingResult;
+
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.InternalPasswordModel;
 import org.openl.rules.rest.model.UserCreateModel;
@@ -21,14 +26,8 @@ import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.validation.BindingResult;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
@@ -44,7 +43,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @After
+    @AfterEach
     public void reset_mocks() {
         Mockito.reset(userManagementService, passwordEncoder, currentUserInfo);
     }

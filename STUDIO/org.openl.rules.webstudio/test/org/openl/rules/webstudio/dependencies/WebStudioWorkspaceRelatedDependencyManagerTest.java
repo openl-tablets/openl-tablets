@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.dependencies;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;
@@ -9,8 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
@@ -148,6 +151,6 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
         }
         countDownLatch.await();
         countDownLatchLambda.await();
-        Assert.assertEquals("Unexpected number of successfully compilations", count.get(), count1.get());
+        assertEquals(count.get(), count1.get(), "Unexpected number of successfully compilations");
     }
 }

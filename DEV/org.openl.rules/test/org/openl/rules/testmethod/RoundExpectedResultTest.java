@@ -1,10 +1,19 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.*;
 
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -58,7 +67,7 @@ public class RoundExpectedResultTest {
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
-        assertFalse("There are compilation errors in test", compiledOpenClass.hasErrors());
+        assertFalse(compiledOpenClass.hasErrors(), "There are compilation errors in test");
 
         IOpenClass openClass = compiledOpenClass.getOpenClass();
         Object target = openClass.newInstance(env);
@@ -70,14 +79,14 @@ public class RoundExpectedResultTest {
                 @SuppressWarnings("unchecked")
                 TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
                 if (successfulTests.contains(name)) {
-                    assertEquals("Test '" + name + "' must be successful", 0, res.getNumberOfFailures());
+                    assertEquals(0, res.getNumberOfFailures(), "Test '" + name + "' must be successful");
                 } else if (failedTests.contains(name)) {
-                    assertEquals("Test '" + name + "' must fail completely",
-                        res.getNumberOfTestUnits(),
-                        res.getNumberOfFailures());
+                    assertEquals(res.getNumberOfTestUnits(),
+                        res.getNumberOfFailures(),
+                        "Test '" + name + "' must fail completely");
                 } else {
                     Collection<Integer> successfulRows = partialSuccessTests.get(name);
-                    assertNotNull("Expectation of test '" + name + "' not described.", successfulRows);
+                    assertNotNull(successfulRows, "Expectation of test '" + name + "' not described.");
                     List<ITestUnit> testUnits = res.getTestUnits();
                     for (int i = 0; i < testUnits.size(); i++) {
                         if (successfulRows.contains(i)) {

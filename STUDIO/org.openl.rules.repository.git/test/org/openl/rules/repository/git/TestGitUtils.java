@@ -1,5 +1,8 @@
 package org.openl.rules.repository.git;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,8 +13,6 @@ import java.util.List;
 
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
-
-import static org.junit.Assert.assertTrue;
 
 final class TestGitUtils {
     private TestGitUtils() {
@@ -57,6 +58,6 @@ final class TestGitUtils {
             }
         }
 
-        assertTrue("Files list does not contain the file '" + fileName + "'", contains);
+        assertTrue(contains, "Files list does not contain the file '" + fileName + "'");
     }
 }

@@ -1,14 +1,17 @@
 package org.openl.engine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Calendar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -181,20 +184,22 @@ public class ExecutionModeTest {
         assertNull(runMethod);
     }
 
-    @Test(expected = InvocationTargetException.class)
+    @Test
     public void testRuntimeErrors() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/dt/RuntimeErrorTest.xls");
-        engineFactory.setExecutionMode(true);
+        assertThrows(InvocationTargetException.class, () -> {
+            RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/dt/RuntimeErrorTest.xls");
+            engineFactory.setExecutionMode(true);
 
-        IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod methodWithError = moduleOpenClass.getMethod("npe",
-            new IOpenClass[] { JavaOpenClass.getOpenClass(Integer.class) });
-        assertNotNull(methodWithError);
+            IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
+            IOpenMethod methodWithError = moduleOpenClass.getMethod("npe",
+                new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
+            assertNotNull(methodWithError);
 
-        Class<?> interfaceClass = engineFactory.getInterfaceClass();
-        Method method = interfaceClass.getMethod("npe", Integer.class);
-        assertNotNull(method);
-        Object instance = engineFactory.newInstance();
-        method.invoke(instance, new Object[] { null });
+            Class<?> interfaceClass = engineFactory.getInterfaceClass();
+            Method method = interfaceClass.getMethod("npe", Integer.class);
+            assertNotNull(method);
+            Object instance = engineFactory.newInstance();
+            method.invoke(instance, new Object[]{null});
+        });
     }
 }

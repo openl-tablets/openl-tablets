@@ -1,19 +1,17 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.nio.file.Paths;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
 
     @Autowired

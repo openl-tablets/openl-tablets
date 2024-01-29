@@ -1,37 +1,36 @@
 package org.openl.rules.rest.resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Vladyslav Pikus
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Base64ProjectConverterTest.TestConfig.class)
+@SpringJUnitConfig(classes = Base64ProjectConverterTest.TestConfig.class)
 public class Base64ProjectConverterTest {
 
     @Autowired
@@ -43,7 +42,7 @@ public class Base64ProjectConverterTest {
     @Autowired
     private UserWorkspace userWorkspace;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Mockito.reset(designRepositoryAclService, userWorkspace);
     }

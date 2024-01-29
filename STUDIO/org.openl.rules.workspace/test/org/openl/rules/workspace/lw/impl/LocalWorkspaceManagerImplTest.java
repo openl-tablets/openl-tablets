@@ -1,26 +1,29 @@
 package org.openl.rules.workspace.lw.impl;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
+
+import java.io.File;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
 public class LocalWorkspaceManagerImplTest {
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    public File tempFolder;
     private LocalWorkspaceManagerImpl manager;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         manager = new LocalWorkspaceManagerImpl();
-        manager.setWorkspaceHome(tempFolder.getRoot().getAbsolutePath());
+        manager.setWorkspaceHome(tempFolder.getAbsolutePath());
         manager.init();
     }
 

@@ -1,32 +1,31 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.repository.api.BranchRepository;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Vladyslav Pikus
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
 
     private NewBranchValidator validator;
     private BranchRepository branchRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         branchRepository = mock(BranchRepository.class);
         when(branchRepository.isValidBranchName(any())).thenReturn(true);

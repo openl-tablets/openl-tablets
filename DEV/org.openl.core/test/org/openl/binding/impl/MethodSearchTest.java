@@ -3,7 +3,8 @@ package org.openl.binding.impl;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.exception.AmbiguousMethodException;
 
 public class MethodSearchTest extends AbstractMethodSearchTest {

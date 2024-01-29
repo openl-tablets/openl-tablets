@@ -6,26 +6,19 @@
 
 package org.openl.util.text;
 
-import org.junit.Assert;
-import org.openl.grammar.JavaCC30Position;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
+import org.openl.grammar.JavaCC30Position;
 
 /**
  * @author snshor
  *
  */
-public class TextIntervalTest extends TestCase {
+public class TextIntervalTest {
 
-    /**
-     * Constructor for TextIntervalTest.
-     *
-     * @param name
-     */
-    public TextIntervalTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testJavaCC30Position() {
         String text = "abc\r\nedf\r\n";
 
@@ -35,7 +28,7 @@ public class TextIntervalTest extends TestCase {
 
         int abspos = pos.getAbsolutePosition(ti);
 
-        Assert.assertEquals(0, abspos);
+        assertEquals(0, abspos);
 
     }
 

@@ -1,9 +1,10 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class BooleanConditionsTest {
@@ -11,7 +12,7 @@ public class BooleanConditionsTest {
     private static final String SRC = "test/rules/dt/BooleanConditions.xlsx";
     private ITestI instance;
 
-    @Before
+    @BeforeEach
     public void init() {
         instance = TestUtils.create(SRC, ITestI.class);
     }

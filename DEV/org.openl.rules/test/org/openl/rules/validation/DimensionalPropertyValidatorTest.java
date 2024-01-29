@@ -1,11 +1,14 @@
 package org.openl.rules.validation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -64,12 +67,12 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello");
-        Assert.assertEquals(2, methods.size());
+        assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
-            Assert.assertEquals(1, messages.size());
-            Assert.assertEquals(
+            assertEquals(1, messages.size());
+            assertEquals(
                 "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, BY, DZ})",
                 messages.get(0).getSummary());
         }
@@ -80,12 +83,12 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello2");
-        Assert.assertEquals(2, methods.size());
+        assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
-            Assert.assertEquals(1, messages.size());
-            Assert.assertEquals(
+            assertEquals(1, messages.size());
+            assertEquals(
                 "Ambiguous definition of properties values. Details: (country={AL, AR, DZ}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
                 messages.get(0).getSummary());
         }
@@ -96,15 +99,15 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello3");
-        Assert.assertEquals(3, methods.size());
+        assertEquals(3, methods.size());
         for (IOpenMethod method : methods) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             if (props.getState().length == 1 && props.getCountry().length == 1) {
-                Assert.assertEquals(0, messages.size());
+                assertEquals(0, messages.size());
             } else {
-                Assert.assertEquals(1, messages.size());
+                assertEquals(1, messages.size());
             }
         }
     }

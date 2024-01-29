@@ -1,10 +1,12 @@
 package org.openl.rules.overload;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.Calendar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;

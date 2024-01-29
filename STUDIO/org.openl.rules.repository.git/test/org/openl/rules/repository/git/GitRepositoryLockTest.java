@@ -1,20 +1,23 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.jgit.errors.LockFailedException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -27,14 +30,14 @@ public class GitRepositoryLockTest {
     private Path repoRoot;
     private GitRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl");
         repoRoot = root.resolve("design-repository");
         repo = createRepository(repoRoot);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();
@@ -58,9 +61,9 @@ public class GitRepositoryLockTest {
             while (cause.getCause() != null) {
                 cause = cause.getCause();
             }
-            assertTrue("LockFailedException expected", cause instanceof LockFailedException);
+            assertTrue(cause instanceof LockFailedException, "LockFailedException expected");
         }
-        assertTrue("Index lock file mustn't be removed", Files.exists(indexLock));
+        assertTrue(Files.exists(indexLock), "Index lock file mustn't be removed");
     }
 
     private static void createCommitAndCheck(GitRepository repo, String path, String text) throws IOException {
@@ -82,13 +85,13 @@ public class GitRepositoryLockTest {
         repo.close();
         Path indexLock = createIndexLock();
         repo = createRepository(repoRoot);
-        assertFalse("Index lock file must be removed", Files.exists(indexLock));
+        assertFalse(Files.exists(indexLock), "Index lock file must be removed");
     }
 
     private Path createIndexLock() throws IOException {
         Path lockFile = repoRoot.resolve(".git/index.lock");
         Files.createFile(lockFile);
-        assertTrue("Index lock file must be created!", Files.exists(lockFile));
+        assertTrue(Files.exists(lockFile), "Index lock file must be created!");
         return lockFile;
     }
 

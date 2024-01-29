@@ -1,9 +1,10 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class AutoCastReturnTypeTest {
@@ -11,7 +12,7 @@ public class AutoCastReturnTypeTest {
     private static final String SRC = "test/rules/binding/AutoCastReturnTypeMethodsTest.xlsx";
     private static Object instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create(SRC);
     }

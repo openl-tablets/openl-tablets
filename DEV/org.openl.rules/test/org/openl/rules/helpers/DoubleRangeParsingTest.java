@@ -1,13 +1,15 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.math.BigDecimal;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 /**
@@ -34,7 +36,7 @@ public class DoubleRangeParsingTest {
     private void checkWrong(String x) {
         try {
             new DoubleRange(x);
-            Assert.fail();
+            fail();
         } catch (Exception ignored) {
         }
     }

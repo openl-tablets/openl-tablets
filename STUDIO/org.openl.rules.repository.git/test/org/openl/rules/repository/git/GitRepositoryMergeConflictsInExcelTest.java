@@ -1,11 +1,13 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -35,11 +37,12 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -61,7 +64,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private File root;
     private GitRepository repo;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() throws IOException, GitAPIException {
         template = Files.createTempDirectory("openl-merge-test-template").toFile();
         // Initialize remote repository
@@ -80,12 +83,12 @@ public class GitRepositoryMergeConflictsInExcelTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUp() throws IOException {
         FileUtils.delete(template);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl-merge-test").toFile();
 
@@ -96,7 +99,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
         repo = createRepository(remote, local);
     }
 
-    @After
+    @AfterEach
     public void reset() throws IOException {
         try {
             repo.close();
@@ -264,14 +267,14 @@ public class GitRepositoryMergeConflictsInExcelTest {
             List<DiffEntry> diffs = getDiffs(git, mergeCommit, theirCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
-                assertTrue("File must be modified", expectedModifiedFiles.contains(diffEntry.getNewPath()));
+                assertTrue(expectedModifiedFiles.contains(diffEntry.getNewPath()), "File must be modified");
             }
 
             RevCommit ourCommit = repository.parseCommit(repository.resolve(testCaseData.ourRevision));
             diffs = getDiffs(git, mergeCommit, ourCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
-                assertTrue("File must be modified", expectedModifiedFiles.contains(diffEntry.getNewPath()));
+                assertTrue(expectedModifiedFiles.contains(diffEntry.getNewPath()), "File must be modified");
             }
         }
 

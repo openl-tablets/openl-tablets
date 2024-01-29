@@ -1,12 +1,13 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HttpDataTest {
 
@@ -24,14 +25,14 @@ public class HttpDataTest {
             undefined.assertTo(clHeader);
             fail("Non reachable");
         } catch (AssertionError er) {
-            assertEquals("Content-Length expected:<14> but was:<null>", er.getMessage());
+            assertEquals("Content-Length ==> expected: <14> but was: <null>", er.getMessage());
         }
 
         try {
             undefined.assertTo(chuncked);
             fail("Non reachable");
         } catch (AssertionError er) {
-            assertEquals("Transfer-Encoding expected:<chunked> but was:<null>", er.getMessage());
+            assertEquals("Transfer-Encoding ==> expected: <chunked> but was: <null>", er.getMessage());
         }
     }
 

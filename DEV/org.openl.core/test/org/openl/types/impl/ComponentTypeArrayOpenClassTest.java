@@ -1,11 +1,12 @@
 package org.openl.types.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.generated.packA.MyType;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -16,7 +17,7 @@ public class ComponentTypeArrayOpenClassTest {
     private IOpenClass from;
     private IOpenClass to;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         from = new ComponentTypeArrayOpenClass(new JavaOpenClass(MyType.class));
     }

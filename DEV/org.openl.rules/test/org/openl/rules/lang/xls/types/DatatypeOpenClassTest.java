@@ -1,10 +1,11 @@
 package org.openl.rules.lang.xls.types;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.types.IOpenClass;
@@ -33,7 +34,7 @@ public class DatatypeOpenClassTest {
         return datatypeOpenClass;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws ClassNotFoundException {
         from = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.packA"));
     }

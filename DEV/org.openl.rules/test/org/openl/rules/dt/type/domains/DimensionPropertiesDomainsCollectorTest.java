@@ -1,12 +1,13 @@
 package org.openl.rules.dt.type.domains;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

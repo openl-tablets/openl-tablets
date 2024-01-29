@@ -1,12 +1,17 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.File;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
@@ -15,14 +20,21 @@ import org.openl.rules.project.instantiation.variation.VariationInstantiationStr
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsFactory;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test-resources/dependencies/test4/module/dependency-module1";
     private final ProjectResolver projectResolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy instantiationStrategy;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
         ProjectDescriptor project = projectResolver.resolve(tut4Folder);

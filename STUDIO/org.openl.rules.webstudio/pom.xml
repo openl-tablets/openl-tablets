@@ -189,11 +189,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.security.acl</artifactId>
         </dependency>
@@ -277,7 +272,7 @@
         </dependency>
         <dependency>
             <groupId>com.icegreen</groupId>
-            <artifactId>greenmail-junit4</artifactId>
+            <artifactId>greenmail-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Logging -->

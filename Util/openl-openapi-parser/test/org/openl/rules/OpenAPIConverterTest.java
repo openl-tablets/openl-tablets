@@ -1,19 +1,21 @@
 package org.openl.rules;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -25,14 +27,14 @@ import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
-@Ignore
+@Disabled
 public class OpenAPIConverterTest {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
 
     private OpenAPIModelConverter converter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         converter = new OpenAPIScaffoldingConverter();
     }

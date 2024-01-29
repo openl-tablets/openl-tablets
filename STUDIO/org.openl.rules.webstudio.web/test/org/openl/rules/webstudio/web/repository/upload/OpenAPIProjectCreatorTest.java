@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,9 +28,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.richfaces.model.UploadedFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
@@ -47,9 +52,6 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
-import org.richfaces.model.UploadedFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenAPIProjectCreatorTest {
 
@@ -70,7 +72,7 @@ public class OpenAPIProjectCreatorTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -78,13 +80,13 @@ public class OpenAPIProjectCreatorTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tempRepo = new FileSystemRepository();
         tempRepo.setUri(OPENAPI_OUT);
@@ -108,7 +110,7 @@ public class OpenAPIProjectCreatorTest {
 
     @Test
     public void testAll() {
-        assertFalse("Test is failed.", run(DIR));
+        assertFalse(run(DIR), "Test is failed.");
     }
 
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,

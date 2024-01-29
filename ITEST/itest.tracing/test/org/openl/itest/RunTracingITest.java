@@ -1,9 +1,11 @@
 package org.openl.itest;
 
+import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErrAndOut;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.time.Duration;
 import java.util.Collections;
@@ -31,12 +33,10 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -49,7 +49,6 @@ import org.openl.itest.core.JettyServer;
 public class RunTracingITest {
 
     @Rule
-    public final SystemErrRule console = new SystemErrRule().enableLog();
 
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
 
@@ -59,7 +58,7 @@ public class RunTracingITest {
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
@@ -68,7 +67,7 @@ public class RunTracingITest {
         client = server.client();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
         try {
@@ -78,38 +77,35 @@ public class RunTracingITest {
         }
     }
 
-    @Before
-    public void prepare() {
-        console.clearLog();
+    @Test
+    public void testKafkaServiceSpan() throws Exception {
+        var log = tapSystemErrAndOut(() -> {
+            try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
+                consumer.subscribe(Collections.singletonList("hello-out-topic"));
+                producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
+
+                checkKafkaResponse(consumer, (response) -> {
+                    assertEquals("Good Morning", response.value());
+                });
+                consumer.unsubscribe();
+            }
+        });
+
+        checkOpenLMethodsSpans(log, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
     }
 
     @Test
-    public void testKafkaServiceSpan() throws InterruptedException {
-        try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
-            consumer.subscribe(Collections.singletonList("hello-out-topic"));
-            producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
+    public void testRESTServiceSpans() throws Exception {
+        var log = tapSystemErrAndOut(() -> client.send("simple1.tracing.rest.post"));
 
-            checkKafkaResponse(consumer, (response) -> {
-                assertEquals("Good Morning", response.value());
-            });
-            consumer.unsubscribe();
-        }
-
-        checkOpenLMethodsSpans("Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
+        checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.http-url-connection");
     }
 
-    @Test
-    public void testRESTServiceSpans() throws InterruptedException {
-        client.send("simple1.tracing.rest.post");
-
-        checkOpenLMethodsSpans("Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.http-url-connection");
-    }
-
-    private void checkOpenLMethodsSpans(String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) throws InterruptedException {
+    private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) throws InterruptedException {
         Thread.sleep(100); // Waiting logs due async deferred output
         ObjectMapper objectMapper = new ObjectMapper();
         List<ObjectNode> spanJsons;
-        var allSpans = console.getLog().lines()
+        var allSpans = log.lines()
                 .filter(line -> line.contains("OtlpJsonLoggingSpanExporter"))
                 .map(s -> s.substring(s.indexOf('{')))
                 .flatMap(s -> {

@@ -1,16 +1,17 @@
 package org.openl.rules.repository.azure;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.io.IOException;
 
-import org.junit.Test;
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 
 public class AzureYamlMapperFactoryTest {
 

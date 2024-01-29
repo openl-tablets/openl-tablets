@@ -1,7 +1,8 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,16 +10,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.testcontainers.containers.MinIOContainer;
-
 import io.minio.BucketExistsArgs;
 import io.minio.GetBucketVersioningArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.messages.VersioningConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.testcontainers.containers.MinIOContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 public class AbstractMinioTest {
@@ -36,7 +36,7 @@ public class AbstractMinioTest {
     protected Map<String, String> config;
     protected String bucketName;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() {
         MINIO_CONTAINER.start();
 
@@ -47,12 +47,12 @@ public class AbstractMinioTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void destroy() {
         MINIO_CONTAINER.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         bucketName = "openl-test-" + System.currentTimeMillis();
         config = new HashMap<>();

@@ -1,8 +1,12 @@
 package org.openl.rules.datatype;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.helpers.IntRange;
 
@@ -52,11 +56,13 @@ public class AliasDatatypeTest {
         assertEquals(1, res);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void test2() {
+        assertThrows(RuntimeException.class, () -> {
 
-        ITest instance = TestUtils.create(SRC, ITest.class);
-        instance.test1("Something that does not belong to domain");
+            ITest instance = TestUtils.create(SRC, ITest.class);
+            instance.test1("Something that does not belong to domain");
+        });
     }
 
     @Test
@@ -75,11 +81,13 @@ public class AliasDatatypeTest {
         assertEquals(3, res);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test4() {
+        assertThrows(Exception.class, () -> {
 
-        ITest instance = TestUtils.create(SRC, ITest.class);
-        instance.test3(new IntRange(1, 3));
+            ITest instance = TestUtils.create(SRC, ITest.class);
+            instance.test3(new IntRange(1, 3));
+        });
     }
 
     @Test
@@ -93,11 +101,13 @@ public class AliasDatatypeTest {
         assertEquals(0, res);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void test5() {
+        assertThrows(RuntimeException.class, () -> {
 
-        ITest instance = TestUtils.create(SRC, ITest.class);
-        instance.method1();
+            ITest instance = TestUtils.create(SRC, ITest.class);
+            instance.method1();
+        });
     }
 
     @Test

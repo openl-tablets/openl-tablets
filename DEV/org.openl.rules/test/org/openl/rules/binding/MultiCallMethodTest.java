@@ -1,9 +1,9 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import org.openl.rules.TestUtils;
 
@@ -13,7 +13,7 @@ public class MultiCallMethodTest {
 
     private static ArrayMethodsInterf instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create(SRC, ArrayMethodsInterf.class);
     }

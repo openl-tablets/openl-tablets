@@ -1,12 +1,12 @@
 package org.openl.spring.env;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.util.HashMap;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySourcesPropertyResolver;
@@ -15,14 +15,14 @@ public class RefPropertySourceTest {
     @Test
     public void noSources() {
         RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
-        Assert.assertNull(ref.getProperty(""));
-        Assert.assertNull(ref.getProperty("."));
-        Assert.assertNull(ref.getProperty(".b"));
-        Assert.assertNull(ref.getProperty("b"));
-        Assert.assertNull(ref.getProperty("b."));
-        Assert.assertNull(ref.getProperty("b.b"));
-        Assert.assertNull(ref.getProperty(".$ref"));
-        Assert.assertNull(ref.getProperty("b.$ref"));
+        assertNull(ref.getProperty(""));
+        assertNull(ref.getProperty("."));
+        assertNull(ref.getProperty(".b"));
+        assertNull(ref.getProperty("b"));
+        assertNull(ref.getProperty("b."));
+        assertNull(ref.getProperty("b.b"));
+        assertNull(ref.getProperty(".$ref"));
+        assertNull(ref.getProperty("b.$ref"));
     }
 
     @Test
@@ -37,17 +37,17 @@ public class RefPropertySourceTest {
         }));
         RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
-        Assert.assertNull(ref.getProperty(""));
-        Assert.assertNull(ref.getProperty("."));
-        Assert.assertNull(ref.getProperty(".b"));
-        Assert.assertNull(ref.getProperty("b"));
-        Assert.assertNull(ref.getProperty("b."));
-        Assert.assertNull(ref.getProperty("b.b"));
-        Assert.assertNull(ref.getProperty(".$ref"));
-        Assert.assertNull(ref.getProperty("b.$ref"));
-        Assert.assertNull(ref.getProperty("abc"));
-        Assert.assertNull(ref.getProperty("abc.def"));
-        Assert.assertNull(ref.getProperty(".ghi"));
+        assertNull(ref.getProperty(""));
+        assertNull(ref.getProperty("."));
+        assertNull(ref.getProperty(".b"));
+        assertNull(ref.getProperty("b"));
+        assertNull(ref.getProperty("b."));
+        assertNull(ref.getProperty("b.b"));
+        assertNull(ref.getProperty(".$ref"));
+        assertNull(ref.getProperty("b.$ref"));
+        assertNull(ref.getProperty("abc"));
+        assertNull(ref.getProperty("abc.def"));
+        assertNull(ref.getProperty(".ghi"));
     }
 
     @Test
@@ -76,20 +76,20 @@ public class RefPropertySourceTest {
         assertEquals("A", ref.getProperty("xyz"));
         assertEquals("B", ref.getProperty("xyz.def"));
         assertEquals("C", ref.getProperty("xyz.gh.i"));
-        Assert.assertNull(ref.getProperty("xyz.ghz"));
-        Assert.assertNull(ref.getProperty("xyz.yvw"));
+        assertNull(ref.getProperty("xyz.ghz"));
+        assertNull(ref.getProperty("xyz.yvw"));
         assertEquals("1", ref.getProperty("xyz.yvw.x"));
         assertEquals("2", ref.getProperty("xyz.yvw.y"));
-        Assert.assertNull(ref.getProperty("xyz.yvw.z"));
+        assertNull(ref.getProperty("xyz.yvw.z"));
 
         assertEquals("1", ref.getProperty("klq.x"));
         assertEquals("2", ref.getProperty("klq.y"));
-        Assert.assertNull(ref.getProperty("klq.zz"));
+        assertNull(ref.getProperty("klq.zz"));
 
-        Assert.assertNull(ref.getProperty(".$ref"));
-        Assert.assertNull(ref.getProperty("b.$ref"));
-        Assert.assertNull(ref.getProperty("abc"));
-        Assert.assertNull(ref.getProperty("abc.def"));
+        assertNull(ref.getProperty(".$ref"));
+        assertNull(ref.getProperty("b.$ref"));
+        assertNull(ref.getProperty("abc"));
+        assertNull(ref.getProperty("abc.def"));
     }
 
     @Test

@@ -1,10 +1,9 @@
 package org.openl.itest;
+import okio.Path;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-
-import okio.Path;
 
 public class RunMinioTest extends AbstractMinioTest {
 

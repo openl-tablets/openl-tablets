@@ -1,34 +1,34 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/RulesPublisherTest",
-        "ruleservice.isProvideRuntimeContext=false",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/RulesPublisherTest",
+		"ruleservice.isProvideRuntimeContext=false",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RulesPublisherTest {
     private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
@@ -69,7 +69,7 @@ public class RulesPublisherTest {
         publisher.undeploy(TUTORIAL4);
         try {
             frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE);
-            Assert.fail();
+            fail();
         } catch (MethodInvocationException ignored) {
         }
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
@@ -83,7 +83,7 @@ public class RulesPublisherTest {
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertEquals(2, frontend.getServiceNames().size());
         for (OpenLService service : serviceManager.getServices()) {
-            assertNull("OpenLService must be not compiled for java publisher if not used before.", service.getCompiledOpenClass());
+            assertNull(service.getCompiledOpenClass(), "OpenLService must be not compiled for java publisher if not used before.");
         }
     }
 
@@ -96,25 +96,27 @@ public class RulesPublisherTest {
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
 
-    @Test(expected = MethodInvocationException.class)
+    @Test
     public void testMethodBeforeInterceptors() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        int count = getCount(serviceManager);
-        final int executedTimes = 10;
-        for (int i = 0; i < executedTimes; i++) {
-            assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
-        }
-        int c = getCount(serviceManager);
-        assertEquals(executedTimes, c - count);
-        Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
-            .getServiceClass()
-            .getClassLoader()
-            .loadClass(DRIVER)
-            .getDeclaredConstructor().newInstance();
-        frontend.execute(TUTORIAL4, "driverAgeType", driver);
+        assertThrows(MethodInvocationException.class, () -> {
+            assertNotNull(applicationContext);
+            ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
+            assertNotNull(serviceManager);
+            RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
+            int count = getCount(serviceManager);
+            final int executedTimes = 10;
+            for (int i = 0;i < executedTimes;i++) {
+                assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
+            }
+            int c = getCount(serviceManager);
+            assertEquals(executedTimes, c - count);
+            Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
+                .getServiceClass()
+                .getClassLoader()
+                .loadClass(DRIVER)
+                .getDeclaredConstructor().newInstance();
+            frontend.execute(TUTORIAL4, "driverAgeType", driver);
+        });
     }
 
     @Test

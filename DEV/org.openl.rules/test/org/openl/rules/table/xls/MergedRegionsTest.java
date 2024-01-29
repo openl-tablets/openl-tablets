@@ -1,6 +1,9 @@
 package org.openl.rules.table.xls;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +14,20 @@ import java.util.regex.Pattern;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridTool;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridRegion.Tool;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.URLSourceCodeModule;
 

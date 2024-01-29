@@ -1,7 +1,8 @@
 package org.openl.rules.repository.folder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -25,7 +27,7 @@ public class CombinedFileChangesTest {
     private File root;
     private FileSystemRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         root = new File("target/test-file-repository/");
         repo = new FileSystemRepository();
@@ -33,7 +35,7 @@ public class CombinedFileChangesTest {
         repo.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         FileUtils.deleteQuietly(root);
     }
@@ -79,13 +81,13 @@ public class CombinedFileChangesTest {
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
         try (var result = repo.read(name)) {
-            assertNotNull("The file is not found.", result);
+            assertNotNull(result, "The file is not found.");
             FileData data = result.getData();
-            assertNotNull("The file descriptor is missing.", data);
-            assertEquals("Wrong file name", name, data.getName());
+            assertNotNull(data, "The file descriptor is missing.");
+            assertEquals(name, data.getName(), "Wrong file name");
             InputStream stream = result.getStream();
             String text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-            assertEquals("Unexpected content in the file.", value, text);
+            assertEquals(value, text, "Unexpected content in the file.");
         }
     }
 

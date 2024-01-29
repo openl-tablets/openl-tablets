@@ -1,15 +1,44 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.*;
-import static org.openl.rules.util.Strings.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.openl.rules.util.Strings.concatenate;
+import static org.openl.rules.util.Strings.contains;
+import static org.openl.rules.util.Strings.containsAny;
+import static org.openl.rules.util.Strings.endsWith;
+import static org.openl.rules.util.Strings.format;
+import static org.openl.rules.util.Strings.isEmpty;
+import static org.openl.rules.util.Strings.isNotEmpty;
+import static org.openl.rules.util.Strings.isNumeric;
+import static org.openl.rules.util.Strings.length;
+import static org.openl.rules.util.Strings.like;
+import static org.openl.rules.util.Strings.lowerCase;
+import static org.openl.rules.util.Strings.removeEnd;
+import static org.openl.rules.util.Strings.removeStart;
+import static org.openl.rules.util.Strings.replace;
+import static org.openl.rules.util.Strings.startsWith;
+import static org.openl.rules.util.Strings.substring;
+import static org.openl.rules.util.Strings.textJoin;
+import static org.openl.rules.util.Strings.textSplit;
+import static org.openl.rules.util.Strings.toDouble;
+import static org.openl.rules.util.Strings.toInteger;
+import static org.openl.rules.util.Strings.toLocale;
+import static org.openl.rules.util.Strings.toNumber;
+import static org.openl.rules.util.Strings.toString;
+import static org.openl.rules.util.Strings.trim;
+import static org.openl.rules.util.Strings.upperCase;
+
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.Locale;
+import java.util.TimeZone;
 
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringsTest {
 

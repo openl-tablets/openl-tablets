@@ -1,15 +1,18 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -17,7 +20,6 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class ProjectVersionCacheMonitorTest {
 
@@ -27,7 +29,7 @@ public class ProjectVersionCacheMonitorTest {
     private ProjectVersionCacheManager projectVersionCacheManager;
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
@@ -40,7 +42,7 @@ public class ProjectVersionCacheMonitorTest {
         projectVersionCacheMonitor.setProjectVersionCacheManager(projectVersionCacheManager);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         if (repo != null) {
             repo.close();

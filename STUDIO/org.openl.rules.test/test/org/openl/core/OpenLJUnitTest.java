@@ -1,13 +1,15 @@
 package org.openl.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -72,10 +74,10 @@ public class OpenLJUnitTest {
                 var description = testCase.getDescription();
                 switch (description) {
                     case "pass":
-                        assertEquals(String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()), TestStatus.TR_OK, testCase.getResultStatus());
+                        assertEquals(TestStatus.TR_OK, testCase.getResultStatus(), String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()));
                         break;
                     case "fail":
-                        assertEquals(String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()), TestStatus.TR_NEQ, testCase.getResultStatus());
+                        assertEquals(TestStatus.TR_NEQ, testCase.getResultStatus(), String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()));
                         break;
                     default:
                         fail(String.format("Unexpected '%s' description in the tests '%s'", description, testSuit.getName()));

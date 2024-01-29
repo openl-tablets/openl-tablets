@@ -1,13 +1,15 @@
 package org.openl.rules.operators;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openl.rules.TestUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.TestUtils;
 
 /**
  * Test remainder operator ('%') in rules
@@ -21,7 +23,7 @@ public class RemOperatorTest {
 
     private static RulesInterf instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create(SRC, RulesInterf.class);
     }

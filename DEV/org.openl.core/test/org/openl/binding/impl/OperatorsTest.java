@@ -1,11 +1,12 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class OperatorsTest {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

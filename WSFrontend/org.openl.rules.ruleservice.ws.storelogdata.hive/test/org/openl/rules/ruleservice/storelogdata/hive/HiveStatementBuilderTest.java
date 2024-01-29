@@ -1,10 +1,11 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class HiveStatementBuilderTest {
 
@@ -33,14 +34,18 @@ public class HiveStatementBuilderTest {
         assertTrue(insertStatement.startsWith("INSERT INTO TABLE SimpleEntity"));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void constructorTest_nullEntity() {
-        new HiveStatementBuilder(null);
+        assertThrows(NullPointerException.class, () -> {
+            new HiveStatementBuilder(null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void constructorTest_notAnnotated() {
-        new HiveStatementBuilder( NotAnnotatedEntity.class);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new HiveStatementBuilder( NotAnnotatedEntity.class);
+        });
     }
 
 }
