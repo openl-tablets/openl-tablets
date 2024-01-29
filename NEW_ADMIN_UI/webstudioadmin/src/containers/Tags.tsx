@@ -3,49 +3,89 @@ import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
-import { TagTypeList } from './tags/TagTypeList'
-import { TagType } from './tags/TagTypeCard'
-import { Tag } from './tags/TagList'
+import { Tag, TagTable, TagType } from './tags/TagTable'
 
 
 export const Tags: React.FC = () => {
     const { t } = useTranslation()
     const [ tagTypes, setTagTypes ] = useState<TagType[]>([])
+    const [ isLoading, setIsLoading ] = useState(false)
+    const [ newTagTypeName, setNewTagTypeName ] = useState('')
 
     const fetchTagTypes = async () => {
+        setIsLoading(true)
         const response = await apiCall('/admin/tag-config/types')
         setTagTypes(response)
+        setIsLoading(false)
+    }
+
+    const createTagType = async (tagTypeName: string) => {
+        const headers = new Headers()
+        headers.append('Content-Type', 'application/json')
+        setIsLoading(true)
+        await apiCall('/admin/tag-config/types', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                name: tagTypeName,
+                nullable: false,
+                extensible: false,
+            }),
+        })
+        setIsLoading(false)
     }
 
     const updateTagType = async (tagType: TagType) => {
         const headers = new Headers()
         headers.append('Content-Type', 'application/json')
-
-        await apiCall(`/admin/tag-config/types/${tagType.id}`, {
+        setIsLoading(true)
+        const result = await apiCall(`/admin/tag-config/types/${tagType.id}`, {
             method: 'PUT',
             headers,
             body: JSON.stringify(tagType),
         })
+        setIsLoading(false)
+        return result
     }
 
     const createTag = async (tagName: string, tagTypeId: number) => {
+        setIsLoading(true)
         await apiCall(`/admin/tag-config/types/${tagTypeId}/tags`, {
             method: 'POST',
             body: tagName,
         })
+        setIsLoading(false)
     }
 
     const updateTag = async (tag: Tag) => {
+        setIsLoading(true)
         await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
             method: 'PUT',
             body: tag.name,
         })
+        setIsLoading(false)
     }
 
     const deleteTag = async (tag: Tag) => {
+        setIsLoading(true)
         await apiCall(`/admin/tag-config/types/${tag.tagTypeId}/tags/${tag.id}`, {
             method: 'DELETE'
         })
+        setIsLoading(false)
+    }
+
+    const onCreateTagType = async () => {
+        if (newTagTypeName) {
+            await createTagType(newTagTypeName)
+            await fetchTagTypes()
+            setNewTagTypeName('')
+        }
+    }
+
+    const onUpdateTagType = async (tagType: TagType) => {
+        const result = await updateTagType(tagType)
+        await fetchTagTypes()
+        return result
     }
 
     const onCreateTag = async (tagName: string, tagTypeId: number) => {
@@ -69,7 +109,7 @@ export const Tags: React.FC = () => {
 
     return (
         <>
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
                 {t('tags:tag_types_and_values')}
             </Typography.Title>
             <Trans
@@ -93,8 +133,23 @@ export const Tags: React.FC = () => {
             <p>
                 {t('tags:tag_type_auto_save_notice')}
             </p>
-            <TagTypeList createTag={onCreateTag} deleteTag={onDeleteTag} tagTypes={tagTypes} updateTag={onUpdateTag} updateTagType={updateTagType} />
-            <Input name="tag" placeholder={t('tags:tag_input_placeholder')} style={{ width: 400 }} />
+            <TagTable
+                createTag={onCreateTag}
+                deleteTag={onDeleteTag}
+                isLoading={isLoading}
+                tagTypes={tagTypes}
+                updateTag={onUpdateTag}
+                updateTagType={onUpdateTagType}
+            />
+            <Input
+                name="tag-type"
+                onBlur={onCreateTagType}
+                onChange={(e) => setNewTagTypeName(e.target.value)}
+                onPressEnter={onCreateTagType}
+                placeholder={t('tags:tag_input_placeholder')}
+                style={{ width: 400 }}
+                value={newTagTypeName}
+            />
             <Divider />
             <Typography.Title level={4}>
                 {t('tags:tags_from_a_project_name')}

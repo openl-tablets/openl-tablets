@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Input, InputRef, Space, Tag as AntTag, TagType, Tooltip } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 
 export interface Tag {
     id: number;
@@ -19,7 +20,8 @@ interface TagListProps extends TagActions {
     tagTypeId: number;
 }
 
-export const TagList: React.FC<TagListProps> = ({ tags, tagTypeId, createTag, updateTag, deleteTag }) => {
+export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, createTag, updateTag, deleteTag }) => {
+    const { t } = useTranslation()
     const [ inputVisible, setInputVisible ] = useState(false)
     const [ inputValue, setInputValue ] = useState('')
     const [ editInputIndex, setEditInputIndex ] = useState(-1)
@@ -142,7 +144,7 @@ export const TagList: React.FC<TagListProps> = ({ tags, tagTypeId, createTag, up
                 />
             ) : (
                 <AntTag icon={<PlusOutlined />} onClick={showInput} style={tagPlusStyle}>
-                    New Tag
+                    {t('tags:add_tag')}
                 </AntTag>
             )}
         </Space>
