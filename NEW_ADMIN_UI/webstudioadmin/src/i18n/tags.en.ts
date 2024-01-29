@@ -6,6 +6,7 @@ i18next.addResourceBundle('en', 'tags', {
     add_tag: 'Add Tag',
     tags: 'Tags',
     tag_type: 'Tag Type',
+    actions: 'Actions',
     // Description
     tag_types_and_values: 'Tag Types and Values',
     tag_type_description: '<0>Tag type</0> is a category that includes tag values of the same group. For example, the Product tag type can include tags Auto, Life, and Home. <1>Proceed as follows:</1>',

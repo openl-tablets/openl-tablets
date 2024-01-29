@@ -106,7 +106,7 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
                 const tagElem = (
                     <AntTag
                         key={tag.id}
-                        closable={index !== 0}
+                        closable
                         onClose={() => handleClose(tag.id)}
                         style={{ userSelect: 'none' }}
                     >
