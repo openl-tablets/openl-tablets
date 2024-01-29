@@ -3,8 +3,9 @@ package org.openl.rules.webstudio.service;
 import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.security.Group;
 import org.springframework.security.core.GrantedAuthority;
+
+import org.openl.rules.security.Group;
 
 /**
  * External Groups service

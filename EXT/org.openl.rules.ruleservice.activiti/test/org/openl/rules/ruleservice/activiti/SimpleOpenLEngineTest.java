@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.activiti;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,9 +15,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
-		"ruleservice.instantiation.strategy.lazy = false",
-        "production-repository.uri=test-resources/datasource",
-		"production-repository.factory = repo-file"})
+    "ruleservice.instantiation.strategy.lazy = false",
+    "production-repository.uri=test-resources/datasource",
+    "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class SimpleOpenLEngineTest {
 

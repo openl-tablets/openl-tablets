@@ -1,17 +1,18 @@
 package org.openl.rules.webstudio.web.admin;
 
-import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
-import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.util.StringUtils;
+import java.util.List;
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
+import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.util.StringUtils;
 
 /**
  * Used in Install Wizard only.

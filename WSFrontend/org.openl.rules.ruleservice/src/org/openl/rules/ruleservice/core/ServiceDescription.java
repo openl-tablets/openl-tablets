@@ -1,6 +1,12 @@
 package org.openl.rules.ruleservice.core;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.jar.Manifest;
 
 import org.openl.rules.project.model.Module;

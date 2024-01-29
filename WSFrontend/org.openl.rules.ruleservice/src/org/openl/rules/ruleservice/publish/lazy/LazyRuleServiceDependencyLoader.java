@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
@@ -22,8 +25,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class LazyRuleServiceDependencyLoader implements IDependencyLoader {
 

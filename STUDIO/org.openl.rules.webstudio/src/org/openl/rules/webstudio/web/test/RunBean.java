@@ -2,8 +2,10 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.IOpenLTable;
@@ -14,8 +16,6 @@ import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.

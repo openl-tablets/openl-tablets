@@ -2,15 +2,24 @@ package org.openl.itest.cassandra;
 
 import java.time.ZonedDateTime;
 
-import org.openl.rules.ruleservice.kafka.KafkaHeaders;
-import org.openl.rules.ruleservice.storelogdata.annotation.*;
-import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
-
 import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
+import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.KafkaMessageHeader;
+import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
+import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.Request;
+import org.openl.rules.ruleservice.storelogdata.annotation.Response;
+import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
+import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
+import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
 
 @Entity
 @EntitySupport(HelloEntity1Operations.class)

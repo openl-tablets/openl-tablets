@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;

@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.dependencies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Map;

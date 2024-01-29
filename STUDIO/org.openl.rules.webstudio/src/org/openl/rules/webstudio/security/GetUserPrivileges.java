@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -15,7 +17,6 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Get all privileges for the given user.

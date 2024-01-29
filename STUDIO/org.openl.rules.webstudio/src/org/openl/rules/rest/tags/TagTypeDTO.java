@@ -2,11 +2,10 @@ package org.openl.rules.rest.tags;
 
 import java.util.List;
 
-import org.openl.rules.rest.model.GenericView;
-
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.rules.rest.model.GenericView;
 
 public class TagTypeDTO {
 

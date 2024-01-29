@@ -3,18 +3,18 @@ package org.openl.meta;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.meta.StringValue.StringValueAdapter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.ArrayTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)

@@ -13,7 +13,6 @@ import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
 import static org.openl.rules.testmethod.export.Styles.convertRGB;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

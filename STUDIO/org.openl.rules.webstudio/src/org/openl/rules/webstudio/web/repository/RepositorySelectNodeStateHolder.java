@@ -1,8 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 
 /**
  * Used for holding information about repository selected node.

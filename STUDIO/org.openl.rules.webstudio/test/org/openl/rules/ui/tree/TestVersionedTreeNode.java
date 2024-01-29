@@ -2,7 +2,6 @@ package org.openl.rules.ui.tree;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.util.HashMap;
 import java.util.Map;
 

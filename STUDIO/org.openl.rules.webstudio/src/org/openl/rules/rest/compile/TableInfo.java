@@ -3,6 +3,7 @@ package org.openl.rules.rest.compile;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
 public class TableInfo {

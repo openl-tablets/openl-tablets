@@ -1,19 +1,19 @@
 package org.openl.rules.project.model;
 
-import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.STRING_VALUE;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.STRING_VALUE;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

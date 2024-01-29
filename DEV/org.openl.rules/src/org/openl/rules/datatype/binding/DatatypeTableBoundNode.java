@@ -15,8 +15,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import javax.xml.bind.annotation.XmlTransient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -59,8 +61,6 @@ import org.openl.util.ClassUtils;
 import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.TableNameChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Bound node for datatype table component.

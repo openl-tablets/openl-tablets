@@ -1,8 +1,8 @@
 package org.openl.rules.rest.compile;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 public class CompileModuleInfo {
 

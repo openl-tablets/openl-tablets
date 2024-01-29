@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -32,7 +31,7 @@ import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
-@GroupSequence({ PropertyTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({PropertyTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class PropertyTableCreationWizard extends TableCreationWizard {
 
     private PropertiesBean propertiesManager;

@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
@@ -50,8 +53,6 @@ import org.openl.util.ParserUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SequentialXlsLoader {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);

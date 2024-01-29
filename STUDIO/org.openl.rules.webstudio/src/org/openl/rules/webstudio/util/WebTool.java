@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.util;
 
 import java.util.Map;
-
 import javax.servlet.ServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
+
 import org.openl.util.StringTool;
 
 /**

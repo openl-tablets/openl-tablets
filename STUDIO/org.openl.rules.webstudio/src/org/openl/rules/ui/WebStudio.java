@@ -1,5 +1,10 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +31,12 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
+import org.richfaces.event.FileUploadEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -87,16 +97,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings

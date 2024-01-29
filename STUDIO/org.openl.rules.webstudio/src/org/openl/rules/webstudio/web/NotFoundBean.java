@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web;
 
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
+
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @Service
 @RequestScope

@@ -6,6 +6,10 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
@@ -14,9 +18,6 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.util.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * LocalWorkspaceManager implementation.

@@ -20,6 +20,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.xml.bind.JAXBException;
+
+import com.rits.cloning.Cloner;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -32,12 +37,6 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.OS;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-
-import com.rits.cloning.Cloner;
-
-import javax.xml.bind.JAXBException;
 
 public class ProjectDescriptorManager {
 

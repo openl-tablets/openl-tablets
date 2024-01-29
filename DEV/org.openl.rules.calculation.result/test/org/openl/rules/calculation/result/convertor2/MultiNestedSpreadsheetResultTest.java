@@ -3,7 +3,6 @@ package org.openl.rules.calculation.result.convertor2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

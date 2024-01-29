@@ -3,7 +3,6 @@ package org.openl.rules.tableeditor.renderkit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;

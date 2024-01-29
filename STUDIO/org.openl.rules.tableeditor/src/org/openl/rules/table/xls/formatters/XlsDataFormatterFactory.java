@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.DataFormatter;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;

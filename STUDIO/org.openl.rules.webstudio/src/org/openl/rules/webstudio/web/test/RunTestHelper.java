@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
@@ -15,8 +18,6 @@ import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope

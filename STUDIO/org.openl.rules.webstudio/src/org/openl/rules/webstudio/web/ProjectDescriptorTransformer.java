@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -14,8 +17,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProjectDescriptorTransformer implements ResourceTransformer {
     private final Logger log = LoggerFactory.getLogger(ProjectDescriptorTransformer.class);

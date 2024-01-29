@@ -13,11 +13,12 @@ package org.openl.rules.calculation.result.convertor2;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.util.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {

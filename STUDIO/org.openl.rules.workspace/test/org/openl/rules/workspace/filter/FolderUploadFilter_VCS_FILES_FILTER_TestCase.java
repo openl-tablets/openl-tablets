@@ -2,7 +2,6 @@ package org.openl.rules.workspace.filter;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.util.Arrays;
 import java.util.Collections;
 

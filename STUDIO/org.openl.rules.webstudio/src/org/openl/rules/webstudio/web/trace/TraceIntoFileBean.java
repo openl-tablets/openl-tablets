@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.concurrent.TimeoutException;
-
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Request scope managed bean for Trace into File functionality.

@@ -2,9 +2,10 @@ package org.openl.rules.ruleservice.conf;
 
 import java.util.regex.Pattern;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.StringUtils;
 
 /**
  * The matcher provides ability to split deployments between several applications by deployment name

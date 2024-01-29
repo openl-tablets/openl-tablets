@@ -5,6 +5,9 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -23,8 +26,6 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.xls.RulesCompileContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Simple engine factory Requiring only source of rules and generates interface for it if service interface not defined.

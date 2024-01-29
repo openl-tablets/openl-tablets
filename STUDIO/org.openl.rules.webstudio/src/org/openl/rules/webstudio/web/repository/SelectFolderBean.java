@@ -5,18 +5,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.webstudio.filter.AllFilter;
-import org.openl.rules.webstudio.web.repository.tree.RepositoryFolderNode;
-import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.richfaces.model.SequenceRowKey;
 import org.richfaces.model.TreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.filter.AllFilter;
+import org.openl.rules.webstudio.web.repository.tree.RepositoryFolderNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 
 @Service
 @SessionScope

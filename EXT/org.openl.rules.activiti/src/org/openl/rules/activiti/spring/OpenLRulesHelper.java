@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.JAXBException;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.impl.context.Context;
@@ -11,6 +12,7 @@ import org.activiti.engine.impl.persistence.deploy.DefaultDeploymentCache;
 import org.activiti.engine.impl.persistence.deploy.DeploymentCache;
 import org.activiti.engine.impl.persistence.entity.DeploymentEntity;
 import org.activiti.engine.impl.persistence.entity.DeploymentEntityManager;
+
 import org.openl.rules.activiti.ResourceCompileException;
 import org.openl.rules.activiti.ResourcePrepareException;
 import org.openl.rules.activiti.util.ResourceUtils;
@@ -18,8 +20,6 @@ import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.model.RulesDeploy;
-
-import javax.xml.bind.JAXBException;
 
 public final class OpenLRulesHelper {
 

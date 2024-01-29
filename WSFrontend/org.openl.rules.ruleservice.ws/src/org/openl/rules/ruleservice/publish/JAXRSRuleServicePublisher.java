@@ -1,20 +1,19 @@
 package org.openl.rules.ruleservice.publish;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.ws.rs.ext.ExceptionMapper;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.ServletConfigContextUtils;
 import io.swagger.v3.oas.integration.ClasspathOpenApiConfigurationLoader;
 import io.swagger.v3.oas.integration.FileOpenApiConfigurationLoader;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.info.Info;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.ws.rs.ext.ExceptionMapper;
-
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -28,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;

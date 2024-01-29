@@ -1,6 +1,7 @@
 package org.openl.rules.activiti.spring.result;
 
 import org.activiti.engine.delegate.DelegateExecution;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 

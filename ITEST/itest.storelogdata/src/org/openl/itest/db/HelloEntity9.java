@@ -1,5 +1,7 @@
 package org.openl.itest.db;
 
+import static org.openl.itest.db.DBFields.HOUR;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,8 +12,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-
-import static org.openl.itest.db.DBFields.HOUR;
 
 @Entity(name = "openl_logging_hello_entity9")
 @Table(indexes = @Index(columnList = HOUR, unique = true))

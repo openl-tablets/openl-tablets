@@ -1,10 +1,10 @@
 package org.openl.binding.impl.cast;
 
-import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
 
 final class JavaUnboxingCast implements IOpenCast {
 

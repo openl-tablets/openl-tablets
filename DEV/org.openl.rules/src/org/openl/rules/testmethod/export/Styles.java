@@ -1,15 +1,25 @@
 package org.openl.rules.testmethod.export;
 
-import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.*;
+import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.BLACK;
+import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.GREEN;
+import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.GREY_50_PERCENT;
+import static org.apache.poi.hssf.util.HSSFColor.HSSFColorPredefined.RED;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.IndexedColorMap;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
+
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 

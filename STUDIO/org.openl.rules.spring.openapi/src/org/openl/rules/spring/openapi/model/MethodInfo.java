@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.openl.rules.spring.openapi.OpenApiUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,10 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.core.util.ReflectionUtils;
-import io.swagger.v3.oas.annotations.Operation;
+import org.openl.rules.spring.openapi.OpenApiUtils;
 
 /**
  * Information holder for methods of Spring REST Controllers

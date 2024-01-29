@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

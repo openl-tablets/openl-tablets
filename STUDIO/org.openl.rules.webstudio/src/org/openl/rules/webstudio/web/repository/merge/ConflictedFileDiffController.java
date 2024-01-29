@@ -5,10 +5,17 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
+
+import org.richfaces.component.UITree;
+import org.richfaces.function.RichFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
@@ -22,13 +29,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.richfaces.component.UITree;
-import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope

@@ -2,7 +2,6 @@ package org.openl.rules.spring.openapi;
 
 import java.util.List;
 
-import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -17,6 +16,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 @Configuration
 @Import(SpringMvcOpenApiConfiguration.class)

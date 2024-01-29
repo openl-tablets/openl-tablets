@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest.collapseExtraWhitespaces;
 
-
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.stream.Collectors;

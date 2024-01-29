@@ -2,9 +2,10 @@ package org.openl.spring.env;
 
 import java.util.Map;
 
+import org.springframework.core.env.EnumerablePropertySource;
+
 import org.openl.info.OpenLVersion;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.EnumerablePropertySource;
 
 /**
  * Contain system information about OpenL and environment. Allows to monitor resources

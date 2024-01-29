@@ -25,6 +25,9 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.DataTypeRowStyle;
 import org.openl.rules.excel.builder.template.row.DataTypeTableRowStyleImpl;
@@ -33,8 +36,6 @@ import org.openl.rules.excel.builder.template.row.NameValueRowStyleImpl;
 import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyleImpl;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.formatters.FormatConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExcelTemplateUtils {
     private static final Logger logger = LoggerFactory.getLogger(ExcelTemplateUtils.class);

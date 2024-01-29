@@ -2,7 +2,6 @@ package org.openl.rules.overload;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;

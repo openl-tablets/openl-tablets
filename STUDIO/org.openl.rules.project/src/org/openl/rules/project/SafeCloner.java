@@ -2,11 +2,10 @@ package org.openl.rules.project;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.rits.cloning.Cloner;
 import com.rits.cloning.ObjenesisInstantiationStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SafeCloner extends Cloner {
     public SafeCloner() {

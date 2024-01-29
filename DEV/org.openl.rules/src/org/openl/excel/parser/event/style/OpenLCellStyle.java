@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
+
 import org.openl.rules.table.xls.XlsCellStyle;
 
 class OpenLCellStyle extends XlsCellStyle {

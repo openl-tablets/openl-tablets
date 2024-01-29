@@ -3,8 +3,9 @@ package org.openl.rules.rest.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import org.openl.rules.webstudio.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.openl.rules.webstudio.service.UserManagementService;
 
 public class UsernameExistsConstraintValidator implements ConstraintValidator<UsernameExistsConstraint, String> {
 

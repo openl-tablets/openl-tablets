@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.RecursiveTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.core.ce.ServiceMT;
 import org.openl.rules.project.SafeCloner;
@@ -23,8 +26,6 @@ import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.

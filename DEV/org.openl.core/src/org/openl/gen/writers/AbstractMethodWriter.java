@@ -10,6 +10,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+
 import org.openl.gen.AnnotationDescription;
 import org.openl.gen.MethodDescription;
 import org.openl.gen.TypeDescription;

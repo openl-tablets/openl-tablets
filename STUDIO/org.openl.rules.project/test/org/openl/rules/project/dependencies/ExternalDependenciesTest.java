@@ -2,7 +2,6 @@ package org.openl.rules.project.dependencies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.lang.reflect.Method;
 import java.util.Calendar;
 

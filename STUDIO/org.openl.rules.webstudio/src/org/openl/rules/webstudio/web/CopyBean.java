@@ -13,10 +13,17 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
+import org.springframework.web.jsf.FacesContextUtils;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -29,7 +36,6 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
@@ -46,13 +52,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
-import org.springframework.web.jsf.FacesContextUtils;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor

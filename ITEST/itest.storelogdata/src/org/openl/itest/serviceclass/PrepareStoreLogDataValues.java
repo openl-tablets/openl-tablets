@@ -1,8 +1,9 @@
 package org.openl.itest.serviceclass;
 
 import java.util.Map;
-
 import javax.persistence.EntityManager;
+
+import com.datastax.oss.driver.api.core.CqlSession;
 
 import org.openl.itest.cassandra.HelloEntity8;
 import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
@@ -15,8 +16,6 @@ import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSe
 import org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManager;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-
-import com.datastax.oss.driver.api.core.CqlSession;
 
 public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSerializerAware, IOpenClassAware, IOpenMemberAware {
 

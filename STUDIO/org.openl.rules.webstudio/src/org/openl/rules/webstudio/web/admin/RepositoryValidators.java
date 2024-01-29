@@ -5,10 +5,11 @@ import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
@@ -16,7 +17,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
 
 public final class RepositoryValidators {
 

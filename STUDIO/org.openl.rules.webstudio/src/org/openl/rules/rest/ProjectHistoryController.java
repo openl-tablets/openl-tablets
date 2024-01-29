@@ -3,10 +3,11 @@ package org.openl.rules.rest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @RestController
 @RequestMapping("/history")

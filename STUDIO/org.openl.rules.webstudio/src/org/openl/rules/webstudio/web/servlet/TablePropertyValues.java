@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.servlet;
 
 import java.io.IOException;
 import java.util.Date;
-
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;

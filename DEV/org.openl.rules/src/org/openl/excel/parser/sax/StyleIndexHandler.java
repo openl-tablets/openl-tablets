@@ -11,11 +11,12 @@ import org.apache.poi.ss.formula.SharedFormula;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.openl.rules.table.IGridRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import org.openl.rules.table.IGridRegion;
 
 public class StyleIndexHandler extends DefaultHandler {
     private final Logger log = LoggerFactory.getLogger(StyleIndexHandler.class);

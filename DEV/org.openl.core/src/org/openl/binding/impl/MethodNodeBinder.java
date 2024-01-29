@@ -3,6 +3,9 @@ package org.openl.binding.impl;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
@@ -17,8 +20,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor, Yury Molchan

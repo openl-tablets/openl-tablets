@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
-
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 

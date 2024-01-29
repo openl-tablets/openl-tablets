@@ -4,14 +4,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.BiFunction;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
-import org.openl.rules.security.standalone.dao.UserDao;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
+import org.openl.rules.security.standalone.dao.UserDao;
 
 /**
  * {@link UserDetailsService} that can load UserInfo as UserDetails from database.

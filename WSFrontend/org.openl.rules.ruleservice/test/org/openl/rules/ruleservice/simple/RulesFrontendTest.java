@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,8 +19,8 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesFrontendTest",
-		"ruleservice.isProvideRuntimeContext=false",
-		"production-repository.factory = repo-file"})
+    "ruleservice.isProvideRuntimeContext=false",
+    "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class RulesFrontendTest {
 

@@ -6,9 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
+
+import org.richfaces.component.UITree;
+import org.richfaces.event.FileUploadEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.Message;
@@ -16,12 +22,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileTool;
-import org.richfaces.component.UITree;
-import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope

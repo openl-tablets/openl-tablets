@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;

@@ -1,15 +1,15 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
-import org.springframework.transaction.annotation.Transactional;
 
 public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implements OpenLProjectDao {
     @Override

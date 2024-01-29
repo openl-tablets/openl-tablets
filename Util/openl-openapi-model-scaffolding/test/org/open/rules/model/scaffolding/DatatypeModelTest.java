@@ -3,7 +3,6 @@ package org.open.rules.model.scaffolding;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

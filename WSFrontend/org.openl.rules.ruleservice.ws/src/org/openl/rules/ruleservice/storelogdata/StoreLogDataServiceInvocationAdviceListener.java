@@ -10,6 +10,11 @@ import java.util.IdentityHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
@@ -17,10 +22,6 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {

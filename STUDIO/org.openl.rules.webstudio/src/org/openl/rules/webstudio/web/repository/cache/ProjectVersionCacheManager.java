@@ -11,6 +11,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -18,9 +22,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
 public class ProjectVersionCacheManager implements InitializingBean {
 

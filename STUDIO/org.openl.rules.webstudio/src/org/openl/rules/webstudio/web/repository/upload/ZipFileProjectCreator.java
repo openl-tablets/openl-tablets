@@ -14,6 +14,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
@@ -26,8 +29,6 @@ import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ZipFileProjectCreator extends AProjectCreator {
     private final Logger log = LoggerFactory.getLogger(ZipFileProjectCreator.class);

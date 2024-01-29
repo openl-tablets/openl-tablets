@@ -1,6 +1,7 @@
 package org.openl.rules.table.actions.style;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;

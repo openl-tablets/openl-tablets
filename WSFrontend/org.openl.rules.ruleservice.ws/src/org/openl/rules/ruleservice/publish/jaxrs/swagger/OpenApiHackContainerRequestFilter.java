@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;

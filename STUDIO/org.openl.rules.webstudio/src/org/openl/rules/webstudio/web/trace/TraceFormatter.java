@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -27,8 +30,6 @@ import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TraceFormatter {
     static String getDisplayName(ITracerObject obj, boolean smartNumbers) {

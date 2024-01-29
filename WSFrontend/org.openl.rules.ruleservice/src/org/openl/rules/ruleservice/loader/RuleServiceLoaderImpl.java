@@ -18,8 +18,11 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-
 import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -43,9 +46,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.

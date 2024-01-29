@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import static org.mockito.Mockito.mock;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -22,8 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
-
-import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

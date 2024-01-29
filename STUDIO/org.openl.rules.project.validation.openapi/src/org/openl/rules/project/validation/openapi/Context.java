@@ -4,19 +4,18 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
-import org.openl.validation.ValidatedCompiledOpenClass;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
+import org.openl.validation.ValidatedCompiledOpenClass;
 
 class Context {
     private ValidatedCompiledOpenClass validatedCompiledOpenClass;

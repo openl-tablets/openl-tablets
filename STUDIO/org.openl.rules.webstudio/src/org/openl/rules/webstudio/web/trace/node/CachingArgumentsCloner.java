@@ -3,12 +3,12 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.rits.cloning.IDeepCloner;
+import com.rits.cloning.IFastCloner;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.StubSpreadSheetResult;
 import org.openl.rules.table.OpenLCloner;
-
-import com.rits.cloning.IDeepCloner;
-import com.rits.cloning.IFastCloner;
 
 /**
  * This cloner is based on assumption that hashCode() and equals() methods are cheaper than cloning huge objects.

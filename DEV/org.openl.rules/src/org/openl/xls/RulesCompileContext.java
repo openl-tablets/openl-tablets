@@ -1,7 +1,13 @@
 package org.openl.xls;
 
 import org.openl.impl.DefaultCompileContext;
-import org.openl.rules.validation.*;
+import org.openl.rules.validation.ActivePropertyValidator;
+import org.openl.rules.validation.DimensionalPropertyValidator;
+import org.openl.rules.validation.GapOverlapValidator;
+import org.openl.rules.validation.MethodUnreachableStatementValidator;
+import org.openl.rules.validation.RegexpPropertyValidator;
+import org.openl.rules.validation.UniqueMethodParameterNamesValidator;
+import org.openl.rules.validation.UniquePropertyValueValidator;
 
 /**
  * The current implementation of compile context used for rules projects and contains part of code that is auto

@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
 
 public class RepositoryEditor {

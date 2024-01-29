@@ -3,7 +3,6 @@ package org.openl.rules.project.abstraction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;

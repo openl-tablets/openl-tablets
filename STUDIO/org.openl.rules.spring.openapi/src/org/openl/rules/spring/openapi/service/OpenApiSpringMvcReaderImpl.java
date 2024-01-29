@@ -16,12 +16,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.openl.rules.spring.openapi.OpenApiUtils;
-import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
-import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
-import org.openl.rules.spring.openapi.model.MethodInfo;
-import org.openl.rules.spring.openapi.model.ParameterInfo;
-import org.openl.util.StringUtils;
+import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
@@ -35,15 +38,12 @@ import org.springframework.web.method.ControllerAdviceBean;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
-import io.swagger.v3.core.util.AnnotationsUtils;
-import io.swagger.v3.core.util.ReflectionUtils;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.tags.Tag;
+import org.openl.rules.spring.openapi.OpenApiUtils;
+import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
+import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
+import org.openl.rules.spring.openapi.model.MethodInfo;
+import org.openl.rules.spring.openapi.model.ParameterInfo;
+import org.openl.util.StringUtils;
 
 /**
  * Open API reader for Spring MVC

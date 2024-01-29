@@ -1,8 +1,8 @@
 package org.openl.rules.project.xml.v5_11;
 
-import org.openl.rules.project.model.v5_11.ModuleType_v5_11;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.openl.rules.project.model.v5_11.ModuleType_v5_11;
 
 public class ModuleTypeXmlAdapter_v5_11 extends XmlAdapter<String, ModuleType_v5_11> {
     @Override

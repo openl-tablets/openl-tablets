@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -17,9 +16,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.util.FileUtils;
-
 import org.springframework.util.AntPathMatcher;
+
+import org.openl.util.FileUtils;
 
 /**
  * Servlet filter to load web resources (images, html, etc). First, attempt is made to load resource from classpath and

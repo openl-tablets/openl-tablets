@@ -4,6 +4,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -24,8 +27,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class LazyPrebindHandler implements IPrebindHandler {
 

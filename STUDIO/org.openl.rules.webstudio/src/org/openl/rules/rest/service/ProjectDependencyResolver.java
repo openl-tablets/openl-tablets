@@ -1,11 +1,10 @@
 package org.openl.rules.rest.service;
 
 import java.util.List;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
-
-import javax.xml.bind.JAXBException;
 
 /**
  * @author ybiruk

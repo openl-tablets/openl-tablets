@@ -10,6 +10,7 @@ import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.ss.util.CellAddress;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;

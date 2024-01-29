@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.repository.upload;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-
 import java.util.HashSet;
 import java.util.Set;
 

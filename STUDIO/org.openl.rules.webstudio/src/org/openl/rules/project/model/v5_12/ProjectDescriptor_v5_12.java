@@ -1,18 +1,5 @@
 package org.openl.rules.project.model.v5_12;
 
-import java.util.List;
-
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.v5_11.Module_v5_11;
-import org.openl.rules.project.xml.BaseProjectDescriptorSerializer.CollapsedStringAdapter2;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.CLASSPATH_TAG;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.DEPENDENCIES_TAG;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.DEPENDENCY_TAG;
@@ -22,6 +9,18 @@ import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PATH_T
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
+
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.v5_11.Module_v5_11;
+import org.openl.rules.project.xml.BaseProjectDescriptorSerializer.CollapsedStringAdapter2;
 
 @XmlRootElement(name = PROJECT_DESCRIPTOR_TAG)
 @XmlAccessorType(XmlAccessType.FIELD)

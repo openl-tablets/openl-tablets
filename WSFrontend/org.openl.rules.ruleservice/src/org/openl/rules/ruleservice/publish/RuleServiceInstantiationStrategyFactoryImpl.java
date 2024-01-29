@@ -3,6 +3,9 @@ package org.openl.rules.ruleservice.publish;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
@@ -10,8 +13,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for RuleServiceInstantiationStrategyFactory. Delegates decision to

@@ -17,10 +17,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.EClassType;
+import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JCodeModelException;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
+import net.sf.cglib.beans.BeanGenerator;
+import net.sf.cglib.core.NamingPolicy;
+import net.sf.cglib.core.Predicate;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
@@ -46,18 +57,6 @@ import org.openl.types.NullOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-
-import com.helger.jcodemodel.AbstractJClass;
-import com.helger.jcodemodel.EClassType;
-import com.helger.jcodemodel.JCodeModel;
-import com.helger.jcodemodel.JCodeModelException;
-import com.helger.jcodemodel.JDefinedClass;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JMod;
-
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
 
 /**
  * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.

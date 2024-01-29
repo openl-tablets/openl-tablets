@@ -15,11 +15,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.xml.sax.InputSource;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.project.abstraction.Comments;
@@ -36,10 +40,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
-import org.xml.sax.InputSource;
 
 /**
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination

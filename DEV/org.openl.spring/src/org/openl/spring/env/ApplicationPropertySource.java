@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.openl.util.CollectionUtils;
-import org.openl.util.PropertiesUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.EnumerablePropertySource;
@@ -20,6 +17,10 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import org.openl.util.CollectionUtils;
+import org.openl.util.PropertiesUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Application properties can be get as combinations of locations and names. If a location is a folder then it is

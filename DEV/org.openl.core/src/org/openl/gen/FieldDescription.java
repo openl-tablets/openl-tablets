@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+
 import org.openl.gen.writers.DefaultValue;
 import org.openl.util.StringUtils;
 

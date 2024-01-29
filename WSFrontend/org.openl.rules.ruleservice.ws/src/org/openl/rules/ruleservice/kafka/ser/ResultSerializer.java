@@ -2,10 +2,10 @@ package org.openl.rules.ruleservice.kafka.ser;
 
 import java.util.Map;
 
-import org.apache.kafka.common.serialization.Serializer;
-import org.openl.rules.ruleservice.core.OpenLService;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.common.serialization.Serializer;
+
+import org.openl.rules.ruleservice.core.OpenLService;
 
 public class ResultSerializer implements Serializer<Object> {
     private final ObjectMapper objectMapper;

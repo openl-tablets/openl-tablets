@@ -3,7 +3,6 @@ package org.openl.rules.workspace;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-
 import java.io.File;
 
 import org.junit.jupiter.api.BeforeEach;

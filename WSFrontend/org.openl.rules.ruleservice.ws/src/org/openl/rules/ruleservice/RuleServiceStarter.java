@@ -1,8 +1,9 @@
 package org.openl.rules.ruleservice;
 
-import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 
 /**
  * Application main class. Sets up other classes.

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.richfaces.component.UITree;
+import org.richfaces.event.TreeSelectionChangeEvent;
+
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
@@ -22,8 +25,6 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.util.FileUtils;
-import org.richfaces.component.UITree;
-import org.richfaces.event.TreeSelectionChangeEvent;
 
 public abstract class AbstractDiffController {
     // TODO remove?

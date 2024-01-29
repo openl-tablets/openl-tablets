@@ -12,14 +12,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.openl.rules.spring.openapi.OpenApiUtils;
-import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
-import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
-import org.openl.rules.spring.openapi.model.ExceptionHandlerInfo;
-import org.openl.rules.spring.openapi.model.MethodInfo;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StreamUtils;
-import org.openl.util.StringUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -33,15 +33,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.core.util.AnnotationsUtils;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.media.Content;
-import io.swagger.v3.oas.models.media.MediaType;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
+import org.openl.rules.spring.openapi.OpenApiUtils;
+import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
+import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
+import org.openl.rules.spring.openapi.model.ExceptionHandlerInfo;
+import org.openl.rules.spring.openapi.model.MethodInfo;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StreamUtils;
+import org.openl.util.StringUtils;
 
 /**
  * The builder class for OpenAPI responses

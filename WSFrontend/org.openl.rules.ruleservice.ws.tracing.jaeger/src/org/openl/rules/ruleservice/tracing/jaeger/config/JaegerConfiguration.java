@@ -1,16 +1,16 @@
 package org.openl.rules.ruleservice.tracing.jaeger.config;
 
-import org.openl.spring.config.ConditionalOnEnable;
+import io.jaegertracing.Configuration;
+import io.jaegertracing.internal.samplers.ConstSampler;
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import io.jaegertracing.Configuration;
-import io.jaegertracing.internal.samplers.ConstSampler;
-import io.opentracing.Tracer;
-import io.opentracing.util.GlobalTracer;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.tracing.jaeger.enabled")

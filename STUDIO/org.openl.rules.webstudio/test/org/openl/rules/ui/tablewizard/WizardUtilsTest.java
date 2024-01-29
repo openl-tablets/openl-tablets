@@ -3,7 +3,6 @@ package org.openl.rules.ui.tablewizard;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;

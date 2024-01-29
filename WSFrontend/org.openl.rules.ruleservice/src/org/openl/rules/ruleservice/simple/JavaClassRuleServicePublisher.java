@@ -4,12 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Java class publisher. Publisher that publish service beans as object. Services can be executed via RulesFrontend.

@@ -1,14 +1,14 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.rules.security.standalone.persistence.UserSettingId;
-import org.springframework.transaction.annotation.Transactional;
 
 public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> implements UserSettingDao {
 

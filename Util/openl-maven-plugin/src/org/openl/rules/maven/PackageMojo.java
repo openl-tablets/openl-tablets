@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.DirectoryScanner;
+
 import org.openl.info.OpenLVersion;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.util.CollectionUtils;
@@ -48,8 +49,8 @@ import org.openl.util.ZipUtils;
  * @since 5.19.1
  */
 @Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true,
-        requiresDependencyResolution = ResolutionScope.RUNTIME,
-        requiresDependencyCollection = ResolutionScope.RUNTIME)
+    requiresDependencyResolution = ResolutionScope.RUNTIME,
+    requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";

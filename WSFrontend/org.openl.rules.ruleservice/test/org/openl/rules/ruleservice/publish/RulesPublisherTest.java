@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
@@ -26,8 +25,8 @@ import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesPublisherTest",
-		"ruleservice.isProvideRuntimeContext=false",
-		"production-repository.factory = repo-file"})
+    "ruleservice.isProvideRuntimeContext=false",
+    "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RulesPublisherTest {

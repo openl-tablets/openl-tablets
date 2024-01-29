@@ -1,7 +1,8 @@
 package org.openl.rules.rest;
 
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.springframework.security.core.GrantedAuthority;
+
+import org.openl.rules.rest.exception.ForbiddenException;
 
 class SecurityException extends ForbiddenException {
 

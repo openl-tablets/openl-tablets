@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -18,13 +17,6 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.openapi.OpenAPIConfiguration;
-import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
-import org.openl.rules.webstudio.Migrator;
-import org.openl.rules.webstudio.web.Props;
-import org.openl.spring.env.DynamicPropertySource;
-import org.openl.spring.env.PropertySourcesLoader;
-import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +25,14 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import org.openl.rules.openapi.OpenAPIConfiguration;
+import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
+import org.openl.rules.webstudio.Migrator;
+import org.openl.rules.webstudio.web.Props;
+import org.openl.spring.env.DynamicPropertySource;
+import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.util.db.JDBCDriverRegister;
 
 @WebListener
 public final class SpringInitializer implements Runnable, ServletContextListener {

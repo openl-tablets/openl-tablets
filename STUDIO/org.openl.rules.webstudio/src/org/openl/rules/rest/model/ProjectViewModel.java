@@ -3,7 +3,6 @@ package org.openl.rules.rest.model;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.Parameter;
 
 public class ProjectViewModel {

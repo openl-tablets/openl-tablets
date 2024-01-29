@@ -1,6 +1,11 @@
 package org.openl.excel.grid;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ui.ICellStyle;
 

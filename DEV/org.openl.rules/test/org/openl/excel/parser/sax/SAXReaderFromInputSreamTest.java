@@ -3,7 +3,6 @@ package org.openl.excel.parser.sax;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;

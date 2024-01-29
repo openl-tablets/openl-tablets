@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish.kafka;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

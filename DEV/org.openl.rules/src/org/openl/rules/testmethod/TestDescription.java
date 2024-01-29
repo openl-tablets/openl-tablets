@@ -3,6 +3,9 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
@@ -18,8 +21,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TestDescription {
 

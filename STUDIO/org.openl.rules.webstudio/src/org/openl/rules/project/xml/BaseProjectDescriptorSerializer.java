@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.ProjectDescriptor;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
 public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSerializer {
     public static final String PROJECT_DESCRIPTOR_TAG = "project";

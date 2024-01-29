@@ -11,12 +11,10 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
-import org.openl.spring.config.ConditionalOnEnable;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.DriverException;
+import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -24,10 +22,12 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.DriverException;
-import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
-import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")

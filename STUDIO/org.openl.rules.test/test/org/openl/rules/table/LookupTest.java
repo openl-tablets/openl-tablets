@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.net.URL;
 
 import org.apache.poi.ss.usermodel.Workbook;

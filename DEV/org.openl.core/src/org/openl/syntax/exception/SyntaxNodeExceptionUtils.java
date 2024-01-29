@@ -3,6 +3,9 @@ package org.openl.syntax.exception;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.formatter.ClassCastExceptionFormatter;
@@ -11,8 +14,6 @@ import org.openl.syntax.exception.formatter.IndexOutOfBoundsExceptionFormatter;
 import org.openl.syntax.exception.formatter.NoClassDefFoundErrorFormatter;
 import org.openl.syntax.exception.formatter.NullPointerExceptionFormatter;
 import org.openl.util.text.ILocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SyntaxNodeExceptionUtils {
 

@@ -7,11 +7,6 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-import org.openl.rules.convertor.IString2DataConvertor;
-import org.openl.rules.convertor.String2DataConvertorFactory;
-import org.openl.util.JAXBUtils;
-
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -19,7 +14,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.jackson.ModelResolver;
@@ -28,6 +22,11 @@ import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import org.apache.commons.lang3.StringUtils;
+
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.util.JAXBUtils;
 
 public class ObjectMapperSupportModelResolver extends ModelResolver {
     public ObjectMapperSupportModelResolver(ObjectMapper mapper) {

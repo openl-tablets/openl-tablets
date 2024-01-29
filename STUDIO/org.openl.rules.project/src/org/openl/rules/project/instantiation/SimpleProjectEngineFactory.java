@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -20,8 +23,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 

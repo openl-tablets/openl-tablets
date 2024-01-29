@@ -2,7 +2,6 @@ package org.openl.rules.project.openapi;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;

@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.model.RulesDeploy;
-
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.openl.rules.project.IRulesDeploySerializer;
+import org.openl.rules.project.model.RulesDeploy;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";

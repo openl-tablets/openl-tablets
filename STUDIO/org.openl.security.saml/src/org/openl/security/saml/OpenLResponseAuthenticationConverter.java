@@ -10,12 +10,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSString;
@@ -29,6 +23,13 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.w3c.dom.Node;
+
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.

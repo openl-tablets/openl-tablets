@@ -8,7 +8,6 @@ import static org.openl.rules.util.Statistics.max;
 import static org.openl.rules.util.Statistics.min;
 import static org.openl.rules.util.Sum.sum;
 
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;

@@ -2,7 +2,6 @@ package org.openl.spring.env;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Test;

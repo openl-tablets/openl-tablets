@@ -1,5 +1,8 @@
 package org.openl.binding.impl;
 
+import java.util.Arrays;
+import java.util.Map;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
@@ -7,9 +10,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StreamUtils;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * constructor with assignment of values to fields by names

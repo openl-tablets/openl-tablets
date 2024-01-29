@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static org.openl.rules.ruleservice.kafka.KafkaHeaders.CORRELATION_ID;
 
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;

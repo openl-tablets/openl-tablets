@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.TypeDescription;
 

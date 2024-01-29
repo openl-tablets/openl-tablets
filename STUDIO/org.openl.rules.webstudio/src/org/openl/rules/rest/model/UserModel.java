@@ -2,9 +2,9 @@ package org.openl.rules.rest.model;
 
 import java.util.Set;
 
-import org.openl.rules.security.UserExternalFlags;
-
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.rules.security.UserExternalFlags;
 
 public class UserModel extends UserCreateModel {
 

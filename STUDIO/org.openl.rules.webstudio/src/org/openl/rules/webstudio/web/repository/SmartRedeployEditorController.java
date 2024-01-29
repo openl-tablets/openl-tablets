@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.web.repository;
 
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 
 /**
  * @author Aleh Bykhavets

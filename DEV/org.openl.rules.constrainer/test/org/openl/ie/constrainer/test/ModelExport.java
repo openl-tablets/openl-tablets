@@ -21,7 +21,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.ConstrainerObject;
+import org.openl.ie.constrainer.Constraint;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.Subject;
 
 /**
  * Utilities for the export of the Constrainer model/problem. Experimental version for ILOG Solver. Uses the names of

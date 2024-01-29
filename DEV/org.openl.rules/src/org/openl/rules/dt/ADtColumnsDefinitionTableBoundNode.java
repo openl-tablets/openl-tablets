@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;

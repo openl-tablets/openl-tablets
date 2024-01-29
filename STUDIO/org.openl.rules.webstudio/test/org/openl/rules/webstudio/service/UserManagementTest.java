@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.util.function.Consumer;
 import javax.validation.ConstraintViolationException;
 
@@ -27,7 +26,7 @@ import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.UserExternalFlags.Feature;
 
 @SpringJUnitConfig(classes = DBTestConfiguration.class)
-@TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password =" })
+@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password ="})
 public class UserManagementTest {
 
     @Autowired

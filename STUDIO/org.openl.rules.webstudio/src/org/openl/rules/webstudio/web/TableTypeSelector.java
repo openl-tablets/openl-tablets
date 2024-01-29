@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-
 import java.util.function.Predicate;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Handles array of table types (e.g. rules, spreadsheet, etc. see {@code XlsNodeTypes} constant for supported types).

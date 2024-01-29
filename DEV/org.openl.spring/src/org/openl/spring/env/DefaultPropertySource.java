@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.env.EnumerablePropertySource;
+
 import org.openl.util.ClassUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.EnumerablePropertySource;
 
 /**
  * OpenL default property sources. Collects all openl-default.properties files.

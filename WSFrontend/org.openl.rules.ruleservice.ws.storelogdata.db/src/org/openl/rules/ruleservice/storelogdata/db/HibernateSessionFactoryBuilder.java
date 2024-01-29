@@ -7,9 +7,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.openl.rules.ruleservice.storelogdata.PropertiesLoader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import org.openl.rules.ruleservice.storelogdata.PropertiesLoader;
 
 public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
 

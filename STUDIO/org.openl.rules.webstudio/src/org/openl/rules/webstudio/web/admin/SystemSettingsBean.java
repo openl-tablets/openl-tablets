@@ -11,8 +11,13 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WO
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-
 import javax.faces.context.FacesContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -29,11 +34,6 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2

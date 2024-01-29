@@ -1,10 +1,11 @@
 package org.openl.rules.ui.tablewizard;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
+
 import org.openl.rules.ui.copy.DimensionalPropertiesTableCopier;
 import org.openl.rules.ui.copy.TableNamesCopier;
 import org.openl.rules.ui.copy.VersionPropertyTableCopier;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope

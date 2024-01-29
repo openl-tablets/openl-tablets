@@ -6,18 +6,19 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.Test;
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@TestPropertySource(properties = { "production-repository.uri=test-resources/LazyCompilationTest",
-        "production-repository.factory = repo-file"})
-@SpringJUnitConfig(locations = { "classpath:openl-ruleservice-beans.xml" })
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
+@TestPropertySource(properties = {"production-repository.uri=test-resources/LazyCompilationTest",
+    "production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class LazyCompilationTest {
 
     private static final Logger log = LoggerFactory.getLogger(LazyCompilationTest.class);

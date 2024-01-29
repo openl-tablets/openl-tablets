@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;

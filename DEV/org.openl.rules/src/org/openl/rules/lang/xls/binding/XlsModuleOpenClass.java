@@ -18,6 +18,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.rits.cloning.Cloner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
@@ -71,10 +75,6 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.MethodSignature;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.rits.cloning.Cloner;
 
 /**
  * @author snshor

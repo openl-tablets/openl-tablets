@@ -2,13 +2,21 @@ package org.openl.rules.lang.xls.types.meta;
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
-import org.openl.rules.data.*;
+import org.openl.rules.data.ColumnDescriptor;
+import org.openl.rules.data.DataNodeBinder;
+import org.openl.rules.data.DataTableBoundNode;
+import org.openl.rules.data.ForeignKeyColumnDescriptor;
+import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
@@ -21,8 +29,6 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DataTableMetaInfoReader extends BaseMetaInfoReader<DataTableBoundNode> {
     private static final Logger LOG = LoggerFactory.getLogger(DataTableMetaInfoReader.class);

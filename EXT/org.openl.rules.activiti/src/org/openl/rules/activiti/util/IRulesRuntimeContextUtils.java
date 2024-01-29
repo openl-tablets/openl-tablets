@@ -4,11 +4,19 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.activiti.engine.delegate.DelegateExecution;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
-import org.openl.rules.enumeration.*;
+import org.openl.rules.enumeration.CaProvincesEnum;
+import org.openl.rules.enumeration.CaRegionsEnum;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.UsStatesEnum;
 
 public final class IRulesRuntimeContextUtils {
     // IRulesRuntimeContextUtils converts only simple OpenL types, so we can hold it in static field.

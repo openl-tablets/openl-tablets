@@ -2,10 +2,10 @@ package org.openl.rules.spring.openapi.service;
 
 import java.util.List;
 
+import io.swagger.v3.oas.models.parameters.RequestBody;
+
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
-
-import io.swagger.v3.oas.models.parameters.RequestBody;
 
 /**
  * OpenAPI RequestBody service helps to parse and build OpenAPI request bodies from API annotation and Spring

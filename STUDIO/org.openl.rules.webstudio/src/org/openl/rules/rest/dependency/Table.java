@@ -1,9 +1,9 @@
 package org.openl.rules.rest.dependency;
 
-import io.swagger.v3.oas.annotations.Parameter;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class Table {
 

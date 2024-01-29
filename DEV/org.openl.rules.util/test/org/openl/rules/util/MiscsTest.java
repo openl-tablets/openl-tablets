@@ -10,7 +10,6 @@ import static org.openl.rules.util.Miscs.isNaN;
 import static org.openl.rules.util.Miscs.isNotEmpty;
 import static org.openl.rules.util.Miscs.length;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

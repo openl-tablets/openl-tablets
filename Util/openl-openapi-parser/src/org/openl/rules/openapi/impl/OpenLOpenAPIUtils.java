@@ -17,16 +17,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.openl.rules.model.scaffolding.InputParameter;
-import org.openl.rules.model.scaffolding.ParameterModel;
-import org.openl.rules.model.scaffolding.TypeInfo;
-import org.openl.rules.project.openapi.OpenAPIRefResolver;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -44,6 +34,16 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.core.models.ParseOptions;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.ParameterModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
+import org.openl.rules.project.openapi.OpenAPIRefResolver;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 public class OpenLOpenAPIUtils {
 

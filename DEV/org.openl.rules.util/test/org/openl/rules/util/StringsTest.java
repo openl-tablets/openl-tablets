@@ -32,7 +32,6 @@ import static org.openl.rules.util.Strings.toString;
 import static org.openl.rules.util.Strings.trim;
 import static org.openl.rules.util.Strings.upperCase;
 
-
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Locale;

@@ -20,9 +20,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.model.SelectItem;
 import javax.xml.bind.JAXBException;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.richfaces.component.UITree;
+import org.richfaces.model.SequenceRowKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
@@ -54,16 +63,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.richfaces.component.UITree;
-import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 @Service
 @ViewScope

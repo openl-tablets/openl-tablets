@@ -2,7 +2,6 @@ package org.openl.rules.repository.api;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-
 import java.nio.file.InvalidPathException;
 
 import org.junit.jupiter.api.Test;

@@ -6,24 +6,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.util.WebTool;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceUserImpl;
-import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,13 +32,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.util.WebTool;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping("/conflict")

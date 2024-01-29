@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
 import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 

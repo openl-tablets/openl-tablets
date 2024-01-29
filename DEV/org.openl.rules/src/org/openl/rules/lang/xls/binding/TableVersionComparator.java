@@ -2,14 +2,15 @@ package org.openl.rules.lang.xls.binding;
 
 import java.util.Comparator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.types.IOpenMethod;
 import org.openl.util.conf.Version;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Finds table with biggest version(it will later table) or "active" table;

@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
+
+import org.richfaces.component.UIRepeat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -43,16 +46,13 @@ import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.conf.Version;
-import org.richfaces.component.UIRepeat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Bean for table coping.
  *
  * @author Andrei Astrouski.
  */
-@GroupSequence({ TableCopier.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({TableCopier.class, StringPresentedGroup.class, StringValidGroup.class})
 public class TableCopier extends TableCreationWizard {
 
     private final Logger log = LoggerFactory.getLogger(TableCopier.class);

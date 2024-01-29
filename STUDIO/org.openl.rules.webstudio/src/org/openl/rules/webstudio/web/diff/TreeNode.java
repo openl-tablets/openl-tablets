@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.web.diff;
 
+import org.richfaces.model.TreeNodeImpl;
+
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.richfaces.model.TreeNodeImpl;
 
 public class TreeNode extends TreeNodeImpl {
 

@@ -6,18 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openl.config.InMemoryProperties;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.model.GroupSettingsModel;
-import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.standalone.dao.GroupDao;
-import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.rules.webstudio.service.ExternalGroupService;
-import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.util.StreamUtils;
-import org.openl.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,9 +22,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.config.InMemoryProperties;
+import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.model.GroupSettingsModel;
+import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.standalone.dao.GroupDao;
+import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.webstudio.service.ExternalGroupService;
+import org.openl.rules.webstudio.service.GroupManagementService;
+import org.openl.util.StreamUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Manages Users and Groups.

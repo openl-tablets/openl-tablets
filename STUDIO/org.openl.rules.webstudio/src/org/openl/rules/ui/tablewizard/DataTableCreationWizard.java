@@ -6,10 +6,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -29,10 +31,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@GroupSequence({ DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class DataTableCreationWizard extends TableCreationWizard {
     private static final Logger LOG = LoggerFactory.getLogger(DataTableCreationWizard.class);
 

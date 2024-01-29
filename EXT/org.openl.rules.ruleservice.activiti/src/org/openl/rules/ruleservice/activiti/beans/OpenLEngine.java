@@ -1,15 +1,16 @@
 package org.openl.rules.ruleservice.activiti.beans;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.activiti.engine.delegate.DelegateExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import org.openl.rules.activiti.spring.result.ResultValue;
 import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.lang.reflect.InvocationTargetException;
 
 public class OpenLEngine {
     private ServiceManager serviceManager;

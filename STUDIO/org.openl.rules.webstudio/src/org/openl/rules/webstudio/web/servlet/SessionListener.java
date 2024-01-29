@@ -7,9 +7,6 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionIdListener;
 import javax.servlet.http.HttpSessionListener;
 
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -18,6 +15,10 @@ import org.springframework.security.web.context.support.SecurityWebApplicationCo
 import org.springframework.security.web.session.HttpSessionCreatedEvent;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
 import org.springframework.security.web.session.HttpSessionIdChangedEvent;
+
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class SessionListener implements HttpSessionActivationListener, HttpSessionListener, HttpSessionIdListener {
 

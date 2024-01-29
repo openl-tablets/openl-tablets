@@ -5,11 +5,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.kafka.common.header.Headers;
-import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
-import org.openl.spring.config.ConditionalOnEnable;
-import org.springframework.stereotype.Component;
-
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
@@ -18,6 +13,11 @@ import io.opentracing.contrib.kafka.TracingKafkaUtils;
 import io.opentracing.contrib.kafka.TracingProducerInterceptor;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
+import org.apache.kafka.common.header.Headers;
+import org.springframework.stereotype.Component;
+
+import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.tracing.jaeger.enabled")

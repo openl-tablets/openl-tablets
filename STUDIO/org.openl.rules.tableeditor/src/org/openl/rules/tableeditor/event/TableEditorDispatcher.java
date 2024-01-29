@@ -1,7 +1,10 @@
 package org.openl.rules.tableeditor.event;
 
-import java.io.*;
-
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.PhaseEvent;
@@ -10,9 +13,10 @@ import javax.faces.event.PhaseListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.tableeditor.util.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.tableeditor.util.Constants;
 
 public class TableEditorDispatcher implements PhaseListener {
 

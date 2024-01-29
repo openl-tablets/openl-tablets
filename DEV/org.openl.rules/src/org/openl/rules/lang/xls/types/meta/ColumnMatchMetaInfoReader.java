@@ -5,7 +5,11 @@ import static org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler.VALUES;
 
 import java.util.List;
 
-import org.openl.rules.cmatch.*;
+import org.openl.rules.cmatch.ColumnMatch;
+import org.openl.rules.cmatch.ColumnMatchBoundNode;
+import org.openl.rules.cmatch.MatchNode;
+import org.openl.rules.cmatch.SubValue;
+import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.cmatch.algorithm.ArgumentsHelper;
 import org.openl.rules.cmatch.algorithm.WeightAlgorithmCompiler;
 import org.openl.rules.lang.xls.types.CellMetaInfo;

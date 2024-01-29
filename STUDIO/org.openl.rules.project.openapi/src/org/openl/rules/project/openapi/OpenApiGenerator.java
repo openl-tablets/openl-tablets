@@ -8,6 +8,13 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import javax.xml.bind.JAXBException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.models.OpenAPI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
@@ -31,15 +38,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapp
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.v3.jaxrs2.Reader;
-import io.swagger.v3.oas.models.OpenAPI;
-
-import javax.xml.bind.JAXBException;
 
 /**
  * This class generates {@link OpenAPI} model from given OpenL Project.

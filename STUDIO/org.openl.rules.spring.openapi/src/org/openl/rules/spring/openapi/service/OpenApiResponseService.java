@@ -1,9 +1,9 @@
 package org.openl.rules.spring.openapi.service;
 
+import io.swagger.v3.oas.models.responses.ApiResponses;
+
 import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
 import org.openl.rules.spring.openapi.model.MethodInfo;
-
-import io.swagger.v3.oas.models.responses.ApiResponses;
 
 /**
  * The builder class for OpenAPI responses

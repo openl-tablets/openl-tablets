@@ -2,7 +2,6 @@ package org.openl.rules.repository.git;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

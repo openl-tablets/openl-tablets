@@ -1,5 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
+import java.util.List;
+
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -11,8 +13,6 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.CollectionUtils;
-
-import java.util.List;
 
 public class TableModel {
 

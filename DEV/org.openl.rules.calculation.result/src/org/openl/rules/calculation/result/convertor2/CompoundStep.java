@@ -12,7 +12,6 @@ package org.openl.rules.calculation.result.convertor2;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**

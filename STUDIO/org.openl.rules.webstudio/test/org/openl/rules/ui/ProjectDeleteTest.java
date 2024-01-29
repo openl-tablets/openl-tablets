@@ -3,7 +3,6 @@ package org.openl.rules.ui;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;

@@ -9,6 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
+
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -27,13 +34,6 @@ import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFacto
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.types.IOpenClass;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 
 /**
  * Default implementation of RuleServiceOpenLServiceInstantiationFactory. Depend on RuleLoader.

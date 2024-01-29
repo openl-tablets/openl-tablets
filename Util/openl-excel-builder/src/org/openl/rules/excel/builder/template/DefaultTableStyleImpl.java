@@ -2,6 +2,7 @@ package org.openl.rules.excel.builder.template;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 
 public abstract class DefaultTableStyleImpl implements TableStyle {

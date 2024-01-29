@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+
 import org.openl.gen.writers.AbstractMethodWriter;
 import org.openl.gen.writers.ChainedBeanByteCodeWriter;
 

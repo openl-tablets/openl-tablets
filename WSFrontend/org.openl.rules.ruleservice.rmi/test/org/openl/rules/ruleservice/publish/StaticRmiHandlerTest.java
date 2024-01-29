@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.publish;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
@@ -16,10 +15,10 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.openl.rules.ruleservice.management.ServiceManager;
 
 @TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
-		"ruleservice.rmiPort=31099",
-		"ruleservice.instantiation.strategy.lazy = false",
-        "production-repository.uri=test-resources/StaticRmiHandlerTest",
-		"production-repository.factory = repo-file"})
+    "ruleservice.rmiPort=31099",
+    "ruleservice.instantiation.strategy.lazy = false",
+    "production-repository.uri=test-resources/StaticRmiHandlerTest",
+    "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class StaticRmiHandlerTest {
 

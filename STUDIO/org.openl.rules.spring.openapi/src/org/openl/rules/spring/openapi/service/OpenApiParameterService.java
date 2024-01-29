@@ -5,14 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.spring.openapi.model.MethodInfo;
-import org.openl.rules.spring.openapi.model.ParameterInfo;
-
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+
+import org.openl.rules.spring.openapi.model.MethodInfo;
+import org.openl.rules.spring.openapi.model.ParameterInfo;
 
 /**
  * OpenAPI Parameter service helps to parse and build OpenAPI parameters from API annotation and Spring declaration

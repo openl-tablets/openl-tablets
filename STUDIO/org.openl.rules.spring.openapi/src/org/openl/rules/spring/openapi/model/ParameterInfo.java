@@ -4,13 +4,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
-import org.openl.rules.spring.openapi.OpenApiUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.oas.annotations.Parameter;
+import org.openl.rules.spring.openapi.OpenApiUtils;
 
 /**
  * Information holder for parameters of methods of Spring REST Controllers

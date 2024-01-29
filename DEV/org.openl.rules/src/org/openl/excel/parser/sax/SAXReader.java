@@ -4,24 +4,35 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.*;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
+import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
+import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
-import org.openl.excel.parser.*;
-import org.openl.rules.table.IGridRegion;
-import org.openl.util.FileTool;
-import org.openl.util.FileUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import org.openl.excel.parser.ExcelParseException;
+import org.openl.excel.parser.ExcelReader;
+import org.openl.excel.parser.ExcelUtils;
+import org.openl.excel.parser.ParserDateUtil;
+import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
+import org.openl.rules.table.IGridRegion;
+import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 
 public class SAXReader implements ExcelReader {
 

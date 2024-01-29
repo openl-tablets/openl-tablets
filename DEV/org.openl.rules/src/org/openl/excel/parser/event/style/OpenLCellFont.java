@@ -5,6 +5,7 @@ import static org.openl.excel.parser.event.style.PoiUtils.toRgb;
 import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.ss.usermodel.Font;
+
 import org.openl.rules.table.ui.ICellFont;
 
 class OpenLCellFont implements ICellFont {

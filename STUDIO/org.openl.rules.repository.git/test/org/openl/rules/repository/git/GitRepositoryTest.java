@@ -13,7 +13,6 @@ import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

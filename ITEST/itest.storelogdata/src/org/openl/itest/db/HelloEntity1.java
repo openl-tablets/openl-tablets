@@ -1,7 +1,9 @@
 package org.openl.itest.db;
 
-import java.time.ZonedDateTime;
+import static org.openl.itest.db.DBFields.HOUR;
+import static org.openl.itest.db.DBFields.VALUE;
 
+import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
+
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 
 import org.openl.itest.cassandra.IntToStringConvertor;
 import org.openl.itest.cassandra.NoConvertorString;
@@ -23,11 +27,6 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-
-import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
-
-import static org.openl.itest.db.DBFields.HOUR;
-import static org.openl.itest.db.DBFields.VALUE;
 
 @Entity(name = "openl_logging_hello_entity1")
 public class HelloEntity1 {

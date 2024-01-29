@@ -19,11 +19,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
+
 import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
-
-import groovy.lang.GroovyClassLoader;
 
 /**
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders

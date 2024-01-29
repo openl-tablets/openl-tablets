@@ -3,13 +3,12 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.RUN;
 
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.CollectionUtils;
 import org.richfaces.model.TreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.

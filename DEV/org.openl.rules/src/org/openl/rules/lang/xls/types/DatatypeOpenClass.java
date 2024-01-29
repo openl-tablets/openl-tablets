@@ -16,6 +16,9 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
@@ -36,8 +39,6 @@ import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Open class for types represented as datatype table components in openl.

@@ -1,7 +1,6 @@
 package org.openl.rules.variation;
 
 import java.util.UUID;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -15,11 +14,11 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  */
 
 @XmlRootElement
-@XmlSeeAlso({ ArgumentReplacementVariation.class,
-        NoVariation.class,
-        ComplexVariation.class,
-        JXPathVariation.class,
-        DeepCloningVariation.class })
+@XmlSeeAlso({ArgumentReplacementVariation.class,
+    NoVariation.class,
+    ComplexVariation.class,
+    JXPathVariation.class,
+    DeepCloningVariation.class})
 @Deprecated
 public abstract class Variation {
     private String variationID;

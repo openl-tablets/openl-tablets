@@ -2,9 +2,10 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface OpenLProjectDao extends Dao<OpenLProject> {
     @Transactional

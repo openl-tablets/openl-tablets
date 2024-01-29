@@ -3,13 +3,13 @@ package org.openl.rules.project.validation.openapi;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
-
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.oas.models.media.Schema;
+
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
+import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 
 final class SchemaResolver {
     private SchemaResolver() {

@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.table.ILogicalTable;
 

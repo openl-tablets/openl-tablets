@@ -1,5 +1,8 @@
 package org.openl.rules.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.table.FormattedCell;
@@ -8,8 +11,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
 import org.openl.util.formatters.IFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class TableValueFilter extends AGridFilter {
 

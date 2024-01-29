@@ -1,12 +1,13 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author Aleh Bykhavets

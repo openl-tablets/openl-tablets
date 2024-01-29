@@ -1,8 +1,8 @@
 package org.openl.rules.openapi.impl;
 
-import org.openl.rules.model.scaffolding.SpreadsheetModel;
-
 import java.util.Objects;
+
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 
 public class SpreadsheetParserModel {
     private SpreadsheetModel model;

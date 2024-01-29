@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.time.DateUtils;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.StringUtils;

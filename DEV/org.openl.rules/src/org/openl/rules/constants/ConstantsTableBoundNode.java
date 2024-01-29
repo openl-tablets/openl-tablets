@@ -22,8 +22,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.util.ParserUtils;
-import org.openl.util.TableNameChecker;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.FieldMetaInfo;
@@ -31,7 +29,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.TableNameChecker;
 
 public class ConstantsTableBoundNode implements IMemberBoundNode {
 

@@ -1,17 +1,16 @@
 package org.openl.rules.ruleservice.tracing.jaeger.filter;
 
 import java.util.regex.Pattern;
-
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.ruleservice.servlet.SpringInitializer;
+import io.opentracing.contrib.web.servlet.filter.TracingFilter;
 import org.springframework.core.env.Environment;
 
-import io.opentracing.contrib.web.servlet.filter.TracingFilter;
+import org.openl.rules.ruleservice.servlet.SpringInitializer;
 
 @WebFilter("/*")
 public class OpenLTracingFilter extends TracingFilter {

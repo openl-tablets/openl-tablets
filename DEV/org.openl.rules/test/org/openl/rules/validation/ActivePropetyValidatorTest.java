@@ -2,7 +2,6 @@ package org.openl.rules.validation;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
 import java.util.Collection;
 
 import org.junit.jupiter.api.Test;

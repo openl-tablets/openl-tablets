@@ -3,7 +3,6 @@ package org.openl.rules.ui.tablewizard;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -25,7 +24,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
-@GroupSequence({ DatatypeAliasTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({DatatypeAliasTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class DatatypeAliasTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)

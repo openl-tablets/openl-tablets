@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +36,9 @@ import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
 @TestPropertySource(properties = {"repository.design-rating.comment-template.use-custom-comments = false",
-		"repository.design-rating2.comment-template.use-custom-comments = true",
-		"repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
-		"repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
+    "repository.design-rating2.comment-template.use-custom-comments = true",
+    "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
+    "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
 public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final Consumer<FeaturesBuilder> NO_EXTRA_FEATURES = builder -> {

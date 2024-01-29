@@ -2,7 +2,6 @@ package org.openl.rules.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;

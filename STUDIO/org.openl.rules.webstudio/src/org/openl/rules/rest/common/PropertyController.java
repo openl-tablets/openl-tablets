@@ -6,13 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
-import org.openl.rules.rest.SecurityChecker;
-import org.openl.rules.security.Privileges;
-import org.openl.spring.env.DefaultPropertySource;
-import org.openl.spring.env.DynamicPropertySource;
-import org.openl.spring.env.PropertyBean;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,7 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Hidden;
+import org.openl.rules.rest.SecurityChecker;
+import org.openl.rules.security.Privileges;
+import org.openl.spring.env.DefaultPropertySource;
+import org.openl.spring.env.DynamicPropertySource;
+import org.openl.spring.env.PropertyBean;
 
 @RestController
 @RequestMapping(value = "/config", produces = MediaType.APPLICATION_JSON_VALUE)

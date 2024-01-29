@@ -11,9 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.openl.util.PropertiesUtils;
-
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.PropertiesUtils;
 
 /**
  * For internal usage only.

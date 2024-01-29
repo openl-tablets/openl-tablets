@@ -10,6 +10,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -30,10 +35,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.lazy.LazyRuleServiceDependencyLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 
 public class RuleServiceDependencyManager extends AbstractDependencyManager {
 

@@ -1,12 +1,12 @@
 package org.openl.rules.rest.service;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
-
-import java.io.IOException;
-import java.util.List;
 
 public interface ProjectDeploymentService {
     List<DeploymentProjectItem> getDeploymentProjectItems(AProject project,

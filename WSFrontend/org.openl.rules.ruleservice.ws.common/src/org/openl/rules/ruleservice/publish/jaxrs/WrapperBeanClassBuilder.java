@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 

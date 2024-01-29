@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,10 +27,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 
 @TestPropertySource(properties = {"production-repository.base.path=",
-		"production-repository.factory = repo-jdbc",
-		"production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1"})
+    "production-repository.factory = repo-jdbc",
+    "production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
-		"classpath:openl-ruleservice-datasource-beans.xml"})
+    "classpath:openl-ruleservice-datasource-beans.xml"})
 public class RulesLoaderTest {
 
     @Autowired
