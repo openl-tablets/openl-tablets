@@ -8,7 +8,7 @@ export const Email: React.FC = () => {
 
     return (
         <>
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
                 {t('email:email_server_configuration')}
             </Typography.Title>
             <Form

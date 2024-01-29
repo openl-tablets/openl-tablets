@@ -27,5 +27,6 @@ i18next.addResourceBundle('en', 'common', {
     btn: {
         save: 'Save',
         cancel: 'Cancel',
+        apply: 'Apply',
     }
 })
