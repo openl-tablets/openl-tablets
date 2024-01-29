@@ -113,7 +113,7 @@ public class RulesPublisherTest {
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
-            .newInstance();
+            .getDeclaredConstructor().newInstance();
         frontend.execute(TUTORIAL4, "driverAgeType", driver);
     }
 
@@ -127,7 +127,7 @@ public class RulesPublisherTest {
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
-            .newInstance();
+            .getDeclaredConstructor().newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
         Class<?> returnType = frontend.execute(TUTORIAL4_SERVICE_NAME, "driverAgeType", driver)

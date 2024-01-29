@@ -475,7 +475,7 @@ public class MergeConflictBean {
             }
             if ((!hasYourFile(name) || !hasTheirFile(name)) && resolvedFile.getStream() != null) {
                 Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, name);
-                if (!projectByPath.isPresent()) {
+                if (projectByPath.isEmpty()) {
                     continue;
                 }
 

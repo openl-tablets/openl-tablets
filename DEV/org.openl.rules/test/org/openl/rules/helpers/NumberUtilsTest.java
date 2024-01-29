@@ -27,9 +27,9 @@ public class NumberUtilsTest {
 
     @Test
     public void testGetNumberScale() {
-        assertEquals(3, NumberUtils.getScale(new Double(12.678)));
-        assertEquals(0, NumberUtils.getScale(new Integer(12)));
-        assertEquals(0, NumberUtils.getScale(new Integer(0)));
+        assertEquals(3, NumberUtils.getScale(Double.valueOf(12.678)));
+        assertEquals(0, NumberUtils.getScale(Integer.valueOf(12)));
+        assertEquals(0, NumberUtils.getScale(Integer.valueOf(0)));
 
         assertEquals(0, NumberUtils.getScale((Number) Double.NaN));
         assertEquals(0, NumberUtils.getScale((Number) Double.NEGATIVE_INFINITY));

@@ -136,8 +136,8 @@ public class SimpleBeanByteCodeGeneratorTest {
         Method equalsMethod = null, setFirstField = null;
         Boolean isEqual = false;
         try {
-            instance1 = clazz.newInstance();
-            instance2 = clazz.newInstance();
+            instance1 = clazz.getDeclaredConstructor().newInstance();
+            instance2 = clazz.getDeclaredConstructor().newInstance();
             equalsMethod = clazz.getMethod("equals", Object.class);
             setFirstField = clazz.getMethod("setFirstField", String.class);
             isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });

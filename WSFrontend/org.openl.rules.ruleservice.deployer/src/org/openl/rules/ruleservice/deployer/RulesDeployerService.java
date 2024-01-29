@@ -297,7 +297,7 @@ public class RulesDeployerService implements Closeable {
                 for (Path folder : folders) {
                     String folderName = folder.getFileName().toString();
                     Optional<FileData> fileData = createFileData(folder, deploymentName, folderName, ignoreIfExists);
-                    if (!fileData.isPresent()) {
+                    if (fileData.isEmpty()) {
                         continue;
                     }
                     Path tmp = Files.createTempFile(folderName, ".zip");

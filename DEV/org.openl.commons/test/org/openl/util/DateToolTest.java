@@ -41,7 +41,7 @@ public class DateToolTest {
             Date startDate = createCalendar(5, 11, 2013).getTime();
             Date endDate = createCalendar(6, 12, 2015).getTime();
 
-            assertEquals(new Integer(2), DateTool.yearDiff(endDate, startDate));
+            assertEquals(Integer.valueOf(2), DateTool.yearDiff(endDate, startDate));
         }
 
         @Test

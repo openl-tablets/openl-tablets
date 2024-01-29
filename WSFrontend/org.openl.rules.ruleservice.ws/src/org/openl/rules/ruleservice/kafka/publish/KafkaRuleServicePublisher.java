@@ -300,7 +300,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 Class<?> clientIDGeneratorClass = Thread.currentThread()
                     .getContextClassLoader()
                     .loadClass(clientIDGeneratorClassName);
-                ClientIDGenerator clientIDGenerator = (ClientIDGenerator) clientIDGeneratorClass.newInstance();
+                ClientIDGenerator clientIDGenerator = (ClientIDGenerator) clientIDGeneratorClass.getDeclaredConstructor().newInstance();
                 configs.put(CLIENT_ID, clientIDGenerator.generate(service, kafkaConfig));
             } catch (Exception e) {
                 log.error("Failed to generate 'client.id' property for kafka consumer/producer.", e);

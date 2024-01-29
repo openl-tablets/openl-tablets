@@ -77,7 +77,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     public static class AroundInterceptor implements ServiceMethodAroundAdvice<Integer> {
         @Override
         public Integer around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
-            return new Integer(-1);
+            return Integer.valueOf(-1);
         }
 
     }
@@ -268,7 +268,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             Class<?> myBeanClass = Thread.currentThread()
                 .getContextClassLoader()
                 .loadClass("org.openl.generated.beans.MyBean");
-            return myBeanClass.newInstance();
+            return myBeanClass.getDeclaredConstructor().newInstance();
         }
     }
 

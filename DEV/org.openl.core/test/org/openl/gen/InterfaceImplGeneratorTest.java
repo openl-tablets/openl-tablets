@@ -25,8 +25,8 @@ public class InterfaceImplGeneratorTest {
         assertEquals(0, iBean.returnInt());
         assertEquals(0L, iBean.returnLong());
         assertEquals(0, iBean.returnShort());
-        assertEquals(new Float(0F), new Float(iBean.returnFloat()));
-        assertEquals(new Double(0D), new Double(iBean.returnDouble()));
+        assertEquals(Float.valueOf(0F), Float.valueOf(iBean.returnFloat()));
+        assertEquals(Double.valueOf(0D), Double.valueOf(iBean.returnDouble()));
         assertEquals(0, iBean.returnChar());
     }
 

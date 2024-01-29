@@ -77,6 +77,6 @@ public class OpenLConfigurator {
         if (builderClassName == null) {
             builderClassName = openl + "." + OPENL_BUILDER;
         }
-        return (IOpenLBuilder) ClassFactory.forName(builderClassName, cl).newInstance();
+        return (IOpenLBuilder) ClassFactory.forName(builderClassName, cl).getDeclaredConstructor().newInstance();
     }
 }

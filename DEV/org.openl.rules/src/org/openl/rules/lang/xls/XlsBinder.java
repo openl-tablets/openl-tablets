@@ -123,7 +123,7 @@ public class XlsBinder implements IOpenBinder {
             Map<String, AXlsTableBinder> binderFactory = new HashMap<>();
             for (String[] binder : BINDERS) {
                 try {
-                    binderFactory.put(binder[0], (AXlsTableBinder) Class.forName(binder[1]).newInstance());
+                    binderFactory.put(binder[0], (AXlsTableBinder) Class.forName(binder[1]).getDeclaredConstructor().newInstance());
                 } catch (Exception ex) {
                     throw RuntimeExceptionWrapper.wrap(ex);
                 }

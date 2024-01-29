@@ -27,6 +27,6 @@ public class OperatorsTest {
     @Test
     public void testSubtractDates() throws Exception {
         Integer diff = Operators.subtract(dateFormat.parse("2013-01-29"), dateFormat.parse("2012-10-01"));
-        assertEquals(new Integer(120), diff);
+        assertEquals(Integer.valueOf(120), diff);
     }
 }

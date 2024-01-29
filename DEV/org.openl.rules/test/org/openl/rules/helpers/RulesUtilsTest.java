@@ -1107,139 +1107,139 @@ public class RulesUtilsTest {
 
     @Test
     public void testByteValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientByteValue(new Byte((byte) 25), new Byte((byte) 12)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientByteValue(Byte.valueOf((byte) 25), Byte.valueOf((byte) 12)));
     }
 
     @Test
     public void testShortValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientShortValue(new Short((short) 25), new Short((short) 12)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientShortValue(Short.valueOf((short) 25), Short.valueOf((short) 12)));
     }
 
     @Test
     public void testIntegerValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientIntegerValue(new Integer(25), new Integer(12)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientIntegerValue(Integer.valueOf(25), Integer.valueOf(12)));
     }
 
     @Test
     public void testLongValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientLongValue(new Long(25), new Long(12)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientLongValue(Long.valueOf(25), Long.valueOf(12)));
     }
 
     @Test
     public void testFloatValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientFloatValue(new Float((float) 25.4), new Float((float) 12.2)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientFloatValue(Float.valueOf((float) 25.4), Float.valueOf((float) 12.2)));
     }
 
     @Test
     public void testDoubleValueQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientDoubleValue(new Double(25.4), new Double(12.2)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientDoubleValue(Double.valueOf(25.4), Double.valueOf(12.2)));
     }
 
     @Test
     public void testBigIntegerValueQuaotient() {
-        assertEquals(new Long(2),
+        assertEquals(Long.valueOf(2),
             instance.testQuaotientBigIntegerValue(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalValueQuaotient() {
-        assertEquals(new Long(2),
+        assertEquals(Long.valueOf(2),
             instance.testQuaotientBigDecimalValue(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
     @Test
     public void testByteTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientByteType((byte) 25, (byte) 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientByteType((byte) 25, (byte) 12));
     }
 
     @Test
     public void testShortTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientShortType((short) 25, (short) 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientShortType((short) 25, (short) 12));
     }
 
     @Test
     public void testIntegerTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientIntegerType(25, 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientIntegerType(25, 12));
     }
 
     @Test
     public void testLongTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientLongType(25, 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientLongType(25, 12));
     }
 
     @Test
     public void testFloatTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientFloatType((float) 25.5, (float) 12.2));
+        assertEquals(Long.valueOf(2), instance.testQuaotientFloatType((float) 25.5, (float) 12.2));
     }
 
     @Test
     public void testDoubleTypeQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientDoubleType(25.4, 12.2));
+        assertEquals(Long.valueOf(2), instance.testQuaotientDoubleType(25.4, 12.2));
     }
 
     @Test
     public void testBigIntegerQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
+        assertEquals(Long.valueOf(2), instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
     @Test
     public void testByteQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientByte((byte) 25, (byte) 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientByte((byte) 25, (byte) 12));
     }
 
     @Test
     public void testShortQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientShort((short) 25, (short) 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientShort((short) 25, (short) 12));
     }
 
     @Test
     public void testIntegerQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientInteger(25, 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientInteger(25, 12));
     }
 
     @Test
     public void testLongQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientLong((long) 25, (long) 12));
+        assertEquals(Long.valueOf(2), instance.testQuaotientLong((long) 25, (long) 12));
     }
 
     @Test
     public void testFloatQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
+        assertEquals(Long.valueOf(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
     }
 
     @Test
     public void testDoubleQuaotient() {
-        assertEquals(new Long(2), instance.testQuaotientDouble(25.4, 12.2));
+        assertEquals(Long.valueOf(2), instance.testQuaotientDouble(25.4, 12.2));
     }
 
     @Test
     public void testByteValueMod() {
-        assertEquals(new Byte((byte) 1), instance.testModByteValue((byte) 10, (byte) 3));
+        assertEquals(Byte.valueOf((byte) 1), instance.testModByteValue((byte) 10, (byte) 3));
     }
 
     @Test
     public void testShortValueMod() {
-        assertEquals(new Short((short) 1), instance.testModShortValue((short) 10, (short) 3));
+        assertEquals(Short.valueOf((short) 1), instance.testModShortValue((short) 10, (short) 3));
     }
 
     @Test
     public void testIntegerValueMod() {
-        assertEquals(new Integer(1), instance.testModIntegerValue(10, 3));
+        assertEquals(Integer.valueOf(1), instance.testModIntegerValue(10, 3));
     }
 
     @Test
     public void testLongValueMod() {
-        assertEquals(new Long(1), instance.testModLongValue(10L, 3L));
+        assertEquals(Long.valueOf(1), instance.testModLongValue(10L, 3L));
     }
 
     @Test
     public void testFloatValueMod() {
-        assertEquals(new Float(0.5F), instance.testModFloatValue(10.1F, 3.2F));
+        assertEquals(Float.valueOf(0.5F), instance.testModFloatValue(10.1F, 3.2F));
     }
 
     @Test
@@ -1256,27 +1256,27 @@ public class RulesUtilsTest {
 
     @Test
     public void testByteMod() {
-        assertEquals(new Byte((byte) 1), instance.testModByte((byte) 10, (byte) 3));
+        assertEquals(Byte.valueOf((byte) 1), instance.testModByte((byte) 10, (byte) 3));
     }
 
     @Test
     public void testShortMod() {
-        assertEquals(new Short((short) 1), instance.testModShort((short) 10, (short) 3));
+        assertEquals(Short.valueOf((short) 1), instance.testModShort((short) 10, (short) 3));
     }
 
     @Test
     public void testIntegerMod() {
-        assertEquals(new Integer(1), instance.testModInteger(10, 3));
+        assertEquals(Integer.valueOf(1), instance.testModInteger(10, 3));
     }
 
     @Test
     public void testLongMod() {
-        assertEquals(new Long(1), instance.testModLong(10L, 3L));
+        assertEquals(Long.valueOf(1), instance.testModLong(10L, 3L));
     }
 
     @Test
     public void testFloatMod() {
-        assertEquals(new Float((float) 0.5), instance.testModFloat((float) 10.1, (float) 3.2));
+        assertEquals(Float.valueOf((float) 0.5), instance.testModFloat((float) 10.1, (float) 3.2));
     }
 
     @Test
@@ -4311,16 +4311,16 @@ public class RulesUtilsTest {
 
     @Test
     public void testMedianByte() {
-        assertEquals(new Double(5), instance.testMedianByte(new Byte[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianByte(new Byte[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianByte(new Byte[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianByte(new Byte[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianByte(null));
         assertNull(instance.testMedianByte(new Byte[] {}));
     }
 
     @Test
     public void testMedianByteType() {
-        assertEquals(new Double(5), instance.testMedianByteType(new byte[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianByteType(new byte[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianByteType(new byte[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianByteType(new byte[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianByteType(null));
         // TODO: Is it correct? The result is different when used boxed array
         assertEquals(null, instance.testMedianByteType(new byte[] {}));
@@ -4328,80 +4328,80 @@ public class RulesUtilsTest {
 
     @Test
     public void testMedianShort() {
-        assertEquals(new Double(5), instance.testMedianShort(new Short[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianShort(new Short[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianShort(new Short[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianShort(new Short[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianShort(null));
         assertNull(instance.testMedianShort(new Short[] {}));
     }
 
     @Test
     public void testMedianShortType() {
-        assertEquals(new Double(5), instance.testMedianShortType(new short[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianShortType(new short[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianShortType(new short[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianShortType(new short[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianShortType(null));
         assertEquals(null, instance.testMedianShortType(new short[] {}));
     }
 
     @Test
     public void testMedianInteger() {
-        assertEquals(new Double(5), instance.testMedianInteger(new Integer[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianInteger(new Integer[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianInteger(new Integer[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianInteger(new Integer[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianInteger(null));
         assertNull(instance.testMedianInteger(new Integer[] {}));
     }
 
     @Test
     public void testMedianIntegerType() {
-        assertEquals(new Double(5), instance.testMedianIntegerType(new int[] { 11, 9, 3, 5, 5 }));
-        assertEquals(new Double(3.5), instance.testMedianIntegerType(new int[] { 2, 1, 5, 7 }));
+        assertEquals(Double.valueOf(5), instance.testMedianIntegerType(new int[] { 11, 9, 3, 5, 5 }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianIntegerType(new int[] { 2, 1, 5, 7 }));
         assertNull(instance.testMedianIntegerType(null));
         assertEquals(null, instance.testMedianIntegerType(new int[] {}));
     }
 
     @Test
     public void testMedianLong() {
-        assertEquals(new Double(5), instance.testMedianLong(new Long[] { 11L, 9L, 3L, 5L, 5L }));
-        assertEquals(new Double(3.5), instance.testMedianLong(new Long[] { 2L, 1L, 5L, 7L }));
+        assertEquals(Double.valueOf(5), instance.testMedianLong(new Long[] { 11L, 9L, 3L, 5L, 5L }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianLong(new Long[] { 2L, 1L, 5L, 7L }));
         assertNull(instance.testMedianLong(null));
         assertNull(instance.testMedianLong(new Long[] {}));
     }
 
     @Test
     public void testMedianLongType() {
-        assertEquals(new Double(5), instance.testMedianLongType(new long[] { 11L, 9L, 3L, 5L, 5L }));
-        assertEquals(new Double(3.5), instance.testMedianLongType(new long[] { 2L, 1L, 5L, 7L }));
+        assertEquals(Double.valueOf(5), instance.testMedianLongType(new long[] { 11L, 9L, 3L, 5L, 5L }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianLongType(new long[] { 2L, 1L, 5L, 7L }));
         assertNull(instance.testMedianLongType(null));
         assertEquals(null, instance.testMedianLongType(new long[] {}));
     }
 
     @Test
     public void testMedianFloat() {
-        assertEquals(new Float(5), instance.testMedianFloat(new Float[] { 11.F, 9.F, 3.F, 5.F, 5.F }));
-        assertEquals(new Float(3.5), instance.testMedianFloat(new Float[] { 2.F, 1.F, 5.F, 7.F }));
+        assertEquals(Float.valueOf(5), instance.testMedianFloat(new Float[] { 11.F, 9.F, 3.F, 5.F, 5.F }));
+        assertEquals(Float.valueOf("3.5"), instance.testMedianFloat(new Float[] { 2.F, 1.F, 5.F, 7.F }));
         assertNull(instance.testMedianFloat(null));
         assertNull(instance.testMedianFloat(new Float[] {}));
     }
 
     @Test
     public void testMedianFloatType() {
-        assertEquals(new Float(5), instance.testMedianFloatType(new float[] { 11.F, 9.F, 3.F, 5.F, 5.F }));
-        assertEquals(new Float(3.5), instance.testMedianFloatType(new float[] { 2.F, 1.F, 5.F, 7.F }));
+        assertEquals(Float.valueOf(5), instance.testMedianFloatType(new float[] { 11.F, 9.F, 3.F, 5.F, 5.F }));
+        assertEquals(Float.valueOf("3.5"), instance.testMedianFloatType(new float[] { 2.F, 1.F, 5.F, 7.F }));
         assertNull(instance.testMedianFloatType(null));
         assertEquals(null, instance.testMedianFloatType(new float[] {}));
     }
 
     @Test
     public void testMedianDouble() {
-        assertEquals(new Double(5), instance.testMedianDouble(new Double[] { 11., 9., 3., 5., 5. }));
-        assertEquals(new Double(3.5), instance.testMedianDouble(new Double[] { 2., 1., 5., 7. }));
+        assertEquals(Double.valueOf(5), instance.testMedianDouble(new Double[] { 11., 9., 3., 5., 5. }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianDouble(new Double[] { 2., 1., 5., 7. }));
         assertNull(instance.testMedianDouble(null));
         assertNull(instance.testMedianDouble(new Double[] {}));
     }
 
     @Test
     public void testMedianDoubleType() {
-        assertEquals(new Double(5), instance.testMedianDoubleType(new double[] { 11., 9., 3., 5., 5. }));
-        assertEquals(new Double(3.5), instance.testMedianDoubleType(new double[] { 2., 1., 5., 7. }));
+        assertEquals(Double.valueOf(5), instance.testMedianDoubleType(new double[] { 11., 9., 3., 5., 5. }));
+        assertEquals(Double.valueOf(3.5), instance.testMedianDoubleType(new double[] { 2., 1., 5., 7. }));
         assertNull(instance.testMedianDoubleType(null));
         assertEquals(null, instance.testMedianDoubleType(new double[] {}));
     }
@@ -4437,8 +4437,8 @@ public class RulesUtilsTest {
     @Test
     public void testModDouble() {
         assertEquals(0.5, instance.testModDouble(10.1, 3.2), 1e-7);
-        assertEquals(new Double(0), instance.testModDouble(10.1, null));
-        assertEquals(new Double(0), instance.testModDouble(null, 3.2));
+        assertEquals(Double.valueOf(0), instance.testModDouble(10.1, null));
+        assertEquals(Double.valueOf(0), instance.testModDouble(null, 3.2));
     }
 
     @Test

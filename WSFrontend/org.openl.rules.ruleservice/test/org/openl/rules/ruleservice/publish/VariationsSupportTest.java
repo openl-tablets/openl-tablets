@@ -46,7 +46,7 @@ public class VariationsSupportTest {
             .getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.generated.beans.publisher.test.Driver")
-            .newInstance();
+            .getDeclaredConstructor().newInstance();
         Method nameSetter = driver.getClass().getMethod("setGender", String.class);
         nameSetter.invoke(driver, "Male");
         Method ageSetter = driver.getClass().getMethod("setAge", int.class);
