@@ -1,7 +1,6 @@
 package org.openl.rules.rest.validation;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
 

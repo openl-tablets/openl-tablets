@@ -1,6 +1,9 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Expression;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntExp;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*

@@ -2,9 +2,6 @@ package org.openl.rules.rest.service.tables.read;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.rest.model.tables.DatatypeFieldView;
 import org.openl.rules.rest.model.tables.DatatypeView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;

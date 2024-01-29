@@ -15,8 +15,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 
-import javax.xml.bind.JAXBException;
-
 public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable {
 
     private static final Predicate<Path> ACCEPT_ALL = path -> true;

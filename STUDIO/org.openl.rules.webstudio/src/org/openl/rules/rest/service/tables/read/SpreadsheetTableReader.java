@@ -2,10 +2,8 @@ package org.openl.rules.rest.service.tables.read;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.rest.model.tables.SpreadsheetCellView;
 import org.openl.rules.rest.model.tables.SpreadsheetColumnView;
 import org.openl.rules.rest.model.tables.SpreadsheetRowView;

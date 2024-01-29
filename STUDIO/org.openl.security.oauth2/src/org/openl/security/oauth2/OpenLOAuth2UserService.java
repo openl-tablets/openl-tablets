@@ -1,11 +1,9 @@
 package org.openl.security.oauth2;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.rules.security.SimpleUser;
-import org.openl.util.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;

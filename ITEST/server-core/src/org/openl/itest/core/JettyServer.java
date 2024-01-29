@@ -20,8 +20,6 @@ import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import static org.junit.Assert.fail;
-
 /**
  * Simple wrapper for Jetty Server
  *

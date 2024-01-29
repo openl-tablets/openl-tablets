@@ -9,8 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.util.Random;
-
 @ContextConfiguration(classes = { MockConfiguration.class, TestRunner070.TestConfig.class })
 public class TestRunner070 extends AbstractSpringOpenApiTest {
 

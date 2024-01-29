@@ -17,12 +17,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.webstudio.service.OpenLProjectService;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;

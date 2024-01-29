@@ -16,7 +16,8 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.*;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SecuredRepositoryFactory;
 
 public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
 

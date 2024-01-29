@@ -3,7 +3,6 @@ package org.openl.rules.security.standalone.persistence;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

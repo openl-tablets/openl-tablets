@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.openl.rules.webstudio.web.admin.RepositoryValidators.getMostSpecificMessage;
 
 public class RepositoryValidatorsTest {

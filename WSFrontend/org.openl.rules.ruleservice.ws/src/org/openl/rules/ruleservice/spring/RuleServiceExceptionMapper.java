@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSErrorResponse;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSUserErrorResponse;
 
 /**
  * Process exception from the RuleService engine.

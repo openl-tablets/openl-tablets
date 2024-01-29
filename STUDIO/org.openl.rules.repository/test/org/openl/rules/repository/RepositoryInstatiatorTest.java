@@ -1,6 +1,6 @@
 package org.openl.rules.repository;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.nio.file.InvalidPathException;

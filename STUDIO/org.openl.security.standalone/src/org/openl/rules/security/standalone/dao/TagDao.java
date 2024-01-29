@@ -3,7 +3,6 @@ package org.openl.rules.security.standalone.dao;
 import java.util.List;
 
 import org.openl.rules.security.standalone.persistence.Tag;
-import org.openl.rules.security.standalone.persistence.TagType;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface TagDao extends Dao<Tag> {
