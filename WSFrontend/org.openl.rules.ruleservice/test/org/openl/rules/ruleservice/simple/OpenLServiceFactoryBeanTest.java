@@ -75,7 +75,7 @@ public class OpenLServiceFactoryBeanTest {
         }
     }
 
-    @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationRuntimeException.class)
+    @Test(expected = MethodInvocationRuntimeException.class)
     public void testAbsentMethods() {
         ruleService1.absent("X");
     }

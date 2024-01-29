@@ -50,7 +50,7 @@ public class MethodInfo {
         return handler;
     }
 
-    public io.swagger.v3.oas.annotations.Operation getOperationAnnotation() {
+    public Operation getOperationAnnotation() {
         return operationAnnotation;
     }
 

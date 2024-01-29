@@ -50,7 +50,7 @@ public class RulesFrontendTest {
         assertEquals("World, Good Morning!", result);
     }
 
-    @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationException.class)
+    @Test(expected = MethodInvocationException.class)
     public void testProxyServicesNotExistedMethod() throws MethodInvocationException {
         frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
     }

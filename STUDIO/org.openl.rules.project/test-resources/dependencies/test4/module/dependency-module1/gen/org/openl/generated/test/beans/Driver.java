@@ -8,15 +8,15 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Driver {
-    protected java.lang.String name;
+    protected String name;
 
-    protected java.lang.String state;
+    protected String state;
 
-    protected java.lang.String gender;
+    protected String gender;
 
     protected int age;
 
-    protected java.lang.String maritalStatus;
+    protected String maritalStatus;
 
     protected int numAccidents;
 
@@ -83,7 +83,7 @@ public class Driver {
         return builder.isEquals();
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return name;
     }
 
@@ -91,23 +91,23 @@ public class Driver {
         return "Driver {" + " name=" + getName() + " gender=" + getGender() + " age=" + getAge() + " maritalStatus=" + getMaritalStatus() + " state=" + getState() + " numAccidents=" + getNumAccidents() + " numMovingViolations=" + getNumMovingViolations() + " numDUI=" + getNumDUI() + " hadTraining=" + getHadTraining() + " }";
     }
 
-    public java.lang.String getState() {
+    public String getState() {
         return state;
     }
 
-    public void setName(java.lang.String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public void setState(java.lang.String state) {
+    public void setState(String state) {
         this.state = state;
     }
 
-    public java.lang.String getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(java.lang.String gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
@@ -119,11 +119,11 @@ public class Driver {
         this.age = age;
     }
 
-    public java.lang.String getMaritalStatus() {
+    public String getMaritalStatus() {
         return maritalStatus;
     }
 
-    public void setMaritalStatus(java.lang.String maritalStatus) {
+    public void setMaritalStatus(String maritalStatus) {
         this.maritalStatus = maritalStatus;
     }
 

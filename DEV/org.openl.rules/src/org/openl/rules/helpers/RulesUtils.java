@@ -61,7 +61,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Byte small(java.lang.Byte[] values, int position) {
+    public static Byte small(Byte[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -75,7 +75,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Short small(java.lang.Short[] values, int position) {
+    public static Short small(Short[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -89,7 +89,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Integer small(java.lang.Integer[] values, int position) {
+    public static Integer small(Integer[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -103,7 +103,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Long small(java.lang.Long[] values, int position) {
+    public static Long small(Long[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -117,7 +117,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Float small(java.lang.Float[] values, int position) {
+    public static Float small(Float[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -131,7 +131,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Double small(java.lang.Double[] values, int position) {
+    public static Double small(Double[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -145,7 +145,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.math.BigInteger small(java.math.BigInteger[] values, int position) {
+    public static BigInteger small(BigInteger[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -159,7 +159,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.math.BigDecimal small(java.math.BigDecimal[] values, int position) {
+    public static BigDecimal small(BigDecimal[] values, int position) {
         return MathUtils.small(values, position);
     }
 
@@ -259,7 +259,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Byte big(java.lang.Byte[] values, int position) {
+    public static Byte big(Byte[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -273,7 +273,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Short big(java.lang.Short[] values, int position) {
+    public static Short big(Short[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -287,7 +287,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Integer big(java.lang.Integer[] values, int position) {
+    public static Integer big(Integer[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -301,7 +301,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Long big(java.lang.Long[] values, int position) {
+    public static Long big(Long[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -315,7 +315,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Float big(java.lang.Float[] values, int position) {
+    public static Float big(Float[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -329,7 +329,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.lang.Double big(java.lang.Double[] values, int position) {
+    public static Double big(Double[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -343,7 +343,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.math.BigInteger big(java.math.BigInteger[] values, int position) {
+    public static BigInteger big(BigInteger[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -357,7 +357,7 @@ public final class RulesUtils {
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
-    public static java.math.BigDecimal big(java.math.BigDecimal[] values, int position) {
+    public static BigDecimal big(BigDecimal[] values, int position) {
         return MathUtils.big(values, position);
     }
 
@@ -453,7 +453,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Double median(java.lang.Byte[] values) {
+    public static Double median(Byte[] values) {
         return MathUtils.median(values);
     }
 
@@ -463,7 +463,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Double median(java.lang.Short[] values) {
+    public static Double median(Short[] values) {
         return MathUtils.median(values);
     }
 
@@ -473,7 +473,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Double median(java.lang.Integer[] values) {
+    public static Double median(Integer[] values) {
         return MathUtils.median(values);
     }
 
@@ -483,7 +483,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Double median(java.lang.Long[] values) {
+    public static Double median(Long[] values) {
         return MathUtils.median(values);
     }
 
@@ -493,7 +493,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Float median(java.lang.Float[] values) {
+    public static Float median(Float[] values) {
         return MathUtils.median(values);
     }
 
@@ -503,7 +503,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.lang.Double median(java.lang.Double[] values) {
+    public static Double median(Double[] values) {
         return MathUtils.median(values);
     }
 
@@ -513,7 +513,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.math.BigDecimal median(java.math.BigInteger[] values) {
+    public static BigDecimal median(BigInteger[] values) {
         return MathUtils.median(values);
     }
 
@@ -523,7 +523,7 @@ public final class RulesUtils {
      * @param values
      * @return
      */
-    public static java.math.BigDecimal median(java.math.BigDecimal[] values) {
+    public static BigDecimal median(BigDecimal[] values) {
         return MathUtils.median(values);
     }
 
@@ -596,35 +596,35 @@ public final class RulesUtils {
      * @param divisor
      * @return
      */
-    public static long quotient(java.lang.Byte number, java.lang.Byte divisor) {
+    public static long quotient(Byte number, Byte divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.lang.Short number, java.lang.Short divisor) {
+    public static long quotient(Short number, Short divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.lang.Integer number, java.lang.Integer divisor) {
+    public static long quotient(Integer number, Integer divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.lang.Long number, java.lang.Long divisor) {
+    public static long quotient(Long number, Long divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.lang.Float number, java.lang.Float divisor) {
+    public static long quotient(Float number, Float divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.lang.Double number, java.lang.Double divisor) {
+    public static long quotient(Double number, Double divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.math.BigInteger number, java.math.BigInteger divisor) {
+    public static long quotient(BigInteger number, BigInteger divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
-    public static long quotient(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+    public static long quotient(BigDecimal number, BigDecimal divisor) {
         return MathUtils.quotient(number, divisor);
     }
 
@@ -653,35 +653,35 @@ public final class RulesUtils {
     }
 
     // MOD as in Excel
-    public static java.lang.Byte mod(java.lang.Byte number, java.lang.Byte divisor) {
+    public static Byte mod(Byte number, Byte divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.lang.Short mod(java.lang.Short number, java.lang.Short divisor) {
+    public static Short mod(Short number, Short divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.lang.Integer mod(java.lang.Integer number, java.lang.Integer divisor) {
+    public static Integer mod(Integer number, Integer divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.lang.Long mod(java.lang.Long number, java.lang.Long divisor) {
+    public static Long mod(Long number, Long divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.lang.Float mod(java.lang.Float number, java.lang.Float divisor) {
+    public static Float mod(Float number, Float divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.lang.Double mod(java.lang.Double number, java.lang.Double divisor) {
+    public static Double mod(Double number, Double divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.math.BigInteger mod(java.math.BigInteger number, java.math.BigInteger divisor) {
+    public static BigInteger mod(BigInteger number, BigInteger divisor) {
         return MathUtils.mod(number, divisor);
     }
 
-    public static java.math.BigDecimal mod(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+    public static BigDecimal mod(BigDecimal number, BigDecimal divisor) {
         return MathUtils.mod(number, divisor);
     }
 

@@ -146,7 +146,7 @@ public class ManagementController {
             privileges = group.getPrivileges();
             roles = group.getIncludedGroups()
                 .stream()
-                .map(org.openl.rules.security.standalone.persistence.Group::getName)
+                .map(Group::getName)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }

@@ -85,6 +85,7 @@ import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -293,7 +294,7 @@ public class OpenApiProjectValidator {
             context.isProvideVariations());
     }
 
-    private Pair<String, PathItem> findPathItem(io.swagger.v3.oas.models.Paths paths, String path) {
+    private Pair<String, PathItem> findPathItem(Paths paths, String path) {
         if (paths != null) {
             path = path.replaceAll("\\{[^}]*}", "{}");
             for (Map.Entry<String, PathItem> entry : paths.entrySet()) {

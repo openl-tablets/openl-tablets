@@ -9,10 +9,13 @@ import java.util.List;
 import org.junit.Test;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.types.java.JavaOpenClass;
 
 public class ArrayParameterColumnTest {
 
@@ -70,7 +73,7 @@ public class ArrayParameterColumnTest {
         // create not array property
         //
         TablePropertyDefinition property = new TablePropertyDefinition();
-        property.setType(org.openl.types.java.JavaOpenClass.getOpenClass(String.class));
+        property.setType(JavaOpenClass.getOpenClass(String.class));
 
         try {
             new ArrayParameterColumn(property, getRules());
@@ -95,12 +98,12 @@ public class ArrayParameterColumnTest {
 
     private TablePropertyDefinition getArrayProperty() {
         TablePropertyDefinition arrayProperty = new TablePropertyDefinition();
-        arrayProperty.setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
+        arrayProperty.setConstraints(new Constraints("data: countries"));
         arrayProperty.setDescription("Country");
         arrayProperty.setDimensional(true);
         arrayProperty.setDisplayName("Countries");
         arrayProperty.setExpression(
-            new org.openl.rules.table.properties.expressions.match.MatchingExpression("contains(country)"));
+            new MatchingExpression("contains(country)"));
         arrayProperty.setGroup("Business Dimension");
         arrayProperty.setInheritanceLevel(
             new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
@@ -109,7 +112,7 @@ public class ArrayParameterColumnTest {
         arrayProperty.setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
         arrayProperty.setSystem(false);
         arrayProperty.setType(
-            org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CountriesEnum[].class));
+            JavaOpenClass.getOpenClass(CountriesEnum[].class));
         return arrayProperty;
     }
 }

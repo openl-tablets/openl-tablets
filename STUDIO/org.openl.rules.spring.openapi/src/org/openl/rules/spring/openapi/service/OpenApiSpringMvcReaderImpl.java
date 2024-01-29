@@ -37,6 +37,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Operation;
@@ -327,8 +328,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     private void processTagsFromType(OpenApiContext openApiContext, Class<?> beanType) {
         List<Stream<io.swagger.v3.oas.annotations.tags.Tag>> tags = new ArrayList<>();
         Optional
-            .ofNullable(AnnotationUtils.findAnnotation(beanType, io.swagger.v3.oas.annotations.OpenAPIDefinition.class))
-            .map(io.swagger.v3.oas.annotations.OpenAPIDefinition::tags)
+            .ofNullable(AnnotationUtils.findAnnotation(beanType, OpenAPIDefinition.class))
+            .map(OpenAPIDefinition::tags)
             .ifPresent(anno -> tags.add(Stream.of(anno)));
         Optional
             .ofNullable(

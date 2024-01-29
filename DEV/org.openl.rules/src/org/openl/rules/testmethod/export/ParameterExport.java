@@ -350,7 +350,7 @@ class ParameterExport extends BaseExport {
         for (int i = 0; i < executionParams.length; i++) {
             ParameterWithValueDeclaration param = executionParams[i];
             List<Object> values = valuesForAllCases(descriptions, i);
-            if (org.openl.util.ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
+            if (ClassUtils.isAssignable(param.getType().getInstanceClass(), Collection.class)) {
                 IOpenClass paramType = CastToWiderType.defineCollectionWiderType((Collection<?>) param.getValue());
                 result.add(FieldDescriptor.nonEmptyFields(paramType, values, skipEmptyParameters));
             } else {

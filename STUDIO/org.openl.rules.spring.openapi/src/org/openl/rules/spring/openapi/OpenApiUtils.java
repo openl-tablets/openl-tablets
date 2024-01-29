@@ -11,6 +11,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpSession;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
 import org.openl.util.StringUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
@@ -95,13 +97,13 @@ public final class OpenApiUtils {
     }
 
     public static boolean isHiddenApiMethod(Method method) {
-        var anno = AnnotationUtils.findAnnotation(method, io.swagger.v3.oas.annotations.Operation.class);
+        var anno = AnnotationUtils.findAnnotation(method, Operation.class);
         return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
-            io.swagger.v3.oas.annotations.Hidden.class) != null || isHidden(method.getDeclaringClass());
+            Hidden.class) != null || isHidden(method.getDeclaringClass());
     }
 
     public static boolean isHidden(Class<?> cl) {
-        return AnnotationUtils.findAnnotation(cl, io.swagger.v3.oas.annotations.Hidden.class) != null;
+        return AnnotationUtils.findAnnotation(cl, Hidden.class) != null;
     }
 
 }

@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -18,7 +20,7 @@ package org.openl.ie.constrainer;
 /**
  * An abstract class for the observer in the observer-subject (or subscriber-publisher) design pattern.
  */
-public abstract class Observer implements EventOfInterest.Constants, java.io.Serializable {
+public abstract class Observer implements EventOfInterest.Constants, Serializable {
     /**
      * Returns true if the "event" is the one this observer is interested in.
      *

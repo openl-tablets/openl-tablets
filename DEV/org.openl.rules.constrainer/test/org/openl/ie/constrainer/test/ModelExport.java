@@ -14,6 +14,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 package org.openl.ie.constrainer.test;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,7 +57,7 @@ public class ModelExport {
 
     }
 
-    static void printConstraintCalls(String methodName, Collection constraints, java.io.PrintStream out) {
+    static void printConstraintCalls(String methodName, Collection constraints, PrintStream out) {
         Iterator it = constraints.iterator();
         int i = 0;
         while (it.hasNext()) {
@@ -64,7 +66,7 @@ public class ModelExport {
         }
     }
 
-    static void printConstraintMethods(String methodName, Collection constraints, java.io.PrintStream out) {
+    static void printConstraintMethods(String methodName, Collection constraints, PrintStream out) {
         Iterator it = constraints.iterator();
         int i = 0;
         while (it.hasNext()) {
@@ -77,7 +79,7 @@ public class ModelExport {
         }
     }
 
-    static void printSum(String sumName, IntExpArray arr, java.io.PrintStream out) {
+    static void printSum(String sumName, IntExpArray arr, PrintStream out) {
         out.println("IlcIntExp " + sumName + "=0;");
         for (int i = 0; i < arr.size(); ++i) {
             IntExp exp = arr.elementAt(i);
@@ -88,11 +90,11 @@ public class ModelExport {
         }
     }
 
-    static void printVar(IntExp v, java.io.PrintStream out) {
+    static void printVar(IntExp v, PrintStream out) {
         out.println("IlcIntVar " + v.name() + "(m," + v.min() + "," + v.max() + ",\"" + v.name() + "\");");
     }
 
-    static void printVarArrayMethod(String methodName, IntExpArray arr, java.io.PrintStream out) {
+    static void printVarArrayMethod(String methodName, IntExpArray arr, PrintStream out) {
         int min = -100, max = 1000;
         out.println("IlcIntVarArray " + methodName + "()");
         out.println("{");
@@ -105,7 +107,7 @@ public class ModelExport {
         out.println("}");
     }
 
-    static void printVarMembers(IntExpArray arr, java.io.PrintStream out) {
+    static void printVarMembers(IntExpArray arr, PrintStream out) {
         for (int i = 0; i < arr.size(); i++) {
             IntExp v = arr.elementAt(i);
             out.println("IlcIntVar " + v.name() + "(m," + v.min() + "," + v.max() + ",\"" + v.name() + "\");");
@@ -119,7 +121,7 @@ public class ModelExport {
         _violations = violations;
     }
 
-    public void export(String className, java.io.PrintStream out) throws Exception {
+    public void export(String className, PrintStream out) throws Exception {
         // Constrainer constrainer = vars.constrainer();
 
         // class
@@ -156,7 +158,7 @@ public class ModelExport {
     }
 
     public void export(String className, String fileName) throws Exception {
-        java.io.PrintStream out = new java.io.PrintStream(new java.io.FileOutputStream(fileName));
+        PrintStream out = new PrintStream(new FileOutputStream(fileName));
         export(className, out);
         out.close();
     }

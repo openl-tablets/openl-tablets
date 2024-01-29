@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.record.ArrayRecord;
-import org.apache.poi.hssf.record.BOFRecord;
-import org.apache.poi.hssf.record.FormulaRecord;
-import org.apache.poi.hssf.record.SharedFormulaRecord;
-import org.apache.poi.hssf.record.TableRecord;
+import org.apache.poi.hssf.record.*;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.ss.util.CellReference;
 
@@ -26,7 +22,7 @@ public class SharedValueListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         switch (record.getSid()) {
             case BOFRecord.sid:
                 BOFRecord bof = (BOFRecord) record;

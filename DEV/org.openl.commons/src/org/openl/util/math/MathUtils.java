@@ -333,7 +333,7 @@ public class MathUtils {
         return median == null ? null : median.floatValue();
     }
 
-    public static java.math.BigDecimal median(java.math.BigInteger[] values) {
+    public static BigDecimal median(BigInteger[] values) {
         if (values == null) {
             return null;
         }
@@ -359,7 +359,7 @@ public class MathUtils {
         }
     }
 
-    public static java.math.BigDecimal median(java.math.BigDecimal[] values) {
+    public static BigDecimal median(BigDecimal[] values) {
         if (values == null) {
             return null;
         }
@@ -534,9 +534,9 @@ public class MathUtils {
     }
 
     // MOD for big numeric types
-    public static java.math.BigInteger mod(java.math.BigInteger number, java.math.BigInteger divisor) {
+    public static BigInteger mod(BigInteger number, BigInteger divisor) {
         if (number == null || divisor == null) {
-            return java.math.BigInteger.ZERO;
+            return BigInteger.ZERO;
         }
         long quotient = quotient(number, divisor);
 
@@ -544,12 +544,12 @@ public class MathUtils {
         if (quotient < 0) {
             intPart--;
         }
-        return number.subtract(java.math.BigInteger.valueOf(intPart).multiply(divisor));
+        return number.subtract(BigInteger.valueOf(intPart).multiply(divisor));
     }
 
-    public static java.math.BigDecimal mod(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+    public static BigDecimal mod(BigDecimal number, BigDecimal divisor) {
         if (number == null || divisor == null) {
-            return java.math.BigDecimal.ZERO;
+            return BigDecimal.ZERO;
         }
         long quotient = quotient(number, divisor);
 
@@ -557,7 +557,7 @@ public class MathUtils {
         if (quotient < 0) {
             intPart--;
         }
-        return number.subtract(java.math.BigDecimal.valueOf(intPart).multiply(divisor));
+        return number.subtract(BigDecimal.valueOf(intPart).multiply(divisor));
     }
 
     // QUAOTIENT
@@ -629,14 +629,14 @@ public class MathUtils {
     }
 
     // QUAOTIENT for big numeric types
-    public static long quotient(java.math.BigInteger number, java.math.BigInteger divisor) {
+    public static long quotient(BigInteger number, BigInteger divisor) {
         if (number == null || divisor == null) {
             return 0;
         }
         return divide(number, divisor).longValue();
     }
 
-    public static long quotient(java.math.BigDecimal number, java.math.BigDecimal divisor) {
+    public static long quotient(BigDecimal number, BigDecimal divisor) {
         if (number == null || divisor == null) {
             return 0;
         }

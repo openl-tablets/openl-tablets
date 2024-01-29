@@ -429,7 +429,7 @@ public class RunTest {
 
     @Test
     public void testLongName() {
-        assertEquals("new java.math.BigDecimal(10)", new java.math.BigDecimal(10));
+        assertEquals("new java.math.BigDecimal(10)", new BigDecimal(10));
         assertEquals("java.io.File f = new java.io.File(\"./temp\"); f.getName()", "temp");
     }
 

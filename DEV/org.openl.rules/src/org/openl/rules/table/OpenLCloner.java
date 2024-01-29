@@ -1,7 +1,7 @@
 package org.openl.rules.table;
 
 import java.lang.reflect.InvocationHandler;
-
+import groovy.lang.MetaClass;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import org.objenesis.instantiator.ObjectInstantiator;
@@ -37,7 +37,7 @@ public class OpenLCloner extends Cloner {
         dontCloneInstanceOf(IOpenMember.class);
         dontCloneInstanceOf(InvocationHandler.class);
         dontCloneInstanceOf(ILogicalTable.class);
-        dontCloneInstanceOf(groovy.lang.MetaClass.class);
+        dontCloneInstanceOf(MetaClass.class);
     }
 
     /* Required for correct working with classloaders. */

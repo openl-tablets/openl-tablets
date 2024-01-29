@@ -68,7 +68,7 @@ public abstract class AGrid implements IGrid {
     @Override
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
-        return region != null && org.openl.rules.table.IGridRegion.Tool
+        return region != null && IGridRegion.Tool
             .contains(region, secondCellColumn, secondCellRow);
     }
 }

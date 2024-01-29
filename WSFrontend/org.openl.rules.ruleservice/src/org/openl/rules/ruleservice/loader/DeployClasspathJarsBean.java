@@ -25,6 +25,7 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
 
 public class DeployClasspathJarsBean implements InitializingBean, DisposableBean {
 
@@ -119,14 +120,14 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             try {
                 final URL resourceURL = rulesXmlResource.getURL();
                 if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
-                    URL jarUrl = org.springframework.util.ResourceUtils.extractJarFileURL(resourceURL);
-                    file = org.springframework.util.ResourceUtils.getFile(jarUrl);
+                    URL jarUrl = ResourceUtils.extractJarFileURL(resourceURL);
+                    file = ResourceUtils.getFile(jarUrl);
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
                     deployJarForJboss(resourceURL);
                     continue;
                 } else if ("file".equals(resourceURL.getProtocol())) {
-                    file = org.springframework.util.ResourceUtils.getFile(resourceURL);
+                    file = ResourceUtils.getFile(resourceURL);
                 } else {
                     throw new RuleServiceRuntimeException("Protocol for URL is not supported! URL: " + resourceURL);
                 }

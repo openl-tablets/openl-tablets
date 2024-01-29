@@ -67,7 +67,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             insertPreparedStatement.setString(1, projectName);
             insertPreparedStatement.setString(2, version.getVersionName());
             insertPreparedStatement.setTimestamp(3,
-                new java.sql.Timestamp(version.getVersionInfo().getCreatedAt().getTime()));
+                new Timestamp(version.getVersionInfo().getCreatedAt().getTime()));
             insertPreparedStatement.setString(4, version.getVersionInfo().getCreatedBy());
             insertPreparedStatement.setString(5, hash);
             insertPreparedStatement.setString(6, repoType.name());
@@ -150,7 +150,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             connection.setAutoCommit(false);
             ensureCacheExist(connection);
             selectPreparedStatement = connection.prepareStatement(SELECT_HASH_QUERY);
-            selectPreparedStatement.setTimestamp(1, new java.sql.Timestamp(createdAt.getTime()));
+            selectPreparedStatement.setTimestamp(1, new Timestamp(createdAt.getTime()));
             selectPreparedStatement.setString(2, name);
             selectPreparedStatement.setString(3, repoType.name());
             selectPreparedStatement.setString(4, version);

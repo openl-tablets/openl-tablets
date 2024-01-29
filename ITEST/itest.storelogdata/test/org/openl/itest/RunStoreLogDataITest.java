@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Duration;
@@ -48,6 +49,7 @@ import org.openl.itest.common.ExpectedLogValues;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.db.DBFields;
+import org.openl.itest.db.HelloEntity9;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
@@ -189,7 +191,7 @@ public class RunStoreLogDataITest {
     public void testSyncStoreFails() {
         client.send("simple7_Hello.json");
         client.send("simple7_Hello.gzip");
-        truncateH2TableIfExists(getDBTableName(org.openl.itest.db.HelloEntity9.class));
+        truncateH2TableIfExists(getDBTableName(HelloEntity9.class));
         client.send("simple4_Hello3.post");
         client.send("simple4_Hello3.post.gzip");
         client.send("simple4_Hello3_fail.post");
@@ -319,7 +321,7 @@ public class RunStoreLogDataITest {
         // H2
         String query = "SELECT * FROM " + h2HelloEntity1TableName;
         try (Statement stmt = h2Connection.createStatement()) {
-            java.sql.ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = stmt.executeQuery(query);
             int count = 0;
             while (rs.next()) {
                 count++;
@@ -344,7 +346,7 @@ public class RunStoreLogDataITest {
         }
         query = "SELECT * FROM " + h2HelloEntity2TableName;
         try (Statement stmt = h2Connection.createStatement()) {
-            java.sql.ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = stmt.executeQuery(query);
             int count = 0;
             while (rs.next()) {
                 count++;
@@ -367,7 +369,7 @@ public class RunStoreLogDataITest {
         }
         query = "SELECT * FROM " + h2HelloEntity3TableName;
         try (Statement stmt = h2Connection.createStatement()) {
-            java.sql.ResultSet rs = stmt.executeQuery(query);
+            ResultSet rs = stmt.executeQuery(query);
             int count = 0;
             while (rs.next()) {
                 count++;
@@ -388,11 +390,11 @@ public class RunStoreLogDataITest {
             assertEquals(1, count);
         }
 
-        java.sql.ResultSet rs = h2Connection.getMetaData().getTables(null, null, h2HelloEntity4TableName, null);
+        ResultSet rs = h2Connection.getMetaData().getTables(null, null, h2HelloEntity4TableName, null);
         if (rs.next()) {
             fail();
         }
-        java.sql.ResultSet rs1 = h2Connection.getMetaData().getTables(null, null, h2HelloEntity8TableName, null);
+        ResultSet rs1 = h2Connection.getMetaData().getTables(null, null, h2HelloEntity8TableName, null);
         if (rs1.next()) {
             fail();
         }
@@ -448,7 +450,7 @@ public class RunStoreLogDataITest {
             .until(() -> {
                 final String query = "SELECT * FROM " + h2HelloEntity1TableName;
                 try (Statement stmt = h2Connection.createStatement()) {
-                    java.sql.ResultSet rs = stmt.executeQuery(query);
+                    ResultSet rs = stmt.executeQuery(query);
                     int count = 0;
                     while (rs.next()) {
                         count++;
@@ -556,7 +558,7 @@ public class RunStoreLogDataITest {
             .until(() -> {
                 final String query = "SELECT * FROM " + h2HelloEntity1TableName;
                 try (Statement stmt = h2Connection.createStatement()) {
-                    java.sql.ResultSet rs = stmt.executeQuery(query);
+                    ResultSet rs = stmt.executeQuery(query);
                     int count = 0;
                     while (rs.next()) {
                         count++;
@@ -765,7 +767,7 @@ public class RunStoreLogDataITest {
         return () -> {
             final String query = "SELECT * FROM " + DEFAULT_H2_TABLE_NAME;
             try (Statement stmt = h2Connection.createStatement()) {
-                java.sql.ResultSet rs = stmt.executeQuery(query);
+                ResultSet rs = stmt.executeQuery(query);
                 int count = 0;
                 while (rs.next()) {
                     count++;

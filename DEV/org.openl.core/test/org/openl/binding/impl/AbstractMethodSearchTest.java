@@ -10,6 +10,8 @@ import java.lang.reflect.Array;
 import org.junit.BeforeClass;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.CastOperators;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.OpenLConfiguration;
@@ -24,7 +26,7 @@ public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
     private static final String[] CAST_LIBRARY_NAMES = new String[] {
-            org.openl.binding.impl.cast.CastOperators.class.getName() };
+            CastOperators.class.getName() };
     static ICastFactory castFactory;
 
     @BeforeClass
@@ -34,7 +36,7 @@ public abstract class AbstractMethodSearchTest {
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
             TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName,
-                org.openl.binding.impl.cast.CastFactory.class.getName());
+                CastFactory.class.getName());
             typecast.addJavaCast(javaCast);
         }
 
