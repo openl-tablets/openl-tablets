@@ -159,7 +159,7 @@
         <mockito.version>5.9.0</mockito.version>
         <datasource-proxy.version>1.10</datasource-proxy.version>
         <xmlunit.version>2.9.1</xmlunit.version>
-        <testcontainers.version>1.19.3</testcontainers.version>
+        <testcontainers.version>1.19.4</testcontainers.version>
         <minio.version>8.5.7</minio.version>
         <system-rules.version>1.19.0</system-rules.version>
         <jmh.version>1.37</jmh.version>
