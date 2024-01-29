@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Input, Button, Typography, Row } from 'antd'
+import { Input, Button, Typography, Row, InputRef } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { setNotification } from './notificationSlice'
 import { RootState, useAppDispatch, useAppSelector } from 'store'
@@ -7,14 +7,21 @@ import { RootState, useAppDispatch, useAppSelector } from 'store'
 const { TextArea } = Input
 
 export const Notification: React.FC = () => {
+    const inputRef = React.useRef<InputRef>(null)
     const { t } = useTranslation()
     const dispatch = useAppDispatch()
     const [ text, setText ] = useState('')
+    const [ focused, setFocused ] = React.useState(false)
+
+    const onFocus = () => setFocused(true)
+    const onBlur = () => setFocused(false)
 
     const notificationMessage = useAppSelector((state: RootState) => state.notification.notification)
 
     useEffect(() => {
-        setText(notificationMessage || '')
+        if (!focused && inputRef.current) {
+            setText(notificationMessage || '')
+        }
     }, [ notificationMessage ])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -34,16 +41,15 @@ export const Notification: React.FC = () => {
         dispatch(setNotification(notification))
     }
 
-    // TODO: Add form
     return (
         <>
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
                 { t('notification:notify_all_active_users') }
             </Typography.Title>
             <Typography>
                 { t('notification:message') }
             </Typography>
-            <TextArea onChange={handleChange} value={text} />
+            <TextArea ref={inputRef} onBlur={onBlur} onChange={handleChange} onFocus={onFocus} value={text} />
             <Row align="bottom" justify="end">
                 <Button onClick={handleClear} style={{ marginTop: 20, marginRight: 20 }}>
                     { t('notification:clear') }

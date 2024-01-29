@@ -57,17 +57,16 @@ export const UserSettings: React.FC = () => {
                 {({ handleSubmit, form }) => {
                     return (
                         <AForm onFinish={handleSubmit}>
-                            <br />
-                            <Typography.Title level={5}>Table Setting</Typography.Title>
-                            <Checkbox label="Show Header" name="showHeader" />
-                            <Checkbox label="Show Formulas" name="showFormulas" />
-                            <Select label="Default Order" name="treeView" options={treeViewOptions} />
-                            <Typography.Title level={5}>Testing Settings</Typography.Title>
-                            <Select label="Tests per page" name="testsPerPage" options={testsPerPageOptions} />
-                            <Checkbox label="Failures Only" name="testsFailuresOnly" />
-                            <Checkbox label="Compound Result" name="showComplexResult" />
-                            <Typography.Title level={5}>Trace Settings</Typography.Title>
-                            <Checkbox label="Show numbers without formatting" name="showRealNumbers" />
+                            <Typography.Title level={5} style={{ marginTop: 0 }}>{t('user:settings.table_settings')}</Typography.Title>
+                            <Checkbox label={t('user:settings.show_header')} name="showHeader" />
+                            <Checkbox label={t('user:settings.show_formulas')} name="showFormulas" />
+                            <Select label={t('user:settings.default_order')} name="treeView" options={treeViewOptions} />
+                            <Typography.Title level={5}>{t('user:settings.testing_settings')}</Typography.Title>
+                            <Select label={t('user:settings.tests_per_page')} name="testsPerPage" options={testsPerPageOptions} />
+                            <Checkbox label={t('user:settings.failures_only')} name="testsFailuresOnly" />
+                            <Checkbox label={t('user:settings.compound_result')} name="showComplexResult" />
+                            <Typography.Title level={5}>{t('user:settings.trace_settings')}</Typography.Title>
+                            <Checkbox label={t('user:settings.show_numbers_without_formatting')} name="showRealNumbers" />
                             <Row justify="end">
                                 <Button
                                     key="submit"
