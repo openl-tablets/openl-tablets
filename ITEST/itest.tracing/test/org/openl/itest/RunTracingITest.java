@@ -50,7 +50,7 @@ public class RunTracingITest {
     private static MockTracer tracer;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:7.5.0")).withKraft();
+        DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
     @BeforeClass
     public static void setUp() throws Exception {
