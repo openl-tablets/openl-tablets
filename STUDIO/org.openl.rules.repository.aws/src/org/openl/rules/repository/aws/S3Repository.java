@@ -155,12 +155,12 @@ public class S3Repository implements Repository, Closeable {
                         // Possibly don't have permission
                         log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
                             verResp.status(),
-                            e.getMessage());
+                            e.getMessage(), e);
                     }
                 }
             } catch (S3Exception | SdkClientException e) {
                 // Possibly don't have permission
-                log.warn("Cannot detect bucket versioning configuration: {}.", e.getMessage());
+                log.warn("Cannot detect bucket versioning configuration: {}.", e.getMessage(), e);
             }
         } catch (SdkClientException e) {
             log.warn("Failed to initialize a repository", e);

@@ -1879,7 +1879,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 return historyVisitor.getResult();
             }
         } catch (MissingObjectException e) {
-            log.error(e.getMessage());
+            log.error("", e);
             return null;
         } catch (IOException e) {
             throw e;

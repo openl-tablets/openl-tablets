@@ -242,9 +242,9 @@ public class StoreLogDataMapper {
                     converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
                 } catch (Exception e1) {
                     if (log.isErrorEnabled()) {
-                        log.error(String.format(
-                            "Converter class instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
-                            converterClass.getTypeName()), e1);
+                        log.error(
+                            "Converter class instantiation is failed. Please, check that class '{}' is not abstract and has a default constructor.",
+                            converterClass.getTypeName(), e1);
                     }
                     value = null;
                 }
@@ -254,9 +254,9 @@ public class StoreLogDataMapper {
                     value = converter.apply(value);
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
-                        log.error(String.format(
-                            "Failed on type conversion for annotated element '%s'! Null value is used as a result.",
-                            getAnnotatedElementRef(annotatedElement)), e);
+                        log.error(
+                            "Failed on type conversion for annotated element '{}'! Null value is used as a result.",
+                            getAnnotatedElementRef(annotatedElement), e);
                     }
                     value = null;
                 }
@@ -266,9 +266,8 @@ public class StoreLogDataMapper {
             setValueWithAnnotatedElement(target, annotatedElement, value);
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
-                log.error(
-                    String.format("Failed on set a value! Please, check that the element '%s' is annotated correctly.",
-                        getAnnotatedElementRef(annotatedElement)),
+                log.error("Failed on set a value! Please, check that the element '{}' is annotated correctly.",
+                        getAnnotatedElementRef(annotatedElement),
                     e);
             }
         }

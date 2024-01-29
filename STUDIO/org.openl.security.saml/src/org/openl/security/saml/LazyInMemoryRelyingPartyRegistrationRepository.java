@@ -76,7 +76,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
 
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("", e);
         }
     }
 

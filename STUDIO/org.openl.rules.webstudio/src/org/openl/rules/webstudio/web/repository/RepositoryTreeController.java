@@ -905,7 +905,7 @@ public class RepositoryTreeController {
 
             WebStudioUtils.addInfoMessage("Deploy configuration was deleted successfully.");
         } catch (Exception e) {
-            log.error("Cannot delete deploy configuration '" + projectName + "'.", e);
+            log.error("Cannot delete deploy configuration '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to delete deploy configuration.", e.getMessage());
         }
         return null;

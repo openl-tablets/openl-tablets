@@ -82,7 +82,7 @@ import com.rits.cloning.Cloner;
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ModuleOpenClass.class);
+    private static final Logger LOG = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private final IDataBase dataBase;
 
@@ -482,9 +482,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         addMethod(dependencyMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
-                    LOG.debug(String.format("An exception occurred during adding the method '%s'.",
+                    LOG.debug("An exception occurred during adding the method '{}'.",
                         MethodUtil.printMethod(dependencyMethod.getName(),
-                            dependencyMethod.getSignature().getParameterTypes())),
+                            dependencyMethod.getSignature().getParameterTypes()),
                         e);
                     addError(e);
                 }

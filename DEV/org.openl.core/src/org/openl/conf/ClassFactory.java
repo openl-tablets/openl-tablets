@@ -44,7 +44,7 @@ public class ClassFactory extends AConfigurationElement {
                 e);
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Exception | LinkageError t) {
-            LOG.error(String.format("Failed to load class '%s'.", name), t);
+            LOG.error("Failed to load class '{}'.", name, t);
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }

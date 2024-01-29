@@ -327,13 +327,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             if (renamed) {
                                 anyProjectRenamed = true;
                             } else {
-                                log.warn("Cannot rename folder from " + prevPath + " to " + newPath);
+                                log.warn("Cannot rename folder from {} to {}", prevPath, newPath);
                             }
                         }
                     } catch (Exception e) {
                         log.warn("Could not rename the project '{}' because of error: {}",
                             rPr.getName(),
-                            e.getMessage());
+                            e.getMessage(), e);
                     }
                 }
             }
@@ -551,7 +551,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 } catch (IOException e) {
                     log.warn("Skip workspace changes for project '{}' because of error: {}",
                         rp.getName(),
-                        e.getMessage());
+                        e.getMessage(), e);
                     desRepo = rp.getRepository();
                     designFileData = rp.getFileData();
                     local = null;

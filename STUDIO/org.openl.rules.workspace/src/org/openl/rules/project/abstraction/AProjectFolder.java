@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
-    private static final Logger LOG = LoggerFactory.getLogger(AProject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AProjectFolder.class);
 
     private Map<String, AProjectArtefact> artefacts;
     private ResourceTransformer resourceTransformer;

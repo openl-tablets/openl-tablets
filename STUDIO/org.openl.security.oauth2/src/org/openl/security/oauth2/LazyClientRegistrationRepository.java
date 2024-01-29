@@ -39,7 +39,7 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
                 .build();
             clientRegistrationRepository = new InMemoryClientRegistrationRepository(clientRegistration);
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            log.warn("", e);
         }
     }
 

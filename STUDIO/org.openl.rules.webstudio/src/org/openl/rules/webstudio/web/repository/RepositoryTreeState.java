@@ -500,7 +500,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     currentNode.refresh();
                                 }
                             } catch (ProjectException | IOException e) {
-                                log.error("Failed to update selected node: {}", e.getMessage());
+                                log.error("Failed to update selected node: {}", e.getMessage(), e);
                             }
                         }
                     }

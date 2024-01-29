@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
-    private static final Logger LOG = LoggerFactory.getLogger(BeanNicePrinterAdaptor. class);
+    private static final Logger LOG = LoggerFactory.getLogger(BeanNicePrinterAdaptor.class);
     private static final Object[] EMPTY = new Object[0];
 
     @Override

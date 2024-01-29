@@ -26,7 +26,7 @@ import org.springframework.util.ResourceUtils;
  * @author NSamatov
  */
 final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePatternResolver {
-    private static final Logger LOG = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EncodedJarPathResourcePatternResolver.class);
 
     @Override
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,

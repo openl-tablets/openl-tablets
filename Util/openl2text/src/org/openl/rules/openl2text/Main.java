@@ -86,7 +86,7 @@ public class Main implements Runnable {
             outputDir = new File("");
         }
         if (outputDir.exists() && !outputDir.isDirectory()) {
-            log.error("The specified output directory is not a valid directory: " + outputDir.getAbsolutePath());
+            log.error("The specified output directory is not a valid directory: {}", outputDir.getAbsolutePath());
             return;
         }
         try {
@@ -104,14 +104,13 @@ public class Main implements Runnable {
                 log.error("No input files or folders provided.");
                 return;
             }
-            log.info("Processing input files: " + inputFiles.size() + " files found.");
+            log.info("Processing input files: {} files found.", inputFiles.size());
             for (File file : inputFiles) {
                 if (isValidFile(file)) {
                     process(file);
                 } else {
-                    log.warn(
-                        String.format("Skipping '%s' as it is not a recognized file type (Excel, zip, or directory).",
-                            file.getName()));
+                    log.warn("Skipping '{}' as it is not a recognized file type (Excel, zip, or directory).",
+                            file.getName());
                 }
             }
 
@@ -122,7 +121,7 @@ public class Main implements Runnable {
                 try {
                     FileUtils.delete(tempDirectory.toFile());
                 } catch (IOException e) {
-                    log.error("Failed to delete temporary directory: " + tempDirectory, e);
+                    log.error("Failed to delete temporary directory: {}", tempDirectory, e);
                 }
             }
         }
@@ -151,7 +150,7 @@ public class Main implements Runnable {
                     }
                     zipOutputStream.closeEntry();
                 } catch (IOException e) {
-                    log.error("Failed to create zip file: " + zipFilePath, e);
+                    log.error("Failed to create zip file: {}", zipFilePath, e);
                 }
             });
         }
@@ -183,7 +182,7 @@ public class Main implements Runnable {
                         // chars for file names
                         createZipFromFolder(tempOutDirectory, outputDir.toPath().resolve(entry.getFileName() + ".zip"));
                     } catch (Exception | LinkageError e) {
-                        log.error(String.format("An error occurred while extracting '%s'", entry), e);
+                        log.error("An error occurred while extracting '{}'", entry, e);
                     } finally {
                         pb.step();
                         // Delete tempOutDirectory
@@ -191,7 +190,7 @@ public class Main implements Runnable {
                             try {
                                 FileUtils.delete(tempOutDirectory.toFile());
                             } catch (IOException e) {
-                                log.error("Failed to delete temporary directory: " + tempOutDirectory, e);
+                                log.error("Failed to delete temporary directory: {}", tempOutDirectory, e);
                             }
                         }
                     }
@@ -226,9 +225,9 @@ public class Main implements Runnable {
                     Path target = targetDir.resolve(sourceDir.relativize(source));
                     Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
-                    log.error(String.format("An error occurred while copying the directory '%s' to the directory '%s'.",
+                    log.error("An error occurred while copying the directory '{}' to the directory '{}'.",
                         source.getFileName(),
-                        targetDir.getFileName()), e);
+                        targetDir.getFileName(), e);
                 }
             });
         }
@@ -240,13 +239,12 @@ public class Main implements Runnable {
             try {
                 copyDirectory(directory.toPath(), tempDirectory.resolve(directory.getName()));
             } catch (IOException e) {
-                log.error(
-                    String.format("An error occurred while copying the directory '%s' to the temporary directory.",
-                        directory.getName()),
+                log.error("An error occurred while copying the directory '{}' to the temporary directory.",
+                        directory.getName(),
                     e);
             }
         } else {
-            log.warn(String.format("Skipping '%s' as it is not a rules project.", directory.getName()));
+            log.warn("Skipping '{}' as it is not a rules project.", directory.getName());
         }
     }
 
@@ -271,7 +269,7 @@ public class Main implements Runnable {
             Path filePath = projectFolder.resolve(file.getName());
             Files.copy(file.toPath(), filePath);
         } catch (IOException e) {
-            log.error(String.format("An error occurred while processing the Excel file '%s'", e));
+            log.error("An error occurred while processing the Excel file '{}'", e);
         }
     }
 
@@ -280,7 +278,7 @@ public class Main implements Runnable {
             String tempDirName = "picocli-temp-" + UUID.randomUUID();
             return Files.createTempDirectory(tempDirName);
         } catch (IOException e) {
-            log.error("An error occurred while creating temporary directory: " + e.getMessage());
+            log.error("An error occurred while creating temporary directory: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -306,12 +304,12 @@ public class Main implements Runnable {
                 }
             }
         } catch (IOException e) {
-            log.error(String.format("An error occurred while processing zip file '%s'", zipFile.getName()), e);
+            log.error("An error occurred while processing zip file '{}'", zipFile.getName(), e);
         }
         ProjectResolver projectResolver = new ProjectResolver();
         if (projectResolver.isRulesProject(folderToExtract.toFile()) == null) {
             // Delete the folder as it is not a rules project
-            log.warn(String.format("Skipping '%s' as it is not a rules project.", zipFile.getName()));
+            log.warn("Skipping '{}' as it is not a rules project.", zipFile.getName());
             FileUtils.deleteQuietly(folderToExtract.toFile());
         } else {
             // Check if the project descriptor file exists no need to rename the folder because project name is used
@@ -326,9 +324,9 @@ public class Main implements Runnable {
                     newFolderName = newFolderName.substring(0, index);
                 }
                 if (Files.exists(tempDirectory.resolve(newFolderName))) {
-                    log.warn(String.format("Cannot rename the folder '%s' to '%s' as the folder already exists.",
+                    log.warn("Cannot rename the folder '{}' to '{}' as the folder already exists.",
                         folderToExtract.getFileName(),
-                        newFolderName));
+                        newFolderName);
                 } else {
                     // Rename the folder to the name of the zip file without the extension (if any)
                     try {
@@ -336,9 +334,9 @@ public class Main implements Runnable {
                             tempDirectory.resolve(newFolderName),
                             StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
-                        log.error(String.format("An error occurred while renaming the folder '%s' to '%s'",
+                        log.error("An error occurred while renaming the folder '{}' to '{}'",
                             folderToExtract.getFileName(),
-                            newFolderName), e);
+                            newFolderName, e);
                     }
                 }
             }

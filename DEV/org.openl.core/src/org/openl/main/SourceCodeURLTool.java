@@ -79,9 +79,7 @@ public final class SourceCodeURLTool {
             IOpenSourceCodeModule[] modules = ((CompositeSourceCodeModule) module).getModules();
             if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
-                LOG.debug(
-                    "Modules count in composite module are less than error line number. " +
-                            "Return first found module uri.");
+                LOG.debug("Modules count in composite module are less than error line number. Return first found module uri.");
                 moduleUri = module.getUri();
             } else {
                 // Occurs when Method table expression has several lines and each line resides inside his own cell.

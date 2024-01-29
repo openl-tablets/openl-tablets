@@ -170,7 +170,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             NamingEnumeration<SearchResult> userSearch = context
                 .search(searchBaseDn, searchFilter, new Object[] { bindPrincipal, username }, searchControls);
             if (!userSearch.hasMoreElements()) {
-                log.warn("Cannot find account '" + username + "'. Skip nested groups and primary group search.");
+                log.warn("Cannot find account '{}'. Skip nested groups and primary group search.", username);
                 return null;
             }
             userSearch.close();
@@ -196,7 +196,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 }
             } catch (PartialResultException e) {
                 groupsSearch.close();
-                log.info("Ignoring PartialResultException with message: " + e.getMessage());
+                log.info("Ignoring PartialResultException with message: {}", e.getMessage(), e);
             }
 
             return authorities;

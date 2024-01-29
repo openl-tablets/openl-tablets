@@ -437,10 +437,10 @@ public final class KafkaService implements Runnable {
                     storeLogData.fault();
                 }
                 if (exception != null && log.isErrorEnabled()) {
-                    log.error(String.format("Failed to send a message to dead letter queue topic '%s'.%sPayload: %s",
+                    log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
                         dltTopic,
                         System.lineSeparator(),
-                        record.value().asText()), exception);
+                        record.value().asText(), exception);
                 } else if (storeLogData != null) {
                     try {
                         getStoreLogDataManager().store(storeLogData);
@@ -451,10 +451,10 @@ public final class KafkaService implements Runnable {
             });
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
-                log.error(String.format("Failed to send a message to dead letter queue topic '%s'.%sPayload: %s",
+                log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
                     dltTopic,
                     System.lineSeparator(),
-                    record.value().asText()), e1);
+                    record.value().asText(), e1);
             }
         }
     }

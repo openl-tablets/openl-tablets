@@ -24,7 +24,7 @@ public final class PropertiesLoader {
         } catch (Exception e) {
             if (LOG.isWarnEnabled()) {
                 if (e instanceof IllegalArgumentException) {
-                    LOG.warn("Failed to load spring property '{}'. {}", propName, e.getMessage());
+                    LOG.warn("Failed to load spring property '{}'. {}", propName, e.getMessage(), e);
                 } else {
                     LOG.warn("Failed to load spring property '{}'.", propName, e);
                 }

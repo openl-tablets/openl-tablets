@@ -45,9 +45,8 @@ public class TokenizerParserTest extends TestCase {
         }
         long end = System.currentTimeMillis();
 
-        log.info(
-            "Time: " + (end - start) + " 1 run: " + 1000.0 * (end - start) / n + "mks" + " per char: " + 1000.0 * (end - start) / n / test
-                .length() + "mks");
+        log.info("Time: {} 1 run: {}mks per char: {}mks", (end - start), 1000.0 * (end - start) / n, 1000.0 * (end - start) / n / test
+            .length());
 
     }
 

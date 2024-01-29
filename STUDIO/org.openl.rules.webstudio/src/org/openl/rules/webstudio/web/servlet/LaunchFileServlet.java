@@ -49,7 +49,7 @@ public class LaunchFileServlet extends HttpServlet {
             InetAddress addr = InetAddress.getByName(ip);
             return addr != null && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
-            Logger log = LoggerFactory.getLogger(WebTool.class);
+            Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
             log.info("Cannot check '{}'.", ip, e);
             return false;
         }

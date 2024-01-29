@@ -118,11 +118,11 @@ public class OpenL2TextCommand {
                                 writeExcelTable(tableSyntaxNode);
                             }
                         } catch (Exception e) {
-                            log.error("Failed to parse excel file: " + p, e);
+                            log.error("Failed to parse excel file: {}", p, e);
                         }
                     });
             } catch (IOException e) {
-                log.error("Failed to iterate over files in the dir folder: " + dir, e);
+                log.error("Failed to iterate over files in the dir folder: {}", dir, e);
             }
         } else {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = null;
@@ -141,7 +141,7 @@ public class OpenL2TextCommand {
                         .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR)) {
                         sb.append("    ").append(message.getSummary()).append("\n");
                     }
-                    log.error("Rules '%s' are compiled with errors: \n" + sb.toString());
+                    log.error("Rules '%s' are compiled with errors: \n{}", sb.toString());
                 }
                 IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
                 final ObjectMapper objectMapper = createObjectMapper();
