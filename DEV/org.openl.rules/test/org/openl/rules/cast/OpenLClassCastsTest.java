@@ -1,9 +1,12 @@
 package org.openl.rules.cast;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
@@ -13,7 +16,7 @@ import org.openl.types.java.JavaOpenClass;
 public class OpenLClassCastsTest {
     private static ICastFactory castFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         OpenL openL = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
         castFactory = openL.getBinder().getCastFactory();

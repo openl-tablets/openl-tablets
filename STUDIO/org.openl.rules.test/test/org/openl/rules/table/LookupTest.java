@@ -1,18 +1,21 @@
 package org.openl.rules.table;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.net.URL;
 
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.URLSourceCodeModule;
 
-import junit.framework.TestCase;
+public class LookupTest {
 
-public class LookupTest extends TestCase {
-
+    @Test
     public void testMergeBounds() throws Exception {
 
         URL url = this.getClass().getClassLoader().getResource("org/openl/rules/table/TestLookup.xls");
@@ -38,8 +41,9 @@ public class LookupTest extends TestCase {
         }
     }
 
+    @Test
     private void testSheet1(IGridTable[] tables) {
-        Assert.assertEquals(2, tables.length);
+        assertEquals(2, tables.length);
 
         ILogicalTable lookupTable = LogicalTableHelper.logicalTable(tables[0]);
         ILogicalTable t1 = lookupTable.getRows(1);
@@ -48,11 +52,11 @@ public class LookupTest extends TestCase {
         ILogicalTable lookupColumn1 = t2.getColumn(0);
         ILogicalTable body = LogicalTableHelper.mergeBounds(lookupColumn1, lookupRow1);
 
-        Assert.assertEquals(5, body.getHeight());
-        Assert.assertEquals(3, body.getWidth());
+        assertEquals(5, body.getHeight());
+        assertEquals(3, body.getWidth());
 
-        Assert.assertEquals("1", body.getSubtable(0, 0, 1, 1).getSource().getCell(0, 0).getStringValue());
-        Assert.assertEquals("7", body.getSubtable(0, 2, 1, 1).getSource().getCell(0, 0).getStringValue());
-        Assert.assertEquals("15", body.getSubtable(2, 4, 1, 1).getSource().getCell(0, 0).getStringValue());
+        assertEquals("1", body.getSubtable(0, 0, 1, 1).getSource().getCell(0, 0).getStringValue());
+        assertEquals("7", body.getSubtable(0, 2, 1, 1).getSource().getCell(0, 0).getStringValue());
+        assertEquals("15", body.getSubtable(2, 4, 1, 1).getSource().getCell(0, 0).getStringValue());
     }
 }

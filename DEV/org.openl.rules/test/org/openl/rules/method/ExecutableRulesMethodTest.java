@@ -1,10 +1,16 @@
 package org.openl.rules.method;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.CacheMode;
@@ -25,7 +31,7 @@ public class ExecutableRulesMethodTest {
         String Random2(Boolean a1);
     }
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         engineFactory = new RulesEngineFactory<>(__src, A1.class);
         instance = engineFactory.newEngineInstance();
@@ -38,11 +44,11 @@ public class ExecutableRulesMethodTest {
 
         String value1 = instance.Random(Boolean.TRUE);
         String value2 = instance.Random(Boolean.TRUE);
-        Assert.assertEquals(value1, value2);
+        assertEquals(value1, value2);
         SimpleRulesRuntimeEnvUtils.setMethodArgumentsCacheEnable(instance, false);
         String value3 = instance.Random(Boolean.TRUE);
-        Assert.assertNotNull(value1);
-        Assert.assertNotEquals(value1, value3);
+        assertNotNull(value1);
+        assertNotEquals(value1, value3);
     }
 
     private static class MyRunnable implements Runnable {
@@ -59,7 +65,7 @@ public class ExecutableRulesMethodTest {
 
             String value1 = instance.Random(Boolean.TRUE);
             String value2 = instance.Random(Boolean.TRUE);
-            Assert.assertEquals(value1, value2);
+            assertEquals(value1, value2);
         }
     }
 
@@ -70,7 +76,7 @@ public class ExecutableRulesMethodTest {
         t.join();
         String value1 = instance.Random(Boolean.TRUE);
         String value2 = instance.Random(Boolean.TRUE);
-        Assert.assertNotEquals(value1, value2);
+        assertNotEquals(value1, value2);
         Thread t2 = new Thread(new MyRunnable(instance));
         t2.start();
         t2.join();
@@ -78,7 +84,7 @@ public class ExecutableRulesMethodTest {
 
     @Test
     public void defaultValueTest() {
-        Assert.assertFalse(SimpleRulesRuntimeEnvUtils.isMethodArgumentsCacheEnable(instance));
+        assertFalse(SimpleRulesRuntimeEnvUtils.isMethodArgumentsCacheEnable(instance));
     }
 
     @Test
@@ -87,7 +93,7 @@ public class ExecutableRulesMethodTest {
         SimpleRulesRuntimeEnvUtils.setMethodArgumentsCacheMode(instance, CacheMode.READ_WRITE);
         String value1 = instance.Random2(Boolean.TRUE);
         String value2 = instance.Random2(Boolean.TRUE);
-        Assert.assertNotEquals(value1, value2);
+        assertNotEquals(value1, value2);
     }
 
     final static class SimpleRulesRuntimeEnvUtils {

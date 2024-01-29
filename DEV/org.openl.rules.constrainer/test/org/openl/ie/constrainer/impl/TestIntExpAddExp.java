@@ -1,10 +1,16 @@
 package org.openl.ie.constrainer.impl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.openl.ie.constrainer.*;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 
 /**
  * <p>
@@ -24,17 +30,10 @@ import junit.textui.TestRunner;
  * @version 1.0
  */
 
-public class TestIntExpAddExp extends TestCase {
+public class TestIntExpAddExp {
     private final Constrainer C = new Constrainer("TestIntExpAbs");
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestIntExpAddExp.class));
-    }
-
-    public TestIntExpAddExp(String name) {
-        super(name);
-    }
-
+    @Test
     public void testAttachDetachObserver() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -89,6 +88,7 @@ public class TestIntExpAddExp extends TestCase {
         assertEquals(1, observer2.updtCounter());
     } // end of testAttachObserver()
 
+    @Test
     public void testCalc_MaxAndCalc_Min() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -108,6 +108,7 @@ public class TestIntExpAddExp extends TestCase {
         assertEquals(-19, sum.calc_min());
     }
 
+    @Test
     public void testMaxMin() {
         IntVar intvar1 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -127,6 +128,7 @@ public class TestIntExpAddExp extends TestCase {
         assertEquals(-4, sum.min());
     }
 
+    @Test
     public void testSetMax() {
         IntVar intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -185,6 +187,7 @@ public class TestIntExpAddExp extends TestCase {
         }
     }
 
+    @Test
     public void testSetMin() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -243,6 +246,7 @@ public class TestIntExpAddExp extends TestCase {
         }
     }
 
+    @Test
     public void testSetValue() {
         IntVar intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST),
                 intvar2 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);

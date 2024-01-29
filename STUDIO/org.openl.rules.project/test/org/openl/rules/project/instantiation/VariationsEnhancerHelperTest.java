@@ -1,13 +1,17 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.lang.reflect.Method;
-
 import javax.xml.bind.annotation.XmlType;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
@@ -115,7 +119,7 @@ public class VariationsEnhancerHelperTest {
         @Deprecated
         double doSome2(double arg);
 
-        @Ignore
+        @Disabled
         double getSome(String arg, double arg2);
     }
 
@@ -130,7 +134,7 @@ public class VariationsEnhancerHelperTest {
 
         VariationsResult<Double> doSome2(double arg, VariationsPack variations);
 
-        @Ignore
+        @Disabled
         Double getSome(String arg, double arg2);
 
         VariationsResult<Double> getSome(String arg, double arg2, VariationsPack variations);
@@ -147,7 +151,7 @@ public class VariationsEnhancerHelperTest {
 
         VariationsResult<Double> doSome2(double arg, VariationsPack variations);
 
-        @Ignore
+        @Disabled
         Double getSome(String arg, double arg2);
 
         VariationsResult<Double> getSome(String arg, double arg2, VariationsPack variations);

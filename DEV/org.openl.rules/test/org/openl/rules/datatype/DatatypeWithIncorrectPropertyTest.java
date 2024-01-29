@@ -1,9 +1,10 @@
 package org.openl.rules.datatype;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
 
@@ -16,10 +17,10 @@ public class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
     public void testHaveOnlyOneError() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
 
-        assertTrue("Expected an error in the project", compiledOpenClass.hasErrors());
-        assertEquals("Datatype must have only one error", 1, compiledOpenClass.getAllMessages().size());
-        assertEquals("Incorrect error message",
-            "Property 'precision' cannot be defined in 'Datatype' table.",
-            compiledOpenClass.getAllMessages().iterator().next().getSummary());
+        assertTrue(compiledOpenClass.hasErrors(), "Expected an error in the project");
+        assertEquals(1, compiledOpenClass.getAllMessages().size(), "Datatype must have only one error");
+        assertEquals("Property 'precision' cannot be defined in 'Datatype' table.",
+            compiledOpenClass.getAllMessages().iterator().next().getSummary(),
+            "Incorrect error message");
     }
 }

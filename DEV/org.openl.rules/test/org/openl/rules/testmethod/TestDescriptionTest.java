@@ -1,23 +1,24 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+
 import org.openl.rules.table.OpenLCloner;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TestDescriptionTest {
     @Mock
     private IRuntimeEnv env;
@@ -28,7 +29,7 @@ public class TestDescriptionTest {
     private final TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
     private final OpenLCloner cloner = new OpenLCloner();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         arguments = new SomeArgument[] { new SomeArgument("test") };
     }

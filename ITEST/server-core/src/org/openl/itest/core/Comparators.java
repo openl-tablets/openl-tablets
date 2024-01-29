@@ -1,8 +1,9 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -27,8 +29,6 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 final class Comparators {
 
@@ -45,7 +45,7 @@ final class Comparators {
 
     static void txt(String message, String expected, String actual) {
         if (actual == null) {
-            assertEquals(message, expected, actual);
+            assertEquals(expected, actual, message);
         }
         String regExp = getRegExp(expected);
         boolean matches = trimExtraSpaces(actual).matches(regExp);
@@ -140,7 +140,7 @@ final class Comparators {
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path, expectedJson, actualJson);
+        assertEquals(expectedJson, actualJson, "Path: \\" + path);
     }
 
     static void zip(byte[] expectedBytes, byte[] actualBytes) throws IOException {
@@ -151,9 +151,9 @@ final class Comparators {
         while (actual.hasNext()) {
             final Map.Entry<String, byte[]> actualEntry = actual.next();
             if (expectedZipEntries.containsKey(actualEntry.getKey())) {
-                assertArrayEquals(String.format("Zip entry [%s]: ", actualEntry.getKey()),
-                    expectedZipEntries.remove(actualEntry.getKey()),
-                    actualEntry.getValue());
+                assertArrayEquals(expectedZipEntries.remove(actualEntry.getKey()),
+                    actualEntry.getValue(),
+                    String.format("Zip entry [%s]: ", actualEntry.getKey()));
                 actual.remove();
             }
         }

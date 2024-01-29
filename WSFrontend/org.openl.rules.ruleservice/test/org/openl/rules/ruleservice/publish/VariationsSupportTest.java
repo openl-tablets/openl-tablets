@@ -1,31 +1,30 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.lang.reflect.Method;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/VariationsSupportTest",
-        "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.isSupportVariations=true",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/VariationsSupportTest",
+		"ruleservice.isProvideRuntimeContext=false",
+		"ruleservice.isSupportVariations=true",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class VariationsSupportTest {
     public static final String STANDARD = "Standard Driver";
     public static final String YOUNG = "Young Driver";

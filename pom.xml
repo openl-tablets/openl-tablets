@@ -164,14 +164,14 @@
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>4.13.2</junit.version>
+        <junit.version>5.10.1</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <mockito.version>5.8.0</mockito.version>
-        <datasource-proxy.version>1.9</datasource-proxy.version>
+        <mockito.version>5.10.0</mockito.version>
+        <datasource-proxy.version>1.10</datasource-proxy.version>
         <xmlunit.version>2.9.1</xmlunit.version>
         <testcontainers.version>1.19.4</testcontainers.version>
         <minio.version>8.5.7</minio.version>
-        <system-rules.version>1.19.0</system-rules.version>
+        <system-lambda.version>1.2.1</system-lambda.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- javax & Jakarta APIs -->
@@ -662,9 +662,16 @@
         <dependencies>
             <!-- Testing -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -716,12 +723,6 @@
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>net.ttddyy</groupId>
                 <artifactId>datasource-proxy</artifactId>
@@ -915,12 +916,6 @@
                 <artifactId>spring-boot-starter-test</artifactId>
                 <version>${spring.boot.version}</version>
                 <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.junit.vintage</groupId>
-                        <artifactId>junit-vintage-engine</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <!-- Spring Security -->
             <dependency>
@@ -1268,7 +1263,7 @@
             </dependency>
             <dependency>
                 <groupId>com.icegreen</groupId>
-                <artifactId>greenmail-junit4</artifactId>
+                <artifactId>greenmail-junit5</artifactId>
                 <version>${greenmail.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -2129,14 +2124,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Mock objects library for java -->
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

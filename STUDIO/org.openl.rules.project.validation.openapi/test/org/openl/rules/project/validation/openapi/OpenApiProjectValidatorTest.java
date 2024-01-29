@@ -1,13 +1,14 @@
 package org.openl.rules.project.validation.openapi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public final class OpenApiProjectValidatorTest {
 
@@ -15,7 +16,7 @@ public final class OpenApiProjectValidatorTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -23,7 +24,7 @@ public final class OpenApiProjectValidatorTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
@@ -34,7 +35,7 @@ public final class OpenApiProjectValidatorTest {
         final RulesInFolderTestRunnerWithOpenApiValidator rulesInFolderTestRunnerWithOpenApiValidator = new RulesInFolderTestRunnerWithOpenApiValidator(
             false,
             false);
-        assertFalse("Test is failed.", rulesInFolderTestRunnerWithOpenApiValidator.run(DIR));
+        assertFalse(rulesInFolderTestRunnerWithOpenApiValidator.run(DIR), "Test is failed.");
     }
 
 }

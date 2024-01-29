@@ -1,8 +1,10 @@
 package org.openl.rules.dt;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class MultiColumnLookupAndConditionVarAccessTest {
@@ -18,7 +20,7 @@ public class MultiColumnLookupAndConditionVarAccessTest {
 
     private IMultiColumnLookupTest instance;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         RulesEngineFactory<IMultiColumnLookupTest> engineFactory = new RulesEngineFactory<>(SRC,
             IMultiColumnLookupTest.class);
@@ -31,7 +33,7 @@ public class MultiColumnLookupAndConditionVarAccessTest {
     public void testCombined() {
         Double res = instance.getBaseRate(10000, "$100,000 Deductible");
 
-        Assert.assertEquals(15048.3021, res, 0.00005);
+        assertEquals(15048.3021, res, 0.00005);
 
     }
 
@@ -40,11 +42,11 @@ public class MultiColumnLookupAndConditionVarAccessTest {
 
         int res = instance.multiColumnTest1(1, 10, 100);
 
-        Assert.assertEquals(123, res);
+        assertEquals(123, res);
 
         res = instance.multiColumnTest1(6, 20, 200);
 
-        Assert.assertEquals(1700 * 100 + 1800 * 10 + 1900, res);
+        assertEquals(1700 * 100 + 1800 * 10 + 1900, res);
 
     }
 

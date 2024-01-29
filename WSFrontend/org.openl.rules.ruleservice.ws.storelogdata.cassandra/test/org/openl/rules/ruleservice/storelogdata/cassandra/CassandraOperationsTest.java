@@ -1,7 +1,8 @@
 package org.openl.rules.ruleservice.storelogdata.cassandra;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class CassandraOperationsTest {
 
@@ -22,7 +23,7 @@ public class CassandraOperationsTest {
                     .lineSeparator() + "servicename text," + System
                         .lineSeparator() + "" + System.lineSeparator() + "PRIMARY KEY (id) ";
 
-        Assert.assertEquals(lines, CassandraOperations.removeCommentsInStatement(linesWithComments));
+        assertEquals(lines, CassandraOperations.removeCommentsInStatement(linesWithComments));
     }
 
 }

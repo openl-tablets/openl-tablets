@@ -1,9 +1,11 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertTrue;
+//import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 /**
@@ -17,18 +19,18 @@ public class NumbersEQTest {
     private static final String SRC = "test/rules/binding/NumbersEQTest.xls";
     private static Object instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create(SRC);
     }
 
     @Test
     public void testDoubleValueEQ() {
-        assertTrue(TestUtils.invoke(instance, "testDVEquals"));
+        assertTrue(TestUtils.<Boolean>invoke(instance, "testDVEquals"));
     }
 
     @Test
     public void testDoubleEQ() {
-        assertTrue(TestUtils.invoke(instance, "testDDEquals"));
+        assertTrue(TestUtils.<Boolean>invoke(instance, "testDDEquals"));
     }
 }

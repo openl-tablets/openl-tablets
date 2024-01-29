@@ -1,6 +1,9 @@
 package org.openl.binding;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
@@ -13,8 +16,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 
-import junit.framework.TestCase;
-
 /*
  * Created on May 28, 2003
  *
@@ -25,14 +26,14 @@ import junit.framework.TestCase;
  * @author snshor
  *
  */
-public class BinderTest extends TestCase {
+public class BinderTest {
 
     private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
         IOpenMethodHeader header = OpenLManager
             .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
-        Assert.assertEquals(type, header.getType());
-        Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
+        assertEquals(type, header.getType());
+        assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
 
     private void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenLConfigurationException {
@@ -48,7 +49,7 @@ public class BinderTest extends TestCase {
             System.out.println(err);
         }
 
-        Assert.assertEquals(0, errnum);
+        assertEquals(0, errnum);
 
         IOpenBinder b = op.getBinder();
 
@@ -61,11 +62,12 @@ public class BinderTest extends TestCase {
             System.out.println(err);
         }
 
-        Assert.assertEquals(0, errnum);
+        assertEquals(0, errnum);
 
-        Assert.assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
+        assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
     }
 
+    @Test
     public void testBind() throws OpenLConfigurationException {
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
         _testNoError("int x = 5, z, y= 20;", void.class, OpenL.OPENL_J_NAME);
@@ -81,10 +83,12 @@ public class BinderTest extends TestCase {
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
     }
 
+    @Test
     public void testMeta() {
         _testNoError("DoubleValue d1, d2; d1 + d2", Double.class, OpenL.OPENL_JAVA_NAME);
     }
 
+    @Test
     public void testMethodHeader() throws OpenLCompilationException {
         _testMethodHeader("int x()", JavaOpenClass.INT, OpenL.OPENL_J_NAME, 0);
         _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, OpenL.OPENL_J_NAME, 2);

@@ -1,13 +1,22 @@
 package org.openl.rules.serialization.jackson;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -22,10 +31,6 @@ import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 public class JacksonObjectMapperFactoryBeanTest {
 
@@ -46,18 +51,18 @@ public class JacksonObjectMapperFactoryBeanTest {
         String text = objectMapper.writerFor(Variation.class).writeValueAsString(complexVariation);
 
         Variation v1 = objectMapper.readValue(text, Variation.class);
-        Assert.assertTrue(v1 instanceof ComplexVariation);
-        Assert.assertEquals("complexVariationId", v1.getVariationID());
+        assertTrue(v1 instanceof ComplexVariation);
+        assertEquals("complexVariationId", v1.getVariationID());
 
         text = objectMapper.writerFor(Variation.class).writeValueAsString(new DeepCloningVariation("deepCloningID", complexVariation));
         v1 = objectMapper.readValue(text, Variation.class);
-        Assert.assertTrue(v1 instanceof DeepCloningVariation);
-        Assert.assertEquals("deepCloningID", v1.getVariationID());
+        assertTrue(v1 instanceof DeepCloningVariation);
+        assertEquals("deepCloningID", v1.getVariationID());
 
         text = objectMapper.writerFor(Variation.class).writeValueAsString(new JXPathVariation("jaxPathID", 1, "invalidPath", "value"));
         v1 = objectMapper.readValue(text, Variation.class);
-        Assert.assertTrue(v1 instanceof JXPathVariation);
-        Assert.assertEquals("jaxPathID", v1.getVariationID());
+        assertTrue(v1 instanceof JXPathVariation);
+        assertEquals("jaxPathID", v1.getVariationID());
 
         VariationsResult<CompoundStep> variationsResult = new VariationsResult<>();
         variationsResult.registerFailure("variationErrorID", "errorMessage");
@@ -65,8 +70,8 @@ public class JacksonObjectMapperFactoryBeanTest {
         text = objectMapper.writeValueAsString(variationsResult);
         variationsResult = objectMapper.readValue(text, new TypeReference<VariationsResult<CompoundStep>>() {
         });
-        Assert.assertNotNull(variationsResult);
-        Assert.assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
+        assertNotNull(variationsResult);
+        assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
     }
 
     @Test
@@ -77,7 +82,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         SpreadsheetResult value = new SpreadsheetResult(new Object[3][3], new String[3], new String[3]);
         String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
-        Assert.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -88,13 +93,13 @@ public class JacksonObjectMapperFactoryBeanTest {
         String text = objectMapper
             .writeValueAsString(new DoubleRange("(0; 1)"));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
-        Assert.assertNotNull(result);
+        assertNotNull(result);
 
         text = objectMapper.writeValueAsString(new IntRange(199, 299));
         IntRange intRange = objectMapper.readValue(text, IntRange.class);
-        Assert.assertNotNull(intRange);
-        Assert.assertEquals(199, intRange.getMin());
-        Assert.assertEquals(299, intRange.getMax());
+        assertNotNull(intRange);
+        assertEquals(199, intRange.getMin());
+        assertEquals(299, intRange.getMax());
     }
 
     @Test
@@ -111,11 +116,11 @@ public class JacksonObjectMapperFactoryBeanTest {
 
         IRulesRuntimeContext iRulesRuntimeContext = objectMapper.readValue(text, IRulesRuntimeContext.class);
 
-        Assert.assertEquals(date, iRulesRuntimeContext.getCurrentDate());
-        Assert.assertEquals("LOB", iRulesRuntimeContext.getLob());
-        Assert.assertEquals(Locale.FRANCE, iRulesRuntimeContext.getLocale());
+        assertEquals(date, iRulesRuntimeContext.getCurrentDate());
+        assertEquals("LOB", iRulesRuntimeContext.getLob());
+        assertEquals(Locale.FRANCE, iRulesRuntimeContext.getLocale());
 
-        Assert.assertEquals("fr_FR", objectMapper.readTree(text).get("locale").asText());
+        assertEquals("fr_FR", objectMapper.readTree(text).get("locale").asText());
     }
 
     public static class Wrapper {
@@ -152,14 +157,14 @@ public class JacksonObjectMapperFactoryBeanTest {
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
-        Assert.assertNotNull(w);
-        Assert.assertTrue(w.animal instanceof Dog);
-        Assert.assertNotNull(w.animals);
-        Assert.assertEquals(1, w.animals.length);
-        Assert.assertTrue(w.animals[0] instanceof Dog);
-        Assert.assertNotNull(w.arrayOfAnimals);
-        Assert.assertEquals(1, w.arrayOfAnimals.length);
-        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
+        assertNotNull(w);
+        assertTrue(w.animal instanceof Dog);
+        assertNotNull(w.animals);
+        assertEquals(1, w.animals.length);
+        assertTrue(w.animals[0] instanceof Dog);
+        assertNotNull(w.arrayOfAnimals);
+        assertEquals(1, w.arrayOfAnimals.length);
+        assertTrue(w.arrayOfAnimals[0] instanceof Dog);
     }
 
     @Test
@@ -181,31 +186,33 @@ public class JacksonObjectMapperFactoryBeanTest {
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
-        Assert.assertNotNull(w);
-        Assert.assertTrue(w.animal instanceof Dog);
-        Assert.assertNotNull(w.animals);
-        Assert.assertEquals(1, w.animals.length);
-        Assert.assertTrue(w.animals[0] instanceof Dog);
-        Assert.assertNotNull(w.arrayOfAnimals);
-        Assert.assertEquals(1, w.arrayOfAnimals.length);
-        Assert.assertTrue(w.arrayOfAnimals[0] instanceof Dog);
+        assertNotNull(w);
+        assertTrue(w.animal instanceof Dog);
+        assertNotNull(w.animals);
+        assertEquals(1, w.animals.length);
+        assertTrue(w.animals[0] instanceof Dog);
+        assertNotNull(w.arrayOfAnimals);
+        assertEquals(1, w.arrayOfAnimals.length);
+        assertTrue(w.arrayOfAnimals[0] instanceof Dog);
     }
 
-    @Test(expected = InvalidTypeIdException.class)
+    @Test
     public void testOverrideTypesEnableMissedClass() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);
-        bean.setSupportVariations(true);
-        bean.setPolymorphicTypeValidation(true);
-        Set<String> overrideTypes = new HashSet<>();
-        overrideTypes.add(Animal.class.getName());
-        overrideTypes.add(Dog.class.getName());
-        overrideTypes.add(Cat.class.getName());
-        bean.setOverrideTypes(overrideTypes);
-        Wrapper wrapper = new Wrapper();
-        wrapper.animal = new Dog();
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        String text = objectMapper.writeValueAsString(wrapper).replace("$Wrapper", "$Wrapper1");
-        objectMapper.readValue(text, Wrapper.class);
+        assertThrows(InvalidTypeIdException.class, () -> {
+            JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
+            bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);
+            bean.setSupportVariations(true);
+            bean.setPolymorphicTypeValidation(true);
+            Set<String> overrideTypes = new HashSet<>();
+            overrideTypes.add(Animal.class.getName());
+            overrideTypes.add(Dog.class.getName());
+            overrideTypes.add(Cat.class.getName());
+            bean.setOverrideTypes(overrideTypes);
+            Wrapper wrapper = new Wrapper();
+            wrapper.animal = new Dog();
+            ObjectMapper objectMapper = bean.createJacksonObjectMapper();
+            String text = objectMapper.writeValueAsString(wrapper).replace("$Wrapper", "$Wrapper1");
+            objectMapper.readValue(text, Wrapper.class);
+        });
     }
 }

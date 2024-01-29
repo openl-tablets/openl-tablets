@@ -1,18 +1,19 @@
 package org.openl.rules.project.resolving;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringStartsWith.startsWith;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.table.properties.ITableProperties;
@@ -29,7 +30,7 @@ public class DefaultPropertyFileNameProcessorTest {
             assertEquals("Found unsupported property 'unknownProperty' in file name pattern.", e.getMessage());
             return;
         }
-        Assert.fail();
+        fail();
     }
 
     @Test
@@ -93,13 +94,15 @@ public class DefaultPropertyFileNameProcessorTest {
         assertEquals(dateFormat.parse("01012018"), properties.getStartRequestDate());
     }
 
-    @Test(expected = NoMatchFileNameException.class)
+    @Test
     public void testPatternProperty_with_unknownEnumValue_array() throws NoMatchFileNameException,
                                                                   InvalidFileNamePatternException {
+        assertThrows(NoMatchFileNameException.class, () -> {
 
-        new DefaultPropertiesFileNameProcessor(
-            ".*-%lob%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%")
+            new DefaultPropertiesFileNameProcessor(
+                ".*-%lob%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%")
                 .process("Project-PMT,CMT-01012017-01012018-EUR,DEFAULT,UAH.xlsx");
+        });
     }
 
     @Test
@@ -442,12 +445,8 @@ public class DefaultPropertyFileNameProcessorTest {
     }
 
     private void assertNotMatch(DefaultPropertiesFileNameProcessor processor, String file) {
-        try {
-            ITableProperties process = processor.process(file);
-            fail("Ooops...\n" + process);
-        } catch (NoMatchFileNameException e) {
-            assertThat(e.getMessage(), startsWith("File '" + file + "' does not match file name pattern"));
-        }
+        var exc = assertThrows(NoMatchFileNameException.class, () -> processor.process(file));
+        assertTrue(exc.getMessage().startsWith("File '" + file + "' does not match file name pattern"));
     }
 
     private void assertMatch(DefaultPropertiesFileNameProcessor processor,

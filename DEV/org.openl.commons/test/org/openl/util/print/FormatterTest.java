@@ -1,8 +1,9 @@
 package org.openl.util.print;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FormatterTest {
 
@@ -118,7 +119,7 @@ public class FormatterTest {
 
     private void assertContains(String text, String expected) {
         assertNotNull(text);
-        assertTrue(text, text.contains(expected));
+        assertTrue(text.contains(expected), text);
     }
 
     private static class MyType {

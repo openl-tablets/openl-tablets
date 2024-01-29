@@ -1,14 +1,16 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatesTest {
 
@@ -100,9 +102,11 @@ public class DatesTest {
     private static final Date DEF_DATE = new Date();
     private static final Double ZERO_DOUBLE = 0.0d;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_dateDif_shouldThrowIllegalArgumentException_whenUnitNameInUnknown() {
-        Dates.dateDif(null, null, "SOME_NAME");
+        assertThrows(IllegalArgumentException.class, () -> {
+            Dates.dateDif(null, null, "SOME_NAME");
+        });
     }
 
     @Test

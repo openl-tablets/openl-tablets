@@ -1,21 +1,21 @@
 package org.openl.rules.activiti;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.task.Task;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })
+@SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class ConditionOpenLServiceTaskTest {
 
     @Autowired
@@ -23,7 +23,7 @@ public class ConditionOpenLServiceTaskTest {
 
     private ProcessEngine processEngine;
 
-    @Before
+    @BeforeEach
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
@@ -35,7 +35,7 @@ public class ConditionOpenLServiceTaskTest {
 
     @Test
     public void test() {
-        Assert.assertNotNull(processEngine);
+        assertNotNull(processEngine);
         Map<String, Object> variables = new HashMap<>();
 
         variables.put("driverAge", "Standard Driver");
@@ -47,8 +47,8 @@ public class ConditionOpenLServiceTaskTest {
 
         Double result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(500.0d, result, 1e-3);
-        Assert.assertEquals("result task 1", task.getName());
+        assertEquals(500.0d, result, 1e-3);
+        assertEquals("result task 1", task.getName());
 
         processEngine.getTaskService().complete(task.getId());
 
@@ -62,8 +62,8 @@ public class ConditionOpenLServiceTaskTest {
 
         result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(350.0d, result, 1e-3);
-        Assert.assertEquals("result task 2", task.getName());
+        assertEquals(350.0d, result, 1e-3);
+        assertEquals("result task 2", task.getName());
 
         processEngine.getTaskService().complete(task.getId());
 

@@ -1,26 +1,25 @@
 package org.openl.rules.ruleservice.conf;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/LastVersionProjectsServiceConfigurerTest",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
-        "classpath:openl-ruleservice-datasource-beans.xml" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/LastVersionProjectsServiceConfigurerTest",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
+		"classpath:openl-ruleservice-datasource-beans.xml"})
 public class LastVersionProjectsServiceConfigurerTest {
     private static final String PROJECT_NAME = "openl-project";
 

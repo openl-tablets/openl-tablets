@@ -1,27 +1,28 @@
 package org.openl.rules.ruleservice.publish;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.rmiPort=31099",
-        "ruleservice.publishers=RMI",
-        "ruleservice.instantiation.strategy.lazy = false",
+import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
+
+@TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
+		"ruleservice.rmiPort=31099",
+		"ruleservice.publishers=RMI",
+		"ruleservice.instantiation.strategy.lazy = false",
         "production-repository.uri=test-resources/DefaultRmiHandlerTest",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class DefaultRmiHandlerTest {
 
     @Autowired
@@ -29,20 +30,20 @@ public class DefaultRmiHandlerTest {
 
     @Test
     public void test() throws Exception {
-        Assert.assertNotNull(applicationContext);
+        assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        Assert.assertNotNull(serviceManager);
+        assertNotNull(serviceManager);
 
         Registry registry = LocateRegistry.getRegistry(31099);
         DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler) registry
             .lookup("DefaultRmiHandlerTest/simpleProject");
 
-        Assert.assertNotNull(defaultRmiHandler);
+        assertNotNull(defaultRmiHandler);
 
         String result = (String) defaultRmiHandler
             .execute("baseHello", new Class<?>[] { int.class }, new Object[] { 10 });
 
-        Assert.assertEquals("Good Morning", result);
+        assertEquals("Good Morning", result);
 
     }
 }

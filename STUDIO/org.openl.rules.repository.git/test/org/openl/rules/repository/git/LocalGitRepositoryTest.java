@@ -1,5 +1,16 @@
 package org.openl.rules.repository.git;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static org.openl.rules.repository.git.TestGitUtils.assertContains;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,9 +22,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.Constants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
@@ -26,28 +38,19 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.openl.rules.repository.git.TestGitUtils.assertContains;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-
 public class LocalGitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
 
     private File root;
     private GitRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();
@@ -209,8 +212,8 @@ public class LocalGitRepositoryTest {
 
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();
-            assertFalse("Last commit (resolve merge conflict) is treated as old version. Must be last version.",
-                repo.isCheckoutOldVersion(project1, lastVersion));
+            assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
+                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
         }
     }
 
@@ -268,8 +271,8 @@ public class LocalGitRepositoryTest {
 
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();
-            assertFalse("Last commit (resolve merge conflict) is treated as old version. Must be last version.",
-                repo.isCheckoutOldVersion(project1, lastVersion));
+            assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
+                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
         }
     }
 

@@ -1,10 +1,18 @@
 package org.openl.gen;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.util.ClassUtils;
 
@@ -36,9 +44,11 @@ public class InterfaceImplGeneratorTest {
         newInstance(INotPOJO.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNotInterfaceGeneration() {
-        new InterfaceImplBuilder(Date.class);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new InterfaceImplBuilder(Date.class);
+        });
     }
 
     @Test

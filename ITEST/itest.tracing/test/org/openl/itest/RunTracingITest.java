@@ -2,8 +2,8 @@ package org.openl.itest;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -22,9 +22,9 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class RunTracingITest {
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
         DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
@@ -67,7 +67,7 @@ public class RunTracingITest {
         void invoke();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
         doQuite(KAFKA_CONTAINER::stop);

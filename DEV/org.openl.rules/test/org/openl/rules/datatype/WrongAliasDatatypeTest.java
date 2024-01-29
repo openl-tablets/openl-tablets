@@ -1,6 +1,9 @@
 package org.openl.rules.datatype;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class WrongAliasDatatypeTest {
@@ -10,43 +13,59 @@ public class WrongAliasDatatypeTest {
         TestUtils.create("test/rules/datatype/WrongAliasDatatype1Test.xlsx");
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test2() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatype2Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatype2Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test3() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatype3Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatype3Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test4() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatype4Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatype4Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test6() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage2Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage2Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test7() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage3Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage3Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test8() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage4Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage4Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test9() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage5Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage5Test.xlsx");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test10() {
-        TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage6Test.xlsx");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDatatypeUsage6Test.xlsx");
+        });
     }
 }

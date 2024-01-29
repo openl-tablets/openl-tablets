@@ -1,28 +1,28 @@
 package org.openl.rules.ruleservice.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/RulesFrontendTest",
-        "ruleservice.isProvideRuntimeContext=false",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/RulesFrontendTest",
+		"ruleservice.isProvideRuntimeContext=false",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class RulesFrontendTest {
 
     @Autowired
@@ -50,9 +50,11 @@ public class RulesFrontendTest {
         assertEquals("World, Good Morning!", result);
     }
 
-    @Test(expected = MethodInvocationException.class)
+    @Test
     public void testProxyServicesNotExistedMethod() throws MethodInvocationException {
-        frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
+        assertThrows(MethodInvocationException.class, () -> {
+            frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
+        });
     }
 
     @Test

@@ -1,6 +1,7 @@
 package org.openl.rules.tbasic;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class TestIf {

@@ -1,11 +1,15 @@
 package org.openl.rules.method;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
@@ -15,7 +19,7 @@ public class ConstructorMethodsTest {
 
     private RulesEngineFactory<Object> engineFactory;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
@@ -24,13 +28,13 @@ public class ConstructorMethodsTest {
     public void test() {
         Iterable<IOpenMethod> constructors = engineFactory.getCompiledOpenClass().getOpenClass().constructors();
         Iterator<IOpenMethod> itr = constructors.iterator();
-        Assert.assertTrue(itr.hasNext());
-        Assert.assertTrue(itr.next().isConstructor());
+        assertTrue(itr.hasNext());
+        assertTrue(itr.next().isConstructor());
 
         Iterable<IOpenMethod> methods = engineFactory.getCompiledOpenClass().getOpenClass().methods("Main");
         Iterator<IOpenMethod> itr2 = methods.iterator();
-        Assert.assertTrue(itr2.hasNext());
-        Assert.assertFalse(itr2.next().isConstructor());
+        assertTrue(itr2.hasNext());
+        assertFalse(itr2.next().isConstructor());
 
     }
 }

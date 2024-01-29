@@ -1,15 +1,21 @@
 package org.openl.rules.table.formatters;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.junit.Test;
-import org.openl.util.formatters.*;
+import org.junit.jupiter.api.Test;
+
+import org.openl.util.formatters.BooleanFormatter;
+import org.openl.util.formatters.DateFormatter;
+import org.openl.util.formatters.EnumFormatter;
+import org.openl.util.formatters.FormatterAdapter;
+import org.openl.util.formatters.IFormatter;
 
 public class FormattersManagerTest {
 

@@ -1,15 +1,20 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 
 public class RulesServiceEnhancerHelperTest {
@@ -82,7 +87,7 @@ public class RulesServiceEnhancerHelperTest {
         @Deprecated
         void doSome2(IRulesRuntimeContext context, String arg);
 
-        @Ignore
+        @Disabled
         String getSome(IRulesRuntimeContext context, String arg, int arg2);
     }
 

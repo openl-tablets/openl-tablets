@@ -1,16 +1,21 @@
 package org.openl.excel.parser;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICellComment;
 
@@ -19,7 +24,7 @@ public abstract class BaseReaderTest {
 
     protected abstract ExcelReader createReader() throws IOException;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         try {
             reader = createReader();
@@ -28,7 +33,7 @@ public abstract class BaseReaderTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         reader.close();
         reader = null;
@@ -177,7 +182,7 @@ public abstract class BaseReaderTest {
         // Sometimes Excel uses Shared Formulas to optimize file size.
         // Check that formula exists in each row.
         for (int r = 2; r < 12; r++) {
-            assertEquals("Test #" + (r - 1) + " is failed", "B" + (r + 1) + "*10", tableStyles.getFormula(r, 2));
+            assertEquals("B" + (r + 1) + "*10", tableStyles.getFormula(r, 2), "Test #" + (r - 1) + " is failed");
         }
     }
 }

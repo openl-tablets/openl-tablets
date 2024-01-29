@@ -1,12 +1,13 @@
 package org.openl.rules.openapi.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,8 +24,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.junit.Before;
-import org.junit.Test;
+import groovy.lang.GroovyClassLoader;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -38,14 +40,12 @@ import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
-import groovy.lang.GroovyClassLoader;
-
 public class OpenAPIGroovyScriptGeneratorTest {
 
     private OpenAPIModelConverter converter;
     private GroovyClassLoader groovyClassLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         converter = new OpenAPIScaffoldingConverter();
         groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
@@ -509,7 +509,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
-        assertTrue("Interface must be public", (interfaceClass.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((interfaceClass.getModifiers() & Modifier.PUBLIC) != 0, "Interface must be public");
         assertEquals(expectedName, interfaceClass.getName());
     }
 
@@ -528,7 +528,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
                                                                              InstantiationException {
 
         assertFalse(clazz.isInterface());
-        assertTrue("Class must be public", (clazz.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((clazz.getModifiers() & Modifier.PUBLIC) != 0, "Class must be public");
         assertEquals(expectedName, clazz.getName());
         clazz.newInstance();// just for sure
     }

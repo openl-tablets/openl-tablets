@@ -1,16 +1,17 @@
 package org.openl.rules.repository.azure;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,16 +29,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.util.IOUtils;
-
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
@@ -50,13 +41,23 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.util.IOUtils;
 
 public class AzureBlobRepositoryTest {
     private AzureBlobRepository repo;
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
     private final Map<String, List<BlobEmulation>> blobs = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         BlobContainerClient client = mockContainerClient();
 
@@ -65,7 +66,7 @@ public class AzureBlobRepositoryTest {
         repo.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         blobs.clear();
         repo.close();
@@ -167,10 +168,10 @@ public class AzureBlobRepositoryTest {
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
         projectData.setAuthor(new UserInfo("john_smith"));
-        assertTrue("'project1' has not been deleted", repo.delete(projectData));
+        assertTrue(repo.delete(projectData), "'project1' has not been deleted");
 
         FileData deletedProject = repo.check(projectPath);
-        assertTrue("'project1' is not deleted", deletedProject.isDeleted());
+        assertTrue(deletedProject.isDeleted(), "'project1' is not deleted");
 
         // Restore the project
         FileData toDelete = new FileData();
@@ -180,11 +181,11 @@ public class AzureBlobRepositoryTest {
         toDelete.setComment("Delete project1.");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertFalse("'project1' is not restored", deletedProject.isDeleted());
+        assertFalse(deletedProject.isDeleted(), "'project1' is not restored");
         assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
-        assertEquals("Actual project changes must be 3.", 3, repo.listHistory(projectPath).size());
+        assertEquals(3, repo.listHistory(projectPath).size(), "Actual project changes must be 3.");
 
         // Erase the project
         toDelete.setName(projectPath);
@@ -192,7 +193,7 @@ public class AzureBlobRepositoryTest {
         toDelete.setComment("Erase project1");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertNull("'project1' is not erased", deletedProject);
+        assertNull(deletedProject, "'project1' is not erased");
     }
 
     @Test
@@ -432,7 +433,7 @@ public class AzureBlobRepositoryTest {
             }
         }
 
-        assertTrue("Files list does not contain the file '" + fileName + "'", contains);
+        assertTrue(contains, "Files list does not contain the file '" + fileName + "'");
     }
 
     private FileData createFileData(String project) {

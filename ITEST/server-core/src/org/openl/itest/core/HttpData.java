@@ -1,7 +1,8 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -143,7 +144,7 @@ class HttpData {
 
     void assertTo(HttpData expected) throws Exception, AssertionError {
         try {
-            assertEquals("Status code: ", expected.getResponseCode(), this.getResponseCode());
+            assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code: ");
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {
                 String headerName = r.getKey();
                 String value = r.getValue();
@@ -192,7 +193,7 @@ class HttpData {
                     break;
                 default:
                     if (!new String(expected.body, StandardCharsets.ISO_8859_1).trim().equals("***")) {
-                        assertArrayEquals("Body: ", decoder.apply(expected.body), decoder.apply(this.body));
+                        assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
                     }
             }
         } catch (Exception | AssertionError ex) {

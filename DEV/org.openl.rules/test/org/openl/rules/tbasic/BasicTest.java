@@ -1,9 +1,10 @@
 package org.openl.rules.tbasic;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
-@Ignore("Manual test")
+@Disabled("Manual test")
 public class BasicTest {
     private static final String SRC = "test/rules/BasicAlgorithm.xls";
 

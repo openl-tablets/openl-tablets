@@ -1,24 +1,23 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/RulesPublisherTest",
-        "ruleservice.isProvideRuntimeContext=false",
-        "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/RulesPublisherTest",
+		"ruleservice.isProvideRuntimeContext=false",
+		"production-repository.factory = repo-file"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml"})
 public class RuleServicePublisherListenerTest {
 
     @Autowired
@@ -31,23 +30,23 @@ public class RuleServicePublisherListenerTest {
         assertNotNull(serviceManager);
         ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
 
-        Assert.assertFalse(serviceManager.getServicesInfo().isEmpty());
+        assertFalse(serviceManager.getServicesInfo().isEmpty());
 
         OpenLService service = publisher.getServiceByDeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
 
-        Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
-        Assert.assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);
+        assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
+        assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);
 
         publisher.undeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
         publisher.deploy(service);
 
-        Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
-        Assert.assertEquals(1, RuleServicePublisherListenerTestListener.onUndeployCount);
+        assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
+        assertEquals(1, RuleServicePublisherListenerTestListener.onUndeployCount);
 
         publisher.undeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
 
-        Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
-        Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onUndeployCount);
+        assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
+        assertEquals(2, RuleServicePublisherListenerTestListener.onUndeployCount);
 
     }
 }

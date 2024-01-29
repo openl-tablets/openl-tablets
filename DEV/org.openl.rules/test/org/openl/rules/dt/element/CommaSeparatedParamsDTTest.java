@@ -1,9 +1,10 @@
 package org.openl.rules.dt.element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class CommaSeparatedParamsDTTest {
@@ -12,7 +13,7 @@ public class CommaSeparatedParamsDTTest {
 
     private CommaSeparatedTest instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<>(SRC, CommaSeparatedTest.class);
 

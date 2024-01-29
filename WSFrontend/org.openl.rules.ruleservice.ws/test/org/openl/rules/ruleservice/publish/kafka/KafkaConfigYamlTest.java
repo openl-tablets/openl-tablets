@@ -1,22 +1,22 @@
 package org.openl.rules.ruleservice.publish.kafka;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
-import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
+import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml" })
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml"})
 public class KafkaConfigYamlTest {
     @Autowired
     ResourceLoader resourceLoader;
@@ -26,10 +26,10 @@ public class KafkaConfigYamlTest {
         Resource resource = resourceLoader.getResource("classpath:default-kafka-deploy.yaml");
         ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
         KafkaDeploy kafkaConfig = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
-        Assert.assertNotNull(kafkaConfig);
-        Assert.assertNotNull(kafkaConfig.getConsumerConfigs());
-        Assert.assertNotNull(kafkaConfig.getProducerConfigs());
-        Assert.assertEquals("all", kafkaConfig.getProducerConfigs().getProperty("acks"));
+        assertNotNull(kafkaConfig);
+        assertNotNull(kafkaConfig.getConsumerConfigs());
+        assertNotNull(kafkaConfig.getProducerConfigs());
+        assertEquals("all", kafkaConfig.getProducerConfigs().getProperty("acks"));
     }
 
     @Test
@@ -37,8 +37,8 @@ public class KafkaConfigYamlTest {
         Resource resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yaml");
         ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
         KafkaDeploy kafkaConfig = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
-        Assert.assertNotNull(kafkaConfig);
-        Assert.assertNotNull(kafkaConfig.getConsumerConfigs());
+        assertNotNull(kafkaConfig);
+        assertNotNull(kafkaConfig.getConsumerConfigs());
     }
 
     @Test
@@ -46,6 +46,6 @@ public class KafkaConfigYamlTest {
         Resource resource = resourceLoader.getResource("classpath:kafka-deploy.yaml");
         ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
         KafkaDeploy kafkaConfig = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
-        Assert.assertNotNull(kafkaConfig);
+        assertNotNull(kafkaConfig);
     }
 }

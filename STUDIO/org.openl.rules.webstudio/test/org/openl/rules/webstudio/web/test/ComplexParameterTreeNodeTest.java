@@ -1,13 +1,19 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
 import org.openl.types.java.JavaOpenClass;
 
 public class ComplexParameterTreeNodeTest {
@@ -34,7 +40,8 @@ public class ComplexParameterTreeNodeTest {
         assertTrue(childrenMap.containsKey("value"));
     }
 
-    @Test(timeout = 1000)
+    @Test
+    @Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
     public void testCyclicReferences() {
         // Wee need to check a cyclic references, because JSF loads all child nodes before building a tree
 

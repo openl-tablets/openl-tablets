@@ -1,10 +1,11 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -13,11 +14,11 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 
 public class ProjectIndexSerializerTest {
@@ -25,7 +26,7 @@ public class ProjectIndexSerializerTest {
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
@@ -33,7 +34,7 @@ public class ProjectIndexSerializerTest {
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);

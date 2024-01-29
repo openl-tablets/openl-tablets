@@ -1,15 +1,19 @@
 package org.openl.ie.constrainer.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.util.Arrays;
+
+import org.junit.jupiter.api.Test;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
 import org.openl.ie.constrainer.IntVar;
-
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 /**
  * <p>
@@ -29,7 +33,7 @@ import junit.textui.TestRunner;
  * @version 1.0
  */
 
-public class TestDomainBits2 extends TestCase {
+public class TestDomainBits2 {
     private final Constrainer C = new Constrainer("TestDomainBits2");
     private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
     private final DomainBits2 _probeDomainBits2 = new DomainBits2(_var, _var.min(), _var.max());
@@ -52,21 +56,15 @@ public class TestDomainBits2 extends TestCase {
         return bits2;
     }
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestDomainBits2.class));
-    }
-
-    public TestDomainBits2(String name) {
-        super(name);
-    }
-
-    public void forceSize(int val) {
+    @Test
+    public void forceSize() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         db.forceSize(125);
         assertEquals(db.size(), 125);
     }
 
-    public void setValue(int value) {
+    @Test
+    public void setValue() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         boolean[] mask = new boolean[db.size()];
         Arrays.fill(mask, true);
@@ -90,6 +88,7 @@ public class TestDomainBits2 extends TestCase {
 
     }
 
+    @Test
     public void testBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = { false, false, true, false, true, true };
@@ -99,6 +98,7 @@ public class TestDomainBits2 extends TestCase {
         assertEquals(bt[0], 52);
     }
 
+    @Test
     public void testContains() {
         int[] goodArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
@@ -121,15 +121,17 @@ public class TestDomainBits2 extends TestCase {
         }
     }
 
+    @Test
     public void testForceBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[] { false, true, false, true, false, true };
         db.forceBits(bitsToBits2(bits));
         for (int i = 5; i <= _var.max(); i++) {
-            assertEquals("does not contain " + i, db.contains(i), bits[i - 5]);
+            assertEquals(db.contains(i), bits[i - 5], "does not contain " + i);
         }
     }
 
+    @Test
     public void testForceInsert() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
         boolean[] bits = new boolean[] { false, false, false, false, false, false };
@@ -139,10 +141,11 @@ public class TestDomainBits2 extends TestCase {
         db.forceInsert(7);
         db.forceInsert(8);
         for (int i = 5; i <= 8; i++) {
-            assertTrue("does not contain " + i, db.contains(i));
+            assertTrue(db.contains(i), "does not contain " + i);
         }
     }
 
+    @Test
     public void testIterateDomain() {
         IntVar intvar = C.addIntVar(0, 10);
         DomainBits2 db = new DomainBits2(intvar, intvar.min(), intvar.max());
@@ -165,6 +168,7 @@ public class TestDomainBits2 extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveRange() {
         IntVar var = C.addIntVar(-10, 10, IntVar.DOMAIN_PLAIN);
         DomainBits di = new DomainBits(var, var.min(), var.max());
@@ -244,6 +248,7 @@ public class TestDomainBits2 extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveValue() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         int start_size = db.size();
@@ -262,6 +267,7 @@ public class TestDomainBits2 extends TestCase {
         }
     }
 
+    @Test
     public void testSetMax() {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         try {
@@ -287,31 +293,4 @@ public class TestDomainBits2 extends TestCase {
             fail("test failed.");
         }
     }
-
-    public void testSetMin(int m) {
-        DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
-        try {
-            assertFalse(db.setMin(_var.max() + 1));
-        } catch (Failure f) {
-            fail("test failed.");
-        }
-        try {
-            db.setMin(_var.min() - 1);
-            fail("test of DomainBits2 failed due to incorrect work of setMax(int)");
-        } catch (Failure ignored) {
-        } catch (Exception e) {
-            fail("Unexpected exception has been thrown.");
-        }
-        db.size();
-        db.forceBits(bitsToBits2(new boolean[] { true, false, true, true, true, true, false, true, true, true, true }));
-        try {
-            db.setMin(6);
-            assertEquals(7, db.min());
-            assertEquals(4, db.size());
-        } catch (Failure f) {
-            fail("test failed.");
-        }
-
-    }
-
 }

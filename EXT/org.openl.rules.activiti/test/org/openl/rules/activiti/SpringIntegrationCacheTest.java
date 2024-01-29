@@ -1,20 +1,20 @@
 package org.openl.rules.activiti;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.task.Task;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:activiti-spring.cfg.xml" })
+@SpringJUnitConfig(locations = {"classpath:activiti-spring.cfg.xml"})
 public class SpringIntegrationCacheTest {
 
     @Autowired
@@ -22,7 +22,7 @@ public class SpringIntegrationCacheTest {
 
     @Test
     public void test() {
-        Assert.assertNotNull(processEngine);
+        assertNotNull(processEngine);
 
         Deployment deployment = processEngine.getRepositoryService()
             .createDeployment()
@@ -38,10 +38,10 @@ public class SpringIntegrationCacheTest {
         processEngine.getRuntimeService().startProcessInstanceByKey("openLTaskServiceTest", variables);
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
-        Assert.assertEquals("result task", task.getName());
+        assertEquals("result task", task.getName());
 
         Double result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
-        Assert.assertEquals(500d, result, 1e-8);
+        assertEquals(500d, result, 1e-8);
 
         processEngine.getTaskService().complete(task.getId());
 

@@ -1,5 +1,10 @@
 package org.openl.rules.ruleservice.loader;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +14,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.IProjectFolder;
@@ -19,21 +27,11 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.base.path=",
-        "production-repository.factory = repo-jdbc",
-        "production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1" })
-@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
-        "classpath:openl-ruleservice-datasource-beans.xml" })
+@TestPropertySource(properties = {"production-repository.base.path=",
+		"production-repository.factory = repo-jdbc",
+		"production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
+		"classpath:openl-ruleservice-datasource-beans.xml"})
 public class RulesLoaderTest {
 
     @Autowired

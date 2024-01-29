@@ -1,19 +1,16 @@
 package org.openl.spring.env;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {"openl.config.location=classpath:firewall.properties"})
-@ContextConfiguration(initializers = PropertySourcesLoader.class)
+@SpringJUnitConfig(initializers = PropertySourcesLoader.class)
 public class PropertyResolverTest {
 
     @Autowired

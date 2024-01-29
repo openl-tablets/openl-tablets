@@ -1,12 +1,13 @@
 package org.openl.rules.testmethod.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,9 +27,10 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.data.PrimaryKeyField;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -43,14 +45,14 @@ public class ParameterExportTest {
     private SXSSFWorkbook workbook;
     private SXSSFSheet sheet;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         workbook = new SXSSFWorkbook();
         sheet = workbook.createSheet("Type 1");
         export = new ParameterExport(new Styles(workbook));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         workbook.dispose();
     }
@@ -350,13 +352,13 @@ public class ParameterExportTest {
     }
 
     private void assertRowEquals(Row row, String... values) {
-        assertNotNull("Row is absent. Expected values: " + Arrays.toString(values), row);
+        assertNotNull(row, "Row is absent. Expected values: " + Arrays.toString(values));
 
         int colNum = BaseExport.FIRST_COLUMN;
         for (String value : values) {
             Cell cell = row.getCell(colNum);
-            assertNotNull("Column " + colNum + " is absent", cell);
-            assertEquals("Incorrect column " + colNum, value, cell.getStringCellValue());
+            assertNotNull(cell, "Column " + colNum + " is absent");
+            assertEquals(value, cell.getStringCellValue(), "Incorrect column " + colNum);
             colNum++;
         }
 

@@ -1,14 +1,16 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.impl.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;

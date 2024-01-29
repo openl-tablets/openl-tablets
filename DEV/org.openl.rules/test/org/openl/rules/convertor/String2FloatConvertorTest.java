@@ -1,8 +1,9 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2FloatConvertorTest {
 
@@ -34,16 +35,20 @@ public class String2FloatConvertorTest {
         assertEquals(Float.NEGATIVE_INFINITY, result);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertPositiveOverflow() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        converter.parse("1E39", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2FloatConvertor converter = new String2FloatConvertor();
+            converter.parse("1E39", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertNegativeOverflow() {
-        String2FloatConvertor converter = new String2FloatConvertor();
-        converter.parse("-1E39", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2FloatConvertor converter = new String2FloatConvertor();
+            converter.parse("-1E39", null);
+        });
     }
 
 }

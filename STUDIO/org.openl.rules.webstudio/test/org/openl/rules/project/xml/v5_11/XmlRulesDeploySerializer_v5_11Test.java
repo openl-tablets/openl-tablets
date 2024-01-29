@@ -1,18 +1,21 @@
 package org.openl.rules.project.xml.v5_11;
 
-import org.junit.Test;
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.v5_11.RulesDeploy_v5_11;
-import org.openl.rules.project.model.v5_11.converter.RulesDeployVersionConverter_v5_11;
-import org.openl.rules.project.xml.BaseRulesDeploySerializer;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.project.xml.BaseRulesDeploySerializerTest.generateRulesDeployForTest;
+
 
 import java.io.FileInputStream;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.openl.rules.project.xml.BaseRulesDeploySerializerTest.generateRulesDeployForTest;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.v5_11.RulesDeploy_v5_11;
+import org.openl.rules.project.model.v5_11.converter.RulesDeployVersionConverter_v5_11;
+import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
 public class XmlRulesDeploySerializer_v5_11Test {
 

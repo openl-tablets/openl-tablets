@@ -1,17 +1,19 @@
 package org.openl.rules.cmatch;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.openl.rules.TestUtils.assertEx;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompilerBuilder;
 import org.openl.rules.cmatch.algorithm.MatchAlgorithmFactory;
 
 public class Test0 {
 
-    @After
+    @AfterEach
     public void restore() {
         MatchAlgorithmFactory.setDefaultBuilder(new MatchAlgorithmCompilerBuilder());
     }

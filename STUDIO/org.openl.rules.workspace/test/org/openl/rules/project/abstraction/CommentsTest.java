@@ -1,15 +1,16 @@
 package org.openl.rules.project.abstraction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CommentsTest {
 
@@ -18,7 +19,7 @@ public class CommentsTest {
     private Comments comments;
     private Comments comments2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";

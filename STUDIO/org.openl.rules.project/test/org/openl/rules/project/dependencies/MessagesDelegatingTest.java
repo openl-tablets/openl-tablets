@@ -1,7 +1,8 @@
 package org.openl.rules.project.dependencies;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,8 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.DependencyType;
@@ -34,7 +36,7 @@ public class MessagesDelegatingTest {
     private ProjectDescriptor project;
     private SimpleDependencyManager dependencyManager;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         File rulesFolder = new File("test-resources/modules_with_errors/");
         project = ProjectResolver.getInstance().resolve(rulesFolder);
@@ -98,8 +100,8 @@ public class MessagesDelegatingTest {
             compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
-        assertFalse("During compilation DuplicatedMethodException must not be thrown",
-            hasDuplicatedMethodException(compiledMultiModule));
+        assertFalse(hasDuplicatedMethodException(compiledMultiModule),
+            "During compilation DuplicatedMethodException must not be thrown");
     }
 
     @Test
@@ -122,8 +124,8 @@ public class MessagesDelegatingTest {
             compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
-        assertTrue("During compilation DuplicatedMethodException must be thrown",
-            hasDuplicatedMethodException(compiledMultiModule));
+        assertTrue(hasDuplicatedMethodException(compiledMultiModule),
+            "During compilation DuplicatedMethodException must be thrown");
     }
 
     private boolean hasDuplicatedMethodException(CompiledOpenClass compiledOpenClass) {

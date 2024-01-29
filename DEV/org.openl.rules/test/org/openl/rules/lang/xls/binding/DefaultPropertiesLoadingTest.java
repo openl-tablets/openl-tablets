@@ -1,8 +1,11 @@
 package org.openl.rules.lang.xls.binding;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -20,12 +23,12 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode resultTsn = findTable(tableName);
         if (resultTsn != null) {
 
-            assertEquals("Check that number of properties defined in table is 0",
-                resultTsn.getTableProperties().getTableProperties().size(),
-                0);
+            assertEquals(resultTsn.getTableProperties().getTableProperties().size(),
+                0,
+                "Check that number of properties defined in table is 0");
 
-            assertFalse("Tsn does not have properties defined in appropriate table in excel",
-                    resultTsn.hasPropertiesDefinedInTable());
+            assertFalse(resultTsn.hasPropertiesDefinedInTable(),
+                    "Tsn does not have properties defined in appropriate table in excel");
         } else {
             fail();
         }

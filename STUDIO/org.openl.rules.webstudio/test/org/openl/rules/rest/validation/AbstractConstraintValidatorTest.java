@@ -1,11 +1,10 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.Locale;
 
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -13,6 +12,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
+
+import org.openl.rules.rest.exception.RestRuntimeException;
+import org.openl.rules.rest.exception.ValidationException;
 
 public class AbstractConstraintValidatorTest {
 

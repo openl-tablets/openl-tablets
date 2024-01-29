@@ -1,9 +1,10 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2ArrayConvertorTest {
 
@@ -48,15 +49,19 @@ public class String2ArrayConvertorTest {
         assertNull(converter.parse(null, null));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseNotIntegers() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor<>(Integer.class);
-        converter.parse("12.30", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor<>(Integer.class);
+            converter.parse("12.30", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testParseWrongValue() {
-        String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor<>(Integer.class);
-        converter.parse("12,34,_,56", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2ArrayConvertor<Integer, Integer[]> converter = new String2ArrayConvertor<>(Integer.class);
+            converter.parse("12,34,_,56", null);
+        });
     }
 }

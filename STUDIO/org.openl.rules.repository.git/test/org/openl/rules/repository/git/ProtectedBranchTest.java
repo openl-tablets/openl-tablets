@@ -1,5 +1,15 @@
 package org.openl.rules.repository.git;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+import static org.openl.rules.repository.git.TestGitUtils.writeText;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,24 +23,17 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FS_POSIX;
 import org.eclipse.jgit.util.FS_Win32_Cygwin;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
-import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
 public class ProtectedBranchTest {
     private static final String BRANCH1 = "branch1";
@@ -38,7 +41,7 @@ public class ProtectedBranchTest {
     private File root;
     private GitRepository repo;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTest() throws GitAPIException, IOException {
         assumeSupportedPlatform();
 
@@ -61,7 +64,7 @@ public class ProtectedBranchTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearTest() {
         if (template == null) {
             return;
@@ -72,7 +75,7 @@ public class ProtectedBranchTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
 
@@ -90,7 +93,7 @@ public class ProtectedBranchTest {
         repo = createRepository(remoteUri, local);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();
@@ -129,10 +132,10 @@ public class ProtectedBranchTest {
             fail("Merge must be unavailable because of pre-push hook");
         } catch (IOException e) {
             // After merge failure must rollback both commits from 'branch1'.
-            assertNull("The file " + path1 + " must be absent in 'master' after rolling back merge.",
-                repo.check(path1));
-            assertNull("The file " + path2 + " must be absent in 'master' after rolling back merge.",
-                repo.check(path2));
+            assertNull(repo.check(path1),
+                "The file " + path1 + " must be absent in 'master' after rolling back merge.");
+            assertNull(repo.check(path2),
+                "The file " + path2 + " must be absent in 'master' after rolling back merge.");
         }
     }
 
@@ -162,8 +165,8 @@ public class ProtectedBranchTest {
     }
 
     private static void assumeSupportedPlatform() {
-        assumeTrue("Hooks aren't supported on your platform",
-            FS.DETECTED instanceof FS_POSIX || FS.DETECTED instanceof FS_Win32_Cygwin);
+        assumeTrue(FS.DETECTED instanceof FS_POSIX || FS.DETECTED instanceof FS_Win32_Cygwin,
+            "Hooks aren't supported on your platform");
     }
 
 }

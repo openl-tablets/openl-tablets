@@ -1,22 +1,23 @@
 package org.openl.rules.activiti;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.impl.pvm.PvmException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })
+import org.openl.rules.project.instantiation.RulesInstantiationException;
+
+@SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class SimpleXlsOpenLServiceTaskWithErrorsTest {
 
     @Autowired
@@ -24,7 +25,7 @@ public class SimpleXlsOpenLServiceTaskWithErrorsTest {
 
     private ProcessEngine processEngine;
 
-    @Before
+    @BeforeEach
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
@@ -36,7 +37,7 @@ public class SimpleXlsOpenLServiceTaskWithErrorsTest {
 
     @Test
     public void test() {
-        Assert.assertNotNull(processEngine);
+        assertNotNull(processEngine);
         Map<String, Object> variables = new HashMap<>();
 
         variables.put("driverAge", "Standard Driver");
@@ -45,7 +46,7 @@ public class SimpleXlsOpenLServiceTaskWithErrorsTest {
         try {
             processEngine.getRuntimeService().startProcessInstanceByKey("openLTaskServiceTest", variables);
         } catch (PvmException e) {
-            Assert.assertTrue(e.getCause() instanceof RulesInstantiationException);
+            assertTrue(e.getCause() instanceof RulesInstantiationException);
         }
     }
 }

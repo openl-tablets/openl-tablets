@@ -1,11 +1,13 @@
 package org.openl.rules.calculation.result.convertor2.sample;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.io.File;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;

@@ -1,10 +1,10 @@
 package org.openl.rules.table;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -28,8 +28,8 @@ public class SimpleLogicalTableTest {
 
         IGridTable[] tables = xsGrid.getTables();
 
-        Assert.assertEquals(2, xsGrid.getNumberOfMergedRegions());
-        Assert.assertEquals(1, tables.length);
+        assertEquals(2, xsGrid.getNumberOfMergedRegions());
+        assertEquals(1, tables.length);
 
         ILogicalTable logicalTable = LogicalTableHelper.logicalTable(tables[0]);
 

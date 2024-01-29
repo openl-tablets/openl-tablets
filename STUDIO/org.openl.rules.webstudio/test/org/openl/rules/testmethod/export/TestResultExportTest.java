@@ -1,16 +1,18 @@
 package org.openl.rules.testmethod.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.openl.rules.testmethod.export.Styles.GREEN_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.GREEN_MAIN;
 import static org.openl.rules.testmethod.export.Styles.HEADER;
 import static org.openl.rules.testmethod.export.Styles.RED_FIELDS;
 import static org.openl.rules.testmethod.export.Styles.RED_MAIN;
 import static org.openl.rules.testmethod.export.Styles.convertRGB;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,9 +28,10 @@ import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -49,14 +52,14 @@ public class TestResultExportTest {
     private static TestUnitsResults[] trivialResults;
     private static TestUnitsResults[] resultsWithPK;
 
-    @BeforeClass
+    @BeforeAll
     public static void runTests() throws Exception {
         testResults = runTests("test-resources/test/export/example3");
         trivialResults = runTests(TRIVIAL_PROJECT);
         resultsWithPK = runTests("test-resources/test/export/example3-pk");
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUp() {
         testResults = null;
         trivialResults = null;
@@ -523,12 +526,12 @@ public class TestResultExportTest {
         String sheetName = row.getSheet().getSheetName();
         for (String value : values) {
             String message = "Incorrect text in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
-            assertEquals(message, value, asString(row.getCell(column)));
+            assertEquals(value, asString(row.getCell(column)), message);
             column++;
         }
 
         String message = "There are extra cells in row " + row.getRowNum() + " of sheet " + sheetName;
-        assertEquals(message, column, row.getLastCellNum());
+        assertEquals(column, row.getLastCellNum(), message);
     }
 
     private void assertRowColors(XSSFRow row, Integer... colors) {
@@ -541,7 +544,7 @@ public class TestResultExportTest {
         for (Integer color : colors) {
             XSSFColor expected = color == null ? null : new XSSFColor(convertRGB(color), indexedColors);
             String message = "Incorrect color in: {" + sheetName + "[" + row.getRowNum() + ", " + column + "]}";
-            assertEquals(message, expected, row.getCell(column).getCellStyle().getFillForegroundColorColor());
+            assertEquals(expected, row.getCell(column).getCellStyle().getFillForegroundColorColor(), message);
             column++;
         }
     }

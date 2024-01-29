@@ -1,9 +1,10 @@
 package org.openl.rules.lock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,9 +16,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.util.FileUtils;
 
 public class LockTest {
@@ -26,13 +28,13 @@ public class LockTest {
     private Path tempDirectoryPath;
     static final int MAX_THREADS = Math.min(12, Runtime.getRuntime().availableProcessors() * 2);
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         tempDirectoryPath = Files.createTempDirectory("openl-locks");
         lock = new Lock(tempDirectoryPath, "my/lock/id");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         FileUtils.delete(tempDirectoryPath.toFile());
         if (tempDirectoryPath.toFile().exists()) {
@@ -218,8 +220,8 @@ public class LockTest {
             executor.awaitTermination(5, TimeUnit.SECONDS);
         } catch (InterruptedException ignored) {
         } finally {
-            assertTrue("Long running thread must be terminated", executor.isTerminated());
-            assertFalse("forceLock() must not get a lock when it was interrupted", interrupted.get());
+            assertTrue(executor.isTerminated(), "Long running thread must be terminated");
+            assertFalse(interrupted.get(), "forceLock() must not get a lock when it was interrupted");
         }
 
         // Make sure that the lock is not overridden.

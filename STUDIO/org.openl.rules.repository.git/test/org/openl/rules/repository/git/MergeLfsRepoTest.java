@@ -1,6 +1,7 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +11,10 @@ import java.nio.file.Path;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.util.LfsFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.FileUtils;
 import org.openl.util.ZipUtils;
@@ -23,7 +25,7 @@ public class MergeLfsRepoTest {
 
     private GitRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Path repoPath = Path.of(REPO_URI);
         Files.createDirectories(repoPath);
@@ -44,7 +46,7 @@ public class MergeLfsRepoTest {
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();

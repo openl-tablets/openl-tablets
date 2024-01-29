@@ -1,13 +1,15 @@
 package org.openl.binding.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.lang.reflect.Array;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastFactory;
@@ -29,7 +31,7 @@ public abstract class AbstractMethodSearchTest {
             CastOperators.class.getName() };
     static ICastFactory castFactory;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         OpenLConfiguration openLConfiguration = new OpenLConfiguration();
 
@@ -63,10 +65,10 @@ public abstract class AbstractMethodSearchTest {
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
-        assertNotNull("Method " + methodDescriptor(methodName, openClasses) + " has not been matched.", method);
+        assertNotNull(method, "Method " + methodDescriptor(methodName, openClasses) + " has not been matched.");
         Object targetInstance = instance(target);
         Object result = method.invoke(targetInstance, args, null);
-        assertEquals("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", expected, result);
+        assertEquals(expected, result, "Method " + methodDescriptor(methodName, openClasses) + " has been matched.");
     }
 
     private IOpenClass[] toOpenClasses(Class<?>... classes) {
@@ -91,7 +93,7 @@ public abstract class AbstractMethodSearchTest {
 
         IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
-        assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", method);
+        assertNull(method, "Method " + methodDescriptor(methodName, openClasses) + " has been matched.");
     }
 
     final void assertAmbiguous(Class<?> target, String methodName, Class<?>... classes) {

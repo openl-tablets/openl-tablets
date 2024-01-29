@@ -1,15 +1,15 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-import org.openl.itest.core.JettyServer;
-import org.openl.rules.ruleservice.deployer.RulesDeployerService;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.minio.MakeBucketArgs;
 import io.minio.StatObjectArgs;
 import okio.Path;
+import org.junit.jupiter.api.Test;
+
+import org.openl.itest.core.JettyServer;
+import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 public class RunMinioDeployAlwaysTest extends AbstractMinioTest {
 

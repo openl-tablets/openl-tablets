@@ -1,10 +1,14 @@
 package org.openl.rules.method;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -18,36 +22,42 @@ public class ValidateInputParametersTest {
 
     private RulesEngineFactory<Object> engineFactory;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         engineFactory = new RulesEngineFactory<>(SRC);
     }
 
-    @Test(expected = OutsideOfValidDomainException.class)
+    @Test
     public void test() {
-        IOpenMethod method = engineFactory.getCompiledOpenClass()
-            .getOpenClass()
-            .getMethod("SHTable", new IOpenClass[] { JavaOpenClass.STRING });
+        assertThrows(OutsideOfValidDomainException.class, () -> {
+            IOpenMethod method = engineFactory.getCompiledOpenClass()
+                .getOpenClass()
+                .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
 
-        Assert.assertNotNull(method);
+            assertNotNull(method);
 
-        Object target = engineFactory.newEngineInstance();
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        method.invoke(target, new Object[] { "ONE2" }, env);
+            Object target = engineFactory.newEngineInstance();
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            method.invoke(target, new Object[]{"ONE2"}, env);
+
+        });
 
     }
 
-    @Test(expected = OutsideOfValidDomainException.class)
+    @Test
     public void testArray() {
-        IOpenMethod method = engineFactory.getCompiledOpenClass()
-            .getOpenClass()
-            .getMethod("DTTable2", new IOpenClass[] { JavaOpenClass.getOpenClass(String[].class) });
+        assertThrows(OutsideOfValidDomainException.class, () -> {
+            IOpenMethod method = engineFactory.getCompiledOpenClass()
+                .getOpenClass()
+                .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
 
-        Assert.assertNotNull(method);
+            assertNotNull(method);
 
-        Object target = engineFactory.newEngineInstance();
-        IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
-        method.invoke(target, new Object[] { new String[] { "ONE", "ONE2" } }, env);
+            Object target = engineFactory.newEngineInstance();
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
+            method.invoke(target, new Object[]{new String[]{"ONE", "ONE2"}}, env);
+
+        });
 
     }
 }

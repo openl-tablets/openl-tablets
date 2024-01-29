@@ -1,7 +1,9 @@
 package org.openl.message;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.BaseOpenlBuilderHelper;
 
 public class OpenLMessageTests extends BaseOpenlBuilderHelper {
@@ -16,7 +18,7 @@ public class OpenLMessageTests extends BaseOpenlBuilderHelper {
     public void testMessages() {
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message instanceof OpenLErrorMessage) {
-                Assert.assertTrue(message.getSourceLocation()
+                assertTrue(message.getSourceLocation()
                     .endsWith("OpenLMessagesTest.xlsx?sheet=VehiclePremium&cell=C3&start=0&end=0"));
             }
         }

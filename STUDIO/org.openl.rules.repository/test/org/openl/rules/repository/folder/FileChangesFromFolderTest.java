@@ -1,7 +1,8 @@
 package org.openl.rules.repository.folder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,7 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.FileItem;
 
 public class FileChangesFromFolderTest {

@@ -1,23 +1,28 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.validation.BindingResult;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -29,18 +34,12 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.validation.BindingResult;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
-@TestPropertySource(properties = { "repository.design-rating.comment-template.use-custom-comments = false",
-        "repository.design-rating2.comment-template.use-custom-comments = true",
-        "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
-        "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment" })
+@SpringJUnitConfig(classes = MockConfiguration.class)
+@TestPropertySource(properties = {"repository.design-rating.comment-template.use-custom-comments = false",
+		"repository.design-rating2.comment-template.use-custom-comments = true",
+		"repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
+		"repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
 public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final Consumer<FeaturesBuilder> NO_EXTRA_FEATURES = builder -> {
@@ -52,7 +51,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     @Autowired
     private DesignTimeRepository designTimeRepository;
 
-    @After
+    @AfterEach
     public void reset_mocks() {
         Mockito.reset(designTimeRepository);
     }

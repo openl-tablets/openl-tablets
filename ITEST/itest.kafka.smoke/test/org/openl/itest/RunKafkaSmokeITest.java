@@ -2,8 +2,11 @@ package org.openl.itest;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.openl.rules.ruleservice.kafka.KafkaHeaders.CORRELATION_ID;
+
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -26,15 +29,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 public class RunKafkaSmokeITest {
     private static JettyServer server;
@@ -43,7 +46,7 @@ public class RunKafkaSmokeITest {
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
         DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
@@ -86,7 +89,7 @@ public class RunKafkaSmokeITest {
             checkKafkaResponse(consumer, (response) -> {
                 assertEquals(response.value(), "{\"hour\": 22}");
                 assertEquals(response.key(), "key1");
-                Assert.assertEquals("fail", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
+                assertEquals("fail", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
             });
 
             consumer.unsubscribe();
@@ -189,24 +192,24 @@ public class RunKafkaSmokeITest {
             checkKafkaResponse(consumer, (response) -> {
                 assertEquals(response.value(), "5");
 
-                Assert.assertEquals("42", getHeaderValue(response, KafkaHeaders.CORRELATION_ID));
-                Assert.assertEquals("Hello", getHeaderValue(response, KafkaHeaders.METHOD_NAME));
-                Assert.assertEquals(replyTopic, getHeaderValue(response, KafkaHeaders.REPLY_TOPIC));
-                Assert.assertEquals("891", getHeaderValue(response, KafkaHeaders.REPLY_PARTITION));
-                Assert.assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
+                assertEquals("42", getHeaderValue(response, KafkaHeaders.CORRELATION_ID));
+                assertEquals("Hello", getHeaderValue(response, KafkaHeaders.METHOD_NAME));
+                assertEquals(replyTopic, getHeaderValue(response, KafkaHeaders.REPLY_TOPIC));
+                assertEquals("891", getHeaderValue(response, KafkaHeaders.REPLY_PARTITION));
+                assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
                     getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
-                Assert.assertEquals("Invalid message format.",
+                assertEquals("Invalid message format.",
                     getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
-                Assert.assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
-                Assert.assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
-                Assert.assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
-                Assert.assertEquals("hello-in-topic-2", getHeaderValue(response, KafkaHeaders.DLT_ORIGINAL_TOPIC));
+                assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
+                assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
+                assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
+                assertEquals("hello-in-topic-2", getHeaderValue(response, KafkaHeaders.DLT_ORIGINAL_TOPIC));
             });
             consumer.unsubscribe();
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
         KAFKA_CONTAINER.stop();

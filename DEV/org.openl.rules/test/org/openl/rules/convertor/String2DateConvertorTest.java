@@ -1,7 +1,9 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.util.Calendar;
 import java.util.Date;
@@ -9,9 +11,9 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class String2DateConvertorTest {
 
@@ -20,13 +22,13 @@ public class String2DateConvertorTest {
 
     private Locale defaultLocale;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
@@ -45,28 +47,36 @@ public class String2DateConvertorTest {
         assertEquals(new Date(114, 5, 17), result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseEmpty() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("", null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseWrongValue() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("Kin-Dza-Dza", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("Kin-Dza-Dza", null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseExtraSymbol() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("2021-01-01T", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("2021-01-01T", null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseMissprint() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("10/13/20 17", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("10/13/20 17", null);
+        });
     }
 
     @Test

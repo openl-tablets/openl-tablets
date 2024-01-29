@@ -1,9 +1,15 @@
 package org.openl.rules.ruleservice.core;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,8 +22,8 @@ import javax.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 
@@ -73,24 +79,24 @@ public class JAXRSOpenLServiceEnhancerTest {
             if (annotation instanceof Produces) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertTrue("@Produces annotation requires values.", produces.value().length > 0);
+                assertTrue(produces.value().length > 0, "@Produces annotation requires values.");
             }
             if (annotation instanceof Consumes) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertTrue("@Consumes annotation requires values.", consumes.value().length > 0);
+                assertTrue(consumes.value().length > 0, "@Consumes annotation requires values.");
             }
         }
 
         if (!producesAnnotationExists) {
-            Assert.fail("@Produces annotation is required.");
+            fail("@Produces annotation is required.");
         }
         if (!consumesAnnotationExists) {
-            Assert.fail("@Consumes annotation is required.");
+            fail("@Consumes annotation is required.");
         }
 
         if (!f) {
-            Assert.fail("Enhanced interface should contains @Path annotation on class.");
+            fail("Enhanced interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
@@ -104,7 +110,7 @@ public class JAXRSOpenLServiceEnhancerTest {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.startsWith("/someMethod")) {
-                    Assert.fail("Generated method should contains @Path annotation on method with method name value.");
+                    fail("Generated method should contains @Path annotation on method with method name value.");
                 }
             }
             if (annotation instanceof GET) {
@@ -115,17 +121,17 @@ public class JAXRSOpenLServiceEnhancerTest {
             PathParam param = parameter.getAnnotation(PathParam.class);
             if (param != null) {
                 pathParamAnnotationExists = true;
-                Assert.assertNotNull("Method parameter required @PathParam annotation", param.value());
+                assertNotNull(param.value(), "Method parameter required @PathParam annotation");
             }
         }
         if (!pathParamAnnotationExists) {
-            Assert.fail("@PathParam annotation is required.");
+            fail("@PathParam annotation is required.");
         }
         if (!pathAnnotationExists) {
-            Assert.fail("@Path annotation is required.");
+            fail("@Path annotation is required.");
         }
         if (!getAnnotationExists) {
-            Assert.fail("@GET annotation is required.");
+            fail("@GET annotation is required.");
         }
     }
 
@@ -140,18 +146,18 @@ public class JAXRSOpenLServiceEnhancerTest {
         Class<?> enhancedClass = createService(TestAnnotatedInterface1.class);
         Method someMethod = enhancedClass.getMethod("someMethod", String.class, String.class);
         Path path = someMethod.getAnnotation(Path.class);
-        Assert.assertNotNull(path);
-        Assert.assertEquals("/someMethod/{arg1}", path.value());
-        Assert.assertNotNull(someMethod.getAnnotation(GET.class));
-        Assert.assertNull(someMethod.getAnnotation(POST.class));
+        assertNotNull(path);
+        assertEquals("/someMethod/{arg1}", path.value());
+        assertNotNull(someMethod.getAnnotation(GET.class));
+        assertNull(someMethod.getAnnotation(POST.class));
         Parameter parameter1 = someMethod.getParameters()[0];
         PathParam pathParam = parameter1.getAnnotation(PathParam.class);
-        Assert.assertNotNull("Expected @PathParam annotation", pathParam);
-        Assert.assertEquals("arg1", pathParam.value());
+        assertNotNull(pathParam, "Expected @PathParam annotation");
+        assertEquals("arg1", pathParam.value());
         Parameter parameter2 = someMethod.getParameters()[1];
         QueryParam queryParam = parameter2.getAnnotation(QueryParam.class);
-        Assert.assertNotNull("Expected @QueryParam annotation", queryParam);
-        Assert.assertEquals("arg1", queryParam.value());
+        assertNotNull(queryParam, "Expected @QueryParam annotation");
+        assertEquals("arg1", queryParam.value());
     }
 
     public interface TestAnnotatedInterface2 {
@@ -169,13 +175,13 @@ public class JAXRSOpenLServiceEnhancerTest {
                 break;
             }
         }
-        Assert.assertNotNull(someMethod);
+        assertNotNull(someMethod);
         Path path = someMethod.getAnnotation(Path.class);
-        Assert.assertNotNull(path);
-        Assert.assertEquals("/someMethod", path.value());
-        Assert.assertNotNull(someMethod.getAnnotation(POST.class));
-        Assert.assertNull(someMethod.getAnnotation(GET.class));
-        Assert.assertEquals(1, someMethod.getParameterCount());
+        assertNotNull(path);
+        assertEquals("/someMethod", path.value());
+        assertNotNull(someMethod.getAnnotation(POST.class));
+        assertNull(someMethod.getAnnotation(GET.class));
+        assertEquals(1, someMethod.getParameterCount());
     }
 
     public interface TestAnnotatedInterface3 {
@@ -194,13 +200,13 @@ public class JAXRSOpenLServiceEnhancerTest {
                 break;
             }
         }
-        Assert.assertNotNull(someMethod);
+        assertNotNull(someMethod);
         Path path = someMethod.getAnnotation(Path.class);
-        Assert.assertNotNull(path);
-        Assert.assertEquals("/value", path.value());
-        Assert.assertNotNull(someMethod.getAnnotation(POST.class));
-        Assert.assertNull(someMethod.getAnnotation(GET.class));
-        Assert.assertEquals(1, someMethod.getParameterCount());
+        assertNotNull(path);
+        assertEquals("/value", path.value());
+        assertNotNull(someMethod.getAnnotation(POST.class));
+        assertNull(someMethod.getAnnotation(GET.class));
+        assertEquals(1, someMethod.getParameterCount());
     }
 
     @Test
@@ -217,7 +223,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         }
 
         if (!f) {
-            Assert.fail("Enchanted interface should contains @Path annotation on class.");
+            fail("Enchanted interface should contains @Path annotation on class.");
         }
 
         boolean pathAnnotationExists = false;
@@ -233,7 +239,7 @@ public class JAXRSOpenLServiceEnhancerTest {
                 String value = path.value();
                 pathAnnotationExists = true;
                 if (!value.equals("/someMethod/{arg}")) {
-                    Assert.fail("Generated method should contains @Path annotation on method with defined value.");
+                    fail("Generated method should contains @Path annotation on method with defined value.");
                 }
             }
             if (annotation instanceof GET) {
@@ -242,35 +248,35 @@ public class JAXRSOpenLServiceEnhancerTest {
             if (annotation instanceof Produces) {
                 producesAnnotationExists = true;
                 Produces produces = (Produces) annotation;
-                Assert.assertEquals("@Produces annotation requires defined values.", 1, produces.value().length);
+                assertEquals(1, produces.value().length, "@Produces annotation requires defined values.");
             }
             if (annotation instanceof Consumes) {
                 consumesAnnotationExists = true;
                 Consumes consumes = (Consumes) annotation;
-                Assert.assertEquals("@Consumes annotation requires defined values.", 1, consumes.value().length);
+                assertEquals(1, consumes.value().length, "@Consumes annotation requires defined values.");
             }
         }
         for (Parameter parameter : someMethod.getParameters()) {
             PathParam param = parameter.getAnnotation(PathParam.class);
             if (param != null) {
                 pathParamAnnotationExists = true;
-                Assert.assertEquals("Method parameter required @PathParam annotation", "arg", param.value());
+                assertEquals("arg", param.value(), "Method parameter required @PathParam annotation");
             }
         }
         if (!pathParamAnnotationExists) {
-            Assert.fail("@PathParam annotation is required.");
+            fail("@PathParam annotation is required.");
         }
         if (!pathAnnotationExists) {
-            Assert.fail("@Path annotation is required.");
+            fail("@Path annotation is required.");
         }
         if (!getAnnotationExists) {
-            Assert.fail("@GET annotation is required.");
+            fail("@GET annotation is required.");
         }
         if (!producesAnnotationExists) {
-            Assert.fail("@Produces annotation is required.");
+            fail("@Produces annotation is required.");
         }
         if (!consumesAnnotationExists) {
-            Assert.fail("@Consumes annotation is required.");
+            fail("@Consumes annotation is required.");
         }
     }
 
@@ -282,46 +288,46 @@ public class JAXRSOpenLServiceEnhancerTest {
             if ("someMethod".equals(method.getName())) {
                 i++;
                 Annotation postAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation.", postAnnotation);
+                assertNotNull(postAnnotation, "Expected POST annotation.");
 
-                Assert.assertEquals("Expected only one parameter in method.", 1, method.getParameterTypes().length);
+                assertEquals(1, method.getParameterTypes().length, "Expected only one parameter in method.");
             }
             if ("someMethod4".equals(method.getName())) {
                 i++;
                 Annotation postAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation.", postAnnotation);
+                assertNotNull(postAnnotation, "Expected POST annotation.");
 
-                Assert.assertEquals("Expected only one parameter in method.", 1, method.getParameterTypes().length);
+                assertEquals(1, method.getParameterTypes().length, "Expected only one parameter in method.");
             }
             if ("someMethod2".equals(method.getName())) {
                 i++;
                 Annotation getAnnotation = method.getAnnotation(POST.class);
-                Assert.assertNotNull("Expected POST annotation.", getAnnotation);
+                assertNotNull(getAnnotation, "Expected POST annotation.");
 
-                Assert.assertEquals("Expected one parameters in method.", 1, method.getParameterTypes().length);
+                assertEquals(1, method.getParameterTypes().length, "Expected one parameters in method.");
             }
             if ("someMethod3".equals(method.getName())) {
                 i++;
                 Annotation getAnnotation = method.getAnnotation(GET.class);
-                Assert.assertNotNull("Expected GET annotation.", getAnnotation);
+                assertNotNull(getAnnotation, "Expected GET annotation.");
 
-                Assert.assertEquals("Expected no parameters in method.", 0, method.getParameterTypes().length);
+                assertEquals(0, method.getParameterTypes().length, "Expected no parameters in method.");
             }
         }
 
-        Assert.assertEquals("Method is not found.", 4, i);
+        assertEquals(4, i, "Method is not found.");
     }
 
     @Test
     public void testMethodNamesAndPath() throws Exception {
         Class<?> enhancedClass = createService(TestMethodNameAndPath.class);
         Method[] methods = enhancedClass.getMethods();
-        Assert.assertEquals("Method is not found.", 3, methods.length);
+        assertEquals(3, methods.length, "Method is not found.");
 
         for (Method method : methods) {
-            Assert.assertEquals("someMethod", method.getName());
+            assertEquals("someMethod", method.getName());
             Annotation pathAnnotation = method.getAnnotation(Path.class);
-            Assert.assertNotNull("Expected @Path annotation.", pathAnnotation);
+            assertNotNull(pathAnnotation, "Expected @Path annotation.");
 
             String path = null;
             switch (method.getParameterCount()) {
@@ -335,10 +341,10 @@ public class JAXRSOpenLServiceEnhancerTest {
                     path = "/someMethod/{arg0: .*}/{arg1: .*}/{arg2: .*}";
                     break;
                 default:
-                    Assert.fail("Unexpected count of arguments");
+                    fail("Unexpected count of arguments");
 
             }
-            Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path) pathAnnotation).value());
+            assertEquals(path, ((Path) pathAnnotation).value(), "Unexpected value in @Path annotation");
         }
     }
 
@@ -359,7 +365,7 @@ public class JAXRSOpenLServiceEnhancerTest {
             }
         }
         if (!apiResponsesAnnotationExists) {
-            Assert.fail("@ApiResponses annotation should be added");
+            fail("@ApiResponses annotation should be added");
         }
     }
 
@@ -381,7 +387,7 @@ public class JAXRSOpenLServiceEnhancerTest {
             }
         }
         if (!apiResponsesAnnotationExists) {
-            Assert.fail("@ApiResponses annotation should be added");
+            fail("@ApiResponses annotation should be added");
         }
     }
 
@@ -404,7 +410,7 @@ public class JAXRSOpenLServiceEnhancerTest {
             }
         }
         if (apiResponsesAnnotationExists) {
-            Assert.fail("@ApiResponses annotation shouldn't be added if @ApiResponse exists");
+            fail("@ApiResponses annotation shouldn't be added if @ApiResponse exists");
         }
     }
 
@@ -429,7 +435,7 @@ public class JAXRSOpenLServiceEnhancerTest {
             }
         }
         if (apiResponsesAnnotationExists) {
-            Assert.fail("@ApiResponses annotation shouldn't be added");
+            fail("@ApiResponses annotation shouldn't be added");
         }
     }
 

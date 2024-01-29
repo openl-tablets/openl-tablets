@@ -1,11 +1,13 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import javax.faces.validator.ValidatorException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.webstudio.util.NameChecker;
 
 public class FolderStructureValidatorsTest {

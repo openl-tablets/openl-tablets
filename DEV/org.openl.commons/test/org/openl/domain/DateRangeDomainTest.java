@@ -1,9 +1,10 @@
 package org.openl.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -14,16 +15,16 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class DateRangeDomainTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         Locale.setDefault(Locale.US);
         // set +2 as default
@@ -31,7 +32,7 @@ public class DateRangeDomainTest {
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         Locale.setDefault(DEFAULT_LOCALE);
         TimeZone.setDefault(DEFAULT_TIMEZONE);

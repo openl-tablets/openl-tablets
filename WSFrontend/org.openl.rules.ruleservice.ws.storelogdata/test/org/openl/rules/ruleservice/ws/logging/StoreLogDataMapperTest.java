@@ -1,13 +1,17 @@
 package org.openl.rules.ruleservice.ws.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.interceptor.LoggingMessage;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.Converter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
@@ -46,9 +50,9 @@ public class StoreLogDataMapperTest {
         mapper.map(storeLogData, testEntity1);
 
         // validation
-        Assert.assertEquals(customString2, testEntity1.getValue2());
-        Assert.assertEquals(customString2, testEntity1.getStringValue2());
-        Assert.assertNull(testEntity1.getValue1());
+        assertEquals(customString2, testEntity1.getValue2());
+        assertEquals(customString2, testEntity1.getStringValue2());
+        assertNull(testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
         storeLogData.setPublisherType(publisher2);
@@ -57,8 +61,8 @@ public class StoreLogDataMapperTest {
         mapper.map(storeLogData, testEntity2);
 
         // validation
-        Assert.assertNull(testEntity2.getValue2());
-        Assert.assertEquals(customString1, testEntity2.getValue1());
+        assertNull(testEntity2.getValue2());
+        assertEquals(customString1, testEntity2.getValue1());
     }
 
     @Test
@@ -78,7 +82,7 @@ public class StoreLogDataMapperTest {
         mapper.map(storeLogData, testEntity);
 
         // validation
-        Assert.assertEquals(customString1, testEntity.getValue3());
+        assertEquals(customString1, testEntity.getValue3());
     }
 
     @Test
@@ -124,21 +128,21 @@ public class StoreLogDataMapperTest {
         mapper.map(storeLogData, testEntity);
 
         // validation
-        Assert.assertEquals(SOME_VALUE, testEntity.getId());
-        Assert.assertEquals("testSimpleMapping", testEntity.getMethodName());
-        Assert.assertEquals(incomingMessageTime, testEntity.getIncomingTime());
-        Assert.assertEquals(outcomingMessageTime, testEntity.getOutcomingTime());
-        Assert.assertEquals(serviceName, testEntity.getServiceName());
-        Assert.assertEquals(publisher.toString(), testEntity.getPublisherType());
-        Assert.assertEquals(url, testEntity.getUrl());
-        Assert.assertEquals(request, testEntity.getRequest());
-        Assert.assertEquals(response, testEntity.getResponse());
+        assertEquals(SOME_VALUE, testEntity.getId());
+        assertEquals("testSimpleMapping", testEntity.getMethodName());
+        assertEquals(incomingMessageTime, testEntity.getIncomingTime());
+        assertEquals(outcomingMessageTime, testEntity.getOutcomingTime());
+        assertEquals(serviceName, testEntity.getServiceName());
+        assertEquals(publisher.toString(), testEntity.getPublisherType());
+        assertEquals(url, testEntity.getUrl());
+        assertEquals(request, testEntity.getRequest());
+        assertEquals(response, testEntity.getResponse());
 
         // Custom data
-        Assert.assertEquals(customString1, testEntity.getStringValue1());
-        Assert.assertEquals(customString2, testEntity.getValue2());
-        Assert.assertEquals(customString2, testEntity.getStringValue2());
-        Assert.assertEquals(customString3, testEntity.getStringValue3());
+        assertEquals(customString1, testEntity.getStringValue1());
+        assertEquals(customString2, testEntity.getValue2());
+        assertEquals(customString2, testEntity.getStringValue2());
+        assertEquals(customString3, testEntity.getStringValue3());
     }
 
     public static class SomeValueConvertor implements Converter<StoreLogData, String> {

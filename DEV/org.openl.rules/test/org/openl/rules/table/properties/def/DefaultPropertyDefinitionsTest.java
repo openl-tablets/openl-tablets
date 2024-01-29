@@ -1,11 +1,14 @@
 package org.openl.rules.table.properties.def;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
@@ -18,13 +21,13 @@ public class DefaultPropertyDefinitionsTest {
                 InheritanceLevel[] inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
                 Set<InheritanceLevel> set = new HashSet<>(Arrays.asList(inheritanceLevels));
                 if (!set.contains(InheritanceLevel.CATEGORY)) {
-                    Assert.fail("All dimensional properties must have CATEGORY inheritance level.");
+                    fail("All dimensional properties must have CATEGORY inheritance level.");
                 }
                 if (!set.contains(InheritanceLevel.MODULE)) {
-                    Assert.fail("All dimensional properties must have MODULE inheritance level.");
+                    fail("All dimensional properties must have MODULE inheritance level.");
                 }
                 if (!set.contains(InheritanceLevel.TABLE)) {
-                    Assert.fail("All dimensional properties must have TABLE inheritance level.");
+                    fail("All dimensional properties must have TABLE inheritance level.");
                 }
             }
         }
@@ -45,7 +48,7 @@ public class DefaultPropertyDefinitionsTest {
                 Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
-                    Assert.fail(failMessage);
+                    fail(failMessage);
                 }
             }
         }
@@ -57,7 +60,7 @@ public class DefaultPropertyDefinitionsTest {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Info".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
                 if (tablePropertyDefinition.getInheritanceLevel().length == 0) {
-                    Assert.fail(failMessage);
+                    fail(failMessage);
                 } else {
                     boolean found = false;
                     for (InheritanceLevel inheritanceLevel : tablePropertyDefinition.getInheritanceLevel()) {
@@ -67,7 +70,7 @@ public class DefaultPropertyDefinitionsTest {
                         }
                     }
                     if (!found) {
-                        Assert.fail(failMessage);
+                        fail(failMessage);
                     }
                 }
             }
@@ -80,10 +83,10 @@ public class DefaultPropertyDefinitionsTest {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
                 if (tablePropertyDefinition.getInheritanceLevel().length != 1) {
-                    Assert.fail(failMessage);
+                    fail(failMessage);
                 } else {
                     if (!InheritanceLevel.TABLE.equals(tablePropertyDefinition.getInheritanceLevel()[0])) {
-                        Assert.fail(failMessage);
+                        fail(failMessage);
                     }
                 }
             }
@@ -104,7 +107,7 @@ public class DefaultPropertyDefinitionsTest {
                 Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
-                    Assert.fail(failMessage);
+                    fail(failMessage);
                 }
             }
         }

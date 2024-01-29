@@ -1,17 +1,15 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.rest.model.GroupSettingsModel;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+import org.openl.rules.rest.model.GroupSettingsModel;
+
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class SecurityDefaultGroupModelValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test

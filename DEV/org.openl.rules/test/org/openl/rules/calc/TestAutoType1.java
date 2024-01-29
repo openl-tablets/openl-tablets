@@ -1,10 +1,11 @@
 package org.openl.rules.calc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
 
@@ -12,13 +13,13 @@ public class TestAutoType1 {
 
     private static String csr;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "false");
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
     }

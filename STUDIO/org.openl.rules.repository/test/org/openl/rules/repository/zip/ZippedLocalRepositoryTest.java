@@ -1,11 +1,12 @@
 package org.openl.rules.repository.zip;
 
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.io.Closeable;
 import java.io.File;
@@ -22,9 +23,10 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -41,7 +43,7 @@ public class ZippedLocalRepositoryTest {
     private Map<String, byte[]> singleDeployment;
     private Map<String, byte[]> multiDeployment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         this.repositoryRoot = new File(REPOSITORY_ROOT);
         FileUtils.deleteQuietly(this.repositoryRoot);
@@ -58,7 +60,7 @@ public class ZippedLocalRepositoryTest {
         this.repository = repository;
     }
 
-    @After
+    @AfterEach
     public void cleanUp() throws IOException {
         ((Closeable) repository).close();
     }

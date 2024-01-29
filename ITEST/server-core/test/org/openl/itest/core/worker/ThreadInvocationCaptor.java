@@ -1,7 +1,8 @@
 package org.openl.itest.core.worker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,10 +44,10 @@ class ThreadInvocationCaptor {
             e.printStackTrace(); // For debug purposes
             Thread.currentThread().interrupt();
         }
-        assertEquals(String.format("'%s' must be created", nThread), nThread, counterMap.size());
+        assertEquals(nThread, counterMap.size(), String.format("'%s' must be created", nThread));
         for (AtomicInteger times : counterMap.values()) {
-            assertTrue(String.format("Each thread must be executed at least '%s' times", atLeast),
-                times.get() >= atLeast);
+            assertTrue(times.get() >= atLeast,
+                String.format("Each thread must be executed at least '%s' times", atLeast));
         }
     }
 }

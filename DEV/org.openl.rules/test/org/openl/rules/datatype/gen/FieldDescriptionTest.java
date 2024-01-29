@@ -1,8 +1,9 @@
 package org.openl.rules.datatype.gen;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -48,17 +49,17 @@ public class FieldDescriptionTest {
         FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
             .setDefaultValueAsString(DefaultValue.DEFAULT)
             .build();
-        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field.getDefaultValue());
+        assertEquals(DefaultValue.DEFAULT, field.getDefaultValue(), "Return the default keyword itself");
 
         FieldDescription field1 = FieldDescriptionBuilder.create(Boolean.class.getName())
             .setDefaultValueAsString(DefaultValue.DEFAULT)
             .build();
-        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field1.getDefaultValue());
+        assertEquals(DefaultValue.DEFAULT, field1.getDefaultValue(), "Return the default keyword itself");
 
         FieldDescription field2 = FieldDescriptionBuilder.create(Integer.class.getName())
             .setDefaultValueAsString(DefaultValue.DEFAULT)
             .build();
-        assertEquals("Return the default keyword itself", DefaultValue.DEFAULT, field2.getDefaultValue());
+        assertEquals(DefaultValue.DEFAULT, field2.getDefaultValue(), "Return the default keyword itself");
     }
 
     @Test

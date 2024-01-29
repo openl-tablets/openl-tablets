@@ -5,66 +5,62 @@
  */
 package org.openl.util.conf;
 
-import org.junit.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author snshor
  */
-public class VersionTest extends TestCase {
-
-    /**
-     * Constructor for VersionTest.
-     *
-     * @param name
-     */
-    public VersionTest(String name) {
-        super(name);
-    }
+public class VersionTest {
 
     /*
      * Test for boolean equals(Object)
      */
+    @Test
     public void testEqualsObject() {
     }
 
+    @Test
     public void testIsVersion() {
         String t1 = "1.2.3";
 
-        Assert.assertTrue(Version.isVersion(t1, 0, ".."));
+        assertTrue(Version.isVersion(t1, 0, ".."));
 
         String t2 = "x_12312.212.322.zx";
 
-        Assert.assertTrue(Version.isVersion(t2, 2, ".."));
+        assertTrue(Version.isVersion(t2, 2, ".."));
 
         String t3 = "x_2.2.2_04.zx";
 
-        Assert.assertTrue(Version.isVersion(t3, 2));
+        assertTrue(Version.isVersion(t3, 2));
 
         String t4 = "x_.12312.212.322.zx";
 
-        Assert.assertFalse(Version.isVersion(t4, 2));
+        assertFalse(Version.isVersion(t4, 2));
 
         String t5 = "x_1.2..2.zx";
 
-        Assert.assertFalse(Version.isVersion(t5, 2));
+        assertFalse(Version.isVersion(t5, 2));
     }
 
+    @Test
     public void testParseVersion() throws Exception {
         Version v9_1_44 = Version.parseVersion("x_9.1.44", 2, "..");
 
-        Assert.assertEquals("9.1.44", v9_1_44.toString());
+        assertEquals("9.1.44", v9_1_44.toString());
 
-        Assert.assertTrue(new Version(11, 1, 1, -1, null).compareTo(v9_1_44) > 0);
+        assertTrue(new Version(11, 1, 1, -1, null).compareTo(v9_1_44) > 0);
 
-        Assert.assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(v9_1_44));
+        assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(v9_1_44));
 
-        Assert.assertTrue(new Version(9, 1, 43, -1, null).compareTo(v9_1_44) < 0);
+        assertTrue(new Version(9, 1, 43, -1, null).compareTo(v9_1_44) < 0);
 
         String vx = "c:/exlipse/plugins/org.openl.eclipse.j_1.3.4/lib/apache/xyz_7.3.5.jar";
 
-        Assert.assertEquals(new Version(7, 3, 5, -1, ".."), Version.extractVersion(vx, ".."));
+        assertEquals(new Version(7, 3, 5, -1, ".."), Version.extractVersion(vx, ".."));
 
     }
 

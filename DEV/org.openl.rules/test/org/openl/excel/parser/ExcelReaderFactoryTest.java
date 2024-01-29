@@ -1,11 +1,12 @@
 package org.openl.excel.parser;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ExcelReaderFactoryTest {
     private static final String FOLDER = FolderUtils.getResourcesFolder();
@@ -36,9 +37,9 @@ public class ExcelReaderFactoryTest {
                 SheetDescriptor lightSheet = lightReaderSheets.get(i);
 
                 assertEquals(fullSheet.getName(), lightSheet.getName());
-                assertArrayEquals("Cells are not equal for sheet '" + fullSheet.getName() + "'",
-                    fullReader.getCells(fullSheet),
-                    lightReader.getCells(lightSheet));
+                assertArrayEquals(fullReader.getCells(fullSheet),
+                    lightReader.getCells(lightSheet),
+                    "Cells are not equal for sheet '" + fullSheet.getName() + "'");
             }
         }
     }

@@ -1,6 +1,7 @@
 package org.openl.rules.data;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.message.OpenLMessage;
 import org.openl.rules.TestUtils;
 

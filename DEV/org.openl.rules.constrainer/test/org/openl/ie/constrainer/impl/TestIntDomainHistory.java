@@ -1,12 +1,14 @@
 package org.openl.ie.constrainer.impl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
 
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntVar;
-
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 
 /**
  * <p>
@@ -26,17 +28,10 @@ import junit.textui.TestRunner;
  * @version 1.0
  */
 
-public class TestIntDomainHistory extends TestCase {
+public class TestIntDomainHistory {
     private final Constrainer C = new Constrainer("TestIntDomainHistory");
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestIntDomainHistory.class));
-    }
-
-    public TestIntDomainHistory(String name) {
-        super(name);
-    }
-
+    @Test
     public void testNumberOfRemoves() {
         IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
         IntDomainHistory history = new IntDomainHistory(intvar);
@@ -46,6 +41,7 @@ public class TestIntDomainHistory extends TestCase {
         assertEquals(intvar.size() - 2, history.numberOfRemoves());
     }
 
+    @Test
     public void testOldMinAndOldMax() {
         IntVar intvar = C.addIntVar(0, 100, IntVar.DOMAIN_BIT_SMALL);
         IntDomainHistory history = new IntDomainHistory(intvar);
@@ -61,6 +57,7 @@ public class TestIntDomainHistory extends TestCase {
         assertEquals(oldmax, history.oldmax());
     }
 
+    @Test
     public void testRemoveInterval() {
         IntVarImpl intvar = (IntVarImpl) C.addIntVar(-10, 10, "intvar1", IntVar.DOMAIN_BIT_FAST);
         IntDomainHistory history = intvar.history();
@@ -110,13 +107,13 @@ public class TestIntDomainHistory extends TestCase {
                 assertEquals(maxvals[j], intvar.max());
                 assertEquals(sizes[j], intvar.size());
                 for (int i = minvals[j]; i < removeStart[j]; i++) {
-                    assertTrue("code1:" + i + ": " + j, intvar.contains(i));
+                    assertTrue(intvar.contains(i), "code1:" + i + ": " + j);
                 }
                 for (int i = maxvals[j]; i > removeEnd[j]; i--) {
-                    assertTrue("code2:" + i + ": " + j, intvar.contains(i));
+                    assertTrue(intvar.contains(i), "code2:" + i + ": " + j);
                 }
                 for (int i = removeStart[j]; i <= removeEnd[j]; i++) {
-                    assertFalse("code3:" + i + ": " + j, intvar.contains(i));
+                    assertFalse(intvar.contains(i), "code3:" + i + ": " + j);
                 }
             }
         } catch (Failure f) {
@@ -124,6 +121,7 @@ public class TestIntDomainHistory extends TestCase {
         }
     }
 
+    @Test
     public void testSaveRestore() {
         IntVarImpl intvar = (IntVarImpl) C.addIntVar(0, 100, "IntVar1", IntVar.DOMAIN_BIT_FAST);
         IntDomainHistory history = intvar.history();
@@ -141,8 +139,8 @@ public class TestIntDomainHistory extends TestCase {
 
                 intvar.setMax(maxVals[i]);
                 intvar.setMin(minVals[i]);
-                assertEquals("incorrect work of IntVar.setMax(int)", intvar.max(), maxVals[i]);
-                assertEquals("incorrect work of IntVar.setMin(int)", intvar.min(), minVals[i]);
+                assertEquals(intvar.max(), maxVals[i], "incorrect work of IntVar.setMax(int)");
+                assertEquals(intvar.min(), minVals[i], "incorrect work of IntVar.setMin(int)");
                 sizes[i] = intvar.size();
 
                 // save current state
@@ -154,9 +152,9 @@ public class TestIntDomainHistory extends TestCase {
             }
             for (int i = 0; i < maxVals.length - 1; i++) {
                 history.restore(indices[i]);
-                assertEquals("wrong domain size after restoration", intvar.size(), sizes[i]);
-                assertEquals("wrong maximum after restoration", intvar.max(), maxVals[i]);
-                assertEquals("wrong minimum after restoration", intvar.min(), minVals[i]);
+                assertEquals(intvar.size(), sizes[i], "wrong domain size after restoration");
+                assertEquals(intvar.max(), maxVals[i], "wrong maximum after restoration");
+                assertEquals(intvar.min(), minVals[i], "wrong minimum after restoration");
                 assertTrue(intvar.contains(maxVals[i]) && intvar.contains(minVals[i]));
                 for (int j = maxVals.length - 1; j > i; j--) {
                     // ensure that all removed values are available after

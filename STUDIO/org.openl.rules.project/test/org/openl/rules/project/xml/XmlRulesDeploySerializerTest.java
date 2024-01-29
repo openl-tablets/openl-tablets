@@ -1,16 +1,18 @@
 package org.openl.rules.project.xml;
 
-import org.junit.Test;
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.project.model.WildcardPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.project.model.WildcardPattern;
 
 public class XmlRulesDeploySerializerTest {
 

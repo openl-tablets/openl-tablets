@@ -1,10 +1,11 @@
 package org.openl.rules.validator.dt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.domain.DateRangeDomain;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
@@ -87,7 +89,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
         assertEquals(1, dtValidResult.getUncovered().length);
-        assertEquals("Param value missing", "hour = 24", dtValidResult.getUncovered()[0].getValues().toString());
+        assertEquals("hour = 24", dtValidResult.getUncovered()[0].getValues().toString(), "Param value missing");
     }
 
     @SuppressWarnings("deprecation")

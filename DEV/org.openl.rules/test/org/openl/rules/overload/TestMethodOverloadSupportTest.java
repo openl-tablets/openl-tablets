@@ -1,6 +1,7 @@
 package org.openl.rules.overload;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 

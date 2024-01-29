@@ -1,13 +1,15 @@
 package org.openl.rules.table;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.datatype.binding.MockGridTable;
 
 /**
@@ -69,7 +71,7 @@ public class GridTableUtilsTest {
     }
 
     @Test
-    @Ignore("ILogicalTable do not work with mixed merging of the cells")
+    @Disabled("ILogicalTable do not work with mixed merging of the cells")
     public void getGridRegionsMixedMerged() {
         String[][] arr = new String[2][3];
         arr[0][0] = "cell_0_0";

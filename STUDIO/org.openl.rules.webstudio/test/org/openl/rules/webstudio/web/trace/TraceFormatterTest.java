@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.trace;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;

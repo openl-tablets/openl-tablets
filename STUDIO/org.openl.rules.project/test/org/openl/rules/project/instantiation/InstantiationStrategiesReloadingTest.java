@@ -1,9 +1,10 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -11,16 +12,17 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.util.FileUtils;
 
-@Ignore(value = "currently disabled. Problem with OpenL onstances caching and sharing should be fixed.")
+@Disabled(value = "currently disabled. Problem with OpenL onstances caching and sharing should be fixed.")
 public class InstantiationStrategiesReloadingTest {
     private static final String RULES_ENGINE = "./test-resources/reloading-test/EngineProject/TemplateRules.xls";
     private static final String RULES_API = "./test-resources/reloading-test/SimpleProject/TemplateRules.xls";
@@ -64,7 +66,7 @@ public class InstantiationStrategiesReloadingTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         apiStrategy = (ApiBasedInstantiationStrategy) resolve(
             new File("./test-resources/reloading-test/SimpleProject"));
@@ -131,7 +133,7 @@ public class InstantiationStrategiesReloadingTest {
         }
     }
 
-    @After
+    @AfterEach
     public void restoreChanges() throws IOException {
         System.out.println("Restoring changes...");
         FileUtils.copy(new File(RULES_ORIGINAL), new File(RULES_ENGINE));

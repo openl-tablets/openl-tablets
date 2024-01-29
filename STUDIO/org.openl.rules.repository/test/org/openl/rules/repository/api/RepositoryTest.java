@@ -1,9 +1,11 @@
 package org.openl.rules.repository.api;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+
 import java.nio.file.InvalidPathException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RepositoryTest {
 
@@ -48,7 +50,7 @@ public class RepositoryTest {
     private static void assertInvalidPath(String path) {
         try {
             Repository.validatePath(path);
-            Assert.fail();
+            fail();
         } catch (InvalidPathException ex) {
             // pass
         }

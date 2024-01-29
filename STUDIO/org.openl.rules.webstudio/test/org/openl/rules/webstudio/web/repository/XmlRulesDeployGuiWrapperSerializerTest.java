@@ -1,14 +1,16 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+
+import java.util.Map;
+import javax.xml.bind.JAXBException;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
-
-import javax.xml.bind.JAXBException;
-import java.util.Map;
 
 public class XmlRulesDeployGuiWrapperSerializerTest {
 

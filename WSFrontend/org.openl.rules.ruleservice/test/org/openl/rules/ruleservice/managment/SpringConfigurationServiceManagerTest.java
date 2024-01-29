@@ -1,26 +1,27 @@
 package org.openl.rules.ruleservice.managment;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.ruleservice.management.ServiceManagerImpl;
-import org.openl.rules.ruleservice.simple.MethodInvocationException;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.ruleservice.management.ServiceManagerImpl;
+import org.openl.rules.ruleservice.simple.MethodInvocationException;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
 @TestPropertySource(properties = {
-        "production-repository.factory = repo-zip",
-        "production-repository.uri = test-resources/openl-repository/deploy" })
-@ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
+		"production-repository.factory = repo-zip",
+		"production-repository.uri = test-resources/openl-repository/deploy"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
 
@@ -45,15 +46,17 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertEquals(50.0, (Double) object, 0.01);
     }
 
-    @Test(expected = MethodInvocationException.class)
+    @Test
     public void testExceptionFramework() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
-        assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
-        assertNotNull(frontend);
-        frontend.execute("ErrorTest_ErrorTest",
-            "vehicleEligibilityScore",
+        assertThrows(MethodInvocationException.class, () -> {
+            assertNotNull(applicationContext);
+            ServiceManagerImpl serviceManager = applicationContext.getBean(ServiceManagerImpl.class);
+            assertNotNull(serviceManager);
+            RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
+            assertNotNull(frontend);
+            frontend.execute("ErrorTest_ErrorTest",
+                "vehicleEligibilityScore",
                 RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
+        });
     }
 }

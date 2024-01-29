@@ -1,8 +1,8 @@
 package org.openl.rules.validator.dt;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore
+@Disabled
 public enum TestValidationEnum1 {
     V1,
     V2

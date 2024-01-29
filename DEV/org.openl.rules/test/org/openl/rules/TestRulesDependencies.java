@@ -1,11 +1,15 @@
 package org.openl.rules;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.dt.IDecisionTable;
@@ -31,7 +35,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         if (tsn != null) {
             BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-            assertEquals("There is only one rules dependency", 1, rulesMethods.size());
+            assertEquals(1, rulesMethods.size(), "There is only one rules dependency");
 
             ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Rules int getCalcAge(int constant)")
                 .getMember();
@@ -41,7 +45,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                     f = true;
                 }
             }
-            assertTrue("DT contains expected dependency", f);
+            assertTrue(f, "DT contains expected dependency");
         } else {
             fail("Cannot find expected table");
         }
@@ -54,7 +58,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         if (tsn != null) {
             BindingDependencies bindDep = ((IDecisionTable) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-            assertEquals("There is no dependencies to other rules methods", 0, rulesMethods.size());
+            assertEquals(0, rulesMethods.size(), "There is no dependencies to other rules methods");
         } else {
             fail("Cannot find expected table");
         }
@@ -67,7 +71,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         if (tsn != null) {
             BindingDependencies bindDep = ((Spreadsheet) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-            assertEquals("There is 8 rules dependencies", 8, rulesMethods.size());
+            assertEquals(8, rulesMethods.size(), "There is 8 rules dependencies");
 
             Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
             expectedRuledDependencies
@@ -98,7 +102,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertEquals("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size(), d);
+            assertEquals(expectedRuledDependencies.size(), d, "Spreadsheet contains all expected dependencies");
         } else {
             fail("Cannot find expected table");
         }
@@ -111,7 +115,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         if (tsn != null) {
             BindingDependencies bindDep = ((Algorithm) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-            assertEquals("There is only one rules dependency", 1, rulesMethods.size());
+            assertEquals(1, rulesMethods.size(), "There is only one rules dependency");
 
             ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Method void foo()").getMember();
             boolean f = false;
@@ -120,7 +124,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                     f = true;
                 }
             }
-            assertTrue("TBasic contains expected dependency", f);
+            assertTrue(f, "TBasic contains expected dependency");
         } else {
             fail("Cannot find expected table");
         }
@@ -133,7 +137,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         if (tsn != null) {
             BindingDependencies bindDep = ((TableMethod) tsn.getMember()).getDependencies();
             Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-            assertEquals("There is 2 rules dependency", 2, rulesMethods.size());
+            assertEquals(2, rulesMethods.size(), "There is 2 rules dependency");
 
             Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
             expectedRuledDependencies.add((ExecutableMethod) findTable("Method int start2()").getMember());
@@ -148,7 +152,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertEquals("Method contains expected dependencies", expectedRuledDependencies.size(), d);
+            assertEquals(expectedRuledDependencies.size(), d, "Method contains expected dependencies");
         } else {
             fail("Cannot find expected table");
         }
@@ -161,7 +165,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
         BindingDependencies bindDep = testMethod.getDependencies();
         Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
-        assertEquals("There is 1 rule dependency", 1, rulesMethods.size());
+        assertEquals(1, rulesMethods.size(), "There is 1 rule dependency");
 
         Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
         expectedRuledDependencies
@@ -178,7 +182,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             allContains = allContains && f;
         }
 
-        assertTrue("Method contains expected dependency", allContains);
+        assertTrue(allContains, "Method contains expected dependency");
     }
 
 }

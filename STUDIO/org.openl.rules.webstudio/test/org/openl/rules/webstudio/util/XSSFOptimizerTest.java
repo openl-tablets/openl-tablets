@@ -1,6 +1,9 @@
 package org.openl.rules.webstudio.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +14,7 @@ import java.util.List;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
@@ -60,7 +63,7 @@ public class XSSFOptimizerTest {
                 break;
             }
         }
-        assertTrue("Style '" + name + "' is not found.", found);
+        assertTrue(found, "Style '" + name + "' is not found.");
     }
 
     private byte[] save(XSSFWorkbook workbook) throws IOException {

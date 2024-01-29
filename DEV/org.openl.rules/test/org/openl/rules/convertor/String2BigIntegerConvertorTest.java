@@ -1,10 +1,12 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 import java.math.BigInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2BigIntegerConvertorTest {
 
@@ -22,9 +24,11 @@ public class String2BigIntegerConvertorTest {
         assertEquals(BigInteger.valueOf(-12L), result);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertNonInteger() {
-        String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
-        converter.parse("1.3", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2BigIntegerConvertor converter = new String2BigIntegerConvertor();
+            converter.parse("1.3", null);
+        });
     }
 }

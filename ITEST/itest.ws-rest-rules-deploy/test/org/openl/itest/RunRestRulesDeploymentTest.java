@@ -1,12 +1,14 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
@@ -17,13 +19,13 @@ public class RunRestRulesDeploymentTest {
     private static JettyServer server;
     private static HttpClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = JettyServer.start("jdbc");
         client = server.client();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
     }

@@ -1,11 +1,13 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
@@ -14,19 +16,15 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -53,9 +51,8 @@ import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {"some.prop = @Value"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class ServiceInterfaceMethodInterceptingTest {
 
     private static final String ELUSIVE_CLASS_NAME = "org.openl.test.MustNotBeFoundInClassloader";
@@ -314,7 +311,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             .setResourceLoader(location -> null);
     }
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         CommonVersion version = new CommonVersionImpl(0, 0, 1);
         deploymentDescription = new DeploymentDescription("someDeploymentName", version);
@@ -362,7 +359,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
-        Assert.assertEquals(100, instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver"), 0.1);
+        assertEquals(100, instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver"), 0.1);
     }
 
     @Test
@@ -371,7 +368,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        Assert.assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert - @SpreadsheetWrapper : CONVERT", instance.convert(runtimeContext, "INPUT"));
+        assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert - @SpreadsheetWrapper : CONVERT", instance.convert(runtimeContext, "INPUT"));
     }
 
     @Test
@@ -379,7 +376,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
-        Assert.assertEquals("MyBean_@Value_VirtualModule_null", instance.testSpring());
+        assertEquals("MyBean_@Value_VirtualModule_null", instance.testSpring());
     }
 
     @Test
@@ -395,7 +392,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         runtimeContext.setCurrentDate(calendar.getTime());
         Method method = serviceBean.getClass()
             .getDeclaredMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class);
-        Assert.assertEquals(100, (Double) method.invoke(serviceBean, runtimeContext, "High Risk Driver"), 0.1);
+        assertEquals(100, (Double) method.invoke(serviceBean, runtimeContext, "High Risk Driver"), 0.1);
     }
 
     @Test
@@ -407,7 +404,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
-        Assert.assertEquals(12345, instance.nonExistedMethod("High Risk Driver"), 0.1);
+        assertEquals(12345, instance.nonExistedMethod("High Risk Driver"), 0.1);
     }
 
     @Test
@@ -420,7 +417,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         assertNotNull(instance.loadClassMethod());
-        Assert.assertEquals("org.openl.generated.beans.MyBean", instance.loadClassMethod().getClass().getName());
+        assertEquals("org.openl.generated.beans.MyBean", instance.loadClassMethod().getClass().getName());
     }
 
     @Test
@@ -433,7 +430,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Double result = instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
-        Assert.assertEquals(-1d, result, 0.1d);
+        assertEquals(-1d, result, 0.1d);
     }
 
     @Test
@@ -445,10 +442,10 @@ public class ServiceInterfaceMethodInterceptingTest {
                 null,
                 serviceDescription.isProvideRuntimeContext(),
                 serviceDescription.isProvideVariations());
-        Assert.assertEquals(3, interfaceForInstantiationStrategy.getMethods().length);
-        Assert.assertEquals(String.class, interfaceForInstantiationStrategy.getMethod("convert", IRulesRuntimeContext.class, String.class).getReturnType());
-        Assert.assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
-        Assert.assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreNoOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
+        assertEquals(3, interfaceForInstantiationStrategy.getMethods().length);
+        assertEquals(String.class, interfaceForInstantiationStrategy.getMethod("convert", IRulesRuntimeContext.class, String.class).getReturnType());
+        assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
+        assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreNoOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
     }
 
     @Test
@@ -461,7 +458,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
                 "Failed to load a service class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull("Exception must be present", actual);
+            assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
         try {
@@ -474,7 +471,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
                 "Failed to load or apply annotation template class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull("Exception must be present", actual);
+            assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
 
@@ -489,7 +486,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
                 "Failed to load RMI service class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull("Exception must be present", actual);
+            assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
 
@@ -503,7 +500,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
                 "Failed to apply annotation template class 'org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$Overload'. Interface or abstract class is expected, but class is found.");
-            assertNotNull("Exception must be present", actual);
+            assertNotNull(actual, "Exception must be present");
         }
         try {
             OpenLService service = instantiationFactory
@@ -513,7 +510,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
                 "Failed to apply service class 'class org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$AOverload'. Interface is expected, but class is found.");
-            assertNotNull("Exception must be present", actual);
+            assertNotNull(actual, "Exception must be present");
         }
     }
 

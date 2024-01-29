@@ -1,8 +1,11 @@
 package org.openl.rules.lang.xls.types;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
