@@ -28,6 +28,7 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -62,6 +63,11 @@ public class AProject extends AProjectFolder implements IProject {
         FileData fileData = super.getFileData();
         if (fileData == null) {
             Repository repository = getRepository();
+            // Unwrap delegate repository to get real repository, because delegate repository can be secured.
+            // Get file data can't be secured, because it's used in security check to build identity.
+            while (repository instanceof RepositoryDelegate) {
+                repository = ((RepositoryDelegate) repository).getDelegate();
+            }
             if (isRepositoryVersionable()) {
                 fileData = getFileDataForVersionableRepo(repository);
             } else {

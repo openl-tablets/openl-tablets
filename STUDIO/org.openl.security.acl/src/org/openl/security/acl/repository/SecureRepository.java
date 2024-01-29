@@ -16,9 +16,10 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.security.acl.permission.AclPermission;
 
-public class SecureRepository implements Repository {
+public class SecureRepository implements Repository, RepositoryDelegate {
     private final Repository repository;
     protected final SimpleRepositoryAclService simpleRepositoryAclService;
 
@@ -26,6 +27,11 @@ public class SecureRepository implements Repository {
         this.repository = Objects.requireNonNull(repository, "repository cannot be null");
         this.simpleRepositoryAclService = Objects.requireNonNull(simpleRepositoryAclService,
             "simpleRepositoryAclService cannot be null");
+    }
+
+    @Override
+    public Repository getDelegate() {
+        return repository;
     }
 
     @Override
@@ -48,7 +54,9 @@ public class SecureRepository implements Repository {
 
     @Override
     public FileData check(String name) throws IOException {
-        checkReadPermission(name);
+        // Checking permissions here is a problem for
+        // org.openl.rules.workspace.uw.impl.UserWorkspaceImpl.uploadLocalProject method
+        // checkReadPermission(name);
         return repository.check(name);
     }
 
