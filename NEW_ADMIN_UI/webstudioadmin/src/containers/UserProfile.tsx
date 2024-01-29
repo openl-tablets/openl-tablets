@@ -69,18 +69,17 @@ export const UserProfile: React.FC = () => {
                 {({ handleSubmit, form }) => {
                     return (
                         <AForm onFinish={handleSubmit}>
-                            <br />
-                            <Typography.Title level={5}>Account</Typography.Title>
-                            <Input disabled label={t('users:edit_modal.username')} name="username" />
-                            <Input label={t('users:edit_modal.email')} name="email" />
-                            <Typography.Title level={5}>Name</Typography.Title>
-                            <Input label={t('users:edit_modal.first_name')} name="firstName" />
-                            <Input label={t('users:edit_modal.last_name')} name="lastName" />
+                            <Typography.Title level={5} style={{ marginTop: 0 }}>{t('user:profile.account')}</Typography.Title>
+                            <Input disabled label={t('user:profile.username')} name="username" />
+                            <Input label={t('user:profile.email')} name="email" />
+                            <Typography.Title level={5}>{t('user:profile.name')}</Typography.Title>
+                            <Input label={t('user:profile.first_name')} name="firstName" />
+                            <Input label={t('user:profile.last_name')} name="lastName" />
                             <Row gutter={16} justify="space-between">
                                 <Col span={8}>
                                     <Select
                                         formItemStyle={{ margin: 0 }}
-                                        label={t('users:edit_modal.display_name')}
+                                        label={t('user:profile.display_name')}
                                         name="displayNameSelect"
                                         options={displayNameOptions}
                                     />
@@ -94,7 +93,7 @@ export const UserProfile: React.FC = () => {
                                     />
                                 </Col>
                             </Row>
-                            <Typography.Title level={5}>Change Password</Typography.Title>
+                            <Typography.Title level={5}>{t('user:profile.change_password')}</Typography.Title>
                             <Input label={t('user:profile.current_password')} name="changePassword.currentPassword" type="password" />
                             <Input label={t('user:profile.new_password')} name="changePassword.newPassword" type="password" />
                             <Input label={t('user:profile.confirm_password')} name="changePassword.confirmPassword" type="password" />

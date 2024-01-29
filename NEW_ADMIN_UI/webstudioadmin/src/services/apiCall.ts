@@ -26,18 +26,29 @@ const apiCall = async (url: string, params?: RequestInit) => {
     }
 
     return fetch(`${baseURL}${url}`, responseParams)
-        .then(response => {
+        .then(async response => {
             const { status } = response
             if (status === 200) {
-                return response.json()
+                const { headers } = response
+                const contentType = headers.get('Content-Type')
+                if (contentType && contentType.indexOf('application/json') !== -1) {
+                    return response.json()
+                }
+                return response.text()
             } if (status > 200 && status < 300) {
                 return true
             } else {
+                await response.json().then((data: any) => {
+                    throw new Error(data.message)
+                })
                 throw new Error('Something went wrong on API server!')
             }
         })
         .catch(error => {
-            notification.error({ message: error })
+            notification.error({ message: error.toString() })
+        })
+        .finally((result: any = false) => {
+            return result
         })
 }
 

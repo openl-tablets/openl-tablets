@@ -8,7 +8,7 @@ export const System: React.FC = () => {
 
     return (
         <>
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: 0 }}>
                 {t('system:core')}
             </Typography.Title>
             <Form
@@ -85,7 +85,7 @@ export const System: React.FC = () => {
             </Form>
             <Row justify="end">
                 <Button style={{ marginTop: 5 }} type="primary">
-                    {t('system:apply')}
+                    {t('common:btn.apply')}
                 </Button>
             </Row>
             <Divider />
