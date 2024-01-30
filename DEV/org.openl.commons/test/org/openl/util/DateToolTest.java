@@ -8,18 +8,33 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public class DateToolTest {
 
+    private static Locale locale;
+
     private static Calendar createCalendar(int day, int month, int year) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month - 1, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
+    }
+    @BeforeAll
+    static void setup() {
+        locale = Locale.getDefault();
+        Locale.setDefault(Locale.US); // Fix weekOfYear test due it Depends on Locale
+    }
+
+    @AfterAll
+    static void done() {
+        Locale.setDefault(locale);
     }
 
     @Test
