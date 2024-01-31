@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -66,7 +67,7 @@ public class ZipProjectSaveStrategyTest {
     @BeforeEach
     public void setUp() throws JAXBException {
         this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
-        this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
+        this.fileDataCaptor = forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
         this.userManagementService = mock(UserManagementService.class);

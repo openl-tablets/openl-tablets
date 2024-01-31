@@ -2,6 +2,8 @@ package org.openl.rules.calculation.result.convertor2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import org.openl.rules.calc.SpreadsheetResult;
 
@@ -132,22 +133,22 @@ public class MultiNestedSpreadsheetResultTest {
         // create first nested spreadsheet
         //
         SpreadsheetResult nested = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
-        Mockito.when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
+        when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
 
         // create second nested spreadsheet
         //
         SpreadsheetResult nested1 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
-        Mockito.when(nested1.getValue(0, 0)).thenReturn("nestedColumn2");
+        when(nested1.getValue(0, 0)).thenReturn("nestedColumn2");
 
         // put the first nested to the 2nd column in the first row
         //
-        Mockito.when(upperSpr.getValue(0, 0)).thenReturn("firstNested");
-        Mockito.when(upperSpr.getValue(0, 1)).thenReturn(nested);
+        when(upperSpr.getValue(0, 0)).thenReturn("firstNested");
+        when(upperSpr.getValue(0, 1)).thenReturn(nested);
 
         // put the second nested to the 3rd column in the second row
         //
-        Mockito.when(upperSpr.getValue(1, 0)).thenReturn("secondNested");
-        Mockito.when(upperSpr.getValue(1, 2)).thenReturn(nested1);
+        when(upperSpr.getValue(1, 0)).thenReturn("secondNested");
+        when(upperSpr.getValue(1, 2)).thenReturn(nested1);
         return upperSpr;
     }
 
@@ -159,13 +160,13 @@ public class MultiNestedSpreadsheetResultTest {
         // create first nested spreadsheet
         //
         SpreadsheetResult nested = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
-        Mockito.when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
+        when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
 
         SpreadsheetResult nested2 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
-        Mockito.when(nested2.getValue(0, 0)).thenReturn("nestedColumn2_1");
+        when(nested2.getValue(0, 0)).thenReturn("nestedColumn2_1");
 
         SpreadsheetResult nested2_1 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
-        Mockito.when(nested2_1.getValue(0, 0)).thenReturn("nestedColumn2_2");
+        when(nested2_1.getValue(0, 0)).thenReturn("nestedColumn2_2");
 
         // init spreadsheet array result
         //
@@ -175,21 +176,21 @@ public class MultiNestedSpreadsheetResultTest {
 
         // put the first nested to the 2nd column in the first row
         //
-        Mockito.when(upperSpr.getValue(0, 0)).thenReturn("firstNested");
-        Mockito.when(upperSpr.getValue(0, 1)).thenReturn(nested);
+        when(upperSpr.getValue(0, 0)).thenReturn("firstNested");
+        when(upperSpr.getValue(0, 1)).thenReturn(nested);
 
         // put the second nested to the 3rd column in the second row
         //
-        Mockito.when(upperSpr.getValue(1, 0)).thenReturn("arrayNested");
-        Mockito.when(upperSpr.getValue(1, 2)).thenReturn(array);
+        when(upperSpr.getValue(1, 0)).thenReturn("arrayNested");
+        when(upperSpr.getValue(1, 2)).thenReturn(array);
         return upperSpr;
     }
 
     private SpreadsheetResult getSpreadsheet(String[] columns, int width, int height) {
-        SpreadsheetResult spreadsheet = Mockito.mock(SpreadsheetResult.class);
-        Mockito.when(spreadsheet.getWidth()).thenReturn(width);
-        Mockito.when(spreadsheet.getHeight()).thenReturn(height);
-        Mockito.when(spreadsheet.getColumnNames()).thenReturn(columns);
+        SpreadsheetResult spreadsheet = mock(SpreadsheetResult.class);
+        when(spreadsheet.getWidth()).thenReturn(width);
+        when(spreadsheet.getHeight()).thenReturn(height);
+        when(spreadsheet.getColumnNames()).thenReturn(columns);
         return spreadsheet;
     }
 }

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -59,9 +60,9 @@ public class RulesDeployerServiceTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
-        streamCaptor = ArgumentCaptor.forClass(InputStream.class);
-        fileChangesFromZipCaptor = ArgumentCaptor.forClass(FileChangesFromZip.class);
+        fileDataCaptor = forClass(FileData.class);
+        streamCaptor = forClass(InputStream.class);
+        fileChangesFromZipCaptor = forClass(FileChangesFromZip.class);
     }
 
     private <T extends Repository> void init(Class<T> repo, boolean local) throws IOException {
@@ -282,7 +283,7 @@ public class RulesDeployerServiceTest {
 
     private List<FileItem> catchDeployFileItems() throws IOException {
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<List<FileItem>> captor = ArgumentCaptor.forClass(listClass);
+        ArgumentCaptor<List<FileItem>> captor = forClass(listClass);
 
         verify(mockedDeployRepo, times(1)).save(captor.capture());
         return captor.getValue();
@@ -291,8 +292,8 @@ public class RulesDeployerServiceTest {
     private FileData catchDeployFolders() throws IOException {
         Class<FileData> fileDataClass = FileData.class;
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<FileData> captor1 = ArgumentCaptor.forClass(fileDataClass);
-        ArgumentCaptor<List<FileItem>> captor2 = ArgumentCaptor.forClass(listClass);
+        ArgumentCaptor<FileData> captor1 = forClass(fileDataClass);
+        ArgumentCaptor<List<FileItem>> captor2 = forClass(listClass);
 
         verify((Repository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
         return captor1.getValue();

@@ -2,6 +2,7 @@ package org.openl.rules.rest.validation;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -44,7 +44,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @AfterEach
     public void reset_mocks() {
-        Mockito.reset(userManagementService, passwordEncoder, currentUserInfo);
+        reset(userManagementService, passwordEncoder, currentUserInfo);
     }
 
     @Test

@@ -32,7 +32,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.Rule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -46,8 +45,6 @@ import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
 public class RunTracingITest {
-
-    @Rule
 
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
 
