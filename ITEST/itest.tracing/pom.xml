@@ -15,16 +15,15 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>
+        <surefire.argLine.opts>
             -javaagent:${project.build.directory}/opentelemetry-javaagent.jar
-            -Xms64m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=128m
             -Dotel.metrics.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.traces.exporter=logging-otlp <!-- JSON output format -->
             -Dotel.logs.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.bsp.schedule.delay=0 <!-- For rapidly output to the console -->
             -Dotel.service.name=RulerService-Test
             -Dotel.javaagent.extensions=../../Util/openl-rules-opentelemetry/target/openl-rules-opentelemetry.jar
-        </surefire.argLine>
+        </surefire.argLine.opts>
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>

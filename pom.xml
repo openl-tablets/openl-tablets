@@ -216,6 +216,7 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
+        <surefire.argLine.opts/> <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
@@ -479,7 +480,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-ea ${jacoco.argLine} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
+                    <argLine>-ea ${jacoco.argLine} ${surefire.argLine.opts} ${surefire.argLine} -Dapple.awt.UIElement=true</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -562,7 +563,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.8</version>
+                        <version>0.8.11</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
                             <includes>
