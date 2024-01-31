@@ -5,6 +5,10 @@ displayName: Use static import example
 recipeList:
   - org.openrewrite.java.UseStaticImport:
       methodPattern: org.junit..* *(..)
+  - org.openrewrite.java.UseStaticImport:
+      methodPattern: org.awaitility..* *(..)
+  - org.openrewrite.java.UseStaticImport:
+      methodPattern: org.mockito..* *(..)
   - org.openrewrite.java.RemoveUnusedImports
   - org.openrewrite.java.OrderImports
 #  - org.openrewrite.java.format.AutoFormat
