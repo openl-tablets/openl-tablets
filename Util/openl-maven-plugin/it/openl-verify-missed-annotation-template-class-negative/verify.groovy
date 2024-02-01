@@ -5,7 +5,7 @@ try {
     assert lines.any { it.contains('Failed to load or apply annotation template class \'MustNotBeFoundInClassloader\'.') }
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

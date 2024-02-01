@@ -5,7 +5,7 @@ try {
     assert logs.contains('Found non-unique value \'test1\' for table property \'id\'.')
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

@@ -7,7 +7,7 @@ try {
     assert lines.any { it.contains('[INFO] BUILD SUCCESS') }
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

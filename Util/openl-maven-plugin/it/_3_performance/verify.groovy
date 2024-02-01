@@ -6,7 +6,7 @@ def finished = System.currentTimeMillis()
 def clock = (finished - (long) context.started)
 
 File folder = basedir
-for (def test: folder.getParentFile().listFiles()) {
+for (def test : folder.getParentFile().listFiles()) {
     if (!test.isDirectory() || test.getName().startsWith("_")) {
         // Skip processing not folders (files, links and etc.)
         continue
@@ -15,7 +15,7 @@ for (def test: folder.getParentFile().listFiles()) {
     def propsFile = new File(test, "invoker.properties")
     def props = new Properties()
     if (propsFile.exists()) {
-        props.load (propsFile.newInputStream());
+        props.load(propsFile.newInputStream());
     }
     if (props.containsKey("openl.perf.mavenOpts")) {
         props.setProperty("invoker.mavenOpts", props.getProperty("openl.perf.mavenOpts"))
@@ -23,7 +23,7 @@ for (def test: folder.getParentFile().listFiles()) {
     }
 
     def poms = 0;
-    test.eachFileRecurse (groovy.io.FileType.FILES) { file ->
+    test.eachFileRecurse(groovy.io.FileType.FILES) { file ->
         if (file.getName() == "pom.xml") {
             poms++;
         }

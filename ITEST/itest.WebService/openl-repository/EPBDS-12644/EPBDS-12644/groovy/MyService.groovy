@@ -1,4 +1,3 @@
-
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -18,8 +17,8 @@ abstract class MyService {
     @POST
     @Path("parse2")
     @Operation(summary = "Should not add @ApiResponses when responses added in @Operation", tags = "Resource",
-                responses = [@ApiResponse(responseCode = "200", description = "Response 200 added in @Operation"),
-                             @ApiResponse(responseCode = "204", description = "Response 204 added in @Operation")])
+            responses = [@ApiResponse(responseCode = "200", description = "Response 200 added in @Operation"),
+                    @ApiResponse(responseCode = "204", description = "Response 204 added in @Operation")])
     abstract String parse2(String num);
 
     @POST

@@ -8,8 +8,8 @@ import javax.ws.rs.Produces
 interface EPBDS10935Service {
     @POST
     @Path(value = "/getNewForUsedRate")
-    @Consumes(value = [ "text/plain" ])
-    @Produces(value = [ "text/plain" ])
+    @Consumes(value = ["text/plain"])
+    @Produces(value = ["text/plain"])
     double getNewForUsedRate(String var1);
 }
 

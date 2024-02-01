@@ -7,7 +7,7 @@ try {
     assert rulesArchive.exists()
     assert new File(folder, 'common/target/openl-maven-plugin-transitive-dependencies-common-0.0.0.jar').exists()
 
-    assert new ZipFile(rulesArchive).entries().findAll{ !it.directory && it.name == "lib/openl-maven-plugin-transitive-dependencies-common-0.0.0.jar" }.size() == 1
+    assert new ZipFile(rulesArchive).entries().findAll { !it.directory && it.name == "lib/openl-maven-plugin-transitive-dependencies-common-0.0.0.jar" }.size() == 1
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
 
@@ -17,7 +17,7 @@ try {
 
     return true
 
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

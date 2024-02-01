@@ -15,7 +15,7 @@ try {
 
     return true
 
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }
