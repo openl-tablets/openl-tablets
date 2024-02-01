@@ -5,6 +5,7 @@ import './Header.scss'
 import { UserMenu } from './header/UserMenu'
 import { useNavigate } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
+import Logo from './header/Logo'
 
 const { Header: AntHeader } = Layout
 
@@ -34,7 +35,7 @@ export const Header = () => {
                     <Row align="middle">
                         <Col>
                             <div className="header__logo">
-                                <img alt="OpenL Studio" height="24" src="/img/logo.svg" />
+                                <Logo />
                             </div>
                         </Col>
                         <Col>

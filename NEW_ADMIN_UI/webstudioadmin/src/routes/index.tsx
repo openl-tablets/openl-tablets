@@ -15,18 +15,17 @@ import { UserPage } from 'pages/UserPage'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
-import { RedirectToDefaultPage } from './RedirectToDefaultPage'
+// import { RedirectToDefaultPage } from './RedirectToDefaultPage'
 
 const basePath = process.env.REACT_APP_BASE_PATH || ''
 
 const RootRoutes: React.FC = () => {
-
     return (
         <BrowserRouter basename={basePath}>
             <Routes>
                 <Route element={<DefaultLayout />} path="/">
-                    <Route index element={<RedirectToDefaultPage />} />
-                    <Route element={<RedirectToDefaultPage />} path="/index.xhtml" />
+                    <Route index element={<System />} />
+                    <Route element={<System />} path="/index.xhtml" />
                     <Route element={<System />} path="/system" />
                     <Route element={<Users />} path="/users" />
                     <Route element={<Groups />} path="/admin/management/groups" />
