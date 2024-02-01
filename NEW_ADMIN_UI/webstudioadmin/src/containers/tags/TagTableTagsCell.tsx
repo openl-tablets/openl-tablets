@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Input, InputRef, Space, Tag as AntTag, TagType, Tooltip } from 'antd'
+import { Input, InputRef, Space, Tag as AntTag, Tooltip } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 
@@ -78,15 +78,17 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
         height: 22,
         marginInlineEnd: 8,
         verticalAlign: 'top',
+        cursor: 'text',
     }
 
     const tagPlusStyle: React.CSSProperties = {
         height: 22,
         borderStyle: 'dashed',
+        cursor: 'pointer',
     }
 
     return (
-        <Space size={[ 0, 8 ]} wrap>
+        <Space wrap size={[ 0, 8 ]}>
             {tags.map((tag, index) => {
                 if (editInputIndex === index) {
                     return (
@@ -108,15 +110,13 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
                         key={tag.id}
                         closable
                         onClose={() => handleClose(tag.id)}
-                        style={{ userSelect: 'none' }}
+                        style={{ userSelect: 'none', cursor: 'text' }}
                     >
                         <span
                             onDoubleClick={(e) => {
-                                if (index !== 0) {
-                                    setEditInputIndex(index)
-                                    setEditInputValue(tag.name)
-                                    e.preventDefault()
-                                }
+                                setEditInputIndex(index)
+                                setEditInputValue(tag.name)
+                                e.preventDefault()
                             }}
                         >
                             {isLongTag ? `${tag.name.slice(0, 20)}...` : tag.name}
