@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import MainMenu from 'components/MainMenu'
 import { Alert, Layout } from 'antd'
 import { Header } from 'containers/Header'
@@ -18,16 +18,24 @@ export const DefaultLayout = () => {
 
     const notificationMessage = useSelector((state: RootState) => state.notification.notification)
 
+    const Notify = useMemo(() => {
+        if (notificationMessage) {
+            return (<Alert
+                key={notificationMessage}
+                banner
+                closable
+                message={notificationMessage}
+                type="error"
+            />)
+        }
+        return null
+    }, [ notificationMessage ])
+
     return (
         <Layout style={layoutStyle}>
             <Header />
             <AntContent>
-                {notificationMessage && <Alert
-                    banner
-                    closable
-                    message={notificationMessage}
-                    type="error"
-                />}
+                {Notify}
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
                     <MainMenu />
                     <div style={{ padding: 20, width: '100%' }}>
