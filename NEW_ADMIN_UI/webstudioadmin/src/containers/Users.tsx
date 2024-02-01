@@ -25,6 +25,7 @@ export const Users: React.FC = () => {
     const [ selectedUser, setSelectedUser ] = useState<any>({})
     const [ userData, setUserData ] = useState<any[]>([])
     const [ isNewUser, setIsNewUser ] = useState(false)
+    const [ isLoading, setIsLoading ] = useState(false)
 
     const showAddAndEditUserModal = () => {
         setIsModalOpen(true)
@@ -38,8 +39,10 @@ export const Users: React.FC = () => {
     }
 
     const fetchUsers = async () => {
+        setIsLoading(true)
         const response = await apiCall('/users')
         setUserData(response.map((user: any, index: any) => ({ ...user, key: index })))
+        setIsLoading(false)
     }
 
     useEffect(() => {
@@ -170,6 +173,7 @@ export const Users: React.FC = () => {
             <Table
                 columns={columns}
                 dataSource={userData}
+                loading={isLoading}
                 pagination={{ hideOnSinglePage: true }}
                 rowKey={(record) => record.username}
                 onRow={(record) => ({
