@@ -8,7 +8,7 @@ try {
 
     assert new File(basedir, 'target/openl-mixed-datatypes-0.0.0.zip').exists()
 
-    assert new File(basedir, 'target').list({File file, String name -> name.startsWith("openl-mixed-datatypes-0.0.0") && name.endsWith("-lib.jar")}).length == 1
+    assert new File(basedir, 'target').list({ File file, String name -> name.startsWith("openl-mixed-datatypes-0.0.0") && name.endsWith("-lib.jar") }).length == 1
 
     assert new File(basedir, 'build.log').text.contains("Run tests using 5 threads.")
 
@@ -16,7 +16,7 @@ try {
 
     return true
 
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }
