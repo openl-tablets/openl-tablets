@@ -736,12 +736,15 @@ public class RepositoryTreeController {
             templateFiles);
         try {
             try {
-                projectCreator.createRulesProject();
-                // Get just created project, because creator API doesn't create internals states for ProjectState
-                RulesProject createdProject = userWorkspace.getProject(repositoryId,
-                    projectCreator.getCreatedProjectName());
-                if (designRepositoryAclService
-                    .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
+                RulesProject newRuleProject = projectCreator.createRulesProject();
+
+                if (designRepositoryAclService.createAcl(newRuleProject.getDesignRepository().getId(),
+                    newRuleProject.getDesignFolderName(),
+                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                    true)) {
+                    // Get just created project, because creator API doesn't create internals states for ProjectState
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId,
+                        projectCreator.getCreatedProjectName());
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
@@ -760,7 +763,7 @@ public class RepositoryTreeController {
                     return null;
                 } else {
                     String message = String.format("Granting permissions to a new project '%s' is failed.",
-                        ProjectArtifactUtils.extractResourceName(createdProject));
+                        ProjectArtifactUtils.extractResourceName(newRuleProject));
                     WebStudioUtils.addErrorMessage(message);
                     return message;
                 }

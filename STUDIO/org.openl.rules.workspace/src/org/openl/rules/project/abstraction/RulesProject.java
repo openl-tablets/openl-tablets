@@ -21,6 +21,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -375,6 +376,12 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
+        Repository designRepository = getDesignRepository();
+        // Unwrap delegate repository to get real repository, because delegate repository can be secured.
+        // Get file data can't be secured, because it's used in security check to build identity.
+        while (designRepository instanceof RepositoryDelegate) {
+            designRepository = ((RepositoryDelegate) designRepository).getDelegate();
+        }
         if (isLocalOnly()) {
             FileData fileData = super.getFileDataForUnversionableRepo(repository);
             if (designRepository != null && designRepository.supports().branches()) {
