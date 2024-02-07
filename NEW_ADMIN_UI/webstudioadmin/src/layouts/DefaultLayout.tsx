@@ -36,12 +36,7 @@ export const DefaultLayout = () => {
             <Header />
             <AntContent>
                 {Notify}
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
-                    <MainMenu />
-                    <div style={{ padding: 20, width: '100%' }}>
-                        <Outlet />
-                    </div>
-                </div>
+                <Outlet />
             </AntContent>
             <Footer />
         </Layout>
