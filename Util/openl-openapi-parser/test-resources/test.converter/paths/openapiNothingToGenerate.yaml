@@ -10,17 +10,17 @@ externalDocs:
   description: Find out more about OpenAPI generator
   url: https://openapi-generator.tech
 tags:
-- name: pet
-  description: Everything about your Pets
-- name: store
-  description: Access to Petstore orders
-- name: user
-  description: Operations about user
+  - name: pet
+    description: Everything about your Pets
+  - name: store
+    description: Access to Petstore orders
+  - name: user
+    description: Operations about user
 paths:
   /pet:
     post:
       tags:
-      - pet
+        - pet
       summary: Add a new pet to the store
       operationId: addPet
       requestBody:
@@ -37,12 +37,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/Pet'
       security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
+        - petstore_auth:
+            - write:pets
+            - read:pets
       x-accepts: application/json
       x-tags:
-      - tag: pet
+        - tag: pet
       x-contentType: application/json
 components:
   schemas:
@@ -66,9 +66,9 @@ components:
           type: string
           description: Order Status
           enum:
-          - placed
-          - approved
-          - delivered
+            - placed
+            - approved
+            - delivered
         complete:
           type: boolean
           default: false
@@ -150,8 +150,8 @@ components:
     Pet:
       title: a Pet
       required:
-      - name
-      - photoUrls
+        - name
+        - photoUrls
       type: object
       properties:
         id:
@@ -180,24 +180,24 @@ components:
           type: string
           description: pet status in the store
           enum:
-          - available
-          - pending
-          - sold
+            - available
+            - pending
+            - sold
       description: A pet for sale in the pet store
       example:
         photoUrls:
-        - photoUrls
-        - photoUrls
+          - photoUrls
+          - photoUrls
         name: doggie
         id: 0
         category:
           name: name
           id: 6
         tags:
-        - name: name
-          id: 1
-        - name: name
-          id: 1
+          - name: name
+            id: 1
+          - name: name
+            id: 1
         status: available
       xml:
         name: Pet

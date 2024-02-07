@@ -1,11 +1,10 @@
- 
 service:
-    in.topic.name: hello-in-topic-4
-    out.topic.name: hello-out-topic-4
-    dlt.topic.name: hello-dlt-topic-4
-    consumer.configs:
-        metadata.max.age.ms: 1000
-        auto.offset.reset: earliest
-    producer.configs:
-        # Enabled idempotence doesn't work on kafka with single node
-        enable.idempotence: false
+  in.topic.name: hello-in-topic-4
+  out.topic.name: hello-out-topic-4
+  dlt.topic.name: hello-dlt-topic-4
+  consumer.configs:
+    metadata.max.age.ms: 1000
+    auto.offset.reset: earliest
+  producer.configs:
+    # Enabled idempotence doesn't work on kafka with single node
+    enable.idempotence: false

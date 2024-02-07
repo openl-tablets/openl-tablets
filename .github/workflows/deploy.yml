@@ -5,8 +5,8 @@ name: Deploy Maven artifacts
 
 on:
   schedule:
-  # Every day at 23:00 UTC+3
-  - cron:  '0 20 * * *'
+    # Every day at 23:00 UTC+3
+    - cron: '0 20 * * *'
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:
@@ -26,72 +26,72 @@ jobs:
 
     steps:
 
-    - name: Configure GIT
-      run: |
-        git config --global user.name "OpenL Tablets"
-        git config --global user.email openltablets@gmail.com
-        git config --global core.autocrlf false
+      - name: Configure GIT
+        run: |
+          git config --global user.name "OpenL Tablets"
+          git config --global user.email openltablets@gmail.com
+          git config --global core.autocrlf false
 
-    - name: Checkout ${{ github.event.inputs.branch }}
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.inputs.branch }}
+      - name: Checkout ${{ github.event.inputs.branch }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
 
-    - uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: 11
-        cache: 'maven'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+          cache: 'maven'
 
-    - name: Build with Maven
-      run: mvn package -DskipTests "-Dstyle.color=always"
+      - name: Build with Maven
+        run: mvn package -DskipTests "-Dstyle.color=always"
 
-    - name: Deploy Maven artifacts
-      run: |
-        cd STUDIO/org.openl.rules.webstudio
-        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webstudio.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-        cd ../../WSFrontend/org.openl.rules.ruleservice.ws
-        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-        cd ../../WSFrontend/org.openl.rules.ruleservice.ws.all
-        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-        cd ../../DEMO
-        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      - name: Deploy Maven artifacts
+        run: |
+          cd STUDIO/org.openl.rules.webstudio
+          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webstudio.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+          cd ../../WSFrontend/org.openl.rules.ruleservice.ws
+          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+          cd ../../WSFrontend/org.openl.rules.ruleservice.ws.all
+          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+          cd ../../DEMO
+          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-    - name: Prepare for multi-platform docker build
-      run: |
-        echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
-        docker run --privileged --rm tonistiigi/binfmt --install all
-        docker buildx create --use
+      - name: Prepare for multi-platform docker build
+        run: |
+          echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker buildx create --use
 
-    - name: Build docker images
-      run: |
-        echo Platforms: ${BUILD_PLATFORMS}
-        repo=ghcr.io/${{ github.repository_owner }}
-        created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-        version="org.opencontainers.image.version=x"
-        revision="org.opencontainers.image.revision=${GITHUB_SHA}"
-        echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-        docker buildx build -t $repo/ws:x . \
-          --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
-          --platform ${BUILD_PLATFORMS} --push \
-          --label $created --label $version --label $revision \
-          --label "org.opencontainers.image.title=OpenL RuleServices" \
-          --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
-        docker buildx build -t $repo/ws:x-all . \
-          --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
-          --platform ${BUILD_PLATFORMS} --push \
-          --label $created --label $version --label $revision \
-          --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
-          --label "org.opencontainers.image.description=An OpenL web service with extra modules"
-        docker buildx build -t $repo/webstudio:x . \
-          --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
-          --platform ${BUILD_PLATFORMS} --push \
-          --label $created --label $version --label $revision \
-          --label "org.opencontainers.image.title=OpenL WebStudio" \
-          --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
-        cd DEMO
-        docker buildx build -t $repo/demo:x . \
-          --platform ${BUILD_PLATFORMS} --push \
-          --label $created --label $version --label $revision
+      - name: Build docker images
+        run: |
+          echo Platforms: ${BUILD_PLATFORMS}
+          repo=ghcr.io/${{ github.repository_owner }}
+          created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          version="org.opencontainers.image.version=x"
+          revision="org.opencontainers.image.revision=${GITHUB_SHA}"
+          echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+          docker buildx build -t $repo/ws:x . \
+            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL RuleServices" \
+            --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
+          docker buildx build -t $repo/ws:x-all . \
+            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
+            --label "org.opencontainers.image.description=An OpenL web service with extra modules"
+          docker buildx build -t $repo/webstudio:x . \
+            --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision \
+            --label "org.opencontainers.image.title=OpenL WebStudio" \
+            --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
+          cd DEMO
+          docker buildx build -t $repo/demo:x . \
+            --platform ${BUILD_PLATFORMS} --push \
+            --label $created --label $version --label $revision

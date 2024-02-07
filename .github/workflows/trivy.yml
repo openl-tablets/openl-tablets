@@ -3,7 +3,7 @@ name: Trivy
 on:
   schedule:
     # Every day at 24:00 UTC+3
-    - cron:  '0 21 * * *'
+    - cron: '0 21 * * *'
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:
@@ -22,7 +22,7 @@ env:
   REGISTRY: ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
   VERSION: ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
 
-run-name: Trivy scan for 
+run-name: Trivy scan for
   ${{ inputs.registry || 'ghcr.io/openl-tablets' }}
   ${{ inputs.version || inputs.registry == 'openltablets' && 'latest' || 'x' }}
 
