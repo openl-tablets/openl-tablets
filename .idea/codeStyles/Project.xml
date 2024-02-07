@@ -29,5 +29,8 @@
       <option name="SPACES_AROUND_KEY_VALUE_DELIMITER" value="true" />
       <option name="KEEP_BLANK_LINES" value="true" />
     </Properties>
+    <XML>
+      <option name="XML_TEXT_WRAP" value="0" />
+    </XML>
   </code_scheme>
 </component>
