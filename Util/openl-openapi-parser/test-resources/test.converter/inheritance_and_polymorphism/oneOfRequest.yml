@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/combined-OneOf
-    variables: {}
+    variables: { }
 paths:
   /pets:
     patch:
@@ -33,7 +33,7 @@ components:
           type: boolean
         breed:
           type: string
-          enum: [Dingo, Husky, Retriever, Shepherd]
+          enum: [ Dingo, Husky, Retriever, Shepherd ]
     Cat:
       type: object
       properties:

@@ -3,7 +3,7 @@ consumer.configs:
   group.id: openl-ruleservice
   max.poll.records: 10
   client.id.generator: org.openl.rules.ruleservice.publish.kafka.RandomClientIDGenerator
-  
+
 producer.configs:
   bootstrap.servers: localhost:9092
   acks: all
@@ -13,6 +13,6 @@ dlt.producer.configs:
   bootstrap.servers: localhost:9092
   acks: all
   client.id.generator: org.openl.rules.ruleservice.publish.kafka.RandomClientIDGenerator
-  
+
 methods:
   - method.name: method1

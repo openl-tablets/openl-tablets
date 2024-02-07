@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 servers:
   - url: /webservice/REST/combined-allOf
-    variables: {}
+    variables: { }
 paths:
   /pets:
     patch:
@@ -60,7 +60,7 @@ components:
               type: string
           discriminator:
             propertyName: pet_type
-    Dog:     # "Dog" is a value for the pet_type property (the discriminator value)
+    Dog: # "Dog" is a value for the pet_type property (the discriminator value)
       allOf: # Combines the main `Pet` schema with `Dog`-specific properties
         - $ref: '#/components/schemas/Pet'
         - type: object
@@ -70,8 +70,8 @@ components:
               type: boolean
             breed:
               type: string
-              enum: [Dingo, Husky, Retriever, Shepherd]
-    Cat:     # "Cat" is a value for the pet_type property (the discriminator value)
+              enum: [ Dingo, Husky, Retriever, Shepherd ]
+    Cat: # "Cat" is a value for the pet_type property (the discriminator value)
       allOf: # Combines the main `Pet` schema with `Cat`-specific properties
         - $ref: '#/components/schemas/Pet'
         - type: object
