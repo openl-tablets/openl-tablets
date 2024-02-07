@@ -4,7 +4,7 @@
 
     <groupId>org.openl.internal</groupId>
     <artifactId>openl-data-in-dependent-module</artifactId>
-	<version>0.0.0</version>
+    <version>0.0.0</version>
     <packaging>openl</packaging>
     <name>Data table in dependent module</name>
 
@@ -17,7 +17,7 @@
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-				<version>${org.openl.version}</version>
+                <version>${org.openl.version}</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>

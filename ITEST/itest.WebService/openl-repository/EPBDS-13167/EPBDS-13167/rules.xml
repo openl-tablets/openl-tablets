@@ -1,11 +1,11 @@
 <project>
-  <name>EPBDS-13167</name>
-  <modules>
-    <module>
-      <rules-root path="*.xlsx"/>
-    </module>
-  </modules>
-  <classpath>
-    <entry path="groovy"/>
-  </classpath>
+    <name>EPBDS-13167</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
 </project>

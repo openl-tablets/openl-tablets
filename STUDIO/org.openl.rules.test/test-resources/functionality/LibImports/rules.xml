@@ -1,16 +1,16 @@
 <project>
-  <name>LibImports-absent-dependencies</name>
-  <comment></comment>
-  <modules>
-    <module>
-      <name>Datatypes</name>
-      <rules-root path="Datatypes.xlsx"/>
-    </module>
-  </modules>
-  <classpath>
-    <entry path="Alib/liba.jar"/>
-    <entry path="lib/libb.jar"/>
-    <entry path="lib/libmain.jar"/>
-    <entry path="lib/"/>
-  </classpath>
+    <name>LibImports-absent-dependencies</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>Datatypes</name>
+            <rules-root path="Datatypes.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="Alib/liba.jar"/>
+        <entry path="lib/libb.jar"/>
+        <entry path="lib/libmain.jar"/>
+        <entry path="lib/"/>
+    </classpath>
 </project>

@@ -1,17 +1,17 @@
 <jboss-deployment-structure>
     <deployment>
         <dependencies>
-            <module name="jdk.xml.dom" export="true" />
+            <module name="jdk.xml.dom" export="true"/>
         </dependencies>
         <!-- Exclusions allow you to prevent the server from automatically adding some dependencies     -->
         <!-- https://docs.jboss.org/author/display/AS7/Class+Loading+in+AS7 -->
         <!-- https://docs.jboss.org/author/display/AS7/Implicit+module+dependencies+for+deployments -->
         <exclusions>
-            <module name="org.slf4j" />
-            <module name="org.slf4j.impl" />
+            <module name="org.slf4j"/>
+            <module name="org.slf4j.impl"/>
         </exclusions>
-        <exclude-subsystems>  
-            <subsystem name="jaxrs" />  
+        <exclude-subsystems>
+            <subsystem name="jaxrs"/>
         </exclude-subsystems>
     </deployment>
 </jboss-deployment-structure>

@@ -1,9 +1,9 @@
 <project>
-  <name>NewNewNEw</name>
-  <modules>
-    <module>
-      <name>Main</name>
-      <rules-root path="rules/*.xlsx"/>
-    </module>
-  </modules>
+    <name>NewNewNEw</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
 </project>

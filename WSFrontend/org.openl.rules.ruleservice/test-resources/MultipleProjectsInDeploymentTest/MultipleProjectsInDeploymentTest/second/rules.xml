@@ -1,31 +1,31 @@
 <project>
-	<!--  Project identifier. String value which defines project uniquely. -->
-	<id>second-hello</id>
-	<!-- Project name. -->
-	<name>second-hello</name>
+    <!--  Project identifier. String value which defines project uniquely. -->
+    <id>second-hello</id>
+    <!-- Project name. -->
+    <name>second-hello</name>
 
-	<!-- OpenL project includes one or more modules.  -->
-	<modules>
-		<module>
-			<name>second_world</name>
-			<type>API</type>
-			<!-- 
-				Rules root document. Usually excel file on file system. 
-			-->
-			<rules-root path="second_rules/Second_World.xlsx"/>
-		</module>	
-		<module>
-			<name>second_say_hello</name>
-			<type>API</type>
-			<!-- 
-				Rules root document. Usually excel file on file system. 
-			-->
-			<rules-root path="second_rules/Second_Hello.xlsx"/>
-		</module>	
-	</modules>
-	
-	<!-- Project's classpath. -->
-	<classpath>
-		<entry path="."/>
-	</classpath>	
+    <!-- OpenL project includes one or more modules.  -->
+    <modules>
+        <module>
+            <name>second_world</name>
+            <type>API</type>
+            <!--
+                Rules root document. Usually excel file on file system.
+            -->
+            <rules-root path="second_rules/Second_World.xlsx"/>
+        </module>
+        <module>
+            <name>second_say_hello</name>
+            <type>API</type>
+            <!--
+                Rules root document. Usually excel file on file system.
+            -->
+            <rules-root path="second_rules/Second_Hello.xlsx"/>
+        </module>
+    </modules>
+
+    <!-- Project's classpath. -->
+    <classpath>
+        <entry path="."/>
+    </classpath>
 </project>

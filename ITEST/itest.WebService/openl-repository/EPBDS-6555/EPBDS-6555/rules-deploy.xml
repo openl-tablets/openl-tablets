@@ -1,7 +1,7 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <isProvideVariations>false</isProvideVariations>
-  <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
     <serviceName>EPBDS-6555</serviceName>
     <publishers>
         <publisher>RESTFUL</publisher>

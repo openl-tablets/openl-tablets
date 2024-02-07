@@ -1,7 +1,7 @@
 <rules-deploy>
-	<isProvideRuntimeContext>false</isProvideRuntimeContext>
-	<isProvideVariations>true</isProvideVariations>
-	<serviceName>org.openl.rules.tutorial4.Tutorial4WithVariations</serviceName>
-	<serviceClass>org.openl.rules.tutorial4.Tutorial4WithVariations</serviceClass>
-	<url></url>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <serviceName>org.openl.rules.tutorial4.Tutorial4WithVariations</serviceName>
+    <serviceClass>org.openl.rules.tutorial4.Tutorial4WithVariations</serviceClass>
+    <url></url>
 </rules-deploy>

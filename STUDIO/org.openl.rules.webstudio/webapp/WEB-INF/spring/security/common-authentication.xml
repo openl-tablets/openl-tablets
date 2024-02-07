@@ -74,7 +74,8 @@
     </bean>
 
 
-    <bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
+    <bean id="sessionAuthenticationStrategy"
+          class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
         <constructor-arg name="sessionRegistry" ref="sessionRegistry"/>
     </bean>
 </beans>

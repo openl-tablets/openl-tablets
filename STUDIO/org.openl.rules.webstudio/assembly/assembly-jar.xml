@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly>
-  <id>jar</id>
-  <includeBaseDirectory>false</includeBaseDirectory>
+    <id>jar</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
 
-  <formats>
-    <format>jar</format>
-  </formats>
+    <formats>
+        <format>jar</format>
+    </formats>
 
-  <fileSets>
-    <fileSet>
-      <directory>target/classes</directory>
-      <outputDirectory></outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>resources/**</directory>
-      <outputDirectory></outputDirectory>
-    </fileSet>
-  </fileSets>
+    <fileSets>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>resources/**</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+    </fileSets>
 
 </assembly>

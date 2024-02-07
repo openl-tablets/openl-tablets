@@ -10,7 +10,8 @@
         <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
     </bean>
 
-    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
+    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator"
+          factory-method="newRepository">
         <constructor-arg name="prefix" value="repository.settings"/>
         <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
@@ -62,7 +63,8 @@
         <property name="openLHome" value="${openl.home}"/>
     </bean>
 
-    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
+    <bean id="projectVersionCacheManager"
+          class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="designRepository" ref="designTimeRepository"/>
     </bean>

@@ -1,9 +1,9 @@
 <project>
-	<!--  Project identifier. String value which defines project uniquely. -->
-	<id>my-project-id</id>
-	<!-- Project name. -->
-	<name>Project name</name>
-	<!-- Optional. Comment string to project. -->
-	<comment>comment</comment>
+    <!--  Project identifier. String value which defines project uniquely. -->
+    <id>my-project-id</id>
+    <!-- Project name. -->
+    <name>Project name</name>
+    <!-- Optional. Comment string to project. -->
+    <comment>comment</comment>
 
 </project>

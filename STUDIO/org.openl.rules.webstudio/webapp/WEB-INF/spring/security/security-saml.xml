@@ -92,7 +92,8 @@
         </bean>
     </util:list>
 
-    <bean id="samlLogoutFilter" class="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter">
+    <bean id="samlLogoutFilter"
+          class="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter">
         <constructor-arg name="relyingPartyRegistrationResolver" ref="relyingPartyRegistrationResolver"/>
         <constructor-arg name="logoutRequestValidator">
             <bean class="org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator"/>
@@ -106,14 +107,15 @@
     </bean>
 
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
-        <constructor-arg name="logoutSuccessUrl" ref="logoutSuccessUrl" />
-        <constructor-arg name="handlers" ref="logoutHandlers" />
-        <property name="filterProcessesUrl" ref="logoutUrl" />
+        <constructor-arg name="logoutSuccessUrl" ref="logoutSuccessUrl"/>
+        <constructor-arg name="handlers" ref="logoutHandlers"/>
+        <property name="filterProcessesUrl" ref="logoutUrl"/>
     </bean>
 
     <!-- ============================== SAML ==================================================================== -->
 
-    <bean id="successRedirectHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
+    <bean id="successRedirectHandler"
+          class="org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler">
         <property name="defaultTargetUrl" value="/"/>
         <property name="targetUrlParameter" value="openl-redirect"/>
     </bean>
@@ -176,7 +178,8 @@
         <constructor-arg name="delegate" ref="samlAuthenticationProvider"/>
     </bean>
 
-    <bean id="metadataGeneratorFilter" class="org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter">
+    <bean id="metadataGeneratorFilter"
+          class="org.springframework.security.saml2.provider.service.web.Saml2MetadataFilter">
         <constructor-arg name="relyingPartyRegistrationResolver" ref="relyingPartyRegistrationResolver"/>
         <constructor-arg name="saml2MetadataResolver">
             <bean class="org.springframework.security.saml2.provider.service.metadata.OpenSamlMetadataResolver"/>
