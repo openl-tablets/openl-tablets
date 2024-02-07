@@ -1,23 +1,23 @@
 <project>
-	<id>multimodule</id>
-	<name>multimodule</name>
+    <id>multimodule</id>
+    <name>multimodule</name>
 
-	<modules>
-		<module>
-			<name>multimodule</name>
-			<type>api</type>
-			<rules-root path="MultiModule.xlsx"/>
-		</module>	
-	</modules>
+    <modules>
+        <module>
+            <name>multimodule</name>
+            <type>api</type>
+            <rules-root path="MultiModule.xlsx"/>
+        </module>
+    </modules>
 
-	<classpath>
-		<entry path="bin"/>
-	</classpath>
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
 
-	<dependencies>
-		<dependency>
-			<name>project2</name>
-			<autoIncluded>true</autoIncluded>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <name>project2</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
 </project>

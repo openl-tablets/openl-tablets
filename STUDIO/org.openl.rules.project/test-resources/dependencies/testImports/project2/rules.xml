@@ -1,25 +1,25 @@
 <project>
-  <name>project2</name>
-  <comment></comment>
-  <modules>
-    <module>
-      <name>home_test_database_v12</name>
-      <rules-root path="home_test_database_v12_openl.xlsx"/>
-    </module>
-    <module>
-      <name>home-test-datatypes</name>
-      <rules-root path="home-test-datatypes.xls"/>
-    </module>
-  </modules>
-  <classpath>
-    <entry path="."/>
-    <entry path="target/classes"/>
-    <entry path="lib"/>
-  </classpath>
-  <dependencies>
-    <dependency>
-      <name>project1</name>
-      <autoIncluded>false</autoIncluded>
-    </dependency>
-  </dependencies>
+    <name>project2</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>home_test_database_v12</name>
+            <rules-root path="home_test_database_v12_openl.xlsx"/>
+        </module>
+        <module>
+            <name>home-test-datatypes</name>
+            <rules-root path="home-test-datatypes.xls"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="."/>
+        <entry path="target/classes"/>
+        <entry path="lib"/>
+    </classpath>
+    <dependencies>
+        <dependency>
+            <name>project1</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
 </project>

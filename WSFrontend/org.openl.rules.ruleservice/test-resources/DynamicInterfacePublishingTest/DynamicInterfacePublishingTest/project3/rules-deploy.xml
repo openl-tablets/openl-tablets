@@ -1,7 +1,7 @@
 <rules-deploy>
-	<isProvideRuntimeContext>true</isProvideRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<serviceName>dynamic-interface-test3</serviceName>
-	<annotationTemplateClassName>org.openl.ruleservice.dynamicinterface.test.MyTemplateClass</annotationTemplateClassName>
-	<url></url>
+    <isProvideRuntimeContext>true</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>dynamic-interface-test3</serviceName>
+    <annotationTemplateClassName>org.openl.ruleservice.dynamicinterface.test.MyTemplateClass</annotationTemplateClassName>
+    <url></url>
 </rules-deploy>

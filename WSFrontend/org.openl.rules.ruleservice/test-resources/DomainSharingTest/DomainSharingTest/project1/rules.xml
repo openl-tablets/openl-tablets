@@ -1,5 +1,5 @@
 <project>
-	<id>project1</id>
+    <id>project1</id>
     <name>project1</name>
 
     <modules>

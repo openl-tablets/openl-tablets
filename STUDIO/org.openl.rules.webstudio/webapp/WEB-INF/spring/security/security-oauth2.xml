@@ -140,6 +140,7 @@
 
     <bean id="oauth2AccessTokenAuthenticationProviderWrapper"
           class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
-        <constructor-arg name="delegate" ref="#{T(org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration).AUTH_PROVIDER_BEAN_NAME}"/>
+        <constructor-arg name="delegate"
+                         ref="#{T(org.openl.security.oauth2.config.OAuth2AccessTokenConfiguration).AUTH_PROVIDER_BEAN_NAME}"/>
     </bean>
 </beans>

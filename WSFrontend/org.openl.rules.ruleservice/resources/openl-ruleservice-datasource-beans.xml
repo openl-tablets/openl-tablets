@@ -15,7 +15,8 @@
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <constructor-arg name="rulesDeployerService" ref="rulesDeployerService"/>
-        <constructor-arg name="deployStrategy" value="#{T(org.openl.rules.ruleservice.loader.DeployStrategy).fromString('${ruleservice.datasource.deploy.classpath.jars}')}"/>
+        <constructor-arg name="deployStrategy"
+                         value="#{T(org.openl.rules.ruleservice.loader.DeployStrategy).fromString('${ruleservice.datasource.deploy.classpath.jars}')}"/>
         <constructor-arg name="propertyResolver" ref="environment"/>
         <property name="retryPeriod" value="${ruleservice.datasource.deploy.classpath.retry-period}"/>
     </bean>

@@ -40,7 +40,7 @@
                 <exclude>org.apache.hive:hive-metastore</exclude>
                 <exclude>org.apache.hive:hive-common</exclude>
                 <exclude>org.apache.hive:hive-shims</exclude>
-        </excludes>
+            </excludes>
         </dependencySet>
     </dependencySets>
 </assembly>

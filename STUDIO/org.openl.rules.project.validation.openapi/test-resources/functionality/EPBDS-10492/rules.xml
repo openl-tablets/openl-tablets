@@ -1,9 +1,9 @@
 <project>
-  <name>openApiBBB</name>
-  <modules>
-    <module>
-      <name>Main</name>
-      <rules-root path="rules/*.xlsx"/>
-    </module>
-  </modules>
+    <name>openApiBBB</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
 </project>

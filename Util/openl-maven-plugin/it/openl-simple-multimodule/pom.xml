@@ -7,7 +7,7 @@
     <version>0.0.0</version>
     <packaging>pom</packaging>
     <name>Multimodule project</name>
-    
+
     <modules>
         <module>openl-simple</module>
         <module>openl-simple-dependency</module>

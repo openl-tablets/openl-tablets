@@ -1,17 +1,17 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <isProvideVariations>false</isProvideVariations>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
-  <configuration>
-    <entry>
-      <string>jackson.typingPropertyName</string>
-      <string>_test</string>
-    </entry>
-    <entry>
-      <string>jackson.defaultTypingMode</string>
-      <string>DISABLED</string>
-    </entry>
-  </configuration>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>jackson.typingPropertyName</string>
+            <string>_test</string>
+        </entry>
+        <entry>
+            <string>jackson.defaultTypingMode</string>
+            <string>DISABLED</string>
+        </entry>
+    </configuration>
 </rules-deploy>

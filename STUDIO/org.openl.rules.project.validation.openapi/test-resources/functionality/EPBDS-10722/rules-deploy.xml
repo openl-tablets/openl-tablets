@@ -1,7 +1,7 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <isProvideVariations>true</isProvideVariations>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
 </rules-deploy>

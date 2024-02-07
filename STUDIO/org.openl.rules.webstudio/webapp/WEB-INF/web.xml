@@ -1,220 +1,220 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-    version="3.0" metadata-complete="true">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0" metadata-complete="true">
     <!-- metadata-complete="true" parameter is used for decrease startup time.
     All servlet 3.0 annotation will be skipped -->
 
-  <session-config>
-    <session-timeout>30</session-timeout>
-    <tracking-mode>COOKIE</tracking-mode>
-    <cookie-config>
-      <http-only>true</http-only>
-    </cookie-config>
-  </session-config>
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <tracking-mode>COOKIE</tracking-mode>
+        <cookie-config>
+            <http-only>true</http-only>
+        </cookie-config>
+    </session-config>
 
-  <display-name>OpenL Tablets WebStudio</display-name>
-  <description>OpenL Tablets WebStudio</description>
+    <display-name>OpenL Tablets WebStudio</display-name>
+    <description>OpenL Tablets WebStudio</description>
 
-  <context-param>
-    <description>
-      Comma separated list of URIs of (additional) faces config files.
-    </description>
-    <param-name>javax.faces.CONFIG_FILES</param-name>
-    <param-value>
-      /WEB-INF/faces/faces-config.xml
-    </param-value>
-  </context-param>
+    <context-param>
+        <description>
+            Comma separated list of URIs of (additional) faces config files.
+        </description>
+        <param-name>javax.faces.CONFIG_FILES</param-name>
+        <param-value>
+            /WEB-INF/faces/faces-config.xml
+        </param-value>
+    </context-param>
 
-  <context-param>
-    <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
-    <param-value>
-      /WEB-INF/taglib/html.taglib.xml
-    </param-value>
-  </context-param>
+    <context-param>
+        <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+        <param-value>
+            /WEB-INF/taglib/html.taglib.xml
+        </param-value>
+    </context-param>
 
-  <context-param>
-    <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
-    <param-value>true</param-value>
-  </context-param>
+    <context-param>
+        <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+        <param-value>true</param-value>
+    </context-param>
 
-  <!-- We cannot use PROJECT_STAGE equal to Production (default value) because currently we show ajax errors to a user.
-   See new Message() usages or any other exceptions throwing.
-   We should rewrite that logic (show another way to show custom error messages on ajax requests, for example,
-   use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
-   so using SystemTest. -->
-  <context-param>
-    <param-name>javax.faces.PROJECT_STAGE</param-name>
-    <param-value>SystemTest</param-value>
-  </context-param>
+    <!-- We cannot use PROJECT_STAGE equal to Production (default value) because currently we show ajax errors to a user.
+     See new Message() usages or any other exceptions throwing.
+     We should rewrite that logic (show another way to show custom error messages on ajax requests, for example,
+     use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
+     so using SystemTest. -->
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>SystemTest</param-value>
+    </context-param>
 
-  <context-param>
-    <param-name>org.eclipse.jetty.servlet.Default.welcomeServlets</param-name>
-    <param-value>true</param-value>
-  </context-param>
+    <context-param>
+        <param-name>org.eclipse.jetty.servlet.Default.welcomeServlets</param-name>
+        <param-value>true</param-value>
+    </context-param>
 
-  <context-param>
-    <param-name>org.richfaces.skin</param-name>
-    <param-value>classic</param-value>
-  </context-param>
+    <context-param>
+        <param-name>org.richfaces.skin</param-name>
+        <param-value>classic</param-value>
+    </context-param>
 
-  <context-param>
-    <param-name>org.richfaces.enableControlSkinning</param-name>
-    <param-value>false</param-value>
-  </context-param>
+    <context-param>
+        <param-name>org.richfaces.enableControlSkinning</param-name>
+        <param-value>false</param-value>
+    </context-param>
 
-  <!-- Disable the built-in JBoss AS JSF -->
-  <context-param>
-    <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
-    <param-value>true</param-value>
-  </context-param>
+    <!-- Disable the built-in JBoss AS JSF -->
+    <context-param>
+        <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
+        <param-value>true</param-value>
+    </context-param>
 
-  <filter>
-    <filter-name>CorsFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.CorsFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>CorsFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.filter.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <filter>
-    <filter-name>ForwardedFilter</filter-name>
-    <filter-class>de.qaware.xff.filter.ForwardedHeaderFilter</filter-class>
-    <init-param>
-      <param-name>xForwardedPrefixStrategy</param-name>
-      <param-value>PREPEND</param-value>
-    </init-param>
-  </filter>
-  <filter-mapping>
-    <filter-name>ForwardedFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter>
+        <filter-name>ForwardedFilter</filter-name>
+        <filter-class>de.qaware.xff.filter.ForwardedHeaderFilter</filter-class>
+        <init-param>
+            <param-name>xForwardedPrefixStrategy</param-name>
+            <param-value>PREPEND</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>ForwardedFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <filter>
-      <filter-name>SecurityFilter</filter-name>
-      <filter-class>org.openl.rules.webstudio.filter.SecurityFilter</filter-class>
-  </filter>
-  <filter-mapping>
-      <filter-name>SecurityFilter</filter-name>
-      <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter>
+        <filter-name>SecurityFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.filter.SecurityFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>SecurityFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <filter>
-    <filter-name>WebResourceFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.WebResourceFilter</filter-class>
-  </filter>
+    <filter>
+        <filter-name>WebResourceFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.filter.WebResourceFilter</filter-class>
+    </filter>
 
-  <filter-mapping>
-    <filter-name>WebResourceFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter-mapping>
+        <filter-name>WebResourceFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <filter>
-    <filter-name>SessionTimeoutFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.SessionTimeoutFilter</filter-class>
-    <init-param>
-        <param-name>redirectPage</param-name>
-        <param-value>/faces/pages/sessionExpired.xhtml</param-value>
-    </init-param>
-    <init-param>
-        <description>Comma separated list of urls</description>
-        <param-name>excludePages</param-name>
-        <param-value>/faces/pages/login.xhtml</param-value>
-    </init-param>
-  </filter>
+    <filter>
+        <filter-name>SessionTimeoutFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.filter.SessionTimeoutFilter</filter-class>
+        <init-param>
+            <param-name>redirectPage</param-name>
+            <param-value>/faces/pages/sessionExpired.xhtml</param-value>
+        </init-param>
+        <init-param>
+            <description>Comma separated list of urls</description>
+            <param-name>excludePages</param-name>
+            <param-value>/faces/pages/login.xhtml</param-value>
+        </init-param>
+    </filter>
 
-  <filter-mapping>
-    <filter-name>SessionTimeoutFilter</filter-name>
-    <url-pattern>/*</url-pattern>
-  </filter-mapping>
+    <filter-mapping>
+        <filter-name>SessionTimeoutFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
-  <filter>
-    <filter-name>RedirectToInstallWizardFilter</filter-name>
-    <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
-    <init-param>
-      <param-name>redirectPage</param-name>
-      <param-value>/faces/pages/modules/install/reconfigure.xhtml</param-value>
-    </init-param>
-  </filter>
+    <filter>
+        <filter-name>RedirectToInstallWizardFilter</filter-name>
+        <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
+        <init-param>
+            <param-name>redirectPage</param-name>
+            <param-value>/faces/pages/modules/install/reconfigure.xhtml</param-value>
+        </init-param>
+    </filter>
 
-  <filter-mapping>
-    <filter-name>RedirectToInstallWizardFilter</filter-name>
-    <url-pattern>/reconfigure</url-pattern>
-  </filter-mapping>
+    <filter-mapping>
+        <filter-name>RedirectToInstallWizardFilter</filter-name>
+        <url-pattern>/reconfigure</url-pattern>
+    </filter-mapping>
 
-  <listener>
-    <listener-class>org.openl.rules.webstudio.web.servlet.SpringInitializer</listener-class>
-  </listener>
+    <listener>
+        <listener-class>org.openl.rules.webstudio.web.servlet.SpringInitializer</listener-class>
+    </listener>
 
-  <listener>
-    <listener-class>org.openl.rules.webstudio.web.servlet.SessionListener</listener-class>
-  </listener>
-  <listener>
-    <listener-class>
-      org.jasig.cas.client.session.SingleSignOutHttpSessionListener
-    </listener-class>
-  </listener>
+    <listener>
+        <listener-class>org.openl.rules.webstudio.web.servlet.SessionListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>
+            org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+        </listener-class>
+    </listener>
 
-  <listener>
-    <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-  </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
 
-  <servlet>
-    <servlet-name>FacesServlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-    <multipart-config>
-      <!--parameter max-file-size should not be deleted. It is necessary for the WebSphere to work correctly with the jsf file downloader, but also we do not need to limit the file size in it, so the limit is 100 gigabytes-->
-      <max-file-size>104857600000</max-file-size>
-      <max-request-size>104857600000</max-request-size>
-      <file-size-threshold>1048576</file-size-threshold>
-    </multipart-config>
-  </servlet>
+    <servlet>
+        <servlet-name>FacesServlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <multipart-config>
+            <!--parameter max-file-size should not be deleted. It is necessary for the WebSphere to work correctly with the jsf file downloader, but also we do not need to limit the file size in it, so the limit is 100 gigabytes-->
+            <max-file-size>104857600000</max-file-size>
+            <max-request-size>104857600000</max-request-size>
+            <file-size-threshold>1048576</file-size-threshold>
+        </multipart-config>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>FacesServlet</servlet-name>
-    <url-pattern>/faces/*</url-pattern>
-  </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FacesServlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
 
-  <servlet>
-    <servlet-name>LaunchFileServlet</servlet-name>
-    <servlet-class>org.openl.rules.webstudio.web.servlet.LaunchFileServlet</servlet-class>
-  </servlet>
+    <servlet>
+        <servlet-name>LaunchFileServlet</servlet-name>
+        <servlet-class>org.openl.rules.webstudio.web.servlet.LaunchFileServlet</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>LaunchFileServlet</servlet-name>
-    <url-pattern>/action/launch</url-pattern>
-  </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LaunchFileServlet</servlet-name>
+        <url-pattern>/action/launch</url-pattern>
+    </servlet-mapping>
 
-  <servlet>
-    <servlet-name>TablePropertyValues</servlet-name>
-    <servlet-class>org.openl.rules.webstudio.web.servlet.TablePropertyValues</servlet-class>
-  </servlet>
+    <servlet>
+        <servlet-name>TablePropertyValues</servlet-name>
+        <servlet-class>org.openl.rules.webstudio.web.servlet.TablePropertyValues</servlet-class>
+    </servlet>
 
-  <servlet-mapping>
-    <servlet-name>TablePropertyValues</servlet-name>
-    <url-pattern>/action/prop_values</url-pattern>
-  </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TablePropertyValues</servlet-name>
+        <url-pattern>/action/prop_values</url-pattern>
+    </servlet-mapping>
 
-  <welcome-file-list>
-    <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
-  </welcome-file-list>
+    <welcome-file-list>
+        <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
+    </welcome-file-list>
 
-  <error-page>
-    <error-code>403</error-code>
-    <location>/faces/pages/accessDenied.xhtml</location>
-  </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/faces/pages/accessDenied.xhtml</location>
+    </error-page>
 
-  <error-page>
-    <error-code>500</error-code>
-    <location>/faces/pages/internalError.xhtml</location>
-  </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/faces/pages/internalError.xhtml</location>
+    </error-page>
 
-  <error-page>
-    <exception-type>javax.faces.application.ViewExpiredException</exception-type>
-    <location>/faces/pages/sessionExpired.xhtml</location>
-  </error-page>
+    <error-page>
+        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <location>/faces/pages/sessionExpired.xhtml</location>
+    </error-page>
 
 </web-app>

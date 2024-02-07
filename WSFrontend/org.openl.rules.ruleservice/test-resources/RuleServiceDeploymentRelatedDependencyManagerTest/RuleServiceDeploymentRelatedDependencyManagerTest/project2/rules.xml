@@ -1,23 +1,23 @@
 <project>
-	<id>project2</id>
-	<name>project2</name>
+    <id>project2</id>
+    <name>project2</name>
 
-	<modules>
-		<module>
-			<name>Module2_1</name>
-			<rules-root path="Module2_1.xlsx"/>
-		</module>	
-	</modules>
+    <modules>
+        <module>
+            <name>Module2_1</name>
+            <rules-root path="Module2_1.xlsx"/>
+        </module>
+    </modules>
 
-	<classpath>
-		<entry path="bin"/>
-	</classpath>
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
 
-	<dependencies>
-		<dependency>
-			<name>project0</name>
-			<autoIncluded>false</autoIncluded>
-		</dependency>
-	</dependencies>
-	
+    <dependencies>
+        <dependency>
+            <name>project0</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+
 </project>

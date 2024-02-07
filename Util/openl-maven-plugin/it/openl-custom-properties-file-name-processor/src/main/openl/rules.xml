@@ -1,16 +1,16 @@
 <project>
-  <name>CustomPropertiesFileNameProcessor</name>
-  <modules>
-    <module>
-      <rules-root path="hello-*"/>
-    </module>
-    <module>
-      <name>tests</name>
-      <rules-root path="tests.xls"/>
-    </module>
-  </modules>
-  <properties-file-name-processor>org.openl.internal.properties.SampleFileNameProcessor</properties-file-name-processor>
-  <classpath>
-    <entry path="lib/*.jar"/>
-  </classpath>
+    <name>CustomPropertiesFileNameProcessor</name>
+    <modules>
+        <module>
+            <rules-root path="hello-*"/>
+        </module>
+        <module>
+            <name>tests</name>
+            <rules-root path="tests.xls"/>
+        </module>
+    </modules>
+    <properties-file-name-processor>org.openl.internal.properties.SampleFileNameProcessor</properties-file-name-processor>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
 </project>

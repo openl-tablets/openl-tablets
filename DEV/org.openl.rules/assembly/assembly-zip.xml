@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly>
-  <id>assembly-core.zip</id>
-  <includeBaseDirectory>false</includeBaseDirectory>
+    <id>assembly-core.zip</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
 
-  <formats>
-    <format>zip</format>
-  </formats>
+    <formats>
+        <format>zip</format>
+    </formats>
 
-  <dependencySets>
-    <dependencySet>
-      <outputDirectory>libs</outputDirectory>
-      <useTransitiveDependencies>true</useTransitiveDependencies>
-      <excludes>
-        <exclude>org.openl*:*</exclude>
-      </excludes>
-    </dependencySet>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>libs</outputDirectory>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <excludes>
+                <exclude>org.openl*:*</exclude>
+            </excludes>
+        </dependencySet>
 
-    <dependencySet>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <outputDirectory></outputDirectory>
-      <includes>
-        <include>org.openl*:*</include>
-      </includes>
-    </dependencySet>
-  </dependencySets>
-  
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>org.openl*:*</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
 </assembly>

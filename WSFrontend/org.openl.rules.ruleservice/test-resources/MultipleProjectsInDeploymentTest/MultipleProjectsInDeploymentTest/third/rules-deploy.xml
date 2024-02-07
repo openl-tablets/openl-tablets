@@ -1,8 +1,8 @@
 <rules-deploy>
-	<isProvideRuntimeContext>false</isProvideRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<serviceName>third-hello</serviceName>
-	<url>com.third.HelloService</url>
-	<configuration>
-	</configuration>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>third-hello</serviceName>
+    <url>com.third.HelloService</url>
+    <configuration>
+    </configuration>
 </rules-deploy>

@@ -1,8 +1,8 @@
 <rules-deploy>
-	<isProvideRuntimeContext>false</isProvideRuntimeContext>
-	<isProvideVariations>false</isProvideVariations>
-	<serviceName>second-hello</serviceName>
-	<url>com.second.HelloService</url>
-	<configuration>
-	</configuration>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>second-hello</serviceName>
+    <url>com.second.HelloService</url>
+    <configuration>
+    </configuration>
 </rules-deploy>

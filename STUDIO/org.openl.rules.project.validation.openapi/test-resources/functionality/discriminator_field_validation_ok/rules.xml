@@ -1,9 +1,9 @@
 <project>
-  <name>json666</name>
-  <modules>
-    <module>
-      <name>Main</name>
-      <rules-root path="rules/*.xlsx"/>
-    </module>
-  </modules>
+    <name>json666</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
 </project>

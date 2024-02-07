@@ -67,7 +67,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
-         <!-- CLI tools -->
+        <!-- CLI tools -->
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
