@@ -26,7 +26,7 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/DynamicInterfacePublishingTest",
-  "production-repository.factory = repo-file"})
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class DynamicInterfacePublishingTest {
 
@@ -50,7 +50,7 @@ public class DynamicInterfacePublishingTest {
                 "method1(Lorg/openl/rules/context/IRulesRuntimeContext;Ljava/lang/Object;)Ljava/lang/String;",
                 "method3(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;",
                 "baseHello(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;",
-                "baseHello2(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;" };
+                "baseHello2(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;"};
         Set<String> methodNames = new HashSet<>();
         Collections.addAll(methodNames, methods);
         int count = 0;
@@ -76,7 +76,7 @@ public class DynamicInterfacePublishingTest {
 
         String[] methods = {
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/generated/beans/MyType;)Lorg/openl/generated/beans/MyType;",
-                "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;" };
+                "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;"};
         Set<String> methodNames = new HashSet<>();
         Collections.addAll(methodNames, methods);
         int count = 0;
@@ -105,14 +105,14 @@ public class DynamicInterfacePublishingTest {
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Class<?> myClassClass = service.getServiceClass()
-            .getClassLoader()
-            .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
+                .getClassLoader()
+                .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
         Object myClassInstance = myClassClass.getDeclaredConstructor().newInstance();
         Method setNameMethod = myClassClass.getMethod("setName", String.class);
         final String someValue = "someValue";
         setNameMethod.invoke(myClassInstance, someValue);
         Object result = frontend
-            .execute("dynamic-interface-test3", "method2", context, myClassInstance);
+                .execute("dynamic-interface-test3", "method2", context, myClassInstance);
         assertTrue(myClassClass.isInstance(result));
         Method getNameMethod = myClassClass.getMethod("getName");
         Object name = getNameMethod.invoke(result);

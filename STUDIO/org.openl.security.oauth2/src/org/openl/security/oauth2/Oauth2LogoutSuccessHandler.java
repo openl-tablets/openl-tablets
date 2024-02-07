@@ -32,8 +32,8 @@ public class Oauth2LogoutSuccessHandler extends SecurityContextLogoutHandler imp
     /**
      * Causes a logout to be completed. Call logoutSuccessHandler.
      *
-     * @param request the HTTP request
-     * @param response the HTTP response
+     * @param request        the HTTP request
+     * @param response       the HTTP response
      * @param authentication the current principal details
      */
     @Override

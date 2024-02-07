@@ -17,10 +17,9 @@ import org.openl.gen.FieldDescription;
 public class EqualsWriter extends DefaultBeanByteCodeWriter {
 
     /**
-     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param allFields collection of fields for current class and parent`s ones.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param allFields           collection of fields for current class and parent`s ones.
      */
     public EqualsWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, null, allFields);
@@ -102,7 +101,7 @@ public class EqualsWriter extends DefaultBeanByteCodeWriter {
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitTypeInsn(Opcodes.CHECKCAST, getBeanNameWithPackage());
         mv.visitVarInsn(Opcodes.ASTORE, 2);
-        mv.visitFrame(Opcodes.F_APPEND, 1, new Object[] { getBeanNameWithPackage() }, 0, null);
+        mv.visitFrame(Opcodes.F_APPEND, 1, new Object[]{getBeanNameWithPackage()}, 0, null);
     }
 
     private void falseIfDifferentClassNames(MethodVisitor mv) {

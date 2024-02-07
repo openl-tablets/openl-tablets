@@ -43,8 +43,8 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
-             Consumer<User> syncUserData,
-             BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                Consumer<User> syncUserData,
+                                                BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -52,7 +52,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
 
     /**
      * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
-     * 
+     *
      * @param responseToken ResponseToken from the IDP
      * @return Saml2Authentication
      */
@@ -136,13 +136,13 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
             }
 
             return SimpleUser.builder()
-                .setFirstName(getAttributeAsString(firstNameAttribute))
-                .setLastName(getAttributeAsString(lastNameAttribute))
-                .setUsername(StringUtils.isBlank(usernameAttribute) ? username : getAttributeAsString(usernameAttribute))
-                .setPrivileges(grantedAuthorities)
-                .setEmail(getAttributeAsString(emailAttribute))
-                .setDisplayName(getAttributeAsString(displayNameAttribute))
-                .build();
+                    .setFirstName(getAttributeAsString(firstNameAttribute))
+                    .setLastName(getAttributeAsString(lastNameAttribute))
+                    .setUsername(StringUtils.isBlank(usernameAttribute) ? username : getAttributeAsString(usernameAttribute))
+                    .setPrivileges(grantedAuthorities)
+                    .setEmail(getAttributeAsString(emailAttribute))
+                    .setDisplayName(getAttributeAsString(displayNameAttribute))
+                    .build();
         }
 
         private String getAttributeAsString(String key) {

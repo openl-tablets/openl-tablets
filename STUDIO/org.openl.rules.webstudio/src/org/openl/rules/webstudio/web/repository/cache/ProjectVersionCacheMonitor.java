@@ -43,8 +43,8 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         group.setName(relevantSystemWideGrantedAuthority.getAuthority());
         SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
         this.relevantSystemWideGrantedAuthority = new UsernamePasswordAuthenticationToken(principal,
-            "",
-            principal.getAuthorities());
+                "",
+                principal.getAuthorities());
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
                 versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
-                    .getVersions());
+                        .getVersions());
             }
         } else {
             versions.addAll(project.getVersions());
@@ -97,16 +97,16 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             }
 
             String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
-                projectVersion.getVersionName(),
-                projectVersion.getVersionInfo().getCreatedAt(),
-                ProjectVersionH2CacheDB.RepoType.DESIGN);
+                    projectVersion.getVersionName(),
+                    projectVersion.getVersionInfo().getCreatedAt(),
+                    ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
                 Repository repo = project.getRepository();
                 String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
                 AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
-                    branch,
-                    project.getRealPath(),
-                    projectVersion.getVersionName());
+                        branch,
+                        project.getRealPath(),
+                        projectVersion.getVersionName());
                 if (designProject.isDeleted()) {
                     continue;
                 }
@@ -149,7 +149,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     /**
      * @see <a href=
-     *      "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
+     * "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
      */
     public synchronized void release() {
         if (scheduledPool == null) {

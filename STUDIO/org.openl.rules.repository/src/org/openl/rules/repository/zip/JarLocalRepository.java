@@ -92,7 +92,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
     }
 
     private Stream<Resource> getResources(String fileName) throws IOException {
-        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX  + fileName;
+        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
         return Stream.of(resourceResolver.getResources(locationPattern));
     }
 

@@ -26,7 +26,7 @@ abstract class String2IntegersConvertor<T extends Number> extends String2NumberC
 
     private void throwException(Number number) {
         throw new NumberFormatException(
-            String.format("The number '%s' is out of the range [%s]", number, min + "...+" + max));
+                String.format("The number '%s' is out of the range [%s]", number, min + "...+" + max));
     }
 
     abstract T toNumber(long number);

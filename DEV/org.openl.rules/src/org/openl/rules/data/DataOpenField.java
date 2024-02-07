@@ -21,7 +21,7 @@ public class DataOpenField extends AOpenField {
 
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
         super(table.getDataModel().getName(),
-            table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
+                table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
         this.table = table;
         this.data = table.getDataArray();
         this.nodeType = table.getTableSyntaxNode().getNodeType();

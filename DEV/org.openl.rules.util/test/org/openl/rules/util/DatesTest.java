@@ -226,7 +226,7 @@ public class DatesTest {
     }
 
     @Test
-    public void isLeap(){
+    public void isLeap() {
         assertTrue(Dates.isLeap(Dates.Date(2016, 2, 29)));
         assertFalse(Dates.isLeap(Dates.Date(2017, 2, 28)));
         assertFalse(Dates.isLeap(Dates.Date(1900, 2, 28)));

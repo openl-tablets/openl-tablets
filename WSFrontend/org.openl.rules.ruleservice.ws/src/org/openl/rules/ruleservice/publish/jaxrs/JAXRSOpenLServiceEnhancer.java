@@ -11,7 +11,6 @@ import org.openl.runtime.ASMProxyFactory;
  * Utility class for generate JAXRS annotations for service interface.
  *
  * @author Marat Kamalov
- *
  */
 public final class JAXRSOpenLServiceEnhancer {
 
@@ -20,19 +19,19 @@ public final class JAXRSOpenLServiceEnhancer {
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         ClassLoader classLoader = service.getClassLoader();
         Class<?> enhancedServiceClass = JAXRSOpenLServiceEnhancerHelper.enhanceInterface(serviceClass,
-            service.getServiceBean(),
-            classLoader,
-            service.isProvideRuntimeContext(),
-            service.isProvideVariations()
+                service.getServiceBean(),
+                classLoader,
+                service.isProvideRuntimeContext(),
+                service.isProvideVariations()
         );
         if (enhancedServiceClass.getPackage() == null) {
             throw new IllegalStateException("Package cannot be null");
         }
 
         Map<Method, Method> methodMap = JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass,
-            enhancedServiceClass);
+                enhancedServiceClass);
         return ASMProxyFactory.newProxyInstance(classLoader,
-            new JAXRSMethodHandler(service.getServiceBean(), methodMap),
-            enhancedServiceClass);
+                new JAXRSMethodHandler(service.getServiceBean(), methodMap),
+                enhancedServiceClass);
     }
 }

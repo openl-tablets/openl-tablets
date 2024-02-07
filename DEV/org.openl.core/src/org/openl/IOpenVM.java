@@ -10,7 +10,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenVM {
 

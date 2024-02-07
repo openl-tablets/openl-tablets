@@ -24,7 +24,7 @@ public class OpenApiController {
 
     /**
      * Gets generated OpenAPI schema as JSON string
-     * 
+     *
      * @return json string
      */
     @GetMapping(value = "/openapi.json", produces = MediaType.APPLICATION_JSON_VALUE)

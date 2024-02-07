@@ -39,11 +39,11 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> map = value instanceof Map ? (Map<String, Object>) value : Map.of();
                     createOrUpdateCell(tableBody,
-                        buildCellKey(col++, row),
-                        map.get(SmartRulesTableReader.RANGE_RULE_MIN));
+                            buildCellKey(col++, row),
+                            map.get(SmartRulesTableReader.RANGE_RULE_MIN));
                     createOrUpdateCell(tableBody,
-                        buildCellKey(col++, row),
-                        map.get(SmartRulesTableReader.RANGE_RULE_MAX));
+                            buildCellKey(col++, row),
+                            map.get(SmartRulesTableReader.RANGE_RULE_MAX));
                 } else {
                     createOrUpdateCell(tableBody, buildCellKey(col++, row), value);
                 }
@@ -93,7 +93,7 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
             table.getGridTable().edit();
             var tableBody = table.getGridTable(IXlsTableNames.VIEW_BUSINESS);
             var headers = SmartRulesTableReader
-                .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
+                    .getConditionHeaders(LogicalTableHelper.logicalTable(tableBody.getRow(0)));
             int row = IGridRegion.Tool.height(tableBody.getRegion());
             for (var rule : tableAppend.getRules()) {
                 int col = 0;
@@ -103,11 +103,11 @@ public class SmartRulesWriter extends ExecutableTableWriter<SmartRulesView> {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> map = value instanceof Map ? (Map<String, Object>) value : Map.of();
                         createOrUpdateCell(tableBody,
-                            buildCellKey(col++, row),
-                            map.get(SmartRulesTableReader.RANGE_RULE_MIN));
+                                buildCellKey(col++, row),
+                                map.get(SmartRulesTableReader.RANGE_RULE_MIN));
                         createOrUpdateCell(tableBody,
-                            buildCellKey(col++, row),
-                            map.get(SmartRulesTableReader.RANGE_RULE_MAX));
+                                buildCellKey(col++, row),
+                                map.get(SmartRulesTableReader.RANGE_RULE_MAX));
                     } else {
                         createOrUpdateCell(tableBody, buildCellKey(col++, row), value);
                     }

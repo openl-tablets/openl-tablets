@@ -12,7 +12,6 @@ import org.openl.util.CategorizedMap;
 
 /**
  * @author snshor
- *
  */
 public class TypeFactoryConfiguration extends AConfigurationElement implements IConfigurationElement {
 
@@ -23,8 +22,8 @@ public class TypeFactoryConfiguration extends AConfigurationElement implements I
     }
 
     public IOpenClass getType(String namespace,
-            String name,
-            IConfigurableResourceContext cxt) throws AmbiguousTypeException {
+                              String name,
+                              IConfigurableResourceContext cxt) throws AmbiguousTypeException {
         NameSpacedTypeConfiguration lib = (NameSpacedTypeConfiguration) map.get(namespace);
         return lib == null ? null : lib.getType(name, cxt);
     }

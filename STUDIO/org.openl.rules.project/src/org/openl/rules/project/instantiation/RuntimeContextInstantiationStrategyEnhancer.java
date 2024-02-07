@@ -78,7 +78,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
     @Override
     protected ASMProxyHandler makeMethodHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
-            getOriginalInstantiationStrategy().getInstanceClass());
+                getOriginalInstantiationStrategy().getInstanceClass());
         return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);
     }
 
@@ -86,7 +86,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
      * Gets methods map where keys are interface class methods and values - original service class methods.
      *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass original service class
+     * @param serviceClass   original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) {
@@ -100,7 +100,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
             String interfaceMethodName = serviceMethod.getName();
             Class<?>[] serviceMethodParameterTypes = serviceMethod.getParameterTypes();
 
-            Class<?>[] newParams = new Class<?>[] { IRulesRuntimeContext.class };
+            Class<?>[] newParams = new Class<?>[]{IRulesRuntimeContext.class};
             Class<?>[] extendedParamTypes = ArrayUtils.addAll(newParams, serviceMethodParameterTypes);
 
             Method interfaceMethod;

@@ -14,15 +14,15 @@ import javax.validation.constraints.Pattern;
  * @author Vladyslav Pikus
  */
 @Target({ElementType.METHOD,
-  ElementType.FIELD,
-  ElementType.ANNOTATION_TYPE,
-  ElementType.CONSTRUCTOR,
-  ElementType.PARAMETER,
-  ElementType.TYPE_USE})
+        ElementType.FIELD,
+        ElementType.ANNOTATION_TYPE,
+        ElementType.CONSTRUCTOR,
+        ElementType.PARAMETER,
+        ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Pattern.List({@Pattern(regexp = "[^.].*[^.]|[^.]", message = "{openl.constraints.username.2.message}"),
-  @Pattern(regexp = "((?:.|\u2028|\u2029|\r|\n)(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
-  @Pattern(regexp = "([^/\\\\:*?\"<>|{}~^%;\u2028\u2029\\s])*", message = "{openl.constraints.username.3.message}")})
+        @Pattern(regexp = "((?:.|\u2028|\u2029|\r|\n)(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
+        @Pattern(regexp = "([^/\\\\:*?\"<>|{}~^%;\u2028\u2029\\s])*", message = "{openl.constraints.username.3.message}")})
 @Constraint(validatedBy = {})
 public @interface UsernameConstraints {
     String message() default "";

@@ -17,10 +17,10 @@ public class ColumnMatchBoundNode extends AMethodBasedNode {
     private final IOpenSourceCodeModule nameOfAlgorithm;
 
     public ColumnMatchBoundNode(TableSyntaxNode tsn,
-            OpenL openl,
-            IOpenMethodHeader header,
-            ModuleOpenClass module,
-            IOpenSourceCodeModule nameOfAlgorithm) {
+                                OpenL openl,
+                                IOpenMethodHeader header,
+                                ModuleOpenClass module,
+                                IOpenSourceCodeModule nameOfAlgorithm) {
         super(tsn, openl, header, module);
 
         this.nameOfAlgorithm = nameOfAlgorithm;

@@ -43,7 +43,7 @@ import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.
- *         <p/>
+ * <p/>
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
@@ -269,7 +269,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
             String systemValueDescriptor = systemPropDef.getSystemValueDescriptor();
             if (userMode.equals("single") && systemValueDescriptor
-                .equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+                    .equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
                 continue;
             }
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {

@@ -38,17 +38,17 @@ public class SimpleNodeUsage implements NodeUsage {
     }
 
     public SimpleNodeUsage(IdentifierNode identifierNode,
-            String description,
-            String uri,
-            IOpenClass type,
-            NodeType nodeType) {
+                           String description,
+                           String uri,
+                           IOpenClass type,
+                           NodeType nodeType) {
         this.nodeType = nodeType;
         this.start = identifierNode.getLocation()
-            .getStart()
-            .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
+                .getStart()
+                .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
         this.end = identifierNode.getLocation()
-            .getEnd()
-            .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
+                .getEnd()
+                .getAbsolutePosition(new TextInfo(identifierNode.getIdentifier()));
         this.description = description;
         this.uri = uri;
         this.type = extractRootType(type);
@@ -101,7 +101,7 @@ public class SimpleNodeUsage implements NodeUsage {
         }
         SimpleNodeUsage that = (SimpleNodeUsage) o;
         return start == that.start && end == that.end && Objects.equals(description, that.description) && Objects
-            .equals(uri, that.uri) && nodeType == that.nodeType;
+                .equals(uri, that.uri) && nodeType == that.nodeType;
     }
 
     @Override

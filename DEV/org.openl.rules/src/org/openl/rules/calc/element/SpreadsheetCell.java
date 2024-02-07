@@ -76,8 +76,8 @@ public class SpreadsheetCell implements Invokable {
 
     public boolean isDefaultPrimitiveCell() {
         return type != null && !(type instanceof DomainOpenClass) && type.getInstanceClass() != null && type
-            .getInstanceClass()
-            .isPrimitive() && isEmpty();
+                .getInstanceClass()
+                .isPrimitive() && isEmpty();
     }
 
     public void setMethod(IOpenMethod method) {

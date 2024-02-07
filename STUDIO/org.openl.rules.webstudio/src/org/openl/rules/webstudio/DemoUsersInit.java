@@ -48,11 +48,11 @@ public class DemoUsersInit {
 
     private void initUser(String user, String email, String displayName, String... groups) {
         userManagementService.addUser(user,
-            null,
-            null,
-            user,
-            email,
-            displayName
+                null,
+                null,
+                user,
+                email,
+                displayName
         );
         userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
 

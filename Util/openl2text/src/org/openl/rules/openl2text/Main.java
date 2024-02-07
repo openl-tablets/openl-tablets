@@ -33,50 +33,50 @@ public class Main implements Runnable {
     @Parameters(index = "0..*", description = "Input files or folders")
     private List<File> inputFiles;
 
-    @CommandLine.Option(names = { "-o", "--output-dir" }, description = "Output directory path")
+    @CommandLine.Option(names = {"-o", "--output-dir"}, description = "Output directory path")
     private File outputDir;
 
     @CommandLine.Option(names = {
-            "--omit-types" }, description = "Specifies whether to exclude details of table arguments in the output")
+            "--omit-types"}, description = "Specifies whether to exclude details of table arguments in the output")
     private boolean omitTypes;
 
     @CommandLine.Option(names = {
-            "--types-deep" }, description = "Specifies how many levels of types to include in the output")
+            "--types-deep"}, description = "Specifies how many levels of types to include in the output")
     private int maxTypesDeep = 1;
 
     @CommandLine.Option(names = {
-            "--aliases-as-base" }, description = "Specifies whether to replace Alias types with base type in the output")
+            "--aliases-as-base"}, description = "Specifies whether to replace Alias types with base type in the output")
     private boolean replaceAliasesWithBaseTypes;
 
     @CommandLine.Option(names = {
-            "--include-dimensional-properties" }, description = "Specifies whether to include dimensional properties in the output")
+            "--include-dimensional-properties"}, description = "Specifies whether to include dimensional properties in the output")
     private boolean includeDimensionalProperties;
 
     @CommandLine.Option(names = {
-            "--omit-method-refs" }, description = "Specifies whether to exclude details of referenced methods in the output")
+            "--omit-method-refs"}, description = "Specifies whether to exclude details of referenced methods in the output")
     private boolean omitMethodRefs;
 
     @CommandLine.Option(names = {
-            "--include-all-rules-methods" }, description = "Specifies whether to include all rules methods details in the output")
+            "--include-all-rules-methods"}, description = "Specifies whether to include all rules methods details in the output")
     private boolean includeAllRulesMethods;
 
-    @CommandLine.Option(names = { "--table-as-code" }, description = "Present tables as pseudo-code")
+    @CommandLine.Option(names = {"--table-as-code"}, description = "Present tables as pseudo-code")
     private boolean tableAsCode;
 
     @CommandLine.Option(names = {
-            "--omit-dispatching-methods" }, description = "If specified only one method from dispatching methods will be included in the output")
+            "--omit-dispatching-methods"}, description = "If specified only one method from dispatching methods will be included in the output")
     private boolean omitDispatchingMethods;
 
     @CommandLine.Option(names = {
-            "--only-method-cells" }, description = "If specified only method cells will be included in the output. This option is ignored if --table-as-code is not specified.")
+            "--only-method-cells"}, description = "If specified only method cells will be included in the output. This option is ignored if --table-as-code is not specified.")
     private boolean onlyMethodCells;
 
     @CommandLine.Option(names = {
-            "--max-rows" }, description = "Specifies maximum number of rows to include in the output. If not specified all rows will be included.")
+            "--max-rows"}, description = "Specifies maximum number of rows to include in the output. If not specified all rows will be included.")
     private int maxRows;
 
     @CommandLine.Option(names = {
-            "--parsing-mode" }, description = "If specified the tables will not be compiled. This option can be used if Excel file contains non OpenL Tablets rules")
+            "--parsing-mode"}, description = "If specified the tables will not be compiled. This option can be used if Excel file contains non OpenL Tablets rules")
     private boolean parsingMode;
 
     private Path tempDirectory;
@@ -130,8 +130,8 @@ public class Main implements Runnable {
 
     public static void createZipFromFolder(Path folderPath, Path zipFilePath) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(zipFilePath.toFile());
-                ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
-                Stream<Path> pathStream = Files.walk(folderPath)) {
+             ZipOutputStream zipOutputStream = new ZipOutputStream(fileOutputStream);
+             Stream<Path> pathStream = Files.walk(folderPath)) {
             pathStream.forEach(file -> {
                 try {
                     String entryName = folderPath.relativize(file).toString().replace('\\', '/');
@@ -165,19 +165,19 @@ public class Main implements Runnable {
                     Path tempOutDirectory = createTempDirectory();
                     try {
                         OpenL2TextCommand extractor = new OpenL2TextCommand(entry,
-                            tempDirectory,
-                            tempOutDirectory,
-                            omitTypes,
-                            maxTypesDeep,
-                            replaceAliasesWithBaseTypes,
-                            includeDimensionalProperties,
-                            omitMethodRefs,
-                            includeAllRulesMethods,
-                            omitDispatchingMethods,
-                            tableAsCode,
-                            onlyMethodCells,
-                            maxRows,
-                            parsingMode);
+                                tempDirectory,
+                                tempOutDirectory,
+                                omitTypes,
+                                maxTypesDeep,
+                                replaceAliasesWithBaseTypes,
+                                includeDimensionalProperties,
+                                omitMethodRefs,
+                                includeAllRulesMethods,
+                                omitDispatchingMethods,
+                                tableAsCode,
+                                onlyMethodCells,
+                                maxRows,
+                                parsingMode);
                         extractor.run();
                         // Create a zip file from tempOutDirectory in the output directory, tar has a limitation of 100
                         // chars for file names
@@ -212,7 +212,7 @@ public class Main implements Runnable {
 
     private boolean isExcelFile(File file) {
         return file.getName().endsWith(".xls") || file.getName().endsWith(".xlsx") || file.getName()
-            .endsWith(".xlsm") || file.getName().endsWith(".xlsb");
+                .endsWith(".xlsm") || file.getName().endsWith(".xlsb");
     }
 
     // Don't use FilesUtils from commons-io because it doesn't work on Windows with space in the end of the path
@@ -227,8 +227,8 @@ public class Main implements Runnable {
                     Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     log.error("An error occurred while copying the directory '{}' to the directory '{}'.",
-                        source.getFileName(),
-                        targetDir.getFileName(), e);
+                            source.getFileName(),
+                            targetDir.getFileName(), e);
                 }
             });
         }
@@ -242,7 +242,7 @@ public class Main implements Runnable {
             } catch (IOException e) {
                 log.error("An error occurred while copying the directory '{}' to the temporary directory.",
                         directory.getName(),
-                    e);
+                        e);
             }
         } else {
             log.warn("Skipping '{}' as it is not a rules project.", directory.getName());
@@ -316,7 +316,7 @@ public class Main implements Runnable {
             // Check if the project descriptor file exists no need to rename the folder because project name is used
             // from the project descriptor file
             if (!Files.exists(
-                folderToExtract.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME))) {
+                    folderToExtract.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME))) {
                 // Rename the folder
                 String newFolderName = zipFile.getName();
                 // Remove the extension if any
@@ -326,18 +326,18 @@ public class Main implements Runnable {
                 }
                 if (Files.exists(tempDirectory.resolve(newFolderName))) {
                     log.warn("Cannot rename the folder '{}' to '{}' as the folder already exists.",
-                        folderToExtract.getFileName(),
-                        newFolderName);
+                            folderToExtract.getFileName(),
+                            newFolderName);
                 } else {
                     // Rename the folder to the name of the zip file without the extension (if any)
                     try {
                         Files.move(folderToExtract,
-                            tempDirectory.resolve(newFolderName),
-                            StandardCopyOption.REPLACE_EXISTING);
+                                tempDirectory.resolve(newFolderName),
+                                StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
                         log.error("An error occurred while renaming the folder '{}' to '{}'",
-                            folderToExtract.getFileName(),
-                            newFolderName, e);
+                                folderToExtract.getFileName(),
+                                newFolderName, e);
                     }
                 }
             }

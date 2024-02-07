@@ -49,9 +49,9 @@ public class WorkspaceCompileController {
             ProjectModel model = webStudio.getModel();
             ProjectCompilationStatus status = model.getCompilationStatus();
             List<MessageDescription> messages = status.getAllMessage()
-                .stream()
-                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                    .collect(Collectors.toList());
             response.dataType("new");
             if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
                 MessageDescription messageDescription = messages.get(messageIndex);
@@ -68,10 +68,10 @@ public class WorkspaceCompileController {
             response.modulesCount(status.getModulesCount());
             response.modulesCompiled(status.getModulesCompiled());
             response.compilationCompleted(
-                model.isProjectCompilationCompleted() || model.getModuleInfo() != null && model.getModuleInfo()
-                    .getWebstudioConfiguration() != null && model.getModuleInfo()
-                        .getWebstudioConfiguration()
-                        .isCompileThisModuleOnly());
+                    model.isProjectCompilationCompleted() || model.getModuleInfo() != null && model.getModuleInfo()
+                            .getWebstudioConfiguration() != null && model.getModuleInfo()
+                            .getWebstudioConfiguration()
+                            .isCompileThisModuleOnly());
         }
         return response.build();
     }
@@ -92,9 +92,9 @@ public class WorkspaceCompileController {
                     for (IOpenMethod test : allTests) {
                         TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
                         tableDescriptions
-                            .add(new TableBean.TableDescription(webStudio.url("table", syntaxNode.getUri()),
-                                syntaxNode.getId(),
-                                getTestName(test)));
+                                .add(new TableBean.TableDescription(webStudio.url("table", syntaxNode.getUri()),
+                                        syntaxNode.getId(),
+                                        getTestName(test)));
                     }
                     tableDescriptions.sort(Comparator.comparing(TableBean.TableDescription::getName));
                 }
@@ -118,7 +118,7 @@ public class WorkspaceCompileController {
         response.count(CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         response.compiled(!model.isCompilationInProgress());
         response.tableRunState(
-            !model.isProjectCompilationCompleted() ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
+                !model.isProjectCompilationCompleted() ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
         return response.build();
     }
 
@@ -165,24 +165,24 @@ public class WorkspaceCompileController {
             if (warnings.size() >= MAX_PROBLEMS) {
                 warnings = warnings.subList(0, MAX_PROBLEMS);
                 warnings.add(OpenLMessagesUtils
-                    .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+                        .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
             }
             if (errors.size() >= MAX_PROBLEMS) {
                 errors = errors.subList(0, MAX_PROBLEMS);
                 errors.add(OpenLMessagesUtils
-                    .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+                        .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
             }
 
             // if the current table is a test then check tested target tables on errors.
             List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
             for (TableBean.TableDescription targetTable : OpenLTableLogic
-                .getTargetTables(table, model, !projectCompilationCompleted)) {
+                    .getTargetTables(table, model, !projectCompilationCompleted)) {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                     if (!TableRunState.CANNOT_RUN.equals(state) && model
-                        .getOpenedModuleMessagesByTsn(targetTable.getUri(), Severity.ERROR)
-                        .isEmpty()) {
+                            .getOpenedModuleMessagesByTsn(targetTable.getUri(), Severity.ERROR)
+                            .isEmpty()) {
                         state = TableRunState.CAN_RUN_MODULE;
                     } else {
                         state = TableRunState.CANNOT_RUN;

@@ -38,10 +38,10 @@ public class UserManagementService {
     private final JdbcMutableAclService aclService;
 
     public UserManagementService(UserDao userDao,
-            GroupDao groupDao,
-            SessionRegistry sessionRegistry,
-            PasswordEncoder passwordEncoder,
-            JdbcMutableAclService aclService) {
+                                 GroupDao groupDao,
+                                 SessionRegistry sessionRegistry,
+                                 PasswordEncoder passwordEncoder,
+                                 JdbcMutableAclService aclService) {
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.sessionRegistry = sessionRegistry;
@@ -63,11 +63,11 @@ public class UserManagementService {
     }
 
     public void addUser(String user,
-            String firstName,
-            String lastName,
-            String password,
-            String email,
-            String displayName) {
+                        String firstName,
+                        String lastName,
+                        String password,
+                        String email,
+                        String displayName) {
         User persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
@@ -92,13 +92,13 @@ public class UserManagementService {
             persistUser.setLoginName(user);
         }
         UserExternalFlags flags = UserExternalFlags.builder()
-            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
-            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
-            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
-            .applyFeature(Feature.EMAIL_VERIFIED,
-                StringUtils.isNotBlank(email) || persistUser.getUserExternalFlags().isEmailVerified())
-            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
-            .build();
+                .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
+                .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
+                .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
+                .applyFeature(Feature.EMAIL_VERIFIED,
+                        StringUtils.isNotBlank(email) || persistUser.getUserExternalFlags().isEmailVerified())
+                .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
+                .build();
 
         if (!flags.isDisplayNameExternal() && !isNewUser) {
             displayName = persistUser.getDisplayName();
@@ -131,12 +131,12 @@ public class UserManagementService {
     }
 
     public void updateUserData(String user,
-            String firstName,
-            String lastName,
-            String password,
-            String email,
-            String displayName,
-            boolean emailVerified) {
+                               String firstName,
+                               String lastName,
+                               String password,
+                               String email,
+                               String displayName,
+                               boolean emailVerified) {
         User persistUser = userDao.getUserByName(user);
         final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
         persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
@@ -144,8 +144,8 @@ public class UserManagementService {
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
         persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
         persistUser.setFlags(UserExternalFlags.builder(persistUser.getFlags())
-            .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
-            .getRawFeatures());
+                .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
+                .getRawFeatures());
         if (StringUtils.isNotBlank(password)) {
             persistUser.setPasswordHash(passwordEncoder.encode(password));
         }
@@ -204,35 +204,35 @@ public class UserManagementService {
      */
     public boolean isUserOnline(String username) {
         return sessionRegistry.getAllPrincipals().stream().map(principal -> {
-            if (principal instanceof UserDetails) {
-                UserDetails userDetails = (UserDetails) principal;
-                if (Objects.equals(username, userDetails.getUsername())) {
-                    return principal;
-                }
-            } else if (principal instanceof AuthenticatedPrincipal) {
-                AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
-                if (Objects.equals(username, authPrincipal.getName())) {
-                    return principal;
-                }
-            }
-            return null;
-        })
-            .filter(Objects::nonNull)
-            .findFirst()
-            .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
-            .orElse(Boolean.FALSE);
+                    if (principal instanceof UserDetails) {
+                        UserDetails userDetails = (UserDetails) principal;
+                        if (Objects.equals(username, userDetails.getUsername())) {
+                            return principal;
+                        }
+                    } else if (principal instanceof AuthenticatedPrincipal) {
+                        AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
+                        if (Objects.equals(username, authPrincipal.getName())) {
+                            return principal;
+                        }
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
+                .orElse(Boolean.FALSE);
     }
 
     private org.openl.rules.security.User createSecurityUser(User user) {
         return SimpleUser.builder()
-            .setFirstName(user.getFirstName())
-            .setLastName(user.getSurname())
-            .setUsername(user.getLoginName())
-            .setPasswordHash(user.getPasswordHash())
-            .setPrivileges(PrivilegesEvaluator.createPrivileges(user))
-            .setEmail(user.getEmail())
-            .setDisplayName(user.getDisplayName())
-            .setExternalFlags(user.getUserExternalFlags())
-            .build();
+                .setFirstName(user.getFirstName())
+                .setLastName(user.getSurname())
+                .setUsername(user.getLoginName())
+                .setPasswordHash(user.getPasswordHash())
+                .setPrivileges(PrivilegesEvaluator.createPrivileges(user))
+                .setEmail(user.getEmail())
+                .setDisplayName(user.getDisplayName())
+                .setExternalFlags(user.getUserExternalFlags())
+                .build();
     }
 }

@@ -5,6 +5,7 @@ import org.openl.ie.constrainer.impl.IntExpImpl;
 //
 //: IntExpConst.java
 //
+
 /**
  * An implementation of the constant integer expression. Many methods from IntExpImpl are overloaded with optimized
  * implementation.
@@ -50,7 +51,7 @@ public class IntExpConst extends IntExpImpl {
 
     /**
      * @param value The value to be checked
-     * @return (value == const)
+     * @return (value = = const)
      */
     @Override
     final public boolean contains(int value) {
@@ -98,7 +99,6 @@ public class IntExpConst extends IntExpImpl {
 
     /**
      * Do nothig in this release
-     *
      */
 
     @Override
@@ -106,7 +106,6 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     *
      * @param value the value to be compared with "const"
      * @throws Failure if value is equal to "const". Do nothing otherwise
      */
@@ -162,7 +161,6 @@ public class IntExpConst extends IntExpImpl {
     }
 
     /**
-     *
      * @return "const"
      */
     @Override

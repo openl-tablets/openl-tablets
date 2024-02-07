@@ -20,7 +20,7 @@ public final class XlsWorkbooksMatcher {
      * Match sheets from two workbooks
      *
      * @param baseWorkbook fist workbook
-     * @param workbook second workbook
+     * @param workbook     second workbook
      * @return matching result
      */
     public static Map<String, XlsMatch> match(Workbook baseWorkbook, Workbook workbook) {

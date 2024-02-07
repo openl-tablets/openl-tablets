@@ -29,14 +29,14 @@ public class DecisionTableUtils {
             parseAndCollectIdentifierNodes(syntaxNode, new MutableBoolean(false), false, identifierNodes);
         }
         return identifierNodes.stream()
-            .map(e -> new ExpressionIdentifier(e.getIdentifier(), e.getLocation()))
-            .collect(Collectors.toList());
+                .map(e -> new ExpressionIdentifier(e.getIdentifier(), e.getLocation()))
+                .collect(Collectors.toList());
     }
 
     private static void parseAndCollectIdentifierNodes(ISyntaxNode node,
-            MutableBoolean chain,
-            boolean inChain,
-            List<IdentifierNode> identifierNodes) {
+                                                       MutableBoolean chain,
+                                                       boolean inChain,
+                                                       List<IdentifierNode> identifierNodes) {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
             final ISyntaxNode child = node.getChild(i);
             final String childType = child.getType();
@@ -60,7 +60,7 @@ public class DecisionTableUtils {
             } else if ("function".equals(childType)) {
                 parseAndCollectIdentifierNodes(child, new MutableBoolean(false), false, identifierNodes);
             } else if ("selectfirst.index".equals(childType) || "selectall.index".equals(childType) || "transform.index"
-                .equals(childType) || "transformunique.index".equals(childType)) {
+                    .equals(childType) || "transformunique.index".equals(childType)) {
                 parseAndCollectIdentifierNodes(child, new MutableBoolean(false), false, identifierNodes);
             } else {
                 parseAndCollectIdentifierNodes(node.getChild(i), chain, inChain, identifierNodes);

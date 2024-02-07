@@ -29,10 +29,10 @@ public class ExtendedStdDateFormat extends StdDateFormat {
     }
 
     private ExtendedStdDateFormat(String pattern,
-            TimeZone tz,
-            Locale loc,
-            Boolean lenient,
-            boolean formatTzOffsetWithColon) {
+                                  TimeZone tz,
+                                  Locale loc,
+                                  Boolean lenient,
+                                  boolean formatTzOffsetWithColon) {
 
         super(tz, loc, lenient, formatTzOffsetWithColon);
         this.pattern = pattern;
@@ -45,7 +45,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
      * 1) Use default implementation from {@link StdDateFormat#parse(String)} <br>
      * 2) Use defined date pattern <br>
      * </p>
-     * 
+     *
      * @param dateStr date to parse
      * @return parsed date object
      * @throws ParseException if the target string doesn't match any defined date format
@@ -60,7 +60,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
                 return super.parse(dateStr);
             } catch (ParseException e2) {
                 ParseException e = new ParseException(String.format(PARSE_ERROR_MSG, dateStr, getAllAllowedFormats()),
-                    e2.getErrorOffset());
+                        e2.getErrorOffset());
                 e.initCause(e2);
                 e.addSuppressed(e1);
                 throw e;
@@ -71,9 +71,9 @@ public class ExtendedStdDateFormat extends StdDateFormat {
     /**
      * Format {@link Date} using defined pattern.
      * {@see {@link SimpleDateFormat#format(Date, StringBuffer, FieldPosition)}}
-     * 
-     * @param date a Date to be formatted into a date/time string.
-     * @param toAppendTo the string buffer for the returning date/time string.
+     *
+     * @param date          a Date to be formatted into a date/time string.
+     * @param toAppendTo    the string buffer for the returning date/time string.
      * @param fieldPosition keeps track of the position of the field
      * @return the string buffer passed in as toAppendTo, with formatted text appended.
      */
@@ -106,7 +106,7 @@ public class ExtendedStdDateFormat extends StdDateFormat {
     /**
      * Create a new instance of {@link SimpleDateFormat}. <br>
      * NOTE: {@link SimpleDateFormat} is not thread save, so a new instance must be used every call
-     * 
+     *
      * @return new instance of {@link SimpleDateFormat}
      */
     private SimpleDateFormat cloneDateFormat() {

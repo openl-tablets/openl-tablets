@@ -83,6 +83,7 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
 
     /**
      * Get internal path to artifact without first segment
+     *
      * @return artifact path
      */
     ArtefactPath getInternalArtifactPath();

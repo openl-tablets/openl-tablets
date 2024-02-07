@@ -19,9 +19,9 @@ public class CombinedRangeIndex implements IRuleIndex {
     private final IOpenCast castToConditionType;
 
     public CombinedRangeIndex(RangeAscIndex minIndex,
-            RangeDescIndex maxIndex,
-            DecisionTableRuleNode nextNode,
-            IOpenCast expressionToParamOpenCast) {
+                              RangeDescIndex maxIndex,
+                              DecisionTableRuleNode nextNode,
+                              IOpenCast expressionToParamOpenCast) {
         this.nextNode = nextNode;
         this.minIndex = minIndex;
         this.maxIndex = maxIndex;

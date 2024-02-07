@@ -22,9 +22,9 @@ public class MethodDescription {
     /**
      * Initialize method description with given parameters
      *
-     * @param name method name
+     * @param name       method name
      * @param returnType method return type
-     * @param argsTypes method parameters
+     * @param argsTypes  method parameters
      * @throws NullPointerException if method name or return type is null
      */
     public MethodDescription(String name, Class<?> returnType, Class<?>[] argsTypes) {
@@ -34,35 +34,35 @@ public class MethodDescription {
     /**
      * Initialize method description with given parameters
      *
-     * @param name method name
-     * @param returnType method return type
-     * @param argsTypes method parameters
+     * @param name        method name
+     * @param returnType  method return type
+     * @param argsTypes   method parameters
      * @param annotations method annotation descriptions
      * @throws NullPointerException if method name or return type is null
      */
     public MethodDescription(String name,
-            Class<?> returnType,
-            Class<?>[] argsTypes,
-            AnnotationDescription[] annotations) {
+                             Class<?> returnType,
+                             Class<?>[] argsTypes,
+                             AnnotationDescription[] annotations) {
         this(name,
-            returnType.getName(),
-            Stream.of(argsTypes).map(argType -> new TypeDescription(argType.getName())).toArray(TypeDescription[]::new),
-            annotations);
+                returnType.getName(),
+                Stream.of(argsTypes).map(argType -> new TypeDescription(argType.getName())).toArray(TypeDescription[]::new),
+                annotations);
     }
 
     /**
      * Initialize method description with given parameters
      *
-     * @param name method name
-     * @param returnType method return type
-     * @param argsTypes method parameter descriptions
+     * @param name        method name
+     * @param returnType  method return type
+     * @param argsTypes   method parameter descriptions
      * @param annotations method annotation descriptions
      * @throws NullPointerException if method name or return type is null
      */
     public MethodDescription(String name,
-            String returnType,
-            TypeDescription[] argsTypes,
-            AnnotationDescription[] annotations) {
+                             String returnType,
+                             TypeDescription[] argsTypes,
+                             AnnotationDescription[] annotations) {
         Objects.requireNonNull(returnType, "Method return type is null.");
         this.name = Objects.requireNonNull(name, "Method name is null.");
         this.returnType = new TypeDescription(returnType);

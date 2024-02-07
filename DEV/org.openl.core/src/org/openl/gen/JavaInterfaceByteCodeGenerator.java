@@ -24,7 +24,7 @@ public class JavaInterfaceByteCodeGenerator {
      * Initialize java interface generator with given parameters
      *
      * @param nameWithPackage interface java name with package
-     * @param methods method descriptions to generate
+     * @param methods         method descriptions to generate
      */
     JavaInterfaceByteCodeGenerator(String nameWithPackage, List<MethodDescription> methods) {
         this.nameWithPackage = nameWithPackage.replace('.', '/');

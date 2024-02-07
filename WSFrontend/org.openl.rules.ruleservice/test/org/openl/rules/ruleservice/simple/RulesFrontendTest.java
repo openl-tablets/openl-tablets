@@ -19,8 +19,8 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesFrontendTest",
-  "ruleservice.isProvideRuntimeContext=false",
-  "production-repository.factory = repo-file"})
+        "ruleservice.isProvideRuntimeContext=false",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class RulesFrontendTest {
 
@@ -37,9 +37,9 @@ public class RulesFrontendTest {
         Collection<String> services = frontend.getServiceNames();
         assertNotNull(services);
         assertEquals(
-            new HashSet<>(
-                Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name", "RulesFrontendTest_multimodule")),
-            new HashSet<>(services));
+                new HashSet<>(
+                        Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name", "RulesFrontendTest_multimodule")),
+                new HashSet<>(services));
         assertEquals(3, services.size());
     }
 
@@ -65,7 +65,7 @@ public class RulesFrontendTest {
 
         serviceManager.undeploy("RulesFrontendTest/multimodule");
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
-            frontend.getServiceNames());
+                frontend.getServiceNames());
 
         try {
             frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);

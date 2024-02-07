@@ -34,9 +34,9 @@ public class AIServiceImpl implements AIService {
                     String[] parts = grpcAddress.split(":");
                     // Create a channel to connect to the server
                     this.channel = ManagedChannelBuilder.forAddress(parts[0], Integer.parseInt(parts[1]))
-                        .usePlaintext()
-                        .maxInboundMessageSize(1024 * 1024 * 1024) // 1GB
-                        .build();
+                            .usePlaintext()
+                            .maxInboundMessageSize(1024 * 1024 * 1024) // 1GB
+                            .build();
                 }
             }
         }

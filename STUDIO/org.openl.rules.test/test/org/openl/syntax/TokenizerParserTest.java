@@ -18,7 +18,6 @@ import org.openl.syntax.impl.Tokenizer;
 
 /**
  * @author snshor
- *
  */
 public class TokenizerParserTest {
 
@@ -39,7 +38,7 @@ public class TokenizerParserTest {
         long end = System.currentTimeMillis();
 
         log.info("Time: {} 1 run: {}mks per char: {}mks", (end - start), 1000.0 * (end - start) / n, 1000.0 * (end - start) / n / test
-            .length());
+                .length());
 
     }
 

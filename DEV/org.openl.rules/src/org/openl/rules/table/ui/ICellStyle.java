@@ -14,20 +14,18 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 /**
  * @author snshor Temporary we copy POI constants in here, we will provide more complicated mapping once we start using
- *         other libraries, if ever
+ * other libraries, if ever
  */
 public interface ICellStyle {
 
     int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
 
     /**
-     *
      * @return RGB colors for all border sides.
      */
     short[][] getBorderRGB();
 
     /**
-     *
      * @return styles for all border sides.
      */
     BorderStyle[] getBorderStyle();

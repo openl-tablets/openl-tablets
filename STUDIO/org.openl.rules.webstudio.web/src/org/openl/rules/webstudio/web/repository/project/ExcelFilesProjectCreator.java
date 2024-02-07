@@ -17,12 +17,12 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     private final String comment;
 
     public ExcelFilesProjectCreator(String repositoryId,
-        String projectName,
-        String projectFolder,
-        UserWorkspace userWorkspace,
-        String comment,
-        PathFilter pathFilter,
-        ProjectFile... files) {
+                                    String projectName,
+                                    String projectFolder,
+                                    UserWorkspace userWorkspace,
+                                    String comment,
+                                    PathFilter pathFilter,
+                                    ProjectFile... files) {
         super(projectName, projectFolder, userWorkspace);
         this.repositoryId = repositoryId;
         this.comment = comment;
@@ -33,9 +33,9 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(), repositoryId,
-            getProjectName(),
-            getProjectFolder(),
-            comment);
+                getProjectName(),
+                getProjectFolder(),
+                comment);
 
         if (files != null) {
             for (ProjectFile file : files) {

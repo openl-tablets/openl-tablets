@@ -14,13 +14,13 @@ public class OpenlProblemMessage {
     private final Severity severity;
 
     public OpenlProblemMessage(long id,
-            String summary,
-            boolean hasStacktrace,
-            String[] errorCode,
-            boolean hasLinkToCell,
-            String tableId,
-            String errorCell,
-            Severity severity) {
+                               String summary,
+                               boolean hasStacktrace,
+                               String[] errorCode,
+                               boolean hasLinkToCell,
+                               String tableId,
+                               String errorCell,
+                               Severity severity) {
         this.id = id;
         this.summary = summary;
         this.hasStacktrace = hasStacktrace;

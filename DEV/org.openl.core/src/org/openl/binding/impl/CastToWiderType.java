@@ -49,8 +49,8 @@ public final class CastToWiderType {
      * Find wider type for types type1 and type 2 and needed casts for them.
      *
      * @param castFactory binding context
-     * @param type1 first type
-     * @param type2 second type
+     * @param type1       first type
+     * @param type2       second type
      * @return cast information
      */
     public static CastToWiderType create(ICastFactory castFactory, IOpenClass type1, IOpenClass type2) {

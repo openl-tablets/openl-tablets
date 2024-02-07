@@ -48,7 +48,7 @@ public class ExcelFileBuilder {
 
     /**
      * Generating xlsx file with project which contains data types and spreadsheets.
-     * 
+     *
      * @param projectModel - model of the project.
      */
     public static void generateProject(ProjectModel projectModel) {
@@ -63,7 +63,7 @@ public class ExcelFileBuilder {
 
     /**
      * Generate project model to the the output stream.
-     * 
+     *
      * @param projectModel - model of the project with data types and spreadsheets.
      * @param outputStream - output stream, which contains result file.
      */
@@ -73,9 +73,9 @@ public class ExcelFileBuilder {
 
     /**
      * Generate data type to the output stream.
-     * 
+     *
      * @param datatypeModels - data type models.
-     * @param outputStream - output stream with models.
+     * @param outputStream   - output stream with models.
      */
     public static void generateDataTypes(Set<DatatypeModel> datatypeModels, OutputStream outputStream) {
         writeDataTypes(datatypeModels, outputStream);
@@ -87,9 +87,9 @@ public class ExcelFileBuilder {
 
     /**
      * Generate spreadsheets to the output stream.
-     * 
+     *
      * @param spreadsheetModels - spreadsheet models.
-     * @param outputStream - output stream with models.
+     * @param outputStream      - output stream with models.
      */
     public static void generateSpreadsheets(List<SpreadsheetModel> spreadsheetModels, OutputStream outputStream) {
         writeSpreadsheets(spreadsheetModels, outputStream);
@@ -99,18 +99,18 @@ public class ExcelFileBuilder {
      * Generate spreadsheets with environment.
      *
      * @param spreadsheetModels - spreadsheet models.
-     * @param outputStream - output stream with models.
+     * @param outputStream      - output stream with models.
      */
     public static void generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
-            List<DataModel> dataModels,
-            OutputStream outputStream,
-            EnvironmentModel model) {
+                                                List<DataModel> dataModels,
+                                                OutputStream outputStream,
+                                                EnvironmentModel model) {
         writeAlgorithmsModule(spreadsheetModels, dataModels, outputStream, model);
     }
 
     /**
      * Writing models to Excel file with styles from template.
-     * 
+     *
      * @param datatypeModels
      * @param outputStream
      */
@@ -158,7 +158,7 @@ public class ExcelFileBuilder {
 
     /**
      * Writing spreadsheets to Excel file with styles from template.
-     * 
+     *
      * @param spreadsheetModels
      * @param outputStream
      */
@@ -180,15 +180,15 @@ public class ExcelFileBuilder {
     }
 
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
-            SXSSFWorkbook workbook,
-            TableStyle tableStyle) {
+                                          SXSSFWorkbook workbook,
+                                          TableStyle tableStyle) {
         SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
         SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
         Set<String> reservedWords = spreadsheetModels.stream()
-            .map(SpreadsheetModel::getSteps)
-            .flatMap(Collection::stream)
-            .map(StepModel::getName)
-            .collect(Collectors.toSet());
+                .map(SpreadsheetModel::getSteps)
+                .flatMap(Collection::stream)
+                .map(StepModel::getName)
+                .collect(Collectors.toSet());
         editTextIfNeeded((SpreadsheetTableStyle) tableStyle, reservedWords);
         sprTableExporter.setTableStyle(tableStyle);
         sprTableExporter.export(spreadsheetModels, sprSheet);
@@ -223,9 +223,9 @@ public class ExcelFileBuilder {
     }
 
     private static void writeAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
-            List<DataModel> dataModels,
-            OutputStream outputStream,
-            EnvironmentModel environmentModel) {
+                                              List<DataModel> dataModels,
+                                              OutputStream outputStream,
+                                              EnvironmentModel environmentModel) {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
@@ -261,7 +261,7 @@ public class ExcelFileBuilder {
      * Writing project to Excel file with styles from template.
      *
      * @param projectModel - model of the project with data types, environment, spreadsheets
-     * @param fos - output stream.
+     * @param fos          - output stream.
      */
     private static void writeProject(ProjectModel projectModel, OutputStream fos) {
         SXSSFWorkbook tempWorkbook = null;
@@ -303,7 +303,7 @@ public class ExcelFileBuilder {
 
     /**
      * Make sheets readable.
-     * 
+     *
      * @param workbook - target document.
      */
     private static void autoSizeSheets(SXSSFWorkbook workbook) {
@@ -317,7 +317,7 @@ public class ExcelFileBuilder {
 
     /**
      * Normalize the width of the column.
-     * 
+     *
      * @param sheet
      */
     private static void autoSizeColumns(SXSSFSheet sheet) {

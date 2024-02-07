@@ -89,7 +89,7 @@ public class RunStoreLogDataITest {
     private static CqlSession cassandraSession;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
     @BeforeAll
     public static void setUp() throws Exception {
@@ -307,16 +307,16 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.RESULT));
 
         assertTrue(cassandraSession
-            .getMetadata()
-            .getKeyspace(KEYSPACE)
-            .get()
-            .getTable(helloEntity4TableName).isEmpty());
+                .getMetadata()
+                .getKeyspace(KEYSPACE)
+                .get()
+                .getTable(helloEntity4TableName).isEmpty());
 
         assertTrue(cassandraSession
-            .getMetadata()
-            .getKeyspace(KEYSPACE)
-            .get()
-            .getTable(helloEntity8TableName).isEmpty());
+                .getMetadata()
+                .getKeyspace(KEYSPACE)
+                .get()
+                .getTable(helloEntity8TableName).isEmpty());
         // H2
         String query = "SELECT * FROM " + h2HelloEntity1TableName;
         try (Statement stmt = h2Connection.createStatement()) {
@@ -413,70 +413,70 @@ public class RunStoreLogDataITest {
         client.send("simple4_Hello2");
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                List<Row> rows = getCassandraRows(helloEntity1TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                Row row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals("Hello2", row.getString(CassandraFields.METHOD_NAME));
-                assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> {
+                    List<Row> rows = getCassandraRows(helloEntity1TableName);
+                    if (rows.size() == 0) { // Table is created but row is not created
+                        return false;
+                    }
+                    assertEquals(1, rows.size());
+                    Row row = rows.iterator().next();
+                    assertNotNull(row.getString(CassandraFields.ID));
+                    assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+                    assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+                    assertEquals("Hello2", row.getString(CassandraFields.METHOD_NAME));
+                    assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
+                    assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+                    assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+                    assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
-                assertEquals(22, row.getInt(CassandraFields.INT_VALUE2));
-                assertEquals(22, row.getInt(CassandraFields.INT_VALUE3));
-                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE1));
-                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE2));
-                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE3));
-                assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
-                assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
-                return true;
-            }, equalTo(true));
+                    assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
+                    assertEquals(22, row.getInt(CassandraFields.INT_VALUE2));
+                    assertEquals(22, row.getInt(CassandraFields.INT_VALUE3));
+                    assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE1));
+                    assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE2));
+                    assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE3));
+                    assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
+                    assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
+                    return true;
+                }, equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                final String query = "SELECT * FROM " + h2HelloEntity1TableName;
-                try (Statement stmt = h2Connection.createStatement()) {
-                    ResultSet rs = stmt.executeQuery(query);
-                    int count = 0;
-                    while (rs.next()) {
-                        count++;
-                        if (count > 1) {
-                            break;
-                        }
-                        assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
-                        assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                        assertEquals("Hello2", rs.getString(DBFields.METHOD_NAME));
-                        assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
-                        assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
-                        assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
-                        assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    final String query = "SELECT * FROM " + h2HelloEntity1TableName;
+                    try (Statement stmt = h2Connection.createStatement()) {
+                        ResultSet rs = stmt.executeQuery(query);
+                        int count = 0;
+                        while (rs.next()) {
+                            count++;
+                            if (count > 1) {
+                                break;
+                            }
+                            assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
+                            assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
+                            assertEquals("Hello2", rs.getString(DBFields.METHOD_NAME));
+                            assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
+                            assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
+                            assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
+                            assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
 
-                        assertEquals(5, rs.getInt(DBFields.INT_VALUE1));
-                        assertEquals(22, rs.getInt(DBFields.INT_VALUE2));
-                        assertEquals(22, rs.getInt(DBFields.INT_VALUE3));
-                        assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE1));
-                        assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE2));
-                        assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE3));
-                        assertTrue(rs.getBoolean(DBFields.BOOL_VALUE1));
-                        assertEquals("22", rs.getString(DBFields.INT_VALUE_TO_STRING));
+                            assertEquals(5, rs.getInt(DBFields.INT_VALUE1));
+                            assertEquals(22, rs.getInt(DBFields.INT_VALUE2));
+                            assertEquals(22, rs.getInt(DBFields.INT_VALUE3));
+                            assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE1));
+                            assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE2));
+                            assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE3));
+                            assertTrue(rs.getBoolean(DBFields.BOOL_VALUE1));
+                            assertEquals("22", rs.getString(DBFields.INT_VALUE_TO_STRING));
+                        }
+                        assertEquals(1, count);
+                        return true;
                     }
-                    assertEquals(1, count);
-                    return true;
-                }
-            }, equalTo(true));
+                }, equalTo(true));
     }
 
     private static String getCassandraTableName(Class<?> entityClass) {
@@ -527,58 +527,58 @@ public class RunStoreLogDataITest {
         testKafka(producerRecord, "hello-out-topic-4", RESPONSE);
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                List<Row> rows = getCassandraRows(helloEntity1TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                Row row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
-                assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> {
+                    List<Row> rows = getCassandraRows(helloEntity1TableName);
+                    if (rows.size() == 0) { // Table is created but row is not created
+                        return false;
+                    }
+                    assertEquals(1, rows.size());
+                    Row row = rows.iterator().next();
+                    assertNotNull(row.getString(CassandraFields.ID));
+                    assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+                    assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+                    assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
+                    assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
+                    assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+                    assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+                    assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals("Hello", row.getString(CassandraFields.HEADER1));
-                assertEquals("testHeaderValue", row.getString(CassandraFields.HEADER2));
+                    assertEquals("Hello", row.getString(CassandraFields.HEADER1));
+                    assertEquals("testHeaderValue", row.getString(CassandraFields.HEADER2));
 
-                return true;
-            }, equalTo(true));
+                    return true;
+                }, equalTo(true));
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                final String query = "SELECT * FROM " + h2HelloEntity1TableName;
-                try (Statement stmt = h2Connection.createStatement()) {
-                    ResultSet rs = stmt.executeQuery(query);
-                    int count = 0;
-                    while (rs.next()) {
-                        count++;
-                        if (count > 1) {
-                            break;
-                        }
-                        assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
-                        assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                        assertEquals("Hello", rs.getString(DBFields.METHOD_NAME));
-                        assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
-                        assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
-                        assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
-                        assertEquals(PublisherType.KAFKA.toString(), rs.getString(DBFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> {
+                    final String query = "SELECT * FROM " + h2HelloEntity1TableName;
+                    try (Statement stmt = h2Connection.createStatement()) {
+                        ResultSet rs = stmt.executeQuery(query);
+                        int count = 0;
+                        while (rs.next()) {
+                            count++;
+                            if (count > 1) {
+                                break;
+                            }
+                            assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
+                            assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
+                            assertEquals("Hello", rs.getString(DBFields.METHOD_NAME));
+                            assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
+                            assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
+                            assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
+                            assertEquals(PublisherType.KAFKA.toString(), rs.getString(DBFields.PUBLISHER_TYPE));
 
-                        assertEquals("Hello", rs.getString(DBFields.HEADER1));
-                        assertEquals("testHeaderValue", rs.getString(DBFields.HEADER2));
+                            assertEquals("Hello", rs.getString(DBFields.HEADER1));
+                            assertEquals("testHeaderValue", rs.getString(DBFields.HEADER2));
+                        }
+                        assertEquals(1, count);
+                        return true;
                     }
-                    assertEquals(1, count);
-                    return true;
-                }
-            }, equalTo(true));
+                }, equalTo(true));
 
     }
 
@@ -596,8 +596,8 @@ public class RunStoreLogDataITest {
     }
 
     private void testKafka(ProducerRecord<String, String> producerRecord,
-            String outTopic,
-            Consumer<ConsumerRecord<String, String>> check ) {
+                           String outTopic,
+                           Consumer<ConsumerRecord<String, String>> check) {
         var servers = KAFKA_CONTAINER.getBootstrapServers();
         try (var producer = createKafkaProducer(servers); var consumer = createKafkaConsumer(servers)) {
             consumer.subscribe(Collections.singletonList(outTopic));

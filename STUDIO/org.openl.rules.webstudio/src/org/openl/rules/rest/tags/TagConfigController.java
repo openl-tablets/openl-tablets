@@ -90,7 +90,7 @@ public class TagConfigController {
     @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
     public ResponseEntity<Void> addTagType(@JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO,
-            HttpServletRequest request) {
+                                           HttpServletRequest request) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
     }
 
@@ -104,10 +104,10 @@ public class TagConfigController {
     }
 
     private ResponseEntity<Void> addOrUpdateTagType(final Long id,
-            final String name,
-            final Boolean nullable,
-            final Boolean extensible,
-            final HttpServletRequest request) {
+                                                    final String name,
+                                                    final Boolean nullable,
+                                                    final Boolean extensible,
+                                                    final HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
@@ -172,9 +172,9 @@ public class TagConfigController {
     }
 
     private ResponseEntity<Void> addOrUpdateTag(final Long tagTypeId,
-            final Long tagId,
-            final String name,
-            HttpServletRequest request) {
+                                                final Long tagId,
+                                                final String name,
+                                                HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;

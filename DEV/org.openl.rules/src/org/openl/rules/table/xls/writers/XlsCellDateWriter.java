@@ -22,10 +22,10 @@ public class XlsCellDateWriter extends AXlsCellWriter {
 
         CellStyle previousStyle = getCellToWrite().getCellStyle();
         getCellToWrite().setCellStyle(
-            PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
+                PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
         getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
         getCellToWrite().getCellStyle()
-            .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
+                .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
     }
 
 }

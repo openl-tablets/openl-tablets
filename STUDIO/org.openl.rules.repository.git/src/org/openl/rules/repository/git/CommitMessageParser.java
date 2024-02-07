@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Parses {@code {commit-type}}, {@code {user-message}} and {@code {username}} from git commit messages by given
  * template
- * 
+ *
  * @author Vladyslav Pikus
  */
 class CommitMessageParser {
@@ -21,10 +21,10 @@ class CommitMessageParser {
     private static final String COMMIT_TYPE_TOKEN = "{commit-type}";
     private static final String USER_MESSAGE_TOKEN = "{user-message}";
     private static final String USERNAME_TOKEN = "{username}";
-    private static final String[] TOKENS = { COMMIT_TYPE_TOKEN, USER_MESSAGE_TOKEN, USERNAME_TOKEN };
+    private static final String[] TOKENS = {COMMIT_TYPE_TOKEN, USER_MESSAGE_TOKEN, USERNAME_TOKEN};
     private static final String COMMIT_TYPES = Stream.of(CommitType.values())
-        .map(Enum::name)
-        .collect(Collectors.joining("|"));
+            .map(Enum::name)
+            .collect(Collectors.joining("|"));
 
     private final Pattern pattern;
 

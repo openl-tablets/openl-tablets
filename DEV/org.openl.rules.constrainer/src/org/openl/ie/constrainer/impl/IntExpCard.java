@@ -64,7 +64,7 @@ public final class IntExpCard extends IntExpImpl {
         _vars = vars;
 
         _indexes = (IntVarImpl) constrainer()
-            .addIntVarTraceInternal(0, size, "IX" + card_value, IntVar.DOMAIN_BIT_FAST);
+                .addIntVarTraceInternal(0, size, "IX" + card_value, IntVar.DOMAIN_BIT_FAST);
 
         int required_instances = 0;
         for (int i = 0; i < size; i++) {
@@ -80,9 +80,9 @@ public final class IntExpCard extends IntExpImpl {
         }
 
         _possible_required = constrainer().addIntVarTraceInternal(required_instances,
-            _indexes.size() - 1,
-            "PR" + card_value,
-            IntVar.DOMAIN_PLAIN
+                _indexes.size() - 1,
+                "PR" + card_value,
+                IntVar.DOMAIN_PLAIN
         );
 
         _indexes.attachObserver(new ObserverIndexes());

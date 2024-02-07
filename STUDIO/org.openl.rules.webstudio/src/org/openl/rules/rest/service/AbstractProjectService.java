@@ -48,12 +48,12 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     @Nonnull
     public List<ProjectViewModel> getProjects(ProjectCriteriaQuery query) {
         var criteriaFilter = buildFilterCriteria(query)
-            .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
-            .and(buildTagsFilterCriteria(query));
+                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
+                .and(buildTagsFilterCriteria(query));
         return getProjects0(query).filter(criteriaFilter)
-            .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
-            .map(this::mapProjectResponse)
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
+                .map(this::mapProjectResponse)
+                .collect(Collectors.toList());
     }
 
     @Nonnull
@@ -66,7 +66,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         Predicate<AProject> filter = ALL_PROJECTS;
         if (!query.getTags().isEmpty()) {
             filter = project -> projectService
-                .isProjectHasTags(project.getRepository().getId(), project.getRealPath(), query.getTags());
+                    .isProjectHasTags(project.getRepository().getId(), project.getRealPath(), query.getTags());
         }
         return filter;
     }
@@ -76,16 +76,16 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     protected ProjectViewModel mapProjectResponse(T src) {
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
-            .name(src.getBusinessName())
-            .id(buildProjectId(repository.getId(), src.getName()))
-            .repository(repository.getId());
+                .name(src.getBusinessName())
+                .id(buildProjectId(repository.getId(), src.getName()))
+                .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
             Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).ifPresent(builder::modifiedBy);
             Optional.ofNullable(fileData.getModifiedAt())
-                .map(Date::toInstant)
-                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-                .ifPresent(builder::modifiedAt);
+                    .map(Date::toInstant)
+                    .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+                    .ifPresent(builder::modifiedAt);
             Optional.ofNullable(fileData.getVersion()).ifPresent(builder::revision);
             Optional.ofNullable(fileData.getComment()).ifPresent(builder::comment);
         }

@@ -25,7 +25,7 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
             // Previously the cell was formatted as a date. Change format to number.
             CellStyle previousStyle = cellToWrite.getCellStyle();
             CellStyle newStyle = PoiExcelHelper
-                .createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook());
+                    .createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook());
             cellToWrite.setCellStyle(newStyle);
             newStyle.cloneStyleFrom(previousStyle);
             newStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.GENERAL_FORMAT));

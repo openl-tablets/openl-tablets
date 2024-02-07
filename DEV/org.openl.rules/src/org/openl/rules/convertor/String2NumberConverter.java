@@ -17,7 +17,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
     /**
      * Parse an input string to a number. If the input string is null then null will be returned.
      *
-     * @param data an input string to parse
+     * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
      * @return a number or null
      * @throws NumberFormatException if the specified string cannot be parsed
@@ -53,7 +53,7 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * check type of numbers.
      *
      * @param number a number
-     * @param data a parsed string to the number
+     * @param data   a parsed string to the number
      * @return a wrapped primitive type
      */
     abstract T convert(Number number, String data);

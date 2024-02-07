@@ -41,7 +41,7 @@ public class ZipCharsetDetector {
     /**
      * Create zip charset detector.
      *
-     * @param zipFilter path filter to filter out technical folders. If null, all files in the zip will be accepted.
+     * @param zipFilter    path filter to filter out technical folders. If null, all files in the zip will be accepted.
      * @param charsetNames contains additional charsets to check.
      */
     public ZipCharsetDetector(String[] charsetNames, PathFilter zipFilter) {
@@ -56,7 +56,7 @@ public class ZipCharsetDetector {
      *
      * @param source source for zip.
      * @return Detected encoding. If null is returned then it means that charset is not UTF-8 but charset cannot be
-     *         detected
+     * detected
      */
     public Charset detectCharset(ZipSource source) {
         return detectCharset(source, null);
@@ -66,10 +66,10 @@ public class ZipCharsetDetector {
      * Detect charset for given zip. File names will be compared with rules.xml if it exists. If it absents zip files
      * will be compared with <code>existingFiles</code>
      *
-     * @param source source for zip.
+     * @param source        source for zip.
      * @param existingFiles Existing file names to check. Can be null.
      * @return Detected encoding. If null is returned then it means that charset is not UTF-8 but charset cannot be
-     *         detected
+     * detected
      */
     public Charset detectCharset(ZipSource source, Collection<String> existingFiles) {
         // Check if zip stream can be opened with UTF-8 without error
@@ -92,8 +92,8 @@ public class ZipCharsetDetector {
             final List<String> defaultEntryNames = getEntryNames(source, defaultCharset);
 
             Collection<String> projectDescriptorFiles = getRulesXmlFiles(source,
-                defaultCharset,
-                new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
+                    defaultCharset,
+                    new RootFolderExtractor(new HashSet<>(defaultEntryNames), zipFilter));
 
             Collection<String> filesToCompare = new HashSet<>();
             if (projectDescriptorFiles != null) {
@@ -225,8 +225,8 @@ public class ZipCharsetDetector {
      * one folder) 3) Skip filtered out files
      *
      * @param entryNames all entry names
-     * @param from source charset
-     * @param to target charset
+     * @param from       source charset
+     * @param to         target charset
      * @return folder names as they must be located in the project from the root
      */
     private Collection<String> convertEntryNames(List<String> entryNames, Charset from, Charset to) {

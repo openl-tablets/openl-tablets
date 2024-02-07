@@ -67,8 +67,8 @@ public class GitRepositorySettings extends RepositorySettings {
         String id = prefixParts.length > 1 ? prefixParts[1] : "repository";
         // prefixParts.length must be always > 1
         String defaultLocalPath = localPath != null ? localPath
-                                                    : properties.getProperty(
-                                                        DynamicPropertySource.OPENL_HOME) + "/repositories/" + id;
+                : properties.getProperty(
+                DynamicPropertySource.OPENL_HOME) + "/repositories/" + id;
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
@@ -77,9 +77,9 @@ public class GitRepositorySettings extends RepositorySettings {
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).map(Integer::parseInt)
-            .orElse(null);
+                .orElse(null);
         connectionTimeout = Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).map(Integer::parseInt)
-            .orElse(null);
+                .orElse(null);
         failedAuthenticationSeconds = Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS))
                 .map(Integer::parseInt)
                 .orElse(null);
@@ -254,16 +254,16 @@ public class GitRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(URI,
-            LOGIN,
-            PASSWORD,
-            LOCAL_REPOSITORY_PATH,
-            BRANCH,
-            NEW_BRANCH_TEMPLATE,
-            NEW_BRANCH_REGEX,
-            NEW_BRANCH_REGEX_ERROR,
-            TAG_PREFIX,
-            LISTENER_TIMER_PERIOD,
-            PROTECTED_BRANCHES);
+                LOGIN,
+                PASSWORD,
+                LOCAL_REPOSITORY_PATH,
+                BRANCH,
+                NEW_BRANCH_TEMPLATE,
+                NEW_BRANCH_REGEX,
+                NEW_BRANCH_REGEX_ERROR,
+                TAG_PREFIX,
+                LISTENER_TIMER_PERIOD,
+                PROTECTED_BRANCHES);
         load(properties);
     }
 

@@ -24,9 +24,9 @@ public class AbstractConstraintValidatorTest {
     private MessageSource validationMessageSource;
 
     protected void assertFieldError(String expectedField,
-            String expectedMessage,
-            Object expectedRejectedValue,
-            FieldError actualError) {
+                                    String expectedMessage,
+                                    Object expectedRejectedValue,
+                                    FieldError actualError) {
 
         assertEquals(expectedField, actualError.getField());
         assertEquals(expectedRejectedValue, actualError.getRejectedValue());

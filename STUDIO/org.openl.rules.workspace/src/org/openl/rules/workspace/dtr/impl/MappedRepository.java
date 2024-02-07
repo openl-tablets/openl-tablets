@@ -59,8 +59,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     public static Repository create(Repository delegate,
-            String baseFolder,
-            RepositorySettings repositorySettings) throws IOException {
+                                    String baseFolder,
+                                    RepositorySettings repositorySettings) throws IOException {
         MappedRepository mappedRepository = null;
         try {
             mappedRepository = new MappedRepository();
@@ -152,9 +152,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         FileData check = delegate.check(toInternal(mapping, name));
         if (check != null && delegate.supports().versions()) {
             Optional<ProjectInfo> project = externalToInternal.getProjects()
-                .stream()
-                .filter(p -> name.equals(baseFolder + getMappedName(p)))
-                .findFirst();
+                    .stream()
+                    .filter(p -> name.equals(baseFolder + getMappedName(p)))
+                    .findFirst();
             check.setDeleted(project.isPresent() && project.get().isArchived());
         }
         return toExternal(mapping, check);
@@ -246,13 +246,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public List<FileData> listHistory(String name,
-            String globalFilter,
-            boolean techRevs,
-            Pageable pageable) throws IOException {
+                                      String globalFilter,
+                                      boolean techRevs,
+                                      Pageable pageable) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         return toExternal(mapping,
-            ((SearchableRepository) delegate)
-                .listHistory(toInternal(mapping, name), globalFilter, techRevs, pageable));
+                ((SearchableRepository) delegate)
+                        .listHistory(toInternal(mapping, name), globalFilter, techRevs, pageable));
     }
 
     @Override
@@ -314,7 +314,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         }
 
         return toExternal(mapping,
-            delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
+                delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version));
     }
 
     @Override
@@ -351,8 +351,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     @Override
     public FileData save(FileData folderData,
-            Iterable<FileItem> files,
-            ChangesetType changesetType) throws IOException {
+                         Iterable<FileItem> files,
+                         ChangesetType changesetType) throws IOException {
         ProjectIndex mapping;
         if (isUpdateConfigNeeded(folderData)) {
             mapping = updateConfigFile(folderData);
@@ -360,17 +360,17 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             mapping = getUpToDateMapping(true);
         }
         return toExternal(mapping,
-            delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType));
+                delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType));
     }
 
     @Override
     public Features supports() {
         return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
-            .setMappedFolders(true)
-            .setFolders(delegate.supports().folders())
-            .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
-            .setSearchable(delegate.supports().searchable())
-            .build();
+                .setMappedFolders(true)
+                .setFolders(delegate.supports().folders())
+                .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+                .setSearchable(delegate.supports().searchable())
+                .build();
     }
 
     @Override
@@ -474,13 +474,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             }
             ProjectIndex externalToInternal = getUpToDateMapping(false);
             List<ProjectInfo> projectsWithSameName = externalToInternal.getProjects()
-                .stream()
-                .filter(p -> p.getName().equals(project.getName()))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(p -> p.getName().equals(project.getName()))
+                    .collect(Collectors.toList());
             if (!projectsWithSameName.isEmpty()) {
                 if (projectsWithSameName.stream().anyMatch(p -> p.getPath().equals(project.getPath()))) {
                     throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
-                        .getPath() + "\" is already imported.");
+                            .getPath() + "\" is already imported.");
                 }
             }
             externalToInternal.getProjects().add(project);
@@ -497,7 +497,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         try {
             ProjectIndex externalToInternal = getUpToDateMapping(false);
             externalToInternal.getProjects()
-                .removeIf(projectInfo -> external.equals(baseFolder + getMappedName(projectInfo)));
+                    .removeIf(projectInfo -> external.equals(baseFolder + getMappedName(projectInfo)));
 
             saveProjectIndex(externalToInternal);
         } finally {
@@ -512,7 +512,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             return projectIndex.getProjects().stream().filter(p -> internalPath.equals(p.getPath())).findFirst();
         } else {
             String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
-                                                                : data.getName();
+                    : data.getName();
             return projectIndex.getProjects().stream().filter(p -> name.equals(getMappedName(p))).findFirst();
         }
     }
@@ -532,8 +532,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * Check if mapping should be refreshed and if should, read it from file.
      *
      * @param withLock if true and refresh is needed then lock file will be created during reading. If false, lock
-     *            should be managed outside. If refresh is not needed, lock file will not be created, this flag doesn't
-     *            matter.
+     *                 should be managed outside. If refresh is not needed, lock file will not be created, this flag doesn't
+     *                 matter.
      */
     private ProjectIndex getUpToDateMapping(boolean withLock) throws IOException {
         boolean modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
@@ -559,8 +559,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     private Iterable<FileItem> toInternal(final ProjectIndex mapping,
-            FileData folderData,
-            final Iterable<FileItem> files) {
+                                          FileData folderData,
+                                          final Iterable<FileItem> files) {
         return () -> new Iterator<FileItem>() {
             private final Iterator<FileItem> delegate = files.iterator();
 
@@ -662,9 +662,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         data.setName(name);
 
         Optional<ProjectInfo> project = externalToInternal.getProjects()
-            .stream()
-            .filter(p -> name.equals(baseFolder + getMappedName(p)))
-            .findFirst();
+                .stream()
+                .filter(p -> name.equals(baseFolder + getMappedName(p)))
+                .findFirst();
         data.setDeleted(project.isPresent() && project.get().isArchived());
 
         return data;
@@ -698,15 +698,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     /**
      * Load mapping from properties file.
      *
-     * @param delegate original repository
+     * @param delegate   original repository
      * @param configFile properties file
      * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
     private ProjectIndex readExternalToInternalMap(Repository delegate,
-            String configFile,
-            String baseFolder) throws IOException {
+                                                   String configFile,
+                                                   String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
         FileItem fileItem = repositorySettings.getRepository().read(configFile);
         if (fileItem == null) {
@@ -719,7 +719,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         }
 
         try (InputStream stream = fileItem.getStream();
-                InputStreamReader in = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
+             InputStreamReader in = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             ProjectIndex projectIndex = mapper.readValue(in, ProjectIndex.class);
             if (projectIndex != null) {
                 return projectIndex;
@@ -731,7 +731,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
 
     private boolean syncProjectIndex(Repository delegate, ProjectIndex projectIndex) throws IOException {
         boolean modified = false;
-        for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext();) {
+        for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
             ProjectInfo project = iterator.next();
 
             if (delegate.check(project.getPath()) == null) {
@@ -739,8 +739,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                 iterator.remove();
                 modified = true;
                 log.info("Sync project index: remove project '{}' with path '{}'",
-                    project.getName(),
-                    project.getPath());
+                        project.getName(),
+                        project.getPath());
             } else {
                 Date modifiedAt = project.getModifiedAt();
                 String fullName = project.getPath() + "/rules.xml";
@@ -756,8 +756,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                             project.setName(getProjectName(is));
                         }
                         log.info("Sync project index: update name to '{}' the project in path '{}'",
-                            project.getName(),
-                            project.getPath());
+                                project.getName(),
+                                project.getPath());
                         modified = true;
                     }
                 } else {
@@ -770,15 +770,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                         project.setName(folderName);
                         modified = true;
                         log.info("Sync project index: update name to '{}' the project in path '{}'",
-                            project.getName(),
-                            project.getPath());
+                                project.getName(),
+                                project.getPath());
                     } else {
                         if (!project.getName().equals(folderName)) {
                             project.setName(folderName);
                             modified = true;
                             log.info("Sync project index: update name to '{}' the project in path {}",
-                                project.getName(),
-                                project.getPath());
+                                    project.getName(),
+                                    project.getPath());
                         }
                     }
                 }
@@ -815,12 +815,12 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * {@link ArtefactProperties#DESCRIPTORS_FILE}. If there are several projects with same name, suffix will be added
      * to them
      *
-     * @param delegate repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
+     * @param delegate   repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
      * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return generated mapping
      */
     private ProjectIndex generateExternalToInternalMap(Repository delegate,
-            String baseFolder) throws IOException {
+                                                       String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
         List<FileData> allFiles = delegate.list("");
         for (FileData fileData : allFiles) {
@@ -884,7 +884,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             Optional<ProjectInfo> project = findProject(projectIndex, folderData);
             String externalPath = mappingData.getExternalPath();
             String projectName = externalPath.startsWith(baseFolder) ? externalPath.substring(baseFolder.length())
-                                                                     : externalPath;
+                    : externalPath;
             if (project.isPresent()) {
                 project.get().setName(projectName);
             } else {
@@ -935,11 +935,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         if (mappingData != null) {
             String internalPath = mappingData.getInternalPath();
             String externalPath = baseFolder + getUpToDateMapping(true).getProjects()
-                .stream()
-                .filter(p -> p.getPath().equals(internalPath))
-                .findFirst()
-                .map(this::getMappedName)
-                .orElse("");
+                    .stream()
+                    .filter(p -> p.getPath().equals(internalPath))
+                    .findFirst()
+                    .map(this::getMappedName)
+                    .orElse("");
             return !externalPath.equals(mappingData.getExternalPath());
         }
         return false;
@@ -1000,9 +1000,9 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             mapping = externalToInternal.copy();
         }
         Optional<ProjectInfo> projectInfo = mapping.getProjects()
-            .stream()
-            .filter(p -> internalPath.equals(p.getPath()) || internalPath.startsWith(p.getPath() + "/"))
-            .findFirst();
+                .stream()
+                .filter(p -> internalPath.equals(p.getPath()) || internalPath.startsWith(p.getPath() + "/"))
+                .findFirst();
         return projectInfo.map(p -> {
             String mappedProjectName = baseFolder + getMappedName(p);
             if (internalPath.equals(p.getPath())) {

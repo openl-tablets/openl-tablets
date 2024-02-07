@@ -28,7 +28,7 @@ public final class DuplicateMemberThrowExceptionHelper {
      * Throw the error with the right message for the case when the methods are equal
      */
     public static void throwDuplicateMethodExceptionIfMethodsAreNotTheSame(IOpenMethod newOpenMethod,
-            IOpenMethod existedOpenMethod) {
+                                                                           IOpenMethod existedOpenMethod) {
         newOpenMethod = extractOriginalMethod(newOpenMethod);
         existedOpenMethod = extractOriginalMethod(existedOpenMethod);
 
@@ -36,12 +36,12 @@ public final class DuplicateMemberThrowExceptionHelper {
             return;
         }
         if (existedOpenMethod.getSignature().getNumberOfParameters() != newOpenMethod.getSignature()
-            .getNumberOfParameters()) {
+                .getNumberOfParameters()) {
             throw new IllegalStateException("Method signatures are not the same");
         }
         for (int i = 0; i < existedOpenMethod.getSignature().getNumberOfParameters(); i++) {
             if (!Objects.equals(existedOpenMethod.getSignature().getParameterType(i).getInstanceClass(),
-                newOpenMethod.getSignature().getParameterType(i).getInstanceClass())) {
+                    newOpenMethod.getSignature().getParameterType(i).getInstanceClass())) {
                 throw new IllegalStateException("Method signatures are not the same");
             }
         }
@@ -60,11 +60,11 @@ public final class DuplicateMemberThrowExceptionHelper {
             // Case module names where not set to the methods
             if (canBeDispatched) {
                 message = String.format(
-                    "Method '%s' is already used with the same version, active status, properties set.",
-                    MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
+                        "Method '%s' is already used with the same version, active status, properties set.",
+                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
             } else {
                 message = String.format("Method '%s' is already used.",
-                    MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
+                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR));
             }
         } else {
             // Case when the module names where set to the methods
@@ -72,26 +72,26 @@ public final class DuplicateMemberThrowExceptionHelper {
                 String[] moduleNames = modules.stream().sorted().toArray(String[]::new);
                 if (canBeDispatched) {
                     message = String.format(
-                        "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
-                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        moduleNames[0],
-                        moduleNames[1]);
+                            "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
+                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                            moduleNames[0],
+                            moduleNames[1]);
                 } else {
                     message = String.format("Method '%s' is already used in modules '%s' and '%s'.",
-                        existedOpenMethod.getName(),
-                        moduleNames[0],
-                        moduleNames[1]);
+                            existedOpenMethod.getName(),
+                            moduleNames[0],
+                            moduleNames[1]);
                 }
             } else {
                 if (canBeDispatched) {
                     message = String.format(
-                        "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
-                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        modules.iterator().next());
+                            "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
+                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                            modules.iterator().next());
                 } else {
                     message = String.format("Method '%s' is already used in module '%s'.",
-                        MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        modules.iterator().next());
+                            MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
+                            modules.iterator().next());
                 }
             }
         }

@@ -12,7 +12,7 @@ public class ProjectResolverTest {
     public void testStrategySelection() {
         ProjectResolver resolver = ProjectResolver.getInstance();
         assertTrue(resolver
-            .isRulesProject(new File("test-resources/descriptor")) instanceof ProjectDescriptorBasedResolvingStrategy);
+                .isRulesProject(new File("test-resources/descriptor")) instanceof ProjectDescriptorBasedResolvingStrategy);
         assertTrue(resolver.isRulesProject(new File("test-resources/excel")) instanceof SimpleXlsResolvingStrategy);
     }
 }

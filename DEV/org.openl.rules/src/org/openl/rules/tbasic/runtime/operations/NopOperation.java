@@ -11,7 +11,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  * Empty operation. Do nothing.
  *
  * @author User
- *
  */
 public class NopOperation extends RuntimeOperation {
 

@@ -97,9 +97,9 @@ public class GitRepositoryTest {
             File file2 = createNewFile(rulesFolder, "file2", "Hello.");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                .setMessage("Initial commit in test branch")
-                .setCommitter("User 1", "user1@email.to")
-                .call();
+                    .setMessage("Initial commit in test branch")
+                    .setCommitter("User 1", "user1@email.to")
+                    .call();
             addTag(git, commit, 2);
 
             // create second commit
@@ -107,10 +107,10 @@ public class GitRepositoryTest {
             createNewFile(new File(rulesFolder, "folder"), "file3", "In folder");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                .setAll(true)
-                .setMessage("Second modification")
-                .setCommitter("User 2", "user2@email.to")
-                .call();
+                    .setAll(true)
+                    .setMessage("Second modification")
+                    .setCommitter("User 2", "user2@email.to")
+                    .call();
             addTag(git, commit, 3);
 
             // create commit in master
@@ -118,9 +118,9 @@ public class GitRepositoryTest {
             createNewFile(rulesFolder, "file1master", "root");
             git.add().addFilepattern(".").call();
             commit = git.commit()
-                .setMessage("Additional commit in master")
-                .setCommitter("User 1", "user1@email.to")
-                .call();
+                    .setMessage("Additional commit in master")
+                    .setCommitter("User 1", "user1@email.to")
+                    .call();
             addTag(git, commit, 4);
         }
     }
@@ -325,8 +325,8 @@ public class GitRepositoryTest {
     @Test
     public void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
-            new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-            new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+                new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -444,7 +444,7 @@ public class GitRepositoryTest {
 
         // Check that the project is archived in secondary branch too
         assertTrue(repo2.check(name).isDeleted(),
-            "In repository with flat folder structure deleted status should be gotten from main branch");
+                "In repository with flat folder structure deleted status should be gotten from main branch");
 
         // Undelete the project
         assertTrue(repo.deleteHistory(archived));
@@ -455,7 +455,7 @@ public class GitRepositoryTest {
 
         // Check that the project is undeleted in secondary branch too
         assertFalse(repo2.check(name).isDeleted(),
-            "In repository with flat folder structure deleted status should be gotten from main branch");
+                "In repository with flat folder structure deleted status should be gotten from main branch");
 
         // Check that old archived version is still deleted.
         assertTrue(repo.checkHistory(name, archived.getVersion()).isDeleted());
@@ -648,18 +648,18 @@ public class GitRepositoryTest {
             FileData saved2;
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 saved2 = repository2.save(createFileData("rules/project-second/file2", text),
-                    IOUtils.toInputStream(text));
+                        IOUtils.toInputStream(text));
             }
 
             // First user does not suspect that second user already committed his changes
             FileData saved1 = repository1.save(createFileData("rules/project-first/file1", text),
-                IOUtils.toInputStream(text));
+                    IOUtils.toInputStream(text));
 
             // Check that the changes of both users are persist and merged
             assertNotEquals(saved1.getVersion(), saved2.getVersion(), "Versions of two changes must be different.");
             assertEquals(7,
-                repository1.list("").size(),
-                "5 files existed and 2 files must be added (must be 7 files in total).");
+                    repository1.list("").size(),
+                    "5 files existed and 2 files must be added (must be 7 files in total).");
             assertEquals("Rules_6", saved1.getVersion());
             assertEquals("Rules_5", saved2.getVersion());
             assertEquals(repository1.check(saved1.getName()).getVersion(), "Rules_6");
@@ -683,7 +683,7 @@ public class GitRepositoryTest {
         final String filePath = "rules/project1/file2";
 
         try (GitRepository repository1 = createRepository(remote, local1);
-                GitRepository repository2 = createRepository(remote, local2)) {
+             GitRepository repository2 = createRepository(remote, local2)) {
             try {
                 baseCommit = repository1.check(filePath).getVersion();
                 // First user commit
@@ -708,19 +708,19 @@ public class GitRepositoryTest {
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
-                    repository2.check(filePath).getVersion(),
-                    "Their changes were reverted in local repository");
+                        repository2.check(filePath).getVersion(),
+                        "Their changes were reverted in local repository");
 
                 assertNotEquals(e.getYourCommit(),
-                    repository2.check(filePath).getVersion(),
-                    "Our conflicted commit must be reverted but it exists.");
+                        repository2.check(filePath).getVersion(),
+                        "Our conflicted commit must be reverted but it exists.");
 
                 String text2 = "foo\nbaz";
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
 
                 List<FileItem> resolveConflicts = Collections
-                    .singletonList(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
+                        .singletonList(new FileItem(filePath, IOUtils.toInputStream(resolveText)));
 
                 FileData fileData = createFileData(filePath, text2);
                 fileData.setVersion(baseCommit);
@@ -746,8 +746,8 @@ public class GitRepositoryTest {
                 } catch (MergeConflictException ex) {
                     // Check that their changes are still present in repository.
                     assertEquals(localData.getVersion(),
-                        repository2.check(filePath).getVersion(),
-                        "Their changes were reverted in local repository");
+                            repository2.check(filePath).getVersion(),
+                            "Their changes were reverted in local repository");
                 }
             }
         }
@@ -772,7 +772,7 @@ public class GitRepositoryTest {
         final String filePath = "rules/project1/file2";
 
         try (GitRepository repository1 = createRepository(remote, local1);
-                GitRepository repository2 = createRepository(remote, local2)) {
+             GitRepository repository2 = createRepository(remote, local2)) {
             baseCommit = repository1.check(filePath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
@@ -798,8 +798,8 @@ public class GitRepositoryTest {
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals(e.getYourCommit(),
-                    repository2.check(filePath).getVersion(),
-                    "Our conflicted commit must be reverted but it exists.");
+                        repository2.check(filePath).getVersion(),
+                        "Our conflicted commit must be reverted but it exists.");
             }
         }
     }
@@ -818,15 +818,15 @@ public class GitRepositoryTest {
 
         final String conflictedFile = "rules/project1/file2";
         try (GitRepository repository1 = createRepository(remote, local1);
-                GitRepository repository2 = createRepository(remote, local2)) {
+             GitRepository repository2 = createRepository(remote, local2)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
                 String text1 = "foo\nbar";
                 List<FileItem> changes1 = Arrays.asList(
-                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+                        new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                        new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
                 FileData folderData1 = new FileData();
                 folderData1.setName("rules/project1");
@@ -839,8 +839,8 @@ public class GitRepositoryTest {
                 // Second user commit (our). Will merge with first user's change (their).
                 String text2 = "foo\nbaz";
                 List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
+                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
@@ -861,23 +861,23 @@ public class GitRepositoryTest {
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
-                    repository2.check(conflictedFile).getVersion(),
-                    "Their changes were reverted in local repository");
+                        repository2.check(conflictedFile).getVersion(),
+                        "Their changes were reverted in local repository");
 
                 assertNotEquals(e.getYourCommit(),
-                    repository2.check(conflictedFile).getVersion(),
-                    "Our conflicted commit must be reverted but it exists.");
+                        repository2.check(conflictedFile).getVersion(),
+                        "Our conflicted commit must be reverted but it exists.");
 
                 String text2 = "foo\nbaz";
                 String resolveText = "foo\nbar\nbaz";
                 String mergeMessage = "Merge with " + theirCommit;
 
                 List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
+                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
                 List<FileItem> resolveConflicts = Collections
-                    .singletonList(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
+                        .singletonList(new FileItem(conflictedFile, IOUtils.toInputStream(resolveText)));
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
@@ -885,7 +885,7 @@ public class GitRepositoryTest {
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
-                    .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                        .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
                 FileData localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
                 FileItem remoteItem = repository2.read(conflictedFile);
@@ -904,8 +904,8 @@ public class GitRepositoryTest {
                 try {
                     String text3 = "test\nbaz";
                     List<FileItem> changes3 = Arrays.asList(
-                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                        new FileItem(conflictedFile, IOUtils.toInputStream(text3)));
+                            new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                            new FileItem(conflictedFile, IOUtils.toInputStream(text3)));
 
                     FileData folderData3 = new FileData();
                     folderData3.setName("rules/project1");
@@ -917,8 +917,8 @@ public class GitRepositoryTest {
                 } catch (MergeConflictException ex) {
                     // Check that their changes are still present in repository.
                     assertEquals(localData.getVersion(),
-                        repository2.check(conflictedFile).getVersion(),
-                        "Their changes were reverted in local repository");
+                            repository2.check(conflictedFile).getVersion(),
+                            "Their changes were reverted in local repository");
                 }
             }
         }
@@ -938,15 +938,15 @@ public class GitRepositoryTest {
 
         final String conflictedFile = "rules/project1/file2";
         try (GitRepository repository1 = createRepository(remote, local1);
-                GitRepository repository2 = createRepository(remote, local2)) {
+             GitRepository repository2 = createRepository(remote, local2)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
                 String text1 = "foo\nbar";
                 List<FileItem> changes1 = Arrays.asList(
-                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+                        new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                        new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
                 FileData folderData1 = new FileData();
                 folderData1.setName("rules/project1");
@@ -958,8 +958,8 @@ public class GitRepositoryTest {
 
                 // Second user commit (our). Will merge with first user's change (their).
                 List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, null));
+                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, null));
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
@@ -980,18 +980,18 @@ public class GitRepositoryTest {
 
                 // Check that their changes are still present in repository.
                 assertEquals(theirCommit,
-                    repository2.check(conflictedFile).getVersion(),
-                    "Their changes were reverted in local repository");
+                        repository2.check(conflictedFile).getVersion(),
+                        "Their changes were reverted in local repository");
 
                 assertNotEquals(e.getYourCommit(),
-                    repository2.check(conflictedFile).getVersion(),
-                    "Our conflicted commit must be reverted but it exists.");
+                        repository2.check(conflictedFile).getVersion(),
+                        "Our conflicted commit must be reverted but it exists.");
 
                 String mergeMessage = "Merge with " + theirCommit;
 
                 List<FileItem> changes2 = Arrays.asList(
-                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                    new FileItem(conflictedFile, null));
+                        new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                        new FileItem(conflictedFile, null));
 
                 List<FileItem> resolveConflicts = Collections.singletonList(new FileItem(conflictedFile, null));
 
@@ -1001,7 +1001,7 @@ public class GitRepositoryTest {
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
-                    .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
+                        .addAdditionalData(new ConflictResolveData(e.getTheirCommit(), resolveConflicts, mergeMessage));
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
                 FileItem remoteItem = repository2.read(conflictedFile);
@@ -1024,14 +1024,14 @@ public class GitRepositoryTest {
 
         final String conflictedFile = "rules/project1/file2";
         try (GitRepository repository1 = createRepository(remote, local1);
-                GitRepository repository2 = createRepository(remote, local2)) {
+             GitRepository repository2 = createRepository(remote, local2)) {
             baseCommit = repository1.check(folderPath).getVersion();
             // First user commit
             String text1 = "foo\nbar";
             List<FileItem> changes1 = Arrays.asList(
-                new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
-                new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-                new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
+                    new FileItem("rules/project1/file1", IOUtils.toInputStream("Modified")),
+                    new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text1)));
 
             FileData folderData1 = new FileData();
             folderData1.setName("rules/project1");
@@ -1044,8 +1044,8 @@ public class GitRepositoryTest {
             // Second user commit (our). Will merge with first user's change (their).
             String text2 = "foo\nbaz";
             List<FileItem> changes2 = Arrays.asList(
-                new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
-                new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
+                    new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
+                    new FileItem(conflictedFile, IOUtils.toInputStream(text2)));
 
             FileData folderData2 = new FileData();
             folderData2.setName("rules/project1");
@@ -1066,8 +1066,8 @@ public class GitRepositoryTest {
 
             try (GitRepository repository2 = createRepository(remote, local2)) {
                 assertNotEquals(e.getYourCommit(),
-                    repository2.check(conflictedFile).getVersion(),
-                    "Our conflicted commit must be reverted but it exists.");
+                        repository2.check(conflictedFile).getVersion(),
+                        "Our conflicted commit must be reverted but it exists.");
             }
         }
     }
@@ -1077,7 +1077,7 @@ public class GitRepositoryTest {
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
         assertListEquals(Arrays.asList("test", "project1/test1", "project1/test2"),
-            repo.getBranches(FOLDER_IN_REPOSITORY));
+                repo.getBranches(FOLDER_IN_REPOSITORY));
 
         // Don't close "project1/test1" and "project1/test2" repositories explicitly.
         // Secondary repositories should be closed by parent repository automatically.
@@ -1145,10 +1145,10 @@ public class GitRepositoryTest {
             writeText(file2, "Modify on remote server");
             git.add().addFilepattern(".").call();
             RevCommit commit = git.commit()
-                .setAll(true)
-                .setMessage("Second modification")
-                .setCommitter("User 2", "user2@email.to")
-                .call();
+                    .setAll(true)
+                    .setMessage("Second modification")
+                    .setCommitter("User 2", "user2@email.to")
+                    .call();
             // Fetch must not fail if some tag is added.
             addTag(git, commit, 42);
         }
@@ -1212,8 +1212,8 @@ public class GitRepositoryTest {
         assertNotNull(newBranchRepo.check(newPath), "The file '" + newPath + "' must exist in '" + newBranch + "'");
         // Check that pull is invoked on correct branch and that 'new-branch' is not merged into 'test'.
         assertNull(
-            repo.check(newPath),
-            "The file '" + newPath + "' must be absent in '" + BRANCH + "', because the branch '" + newBranch + "' wasn't merged yet.");
+                repo.check(newPath),
+                "The file '" + newPath + "' must be absent in '" + BRANCH + "', because the branch '" + newBranch + "' wasn't merged yet.");
     }
 
     @Test
@@ -1245,11 +1245,11 @@ public class GitRepositoryTest {
 
         // Check that 'branch1' and 'branch2' aren't merged into 'test'
         assertNull(
-            repo.check(path1),
-            "The file '" + path1 + "' must be absent in '" + BRANCH + "', because the branch '" + branch1 + "' wasn't merged yet.");
+                repo.check(path1),
+                "The file '" + path1 + "' must be absent in '" + BRANCH + "', because the branch '" + branch1 + "' wasn't merged yet.");
         assertNull(
-            repo.check(path2),
-            "The file '" + path2 + "' must be absent in '" + BRANCH + "', because the branch '" + branch2 + "' wasn't merged yet.");
+                repo.check(path2),
+                "The file '" + path2 + "' must be absent in '" + BRANCH + "', because the branch '" + branch2 + "' wasn't merged yet.");
 
         // Check that ''branch2' is not merged into 'branch1'
         assertNotNull(branch1Repo.check(path1), "The file '" + path1 + "' must exist in '" + branch1 + "'");

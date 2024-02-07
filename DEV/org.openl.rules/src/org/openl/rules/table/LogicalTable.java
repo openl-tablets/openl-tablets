@@ -96,7 +96,7 @@ public class LogicalTable extends ALogicalTable {
         int endColumn = columnOffset[column + width];
 
         return LogicalTableHelper
-            .logicalTable(getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
+                .logicalTable(getSource().getSubtable(startColumn, startRow, endColumn - startColumn, endRow - startRow));
     }
 
     public int[] getRowOffset() {

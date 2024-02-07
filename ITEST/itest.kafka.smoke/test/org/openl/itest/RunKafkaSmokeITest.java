@@ -43,14 +43,14 @@ public class RunKafkaSmokeITest {
     private static HttpClient client;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
     @BeforeAll
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
         server = JettyServer
-            .start(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
+                .start(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
         client = server.client();
     }
 
@@ -73,7 +73,7 @@ public class RunKafkaSmokeITest {
     @Test
     public void methodSimpleFail() {
         try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
-                KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
             consumer.subscribe(Collections.singletonList("hello-dlt-topic"));
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "5"));
@@ -98,8 +98,8 @@ public class RunKafkaSmokeITest {
     @Test
     public void serviceSimpleOk() {
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2",
-            "key1",
-            "{\"hour\": 5}");
+                "key1",
+                "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
         testKafka(producerRecord, "hello-out-topic-2", (response) -> {
             assertEquals("Good Morning", response.value());
@@ -137,8 +137,8 @@ public class RunKafkaSmokeITest {
     public void serviceSimpleOkWithReplyTopic() {
         final String replyTopic = UUID.randomUUID().toString();
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2",
-            "key1",
-            "{\"hour\": 5}");
+                "key1",
+                "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
         addHeader(producerRecord, KafkaHeaders.REPLY_TOPIC, replyTopic);
         testKafka(producerRecord, replyTopic, "Good Morning");
@@ -157,8 +157,8 @@ public class RunKafkaSmokeITest {
     public void serviceSimpleOkWithCorrelationId() {
         final String replyTopic = UUID.randomUUID().toString();
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2",
-            "key1",
-            "{\"hour\": 5}");
+                "key1",
+                "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
         addHeader(producerRecord, KafkaHeaders.REPLY_TOPIC, replyTopic);
         addHeader(producerRecord, CORRELATION_ID, "42");
@@ -170,10 +170,10 @@ public class RunKafkaSmokeITest {
     @Test
     public void testDltHeaders() throws Exception {
         try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
-                KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
 
             AdminClient adminClient = AdminClient
-                .create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_CONTAINER.getBootstrapServers()));
+                    .create(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_CONTAINER.getBootstrapServers()));
             Collection<NewTopic> topics = Collections.singletonList(new NewTopic(HELLO_REPLY_DLT_TOPIC, 10, (short) 1));
             adminClient.createTopics(topics).all().get(30, TimeUnit.SECONDS);
 
@@ -196,9 +196,9 @@ public class RunKafkaSmokeITest {
                 assertEquals(replyTopic, getHeaderValue(response, KafkaHeaders.REPLY_TOPIC));
                 assertEquals("891", getHeaderValue(response, KafkaHeaders.REPLY_PARTITION));
                 assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
-                    getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
+                        getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
                 assertEquals("Invalid message format.",
-                    getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
+                        getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
@@ -219,8 +219,8 @@ public class RunKafkaSmokeITest {
     }
 
     private static void testKafka(ProducerRecord<String, String> producerRecord,
-            String outTopic,
-            String expectedValue) {
+                                  String outTopic,
+                                  String expectedValue) {
         testKafka(producerRecord, outTopic, (response) -> {
             assertEquals(expectedValue, response.value());
             assertEquals(producerRecord.key(), response.key());
@@ -228,8 +228,8 @@ public class RunKafkaSmokeITest {
     }
 
     private static void testKafka(ProducerRecord<String, String> producerRecord,
-            String outTopic,
-            Consumer<ConsumerRecord<String, String>> check ) {
+                                  String outTopic,
+                                  Consumer<ConsumerRecord<String, String>> check) {
         var servers = KAFKA_CONTAINER.getBootstrapServers();
         try (var producer = createKafkaProducer(servers); var consumer = createKafkaConsumer(servers)) {
             consumer.subscribe(Collections.singletonList(outTopic));
@@ -254,20 +254,20 @@ public class RunKafkaSmokeITest {
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
         return new KafkaProducer<>(Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            bootstrapServers,
-            ProducerConfig.CLIENT_ID_CONFIG,
-            UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
+                bootstrapServers,
+                ProducerConfig.CLIENT_ID_CONFIG,
+                UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
     }
 
     private static KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
         return new KafkaConsumer<>(Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            bootstrapServers,
-            ConsumerConfig.GROUP_ID_CONFIG,
-            "junit",
-            METADATA_MAX_AGE_CONFIG,
-            1000,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-            "earliest"), new StringDeserializer(), new StringDeserializer());
+                bootstrapServers,
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "junit",
+                METADATA_MAX_AGE_CONFIG,
+                1000,
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"), new StringDeserializer(), new StringDeserializer());
     }
 
     private static String getHeaderValue(ConsumerRecord<String, String> response, String key) {

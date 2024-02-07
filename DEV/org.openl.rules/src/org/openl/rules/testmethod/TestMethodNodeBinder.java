@@ -59,8 +59,8 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     @Override
     protected ATableBoundNode makeNode(TableSyntaxNode tableSyntaxNode,
-            XlsModuleOpenClass module,
-            RulesModuleBindingContext bindingContext) {
+                                       XlsModuleOpenClass module,
+                                       RulesModuleBindingContext bindingContext) {
         TestMethodBoundNode boundNode = new TestMethodBoundNode(tableSyntaxNode, module);
 
         if (!bindingContext.isExecutionMode()) {
@@ -81,9 +81,9 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass module) throws Exception {
+                                    OpenL openl,
+                                    RulesModuleBindingContext bindingContext,
+                                    XlsModuleOpenClass module) throws Exception {
         if (bindingContext.isExecutionMode()) {
             return null;// skipped in execution mode
         }
@@ -119,9 +119,9 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         IOpenMethodHeader header = new OpenMethodHeader(tableName,
-            JavaOpenClass.getOpenClass(TestUnitsResults.class),
-            IMethodSignature.VOID,
-            module);
+                JavaOpenClass.getOpenClass(TestUnitsResults.class),
+                IMethodSignature.VOID,
+                module);
 
         TestedMethodBindingDetails best = null;
         boolean hasNoErrorBinding = false;
@@ -147,12 +147,12 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             bindingContext.pushMessages();
             try {
                 current.dataTable = makeTable(module,
-                    tableSyntaxNode,
-                    tableName,
-                    current.testMethodOpenClass,
-                    bindingContext,
-                    openl,
-                    false);
+                        tableSyntaxNode,
+                        tableName,
+                        current.testMethodOpenClass,
+                        bindingContext,
+                        openl,
+                        false);
             } finally {
                 current.errors = bindingContext.popErrors();
                 if (current.errors == null) {
@@ -201,11 +201,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             }
             if (exactMatches.isEmpty()) {
                 throw new AmbiguousMethodException(methodName,
-                    noErrorsCases.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+                        noErrorsCases.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
             }
             if (exactMatches.size() > 1) {
                 throw new AmbiguousMethodException(methodName,
-                    exactMatches.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+                        exactMatches.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
             } else {
                 best = exactMatches.iterator().next();
             }
@@ -232,22 +232,22 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     @Override
     protected ColumnDescriptor[] makeDescriptors(ITable tableToProcess,
-            IOpenClass tableType,
-            IBindingContext bindingContext,
-            OpenL openl,
-            boolean hasColumnTitleRow,
-            ILogicalTable horizDataTableBody,
-            ILogicalTable descriptorRows,
-            ILogicalTable dataWithTitleRows) throws Exception {
+                                                 IOpenClass tableType,
+                                                 IBindingContext bindingContext,
+                                                 OpenL openl,
+                                                 boolean hasColumnTitleRow,
+                                                 ILogicalTable horizDataTableBody,
+                                                 ILogicalTable descriptorRows,
+                                                 ILogicalTable dataWithTitleRows) throws Exception {
         return DataTableBindHelper.makeDescriptors(bindingContext,
-            tableToProcess,
-            tableType,
-            openl,
-            descriptorRows,
-            dataWithTitleRows,
-            DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
-            hasColumnTitleRow,
-            false);
+                tableToProcess,
+                tableType,
+                openl,
+                descriptorRows,
+                dataWithTitleRows,
+                DataTableBindHelper.hasForeignKeysRow(horizDataTableBody),
+                hasColumnTitleRow,
+                false);
     }
 
 }

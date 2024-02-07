@@ -43,26 +43,26 @@ public class ProjectModelTest {
     @Test
     public void testProjectModelWithContext() {
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                true,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                true,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
-            false,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                false,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
         assertTrue(bankRating.isRuntimeContextProvided());
@@ -79,26 +79,26 @@ public class ProjectModelTest {
         secondSpr.setName("getBankAccountData");
 
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Arrays.asList(firstSpr, secondSpr),
-            Collections.emptyList());
+                true,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Arrays.asList(firstSpr, secondSpr),
+                Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Arrays.asList(firstSpr, secondSpr),
-            Collections.emptyList());
+                true,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Arrays.asList(firstSpr, secondSpr),
+                Collections.emptyList());
         ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.singletonList(firstSpr),
-            Collections.emptyList());
+                true,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.singletonList(firstSpr),
+                Collections.emptyList());
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
@@ -114,26 +114,26 @@ public class ProjectModelTest {
         DatatypeModel dm = new DatatypeModel("Apple");
         DatatypeModel oneMoreDm = new DatatypeModel("Meat");
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            asSet(dm, oneMoreDm),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                true,
+                false,
+                asSet(dm, oneMoreDm),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            asSet(dm, oneMoreDm),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                true,
+                false,
+                asSet(dm, oneMoreDm),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
-            true,
-            false,
-            asSet(oneMoreDm),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                true,
+                false,
+                asSet(oneMoreDm),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
 
         assertEquals(bankRating, bankRatingCopy);
         assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());

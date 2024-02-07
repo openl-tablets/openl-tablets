@@ -44,7 +44,7 @@ public class SysInfoController {
     @Operation(summary = "info.get-http-info.summary", description = "info.get-http-info.desc")
     @RequestMapping(value = "/public/info/http.json")
     public Map<Object, Object> getHttpInfo(HttpServletRequest request,
-            @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
+                                           @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
         LinkedHashMap<Object, Object> info = new LinkedHashMap<>();
 
         info.put("Protocol", request.getProtocol());

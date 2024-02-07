@@ -40,7 +40,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     private final UserManagementService userManagementService;
 
     public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager,
-            UserManagementService userManagementService) {
+                                        UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
         this.userManagementService = userManagementService;
     }
@@ -66,24 +66,24 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 MergeConflictException exception = mergeConflict.getException();
                 String userName = SecurityContextHolder.getContext().getAuthentication().getName();
                 WorkspaceUser user = new WorkspaceUserImpl(userName,
-                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                        .orElse(null));
+                        (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                                .orElse(null));
 
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
                 String repositoryId = mergeConflict.getRepositoryId();
                 FileItem their = userWorkspace.getDesignTimeRepository()
-                    .getRepository(repositoryId)
-                    .readHistory(conflictedFile, exception.getTheirCommit());
+                        .getRepository(repositoryId)
+                        .readHistory(conflictedFile, exception.getTheirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
                 File ourFile;
 
                 FileItem our;
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
-                        .getRepository(repositoryId)
-                        .readHistory(conflictedFile, exception.getYourCommit());
+                            .getRepository(repositoryId)
+                            .readHistory(conflictedFile, exception.getYourCommit());
                     ourFile = createTempFile(our, conflictedFile);
                     if (mergeConflict.isExportOperation()) {
                         File tmp = ourFile;

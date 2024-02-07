@@ -15,7 +15,6 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
 /**
- *
  * @author PUdalau
  */
 public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
@@ -62,7 +61,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message.getSeverity() == Severity.ERROR) {
                 if (message.getSummary()
-                    .equals("Field 'field1' is already declared in class 'ParentType' with another type.")) {
+                        .equals("Field 'field1' is already declared in class 'ParentType' with another type.")) {
                     wasFound = true;
                 }
             }
@@ -78,12 +77,12 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         String childTypeToStringResult = (String) childType.getMethod("toString", IOpenClass.EMPTY)
-            .invoke(childType.newInstance(env), new Object[] {}, env);
+                .invoke(childType.newInstance(env), new Object[]{}, env);
         assertTrue(childTypeToStringResult.contains("field5"));
         assertTrue(childTypeToStringResult.startsWith("ChildType"));
         String secondLevelChildTypeToStringResult = (String) secondLevelChildType
-            .getMethod("toString", IOpenClass.EMPTY)
-            .invoke(secondLevelChildType.newInstance(env), new Object[] {}, env);
+                .getMethod("toString", IOpenClass.EMPTY)
+                .invoke(secondLevelChildType.newInstance(env), new Object[]{}, env);
         assertTrue(secondLevelChildTypeToStringResult.contains("field7"));
         assertTrue(secondLevelChildTypeToStringResult.startsWith("SecondLevelChildType"));
     }

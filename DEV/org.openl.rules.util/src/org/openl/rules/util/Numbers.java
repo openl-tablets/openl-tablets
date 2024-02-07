@@ -105,8 +105,7 @@ public final class Numbers {
      *     </tbody>
      * </table>
      *
-     *
-     * @param number any instance of {@link Number}
+     * @param number  any instance of {@link Number}
      * @param pattern target pattern
      * @return string representation of a given number.
      */

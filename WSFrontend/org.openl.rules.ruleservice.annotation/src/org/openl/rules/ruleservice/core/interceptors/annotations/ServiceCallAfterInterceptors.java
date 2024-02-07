@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
  * Annotation for registering after method interceptors.
  *
  * @author Marat Kamalov
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

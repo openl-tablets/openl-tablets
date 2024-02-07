@@ -6,7 +6,6 @@ import org.openl.rules.common.CommonUser;
  * User or Owner of Workspace.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface WorkspaceUser extends CommonUser, Comparable<WorkspaceUser> {
     /**

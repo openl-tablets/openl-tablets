@@ -22,7 +22,6 @@ public class AndPathFilter implements PathFilter {
      * <code>true</code> only if all underlying filters return <code>true</code>.
      *
      * @param filename file or directory name
-     *
      * @return if filter accepts given filename
      */
     @Override

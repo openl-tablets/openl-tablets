@@ -35,40 +35,40 @@ public class TypeBindingContext extends BindingContextDelegator {
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar, int maxDepthLevel) {
         Class<?> instanceClass = localVar.getType().getInstanceClass();
         CustomJavaOpenClass annotation = instanceClass == null ? null
-                                                               : instanceClass.getAnnotation(CustomJavaOpenClass.class);
+                : instanceClass.getAnnotation(CustomJavaOpenClass.class);
         VariableInContextFinder context;
         if (annotation != null) {
             context = createCustomVariableFinder(annotation, localVar, maxDepthLevel);
         } else {
-            context = new RootDictionaryContext(new IOpenField[] { localVar }, maxDepthLevel);
+            context = new RootDictionaryContext(new IOpenField[]{localVar}, maxDepthLevel);
         }
 
         return new TypeBindingContext(delegate, localVar, context);
     }
 
     private static VariableInContextFinder createCustomVariableFinder(CustomJavaOpenClass annotation,
-            IOpenField localVar,
-            int maxDepthLevel) {
+                                                                      IOpenField localVar,
+                                                                      int maxDepthLevel) {
         Class<? extends VariableInContextFinder> type = annotation.variableInContextFinder();
         try {
             return type.getConstructor(IOpenField.class, int.class).newInstance(localVar, maxDepthLevel);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(String.format(
-                "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
-                type.getTypeName()), e);
+                    "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
+                    type.getTypeName()), e);
         } catch (InstantiationException e) {
             throw new IllegalStateException(
-                String.format("Error while creating a custom VariableInContextFinder of type '%s'", type.getTypeName()),
-                e);
+                    String.format("Error while creating a custom VariableInContextFinder of type '%s'", type.getTypeName()),
+                    e);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(
-                String.format("Constructor of a custom VariableInContextFinder of type '%s' is inaccessible",
-                    type.getTypeName()),
-                e);
+                    String.format("Constructor of a custom VariableInContextFinder of type '%s' is inaccessible",
+                            type.getTypeName()),
+                    e);
         } catch (InvocationTargetException e) {
             throw new IllegalStateException(
-                String.format("Constructor of a class '%s' threw and exception", type.getTypeName()),
-                e);
+                    String.format("Constructor of a class '%s' threw and exception", type.getTypeName()),
+                    e);
         }
 
     }
@@ -91,8 +91,8 @@ public class TypeBindingContext extends BindingContextDelegator {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+                                          String name,
+                                          IOpenClass[] parTypes) throws AmbiguousMethodException {
         IMethodCaller res = null;
         // IOpenMethod method = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {

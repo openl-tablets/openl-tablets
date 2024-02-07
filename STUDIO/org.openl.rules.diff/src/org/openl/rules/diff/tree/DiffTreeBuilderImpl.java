@@ -20,7 +20,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
     @Override
     public DiffTreeNode compare(Projection p1, Projection p2) {
-        return compare(new Projection[] { p1, p2 });
+        return compare(new Projection[]{p1, p2});
     }
 
     @Override

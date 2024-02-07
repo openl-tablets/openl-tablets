@@ -22,7 +22,7 @@ import org.openl.types.IOpenMethod;
 
 /**
  * Represents group of methods(rules) overloaded by dimension properties.
- *
+ * <p>
  * TODO: refactor invoke functionality. Use {@link org.openl.rules.method.RulesMethodInvoker}.
  */
 public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
@@ -71,19 +71,19 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             case 0:
                 IOpenMethod candidateMethod = candidates.iterator().next();
                 throw new OpenLRuntimeException(String.format(
-                    "No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
-                    toString(candidates),
-                    context.toString(),
-                    candidateMethod.getName()));
+                        "No matching methods with name '%3$s' for the context. Details: \n%1$s\nContext: %2$s",
+                        toString(candidates),
+                        context.toString(),
+                        candidateMethod.getName()));
             case 1:
                 return selected.iterator().next();
             default:
                 IOpenMethod method = selected.iterator().next();
                 throw new OpenLRuntimeException(
-                    String.format("Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s",
-                        toString(selected),
-                        context.toString(),
-                        method.getName()));
+                        String.format("Ambiguous dispatch for method '%3$s'. Details: \n%1$s\nContext: %2$s",
+                                toString(selected),
+                                context.toString(),
+                                method.getName()));
         }
 
     }
@@ -115,11 +115,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     }
 
     private MethodDispatchingPriority compareMethodProperties(ITableProperties candidateProperties,
-            ITableProperties mostPriorityProperties,
-            List<String> notNullPropertyNames) {
+                                                              ITableProperties mostPriorityProperties,
+                                                              List<String> notNullPropertyNames) {
         boolean nested = false;
         boolean contains = false;
-        propsLoop: for (String propName : notNullPropertyNames) {
+        propsLoop:
+        for (String propName : notNullPropertyNames) {
             switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
                 case NESTED:
                     nested = true;
@@ -191,8 +192,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         for (IOpenMethod m : mostPriority) {
                             ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
                             MethodDispatchingPriority priority = compareMethodProperties(candidateProperties,
-                                mProperties,
-                                notNullPropertyNames);
+                                    mProperties,
+                                    notNullPropertyNames);
                             if (priority == MethodDispatchingPriority.HIGHER) {
                                 higherCount++;
                             } else if (priority == MethodDispatchingPriority.LOWER) {

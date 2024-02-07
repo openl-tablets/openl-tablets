@@ -49,9 +49,9 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
             toRestore = rrFrom;
             grid.removeMergedRegion(rrFrom);
             GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
-                rrFrom.getLeft() + getCol() - colFrom,
-                rrFrom.getBottom() + getRow() - rowFrom,
-                rrFrom.getRight() + getCol() - colFrom);
+                    rrFrom.getLeft() + getCol() - colFrom,
+                    rrFrom.getBottom() + getRow() - rowFrom,
+                    rrFrom.getRight() + getCol() - colFrom);
             grid.addMergedRegion(copyFrom);
             toRemove = copyFrom;
         }

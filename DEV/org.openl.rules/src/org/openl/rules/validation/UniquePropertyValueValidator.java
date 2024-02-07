@@ -38,7 +38,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
     public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
 
         Collection<ExecutableRulesMethod> executableActiveMethods = selectActiveMethods(
-            OpenMethodDispatcherHelper.extractMethods(openClass));
+                OpenMethodDispatcherHelper.extractMethods(openClass));
 
         Map<Object, Set<ExecutableRulesMethod>> values = new HashMap<>();
         Collection<OpenLMessage> messages = new ArrayList<>();
@@ -88,9 +88,9 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 Object value = entry.getKey();
                 for (ExecutableRulesMethod method : entry.getValue()) {
                     OpenLMessage message = getMessage(
-                        String.format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
-                        errorSeverity,
-                        method.getSyntaxNode());
+                            String.format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
+                            errorSeverity,
+                            method.getSyntaxNode());
                     messages.add(message);
                 }
             }
@@ -118,19 +118,19 @@ public class UniquePropertyValueValidator extends TablesValidator {
 
     private Collection<ExecutableRulesMethod> selectActiveMethods(List<IOpenMethod> methods) {
         return CollectionUtils.findAll(methods.stream()
-            .filter(ExecutableRulesMethod.class::isInstance)
-            .map(ExecutableRulesMethod.class::cast)
-            .collect(Collectors.toList()), method -> {
-                if (method.getMethodProperties() == null || method.getMethodProperties().getActive() == null) {
-                    // if property is not mentioned, consider it is true
-                    // by default.
-                    //
-                    return true;
-                } else {
-                    // if mentioned, return it`s value
-                    //
-                    return method.getMethodProperties().getActive();
-                }
-            });
+                .filter(ExecutableRulesMethod.class::isInstance)
+                .map(ExecutableRulesMethod.class::cast)
+                .collect(Collectors.toList()), method -> {
+            if (method.getMethodProperties() == null || method.getMethodProperties().getActive() == null) {
+                // if property is not mentioned, consider it is true
+                // by default.
+                //
+                return true;
+            } else {
+                // if mentioned, return it`s value
+                //
+                return method.getMethodProperties().getActive();
+            }
+        });
     }
 }

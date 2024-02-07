@@ -8,7 +8,6 @@ package org.openl.util.text;
 
 /**
  * @author snshor
- *
  */
 public class AbsolutePosition implements IPosition {
     private final int pos;

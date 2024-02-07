@@ -11,9 +11,9 @@ public class DoubleRangeDeclarationTreeNode extends SimpleParameterTreeNode {
     private static final Logger LOG = LoggerFactory.getLogger(DoubleRangeDeclarationTreeNode.class);
 
     public DoubleRangeDeclarationTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                          Object value,
+                                          IOpenClass fieldType,
+                                          ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 

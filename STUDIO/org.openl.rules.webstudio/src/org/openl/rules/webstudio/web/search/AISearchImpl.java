@@ -34,12 +34,12 @@ public class AISearchImpl implements AISearch {
         // TODO Need to use some kind of caching here
         boolean isDt = XlsNodeTypes.XLS_DT.toString().equals(tableSyntaxNode.getType());
         String table = OpenL2TextUtils
-            .tableSyntaxNodeToString(tableSyntaxNode, false, false, isDt ? MAX_ROWS_DT : Integer.MAX_VALUE);
+                .tableSyntaxNodeToString(tableSyntaxNode, false, false, isDt ? MAX_ROWS_DT : Integer.MAX_VALUE);
         return WebstudioAi.TableSyntaxNode.newBuilder()
-            .setUri(tableSyntaxNode.getUri())
-            .setTable(table)
-            .setType(tableSyntaxNode.getType())
-            .build();
+                .setUri(tableSyntaxNode.getUri())
+                .setTable(table)
+                .setType(tableSyntaxNode.getType())
+                .build();
     }
 
     @Override
@@ -48,19 +48,19 @@ public class AISearchImpl implements AISearch {
             try {
                 WebstudioAIServiceGrpc.WebstudioAIServiceBlockingStub blockingStub = aiService.getBlockingStub();
                 WebstudioAi.SearchRequest.Builder builder = WebstudioAi.SearchRequest.newBuilder()
-                    .setQuery(query)
-                    .setLimit(MAX_RESULTS_COUNT)
-                    .setLlmFiltering(LLM_FILTERING);
+                        .setQuery(query)
+                        .setLimit(MAX_RESULTS_COUNT)
+                        .setLlmFiltering(LLM_FILTERING);
                 tableSyntaxNodes.stream().map(this::toProtoTableSyntaxNode).forEach(builder::addTableSyntaxNodes);
                 WebstudioAi.SearchRequest searchRequest = builder.build();
                 WebstudioAi.SearchReply searchReply = blockingStub.search(searchRequest);
                 Map<String, TableSyntaxNode> cache = tableSyntaxNodes.stream()
-                    .collect(Collectors.toMap(TableSyntaxNode::getUri, p -> p));
+                        .collect(Collectors.toMap(TableSyntaxNode::getUri, p -> p));
                 List<TableSyntaxNode> filtered = new ArrayList<>();
                 searchReply.getUrisList().stream().map(cache::get).forEach(filtered::add);
                 return new SearchResult(filtered,
-                    searchReply.getTableCountForIndexing(),
-                    searchReply.getExpectedIndexingDuration());
+                        searchReply.getTableCountForIndexing(),
+                        searchReply.getExpectedIndexingDuration());
             } catch (StatusRuntimeException ignored) {
                 // Fails safe behaviour if AI service is not available
             }

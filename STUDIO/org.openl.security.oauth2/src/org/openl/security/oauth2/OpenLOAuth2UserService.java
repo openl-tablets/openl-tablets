@@ -35,7 +35,7 @@ public class OpenLOAuth2UserService extends OidcUserService {
         var userInfo = Objects.requireNonNull(userInfoClaimsConverter.convert(claims));
 
         return new DefaultOidcUser(userInfo.getAuthorities(),
-            userRequest.getIdToken(),
-            propertyResolver.getProperty("security.oauth2.attribute.username"));
+                userRequest.getIdToken(),
+                propertyResolver.getProperty("security.oauth2.attribute.username"));
     }
 }

@@ -59,7 +59,7 @@ public class ZipArchiveValidator implements Validator {
         }
 
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(archive),
-            Collections.singletonMap("encoding", charset.name()))) {
+                Collections.singletonMap("encoding", charset.name()))) {
 
             Path walkRoot = fs.getPath("/");
             if (ProjectResolver.getInstance().isRulesProject(walkRoot) == null) {
@@ -69,8 +69,8 @@ public class ZipArchiveValidator implements Validator {
 
             Set<Path> rejectedPaths = new HashSet<>();
             try (Stream<Path> stream = Files.walk(walkRoot)
-                .filter(p -> !walkRoot.equals(p))
-                .filter(p -> zipFilter.accept(p.toString()))) {
+                    .filter(p -> !walkRoot.equals(p))
+                    .filter(p -> zipFilter.accept(p.toString()))) {
 
                 stream.forEach(path -> {
                     if (rejectedPaths.stream().noneMatch(r -> r.startsWith(path) || path.startsWith(r))) {
@@ -79,8 +79,8 @@ public class ZipArchiveValidator implements Validator {
                                 NameChecker.validatePath(path.getName(i).toString());
                             } catch (IOException e) {
                                 errors.reject("zip-archive.unknown.archive.path.message",
-                                    new String[] { e.getMessage() },
-                                    e.getMessage());
+                                        new String[]{e.getMessage()},
+                                        e.getMessage());
                                 rejectedPaths.add(path);
                                 return;
                             }
@@ -97,8 +97,8 @@ public class ZipArchiveValidator implements Validator {
                         } catch (CorruptObjectException e) {
                             String defaultMessage = StringUtils.capitalize(e.getMessage());
                             errors.reject("zip-archive.invalid.path.message",
-                                new String[] { defaultMessage },
-                                defaultMessage);
+                                    new String[]{defaultMessage},
+                                    defaultMessage);
                             rejectedPaths.add(path);
                         }
                     }

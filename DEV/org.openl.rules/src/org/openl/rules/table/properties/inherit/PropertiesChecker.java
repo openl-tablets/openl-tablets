@@ -33,12 +33,12 @@ public final class PropertiesChecker {
      * 2) properties can be defined for current type of table; 3) deprecated properties;
      *
      * @param propertyNamesToCheck properties names that are physically defined in table. TODO: Refactor with strategy
-     *            pattern
+     *                             pattern
      */
     public static void checkProperties(IBindingContext bindingContext,
-            Set<String> propertyNamesToCheck,
-            TableSyntaxNode tableSyntaxNode,
-            InheritanceLevel level) {
+                                       Set<String> propertyNamesToCheck,
+                                       TableSyntaxNode tableSyntaxNode,
+                                       InheritanceLevel level) {
         checkForErrors(bindingContext, propertyNamesToCheck, tableSyntaxNode, level);
         checkForDeprecation(bindingContext, propertyNamesToCheck, tableSyntaxNode);
     }
@@ -47,22 +47,22 @@ public final class PropertiesChecker {
      * Checks if properties can be defined for given type of table and for given inheritance level.
      */
     private static void checkForErrors(IBindingContext bindingContext,
-            Set<String> propertyNamesToCheck,
-            TableSyntaxNode tableSyntaxNode,
-            InheritanceLevel level) {
+                                       Set<String> propertyNamesToCheck,
+                                       TableSyntaxNode tableSyntaxNode,
+                                       InheritanceLevel level) {
         String tableType = tableSyntaxNode.getType();
         String typeName = getTypeName(tableSyntaxNode);
 
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
                 String message = String
-                    .format("Property '%s' cannot be defined in '%s' table.", propertyNameToCheck, typeName);
+                        .format("Property '%s' cannot be defined in '%s' table.", propertyNameToCheck, typeName);
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
                 bindingContext.addError(error);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
                 String message = String.format("Property '%s' cannot be defined on level '%s'.",
-                    propertyNameToCheck,
-                    level.getDisplayName());
+                        propertyNameToCheck,
+                        level.getDisplayName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
                 bindingContext.addError(error);
             }
@@ -73,14 +73,14 @@ public final class PropertiesChecker {
      * Checks if properties were deprecated.
      */
     private static void checkForDeprecation(IBindingContext bindingContext,
-            Set<String> propertyNamesToCheck,
-            TableSyntaxNode tableSyntaxNode) {
+                                            Set<String> propertyNamesToCheck,
+                                            TableSyntaxNode tableSyntaxNode) {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
-                .getPropertyByName(propertyNameToCheck);
+                    .getPropertyByName(propertyNameToCheck);
             if (propertyDefinition != null && propertyDefinition.getDeprecation() != null && !propertyDefinition
-                .getDeprecation()
-                .isEmpty()) {
+                    .getDeprecation()
+                    .isEmpty()) {
                 String message = String.format("Property '%s' was deprecated. Please remove it.", propertyNameToCheck);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, tableSyntaxNode));
             }

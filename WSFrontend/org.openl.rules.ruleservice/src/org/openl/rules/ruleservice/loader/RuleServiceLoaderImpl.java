@@ -81,28 +81,28 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     @Override
     public ProjectDescriptor resolveProject(String deploymentName,
-            CommonVersion deploymentVersion,
-            String projectName) throws ProjectResolvingException {
+                                            CommonVersion deploymentVersion,
+                                            String projectName) throws ProjectResolvingException {
         Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
         Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
         Objects.requireNonNull(projectName, "projectName cannot be null");
 
         log.debug("Resolving modules for deployment (name='{}', version='{}', projectName='{}')",
-            deploymentName,
-            deploymentVersion.getVersionName(),
-            projectName);
+                deploymentName,
+                deploymentVersion.getVersionName(),
+                projectName);
 
         IDeployment localDeployment = getDeployment(deploymentName, deploymentVersion);
         IProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
+                    String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
         Path projectFolder;
         if (project instanceof LocalProject) {
             projectFolder = ((LocalProject) project).getData().getPath();
             if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(
-                projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
+                    projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
 
                 FileSystem fs = FileSystems.getFileSystem(ZipUtils.toJarURI(projectFolder));
                 projectFolder = fs.getPath("/");
@@ -129,10 +129,10 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         String versionName = version.getVersionName();
         Deployment loadedDeployment = new Deployment(tempRepo,
-            deploymentName + "_v" + cleanUp(versionName),
-            deploymentName,
-            version,
-            true);
+                deploymentName + "_v" + cleanUp(versionName),
+                deploymentName,
+                version,
+                true);
 
         if (loadedDeployment.getProjects().isEmpty()) {
             log.debug("Loading deployment with name='{}' and version='{}'", deploymentName, versionName);
@@ -145,9 +145,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 loadedDeployment.refresh();
             } catch (ProjectException e) {
                 log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
-                    deploymentName,
-                    versionName,
-                    e);
+                        deploymentName,
+                        versionName,
+                        e);
                 throw new RuleServiceRuntimeException(e);
             }
         }
@@ -195,10 +195,10 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             } else {
                 boolean folderStructure = isFolderStructure(folderPath);
                 deployment = new Deployment(repository,
-                    folderPath,
-                    deploymentFolderName,
-                    commonVersion,
-                    folderStructure);
+                        folderPath,
+                        deploymentFolderName,
+                        commonVersion,
+                        folderStructure);
             }
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
@@ -208,9 +208,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private boolean isLocalZipFile(FileData fileData) {
         return repository.supports().folders() && repository.supports()
-            .isLocal() && fileData.getPath() != null && (FileTypeHelper
+                .isLocal() && fileData.getPath() != null && (FileTypeHelper
                 .isZipFile(fileData.getPath().getFileName().toString()) || ZippedLocalRepository
-                    .zipArchiveFilter(fileData.getPath()));
+                .zipArchiveFilter(fileData.getPath()));
     }
 
     private boolean isSimpleProjectDeployment(FileData fileData) {
@@ -228,15 +228,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private LocalDeployment buildLocalDeployment(CommonVersion commonVersion,
-            FileData deploymentFolder,
-            Repository repository) throws IOException {
+                                                 FileData deploymentFolder,
+                                                 Repository repository) throws IOException {
         LocalDeployment deployment;
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
             deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0],
-                commonVersion,
-                Collections.singletonMap(project.getName(), project));
+                    commonVersion,
+                    Collections.singletonMap(project.getName(), project));
         } else {
             List<FileData> projectFolders = repository.listFolders(getDeployPath() + deploymentFolder.getName());
             Map<String, IProject> projectMap = new HashMap<>();
@@ -251,7 +251,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private Map<String, IProjectArtefact> gatherProjectResources(FileData folder,
-            Repository repository) throws IOException {
+                                                                 Repository repository) throws IOException {
         List<FileData> files = repository.list(getDeployPath() + folder.getName());
         Map<String, IProjectArtefact> resourceMap = new HashMap<>();
         for (FileData file : files) {

@@ -21,11 +21,11 @@ public class DataModelTest {
                 APPLICATION_JSON,
                 APPLICATION_JSON);
         PathInfo qualityInfo = new PathInfo("/qualityI",
-            "/qI",
-            PathInfo.Operation.GET,
-            new TypeInfo("QualityIndicators", "QualityIndicators", TypeInfo.Type.DATATYPE),
-            APPLICATION_JSON,
-            APPLICATION_JSON);
+                "/qI",
+                PathInfo.Operation.GET,
+                new TypeInfo("QualityIndicators", "QualityIndicators", TypeInfo.Type.DATATYPE),
+                APPLICATION_JSON,
+                APPLICATION_JSON);
         DatatypeModel dtm = new DatatypeModel("test");
         DataModel dm = new DataModel("bankData", "Bank", pi, dtm);
         DataModel theSameDm = new DataModel("bankData", "Bank", pi, dtm);
@@ -44,9 +44,9 @@ public class DataModelTest {
         assertNotEquals(qualityIndicators.hashCode(), qualityIndicatorsCorrectType.hashCode());
 
         DataModel qualityIndicatorsCorrectPathInfo = new DataModel("qualityIndicators",
-            "QualityIndicator",
-            qualityInfo,
-            dtm);
+                "QualityIndicator",
+                qualityInfo,
+                dtm);
         assertNotEquals(qualityIndicatorsCorrectType, qualityIndicatorsCorrectPathInfo);
         assertNotEquals(qualityIndicatorsCorrectType.hashCode(), qualityIndicatorsCorrectPathInfo.hashCode());
 

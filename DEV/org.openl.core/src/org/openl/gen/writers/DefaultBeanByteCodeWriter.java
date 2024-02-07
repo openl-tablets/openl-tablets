@@ -18,15 +18,14 @@ public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
     private final Map<String, FieldDescription> beanFields;
 
     /**
-     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentType class descriptor for super class.
-     * @param beanFields fields of generating class.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param parentType          class descriptor for super class.
+     * @param beanFields          fields of generating class.
      */
     public DefaultBeanByteCodeWriter(String beanNameWithPackage,
-            TypeDescription parentType,
-            Map<String, FieldDescription> beanFields) {
+                                     TypeDescription parentType,
+                                     Map<String, FieldDescription> beanFields) {
         this.beanNameWithPackage = beanNameWithPackage;
         this.parentType = parentType;
         this.beanFields = new LinkedHashMap<>(beanFields);

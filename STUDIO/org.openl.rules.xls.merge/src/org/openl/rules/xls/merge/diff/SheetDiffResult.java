@@ -27,7 +27,7 @@ public class SheetDiffResult {
 
     /**
      * Check ff any conflicted changes in sheets is detected between three revision
-     * 
+     *
      * @return {@code true} if conflict is found, otherwise {@code false}
      */
     public boolean hasConflicts() {
@@ -60,7 +60,7 @@ public class SheetDiffResult {
 
     /**
      * Get matching result of requested sheet between {@code base revision} and {@code their revision}
-     * 
+     *
      * @param sheetName sheet name
      * @return matching result
      */

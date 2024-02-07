@@ -116,11 +116,11 @@ public class InterfaceTransformerTest {
             assertNotNull(annotationGenerated);
             Set<String> keys = new HashSet<>();
             keys.addAll(Arrays.stream(annotation.annotationType().getDeclaredMethods())
-                .map(Method::getName)
-                .collect(Collectors.toSet()));
+                    .map(Method::getName)
+                    .collect(Collectors.toSet()));
             keys.addAll(Arrays.stream(annotationGenerated.annotationType().getDeclaredMethods())
-                .map(Method::getName)
-                .collect(Collectors.toSet()));
+                    .map(Method::getName)
+                    .collect(Collectors.toSet()));
             for (String key : keys) {
                 Object valueOriginal;
                 try {
@@ -143,7 +143,7 @@ public class InterfaceTransformerTest {
         }
     }
 
-    @XmlType(name = "TestInterface", propOrder = { "const2", "const1" })
+    @XmlType(name = "TestInterface", propOrder = {"const2", "const1"})
     public interface TestInterface {
         @XmlAttribute(name = "int_const")
         int const1 = 0;
@@ -178,7 +178,7 @@ public class InterfaceTransformerTest {
         }
     }
 
-    @Target({ PARAMETER, METHOD, FIELD, ANNOTATION_TYPE })
+    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     public @interface TestAnnotation {

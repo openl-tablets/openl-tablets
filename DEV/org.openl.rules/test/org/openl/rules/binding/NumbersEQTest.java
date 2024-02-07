@@ -14,7 +14,6 @@ import org.openl.rules.TestUtils;
  * DoubleValue(-5); a==b; - will be true
  *
  * @author DLiauchuk
- *
  */
 public class NumbersEQTest {
     private static final String SRC = "test/rules/binding/NumbersEQTest.xls";

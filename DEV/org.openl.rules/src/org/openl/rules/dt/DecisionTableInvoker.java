@@ -25,7 +25,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         super(decisionTable);
         // This expression should be calculated once to improve performance of DT calculations
         this.returnEmptyResult = decisionTable.getMethodProperties() != null && DTEmptyResultProcessingEnum.RETURN
-            .equals(decisionTable.getMethodProperties().getEmptyResultProcessing());
+                .equals(decisionTable.getMethodProperties().getEmptyResultProcessing());
         this.retType = decisionTable.getType();
     }
 
@@ -37,7 +37,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
     @Override
     public Object invokeSimple(Object target, Object[] params, IRuntimeEnv env) {
         try {
-            env.pushLocalFrame(new Object[] { new DecisionTableRuntimePool() });
+            env.pushLocalFrame(new Object[]{new DecisionTableRuntimePool()});
             return doInvoke(target, params, env);
         } finally {
             env.popLocalFrame();
@@ -54,7 +54,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         IBaseAction[] actions = getInvokableMethod().getActionRows();
 
         Object returnValue = Tracer
-            .invoke(new ActionInvoker(rulesIntIterator, actions, returnEmptyResult), target, params, env, this);
+                .invoke(new ActionInvoker(rulesIntIterator, actions, returnEmptyResult), target, params, env, this);
         if (!OpenClassUtils.isVoid(retType) && returnValue != null) {
             return returnValue;
         }

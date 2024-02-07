@@ -20,7 +20,7 @@ public class AnnotationDescription {
      * Initialize annotation description with given parameters.
      *
      * @param annotationType annotation class
-     * @param properties annotation properties
+     * @param properties     annotation properties
      * @throws NullPointerException if {@code annotationType} is {@code null}
      */
     public AnnotationDescription(Class<?> annotationType, AnnotationProperty[] properties) {
@@ -66,21 +66,21 @@ public class AnnotationDescription {
         /**
          * Initialize annotation property with given parameters.
          *
-         * @param name property name
+         * @param name  property name
          * @param value property value
          * @throws NullPointerException if any argument is {@code null}
          */
         public AnnotationProperty(String name, Object value) {
             this(name,
-                value,
-                Optional.ofNullable(value).map(Object::getClass).map(Class::isArray).orElse(false),
-                false);
+                    value,
+                    Optional.ofNullable(value).map(Object::getClass).map(Class::isArray).orElse(false),
+                    false);
         }
 
         /**
          * Initialize annotation property with given parameters.
          *
-         * @param name property name
+         * @param name            property name
          * @param typeDescription java type description (when we need to write {@code Object.class} as value)
          * @throws NullPointerException if any argument is {@code null}
          */
@@ -91,10 +91,10 @@ public class AnnotationDescription {
         /**
          * Initialize annotation property with given parameters.
          *
-         * @param name property name
+         * @param name  property name
          * @param value property value
          * @param array determines if this property is array or not
-         * @param type determines if this property is java class type or not
+         * @param type  determines if this property is java class type or not
          * @throws NullPointerException if any argument is {@code null}
          */
         public AnnotationProperty(String name, Object value, boolean array, boolean type) {

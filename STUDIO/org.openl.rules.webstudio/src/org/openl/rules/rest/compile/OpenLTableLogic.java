@@ -30,14 +30,14 @@ import org.openl.util.text.TextInfo;
 public class OpenLTableLogic {
 
     public static List<TableBean.TableDescription> getTargetTables(IOpenLTable table,
-            ProjectModel model,
-            boolean openedModule) {
+                                                                   ProjectModel model,
+                                                                   boolean openedModule) {
         List<TableBean.TableDescription> targetTables = new ArrayList<>();
         String tableType = table.getType();
         if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
-            .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+                .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
             IOpenMethod method = openedModule ? model.getOpenedModuleMethod(table.getUri())
-                                              : model.getMethod(table.getUri());
+                    : model.getMethod(table.getUri());
             if (method instanceof TestSuiteMethod) {
                 List<IOpenMethod> targetMethods = new ArrayList<>();
                 IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
@@ -56,8 +56,8 @@ public class OpenLTableLogic {
                         TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
                         IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
                         targetTables.add((new TableBean.TableDescription(targetTable.getUri(),
-                            targetTable.getId(),
-                            getTableName(targetTable))));
+                                targetTable.getId(),
+                                getTableName(targetTable))));
                     }
                 }
             }
@@ -96,13 +96,13 @@ public class OpenLTableLogic {
             boolean hasLinkToCell = errorUri != null && (code != null || module instanceof StringSourceCodeModule);
             String cell = errorUri != null ? new XlsUrlParser(errorUri).getCell() : null;
             problems.add(new OpenlProblemMessage(message.getId(),
-                message.getSummary(),
-                hasStackTrace,
-                errorCode,
-                hasLinkToCell,
-                messageNodeId,
-                cell,
-                message.getSeverity()));
+                    message.getSummary(),
+                    hasStackTrace,
+                    errorCode,
+                    hasLinkToCell,
+                    messageNodeId,
+                    cell,
+                    message.getSeverity()));
         }
         return problems;
     }
@@ -120,7 +120,7 @@ public class OpenLTableLogic {
         }
 
         if (pend != 0) {
-            return new String[] { code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend) };
+            return new String[]{code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend)};
         }
 
         return new String[0];
@@ -137,9 +137,9 @@ public class OpenLTableLogic {
 
                 if (propValue != null && !propValue.isEmpty()) {
                     dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
-                        .append(dimensionProp)
-                        .append(" = ")
-                        .append(propValue);
+                            .append(dimensionProp)
+                            .append(" = ")
+                            .append(propValue);
                 }
             }
         }

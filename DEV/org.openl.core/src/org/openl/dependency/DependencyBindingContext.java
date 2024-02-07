@@ -72,7 +72,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
             }
             if (additionalSearchTypesInModule != null) {
                 t = additionalSearchTypesInModule.getType(tName,
-                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
+                        compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
             }
             if (t != null) {
                 return t;
@@ -80,8 +80,8 @@ public class DependencyBindingContext extends BindingContextDelegator {
             try {
                 t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
                 IOpenClass x = compiledDependency.getCompiledOpenClass()
-                    .getOpenClassWithErrors()
-                    .findType(t.getInstanceClass().getSimpleName());
+                        .getOpenClassWithErrors()
+                        .findType(t.getInstanceClass().getSimpleName());
                 if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
                     return x;
                 }
@@ -98,11 +98,11 @@ public class DependencyBindingContext extends BindingContextDelegator {
         DependencyVar dependencyVar = dependencyVarsCache.get(compiledDependency);
         if (dependencyVar == null) {
             dependencyVar = new DependencyVar(compiledDependency.getDependency().getNode().getIdentifier(),
-                new DependencyOpenClass(compiledDependency.getDependency().getNode().getIdentifier(),
-                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
-                compiledDependency.getDependencyType());
+                    new DependencyOpenClass(compiledDependency.getDependency().getNode().getIdentifier(),
+                            compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
+                    compiledDependency.getDependencyType());
             ((OpenLClassLoader) Thread.currentThread().getContextClassLoader())
-                .addClassLoader(compiledDependency.getClassLoader());
+                    .addClassLoader(compiledDependency.getClassLoader());
             dependencyVarsCache.put(compiledDependency, dependencyVar);
             if (externalTypesRegistration != null) {
                 externalTypesRegistration.register(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
@@ -140,16 +140,16 @@ public class DependencyBindingContext extends BindingContextDelegator {
     private ResolvedDependency resolveDependency(String dependencyName) {
         try {
             Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(
-                new Dependency(DependencyType.PROJECT, new IdentifierNode(null, null, dependencyName, null)),
-                false);
+                    new Dependency(DependencyType.PROJECT, new IdentifierNode(null, null, dependencyName, null)),
+                    false);
             return resolvedDependencies.isEmpty() ? null : resolvedDependencies.iterator().next();
         } catch (AmbiguousDependencyException e) {
             throw new AmbiguousFieldException(dependencyName, null);
         } catch (DependencyNotFoundException e) {
             try {
                 Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(
-                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)),
-                    false);
+                        new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)),
+                        false);
                 return resolvedDependencies.isEmpty() ? null : resolvedDependencies.iterator().next();
             } catch (AmbiguousDependencyException e1) {
                 throw new AmbiguousFieldException(dependencyName, null);

@@ -34,7 +34,7 @@ public class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     public void testGetProjectFiles() throws Exception {
         PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
         ProjectFile[] projectFiles = templatesResolver.getProjectFiles("examples",
-            "Example 3 - Auto Policy Calculation");
+                "Example 3 - Auto Policy Calculation");
         assertEquals(5, projectFiles.length);
         assertTrue(contains(projectFiles, "AutoPolicyCalculation.xlsx"));
         assertTrue(contains(projectFiles, "AutoPolicyTests.xlsx"));

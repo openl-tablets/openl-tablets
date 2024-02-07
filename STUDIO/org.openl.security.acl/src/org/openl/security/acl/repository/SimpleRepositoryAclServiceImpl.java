@@ -45,9 +45,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
     public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-            MutableAclService aclService,
-            String rootId,
-            Class<?> objectIdentityClass) {
+                                          MutableAclService aclService,
+                                          String rootId,
+                                          Class<?> objectIdentityClass) {
         this.springCacheBasedAclCache = springCacheBasedAclCache;
         this.aclService = aclService;
         this.rootId = rootId;
@@ -55,10 +55,10 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     }
 
     public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-            MutableAclService aclService,
-            String rootId,
-            Class<?> objectIdentityClass,
-            Sid relevantSystemWideSid) {
+                                          MutableAclService aclService,
+                                          String rootId,
+                                          Class<?> objectIdentityClass,
+                                          Sid relevantSystemWideSid) {
         this(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
         this.relevantSystemWideSid = relevantSystemWideSid;
     }
@@ -100,8 +100,8 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     }
 
     public static ObjectIdentity buildParentObjectIdentity(ObjectIdentity oi,
-            Class<?> objectIdentityClass,
-            String rootId) {
+                                                           Class<?> objectIdentityClass,
+                                                           String rootId) {
         if (Root.class.getName().equals(oi.getType())) {
             return null;
         }
@@ -202,7 +202,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             evictCache(objectIdentity);
             Map<Sid, List<Permission>> map = new HashMap<>();
             Acl acl = sids == null ? aclService.readAclById(objectIdentity)
-                                   : aclService.readAclById(objectIdentity, sids);
+                    : aclService.readAclById(objectIdentity, sids);
             for (AccessControlEntry ace : acl.getEntries()) {
                 if (ace.isGranting()) {
                     if (sids == null || sids.contains(ace.getSid())) {
@@ -227,7 +227,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             AccessControlEntry ace = acl.getEntries().get(i);
             if (ace.isGranting()) {
                 LinkedHashSet<Permission> p = existingPermissions.computeIfAbsent(ace.getSid(),
-                    k -> new LinkedHashSet<>());
+                        k -> new LinkedHashSet<>());
                 p.add(ace.getPermission());
             }
         }
@@ -307,7 +307,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void removePermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
         if (!(Objects.equals(objectIdentity.getType(),
-            getObjectIdentityClass().getName()) || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
+                getObjectIdentityClass().getName()) || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
             throw new IllegalArgumentException("Invalid object identity");
         }
         if (sids == null) {
@@ -345,7 +345,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void removePermissions(ObjectIdentity objectIdentity, Map<Sid, List<Permission>> permissions) {
         if (!(Objects.equals(objectIdentity.getType(),
-            getObjectIdentityClass().getName()) || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
+                getObjectIdentityClass().getName()) || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
             throw new IllegalArgumentException("Invalid object identity");
         }
         if (permissions == null) {
@@ -387,8 +387,8 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     }
 
     protected void movePermissions(ObjectIdentity oldObjectIdentity,
-            Function<ObjectIdentity, ObjectIdentity> mapFunction,
-            boolean deleteChildren) {
+                                   Function<ObjectIdentity, ObjectIdentity> mapFunction,
+                                   boolean deleteChildren) {
         ObjectIdentity newObjectIdentity = mapFunction.apply(oldObjectIdentity);
         MutableAcl oldAcl = getOrCreateAcl(oldObjectIdentity);
         MutableAcl newParentAcl = getOrCreateAcl(buildParentObjectIdentity(newObjectIdentity));
@@ -398,9 +398,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         newAcl.setEntriesInheriting(true);
         for (AccessControlEntry accessControlEntry : oldAcl.getEntries()) {
             newAcl.insertAce(newAcl.getEntries().size(),
-                accessControlEntry.getPermission(),
-                accessControlEntry.getSid(),
-                accessControlEntry.isGranting());
+                    accessControlEntry.getPermission(),
+                    accessControlEntry.getSid(),
+                    accessControlEntry.isGranting());
         }
         newAcl.setOwner(oldAcl.getOwner());
         aclService.updateAcl(newAcl);

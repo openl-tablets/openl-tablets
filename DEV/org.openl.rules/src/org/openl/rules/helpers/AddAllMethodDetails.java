@@ -15,10 +15,10 @@ public class AddAllMethodDetails implements MethodDetails {
     private final IOpenCast[] openCasts;
 
     public AddAllMethodDetails(Integer minDim,
-            Integer maxDim,
-            IOpenClass type,
-            boolean[] paramsAsElement,
-            IOpenCast[] openCasts) {
+                               Integer maxDim,
+                               IOpenClass type,
+                               boolean[] paramsAsElement,
+                               IOpenCast[] openCasts) {
         this.minDim = minDim;
         this.maxDim = maxDim;
         this.type = type;

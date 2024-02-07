@@ -15,8 +15,8 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
- *         This class provides standard Java metaphor of array implementation
+ * <p>
+ * This class provides standard Java metaphor of array implementation
  */
 public abstract class AAggregateInfo implements IAggregateInfo {
 

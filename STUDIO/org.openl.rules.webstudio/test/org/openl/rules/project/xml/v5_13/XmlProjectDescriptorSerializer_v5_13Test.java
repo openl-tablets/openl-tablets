@@ -28,11 +28,11 @@ public class XmlProjectDescriptorSerializer_v5_13Test {
     }
 
     @Test
-    public void testDeserialize()  throws Exception {
+    public void testDeserialize() throws Exception {
         ProjectDescriptor deserializedProject = new BaseProjectDescriptorSerializer<>(
                 new ProjectDescriptorVersionConverter_v5_13(), ProjectDescriptor_v5_13.class)
-            .deserialize(
-                new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_12.xml"));
+                .deserialize(
+                        new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_12.xml"));
         assertProjectDescriptorDeserializedCorrectly(deserializedProject);
     }
 }

@@ -10,11 +10,11 @@ public final class JAXBUtils {
 
     public static Class<?> extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(Class<?> boundType) {
         return extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(boundType,
-            boundType.getAnnotation(XmlJavaTypeAdapter.class));
+                boundType.getAnnotation(XmlJavaTypeAdapter.class));
     }
 
     public static Class<?> extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(Class<?> boundType,
-            XmlJavaTypeAdapter xmlJavaTypeAdapter) {
+                                                                             XmlJavaTypeAdapter xmlJavaTypeAdapter) {
         if (!boundType.isPrimitive()) {
             if (xmlJavaTypeAdapter != null) {
                 @SuppressWarnings("rawtypes")

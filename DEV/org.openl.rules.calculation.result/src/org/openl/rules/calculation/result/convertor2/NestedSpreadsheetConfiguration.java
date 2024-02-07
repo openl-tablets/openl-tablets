@@ -21,18 +21,21 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
  * Configuration for the nested spreadsheet result converter. Extend it by overriding abstract methods
  * {@link #initCompoundRowExtractor(List)} and {@link #initSimpleRowExtractor(List)}
  *
- * @author DLiauchuk
- *
  * @param <T> class that will be populated with values, when extracting rows without compound results.
  * @param <Q> class that will be populated with values, when extracting rows wit compound results.
+ * @author DLiauchuk
  */
 @Deprecated
 public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, Q extends CompoundStep> {
 
-    /** Map of columns that gonna be extracted on each level of extracting **/
+    /**
+     * Map of columns that gonna be extracted on each level of extracting
+     **/
     private final Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels;
 
-    /** Row filter **/
+    /**
+     * Row filter
+     **/
     private RowFilter rowFilter;
 
     private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
@@ -42,16 +45,14 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     }
 
     /**
-     *
      * @param columnsToExtractForLevels Map of columns that gonna be extracted on each level of extracting key: number
-     *            of the nesting level. value: list of columns to extract
+     *                                  of the nesting level. value: list of columns to extract
      */
     public NestedSpreadsheetConfiguration(Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels) {
         this.columnsToExtractForLevels = new HashMap<>(columnsToExtractForLevels);
     }
 
     /**
-     *
      * @param nestingLevel current nesting level
      * @return list of columns that must be extracted on given level
      */
@@ -82,12 +83,12 @@ public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, 
     /**
      * Initialize the extractor for the column that is compound.
      *
-     * @param nestingLevel current level of nesting
+     * @param nestingLevel    current level of nesting
      * @param columnToExtract column for extraction
      * @return the extractor for the column that is compound.
      */
     protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel,
-            ColumnToExtract columnToExtract) {
+                                                                           ColumnToExtract columnToExtract) {
         return new NestedSpreadsheedColumnExtractor(nestingLevel, this, columnToExtract);
     }
 

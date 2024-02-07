@@ -13,11 +13,8 @@ import org.openl.types.IOpenMethod;
  * Helper class for building IOpenClass and getting XlsModuleSyntaxNode from it. To get everything you need for your
  * tests just extend this class.
  *
- *
  * @author DLiauchuk
- *
  * @deprecated Use {@link TestUtils} instead
- *
  */
 @Deprecated
 public abstract class BaseOpenlBuilderHelper {
@@ -59,6 +56,6 @@ public abstract class BaseOpenlBuilderHelper {
 
     protected TableSyntaxNode[] getTableSyntaxNodes() {
         return ((XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
-            .getXlsTableSyntaxNodes();
+                .getXlsTableSyntaxNodes();
     }
 }

@@ -17,7 +17,6 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
  * Rules and Deployment projects are treated separately.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface DesignTimeRepository extends ProjectsContainer {
 
@@ -40,11 +39,11 @@ public interface DesignTimeRepository extends ProjectsContainer {
     /**
      * Gets particular version of a rules project.
      *
-     * @param name name of rules project
+     * @param name    name of rules project
      * @param version exact version of project
      * @return specified version of rules project
      * @deprecated This method is used for backward compatibility with old version of deploy configs. Use
-     *             getProjectByPath() instead.
+     * getProjectByPath() instead.
      */
     @Deprecated
     AProject getProject(String repositoryId, String name, CommonVersion version);

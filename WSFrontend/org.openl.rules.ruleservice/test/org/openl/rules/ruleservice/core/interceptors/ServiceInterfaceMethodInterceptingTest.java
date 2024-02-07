@@ -170,6 +170,7 @@ public class ServiceInterfaceMethodInterceptingTest {
     public static class AfterConverter5 extends AbstractServiceMethodAfterReturningAdvice<String> {
 
         String methodName;
+
         @InjectOpenMember
         public void setIOpenMember(IOpenMember openMember) {
             this.methodName = openMember.getName().toUpperCase();
@@ -262,8 +263,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         @Override
         public Object invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
             Class<?> myBeanClass = Thread.currentThread()
-                .getContextClassLoader()
-                .loadClass("org.openl.generated.beans.MyBean");
+                    .getContextClassLoader()
+                    .loadClass("org.openl.generated.beans.MyBean");
             return myBeanClass.getDeclaredConstructor().newInstance();
         }
     }
@@ -285,6 +286,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             this.openClass = openClass;
 
         }
+
         @Override
         public String invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
             var myBeanClass = classLoader.loadClass("org.openl.generated.beans.MyBean").getSimpleName();
@@ -300,14 +302,14 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     private ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder() {
         return new ServiceDescription.ServiceDescriptionBuilder().setServiceClassName(OverloadInterface.class.getName())
-            .setName("service")
-            .setUrl("/")
-            .setProvideRuntimeContext(true)
-            .setProvideVariations(false)
-            .setDeployment(deploymentDescription)
-            .setModules(modules)
-            .setServicePath("service")
-            .setResourceLoader(location -> null);
+                .setName("service")
+                .setUrl("/")
+                .setProvideRuntimeContext(true)
+                .setProvideVariations(false)
+                .setDeployment(deploymentDescription)
+                .setModules(modules)
+                .setServicePath("service")
+                .setResourceLoader(location -> null);
     }
 
     @BeforeEach
@@ -323,7 +325,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         projectDescriptor.setName("service");
         projectDescriptor.setModules(modules);
         projectDescriptor
-            .setProjectFolder(Paths.get("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
+                .setProjectFolder(Paths.get("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
         module.setProject(projectDescriptor);
         module.setRulesRootPath(new PathEntry("Overload.xls"));
 
@@ -332,8 +334,8 @@ public class ServiceInterfaceMethodInterceptingTest {
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
 
         when(ruleServiceLoader.resolveProject(deploymentDescription.getName(),
-            deploymentDescription.getVersion(),
-            projectDescriptor.getName())).thenReturn(projectDescriptor);
+                deploymentDescription.getVersion(),
+                projectDescriptor.getName())).thenReturn(projectDescriptor);
         Deployment deployment = mock(Deployment.class);
         List<IProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
@@ -343,9 +345,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         when(deployment.getDeploymentName()).thenReturn(deploymentDescription.getName());
         when(deployment.getCommonVersion()).thenReturn(deploymentDescription.getVersion());
         when(ruleServiceLoader.getDeployment(eq(deploymentDescription.getName()),
-            eq(deploymentDescription.getVersion()))).thenReturn(deployment);
+                eq(deploymentDescription.getVersion()))).thenReturn(deployment);
         when(ruleServiceLoader
-            .resolveProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
+                .resolveProject(deploymentDescription.getName(), deploymentDescription.getVersion(), "service"))
                 .thenReturn(projectDescriptor);
     }
 
@@ -381,16 +383,16 @@ public class ServiceInterfaceMethodInterceptingTest {
     @Test
     public void testResultConverterInterceptor2() throws Exception {
         OpenLService service = instantiationFactory
-            .createService(serviceDescriptionBuilder().setAnnotationTemplateClassName(AOverload.class.getName())
-                .setServiceClassName(null)
-                .build());
+                .createService(serviceDescriptionBuilder().setAnnotationTemplateClassName(AOverload.class.getName())
+                        .setServiceClassName(null)
+                        .build());
         Object serviceBean = service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
         calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Method method = serviceBean.getClass()
-            .getDeclaredMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class);
+                .getDeclaredMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class);
         assertEquals(100, (Double) method.invoke(serviceBean, runtimeContext, "High Risk Driver"), 0.1);
     }
 
@@ -436,11 +438,11 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void testServiceClassUndecorating() throws Exception {
         ServiceDescription serviceDescription = serviceDescriptionBuilder().build();
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-            .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
-                Thread.currentThread().getContextClassLoader(),
-                null,
-                serviceDescription.isProvideRuntimeContext(),
-                serviceDescription.isProvideVariations());
+                .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
+                        Thread.currentThread().getContextClassLoader(),
+                        null,
+                        serviceDescription.isProvideRuntimeContext(),
+                        serviceDescription.isProvideVariations());
         assertEquals(3, interfaceForInstantiationStrategy.getMethods().length);
         assertEquals(String.class, interfaceForInstantiationStrategy.getMethod("convert", IRulesRuntimeContext.class, String.class).getReturnType());
         assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());
@@ -451,32 +453,32 @@ public class ServiceInterfaceMethodInterceptingTest {
     public void testMissingInterfaceClasses() {
         try {
             OpenLService service = instantiationFactory
-                .createService(serviceDescriptionBuilder().setServiceClassName(ELUSIVE_CLASS_NAME).build());
+                    .createService(serviceDescriptionBuilder().setServiceClassName(ELUSIVE_CLASS_NAME).build());
             service.getServiceClass();
             fail("Everything went different before...");
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
-                "Failed to load a service class 'org.openl.test.MustNotBeFoundInClassloader'.");
+                    "Failed to load a service class 'org.openl.test.MustNotBeFoundInClassloader'.");
             assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
         try {
             OpenLService service = instantiationFactory
-                .createService(serviceDescriptionBuilder().setServiceClassName(null)
-                    .setAnnotationTemplateClassName(ELUSIVE_CLASS_NAME)
-                    .build());
+                    .createService(serviceDescriptionBuilder().setServiceClassName(null)
+                            .setAnnotationTemplateClassName(ELUSIVE_CLASS_NAME)
+                            .build());
             service.getServiceClass();
             fail("Everything went different before...");
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
-                "Failed to load or apply annotation template class 'org.openl.test.MustNotBeFoundInClassloader'.");
+                    "Failed to load or apply annotation template class 'org.openl.test.MustNotBeFoundInClassloader'.");
             assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
 
         try {
             OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder()
-                .setServiceClassName(null)
+                    .setServiceClassName(null)
                     .setRmiServiceClassName(ELUSIVE_CLASS_NAME)
                     .setPublishers(Collections.singletonList("RMI"))
                     .build());
@@ -484,31 +486,31 @@ public class ServiceInterfaceMethodInterceptingTest {
             fail("Everything went different before...");
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
-                "Failed to load RMI service class 'org.openl.test.MustNotBeFoundInClassloader'.");
+                    "Failed to load RMI service class 'org.openl.test.MustNotBeFoundInClassloader'.");
             assertNotNull(actual, "Exception must be present");
             assertTrue(actual.getCause() instanceof ClassNotFoundException);
         }
 
         try {
             OpenLService service = instantiationFactory
-                .createService(serviceDescriptionBuilder().setServiceClassName(null)
-                    .setAnnotationTemplateClassName(Overload.class.getName())
-                    .build());
+                    .createService(serviceDescriptionBuilder().setServiceClassName(null)
+                            .setAnnotationTemplateClassName(Overload.class.getName())
+                            .build());
             service.getServiceClass();
             fail("Everything went different before...");
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
-                "Failed to apply annotation template class 'org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$Overload'. Interface or abstract class is expected, but class is found.");
+                    "Failed to apply annotation template class 'org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$Overload'. Interface or abstract class is expected, but class is found.");
             assertNotNull(actual, "Exception must be present");
         }
         try {
             OpenLService service = instantiationFactory
-                .createService(serviceDescriptionBuilder().setServiceClassName(AOverload.class.getName()).build());
+                    .createService(serviceDescriptionBuilder().setServiceClassName(AOverload.class.getName()).build());
             service.getServiceClass();
             fail("Everything went different before...");
         } catch (RuleServiceInstantiationException e) {
             Throwable actual = findExceptionByMessage(e,
-                "Failed to apply service class 'class org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$AOverload'. Interface is expected, but class is found.");
+                    "Failed to apply service class 'class org.openl.rules.ruleservice.core.interceptors.ServiceInterfaceMethodInterceptingTest$AOverload'. Interface is expected, but class is found.");
             assertNotNull(actual, "Exception must be present");
         }
     }

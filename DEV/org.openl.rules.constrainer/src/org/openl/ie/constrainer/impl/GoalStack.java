@@ -75,11 +75,11 @@ public final class GoalStack implements Serializable {
 
     /**
      * Backtracks this goal stack and the undo stack to the most recent labeled choice point.
-     *
+     * <p>
      * If the required choice point was found: - goal stack is restored to the state when the choice point was created -
      * undo stack is restored to the state when the choice point was created - choice point goal is pushed onto goal
      * stack - true is returned
-     *
+     * <p>
      * If the required choice point is not found: - goal stack will be empty - undo stack is restored to the state when
      * the goal stack was created - false is returned
      */
@@ -97,7 +97,7 @@ public final class GoalStack implements Serializable {
 
     /**
      * Backtracks the state of this goal stack to the latest labeled choice point.
-     *
+     * <p>
      * If the required choice point is found: - it restores the state of the execution stack - the required choice point
      * is returned If the required choice point is not found: - the goal stack is empty - null is returned
      */

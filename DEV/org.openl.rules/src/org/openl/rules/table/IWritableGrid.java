@@ -6,7 +6,6 @@ import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
- *
  */
 public interface IWritableGrid extends IGrid {
 
@@ -22,7 +21,7 @@ public interface IWritableGrid extends IGrid {
      * Finds a rectangular area of given width and height on the grid that can be used for writing. The returned region
      * should not intersect with or touch existing not empty cells.
      *
-     * @param width rectangle width
+     * @param width  rectangle width
      * @param height rectangle height
      * @return region representing required rectangle or <code>null</code> if not found
      */

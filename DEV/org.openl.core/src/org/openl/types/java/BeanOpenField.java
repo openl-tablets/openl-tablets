@@ -22,7 +22,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public final class BeanOpenField implements IOpenField {
     private static final Logger LOG = LoggerFactory.getLogger(BeanOpenField.class);

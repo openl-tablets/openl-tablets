@@ -19,7 +19,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
- *
  */
 public class MethodBindingContext extends BindingContextDelegator {
 

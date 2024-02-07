@@ -25,9 +25,9 @@ import org.openl.ie.constrainer.Subject;
 
 /**
  * An abstract implementation of the observers used in expressions.
- *
+ * <p>
  * Any expression is a subject for other expressions and has an observers for its arguments.
- *
+ * <p>
  * ExpressionObserver maintains transformations between publisher event mask for the expression and subscriber event
  * mask for its arguments.
  */
@@ -69,7 +69,7 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * Trivial event map.
      */
-    static final private int[] trival_event_map = { MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE };
+    static final private int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
 
     // protected Expression _expression;
     private final EventMap _event_map;
@@ -102,9 +102,10 @@ public abstract class ExpressionObserver extends Observer {
     // return _event_map;
     // }
     //
+
     /**
      * Subscribes for the events from "exp" with a given "publishMask".
-     *
+     * <p>
      * This method will be initiated by any subscriber (constraint on this expression or other expression) which wants
      * to be notified about events presented by the "publishMask" (the constraint subscribes to these events).
      */

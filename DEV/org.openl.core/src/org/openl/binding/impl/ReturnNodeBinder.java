@@ -13,7 +13,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class ReturnNodeBinder extends ANodeBinder {
 
@@ -41,7 +40,7 @@ public class ReturnNodeBinder extends ANodeBinder {
         IBoundNode[] children = {};
 
         if (exprNode != null) {
-            children = new IBoundNode[] { exprNode };
+            children = new IBoundNode[]{exprNode};
         }
 
         return new ReturnNode(node, children);

@@ -123,7 +123,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createExpenseModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String[][] expenseTable = { { "Datatype Expense" }, { "String", "area" } };
+        String[][] expenseTable = {{"Datatype Expense"}, {"String", "area"}};
 
         createTable(sheet, expenseTable);
         writeBook(book, EXPENSE_MODULE_FILE_NAME);
@@ -132,8 +132,8 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createMainModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String[][] environmentTable = { { "Environment" }, { "dependency", "ExpenseModule" } };
-        String[][] dataTable = { { "Data Expense a" }, { "area", "Area", "Test area" } };
+        String[][] environmentTable = {{"Environment"}, {"dependency", "ExpenseModule"}};
+        String[][] dataTable = {{"Data Expense a"}, {"area", "Area", "Test area"}};
 
         createTable(sheet, environmentTable);
         createTable(sheet, dataTable);

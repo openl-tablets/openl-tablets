@@ -17,7 +17,7 @@ public class TraceFormatterTest {
     public void getDisplayNameTest() {
         Spreadsheet spreadsheet = createNodeMock();
         SimpleTracerObject spreadsheetTraceObject = TracedObjectFactory
-            .getTracedObject(spreadsheet, null, null, null, null);
+                .getTracedObject(spreadsheet, null, null, null, null);
         SpreadsheetCell cell = createCellMock();
         SimpleTracerObject leafNode = TracedObjectFactory.getTracedObject(null, cell, null, null, null);
         spreadsheetTraceObject.addChild(leafNode);
@@ -39,16 +39,16 @@ public class TraceFormatterTest {
         leafNode.setResult(0.95);
         assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode, false));
 
-        leafNode.setResult(new Double[] {0.95});
+        leafNode.setResult(new Double[]{0.95});
         assertEquals("$Value$Vehicle_Premiums = {0.95}", TraceFormatter.getDisplayName(leafNode, false));
 
-        leafNode.setResult(new Double[] {0.95, 1.0E-5, null});
+        leafNode.setResult(new Double[]{0.95, 1.0E-5, null});
         assertEquals("$Value$Vehicle_Premiums = {0.95,0.00001,null}", TraceFormatter.getDisplayName(leafNode, false));
 
-        leafNode.setResult(new double[][] { { 0.95, 0.55 }, { 1.95, 1.55 } });
+        leafNode.setResult(new double[][]{{0.95, 0.55}, {1.95, 1.55}});
         assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}", TraceFormatter.getDisplayName(leafNode, false));
 
-        leafNode.setResult(new double[][] { { 1.0E-5, 0.1 + 0.2 }, { 0.1 + 0.2, 1.0E-5 } });
+        leafNode.setResult(new double[][]{{1.0E-5, 0.1 + 0.2}, {0.1 + 0.2, 1.0E-5}});
         assertEquals("$Value$Vehicle_Premiums = {{0.00001,0.30000000000000004},{0.30000000000000004,0.00001}}", TraceFormatter.getDisplayName(leafNode, false));
         assertEquals("$Value$Vehicle_Premiums = {{0.00001,0.3},{0.3,0.00001}}", TraceFormatter.getDisplayName(leafNode, true));
     }
@@ -62,8 +62,8 @@ public class TraceFormatterTest {
 
     protected Spreadsheet createNodeMock() {
         Spreadsheet spreadsheet = mock(Spreadsheet.class);
-        when(spreadsheet.getColumnNames()).thenReturn(new String[] { "Value" });
-        when(spreadsheet.getRowNames()).thenReturn(new String[] { "Vehicle_Premiums" });
+        when(spreadsheet.getColumnNames()).thenReturn(new String[]{"Value"});
+        when(spreadsheet.getRowNames()).thenReturn(new String[]{"Vehicle_Premiums"});
         return spreadsheet;
     }
 

@@ -7,6 +7,7 @@ import org.openl.ie.tools.FastVector;
 //
 //: DomainImplWithHoles.java
 //
+
 /**
  * A implementation of the Domain interface that supports a vector of intervals where each interval defines the only
  * possible values.

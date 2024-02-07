@@ -18,7 +18,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
- *
  */
 public class BoundCode implements IBoundCode {
 
@@ -28,9 +27,9 @@ public class BoundCode implements IBoundCode {
     private final Collection<OpenLMessage> messages;
 
     public BoundCode(IParsedCode parsedCode,
-            IBoundNode topNode,
-            SyntaxNodeException[] errors,
-            Collection<OpenLMessage> messages) {
+                     IBoundNode topNode,
+                     SyntaxNodeException[] errors,
+                     Collection<OpenLMessage> messages) {
         this.parsedCode = parsedCode;
         this.topNode = topNode;
         this.errors = errors;

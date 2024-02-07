@@ -74,7 +74,7 @@ public class LocalRepository extends FileSystemRepository {
             path += "/";
         }
         return fileName.startsWith(path + FolderHelper.PROPERTIES_FOLDER + "/") || fileName
-            .startsWith(path + FolderHelper.HISTORY_FOLDER + "/");
+                .startsWith(path + FolderHelper.HISTORY_FOLDER + "/");
     }
 
     @Override
@@ -95,8 +95,8 @@ public class LocalRepository extends FileSystemRepository {
 
     @Override
     public FileData save(FileData folderData,
-            final Iterable<FileItem> files,
-            ChangesetType changesetType) throws IOException {
+                         final Iterable<FileItem> files,
+                         ChangesetType changesetType) throws IOException {
         FileData fileData = super.save(folderData, files, changesetType);
         notifyModified(folderData.getName());
         return fileData;
@@ -143,7 +143,7 @@ public class LocalRepository extends FileSystemRepository {
      * The file is modified if any of these is true: a) it's marked as modified in properties file b) size is changed c)
      * last modified time is changed
      *
-     * @param fileData file data for checking file
+     * @param fileData   file data for checking file
      * @param properties properties of original file
      * @return true if file is modified
      */
@@ -258,7 +258,7 @@ public class LocalRepository extends FileSystemRepository {
             @Override
             public void saveFileData(String repositoryId, FileData fileData) {
                 if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getAuthor()
-                    .getName() == null || fileData.getModifiedAt() == null) {
+                        .getName() == null || fileData.getModifiedAt() == null) {
                     // No need to save empty fileData
                     return;
                 }
@@ -272,7 +272,7 @@ public class LocalRepository extends FileSystemRepository {
                 properties.put(VERSION_PROPERTY, fileData.getVersion());
                 properties.put(AUTHOR_PROPERTY, name);
                 properties.put(MODIFIED_AT_PROPERTY,
-                    new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
+                        new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
                 properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
                 properties.put(SIZE_PROPERTY, "" + fileData.getSize());
                 if (fileData.getComment() != null) {
@@ -322,7 +322,7 @@ public class LocalRepository extends FileSystemRepository {
                         // Will be removed in the future.
                         String modifiedAtStr = properties.get(MODIFIED_AT_PROPERTY);
                         modifiedAt = modifiedAtStr == null ? null
-                                                           : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
+                                : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
                     }
                     String size = properties.get(SIZE_PROPERTY);
                     String comment = properties.get(COMMENT_PROPERTY);

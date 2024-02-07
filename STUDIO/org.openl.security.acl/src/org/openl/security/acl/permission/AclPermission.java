@@ -17,16 +17,16 @@ public class AclPermission extends BasePermission {
 
     public static final AclPermission VIEW = new AclPermission(1 << MASK_END | DESIGN_REPOSITORY_READ.getMask(), 'V');
     public static final AclPermission CREATE = new AclPermission(2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
-        'N');
+            'N');
     public static final AclPermission ADD = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(), 'A');
     public static final AclPermission EDIT = new AclPermission(
-        4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE.getMask(),
-        'E');
+            4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE.getMask(),
+            'E');
     public static final AclPermission DELETE = new AclPermission(5 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
-        'A');
+            'A');
     public static final AclPermission ERASE = new AclPermission(
-        6 << MASK_END | DESIGN_REPOSITORY_DELETE_HISTORY.getMask(),
-        'E');
+            6 << MASK_END | DESIGN_REPOSITORY_DELETE_HISTORY.getMask(),
+            'E');
 
     public static final AclPermission DEPLOY = new AclPermission(11 << MASK_END, 'Y');
 
@@ -34,10 +34,10 @@ public class AclPermission extends BasePermission {
     public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'B');
 
     public static final Collection<AclPermission> ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS = List
-        .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, RUN, BENCHMARK);
+            .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, RUN, BENCHMARK);
 
     public static final Collection<AclPermission> ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS = List
-        .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, DEPLOY);
+            .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, DEPLOY);
 
     public static final Collection<AclPermission> ALL_SUPPORTED_PROD_REPO_PERMISSIONS = List.of(VIEW, EDIT, DELETE);
 

@@ -50,34 +50,34 @@ public class ServiceApiConfig {
     @Bean
     @Scope(WebApplicationContext.SCOPE_SESSION)
     public RulesUserSession rulesUserSession(CurrentUserInfo currentUserInfo,
-            MultiUserWorkspaceManager workspaceManager,
-            UserManagementService userManagementService,
-            TestSuiteExecutor testSuiteExecutor,
-            UserSettingManagementService userSettingManagementService,
-            RepositoryAclService designRepositoryAclService,
-            SimpleRepositoryAclService productionRepositoryAclService,
-            ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-            PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector,
-            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-            PropertyResolver propertyResolver,
-            DeploymentManager deploymentManager) {
+                                             MultiUserWorkspaceManager workspaceManager,
+                                             UserManagementService userManagementService,
+                                             TestSuiteExecutor testSuiteExecutor,
+                                             UserSettingManagementService userSettingManagementService,
+                                             RepositoryAclService designRepositoryAclService,
+                                             SimpleRepositoryAclService productionRepositoryAclService,
+                                             ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
+                                             PathFilter zipFilter,
+                                             ZipCharsetDetector zipCharsetDetector,
+                                             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+                                             PropertyResolver propertyResolver,
+                                             DeploymentManager deploymentManager) {
         var rulesUserSession = new RulesUserSession();
         rulesUserSession.setUserName(currentUserInfo.getUserName());
         rulesUserSession.setWorkspaceManager(workspaceManager);
         rulesUserSession.setUserManagementService(userManagementService);
 
         WebStudio webStudio = new WebStudio(rulesUserSession,
-            testSuiteExecutor,
-            userSettingManagementService,
-            designRepositoryAclService,
-            productionRepositoryAclService,
-            projectDescriptorArtefactResolver,
-            zipFilter,
-            zipCharsetDetector,
-            projectDescriptorSerializerFactory,
-            propertyResolver,
-            deploymentManager);
+                testSuiteExecutor,
+                userSettingManagementService,
+                designRepositoryAclService,
+                productionRepositoryAclService,
+                projectDescriptorArtefactResolver,
+                zipFilter,
+                zipCharsetDetector,
+                projectDescriptorSerializerFactory,
+                propertyResolver,
+                deploymentManager);
         rulesUserSession.setWebStudio(webStudio);
         return rulesUserSession;
     }

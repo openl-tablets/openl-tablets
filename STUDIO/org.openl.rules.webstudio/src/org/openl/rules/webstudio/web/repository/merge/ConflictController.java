@@ -65,7 +65,7 @@ public class ConflictController {
     @Operation(summary = "conflict.repository.summary", description = "conflict.repository.desc")
     @ApiResponse(responseCode = "200", description = "conflict.repository.200.desc", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> repository(
             @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
@@ -77,9 +77,9 @@ public class ConflictController {
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
         StreamingResponseBody streamingOutput = output -> {
             FileItem file = workspaceManager.getUserWorkspace(getUser())
-                .getDesignTimeRepository()
-                .getRepository(repoId)
-                .readHistory(name, version);
+                    .getDesignTimeRepository()
+                    .getRepository(repoId)
+                    .readHistory(name, version);
             if (file == null) {
                 throw new FileNotFoundException(String.format("File '%s' is not found.", name));
             }
@@ -97,7 +97,7 @@ public class ConflictController {
     @Operation(summary = "conflict.local.summary", description = "conflict.local.desc")
     @ApiResponse(responseCode = "200", description = "conflict.local.200.desc", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> local(
             @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
@@ -136,7 +136,7 @@ public class ConflictController {
     @Operation(summary = "conflict.merged.summary", description = "conflict.merged.desc")
     @ApiResponse(responseCode = "200", description = "conflict.merged.200.desc", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> merged(
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
             @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
@@ -145,7 +145,7 @@ public class ConflictController {
 
         StreamingResponseBody streamingOutput = output -> {
             Map<String, ConflictResolution> conflictResolutions = ConflictUtils
-                .getResolutionsFromSession(request.getSession());
+                    .getResolutionsFromSession(request.getSession());
             ConflictResolution conflictResolution = conflictResolutions.get(name);
             try (InputStream input = conflictResolution.getCustomResolutionFile().getInput()) {
                 input.transferTo(output);
@@ -159,18 +159,18 @@ public class ConflictController {
     }
 
     private ResponseEntity<?> prepareResponse(HttpServletRequest request,
-            HttpServletResponse response,
-            String cookieName,
-            String filePath,
-            StreamingResponseBody streamingOutput) {
+                                              HttpServletResponse response,
+                                              String cookieName,
+                                              String filePath,
+                                              StreamingResponseBody streamingOutput) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             streamingOutput.writeTo(output);
             String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
             response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                .body(output.toByteArray());
+                    .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
+                    .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to download file.";
             LOG.error(message, e);
@@ -194,9 +194,9 @@ public class ConflictController {
 
     private WorkspaceUserImpl getUser() {
         return new WorkspaceUserImpl(getUserName(),
-            (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                .orElse(null));
+                (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                        .orElse(null));
     }
 
     private static String getUserName() {

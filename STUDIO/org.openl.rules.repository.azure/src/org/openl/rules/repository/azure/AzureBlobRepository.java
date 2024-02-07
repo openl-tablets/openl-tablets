@@ -59,7 +59,7 @@ import org.openl.util.StringUtils;
  * commit message and file names with their versions for that particular commit.<br/>
  * Also, it is possible to read and save only modified files when opening old project version or saving a project
  * in WebStudio (see supports().uniqueFileId() feature).
- * 
+ *
  * @author Nail Samatov
  */
 public class AzureBlobRepository implements Repository {
@@ -303,6 +303,7 @@ public class AzureBlobRepository implements Repository {
             if (client.exists()) {
                 return new FileItem(name, client.openInputStream()) {
                     private FileData lazyData;
+
                     @Override
                     public FileData getData() {
                         if (lazyData == null) {
@@ -418,6 +419,7 @@ public class AzureBlobRepository implements Repository {
 
                 return new FileItem(name, binaryData.toStream()) {
                     private FileData lazyData;
+
                     @Override
                     public FileData getData() {
                         if (lazyData == null) {
@@ -511,7 +513,7 @@ public class AzureBlobRepository implements Repository {
                 try (final InputStream stream = file.getStream()) {
                     BlobClient blobClient = blobContainerClient.getBlobClient(CONTENT_PREFIX + newFile);
                     response = blobClient.uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromStream(stream)).setRequestConditions(
-                            new BlobRequestConditions()),
+                                    new BlobRequestConditions()),
                             null, Context.NONE);
                 }
 
@@ -574,17 +576,17 @@ public class AzureBlobRepository implements Repository {
         }
         final List<FileInfo> files = commit.getFiles();
         return files == null ? Collections.emptyList()
-                             : files.stream()
-                                 .filter(fileInfo -> fileInfo.getPath().startsWith(filterPath))
-                                 .map(fileInfo -> {
-                                     FileData fileData = new FileData();
-                                     fileData.setName(fileInfo.getPath());
-                                     fileData.setVersion(commit.getVersion());
-                                     fileData.setUniqueId(fileInfo.getRevision());
+                : files.stream()
+                .filter(fileInfo -> fileInfo.getPath().startsWith(filterPath))
+                .map(fileInfo -> {
+                    FileData fileData = new FileData();
+                    fileData.setName(fileInfo.getPath());
+                    fileData.setVersion(commit.getVersion());
+                    fileData.setUniqueId(fileInfo.getRevision());
 
-                                     return fileData;
-                                 })
-                                 .collect(Collectors.toList());
+                    return fileData;
+                })
+                .collect(Collectors.toList());
     }
 
     private Response<BlockBlobItem> saveFile(FileItem file) throws IOException {
@@ -595,7 +597,7 @@ public class AzureBlobRepository implements Repository {
         final Response<BlockBlobItem> response;
         try (final InputStream stream = file.getStream()) {
             response = blobClient.uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromStream(stream)).setRequestConditions(blobRequestConditions),
-                null, Context.NONE);
+                    null, Context.NONE);
         }
         return response;
     }
@@ -683,8 +685,8 @@ public class AzureBlobRepository implements Repository {
         final BlobClient blobClient = blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE);
 
         final Response<BlockBlobItem> response = blobClient
-            .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(mapper.writeValueAsBytes(commit)))
-                .setRequestConditions(new BlobRequestConditions()), null, Context.NONE);
+                .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(mapper.writeValueAsBytes(commit)))
+                        .setRequestConditions(new BlobRequestConditions()), null, Context.NONE);
         commit.setVersion(response.getValue().getVersionId());
     }
 

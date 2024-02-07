@@ -20,7 +20,7 @@ import org.openl.runtime.IEngineWrapper;
 class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final Logger log = LoggerFactory
-        .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
+            .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private final Map<Method, Method> methodsMap;
     private final Object serviceClassInstance;
@@ -31,7 +31,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends Abstr
     }
 
     public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
-            Object serviceClassInstance) {
+                                                                        Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
     }
@@ -76,7 +76,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends Abstr
             wrapper.setRuntimeContext(context);
         } else {
             log.error(
-                "Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
+                    "Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
         }
     }
 

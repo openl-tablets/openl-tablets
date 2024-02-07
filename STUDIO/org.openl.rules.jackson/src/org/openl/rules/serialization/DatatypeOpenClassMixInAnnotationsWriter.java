@@ -14,9 +14,9 @@ public class DatatypeOpenClassMixInAnnotationsWriter extends ClassVisitor {
     private final String rootName;
 
     public DatatypeOpenClassMixInAnnotationsWriter(ClassVisitor delegatedClassVisitor,
-            String className,
-            Class<?> originalMixInClass,
-            String rootName) {
+                                                   String className,
+                                                   Class<?> originalMixInClass,
+                                                   String rootName) {
         super(Opcodes.ASM5, delegatedClassVisitor);
         this.className = className;
         this.originalMixInClass = originalMixInClass;
@@ -25,11 +25,11 @@ public class DatatypeOpenClassMixInAnnotationsWriter extends ClassVisitor {
 
     @Override
     public void visit(final int version,
-            final int access,
-            final String name,
-            final String signature,
-            final String superName,
-            final String[] interfaces) {
+                      final int access,
+                      final String name,
+                      final String signature,
+                      final String superName,
+                      final String[] interfaces) {
         super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         if (!originalMixInClass.isAnnotationPresent(JsonInclude.class)) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonInclude.class), true);

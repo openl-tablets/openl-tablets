@@ -249,7 +249,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             throw re;
         } catch (Exception e) {
             String msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": " + c
-                .getName();
+                    .getName();
 
             throw new RuntimeException(msg, e);
         }

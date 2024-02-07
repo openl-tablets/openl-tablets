@@ -10,15 +10,15 @@ class DeclaredDTHeader extends DTHeader {
     private final boolean verticalConditionWithMergedTitle;
 
     DeclaredDTHeader(int[] methodParameterIndexes,
-            DTColumnsDefinition dtColumnsDefinition,
-            IParameterDeclaration[][] columnParameters,
-            int column,
-            int row,
-            int width,
-            int widthForMerge,
-            MatchedDefinition matchedDefinition,
-            boolean horizontal,
-            boolean verticalConditionWithMergedTitle) {
+                     DTColumnsDefinition dtColumnsDefinition,
+                     IParameterDeclaration[][] columnParameters,
+                     int column,
+                     int row,
+                     int width,
+                     int widthForMerge,
+                     MatchedDefinition matchedDefinition,
+                     boolean horizontal,
+                     boolean verticalConditionWithMergedTitle) {
         super(methodParameterIndexes, null, column, row, width, widthForMerge, horizontal);
         this.columnParameters = columnParameters;
         this.dtColumnsDefinition = dtColumnsDefinition;

@@ -17,13 +17,13 @@ public final class TableMethodWrapper extends AbstractTableMethodWrapper impleme
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public TableMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            TableMethod delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                              TableMethod delegate,
+                              ContextPropertiesInjector contextPropertiesInjector,
+                              boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

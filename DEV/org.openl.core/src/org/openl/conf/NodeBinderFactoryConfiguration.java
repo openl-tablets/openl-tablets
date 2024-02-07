@@ -12,7 +12,6 @@ import org.openl.util.CategorizedMap;
 
 /**
  * @author snshor
- *
  */
 public class NodeBinderFactoryConfiguration extends AConfigurationElement {
 

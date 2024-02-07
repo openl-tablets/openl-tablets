@@ -42,7 +42,7 @@ public class MockConfiguration implements WebMvcConfigurer {
         converters.add(new ByteArrayHttpMessageConverter());
         converters.add(new StringHttpMessageConverter());
         var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(
-            Jackson2ObjectMapperBuilder.json().build());
+                Jackson2ObjectMapperBuilder.json().build());
         jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
         converters.add(jacksonMessageConverter);
     }

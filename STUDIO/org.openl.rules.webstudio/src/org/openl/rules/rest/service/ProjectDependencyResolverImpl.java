@@ -59,8 +59,8 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     private void calcDependencies(RulesProject project,
-            Set<String> processedProjects,
-            Collection<RulesProject> result) {
+                                  Set<String> processedProjects,
+                                  Collection<RulesProject> result) {
         List<ProjectDependencyDescriptor> dependenciesDescriptors;
         try {
             dependenciesDescriptors = projectDescriptorResolver.getDependencies(project);
@@ -74,15 +74,15 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
         }
 
         Set<String> dependencyNames = dependenciesDescriptors.stream()
-            .map(ProjectDependencyDescriptor::getName)
-            .collect(Collectors.toSet());
+                .map(ProjectDependencyDescriptor::getName)
+                .collect(Collectors.toSet());
         String repoId = project.getRepository().getId();
 
         // Separate projects based on the match of the repository with the repository of the project for which the
         // dependencies are searched, since such projects have priority when the name matches.
         Map<Boolean, List<RulesProject>> projects = getAllProjects().stream()
-            .filter(p -> dependencyNames.contains(p.getBusinessName()))
-            .collect(Collectors.partitioningBy(p -> p.getRepository().getId().equals(repoId)));
+                .filter(p -> dependencyNames.contains(p.getBusinessName()))
+                .collect(Collectors.partitioningBy(p -> p.getRepository().getId().equals(repoId)));
 
         for (String dependencyName : dependencyNames) {
             if (!processedProjects.add(dependencyName)) {
@@ -96,16 +96,16 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
             Optional<RulesProject> dependentProject = Optional.empty();
             if (!projects.get(Boolean.TRUE).isEmpty()) {
                 dependentProject = projects.get(Boolean.TRUE)
-                    .stream()
-                    .filter(
-                        p -> p.getBusinessName().equals(dependencyName) && p.getBranch().equals(project.getBranch()))
-                    .findFirst();
+                        .stream()
+                        .filter(
+                                p -> p.getBusinessName().equals(dependencyName) && p.getBranch().equals(project.getBranch()))
+                        .findFirst();
             }
             if (dependentProject.isEmpty() && !projects.get(Boolean.FALSE).isEmpty()) {
                 dependentProject = projects.get(Boolean.FALSE)
-                    .stream()
-                    .filter(p -> p.getBusinessName().equals(dependencyName))
-                    .findFirst();
+                        .stream()
+                        .filter(p -> p.getBusinessName().equals(dependencyName))
+                        .findFirst();
             }
 
             dependentProject.ifPresent(dep -> {

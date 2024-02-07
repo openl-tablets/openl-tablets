@@ -123,13 +123,13 @@ public class TableStyleListener implements HSSFListener {
             collectComments();
 
             tableStyles = new EventTableStyles(tableRegion,
-                cellIndexes,
-                formatListener.getExtendedFormats(),
-                formatListener.getCustomFormats(),
-                palette,
-                formatListener.getFonts(),
-                comments,
-                formulas);
+                    cellIndexes,
+                    formatListener.getExtendedFormats(),
+                    formatListener.getCustomFormats(),
+                    palette,
+                    formatListener.getFonts(),
+                    comments,
+                    formulas);
         }
     }
 
@@ -217,11 +217,11 @@ public class TableStyleListener implements HSSFListener {
                     currentFormula.setCachedResultBoolean(false);
                 }
                 FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
-                    cachedText,
-                    sharedValueManager);
+                        cachedText,
+                        sharedValueManager);
                 Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
                 boolean workbookDependentFormula = Arrays.stream(formulaTokens)
-                    .anyMatch(t -> t instanceof WorkbookDependentFormula);
+                        .anyMatch(t -> t instanceof WorkbookDependentFormula);
                 if (workbookDependentFormula) {
                     formulas.put(new CellAddress(row, column), "");
                 } else {

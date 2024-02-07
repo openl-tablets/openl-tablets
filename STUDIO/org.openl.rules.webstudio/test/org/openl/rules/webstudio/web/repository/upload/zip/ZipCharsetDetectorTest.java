@@ -22,7 +22,7 @@ public class ZipCharsetDetectorTest {
     public void detectCharsetUsingRulesXml() throws Exception {
         assumeCharsetSupported("IBM866");
 
-        String[] charsetNames = { "windows-1252", "windows-1251", "IBM866" };
+        String[] charsetNames = {"windows-1252", "windows-1251", "IBM866"};
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
         Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
 
@@ -36,7 +36,7 @@ public class ZipCharsetDetectorTest {
         // Check the case when some files can be renamed/deleted/added and some can stay with same name.
         // In testing zip the file main.xls is absent but added core.xls. Still can detect charset despite that
         // all file names aren't equal.
-        String[] charsetNames = { "IBM437", "windows-1251", "IBM866" };
+        String[] charsetNames = {"IBM437", "windows-1251", "IBM866"};
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
 
         Collection<String> filesInWorkspace = Arrays.asList("datatypes.xls", "main.xls", "Основное.xls");
@@ -48,7 +48,7 @@ public class ZipCharsetDetectorTest {
     @Test
     public void noNeedToDetectCharset() throws Exception {
         // This file can be unzipped using UTF-8
-        String[] charsetNames = { "windows-1252", "IBM866" };
+        String[] charsetNames = {"windows-1252", "IBM866"};
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
         Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML_UTF_8)));
         assertEquals(StandardCharsets.UTF_8, charset);
@@ -70,7 +70,7 @@ public class ZipCharsetDetectorTest {
         assumeCharsetSupported("IBM437");
 
         // If some charset does not exist in JVM, don't fail, just skip it.
-        String[] charsetNames = { "not-exist-in-current-jvm", "IBM437" };
+        String[] charsetNames = {"not-exist-in-current-jvm", "IBM437"};
         ZipCharsetDetector detector = new ZipCharsetDetector(charsetNames, null);
         Charset charset = detector.detectCharset(new ZipFromFile(new File(TEST_RULES_XML)));
 

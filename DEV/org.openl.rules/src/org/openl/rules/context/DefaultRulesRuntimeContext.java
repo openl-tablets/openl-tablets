@@ -19,13 +19,13 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
         @Override
-        public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v)  {
+        public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v) {
             // *TODO
             return (DefaultRulesRuntimeContext) v;
         }
 
         @Override
-        public IRulesRuntimeContext unmarshal(DefaultRulesRuntimeContext v)  {
+        public IRulesRuntimeContext unmarshal(DefaultRulesRuntimeContext v) {
             return v;
         }
     }
@@ -66,9 +66,9 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     private static void verbosePrint(final PrintStream out,
-            final Object label,
-            final Map<?, ?> map,
-            final ArrayDeque<Map<?, ?>> lineage) {
+                                     final Object label,
+                                     final Map<?, ?> map,
+                                     final ArrayDeque<Map<?, ?>> lineage) {
         printIndent(out, lineage.size());
 
         if (map == null) {
@@ -129,16 +129,18 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     // <<< INSERT >>>
+
     /**
-    * The default implementation Object.clone() method returns a Shallow Copy.
-    * <p>
-    *     In shallow copy, if the field value is a primitive type, it copies its value; otherwise,
-    *     if the field value is a reference to an object, it copies the reference, hence referring to the same object.
-    *     Now, if one of these objects is modified, the change is visible in the other.
-    * </p>
-    * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#clone()">Object#clone()</a>
-    * @see <a href="https://en.wikipedia.org/wiki/Clone_(Java_method)">Clone (Java_method)</a>
-    */
+     * The default implementation Object.clone() method returns a Shallow Copy.
+     * <p>
+     * In shallow copy, if the field value is a primitive type, it copies its value; otherwise,
+     * if the field value is a reference to an object, it copies the reference, hence referring to the same object.
+     * Now, if one of these objects is modified, the change is visible in the other.
+     * </p>
+     *
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#clone()">Object#clone()</a>
+     * @see <a href="https://en.wikipedia.org/wiki/Clone_(Java_method)">Clone (Java_method)</a>
+     */
     @Override
     public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();

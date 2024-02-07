@@ -77,13 +77,13 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             String type = field.getType();
             typeCell.setCellValue(type);
             typeCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
             next = next.moveRight(1);
 
             Cell nameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             nameCell.setCellValue(field.getName());
             nameCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
             next = next.moveRight(1);
 
             Cell valueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
@@ -91,7 +91,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             CellStyle styleAfterWrite = valueCell.getCellStyle();
             if (styleAfterWrite.getDataFormat() == 0) {
                 valueCell.setCellStyle(
-                    lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
+                        lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
             }
 
             endPosition = next.moveLeft(2);

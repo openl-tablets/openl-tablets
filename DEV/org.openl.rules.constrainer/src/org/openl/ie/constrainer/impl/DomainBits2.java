@@ -58,6 +58,7 @@ final class BitArray implements Serializable {
 //
 // : DomainBits2.java
 //
+
 /**
  * An implementation of the Domain interface as a small bit field.
  *

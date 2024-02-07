@@ -28,7 +28,9 @@ public class CalculationStep implements Serializable {
 
     private Double formula;
 
-    /** step name */
+    /**
+     * step name
+     */
     private String stepName;
 
     public String getStepName() {

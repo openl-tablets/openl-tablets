@@ -109,8 +109,8 @@ public final class JsonUtils {
     }
 
     public static String toJSON(Object value,
-            Class<?>[] types,
-            boolean enableDefaultTyping) throws JsonProcessingException {
+                                Class<?>[] types,
+                                boolean enableDefaultTyping) throws JsonProcessingException {
         if (types == null) {
             types = new Class<?>[0];
         }
@@ -152,9 +152,9 @@ public final class JsonUtils {
 
     @Deprecated
     public static <T> T fromJSON(String jsonString,
-            Class<T> readType,
-            Class<?>[] types,
-            boolean enableDefaultTyping) throws IOException {
+                                 Class<T> readType,
+                                 Class<?>[] types,
+                                 boolean enableDefaultTyping) throws IOException {
         return fromJSON(jsonString, readType, types);
     }
 }

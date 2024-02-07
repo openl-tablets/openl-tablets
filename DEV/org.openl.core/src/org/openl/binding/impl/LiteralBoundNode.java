@@ -6,7 +6,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class LiteralBoundNode extends ABoundNode {
     protected final Object value;

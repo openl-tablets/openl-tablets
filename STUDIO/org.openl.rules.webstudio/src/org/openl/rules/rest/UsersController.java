@@ -85,16 +85,16 @@ public class UsersController {
 
     @Autowired
     public UsersController(UserManagementService userManagementService,
-            Boolean canCreateInternalUsers,
-            AdminUsers adminUsersInitializer,
-            CurrentUserInfo currentUserInfo,
-            PasswordEncoder passwordEncoder,
-            PropertyResolver environment,
-            BeanValidationProvider validationService,
-            UserSettingManagementService userSettingsManager,
-            ExternalGroupService extGroupService,
-            MailSender mailSender,
-            @Autowired(required = false) JdbcMutableAclService aclService) {
+                           Boolean canCreateInternalUsers,
+                           AdminUsers adminUsersInitializer,
+                           CurrentUserInfo currentUserInfo,
+                           PasswordEncoder passwordEncoder,
+                           PropertyResolver environment,
+                           BeanValidationProvider validationService,
+                           UserSettingManagementService userSettingsManager,
+                           ExternalGroupService extGroupService,
+                           MailSender mailSender,
+                           @Autowired(required = false) JdbcMutableAclService aclService) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.adminUsersInitializer = adminUsersInitializer;
@@ -132,11 +132,11 @@ public class UsersController {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
         userManagementService.addUser(userModel.getUsername(),
-            userModel.getFirstName(),
-            userModel.getLastName(),
-            canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
-            userModel.getEmail(),
-            userModel.getDisplayName());
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
+                userModel.getEmail(),
+                userModel.getDisplayName());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
         if (StringUtils.isNotBlank(userModel.getEmail())) {
             mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), request);
@@ -147,8 +147,8 @@ public class UsersController {
     @PutMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUser(HttpServletRequest request,
-            @RequestBody UserEditModel userModel,
-            @Parameter(description = "users.field.username") @PathVariable("username") String username) {
+                         @RequestBody UserEditModel userModel,
+                         @Parameter(description = "users.field.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -156,16 +156,16 @@ public class UsersController {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(username);
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
-            .isEmailExternal();
+                .isEmailExternal();
         userManagementService.updateUserData(username,
-            userModel.getFirstName(),
-            userModel.getLastName(),
-            userModel.getPassword(),
-            userModel.getEmail(),
-            userModel.getDisplayName(),
-            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                userModel.getPassword(),
+                userModel.getEmail(),
+                userModel.getDisplayName(),
+                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
         boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
-            .equals(currentUserInfo.getUserName(), username);
+                .equals(currentUserInfo.getUserName(), username);
         userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
@@ -180,14 +180,14 @@ public class UsersController {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
-            .isEmailExternal();
+                .isEmailExternal();
         userManagementService.updateUserData(currentUserInfo.getUserName(),
-            userModel.getFirstName(),
-            userModel.getLastName(),
-            null,
-            userModel.getEmail(),
-            userModel.getDisplayName(),
-            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                null,
+                userModel.getEmail(),
+                userModel.getDisplayName(),
+                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
@@ -201,23 +201,23 @@ public class UsersController {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
-            .isEmailExternal();
+                .isEmailExternal();
         userManagementService.updateUserData(dbUser.getUsername(),
-            userModel.getFirstName(),
-            userModel.getLastName(),
-            Optional.ofNullable(userModel.getChangePassword()).map(ChangePasswordModel::getNewPassword).orElse(null),
-            userModel.getEmail(),
-            userModel.getDisplayName(),
-            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+                userModel.getFirstName(),
+                userModel.getLastName(),
+                Optional.ofNullable(userModel.getChangePassword()).map(ChangePasswordModel::getNewPassword).orElse(null),
+                userModel.getEmail(),
+                userModel.getDisplayName(),
+                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         updateUserSettings(userModel.isShowFormulas(),
-            userModel.isShowHeader(),
-            userModel.isShowRealNumbers(),
-            userModel.getTestsFailuresPerTest(),
-            userModel.isShowComplexResult(),
-            userModel.getTestsPerPage(),
-            userModel.isTestsFailuresOnly(),
-            userModel.getTreeView());
+                userModel.isShowHeader(),
+                userModel.isShowRealNumbers(),
+                userModel.getTestsFailuresPerTest(),
+                userModel.isShowComplexResult(),
+                userModel.getTestsPerPage(),
+                userModel.isTestsFailuresOnly(),
+                userModel.getTreeView());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
@@ -225,13 +225,13 @@ public class UsersController {
     }
 
     private void updateUserSettings(boolean showFormulas,
-            boolean showHeader,
-            boolean showRealNumbers,
-            int testsFailuresPerTest,
-            boolean showComplexResult,
-            int testsPerPage,
-            boolean testsFailuresOnly,
-            String treeView) {
+                                    boolean showHeader,
+                                    boolean showRealNumbers,
+                                    int testsFailuresPerTest,
+                                    boolean showComplexResult,
+                                    int testsPerPage,
+                                    boolean testsFailuresOnly,
+                                    String treeView) {
         WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         String username = currentUserInfo.getUserName();
         if (studio != null) {
@@ -250,8 +250,8 @@ public class UsersController {
             userSettingsManager.setProperty(username, TEST_TESTS_PERPAGE, testsPerPage);
             userSettingsManager.setProperty(username, TABLE_FORMULAS_SHOW, showFormulas);
             userSettingsManager.setProperty(username,
-                TABLE_VIEW,
-                showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
+                    TABLE_VIEW,
+                    showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
             userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, testsFailuresOnly);
             userSettingsManager.setProperty(username, RULES_TREE_VIEW_DEFAULT, treeView);
         }
@@ -264,21 +264,21 @@ public class UsersController {
         User user = userManagementService.getUser(username);
 
         return new UserProfileModel().setFirstName(user.getFirstName())
-            .setLastName(user.getLastName())
-            .setEmail(user.getEmail())
-            .setShowHeader(IXlsTableNames.VIEW_DEVELOPER
-                .equals(userSettingsManager.getStringProperty(user.getUsername(), TABLE_VIEW)))
-            .setShowFormulas(userSettingsManager.getBooleanProperty(user.getUsername(), TABLE_FORMULAS_SHOW))
-            .setTestsPerPage(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_TESTS_PERPAGE))
-            .setTestsFailuresOnly(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_FAILURES_ONLY))
-            .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
-            .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
-            .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
-            .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW_DEFAULT))
-            .setDisplayName(user.getDisplayName())
-            .setUsername(user.getUsername())
-            .setExternalFlags(user.getExternalFlags())
-            .setProfiles(Profile.PROFILES);
+                .setLastName(user.getLastName())
+                .setEmail(user.getEmail())
+                .setShowHeader(IXlsTableNames.VIEW_DEVELOPER
+                        .equals(userSettingsManager.getStringProperty(user.getUsername(), TABLE_VIEW)))
+                .setShowFormulas(userSettingsManager.getBooleanProperty(user.getUsername(), TABLE_FORMULAS_SHOW))
+                .setTestsPerPage(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_TESTS_PERPAGE))
+                .setTestsFailuresOnly(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_FAILURES_ONLY))
+                .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
+                .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
+                .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
+                .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW_DEFAULT))
+                .setDisplayName(user.getDisplayName())
+                .setUsername(user.getUsername())
+                .setExternalFlags(user.getExternalFlags())
+                .setProfiles(Profile.PROFILES);
 
     }
 
@@ -297,10 +297,10 @@ public class UsersController {
     @GetMapping("/options")
     public UserOptions options() {
         return UserOptions.builder()
-            .canCreateInternalUsers(canCreateInternalUsers)
-            .userMode(environment.getProperty("user.mode"))
-            .emailVerification(mailSender.isValidEmailSettings())
-            .build();
+                .canCreateInternalUsers(canCreateInternalUsers)
+                .userMode(environment.getProperty("user.mode"))
+                .emailVerification(mailSender.isValidEmailSettings())
+                .build();
     }
 
     @Operation(description = "users.get-user-external-groups.desc", summary = "users.get-user-external-groups.summary")
@@ -324,32 +324,32 @@ public class UsersController {
     private UserModel mapUser(User user) {
         List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
         Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
-            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.EXTERNAL));
+                .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                        .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.EXTERNAL));
         Stream<GroupModel> internalGroupStream = user.getAuthorities()
-            .stream()
-            .map(SimpleGroup.class::cast)
-            // resolve collisions when the same group external and internal
-            .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
-            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.DEFAULT));
+                .stream()
+                .map(SimpleGroup.class::cast)
+                // resolve collisions when the same group external and internal
+                .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
+                .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                        .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.DEFAULT));
 
         long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getUsername());
         return new UserModel().setFirstName(user.getFirstName())
-            .setLastName(user.getLastName())
-            .setEmail(user.getEmail())
-            .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
-                .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
-                    .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
-            .setUsername(user.getUsername())
-            .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
-            .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
-            .setUnsafePassword(
-                user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
-            .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
-            .setDisplayName(user.getDisplayName())
-            .setOnline(userManagementService.isUserOnline(user.getUsername()))
-            .setExternalFlags(user.getExternalFlags());
+                .setLastName(user.getLastName())
+                .setEmail(user.getEmail())
+                .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
+                        .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
+                                .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
+                .setUsername(user.getUsername())
+                .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
+                .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
+                .setUnsafePassword(
+                        user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
+                .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
+                .setDisplayName(user.getDisplayName())
+                .setOnline(userManagementService.isUserOnline(user.getUsername()))
+                .setExternalFlags(user.getExternalFlags());
     }
 
     private void checkUserExists(String username) {

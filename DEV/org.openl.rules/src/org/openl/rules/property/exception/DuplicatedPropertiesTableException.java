@@ -15,9 +15,9 @@ public class DuplicatedPropertiesTableException extends TablePropertiesException
     private static final long serialVersionUID = -1637117550935829524L;
 
     public DuplicatedPropertiesTableException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule source) {
+                                              Throwable cause,
+                                              ILocation location,
+                                              IOpenSourceCodeModule source) {
         super(message, cause, location, source);
     }
 

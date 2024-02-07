@@ -29,11 +29,11 @@ public class ProjectViewModel {
     public final ZonedDateTime modifiedAt;
 
     @Parameter(description = "Branch Name. Can be absent if current repository doesn't support branches")
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final String branch;
 
     @Parameter(description = "Revision ID", required = true)
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final String revision;
 
     @Parameter(description = "Project path in target repository. Can be absent if Design Repository is flat")
@@ -44,12 +44,12 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String id;
 
-    @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "LOCAL",
+    @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
             "ARCHIVED",
             "OPENED",
             "VIEWING_VERSION",
             "EDITING",
-            "CLOSED" }))
+            "CLOSED"}))
     @JsonSerialize(using = ProjectStatusSerializer.class)
     @JsonView(GenericView.Full.class)
     public final ProjectStatus status;

@@ -39,8 +39,8 @@ public class OAuth2AccessTokenConfiguration {
 
     @Bean
     public UserInfoClaimsConverter userInfoClaimsConverter(@Qualifier("environment") PropertyResolver propertyResolver,
-            @Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
-            @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                           @Qualifier("syncUserData") Consumer<SimpleUser> syncUserData,
+                                                           @Qualifier("privilegeMapper") BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         return new UserInfoClaimsConverter(propertyResolver, syncUserData, privilegeMapper);
     }
 

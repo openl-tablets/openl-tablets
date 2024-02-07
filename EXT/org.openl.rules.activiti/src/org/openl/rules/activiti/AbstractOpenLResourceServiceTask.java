@@ -65,16 +65,16 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
         ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
 
         File projectWorkspace = ResourceUtils.prepareDeploymentOpenLResource(processDefinition.getDeploymentId(),
-            resourceValue);
+                resourceValue);
 
         boolean isProvideRuntimeContext = isProvideRuntimeContext(execution);
 
         SimpleProjectEngineFactoryBuilder<T> simpleProjectEngineFactoryBuilder =
                 new SimpleProjectEngineFactoryBuilder<T>()
-                    .setExecutionMode(true)
-                    .setProject(projectWorkspace.getCanonicalPath())
-                    .setWorkspace(projectWorkspace.getCanonicalPath())
-                    .setProvideRuntimeContext(isProvideRuntimeContext);
+                        .setExecutionMode(true)
+                        .setProject(projectWorkspace.getCanonicalPath())
+                        .setWorkspace(projectWorkspace.getCanonicalPath())
+                        .setProvideRuntimeContext(isProvideRuntimeContext);
 
         if (interfaceClass != null && interfaceClass != Object.class) {
             simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);

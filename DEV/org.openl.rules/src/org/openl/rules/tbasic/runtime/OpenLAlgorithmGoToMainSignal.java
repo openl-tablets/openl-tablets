@@ -6,7 +6,6 @@ import org.openl.binding.impl.ControlSignal;
  * Signal is used when executed GOTO operation from subroutine to main.
  *
  * @author User
- *
  */
 
 @SuppressWarnings("serial")

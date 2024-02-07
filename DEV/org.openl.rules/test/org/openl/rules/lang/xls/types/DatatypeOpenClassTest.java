@@ -12,9 +12,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.ComponentTypeArrayOpenClass;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class DatatypeOpenClassTest {
 
@@ -25,7 +23,7 @@ public class DatatypeOpenClassTest {
     private IOpenClass from;
 
     private static DatatypeOpenClass buildDatatypeOpenClass(String name,
-            String packageName) throws ClassNotFoundException {
+                                                            String packageName) throws ClassNotFoundException {
         DatatypeOpenClass datatypeOpenClass = new DatatypeOpenClass(name, packageName);
         OpenLClassLoader classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
         JavaBeanClassBuilder javaBeanClassBuilder = new JavaBeanClassBuilder(datatypeOpenClass.getJavaName());

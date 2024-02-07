@@ -38,7 +38,7 @@ public class RuleRow {
         }
         try {
             ILogicalTable valueCell = table
-                .getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
+                    .getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
             String ruleName = valueCell.getSource().getCell(0, 0).getStringValue();
             if (ruleName == null) {
                 ruleName = StringUtils.EMPTY;

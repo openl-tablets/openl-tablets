@@ -627,16 +627,16 @@ public class StringsTest {
     @Test
     public void testTextSplit() {
         assertNull(Strings.textSplit(null, null));
-        assertArrayEquals(new String[] {""}, Strings.textSplit(null, ""));
-        assertArrayEquals(new String[] {"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
-        assertArrayEquals(new String[] {"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
-        assertArrayEquals(new String[] {"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(", ", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(null, "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit("", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"a", "b", "c"}, Strings. textSplit(".", "....a....b.....c....."));
-        assertArrayEquals(new String[] {"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
-        assertArrayEquals(new String[] {"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
+        assertArrayEquals(new String[]{""}, Strings.textSplit(null, ""));
+        assertArrayEquals(new String[]{"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
+        assertArrayEquals(new String[]{"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
+        assertArrayEquals(new String[]{"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit(", ", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit(null, "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit("", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"a", "b", "c"}, Strings.textSplit(".", "....a....b.....c....."));
+        assertArrayEquals(new String[]{"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
+        assertArrayEquals(new String[]{"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
                 Strings.textSplit(" ", "Lorem Ipsum is simply dummy text of the printing and typesetting industry"));
     }
 
@@ -661,7 +661,7 @@ public class StringsTest {
             TimeZone.setDefault(defaultTz);
         }
     }
-    
+
     @Test
     public void testToLocale() {
         assertNull(toLocale(null));

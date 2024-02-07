@@ -36,7 +36,7 @@ public class SettersWriter extends DefaultBeanByteCodeWriter {
         String setterName = ClassUtils.setter(fieldName);
         String methodDescriptor = "(" + fieldType + ")V";
         MethodVisitor methodVisitor = classWriter
-            .visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
+                .visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
 
         Label l0 = new Label();
         methodVisitor.visitLabel(l0);

@@ -114,8 +114,8 @@ public class RepositoryConfiguration {
     }
 
     private RepositorySettings createSettings(RepositoryType repositoryType,
-            PropertiesHolder properties,
-            String configPrefix) {
+                                              PropertiesHolder properties,
+                                              String configPrefix) {
         RepositorySettings newSettings;
         switch (repositoryType) {
             case AWS_S3:

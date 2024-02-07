@@ -101,7 +101,7 @@ public class TableBean {
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table
-                .isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType());
+                    .isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType());
 
             initTests(model, currentOpenedModule);
 
@@ -164,7 +164,7 @@ public class TableBean {
         ParameterWithValueDeclaration[] params;
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils
-                .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
+                    .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
             Utils.getDb(WebStudioUtils.getProjectModel(), false);
             ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
 
@@ -264,8 +264,8 @@ public class TableBean {
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
             WebStudioUtils.getExternalContext()
-                .getSessionMap()
-                .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+                    .getSessionMap()
+                    .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
@@ -295,11 +295,11 @@ public class TableBean {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         studio.freezeProject(studio.getCurrentProject().getName());
         String editorId = WebStudioUtils
-            .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
+                .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
         Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
-            .getSessionMap()
-            .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+                .getSessionMap()
+                .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
 

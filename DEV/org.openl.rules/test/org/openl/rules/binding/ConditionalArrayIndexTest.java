@@ -22,7 +22,7 @@ public class ConditionalArrayIndexTest {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[2], TestUtils.invoke(instance, "driverSelectOne", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectMany", (Object) drivers);
-        assertArrayEquals(new Object[] { drivers[1], drivers[2] }, selectManyResult);
+        assertArrayEquals(new Object[]{drivers[1], drivers[2]}, selectManyResult);
     }
 
     @Test
@@ -30,7 +30,7 @@ public class ConditionalArrayIndexTest {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[1], TestUtils.invoke(instance, "driverSelectOneLiteral", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectManyLiteral", (Object) drivers);
-        assertArrayEquals(new Object[] { drivers[1], drivers[2] }, selectManyResult);
+        assertArrayEquals(new Object[]{drivers[1], drivers[2]}, selectManyResult);
     }
 
     @Test

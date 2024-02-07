@@ -88,15 +88,15 @@ public class ExportBean {
                 String suffix = name + "-" + modifiedOnStr;
                 fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
                 WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
-                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                        .orElse(null));
+                        (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                                .orElse(null));
                 file = ProjectExportHelper.export(user, selectedProject);
             } else {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 file = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
                 String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
                 fileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -140,7 +140,7 @@ public class ExportBean {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 projectResource = (AProjectResource) forExport.getArtefact(getArtifactName());
             }
 

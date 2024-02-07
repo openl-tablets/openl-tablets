@@ -32,7 +32,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
         return ProjectExternalDependenciesHelper
-            .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
     }
 
     @Override
@@ -60,9 +60,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     public SimpleDependencyLoader(ProjectDescriptor project,
-            Module module,
-            boolean executionMode,
-            AbstractDependencyManager dependencyManager) {
+                                  Module module,
+                                  boolean executionMode,
+                                  AbstractDependencyManager dependencyManager) {
         this.project = Objects.requireNonNull(project, "project cannot be null");
         this.module = module;
         this.executionMode = executionMode;
@@ -112,14 +112,14 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         ClassLoader classLoader = buildClassLoader(dependencyManager);
         if (!isProjectLoader()) {
             rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
-                dependencyManager,
-                classLoader,
-                executionMode);
+                    dependencyManager,
+                    classLoader,
+                    executionMode);
         } else {
             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(getModules(),
-                dependencyManager,
-                classLoader,
-                executionMode);
+                    dependencyManager,
+                    classLoader,
+                    executionMode);
         }
 
         Map<String, Object> parameters = configureExternalParameters(dependencyManager);
@@ -131,8 +131,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             CompiledDependency compiledDependency = new CompiledDependency(dependency,
-                compiledOpenClass,
-                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
+                    compiledOpenClass,
+                    isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
                 onCompilationComplete(this, compiledDependency);
                 this.compiledDependency = compiledDependency;
@@ -153,7 +153,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,
-            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+                                                      AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
     }
 

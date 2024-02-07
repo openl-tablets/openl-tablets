@@ -87,12 +87,12 @@ public class TableViewer {
     }
 
     public TableViewer(IGrid grid,
-            IGridRegion reg,
-            LinkBuilder linkBuilder,
-            String mode,
-            String view,
-            MetaInfoReader metaInfoReader,
-            boolean smartNumbers) {
+                       IGridRegion reg,
+                       LinkBuilder linkBuilder,
+                       String mode,
+                       String view,
+                       MetaInfoReader metaInfoReader,
+                       boolean smartNumbers) {
         this.grid = grid;
         this.reg = reg;
         this.linkBuilder = linkBuilder;
@@ -124,7 +124,7 @@ public class TableViewer {
                 // has Explanation link
                 content = formattedValue;
             } else if (isShowLinks() && (CellMetaInfo
-                .isCellContainsNodeUsages(metaInfo) || metaInfo != null && metaInfo.isReturnCell())) {
+                    .isCellContainsNodeUsages(metaInfo) || metaInfo != null && metaInfo.isReturnCell())) {
                 // has method call
                 content = createCellWithMetaInfo(formattedValue, metaInfo, true);
             } else if (image(formattedValue)) {
@@ -172,14 +172,14 @@ public class TableViewer {
                     buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex, pstart)));
                     // add link to used table with signature in tooltip
                     buff.append("<span class=\"title")
-                        .append(" title-")
-                        .append(nodeUsage.getNodeType().toString().toLowerCase())
-                        .append(" ")
-                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                        .append("\">");
+                            .append(" title-")
+                            .append(nodeUsage.getNodeType().toString().toLowerCase())
+                            .append(" ")
+                            .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                            .append("\">");
                     if (addUri && tableUri != null) {
                         buff.append(
-                            linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend)));
+                                linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend)));
                     } else {
                         buff.append(escapeHtml4(formattedValue.substring(pstart, pend)));
                     }
@@ -191,10 +191,10 @@ public class TableViewer {
 
             if (metaInfo.isReturnCell()) {
                 buff.append("<span class=\"title title-")
-                    .append(NodeType.OTHER.toString().toLowerCase())
-                    .append(" ")
-                    .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                    .append("\">");
+                        .append(NodeType.OTHER.toString().toLowerCase())
+                        .append(" ")
+                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                        .append("\">");
                 buff.append("  &#9733;");
                 buff.append("<em>RETURN</em></span>");
             }
@@ -259,10 +259,10 @@ public class TableViewer {
     }
 
     private void addDisplayedCellToTableModel(TableModel tm,
-            int gridRow,
-            int displayedRowIndex,
-            IGridRegion region,
-            List<ICell> modifiedCells) {
+                                              int gridRow,
+                                              int displayedRowIndex,
+                                              IGridRegion region,
+                                              List<ICell> modifiedCells) {
         for (int column = region.getLeft(); column <= region.getRight(); column++) {
             int c = column - region.getLeft();
             if (tm.hasCell(displayedRowIndex, c)) {
@@ -271,8 +271,8 @@ public class TableViewer {
             Optional<ICell> changedCell = Optional.empty();
             if (modifiedCells != null) {
                 changedCell = modifiedCells.stream()
-                    .filter(v -> v.getRow() == displayedRowIndex && v.getColumn() == c)
-                    .findFirst();
+                        .filter(v -> v.getRow() == displayedRowIndex && v.getColumn() == c)
+                        .findFirst();
             }
             ICell cell = changedCell.orElse(grid.getCell(column, gridRow));
             CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
@@ -302,7 +302,7 @@ public class TableViewer {
         xlsStyle = bss == null ? org.apache.poi.ss.usermodel.BorderStyle.NONE : bss[side];
 
         short[][] rgbb = cs.getBorderRGB();
-        rgb = rgbb == null ? new short[] { 0, 0, 0 } : rgbb[side];
+        rgb = rgbb == null ? new short[]{0, 0, 0} : rgbb[side];
 
         BorderStyle bs = new BorderStyle();
         bs.setRgb(rgb);
@@ -391,11 +391,11 @@ public class TableViewer {
 
     short[] rgb(BorderStyle bs1, BorderStyle bs2) {
         if (bs1 == null && bs2 == null) {
-            return new short[] { 0, 0, 0 };
+            return new short[]{0, 0, 0};
         }
 
         return bs1 == null ? bs2.getRgb()
-                           : bs2 == null ? bs1.getRgb() : bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb();
+                : bs2 == null ? bs1.getRgb() : bs1 == BorderStyle.NONE ? bs2.getRgb() : bs1.getRgb();
     }
 
     void setGrid(TableModel tm) {
@@ -523,7 +523,7 @@ public class TableViewer {
         }
 
         return bs1 == null ? bs2.getStyle()
-                           : bs2 == null ? bs1.getStyle() : bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle();
+                : bs2 == null ? bs1.getStyle() : bs1 == BorderStyle.NONE ? bs2.getStyle() : bs1.getStyle();
     }
 
     int width(BorderStyle bs1, BorderStyle bs2) {

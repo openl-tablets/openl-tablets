@@ -19,19 +19,19 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
     private final CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
     public DecisionTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            DecisionTable delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                                DecisionTable delegate,
+                                ContextPropertiesInjector contextPropertiesInjector,
+                                boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         this.customSpreadsheetResultType = (CustomSpreadsheetResultOpenClass) WrapperLogic
-            .toModuleType(delegate.getCustomSpreadsheetResultType(), xlsModuleOpenClass, new IdentityHashMap<>());
+                .toModuleType(delegate.getCustomSpreadsheetResultType(), xlsModuleOpenClass, new IdentityHashMap<>());
         this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
         this.externalMethodCall = externalMethodCall;

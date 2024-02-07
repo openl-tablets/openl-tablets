@@ -36,9 +36,9 @@ public class ApiInstantiationTest {
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            false,
-            null);
+                null,
+                false,
+                null);
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
 
         assertNull(strategy.getServiceClass());
@@ -62,9 +62,9 @@ public class ApiInstantiationTest {
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            false,
-            null);
+                null,
+                false,
+                null);
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();

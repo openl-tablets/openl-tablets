@@ -23,9 +23,9 @@ public abstract class ResultExport extends BaseExport {
     }
 
     public void export(OutputStream outputStream,
-            int testsPerPage,
-            Boolean skipEmptyParameters,
-            TestUnitsResults... results) throws IOException {
+                       int testsPerPage,
+                       Boolean skipEmptyParameters,
+                       TestUnitsResults... results) throws IOException {
         List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
         SXSSFWorkbook tempWorkbook = null;
         try (var workbook = tempWorkbook = new SXSSFWorkbook()) {

@@ -17,9 +17,9 @@ public final class ConfigLoader {
             return new DefaultDriverConfigLoader(() -> {
                 ConfigFactory.invalidateCaches();
                 Config config = ConfigFactory.defaultOverrides()
-                    .withFallback(ConfigFactory.parseResourcesAnySyntax(ConfigLoader.class.getClassLoader(), resource))
-                    .withFallback(ConfigFactory.defaultReference())
-                    .resolve();
+                        .withFallback(ConfigFactory.parseResourcesAnySyntax(ConfigLoader.class.getClassLoader(), resource))
+                        .withFallback(ConfigFactory.defaultReference())
+                        .resolve();
                 return config.getConfig(DefaultDriverConfigLoader.DEFAULT_ROOT_PATH);
             });
         } finally {

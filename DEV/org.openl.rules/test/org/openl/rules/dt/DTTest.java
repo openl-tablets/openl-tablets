@@ -50,25 +50,25 @@ public class DTTest {
     @Test
     public void greeting7() {
         String[] result = TestUtils.invoke(instance, "Greeting7", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
@@ -80,97 +80,97 @@ public class DTTest {
     @Test
     public void greeting8() {
         String[] result = TestUtils.invoke(instance, "Greeting8", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting9() {
         String[] result = TestUtils.invoke(instance, "Greeting9", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting10() {
         Object[] result = TestUtils.invoke(instance, "Greeting10", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting11() {
         Object[] result = TestUtils.invoke(instance, "Greeting11", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     private static Collection<Object> buildCollection(Object... values) {
@@ -476,25 +476,25 @@ public class DTTest {
     @Test
     public void greetingTwoRet3() {
         String[] result = TestUtils.invoke(instance, "GreetingTwoRet3", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test

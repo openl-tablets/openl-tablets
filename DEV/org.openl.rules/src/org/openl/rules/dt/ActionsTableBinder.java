@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * Binder for conditions table.
  *
  * @author Marat Kamalov
- *
  */
 public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
 
@@ -20,8 +19,8 @@ public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
 
     @Override
     protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
-            XlsModuleOpenClass module,
-            OpenL openl) {
+                                                          XlsModuleOpenClass module,
+                                                          OpenL openl) {
         return new ActionsTableBoundNode(tsn, openl);
     }
 

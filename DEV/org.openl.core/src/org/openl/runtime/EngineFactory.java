@@ -18,11 +18,10 @@ import org.openl.vm.IRuntimeEnv;
  * Class EngineFactory creates {@link Proxy} based wrappers around OpenL classes. Each wrapper implements interface T
  * and interface {@link IEngineWrapper}. If OpenL IOpenClass does not have methods matching interface T it will produce
  * an error. <br/>
- *
+ * <p>
  * NOTE: OpenL fieldValues will be exposed as get<Field> methods
  *
  * @param <T>
- *
  * @author Marat Kamalov
  */
 public class EngineFactory<T> extends ASourceCodeEngineFactory {
@@ -57,9 +56,9 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     }
 
     public EngineFactory(String openlName,
-            IOpenSourceCodeModule sourceCode,
-            IUserContext userContext,
-            Class<T> interfaceClass) {
+                         IOpenSourceCodeModule sourceCode,
+                         IUserContext userContext,
+                         Class<T> interfaceClass) {
         super(openlName, sourceCode, userContext);
         this.interfaceClass = Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
     }
@@ -121,7 +120,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[] { getInterfaceClass(), IEngineWrapper.class };
+        return new Class[]{getInterfaceClass(), IEngineWrapper.class};
     }
 
     @Override
@@ -129,10 +128,10 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
-                                                           : compiledOpenClass.getOpenClass();
+                    : compiledOpenClass.getOpenClass();
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
             Object openClassInstance = openClass
-                .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
+                    .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getInterfaceClass().getClassLoader());
         } catch (OpenlNotCheckedException ex) {
             throw ex;

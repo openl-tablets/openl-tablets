@@ -9,7 +9,6 @@ import org.openl.rules.table.IWritableGrid;
 
 /**
  * @author snshor
- *
  */
 public class UndoableCopyValueAction extends AUndoableCellAction {
 
@@ -66,9 +65,9 @@ public class UndoableCopyValueAction extends AUndoableCellAction {
 
         if (rrFrom != null) {
             GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
-                rrFrom.getLeft() + getCol() - colFrom,
-                rrFrom.getBottom() + getRow() - rowFrom,
-                rrFrom.getRight() + getCol() - colFrom);
+                    rrFrom.getLeft() + getCol() - colFrom,
+                    rrFrom.getBottom() + getRow() - rowFrom,
+                    rrFrom.getRight() + getCol() - colFrom);
             wgrid.addMergedRegion(copyFrom);
             toRemove = copyFrom;
         }

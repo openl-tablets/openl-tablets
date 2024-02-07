@@ -14,9 +14,9 @@ class PreBinderMethods {
 
     public Collection<RecursiveOpenMethodPreBinder> findByMethodName(String methodName) {
         return binderMethods.values()
-            .stream()
-            .filter(e -> Objects.equals(e.getName(), methodName))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(e -> Objects.equals(e.getName(), methodName))
+                .collect(Collectors.toList());
     }
 
     public RecursiveOpenMethodPreBinder get(IOpenMethodHeader header) {

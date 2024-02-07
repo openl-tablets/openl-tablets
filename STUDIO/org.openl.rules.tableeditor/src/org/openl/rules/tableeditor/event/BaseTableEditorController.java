@@ -65,12 +65,12 @@ public class BaseTableEditorController {
             mode = Constants.MODE_EDIT;
         }
         return TableModel.initializeTableModel(table,
-            null,
-            numRows,
-            editor.getLinkBuilder(),
-            mode,
-            editor.getView(),
-            editorModel.getMetaInfoReader(), false, null);
+                null,
+                numRows,
+                editor.getLinkBuilder(),
+                mode,
+                editor.getView(),
+                editorModel.getMetaInfoReader(), false, null);
     }
 
     protected String render(String editorId) {

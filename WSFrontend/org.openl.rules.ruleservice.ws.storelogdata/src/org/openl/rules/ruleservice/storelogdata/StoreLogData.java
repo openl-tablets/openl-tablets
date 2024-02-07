@@ -16,7 +16,6 @@ import org.openl.rules.ruleservice.kafka.RequestMessage;
  * Bean for data for logging to external source feature.
  *
  * @author Marat Kamalov
- *
  */
 public class StoreLogData {
     private LoggingMessage requestMessage;

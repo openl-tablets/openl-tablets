@@ -30,7 +30,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     private final RuleServiceLoader ruleServiceLoader;
     private final DeploymentDescription deployment;
     private final ThreadLocal<Deque<CompilationInfo>> compilationInfoThreadLocal = ThreadLocal
-        .withInitial(ArrayDeque::new);
+            .withInitial(ArrayDeque::new);
 
     private static class CompilationInfo {
         long time;
@@ -53,10 +53,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
             if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
-                    dependencyLoader.getModule().getName(),
-                    dependencyLoader.getProject().getName(),
-                    deployment.getName(),
-                    t - compilationInfo.embeddedTime);
+                        dependencyLoader.getModule().getName(),
+                        dependencyLoader.getProject().getName(),
+                        deployment.getName(),
+                        t - compilationInfo.embeddedTime);
             }
 
             if (!compilationInfoStack.isEmpty()) {
@@ -76,7 +76,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     public CompiledDependency loadDependency(final ResolvedDependency dependency) throws OpenLCompilationException {
         try {
             return MaxThreadsForCompileSemaphore.getInstance()
-                .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
+                    .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
@@ -85,8 +85,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     public RuleServiceDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader,
-            ClassLoader rootClassLoader,
+                                        RuleServiceLoader ruleServiceLoader,
+                                        ClassLoader rootClassLoader,
                                         Map<String, Object> externalParameters) {
         super(rootClassLoader, true, externalParameters);
         this.deployment = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
@@ -125,10 +125,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                    String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
-                        projectName,
-                        deploymentName),
-                    e);
+                        String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                                projectName,
+                                deploymentName),
+                        e);
             }
         }
         return dependencyLoaders;

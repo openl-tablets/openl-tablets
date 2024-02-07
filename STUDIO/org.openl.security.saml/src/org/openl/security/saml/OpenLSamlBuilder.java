@@ -63,6 +63,7 @@ public class OpenLSamlBuilder {
 
     /**
      * Create RelyingPartyRegistrationRepository instance of LazyInMemoryRelyingPartyRegistrationRepository.
+     *
      * @return RelyingPartyRegistrationRepository
      */
     public RelyingPartyRegistrationRepository relyingPartyRegistration() {
@@ -71,6 +72,7 @@ public class OpenLSamlBuilder {
 
     /**
      * Create DefaultSaml2AuthenticationRequestContextResolver based on DefaultRelyingPartyRegistrationResolver.
+     *
      * @return DefaultSaml2AuthenticationRequestContextResolver
      */
     public Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
@@ -79,6 +81,7 @@ public class OpenLSamlBuilder {
 
     /**
      * Create DefaultRelyingPartyRegistrationResolver based on LazyInMemoryRelyingPartyRegistrationRepository.
+     *
      * @return DefaultRelyingPartyRegistrationResolver
      */
     public RelyingPartyRegistrationResolver relyingPartyRegistrationResolver() {

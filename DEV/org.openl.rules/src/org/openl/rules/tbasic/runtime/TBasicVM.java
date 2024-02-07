@@ -12,7 +12,6 @@ import org.openl.vm.Tracer;
 /**
  * The <code>TBasicVM</code> class executes Algorithm logic. Besides execution of operations list, the class provides
  * logic to support GOTO to main method and errors processing.
- *
  */
 public class TBasicVM {
     private final TBasicVMDataContext mainContext;
@@ -50,7 +49,7 @@ public class TBasicVM {
             goToLabelInMainContext(label);
         }
         throw new RuntimeException(
-            String.format("Unexpected error while execution of TBasic component: unknown label '%s'", label));
+                String.format("Unexpected error while execution of TBasic component: unknown label '%s'", label));
     }
 
     /**
@@ -69,14 +68,14 @@ public class TBasicVM {
      * The sub-method can be called only within of execution of main Algorithm method. However, the implementation does
      * not put any restrictions.
      *
-     * @param methodSteps The list of operations to run.
+     * @param methodSteps  The list of operations to run.
      * @param methodLabels The labels register for sub-method.
-     * @param environment The environment for execution.
+     * @param environment  The environment for execution.
      * @return The result of the method execution.
      */
     public Object run(List<RuntimeOperation> methodSteps,
-            Map<String, RuntimeOperation> methodLabels,
-            TBasicContextHolderEnv environment) {
+                      Map<String, RuntimeOperation> methodLabels,
+                      TBasicContextHolderEnv environment) {
 
         TBasicVMDataContext methodContext = new TBasicVMDataContext(methodSteps, methodLabels, false);
 
@@ -154,7 +153,7 @@ public class TBasicVM {
             try {
 
                 operationResult = Tracer
-                    .invoke(operation, null, new Object[] { previousStepResult }, environment, this);
+                        .invoke(operation, null, new Object[]{previousStepResult}, environment, this);
 
             } catch (OpenLAlgorithmGoToMainSignal signal) {
                 operation = getLabeledOperation(signal.getLabel());

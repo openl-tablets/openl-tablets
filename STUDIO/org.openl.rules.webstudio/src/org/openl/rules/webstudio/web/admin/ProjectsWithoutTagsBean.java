@@ -32,9 +32,9 @@ public class ProjectsWithoutTagsBean {
     private List<ProjectTags> projectsWithoutTags = Collections.emptyList();
 
     public ProjectsWithoutTagsBean(OpenLProjectService projectService,
-            TagTemplateService tagTemplateService,
-            DesignTimeRepository designTimeRepository,
-            TagService tagService) {
+                                   TagTemplateService tagTemplateService,
+                                   DesignTimeRepository designTimeRepository,
+                                   TagService tagService) {
         this.projectService = projectService;
         this.tagTemplateService = tagTemplateService;
         this.designTimeRepository = designTimeRepository;
@@ -46,7 +46,7 @@ public class ProjectsWithoutTagsBean {
 
         final ArrayList<AProject> projects = new ArrayList<>(designTimeRepository.getProjects());
         projects.sort(
-            Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath));
+                Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath));
 
         for (AProject project : projects) {
             final String repoId = project.getRepository().getId();
@@ -65,7 +65,7 @@ public class ProjectsWithoutTagsBean {
             final List<TagType> allTypes = tags.stream().map(Tag::getType).collect(Collectors.toList());
 
             if (existing == null || existing.getTags().isEmpty() || allTypes.stream()
-                .anyMatch(type -> existing.getTags().stream().noneMatch(tag -> tag.getType().equals(type)))) {
+                    .anyMatch(type -> existing.getTags().stream().noneMatch(tag -> tag.getType().equals(type)))) {
 
                 OpenLProject openlProject = new OpenLProject();
                 openlProject.setRepositoryId(repoId);
@@ -117,7 +117,7 @@ public class ProjectsWithoutTagsBean {
     }
 
     private void createExtensibleIfAbsent(List<Tag> tags) {
-        for (Iterator<Tag> iterator = tags.iterator(); iterator.hasNext();) {
+        for (Iterator<Tag> iterator = tags.iterator(); iterator.hasNext(); ) {
             Tag tag = iterator.next();
             if (tag.getId() == null) {
                 final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
@@ -181,10 +181,10 @@ public class ProjectsWithoutTagsBean {
                 Tag existingTag = null;
                 if (existing != null) {
                     existingTag = existing.getTags()
-                        .stream()
-                        .filter(e -> e.getType().equals(tag.getType()))
-                        .findAny()
-                        .orElse(null);
+                            .stream()
+                            .filter(e -> e.getType().equals(tag.getType()))
+                            .findAny()
+                            .orElse(null);
                 }
                 final TagDTO dto = new TagDTO(tag, existingTag);
                 dtoList.add(dto);

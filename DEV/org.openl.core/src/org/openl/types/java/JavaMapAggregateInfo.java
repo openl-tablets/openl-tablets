@@ -68,7 +68,7 @@ public class JavaMapAggregateInfo implements IAggregateInfo {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Iterator<Object> getIterator(Object aggregate) {
         return ((Map) aggregate).entrySet().iterator();
     }

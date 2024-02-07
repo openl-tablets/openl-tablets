@@ -129,9 +129,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             return null;
         }
         SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-            typeMeta.getDisplayName(INamedThing.SHORT),
-            typeMeta.getSourceUrl(),
-            NodeType.DATATYPE);
+                typeMeta.getDisplayName(INamedThing.SHORT),
+                typeMeta.getSourceUrl(),
+                NodeType.DATATYPE);
 
         return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
     }
@@ -145,7 +145,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         } else {
             String name = idn[0].getIdentifier();
             if (name.endsWith(DatatypeTableBoundNode.TRANSIENT_FIELD_SUFFIX) || name
-                .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
+                    .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
                 return name.substring(0, name.length() - 1);
             }
             return name;

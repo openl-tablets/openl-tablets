@@ -47,7 +47,7 @@ public class WorkspaceCompileServiceTest {
         client.send("workspace-compile/table.tests.get");
         client.send("workspace-compile/table.errors.module.get");
         TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/8e514ef161e2f50d730dde1fdc4fb4ac",
-            TableErrorInfo.class, 200);
+                TableErrorInfo.class, 200);
         assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl);
         assertEquals(1, tableErrorInfo.errors.length);
         assertEquals(true, tableErrorInfo.errors[0].hasStacktrace);
@@ -55,7 +55,7 @@ public class WorkspaceCompileServiceTest {
         assertEquals("There can be only one active table.", tableErrorInfo.errors[0].summary);
         assertEquals("ERROR", tableErrorInfo.errors[0].severity);
         String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
-            String.class, 200);
+                String.class, 200);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 

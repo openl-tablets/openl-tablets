@@ -90,7 +90,7 @@ public class TestDomainBits2 {
     @Test
     public void testBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
-        boolean[] bits = { false, false, true, false, true, true };
+        boolean[] bits = {false, false, true, false, true, true};
         db.forceBits(bitsToBits2(bits));
         int[] bt = db.bits();
         assertEquals(bt.length, 1);
@@ -99,8 +99,8 @@ public class TestDomainBits2 {
 
     @Test
     public void testContains() {
-        int[] goodArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
+        int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
         for (int i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainBits2.contains(goodArray[i]));
             assertFalse(_probeDomainBits2.contains(badArray[i]));
@@ -123,7 +123,7 @@ public class TestDomainBits2 {
     @Test
     public void testForceBits() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
-        boolean[] bits = new boolean[] { false, true, false, true, false, true };
+        boolean[] bits = new boolean[]{false, true, false, true, false, true};
         db.forceBits(bitsToBits2(bits));
         for (int i = 5; i <= _var.max(); i++) {
             assertEquals(db.contains(i), bits[i - 5], "does not contain " + i);
@@ -133,7 +133,7 @@ public class TestDomainBits2 {
     @Test
     public void testForceInsert() {
         DomainBits2 db = new DomainBits2(_var, _var.min() + 5, _var.max());
-        boolean[] bits = new boolean[] { false, false, false, false, false, false };
+        boolean[] bits = new boolean[]{false, false, false, false, false, false};
         db.forceBits(bitsToBits2(bits));
         db.forceInsert(5);
         db.forceInsert(6);
@@ -283,7 +283,7 @@ public class TestDomainBits2 {
         }
         db.size();
         db.forceBits(
-            bitsToBits2(new boolean[] { true, true, true, true, true, false, false, true, false, true, true }));
+                bitsToBits2(new boolean[]{true, true, true, true, true, false, false, true, false, true, true}));
         try {
             db.setMax(8);
             assertEquals(7, db.max());

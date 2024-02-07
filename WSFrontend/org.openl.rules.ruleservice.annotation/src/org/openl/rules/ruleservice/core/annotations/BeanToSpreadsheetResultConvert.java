@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
  * also.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ElementType.PARAMETER})
 public @interface BeanToSpreadsheetResultConvert {
 }

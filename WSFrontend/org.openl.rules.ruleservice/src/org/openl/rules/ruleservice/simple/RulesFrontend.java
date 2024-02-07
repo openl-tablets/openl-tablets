@@ -8,7 +8,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
  * The instance of this interface is not thread safe.
  *
  * @author Marat Kamalov
- *
  */
 public interface RulesFrontend {
     /**
@@ -23,23 +22,23 @@ public interface RulesFrontend {
     /**
      * Executes method with specified parameters.
      *
-     * @param serviceName Name of deployed service
-     * @param ruleName Technical name of the rule to execute
+     * @param serviceName      Name of deployed service
+     * @param ruleName         Technical name of the rule to execute
      * @param inputParamsTypes Types of method input parameters to discover method
-     * @param params Parameters for method execution
+     * @param params           Parameters for method execution
      * @return Result of execution
      */
     Object execute(String serviceName,
-            String ruleName,
-            Class<?>[] inputParamsTypes,
-            Object[] params) throws MethodInvocationException;
+                   String ruleName,
+                   Class<?>[] inputParamsTypes,
+                   Object[] params) throws MethodInvocationException;
 
     /**
      * Executes method with specified parameters. Method discovery is done based on parameters types.
      *
      * @param serviceName Name of deployed service
-     * @param ruleName Technical name of the rule to execute
-     * @param params Parameters for method execution
+     * @param ruleName    Technical name of the rule to execute
+     * @param params      Parameters for method execution
      * @return Result of execution
      */
     Object execute(String serviceName, String ruleName, Object... params) throws MethodInvocationException;
@@ -48,7 +47,7 @@ public interface RulesFrontend {
      * Gets values defined in rules.
      *
      * @param serviceName Name of deployed service
-     * @param fieldName Technical name of the rule to execute
+     * @param fieldName   Technical name of the rule to execute
      * @return Data stored in field
      */
     Object getValue(String serviceName, String fieldName) throws MethodInvocationException;
@@ -67,7 +66,6 @@ public interface RulesFrontend {
      * Registers service to use it in calculations.
      *
      * @param service Service to register.
-     *
      */
     void registerService(OpenLService service);
 

@@ -167,7 +167,6 @@ public abstract class WebStudioUtils {
      * Returns request parameter from HttpServletRequest object through current FacesContext.
      *
      * @param parameterName parameter name
-     *
      * @return parameter value - if parameter exists, <code>null</code> - otherwise.
      */
     public static String getRequestParameter(String parameterName) {

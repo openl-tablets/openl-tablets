@@ -54,8 +54,8 @@ public class StaticOpenClass implements IOpenClass {
     @Override
     public Iterable<IOpenMethod> methods(String name) {
         return StreamSupport.stream(delegate.methods(name).spliterator(), false)
-            .filter(IOpenMember::isStatic)
-            .collect(Collectors.toList());
+                .filter(IOpenMember::isStatic)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -41,7 +41,7 @@ public class DataEnumConstraint extends AbstractConstraint {
             // Get enumeration name group for this match
             String enumerationName = matcher.group(1);
 
-            return new String[] { enumerationName };
+            return new String[]{enumerationName};
         }
 
         return NO_PARAMS;

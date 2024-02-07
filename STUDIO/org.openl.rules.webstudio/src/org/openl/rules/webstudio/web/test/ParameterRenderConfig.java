@@ -90,7 +90,7 @@ public class ParameterRenderConfig {
         /**
          * Create new builder
          *
-         * @param type Parameter type. Cannot be null.
+         * @param type  Parameter type. Cannot be null.
          * @param value Parameter value.
          * @see #getType()
          */

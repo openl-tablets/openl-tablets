@@ -13,7 +13,7 @@ public abstract class ChainedBeanByteCodeWriter implements BeanByteCodeWriter {
 
     /**
      * Initialize chained byte code writer with given parameter
-     * 
+     *
      * @param next link to the next writer
      */
     public ChainedBeanByteCodeWriter(ChainedBeanByteCodeWriter next) {

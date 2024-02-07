@@ -39,10 +39,10 @@ public class ProjectTagsBean {
     private String projectName;
 
     public ProjectTagsBean(TagTypeService tagTypeService,
-            TagService tagService,
-            OpenLProjectService projectService,
-            RepositorySelectNodeStateHolder repositorySelectNodeStateHolder,
-            TagTemplateService tagTemplateService) {
+                           TagService tagService,
+                           OpenLProjectService projectService,
+                           RepositorySelectNodeStateHolder repositorySelectNodeStateHolder,
+                           TagTemplateService tagTemplateService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
         this.projectService = projectService;
@@ -130,10 +130,10 @@ public class ProjectTagsBean {
                         tag.setId(null);
                     }
                     WebStudioUtils.validate(NameChecker.checkName(tagName),
-                        "Tag cannot contain forbidden characters (" + NameChecker
-                            .getForbiddenCharacters() + "), start with space, end with space or dot.");
+                            "Tag cannot contain forbidden characters (" + NameChecker
+                                    .getForbiddenCharacters() + "), start with space, end with space or dot.");
                     WebStudioUtils.validate(type.isExtensible(),
-                        String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
+                            String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
                 }
             }
         });
@@ -148,7 +148,7 @@ public class ProjectTagsBean {
             final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
             if (existed == null) {
                 throw new IllegalArgumentException(String
-                    .format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
+                        .format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
             }
         });
 

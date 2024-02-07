@@ -26,8 +26,8 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
 
     public UserInfoClaimsConverter(PropertyResolver propertyResolver,
-            Consumer<SimpleUser> syncUserData,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                   Consumer<SimpleUser> syncUserData,
+                                   BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.syncUserData = syncUserData;
         this.propertyResolver = propertyResolver;
         this.privilegeMapper = privilegeMapper;
@@ -48,12 +48,12 @@ public class UserInfoClaimsConverter implements Converter<Map<String, Object>, S
 
         String username = getAttributeAsString(claims, "security.oauth2.attribute.username");
         var userBuilder = SimpleUser.builder()
-            .setFirstName(getAttributeAsString(claims, "security.oauth2.attribute.first-name"))
-            .setLastName(getAttributeAsString(claims, "security.oauth2.attribute.last-name"))
-            .setUsername(username)
-            .setPrivileges(grantedAuthorities)
-            .setEmail(getAttributeAsString(claims, "security.oauth2.attribute.email"))
-            .setDisplayName(getAttributeAsString(claims, "security.oauth2.attribute.display-name"));
+                .setFirstName(getAttributeAsString(claims, "security.oauth2.attribute.first-name"))
+                .setLastName(getAttributeAsString(claims, "security.oauth2.attribute.last-name"))
+                .setUsername(username)
+                .setPrivileges(grantedAuthorities)
+                .setEmail(getAttributeAsString(claims, "security.oauth2.attribute.email"))
+                .setDisplayName(getAttributeAsString(claims, "security.oauth2.attribute.display-name"));
 
         syncUserData.accept(userBuilder.build());
         Collection<Privilege> privileges = privilegeMapper.apply(username, grantedAuthorities);

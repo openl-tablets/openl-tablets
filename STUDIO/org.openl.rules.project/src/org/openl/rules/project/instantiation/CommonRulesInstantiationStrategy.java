@@ -36,7 +36,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * Creates rules instantiation strategy with empty {@link ClassLoader}.(See {@link #getClassLoader()} for more<br>
      * information which classLoader will be used).
      *
-     * @param executionMode {@link #executionMode}
+     * @param executionMode     {@link #executionMode}
      * @param dependencyManager {@link #dependencyManager}
      */
     public CommonRulesInstantiationStrategy(boolean executionMode, IDependencyManager dependencyManager) {
@@ -46,13 +46,13 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     /**
      * Creates rules instantiation strategy with defined classLoader.
      *
-     * @param executionMode {@link #executionMode}
+     * @param executionMode     {@link #executionMode}
      * @param dependencyManager {@link #dependencyManager}
-     * @param classLoader {@link #classLoader}
+     * @param classLoader       {@link #classLoader}
      */
     public CommonRulesInstantiationStrategy(boolean executionMode,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader) {
+                                            IDependencyManager dependencyManager,
+                                            ClassLoader classLoader) {
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.executionMode = executionMode;
         this.classLoader = classLoader;
@@ -135,13 +135,13 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * Inner implementation. Creates instance of class handling all rules invocations. The class will be instanced of
      * class got with {@link #getServiceClass()}.
      *
-     * @param rulesClass rule Class
+     * @param rulesClass              rule Class
      * @param ignoreCompilationErrors allow to compile rules with errors
      * @return instantiated object
      * @throws RulesInstantiationException
      */
     protected abstract Object instantiate(Class<?> rulesClass,
-            boolean ignoreCompilationErrors) throws RulesInstantiationException;
+                                          boolean ignoreCompilationErrors) throws RulesInstantiationException;
 
     @Override
     public Map<String, Object> getExternalParameters() {

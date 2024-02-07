@@ -136,7 +136,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testString() {
         String tableName = "Rules void helloString(String stringValue)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
-        EnumDomain<String> stringDomain = new EnumDomain<>(new String[] { "value1", "value2", "value3" });
+        EnumDomain<String> stringDomain = new EnumDomain<>(new String[]{"value1", "value2", "value3"});
         EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
 
         domains.put("stringValue", enumDomainStrAdaptor);
@@ -219,7 +219,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         Map<String, IDomainAdaptor> domains = new HashMap<>();
 
         EnumDomain<CountriesEnum> enumDomain1 = new EnumDomain<>(
-            new CountriesEnum[] { CountriesEnum.AR, CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA });
+                new CountriesEnum[]{CountriesEnum.AR, CountriesEnum.AU, CountriesEnum.BR, CountriesEnum.CA});
         EnumDomainAdaptor enumDomainAdaptor1 = new EnumDomainAdaptor(enumDomain1);
         domains.put("country", enumDomainAdaptor1);
         domains.put("countryLocal1", enumDomainAdaptor1);

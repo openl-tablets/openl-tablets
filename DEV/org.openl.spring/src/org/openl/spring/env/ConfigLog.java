@@ -7,6 +7,7 @@ import org.openl.info.OpenLInfoLogger;
 
 final class ConfigLog {
     static final Logger LOG = LoggerFactory.getLogger("OpenL.config");
+
     static {
         OpenLInfoLogger.logInfo();
     }

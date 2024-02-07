@@ -19,7 +19,7 @@ public final class OpenApiRulesCacheWorkaround {
             Field mapField = OpenApiContextLocator.class.getDeclaredField("map");
             mapField.setAccessible(true);
             ConcurrentMap<String, OpenApiContext> swaggerMap = (ConcurrentMap<String, OpenApiContext>) mapField
-                .get(OpenApiContextLocator.getInstance());
+                    .get(OpenApiContextLocator.getInstance());
             swaggerMap.clear();
         } catch (NoSuchFieldException | IllegalAccessException e) {
             Logger log = LoggerFactory.getLogger(OpenApiRulesCacheWorkaround.class);

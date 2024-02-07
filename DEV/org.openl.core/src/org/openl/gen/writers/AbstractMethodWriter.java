@@ -28,7 +28,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
      * Initialize method writter with given parameters
      *
      * @param description method description
-     * @param next link to the next writter
+     * @param next        link to the next writter
      */
     public AbstractMethodWriter(MethodDescription description, ChainedBeanByteCodeWriter next) {
         super(next);
@@ -70,7 +70,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
     /**
      * Writes annotation property with value
      *
-     * @param av annotation visitor
+     * @param av         annotation visitor
      * @param annotation annotation description
      */
     private void visitAnnotationProperty(AnnotationVisitor av, AnnotationDescription annotation) {
@@ -113,8 +113,8 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
     /**
      * Creates method descriptor.<br/>
      * <p>
-     *     Examples:
-     *     <pre>
+     * Examples:
+     * <pre>
      *         ()V
      *         (Ljava/lang/Object;ILjava/util/Date;)I
      *     </pre>

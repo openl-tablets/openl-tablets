@@ -31,7 +31,7 @@ public final class BooleanUtils {
      * true. Otherwise, false is returned. For Integer value 0 will return false. Otherwise, true is returned. Returns
      * boolean value or default value if the input value is null or not a Boolean.
      *
-     * @param value Object value
+     * @param value        Object value
      * @param defaultValue The default boolean value to return if the value is null or not a Boolean
      * @return boolean value
      */
@@ -185,7 +185,7 @@ public final class BooleanUtils {
      * Integer value 0 will return false, null will return null. Otherwise, true is returned. Returns Boolean value or
      * default value if the input value is null or not a Boolean.
      *
-     * @param value Object value
+     * @param value        Object value
      * @param defaultValue The default Boolean value to return if the value is null or not a Boolean
      * @return Boolean value
      */

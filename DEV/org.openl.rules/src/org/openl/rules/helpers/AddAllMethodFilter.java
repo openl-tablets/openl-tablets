@@ -81,8 +81,8 @@ public class AddAllMethodFilter implements MethodFilter {
         for (int i = 0; i < callParams.length; i++) {
             if (callParams[i] != null && !NullOpenClass.isAnyNull(callParams[i])) {
                 openCasts[i] = castFactory.getCast(
-                    paramAsElement[i] ? callParams[i] : callParams[i].getComponentClass(),
-                    type.getComponentClass());
+                        paramAsElement[i] ? callParams[i] : callParams[i].getComponentClass(),
+                        type.getComponentClass());
             }
         }
         return new AddAllMethodDetails(minDim, maxDim, type, paramAsElement, openCasts);

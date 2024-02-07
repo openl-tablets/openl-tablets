@@ -12,11 +12,11 @@ public class TableSyntaxNodeUtilsTest {
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double \ndt1(String param1)", XlsNodeTypes.XLS_DT));
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double   dt1 (String param1)", XlsNodeTypes.XLS_DT));
         assertEquals("dt1",
-            TableSyntaxNodeUtils.str2name("Rules Double dt1(String " + (char) 160 + "param1)", XlsNodeTypes.XLS_DT));
+                TableSyntaxNodeUtils.str2name("Rules Double dt1(String " + (char) 160 + "param1)", XlsNodeTypes.XLS_DT));
         assertEquals("dt1", TableSyntaxNodeUtils.str2name("Rules Double dt1(String \nparam1)", XlsNodeTypes.XLS_DT));
         assertEquals("spreadsheet1",
-            TableSyntaxNodeUtils.str2name("Spreadsheet SpreadsheetResult spreadsheet1(String param1)",
-                XlsNodeTypes.XLS_SPREADSHEET));
+                TableSyntaxNodeUtils.str2name("Spreadsheet SpreadsheetResult spreadsheet1(String param1)",
+                        XlsNodeTypes.XLS_SPREADSHEET));
         assertEquals("spreadsheet1",
                 TableSyntaxNodeUtils.str2name("Spreadsheet SpreadsheetResult spreadsheet1(String    param1  )",
                         XlsNodeTypes.XLS_SPREADSHEET));

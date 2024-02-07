@@ -54,7 +54,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Manages Users and Groups.
- * 
+ *
  * @author Yury Molchan
  */
 @RestController
@@ -64,8 +64,8 @@ public class ManagementController {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
     private static final Set<String> DATABASE_PRIVILEGES = Arrays.stream(Privileges.values())
-        .map(Privileges::getName)
-        .collect(Collectors.toSet());
+            .map(Privileges::getName)
+            .collect(Collectors.toSet());
 
     private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
@@ -79,14 +79,14 @@ public class ManagementController {
 
     @Autowired
     public ManagementController(GroupDao groupDao,
-            GroupManagementService groupManagementService,
-            InMemoryProperties properties,
-            BeanValidationProvider validationProvider,
-            ExternalGroupService extGroupService,
-            @Autowired(required = false) JdbcMutableAclService aclService,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
-            @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
+                                GroupManagementService groupManagementService,
+                                InMemoryProperties properties,
+                                BeanValidationProvider validationProvider,
+                                ExternalGroupService extGroupService,
+                                @Autowired(required = false) JdbcMutableAclService aclService,
+                                @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+                                @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
@@ -124,11 +124,11 @@ public class ManagementController {
         UIGroup uiGroup = new UIGroup(group);
         List<Sid> grantedAuthoritySidList = Collections.singletonList(new GrantedAuthoritySid(group.getName()));
         uiGroup.privileges
-            .addAll(getGroupUiPrivileges(() -> designRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
-                DESIGN_PRIVILEGES::get));
+                .addAll(getGroupUiPrivileges(() -> designRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                        DESIGN_PRIVILEGES::get));
         uiGroup.privileges.addAll(
-            getGroupUiPrivileges(() -> deployConfigRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
-                DEPLOY_CONFIG_PRIVILEGES::get));
+                getGroupUiPrivileges(() -> deployConfigRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                        DEPLOY_CONFIG_PRIVILEGES::get));
         return uiGroup;
     }
 
@@ -172,28 +172,28 @@ public class ManagementController {
         }
 
         groupManagementService.updateGroup(name,
-            roles,
-            privileges == null ? null
-                               : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
+                roles,
+                privileges == null ? null
+                        : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
         designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         deployConfigRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         productionRepositoryAclService.removeRootPermissions(List.of(AclPermission.EDIT),
-            Collections.singletonList(grantedAuthoritySid));
+                Collections.singletonList(grantedAuthoritySid));
         if (privileges != null) {
             List<Permission> designPermissions = toPermissions(privileges, DESIGN_PRIVILEGES::getKey);
             designRepositoryAclService.addRootPermissions(designPermissions,
-                Collections.singletonList(grantedAuthoritySid));
+                    Collections.singletonList(grantedAuthoritySid));
 
             List<Permission> deployConfigPermissions = toPermissions(privileges, DEPLOY_CONFIG_PRIVILEGES::getKey);
             deployConfigRepositoryAclService.addRootPermissions(deployConfigPermissions,
-                Collections.singletonList(grantedAuthoritySid));
+                    Collections.singletonList(grantedAuthoritySid));
 
             List<Permission> productionPermissions = toPermissions(privileges, PRODUCTION_PRIVILEGES::getKey);
             if (!productionPermissions.isEmpty()) {
                 productionRepositoryAclService.addRootPermissions(
-                    List.of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE),
-                    Collections.singletonList(grantedAuthoritySid));
+                        List.of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE),
+                        Collections.singletonList(grantedAuthoritySid));
             }
 
         }
@@ -201,9 +201,9 @@ public class ManagementController {
 
     private static List<Permission> toPermissions(Set<String> privileges, Function<String, Permission> mapper) {
         return privileges.stream()
-            .map(mapper)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .map(mapper)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
@@ -292,9 +292,9 @@ public class ManagementController {
             @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
-            .stream()
-            .map(org.openl.rules.security.Group::getName)
-            .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
+                .stream()
+                .map(org.openl.rules.security.Group::getName)
+                .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
     public static class UIGroup {
@@ -303,9 +303,9 @@ public class ManagementController {
             description = group.getDescription();
             privileges = group.getPrivileges();
             roles = group.getIncludedGroups()
-                .stream()
-                .map(Group::getName)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .stream()
+                    .map(Group::getName)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }
 

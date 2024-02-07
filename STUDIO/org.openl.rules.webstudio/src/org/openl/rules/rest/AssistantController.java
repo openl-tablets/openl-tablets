@@ -139,8 +139,8 @@ public class AssistantController {
 
         @JsonCreator
         public Message(@JsonProperty("text") String text,
-                @JsonProperty("type") String type,
-                @JsonProperty("refs") List<Ref> refs) {
+                       @JsonProperty("type") String type,
+                       @JsonProperty("refs") List<Ref> refs) {
             this.text = text;
             this.type = type;
             this.refs = refs;
@@ -202,8 +202,8 @@ public class AssistantController {
 
         @JsonCreator
         public MessageArrayWrapper(@JsonProperty("tableId") String tableId,
-                @JsonProperty("messages") List<Message> messages,
-                @JsonProperty("rate") boolean rate) {
+                                   @JsonProperty("messages") List<Message> messages,
+                                   @JsonProperty("rate") boolean rate) {
             this.messages = messages;
             this.tableId = tableId;
             this.rate = rate;
@@ -234,8 +234,8 @@ public class AssistantController {
     }
 
     private static WebstudioAi.ChatRequest getChatRequest(HttpSession httpSession,
-            MessageArrayWrapper messageArrayWrapper,
-            WebstudioAi.ChatType chatType) {
+                                                          MessageArrayWrapper messageArrayWrapper,
+                                                          WebstudioAi.ChatType chatType) {
         var messages = messageArrayWrapper.getMessages().toArray(new Message[0]);
         // get all messages except the last one are ignored
         var history = new Message[messages.length - 1];
@@ -244,7 +244,7 @@ public class AssistantController {
         }
         var studio = WebStudioUtils.getWebStudio(httpSession);
         var table = StringUtils.isNotBlank(messageArrayWrapper.getTableId()) ? studio.getModel()
-            .getTableById(messageArrayWrapper.getTableId()) : null;
+                .getTableById(messageArrayWrapper.getTableId()) : null;
         var chatRequestBuilder = WebstudioAi.ChatRequest.newBuilder();
         if (table != null) {
             var tableSyntaxNode = studio.getModel().findNode(table.getUri());
@@ -252,14 +252,14 @@ public class AssistantController {
                 String currentOpenedTable;
                 if (tableSyntaxNode.getMember() instanceof ExecutableRulesMethod) {
                     currentOpenedTable = OpenL2TextUtils.methodToString(
-                        (ExecutableRulesMethod) tableSyntaxNode.getMember(),
-                        false,
-                        false,
-                        false,
-                        Integer.MAX_VALUE);
+                            (ExecutableRulesMethod) tableSyntaxNode.getMember(),
+                            false,
+                            false,
+                            false,
+                            Integer.MAX_VALUE);
                 } else {
                     currentOpenedTable = OpenL2TextUtils
-                        .tableSyntaxNodeToString(tableSyntaxNode, false, false, Integer.MAX_VALUE);
+                            .tableSyntaxNodeToString(tableSyntaxNode, false, false, Integer.MAX_VALUE);
                 }
                 var types = new HashSet<IOpenClass>();
                 for (IOpenClass type : OpenL2TextUtils.methodTypes(tableSyntaxNode)) {
@@ -268,28 +268,28 @@ public class AssistantController {
                 var methodRefs = OpenL2TextUtils.methodRefs(tableSyntaxNode);
                 for (IOpenMethod method : methodRefs) {
                     OpenL2TextUtils
-                        .collectTypes(method.getType(), types, MAX_DEPTH_COLLECT_TYPES, REPLACE_ALIAS_TYPES_WITH_BASE);
+                            .collectTypes(method.getType(), types, MAX_DEPTH_COLLECT_TYPES, REPLACE_ALIAS_TYPES_WITH_BASE);
                 }
                 types.stream()
-                    .map(e -> OpenL2TextUtils.openClassToString(e, REPLACE_ALIAS_TYPES_WITH_BASE))
-                    .forEach(chatRequestBuilder::addRefTypes);
+                        .map(e -> OpenL2TextUtils.openClassToString(e, REPLACE_ALIAS_TYPES_WITH_BASE))
+                        .forEach(chatRequestBuilder::addRefTypes);
                 // Build the request tableRefMethods
                 methodRefs.stream()
-                    .map(e -> OpenL2TextUtils.methodHeaderToString(e, REPLACE_ALIAS_TYPES_WITH_BASE) + "{}")
-                    .forEach(chatRequestBuilder::addRefMethods);
+                        .map(e -> OpenL2TextUtils.methodHeaderToString(e, REPLACE_ALIAS_TYPES_WITH_BASE) + "{}")
+                        .forEach(chatRequestBuilder::addRefMethods);
                 var tableSyntaxNodeMessageBuilder = WebstudioAi.TableSyntaxNode.newBuilder()
-                    .setUri(table.getUri())
-                    .setType(tableSyntaxNode.getType())
-                    .setTable(currentOpenedTable);
+                        .setUri(table.getUri())
+                        .setType(tableSyntaxNode.getType())
+                        .setTable(currentOpenedTable);
                 if (tableSyntaxNode.getMember() instanceof ExecutableRulesMethod) {
                     var dimensionalProperties = OpenL2TextUtils.dimensionalPropertiesToString(
-                        (ExecutableRulesMethod) tableSyntaxNode.getMember(),
-                        objectMapper);
+                            (ExecutableRulesMethod) tableSyntaxNode.getMember(),
+                            objectMapper);
                     if (dimensionalProperties != null) {
                         tableSyntaxNodeMessageBuilder.setBusinessDimensionProperties(dimensionalProperties);
                     }
                     var description = ((ExecutableRulesMethod) tableSyntaxNode.getMember()).getMethodProperties()
-                        .getDescription();
+                            .getDescription();
                     if (StringUtils.isNotBlank(description)) {
                         tableSyntaxNodeMessageBuilder.setDescription(description);
                     }
@@ -301,14 +301,14 @@ public class AssistantController {
 
         var lastMessage = messages[messages.length - 1];
         chatRequestBuilder.setChatType(chatType)
-            .setMessage(lastMessage.text)
-            .addAllHistory(Stream.of(history)
-                .map(e -> WebstudioAi.ChatMessage.newBuilder()
-                    .setText(e.text)
-                    .setType(CHAT_TYPE_USER.equals(e.getType()) ? WebstudioAi.MessageType.USER
-                                                                : WebstudioAi.MessageType.ASSISTANT)
-                    .build())
-                .collect(Collectors.toList()));
+                .setMessage(lastMessage.text)
+                .addAllHistory(Stream.of(history)
+                        .map(e -> WebstudioAi.ChatMessage.newBuilder()
+                                .setText(e.text)
+                                .setType(CHAT_TYPE_USER.equals(e.getType()) ? WebstudioAi.MessageType.USER
+                                        : WebstudioAi.MessageType.ASSISTANT)
+                                .build())
+                        .collect(Collectors.toList()));
         return chatRequestBuilder.build();
     }
 
@@ -334,9 +334,9 @@ public class AssistantController {
         var blockingStub = aiService.getBlockingStub();
         var response = blockingStub.chat(request);
         return response.getMessagesList()
-            .stream()
-            .map(e -> buildMessage(request, e.getText(), CHAT_TYPE_ASSISTANT, buildRefs(e.getRefsList())))
-            .toArray(Message[]::new);
+                .stream()
+                .map(e -> buildMessage(request, e.getText(), CHAT_TYPE_ASSISTANT, buildRefs(e.getRefsList())))
+                .toArray(Message[]::new);
     }
 
     private WebstudioAi.TableSyntaxNode buildGrpcTSN(TSN tsn) {
@@ -368,15 +368,15 @@ public class AssistantController {
             var chatMessageBuilder = WebstudioAi.ChatMessage.newBuilder();
             chatMessageBuilder.setText(message.getText());
             chatMessageBuilder.setType(CHAT_TYPE_USER.equals(message.getType()) ? WebstudioAi.MessageType.USER
-                                                                                : WebstudioAi.MessageType.ASSISTANT);
+                    : WebstudioAi.MessageType.ASSISTANT);
             chatRequestBuilder.addHistory(chatMessageBuilder.build());
         }
 
         var chatRequest = chatRequestBuilder.build();
         var rateRequest = WebstudioAi.RateRequest.newBuilder()
-            .setRate(messageArrayWrapper.getRate())
-            .setChatRequest(chatRequest)
-            .build();
+                .setRate(messageArrayWrapper.getRate())
+                .setChatRequest(chatRequest)
+                .build();
         var blockingStub = aiService.getBlockingStub();
         blockingStub.rate(rateRequest);
     }

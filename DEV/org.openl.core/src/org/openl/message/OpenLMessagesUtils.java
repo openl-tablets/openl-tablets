@@ -89,7 +89,7 @@ public class OpenLMessagesUtils {
     }
 
     public static Collection<OpenLMessage> filterMessagesBySeverity(Collection<OpenLMessage> messages,
-            Severity severity) {
+                                                                    Severity severity) {
         Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
         Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
 

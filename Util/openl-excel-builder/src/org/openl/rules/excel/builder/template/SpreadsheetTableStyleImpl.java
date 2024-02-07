@@ -17,15 +17,15 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
     private final CellStyle dateTimeFieldStyle;
 
     public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
-            CellStyle headerStyle,
-            CellRangeSettings headerSettings,
-            NameValueRowStyle headerRowStyle,
-            String stepHeaderText,
-            String valueHeaderText,
-            NameValueRowStyle rowStyle,
-            NameValueRowStyle lastRowStyle,
-            CellStyle dateFieldStyle,
-            CellStyle dateTimeFieldStyle) {
+                                     CellStyle headerStyle,
+                                     CellRangeSettings headerSettings,
+                                     NameValueRowStyle headerRowStyle,
+                                     String stepHeaderText,
+                                     String valueHeaderText,
+                                     NameValueRowStyle rowStyle,
+                                     NameValueRowStyle lastRowStyle,
+                                     CellStyle dateFieldStyle,
+                                     CellStyle dateTimeFieldStyle) {
         super(headerTextTemplate, headerStyle, headerSettings);
         this.headerRowStyle = headerRowStyle;
         this.stepHeaderText = stepHeaderText;

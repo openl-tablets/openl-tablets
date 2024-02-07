@@ -11,7 +11,6 @@ import org.openl.rules.dt.element.ConditionCasts;
 
 /**
  * @author snshor
- *
  */
 public abstract class ARuleIndex implements IRuleIndex {
 

@@ -87,13 +87,13 @@ public class DesignTimeRepositoryController {
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            BeanValidationProvider validationService,
-            CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
-            ZipArchiveValidator zipArchiveValidator,
-            ZipProjectSaveStrategy zipProjectSaveStrategy,
-            @Value("${openl.home.shared}") String homeDirectory,
-            RepositoryProjectService projectService) {
+                                          @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                          BeanValidationProvider validationService,
+                                          CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
+                                          ZipArchiveValidator zipArchiveValidator,
+                                          ZipProjectSaveStrategy zipProjectSaveStrategy,
+                                          @Value("${openl.home.shared}") String homeDirectory,
+                                          RepositoryProjectService projectService) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -126,10 +126,10 @@ public class DesignTimeRepositoryController {
     @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepository.getRepositories()
-            .stream()
-            .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
-            .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
+                .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{repo-name}/projects")
@@ -140,22 +140,22 @@ public class DesignTimeRepositoryController {
             throw new SecurityException();
         }
         return projectService.getProjects(
-            ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
+                ProjectCriteriaQuery.builder().repositoryId(repository.getId()).build());
     }
 
-    @GetMapping({ "/{repo-name}/projects/{project-name}/history",
-            "/{repo-name}/branches/{branch-name}/projects/{project-name}/history" })
+    @GetMapping({"/{repo-name}/projects/{project-name}/history",
+            "/{repo-name}/branches/{branch-name}/projects/{project-name}/history"})
     @Parameters({
             @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
-            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50")) })
+            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))})
     @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
-    @JsonView({ UserInfoModel.View.Short.class })
+    @JsonView({UserInfoModel.View.Short.class})
     public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
-            @Parameter(description = "repo.param.branch-name.desc") @PathVariable(value = "branch-name") Optional<String> branch,
-            @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
-            @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
-            @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
-            @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
+                                                            @Parameter(description = "repo.param.branch-name.desc") @PathVariable(value = "branch-name") Optional<String> branch,
+                                                            @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
+                                                            @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
+                                                            @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
+                                                            @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
         if (branch.isPresent()) {
             repository = checkoutBranchIfPresent(repository, branch.get());
         }
@@ -184,15 +184,15 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.create-project-from-zip.summary", description = "repos.create-project-from-zip.desc")
     @JsonView(GenericView.CreateOrUpdate.class)
     public ProjectViewModel createProjectFromZip(@DesignRepository("repo-name") Repository repository,
-            @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
-            @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
-            @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
-            @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
-                                                                                                                                                                                           JAXBException {
+                                                 @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
+            JAXBException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() && StringUtils
-                .isNotBlank(path) ? RepositoryAclServiceImpl.concatPaths(path, projectName) : projectName;
+                    .isNotBlank(path) ? RepositoryAclServiceImpl.concatPaths(path, projectName) : projectName;
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.EDIT))) {
                 throw new SecurityException();
             }
@@ -203,12 +203,12 @@ public class DesignTimeRepositoryController {
         allowedToPush(repository);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(),
-            getUserName(),
-            StringUtils.trimToNull(projectName),
-            StringUtils.trimToNull(path),
-            StringUtils.isNotBlank(comment) ? comment
-                                            : getCommentsService(repository.getId()).createProject(projectName),
-            overwrite);
+                getUserName(),
+                StringUtils.trimToNull(projectName),
+                StringUtils.trimToNull(path),
+                StringUtils.isNotBlank(comment) ? comment
+                        : getCommentsService(repository.getId()).createProject(projectName),
+                overwrite);
         validationProvider.validate(model); // perform basic validation
 
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");

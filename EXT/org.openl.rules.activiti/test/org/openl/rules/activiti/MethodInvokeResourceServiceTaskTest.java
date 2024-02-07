@@ -26,10 +26,10 @@ public class MethodInvokeResourceServiceTaskTest {
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-method-invoke-test.bpmn20.xml")
-            .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-method-invoke-test.bpmn20.xml")
+                .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
+                .deploy();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class MethodInvokeResourceServiceTaskTest {
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
         Double result = (Double) processEngine.getRuntimeService()
-            .getVariable(task.getExecutionId(), "resultVariable");
+                .getVariable(task.getExecutionId(), "resultVariable");
 
         assertEquals(500.0d, result, 1e-3);
     }

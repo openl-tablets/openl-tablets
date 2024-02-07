@@ -7,7 +7,6 @@ import org.openl.types.StaticOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class MethodNotFoundException extends OpenlNotCheckedException {
 
@@ -44,9 +43,9 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
 
         if (target != null) {
             sb.append(" in type '")
-                .append(target instanceof StaticOpenClass ? ((StaticOpenClass) target).getDelegate().getName()
-                                                          : target.getName())
-                .append("'");
+                    .append(target instanceof StaticOpenClass ? ((StaticOpenClass) target).getDelegate().getName()
+                            : target.getName())
+                    .append("'");
         }
 
         sb.append(".");

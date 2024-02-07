@@ -97,7 +97,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             // only 1
             if (values.length != 1) {
                 throw new IllegalArgumentException(
-                    String.format("Column %s can have single value only.", colDef.getName()));
+                        String.format("Column %s can have single value only.", colDef.getName()));
             }
         }
     }
@@ -164,7 +164,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         } else {
             String msg = "All sub nodes must be leaves. Sub nodes are allowed for single child only.";
             throw SyntaxNodeExceptionUtils.createError(msg,
-                rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue().asSourceCodeModule());
+                    rows.get(parent.getRowIndex()).get(NAMES)[0].getStringValue().asSourceCodeModule());
         }
     }
 
@@ -186,9 +186,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         // [0..X] special rows are ignored
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = prepareNodes(bindingContext,
-            columnMatch,
-            argumentsHelper,
-            columnMatch.getReturnValues().length);
+                columnMatch,
+                argumentsHelper,
+                columnMatch.getReturnValues().length);
 
         MatchNode rootNode = buildTree(rows, nodes);
         validateTree(rootNode, rows, nodes);
@@ -226,10 +226,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * Parses CheckValues for node(row). It is up to matcher (type of variable in 'names') how to parse it.
      */
     protected void parseCheckValues(IBindingContext bindingContext,
-            ColumnMatch columnMatch,
-            TableRow row,
-            MatchNode node,
-            int retValuesCount) {
+                                    ColumnMatch columnMatch,
+                                    TableRow row,
+                                    MatchNode node,
+                                    int retValuesCount) {
         SubValue[] inValues = row.get(VALUES);
         Object[] checkValues = new Object[retValuesCount];
 
@@ -264,7 +264,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * Compiles (parses) return values based on return type.
      */
     protected void parseSpecialRows(IBindingContext bindingContext,
-            ColumnMatch columnMatch) throws SyntaxNodeException {
+                                    ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass returnType = columnMatch.getHeader().getType();
 
         TableRow row0 = columnMatch.getRows().get(0);
@@ -273,9 +273,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     protected Object[] parseValues(IBindingContext bindingContext,
-            ColumnMatch columnMatch,
-            TableRow row,
-            IOpenClass openClass) throws SyntaxNodeException {
+                                   ColumnMatch columnMatch,
+                                   TableRow row,
+                                   IOpenClass openClass) throws SyntaxNodeException {
         SubValue[] subValues = row.get(VALUES);
 
         Object[] result = new Object[subValues.length];
@@ -289,7 +289,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     result[i] = RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, openClass);
                 } else {
                     IString2DataConvertor converter = String2DataConvertorFactory
-                        .getConvertor(openClass.getInstanceClass());
+                            .getConvertor(openClass.getInstanceClass());
                     result[i] = converter.parse(s, null);
                 }
             } catch (Exception | LinkageError ex) {
@@ -302,9 +302,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     }
 
     protected void setMetaInfoForConstant(IBindingContext bindingContext,
-            ColumnMatch columnMatch,
-            SubValue sv,
-            ConstantOpenField constantOpenField) {
+                                          ColumnMatch columnMatch,
+                                          SubValue sv,
+                                          ConstantOpenField constantOpenField) {
         if (!bindingContext.isExecutionMode()) {
             IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
             IGrid grid = tableBodyGrid.getGrid();
@@ -325,9 +325,9 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * @return array of nodes, elements corresponds rows
      */
     protected MatchNode[] prepareNodes(IBindingContext bindingContext,
-            ColumnMatch columnMatch,
-            ArgumentsHelper argumentsHelper,
-            int retValuesCount) throws SyntaxNodeException {
+                                       ColumnMatch columnMatch,
+                                       ArgumentsHelper argumentsHelper,
+                                       int retValuesCount) throws SyntaxNodeException {
         List<TableRow> rows = columnMatch.getRows();
         MatchNode[] nodes = new MatchNode[rows.size()];
 
@@ -347,8 +347,8 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
             } else if (arg.getField() != null && !Objects.equals(arg.getField().getName(), varName)) {
                 bindingContext.addMessage(
-                    OpenLMessagesUtils.newWarnMessage(String.format("Case insensitive matching to '%s'.", varName),
-                        columnMatch.getSyntaxNode()));
+                        OpenLMessagesUtils.newWarnMessage(String.format("Case insensitive matching to '%s'.", varName),
+                                columnMatch.getSyntaxNode()));
             }
 
             SubValue operationSV = row.get(OPERATION)[0];
@@ -376,7 +376,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
      * Checks that tree is consistent.
      *
      * @param rootNode root of tree
-     * @param rows rows to point out errors
+     * @param rows     rows to point out errors
      */
     protected void validateTree(MatchNode rootNode, List<TableRow> rows, MatchNode[] nodes) throws SyntaxNodeException {
         for (MatchNode node : rootNode.getChildren()) {

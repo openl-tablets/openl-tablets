@@ -12,7 +12,7 @@ public final class EnumUtils {
         return constant.name();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static Object valueOf(Class enumClass, String constantName) {
         return StringUtils.isEmpty(constantName) ? null : Enum.valueOf(enumClass, constantName);
     }
@@ -52,7 +52,7 @@ public final class EnumUtils {
     public static Object[] getEnumConstants(Class<?> enumClass) {
         if (!enumClass.isEnum()) {
             throw new IllegalArgumentException(
-                String.format("The class '%s' must be an enum.", enumClass.getTypeName()));
+                    String.format("The class '%s' must be an enum.", enumClass.getTypeName()));
         }
         return enumClass.getEnumConstants();
     }

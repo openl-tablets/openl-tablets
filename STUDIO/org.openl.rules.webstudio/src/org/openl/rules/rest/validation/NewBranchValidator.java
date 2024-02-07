@@ -25,8 +25,8 @@ public class NewBranchValidator implements Validator {
     private final String customRegexError;
 
     public NewBranchValidator(BranchRepository repository,
-            @Nullable String customRegex,
-            @Nullable String customRegexError) {
+                              @Nullable String customRegex,
+                              @Nullable String customRegexError) {
         this.repository = repository;
         this.customRegex = customRegex;
         this.customRegexError = customRegexError;
@@ -53,10 +53,10 @@ public class NewBranchValidator implements Validator {
         try {
             for (String branch : repository.getBranches(null)) {
                 if (branch.equalsIgnoreCase(newBranchName)) {
-                    errors.reject("branch.name.exists.message", new Object[] { newBranchName }, null);
+                    errors.reject("branch.name.exists.message", new Object[]{newBranchName}, null);
                     return false;
                 } else if (newBranchName.startsWith(branch + "/")) {
-                    errors.reject("branch.name.exists.1.message", new Object[] { newBranchName, branch }, null);
+                    errors.reject("branch.name.exists.1.message", new Object[]{newBranchName, branch}, null);
                     return false;
                 }
             }
@@ -74,7 +74,7 @@ public class NewBranchValidator implements Validator {
         try {
             if (!newBranchName.matches(customRegex)) {
                 if (StringUtils.isBlank(customRegexError)) {
-                    errors.reject("branch.name.invalid.pattern.message", new Object[] { customRegex }, null);
+                    errors.reject("branch.name.invalid.pattern.message", new Object[]{customRegex}, null);
                 } else {
                     errors.reject(customRegexError, customRegexError);
                 }

@@ -29,13 +29,13 @@ public class EventTableStyles implements TableStyles {
     private final Map<CellAddress, String> formulas;
 
     public EventTableStyles(IGridRegion region,
-            int[][] cellIndexes,
-            List<ExtendedFormatRecord> extendedFormats,
-            Map<Integer, FormatRecord> customFormats,
-            PaletteRecord palette,
-            List<FontRecord> fonts,
-            List<HSSFComment> comments,
-            Map<CellAddress, String> formulas) {
+                            int[][] cellIndexes,
+                            List<ExtendedFormatRecord> extendedFormats,
+                            Map<Integer, FormatRecord> customFormats,
+                            PaletteRecord palette,
+                            List<FontRecord> fonts,
+                            List<HSSFComment> comments,
+                            Map<CellAddress, String> formulas) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.extendedFormats = extendedFormats;

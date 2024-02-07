@@ -12,6 +12,6 @@ import org.openl.rules.variation.Variation;
  */
 public abstract class ComplexVariationType {
     public ComplexVariationType(@JsonProperty("variationID") String variationID,
-            @JsonProperty("variations") Variation... variations) {
+                                @JsonProperty("variations") Variation... variations) {
     }
 }

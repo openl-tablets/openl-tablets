@@ -8,7 +8,6 @@ package org.openl.types;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenMethod extends IOpenMethodHeader, IMethodCaller {
     IOpenMethod[] EMPTY_ARRAY = new IOpenMethod[0];

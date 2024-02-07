@@ -106,13 +106,13 @@ public class JavaBeanClassBuilder {
      */
     public byte[] byteCode() {
         return new POJOByteCodeGenerator(beanName,
-            fields,
-            parentType,
-            parentFields,
-            typeWriters,
-            additionalConstructor,
-            equalsHashCodeToStringMethods,
-            publicFields).byteCode();
+                fields,
+                parentType,
+                parentFields,
+                typeWriters,
+                additionalConstructor,
+                equalsHashCodeToStringMethods,
+                publicFields).byteCode();
     }
 
 }

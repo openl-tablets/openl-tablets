@@ -65,9 +65,9 @@ public class OpenApiGenerator {
     private ClassLoader classLoader;
 
     private OpenApiGenerator(ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy instantiationStrategy,
-            boolean provideRuntimeContext,
-            boolean provideVariations) throws RulesInstantiationException {
+                             RulesInstantiationStrategy instantiationStrategy,
+                             boolean provideRuntimeContext,
+                             boolean provideVariations) throws RulesInstantiationException {
         this.projectDescriptor = projectDescriptor;
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
@@ -88,19 +88,19 @@ public class OpenApiGenerator {
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             RulesInstantiationStrategy enhancedInstantiationStrategy = enhanceRulesInstantiationStrategy(
-                instantiationStrategy,
-                isProvidedRuntimeContext(),
-                isProvideVariations());
+                    instantiationStrategy,
+                    isProvidedRuntimeContext(),
+                    isProvideVariations());
             Class<?> serviceClass = resolveInterface(enhancedInstantiationStrategy);
             ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
             Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
-                enhancedInstantiationStrategy.instantiate(),
-                serviceClassLoader
+                    enhancedInstantiationStrategy.instantiate(),
+                    serviceClassLoader
             );
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
                 throw new OpenApiGenerationException(
-                    "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
+                        "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
             }
             synchronized (OpenApiRulesCacheWorkaround.class) {
                 OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
@@ -127,9 +127,9 @@ public class OpenApiGenerator {
     private ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader, String name) {
         ProjectResource[] projectResources = projectResourceLoader.loadResource(name);
         return Arrays.stream(projectResources)
-            .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
-            .findFirst()
-            .orElse(null);
+                .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
+                .findFirst()
+                .orElse(null);
     }
 
     private RulesDeploy loadRulesDeploy() {
@@ -157,7 +157,7 @@ public class OpenApiGenerator {
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         if (classLoader == null) {
             ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
-                .getOpenClass()).getClassGenerationClassLoader();
+                    .getOpenClass()).getClassGenerationClassLoader();
             OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
             openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
             openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
@@ -183,8 +183,8 @@ public class OpenApiGenerator {
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         final RulesDeploy rulesDeployValue = getRulesDeploy();
         final Optional<String> serviceClassName = Optional.ofNullable(rulesDeployValue)
-            .map(RulesDeploy::getServiceClass)
-            .map(StringUtils::trimToNull);
+                .map(RulesDeploy::getServiceClass)
+                .map(StringUtils::trimToNull);
 
         if (serviceClassName.isPresent()) {
             try {
@@ -193,23 +193,23 @@ public class OpenApiGenerator {
                     return serviceClass;
                 } else {
                     throw new OpenApiGenerationException(String
-                        .format("Interface is expected for service class '%s', but class is found.", serviceClassName));
+                            .format("Interface is expected for service class '%s', but class is found.", serviceClassName));
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                    String.format("An error is occurred during loading a service class '%s'.%s",
-                        serviceClassName,
-                        StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
+                        String.format("An error is occurred during loading a service class '%s'.%s",
+                                serviceClassName,
+                                StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
         }
 
         final String templateClassName = Optional.ofNullable(rulesDeployValue)
-            .map(RulesDeploy::getAnnotationTemplateClassName)
-            .map(StringUtils::trimToNull)
-            .orElseGet(() -> Optional.ofNullable(rulesDeployValue)
-                .map(RulesDeploy::getInterceptingTemplateClassName)
+                .map(RulesDeploy::getAnnotationTemplateClassName)
                 .map(StringUtils::trimToNull)
-                .orElse(null));
+                .orElseGet(() -> Optional.ofNullable(rulesDeployValue)
+                        .map(RulesDeploy::getInterceptingTemplateClassName)
+                        .map(StringUtils::trimToNull)
+                        .orElse(null));
 
         Class<?> serviceClass = instantiationStrategy.getInstanceClass();
         ClassLoader resolveServiceClassLoader = resolveServiceClassLoader(instantiationStrategy);
@@ -218,36 +218,36 @@ public class OpenApiGenerator {
                 Class<?> templateClass = resolveServiceClassLoader.loadClass(templateClassName);
                 if (templateClass.isInterface() || Modifier.isAbstract(templateClass.getModifiers())) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
-                        templateClass,
-                        instantiationStrategy.compile().getOpenClass(),
-                        resolveServiceClassLoader);
+                            templateClass,
+                            instantiationStrategy.compile().getOpenClass(),
+                            resolveServiceClassLoader);
                 } else {
                     throw new OpenApiGenerationException(String.format(
-                        "Interface or abstract class is expected for annotation template class '%s', but class is found.",
-                        templateClassName));
+                            "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                            templateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
                 throw new OpenApiGenerationException(
-                    String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
-                        templateClassName,
-                        StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
+                        String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                                templateClassName,
+                                StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
         }
         return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(
-            instantiationStrategy.compile().getOpenClass(),
-            serviceClass,
-            resolveServiceClassLoader,
-            instantiationStrategy.instantiate(true),
-            isProvidedRuntimeContext(),
-            isProvideVariations());
+                instantiationStrategy.compile().getOpenClass(),
+                serviceClass,
+                resolveServiceClassLoader,
+                instantiationStrategy.instantiate(true),
+                isProvidedRuntimeContext(),
+                isProvideVariations());
     }
 
     private boolean isProvidedRuntimeContext() {
         return Optional.ofNullable(getRulesDeploy())
-            .map(RulesDeploy::isProvideRuntimeContext)
-            .orElse(provideRuntimeContext);
+                .map(RulesDeploy::isProvideRuntimeContext)
+                .orElse(provideRuntimeContext);
     }
 
     private boolean isProvideVariations() {
@@ -271,14 +271,14 @@ public class OpenApiGenerator {
     }
 
     private Class<?> enhanceWithJAXRS(Class<?> originalClass,
-            Object targetService,
-            ClassLoader classLoader) throws RulesInstantiationException {
+                                      Object targetService,
+                                      ClassLoader classLoader) throws RulesInstantiationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
-                targetService,
-                classLoader,
-                isProvidedRuntimeContext(),
-                isProvideVariations()
+                    targetService,
+                    classLoader,
+                    isProvidedRuntimeContext(),
+                    isProvideVariations()
             );
         } catch (Exception e) {
             throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
@@ -286,7 +286,7 @@ public class OpenApiGenerator {
     }
 
     private Map<Method, Method> buildMethodMapWithJAXRS(Class<?> serviceClass,
-            Class<?> enhancedServiceClass) throws RulesInstantiationException {
+                                                        Class<?> enhancedServiceClass) throws RulesInstantiationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass);
         } catch (Exception e) {
@@ -339,21 +339,21 @@ public class OpenApiGenerator {
          */
         public OpenApiGenerator generator() throws RulesInstantiationException {
             return new OpenApiGenerator(projectDescriptor,
-                instantiationStrategy,
-                provideRuntimeContext,
-                provideVariations);
+                    instantiationStrategy,
+                    provideRuntimeContext,
+                    provideVariations);
         }
     }
 
     /**
      * Creates builder class
      *
-     * @param projectDescriptor project descriptor of current OpenL Project
+     * @param projectDescriptor     project descriptor of current OpenL Project
      * @param instantiationStrategy compilation factory of current OpenL Project
      * @return builder instance
      */
     public static Builder builder(ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy instantiationStrategy) {
+                                  RulesInstantiationStrategy instantiationStrategy) {
         return new Builder(projectDescriptor, instantiationStrategy);
     }
 

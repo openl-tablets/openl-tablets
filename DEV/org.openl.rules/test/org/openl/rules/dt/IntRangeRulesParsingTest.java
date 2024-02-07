@@ -10,9 +10,7 @@ import org.openl.rules.TestUtils;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class IntRangeRulesParsingTest {
 
@@ -82,24 +80,24 @@ public class IntRangeRulesParsingTest {
     @Test
     public void testtestRange() {
         assertEquals("rule1",
-            TestUtils.invoke(instance,
-                "ClassifyIncome",
-                new Class[] { String.class, short.class },
-                new Object[] { "Type 1", (short) -300 }));
+                TestUtils.invoke(instance,
+                        "ClassifyIncome",
+                        new Class[]{String.class, short.class},
+                        new Object[]{"Type 1", (short) -300}));
     }
 
     @Test
     public void testtestRange0() {
         assertEquals("rule3",
-            TestUtils.invoke(instance,
-                "ClassifyIncome",
-                new Class[] { String.class, short.class },
-                new Object[] { "Type 2", (short) -80 }));
+                TestUtils.invoke(instance,
+                        "ClassifyIncome",
+                        new Class[]{String.class, short.class},
+                        new Object[]{"Type 2", (short) -80}));
     }
 
     private Object invoke(String methodName, boolean param1, long param2) {
         return TestUtils
-            .invoke(instance, methodName, new Class[] { boolean.class, long.class }, new Object[] { param1, param2 });
+                .invoke(instance, methodName, new Class[]{boolean.class, long.class}, new Object[]{param1, param2});
     }
 
 }

@@ -21,9 +21,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private String sourceCode;
 
     public OpenLCompilationException(String message,
-            Throwable insideCause,
-            ILocation location,
-            IOpenSourceCodeModule source) {
+                                     Throwable insideCause,
+                                     ILocation location,
+                                     IOpenSourceCodeModule source) {
         super(message);
         this.insideCause = insideCause;
         this.location = location;

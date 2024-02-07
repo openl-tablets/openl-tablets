@@ -5,7 +5,7 @@ public class EnumMatchMatcher implements IMatcher {
     @SuppressWarnings("rawtypes")
     private final Class<Enum> enumType;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public EnumMatchMatcher(Class<?> clazz) {
         enumType = (Class<Enum>) clazz;
     }

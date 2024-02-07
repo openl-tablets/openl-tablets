@@ -9,7 +9,7 @@ public final class SecuredRepositoryFactory {
     }
 
     public static Repository wrapToSecureRepo(Repository repository,
-            SimpleRepositoryAclService simpleRepositoryAclService) {
+                                              SimpleRepositoryAclService simpleRepositoryAclService) {
         if (repository == null) {
             return null;
         }

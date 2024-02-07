@@ -10,7 +10,6 @@ import org.openl.types.IMethodCaller;
  * any return.
  *
  * @author User
- *
  */
 public class PerformOperation extends OpenLEvaluationOperation {
 

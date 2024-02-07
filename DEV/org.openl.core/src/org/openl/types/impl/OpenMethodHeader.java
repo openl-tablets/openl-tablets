@@ -10,7 +10,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public class OpenMethodHeader implements IOpenMethodHeader {
 
@@ -23,11 +22,11 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     private ILocation[] paramTypeLocations;
 
     public OpenMethodHeader(String name,
-            IOpenClass typeClass,
-            IMethodSignature signature,
-            IOpenClass declaringClass,
-            ILocation typeLocation,
-            ILocation[] paramTypeLocations) {
+                            IOpenClass typeClass,
+                            IMethodSignature signature,
+                            IOpenClass declaringClass,
+                            ILocation typeLocation,
+                            ILocation[] paramTypeLocations) {
         this(name, typeClass, signature, declaringClass);
         this.typeLocation = typeLocation;
         this.paramTypeLocations = paramTypeLocations;
@@ -119,7 +118,7 @@ public class OpenMethodHeader implements IOpenMethodHeader {
     @Override
     public String toString() {
         return (getType() != null ? getType().getName() : "null") + ' ' + MethodUtil.printSignature(this,
-            INamedThing.SHORT);
+                INamedThing.SHORT);
     }
 
     public void setTypeLocation(ILocation typeLocation) {

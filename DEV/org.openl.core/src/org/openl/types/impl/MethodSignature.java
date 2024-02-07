@@ -13,7 +13,6 @@ import org.openl.util.StringUtils;
 
 /**
  * @author snshor
- *
  */
 public class MethodSignature implements IMethodSignature {
 

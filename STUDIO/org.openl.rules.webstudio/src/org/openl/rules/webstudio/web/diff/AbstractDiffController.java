@@ -125,7 +125,7 @@ public abstract class AbstractDiffController {
         }
         IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
-            new ColorFilterHolder().makeFilter());
+                new ColorFilterHolder().makeFilter());
     }
 
     public void setDiffTree(DiffTreeNode diffTree) {
@@ -165,9 +165,9 @@ public abstract class AbstractDiffController {
                 if (otherDiffCells != null) {
                     List<ICell> finalDiffCells = diffCells;
                     List<ICell> emptyCells = otherDiffCells.stream()
-                        .filter(cell -> finalDiffCells.stream().noneMatch(c -> c.getRow() == cell.getRow()))
-                        .map(EmptyCell::new)
-                        .collect(Collectors.toList());
+                            .filter(cell -> finalDiffCells.stream().noneMatch(c -> c.getRow() == cell.getRow()))
+                            .map(EmptyCell::new)
+                            .collect(Collectors.toList());
                     diffCells.addAll(emptyCells);
                 }
             }
@@ -175,7 +175,7 @@ public abstract class AbstractDiffController {
         return diffCells != null && diffCells.isEmpty() ? null : diffCells;
     }
 
-    public void reset(){
+    public void reset() {
         richDiffTree = null;
         selectedNode = null;
         showEqualElements = false;
@@ -223,7 +223,7 @@ public abstract class AbstractDiffController {
 
         // skip equal elements
         return type
-            .equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(node.getDiffTreeNode());
+                .equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(node.getDiffTreeNode());
     }
 
     private List<PropertyNode> getPropertyNodes(DiffTreeNode d) {

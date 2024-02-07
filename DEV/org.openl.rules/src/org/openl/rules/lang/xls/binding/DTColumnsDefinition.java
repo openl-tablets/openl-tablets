@@ -28,16 +28,16 @@ public class DTColumnsDefinition {
     private final List<ExpressionIdentifier> identifiers;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
-            String tableName,
-            IOpenMethodHeader header,
-            String expression,
-            List<ExpressionIdentifier> identifiers,
-            Map<String, List<IParameterDeclaration>> parameters,
-            TableSyntaxNode tableSyntaxNode) {
+                               String tableName,
+                               IOpenMethodHeader header,
+                               String expression,
+                               List<ExpressionIdentifier> identifiers,
+                               Map<String, List<IParameterDeclaration>> parameters,
+                               TableSyntaxNode tableSyntaxNode) {
         this.tableName = tableName;
         this.header = Objects.requireNonNull(header, "header cannot be null");
         this.identifiers = Collections
-            .unmodifiableList(Objects.requireNonNull(identifiers, "identifiers cannot be null"));
+                .unmodifiableList(Objects.requireNonNull(identifiers, "identifiers cannot be null"));
         this.expression = Objects.requireNonNull(expression, "expression cannot be null");
         this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
         this.type = Objects.requireNonNull(type, "type cannot be null");
@@ -81,9 +81,9 @@ public class DTColumnsDefinition {
 
     public List<IParameterDeclaration> getParameters() {
         return parameters.values()
-            .stream()
-            .flatMap(Collection::stream)
-            .collect(Collectors.toCollection(ArrayList::new));
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<IParameterDeclaration> getParameters(String title) {

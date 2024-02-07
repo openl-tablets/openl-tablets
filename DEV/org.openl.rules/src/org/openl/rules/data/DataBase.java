@@ -20,7 +20,6 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * @author snshor
- *
  */
 public class DataBase implements IDataBase {
 
@@ -96,9 +95,9 @@ public class DataBase implements IDataBase {
 
     @Override
     public void preLoadTable(ITable table,
-            ITableModel dataModel,
-            ILogicalTable dataWithTitles,
-            OpenlToolAdaptor openlAdapter) throws Exception {
+                             ITableModel dataModel,
+                             ILogicalTable dataWithTitles,
+                             OpenlToolAdaptor openlAdapter) throws Exception {
 
         table.setModel(dataModel);
         table.setData(dataWithTitles);

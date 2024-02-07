@@ -66,7 +66,7 @@ class FullClassnameSupport {
                 localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
             } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
                 localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
-                    syntaxNode.getChild(0).getChild(0).getText());
+                        syntaxNode.getChild(0).getChild(0).getText());
             } else {
                 throw new IllegalStateException("Unsupported syntax node type");
             }
@@ -118,8 +118,8 @@ class FullClassnameSupport {
                                 originalFullClassName.append(".");
                             }
                             originalFullClassName.append(
-                                syntaxNode1 instanceof IdentifierNode ? ((IdentifierNode) syntaxNode1).getOriginalText()
-                                                                      : syntaxNode1.getText());
+                                    syntaxNode1 instanceof IdentifierNode ? ((IdentifierNode) syntaxNode1).getOriginalText()
+                                            : syntaxNode1.getText());
                         }
                         updateSyntaxNode(syntaxNode, identifierChain, originalFullClassName.toString(), j);
                         break;
@@ -168,9 +168,9 @@ class FullClassnameSupport {
     }
 
     private static void updateSyntaxNode(ISyntaxNode syntaxNode,
-            List<ISyntaxNode> identifierChain,
-            String fullClassName,
-            int j) {
+                                         List<ISyntaxNode> identifierChain,
+                                         String fullClassName,
+                                         int j) {
         try {
             ISyntaxNode nodeToChange;
             if (j < identifierChain.size() - 1) {
@@ -179,9 +179,9 @@ class FullClassnameSupport {
                 nodeToChange = syntaxNode.getParent();
             }
             IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
-                nodeToChange.getChild(0).getSourceLocation(),
-                fullClassName,
-                nodeToChange.getChild(0).getModule());
+                    nodeToChange.getChild(0).getSourceLocation(),
+                    fullClassName,
+                    nodeToChange.getChild(0).getModule());
             if (nodeToChange instanceof BinaryNode) {
                 binaryNodeLeftField.set(nodeToChange, newIdentifierNode);
             } else if (nodeToChange instanceof UnaryNode) {
@@ -194,7 +194,7 @@ class FullClassnameSupport {
     }
 
     static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
-            IParsedCode parsedCode) {
+                                                                 IParsedCode parsedCode) {
         ISyntaxNode topNode = parsedCode.getTopNode();
         if (bindingContext != null) {
             rec(topNode, bindingContext, new HashMap<>());

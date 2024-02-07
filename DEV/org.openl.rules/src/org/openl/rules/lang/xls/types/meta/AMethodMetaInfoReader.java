@@ -59,16 +59,16 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             nodeUsages.add(
-                new SimpleNodeUsage(
-                    start,
-                    end,
-                    metaInfo.getDisplayName(INamedThing.SHORT)
-                        + (StringUtils.isEmpty(getAdditionalMetaInfoForTableReturnType())
-                            ? ""
-                            : ("\n" + getAdditionalMetaInfoForTableReturnType())),
-                    metaInfo.getSourceUrl(),
-                    type,
-                    NodeType.DATATYPE)
+                    new SimpleNodeUsage(
+                            start,
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT)
+                                    + (StringUtils.isEmpty(getAdditionalMetaInfoForTableReturnType())
+                                    ? ""
+                                    : ("\n" + getAdditionalMetaInfoForTableReturnType())),
+                            metaInfo.getSourceUrl(),
+                            type,
+                            NodeType.DATATYPE)
             );
         }
 
@@ -88,11 +88,11 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                     int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                     int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because location returns 'end' inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
-                        end,
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        parameterType,
-                        NodeType.DATATYPE));
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            parameterType,
+                            NodeType.DATATYPE));
                 }
             }
         }

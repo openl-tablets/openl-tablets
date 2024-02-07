@@ -20,7 +20,6 @@ import org.openl.util.ClassUtils;
  * - maps of objects.
  *
  * @author snshor
- *
  */
 public final class DefaultFormat {
 
@@ -134,10 +133,10 @@ public final class DefaultFormat {
             Object value = element.getValue();
             if (key != null && value != null) {
                 buf.append('<')
-                    .append(ClassUtils.getShortClassName(key.getClass()))
-                    .append(',')
-                    .append(ClassUtils.getShortClassName(value.getClass()))
-                    .append('>');
+                        .append(ClassUtils.getShortClassName(key.getClass()))
+                        .append(',')
+                        .append(ClassUtils.getShortClassName(value.getClass()))
+                        .append('>');
             }
         }
 

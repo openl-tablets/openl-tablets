@@ -13,8 +13,8 @@ final class RulesInFolderTestRunnerWithOpenApiValidator extends RulesInFolderTes
 
     @Override
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
-            ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy rulesInstantiationStrategy) {
+                                         ProjectDescriptor projectDescriptor,
+                                         RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
             OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
             return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);

@@ -37,7 +37,6 @@ import org.openl.util.TableNameChecker;
 
 /**
  * @author snshor
- *
  */
 public class DatatypeNodeBinder extends AXlsTableBinder {
 
@@ -46,9 +45,9 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass module) throws Exception {
+                                    OpenL openl,
+                                    RulesModuleBindingContext bindingContext,
+                                    XlsModuleOpenClass module) throws Exception {
 
         ILogicalTable table = tsn.getTable();
         IOpenSourceCodeModule tableSource = tsn.getHeader().getModule();
@@ -76,7 +75,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
         // Additional condition that it is not loaded class from classloader
         if (openClass != null && !(openClass instanceof JavaOpenClass) && openClass.getPackageName()
-            .equals(packageName)) {
+                .equals(packageName)) {
             String message = "Duplicate type definition: " + typeName;
             throw SyntaxNodeExceptionUtils.createError(message, null, parsedHeader[TYPE_INDEX]);
         }
@@ -88,7 +87,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         // Check the datatype table that is alias data type.
         //
         if (parsedHeader.length == 3 && parsedHeader[2] != null && parsedHeader[2].getIdentifier()
-            .startsWith("<") && parsedHeader[2].getIdentifier().endsWith(">")) {
+                .startsWith("<") && parsedHeader[2].getIdentifier().endsWith(">")) {
 
             int beginIndex = 1;
             int endIndex = parsedHeader[2].getIdentifier().length() - 1;
@@ -110,15 +109,15 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 bindingContext.pushErrors();
                 bindingContext.pushMessages();
                 baseOpenClass = OpenLManager
-                    .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
+                        .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
                 // Prevent NPE if type is not found
                 if (bindingContext.getErrors().length > 0) {
                     if (bindingContext.getErrors().length == 1) {
                         throw bindingContext.getErrors()[0];
                     } else {
                         throw new CompositeOpenlException("Binding Errors:",
-                            bindingContext.getErrors(),
-                            bindingContext.getMessages());
+                                bindingContext.getErrors(),
+                                bindingContext.getMessages());
                     }
                 }
             } finally {
@@ -146,10 +145,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
             DomainOpenClass tableType = new DomainOpenClass(typeName,
-                baseOpenClass,
-                domain,
-                module,
-                new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
+                    baseOpenClass,
+                    domain,
+                    module,
+                    new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
 
             // Add domain class definition to biding context as internal type.
             //
@@ -160,8 +159,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             return new AliasDatatypeBoundNode(tsn, tableType, module);
         } else {
             if (parsedHeader.length != 2 && parsedHeader.length != 4 || parsedHeader.length == 4 && !parsedHeader[2]
-                .getIdentifier()
-                .equals("extends")) {
+                    .getIdentifier()
+                    .equals("extends")) {
 
                 String message = "Datatype table formats: [Datatype %typename%] " + "or [Datatype %typename% extends %parentTypeName%] " + "or [Datatype %typename% %<aliastype>%] ";
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
@@ -184,11 +183,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             if (parsedHeader.length == 4) {
                 return new DatatypeTableBoundNode(tsn,
-                    tableType,
-                    module,
-                    table,
-                    openl,
-                    parsedHeader[PARENT_TYPE_INDEX]);
+                        tableType,
+                        module,
+                        table,
+                        openl,
+                        parsedHeader[PARENT_TYPE_INDEX]);
             } else {
                 return new DatatypeTableBoundNode(tsn, tableType, module, table, openl);
             }

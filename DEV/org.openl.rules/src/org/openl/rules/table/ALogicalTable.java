@@ -64,12 +64,12 @@ public abstract class ALogicalTable implements ILogicalTable {
     public String toString() {
         StringBuilder tableVisualization = new StringBuilder();
         tableVisualization.append(super.toString())
-            .append("(")
-            .append(getWidth())
-            .append(" x ")
-            .append(getHeight())
-            .append(")")
-            .append("\n");
+                .append("(")
+                .append(getWidth())
+                .append(" x ")
+                .append(getHeight())
+                .append(")")
+                .append("\n");
 
         for (int i = 0; i < getSource().getHeight(); i++) {
             int length = 0;

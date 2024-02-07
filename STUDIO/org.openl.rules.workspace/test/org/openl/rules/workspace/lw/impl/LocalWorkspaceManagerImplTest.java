@@ -29,7 +29,7 @@ public class LocalWorkspaceManagerImplTest {
     @Test
     public void removeWorkspaceOnSessionTimeout() {
         WorkspaceUserImpl user = new WorkspaceUserImpl("user.1",
-            (username) -> new UserInfo("user.1", "user.1@email", "User 1"));
+                (username) -> new UserInfo("user.1", "user.1@email", "User 1"));
         LocalWorkspace workspace1 = manager.getWorkspace(user.getUserId());
         String repoId = "design";
 
@@ -49,8 +49,8 @@ public class LocalWorkspaceManagerImplTest {
     @Test
     public void dontCreateEmptyFolder() {
         LocalWorkspace workspace1 = manager.getWorkspace(
-            new WorkspaceUserImpl("user.1", (username) -> new UserInfo("user.1", "user.1@email", "User 1"))
-                .getUserId());
+                new WorkspaceUserImpl("user.1", (username) -> new UserInfo("user.1", "user.1@email", "User 1"))
+                        .getUserId());
         assertFalse(workspace1.getLocation().exists());
     }
 }

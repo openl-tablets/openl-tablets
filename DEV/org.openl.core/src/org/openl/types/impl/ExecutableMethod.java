@@ -7,7 +7,6 @@ import org.openl.types.IOpenMethodHeader;
  * Default implementation for all executable OpenL methods.
  *
  * @author DLiauchuk
- *
  */
 public abstract class ExecutableMethod extends AMethod implements IMemberMetaInfo {
 

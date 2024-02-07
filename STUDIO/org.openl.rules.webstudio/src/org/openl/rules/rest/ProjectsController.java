@@ -71,8 +71,8 @@ public class ProjectsController {
     private final BeanValidationProvider validationProvider;
 
     public ProjectsController(WorkspaceProjectService projectService,
-            Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
-            BeanValidationProvider validationProvider) {
+                              Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory,
+                              BeanValidationProvider validationProvider) {
         this.projectService = projectService;
         this.newBranchValidatorFactory = newBranchValidatorFactory;
         this.validationProvider = validationProvider;
@@ -92,23 +92,23 @@ public class ProjectsController {
                     "OPENED",
                     "VIEWING_VERSION",
                     "EDITING",
-                    "CLOSED" })),
+                    "CLOSED"})),
             @Parameter(name = "repository", description = "Repository ID", in = ParameterIn.QUERY),
-            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE) })
+            @Parameter(name = "tags", description = "Project tags. Must start with `tags.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)})
     public List<ProjectViewModel> getProjects(@Parameter(hidden = true) @RequestParam Map<String, String> params,
-            @RequestParam(value = "status", required = false) ProjectStatus status,
-            @RequestParam(value = "repository", required = false) String repository) {
+                                              @RequestParam(value = "status", required = false) ProjectStatus status,
+                                              @RequestParam(value = "repository", required = false) String repository) {
 
         var queryBuilder = ProjectCriteriaQuery.builder().repositoryId(repository).status(status);
 
         params.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey().startsWith(TAGS_PREFIX))
-            .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
-            .forEach(entry -> {
-                var tag = entry.getKey().substring(TAGS_PREFIX.length());
-                queryBuilder.tag(tag, entry.getValue());
-            });
+                .stream()
+                .filter(entry -> entry.getKey().startsWith(TAGS_PREFIX))
+                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
+                .forEach(entry -> {
+                    var tag = entry.getKey().substring(TAGS_PREFIX.length());
+                    queryBuilder.tag(tag, entry.getValue());
+                });
 
         return projectService.getProjects(queryBuilder.build());
     }
@@ -123,7 +123,7 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Update project status (BETA)")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestBody ProjectStatusUpdateModel request) {
+                                    @RequestBody ProjectStatusUpdateModel request) {
         try {
             projectService.updateProjectStatus(project, request);
             getWebStudio().reset();
@@ -136,7 +136,7 @@ public class ProjectsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Create branch (BETA)")
     public void createBranch(@ProjectId @PathVariable("projectId") RulesProject project,
-            @RequestBody CreateBranchModel request) {
+                             @RequestBody CreateBranchModel request) {
         var repository = project.getDesignRepository();
         if (!project.isSupportsBranches()) {
             throw new ConflictException("project.branch.unsupported.message");
@@ -153,24 +153,24 @@ public class ProjectsController {
 
     @GetMapping("/{projectId}/tables")
     @Operation(summary = "Get project tables (BETA)")
-    @Parameters({ @Parameter(name = "kind", description = "Table kinds", in = ParameterIn.QUERY),
+    @Parameters({@Parameter(name = "kind", description = "Table kinds", in = ParameterIn.QUERY),
             @Parameter(name = "name", description = "Table name fragment", in = ParameterIn.QUERY),
-            @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE) })
+            @Parameter(name = "properties", description = "Project properties. Must start with `properties.` ", in = ParameterIn.QUERY, style = ParameterStyle.FORM, schema = @Schema(implementation = Object.class), explode = Explode.TRUE)})
     public Collection<SummaryTableView> getTables(@ProjectId @PathVariable("projectId") RulesProject project,
-            @Parameter(hidden = true) @RequestParam Map<String, String> params,
-            @RequestParam(value = "kind", required = false) Set<String> kinds,
-            @RequestParam(value = "name", required = false) String name) {
+                                                  @Parameter(hidden = true) @RequestParam Map<String, String> params,
+                                                  @RequestParam(value = "kind", required = false) Set<String> kinds,
+                                                  @RequestParam(value = "name", required = false) String name) {
 
         var queryBuilder = ProjectTableCriteriaQuery.builder().kinds(kinds).name(name);
 
         params.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
-            .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
-            .forEach(entry -> {
-                var tag = entry.getKey().substring(PROPERTIES_PREFIX.length());
-                queryBuilder.property(tag, entry.getValue());
-            });
+                .stream()
+                .filter(entry -> entry.getKey().startsWith(PROPERTIES_PREFIX))
+                .filter(entry -> StringUtils.isNotBlank(entry.getValue()))
+                .forEach(entry -> {
+                    var tag = entry.getKey().substring(PROPERTIES_PREFIX.length());
+                    queryBuilder.property(tag, entry.getValue());
+                });
 
         return projectService.getTables(project, queryBuilder.build());
     }
@@ -178,15 +178,15 @@ public class ProjectsController {
     @GetMapping("/{projectId}/tables/{tableId}")
     @Operation(summary = "Get project table (BETA)")
     public EditableTableView getTable(@ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("tableId") String tableId) {
+                                      @PathVariable("tableId") String tableId) {
         return (EditableTableView) projectService.getTable(project, tableId);
     }
 
     @Operation(summary = "Update project table (BETA)")
     @PutMapping("/{projectId}/tables/{tableId}")
     public void updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("tableId") String tableId,
-            @RequestBody EditableTableView editTable) throws ProjectException {
+                            @PathVariable("tableId") String tableId,
+                            @RequestBody EditableTableView editTable) throws ProjectException {
         try {
             projectService.updateTable(project, tableId, editTable);
         } finally {
@@ -197,8 +197,8 @@ public class ProjectsController {
     @Operation(summary = "Append project table (BETA)")
     @PostMapping("/{projectId}/tables/{tableId}/lines")
     public void appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
-            @PathVariable("tableId") String tableId,
-            @RequestBody AppendTableView editTable) throws ProjectException {
+                            @PathVariable("tableId") String tableId,
+                            @RequestBody AppendTableView editTable) throws ProjectException {
         try {
             projectService.appendTableLines(project, tableId, editTable);
         } finally {

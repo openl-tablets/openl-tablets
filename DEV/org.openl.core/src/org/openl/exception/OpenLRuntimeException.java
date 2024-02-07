@@ -15,7 +15,6 @@ import org.openl.util.text.ILocation;
  * runtime exceptions on compile time of OpenL.
  *
  * @author snshor
- *
  */
 public class OpenLRuntimeException extends RuntimeException implements OpenLException {
 
@@ -50,7 +49,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
                 this.sourceCode = syntaxNode.getModule().getCode();
                 this.location = syntaxNode.getSourceLocation();
                 this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                    syntaxNode.getModule());
+                        syntaxNode.getModule());
             }
         }
     }
@@ -63,7 +62,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
                 this.sourceCode = syntaxNode.getModule().getCode();
                 this.location = syntaxNode.getSourceLocation();
                 this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                    syntaxNode.getModule());
+                        syntaxNode.getModule());
             }
         }
     }
@@ -74,7 +73,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             this.sourceCode = syntaxNode.getModule().getCode();
             this.location = syntaxNode.getSourceLocation();
             this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                syntaxNode.getModule());
+                    syntaxNode.getModule());
         }
     }
 
@@ -149,7 +148,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
                 String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),
-                    syntaxNode.getModule());
+                        syntaxNode.getModule());
                 SourceCodeURLTool.printSourceLocation(sourceLocation, writer);
             }
         }

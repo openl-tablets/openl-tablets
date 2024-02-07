@@ -17,7 +17,6 @@ import org.openl.types.IOpenClass;
  * This class is designed to implement a functionality of combination custom spreadsheet result types.
  *
  * @author Marat Kamalov
- *
  */
 public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
     private static final int MAX_LENGTH_DISPLAY_NAME = 150;
@@ -74,12 +73,12 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         if (ioc instanceof CombinedSpreadsheetResultOpenClass) {
             CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) ioc;
             return getCombinedTypes().stream()
-                .map(IOpenClass::getName)
-                .collect(Collectors.toSet())
-                .containsAll(combinedSpreadsheetResultOpenClass.getCombinedTypes()
-                    .stream()
                     .map(IOpenClass::getName)
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toSet())
+                    .containsAll(combinedSpreadsheetResultOpenClass.getCombinedTypes()
+                            .stream()
+                            .map(IOpenClass::getName)
+                            .collect(Collectors.toSet()));
         }
         if (ioc instanceof CustomSpreadsheetResultOpenClass) {
             return getCombinedTypes().stream().map(IOpenClass::getName).anyMatch(e -> e.equals(ioc.getName()));
@@ -89,7 +88,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     /**
      * Convert this type to a type belongs to provided module.
-     * 
+     *
      * @param module
      * @return converted type
      */
@@ -99,12 +98,12 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
                 throw new IllegalStateException("Not supported for combined spreadsheet result type.");
             }
             CustomSpreadsheetResultOpenClass[] customSpreadsheetResultOpenClasses = getCombinedTypes().stream()
-                .map(((XlsModuleOpenClass) module)::toModuleType)
-                .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
-                .map(CustomSpreadsheetResultOpenClass.class::cast)
-                .toArray(CustomSpreadsheetResultOpenClass[]::new);
+                    .map(((XlsModuleOpenClass) module)::toModuleType)
+                    .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
+                    .map(CustomSpreadsheetResultOpenClass.class::cast)
+                    .toArray(CustomSpreadsheetResultOpenClass[]::new);
             CustomSpreadsheetResultOpenClass type = ((XlsModuleOpenClass) module)
-                .buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
+                    .buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
             type.setMetaInfo(getMetaInfo());
             return type;
         }
@@ -116,18 +115,18 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             synchronized (this) {
                 if (beanClassName == null) {
                     String name = getCombinedTypes().stream()
-                        .map(CustomSpreadsheetResultOpenClass::getName)
-                        .map(this::spreadsheetResultNameToBeanName)
-                        .sorted()
-                        .distinct()
-                        .collect(Collectors.joining());
+                            .map(CustomSpreadsheetResultOpenClass::getName)
+                            .map(this::spreadsheetResultNameToBeanName)
+                            .sorted()
+                            .distinct()
+                            .collect(Collectors.joining());
                     name = getModule().generateUniqueCombinedSpreadsheetResultClassName(name);
                     if (name.length() > MAX_BEANCLASSNAME_LENGTH) {
                         name = "CombinedType" + getModule().getCombinedSpreadsheetResultOpenClassesCounter()
-                            .incrementAndGet();
+                                .incrementAndGet();
                     }
                     beanClassName = getModule().getGlobalTableProperties()
-                        .getSpreadsheetResultPackage() + ".combined." + name;
+                            .getSpreadsheetResultPackage() + ".combined." + name;
                 }
             }
         }
@@ -138,15 +137,15 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     public String getName() {
         StringBuilder sb = new StringBuilder();
         List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
-            .distinct()
-            .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
-            .collect(Collectors.toList());
+                .distinct()
+                .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
+                .collect(Collectors.toList());
         for (CustomSpreadsheetResultOpenClass c : types) {
             if (sb.length() > 0) {
                 sb.append(" & ");
             }
             sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
-                .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+                    .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
         }
         return sb.toString();
     }

@@ -95,15 +95,15 @@ public class Migrator {
         String factorySuffix = ".factory";
 
         Arrays.stream(settings.getPropertyNames())
-            .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(factorySuffix))
-            .forEach(factoryKey -> {
-                var factory = settings.getProperty(factoryKey);
-                if (StringUtils.isNotBlank(factory)) {
-                    String refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
-                    props.put(refKey, RepositoryInstatiator.getRefID(factory));
-                    props.put(factoryKey, null);
-                }
-            });
+                .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(factorySuffix))
+                .forEach(factoryKey -> {
+                    var factory = settings.getProperty(factoryKey);
+                    if (StringUtils.isNotBlank(factory)) {
+                        String refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
+                        props.put(refKey, RepositoryInstatiator.getRefID(factory));
+                        props.put(factoryKey, null);
+                    }
+                });
     }
 
     private static void migrateProductionRepository(DynamicPropertySource settings, HashMap<String, String> props) {
@@ -117,7 +117,7 @@ public class Migrator {
         List<String> repositories = Optional.ofNullable(configList).map(s -> Arrays
                 .asList(StringUtils.split(s, ','))).orElse(Collections.emptyList());
         boolean severalReposIncludingProduction = repositories.size() > 1 && repositories
-            .contains("production");
+                .contains("production");
 
         // Default Repository URI and Factory in the previous 5.26.0 version
         final var defaultUri = "jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1";
@@ -166,13 +166,13 @@ public class Migrator {
     // 5.26.0
     private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
         Arrays.stream(settings.getPropertyNames())
-            .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
-            .forEach(propertyName -> {
-                var commentTemplate = settings.getProperty(propertyName);
-                if (commentTemplate != null && commentTemplate.contains("{username}")) {
-                    props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
-                }
-            });
+                .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
+                .forEach(propertyName -> {
+                    var commentTemplate = settings.getProperty(propertyName);
+                    if (commentTemplate != null && commentTemplate.contains("{username}")) {
+                        props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
+                    }
+                });
         //removing unnecessary SAML properties
         props.put("security.saml.app-url", null);
         props.put("security.saml.authentication-contexts", null);
@@ -192,16 +192,16 @@ public class Migrator {
         props.put("security.saml.keystore-sp-password", null);
 
         Arrays.stream(settings.getPropertyNames())
-            .filter(propertyName -> propertyName.endsWith(".uri") || propertyName.endsWith(".url"))
-            .map(settings::getProperty)
-            .distinct()
-            .forEach(uri -> {
-                if (uri != null && uri.startsWith("jdbc:h2:")) {
-                    LOG.warn(
-                        "You have h2 database with uri '{}'. Make sure that it's migrated to v2 or newer version. You need to migrate it yourself. See https://www.h2database.com/html/migration-to-v2.html for details.",
-                        uri);
-                }
-            });
+                .filter(propertyName -> propertyName.endsWith(".uri") || propertyName.endsWith(".url"))
+                .map(settings::getProperty)
+                .distinct()
+                .forEach(uri -> {
+                    if (uri != null && uri.startsWith("jdbc:h2:")) {
+                        LOG.warn(
+                                "You have h2 database with uri '{}'. Make sure that it's migrated to v2 or newer version. You need to migrate it yourself. See https://www.h2database.com/html/migration-to-v2.html for details.",
+                                uri);
+                    }
+                });
     }
 
     // 5.24
@@ -257,7 +257,7 @@ public class Migrator {
 
         // migrate deploy-config
         if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository")) || ("true")
-            .equals(Props.text("repository.deploy-config.separate-repository"))) {
+                .equals(Props.text("repository.deploy-config.separate-repository"))) {
             props.put("repository.deploy-config.separate-repository", null);
             props.put("repository.deploy-config.use-repository", null);
 
@@ -265,7 +265,7 @@ public class Migrator {
             // null means this property have default value from previous OpenL version
             var depConfRepo = settings.getProperty("repository.deploy-config.factory");
             if (settings.getProperty(
-                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
+                    "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
                     .equals(depConfRepo)) || "org.openl.rules.repository.git.GitRepository".equals(depConfRepo)) {
                 props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
             }
@@ -276,7 +276,7 @@ public class Migrator {
         // migrate design repository path
         var desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty("repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
-            .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
+                .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
@@ -284,41 +284,41 @@ public class Migrator {
         var desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
             String migratedNewBranchPattern = desNewBranchPattern
-                .replace("{0}", "{project-name}")
-                .replace("{1}", "{username}")
-                .replace("{2}", "{current-date}");
+                    .replace("{0}", "{project-name}")
+                    .replace("{1}", "{username}")
+                    .replace("{2}", "{current-date}");
             props.put("repository.design.new-branch.pattern", migratedNewBranchPattern);
             props.put("repository.design.new-branch-pattern", null);
         }
         rename(settings,
-            props,
-            "repository.deploy-config.comment-validation-pattern",
-            "repository.deploy-config.comment-template.comment-validation-pattern");
+                props,
+                "repository.deploy-config.comment-validation-pattern",
+                "repository.deploy-config.comment-template.comment-validation-pattern");
         rename(settings,
-            props,
-            "repository.deploy-config.invalid-comment-message",
-            "repository.deploy-config.comment-template.invalid-comment-message");
+                props,
+                "repository.deploy-config.invalid-comment-message",
+                "repository.deploy-config.comment-template.invalid-comment-message");
         rename(settings,
-            props,
-            "repository.design.comment-validation-pattern",
-            "repository.design.comment-template.comment-validation-pattern");
+                props,
+                "repository.design.comment-validation-pattern",
+                "repository.design.comment-template.comment-validation-pattern");
         rename(settings,
-            props,
-            "repository.design.invalid-comment-message",
-            "repository.design.comment-template.invalid-comment-message");
+                props,
+                "repository.design.invalid-comment-message",
+                "repository.design.comment-template.invalid-comment-message");
 
         // migrate deployment repository path
         var productionFactory = settings.getProperty("repository.production.factory");
         if (settings.getProperty("repository.production.local-repository-path") == null && ("repo-git".equals(
-            productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
+                productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");
         }
     }
 
     private static void rename(DynamicPropertySource settings,
-            HashMap<String, String> props,
-            String oldKey,
-            String newKey) {
+                               HashMap<String, String> props,
+                               String oldKey,
+                               String newKey) {
         if (settings.containsProperty(oldKey)) {
             String value = (String) settings.getProperty(oldKey);
             props.put(oldKey, null);
@@ -340,8 +340,8 @@ public class Migrator {
                         String prName = dir.getFileName().toString();
                         String projectPath = nonFlatProjectPaths.getOrDefault(prName, "DESIGN/rules/" + prName);
                         Files.write(version,
-                            ("\nrepository-id=design\npath-in-repository=" + projectPath + "\n").getBytes(),
-                            StandardOpenOption.APPEND);
+                                ("\nrepository-id=design\npath-in-repository=" + projectPath + "\n").getBytes(),
+                                StandardOpenOption.APPEND);
                     }
                     return FileVisitResult.CONTINUE;
                 }
@@ -424,10 +424,10 @@ public class Migrator {
                         String projectName = lockPath.getFileName().toString();
                         String projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
                         Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
-                            ".locks/projects/design",
-                            projectPath,
-                            branchName,
-                            "ready.lock");
+                                ".locks/projects/design",
+                                projectPath,
+                                branchName,
+                                "ready.lock");
                         newLock.getParent().toFile().mkdirs();
                         Files.copy(file, newLock);
                         return FileVisitResult.CONTINUE;

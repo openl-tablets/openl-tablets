@@ -16,13 +16,13 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     private final Font datatypeFont;
 
     public DataTypeTableStyleImpl(RichTextString headerTextTemplate,
-            CellStyle headerStyle,
-            CellRangeSettings headerSizeSettings,
-            DataTypeRowStyle rowStyle,
-            CellStyle dateFieldStyle,
-            CellStyle dateTimeFieldStyle,
-            DataTypeRowStyle lastRowStyle,
-            Font datatypeFont) {
+                                  CellStyle headerStyle,
+                                  CellRangeSettings headerSizeSettings,
+                                  DataTypeRowStyle rowStyle,
+                                  CellStyle dateFieldStyle,
+                                  CellStyle dateTimeFieldStyle,
+                                  DataTypeRowStyle lastRowStyle,
+                                  Font datatypeFont) {
         super(headerTextTemplate, headerStyle, headerSizeSettings);
         this.dataTypeRowStyle = rowStyle;
         this.dateFieldStyle = dateFieldStyle;

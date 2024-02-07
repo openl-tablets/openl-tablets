@@ -37,13 +37,13 @@ public class OAuth2Configuration {
 
     /**
      * Returns the introspection endpoint URL.
-     * 
+     *
      * @return the introspection endpoint URL
      */
     public Optional<String> getIntrospectionEndpoint() {
         return Optional.ofNullable(configuration.get("introspection_endpoint"))
-            .map(String::valueOf)
-            .filter(StringUtils::isNotBlank);
+                .map(String::valueOf)
+                .filter(StringUtils::isNotBlank);
     }
 
     private Map<String, Object> getConfiguration(URI... uris) {
@@ -57,7 +57,7 @@ public class OAuth2Configuration {
                 throw ex;
             } catch (RuntimeException ex) {
                 if (!(ex instanceof HttpClientErrorException && ((HttpClientErrorException) ex).getStatusCode()
-                    .is4xxClientError())) {
+                        .is4xxClientError())) {
                     throw new IllegalArgumentException(String.format(ERROR_MESSAGE, issuer), ex);
                 }
                 // else try another endpoint
@@ -68,20 +68,20 @@ public class OAuth2Configuration {
 
     private static URI oidc(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
-            .replacePath(issuer.getPath() + OIDC_METADATA_PATH)
-            .build(Collections.emptyMap());
+                .replacePath(issuer.getPath() + OIDC_METADATA_PATH)
+                .build(Collections.emptyMap());
     }
 
     private static URI oidcRfc8414(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
-            .replacePath(OIDC_METADATA_PATH + issuer.getPath())
-            .build(Collections.emptyMap());
+                .replacePath(OIDC_METADATA_PATH + issuer.getPath())
+                .build(Collections.emptyMap());
     }
 
     private static URI oauth(URI issuer) {
         return UriComponentsBuilder.fromUri(issuer)
-            .replacePath(OAUTH_METADATA_PATH + issuer.getPath())
-            .build(Collections.emptyMap());
+                .replacePath(OAUTH_METADATA_PATH + issuer.getPath())
+                .build(Collections.emptyMap());
     }
 
 }

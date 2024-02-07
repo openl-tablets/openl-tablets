@@ -83,7 +83,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     public void setRuleServiceInstantiationFactory(RuleServiceInstantiationFactory ruleServiceInstantiationFactory) {
         this.ruleServiceInstantiationFactory = Objects.requireNonNull(ruleServiceInstantiationFactory,
-            "ruleServiceInstantiationFactory cannot be null");
+                "ruleServiceInstantiationFactory cannot be null");
     }
 
     public void setServiceConfigurer(ServiceConfigurer serviceConfigurer) {
@@ -125,7 +125,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private Map<String, ServiceDescription> gatherServicesToBeDeployed() {
         try {
             Collection<ServiceDescription> servicesToBeDeployed = serviceConfigurer
-                .getServicesToBeDeployed(ruleServiceLoader);
+                    .getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
                 services.put(serviceDescription.getDeployPath(), serviceDescription);
@@ -151,8 +151,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void deployServices(Map<String, ServiceDescription> newServices) {
         final Map<DeploymentDescription, List<ServiceDescription>> groupedServices = newServices.values()
-            .stream()
-            .collect(Collectors.groupingBy(ServiceDescription::getDeployment));
+                .stream()
+                .collect(Collectors.groupingBy(ServiceDescription::getDeployment));
         Lock lock = RuleServiceRedeployLock.getInstance().getWriteLock();
         try {
             lock.lock();
@@ -237,7 +237,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         String servicePath = serviceDescription.getDeployPath();
         if (getServiceByDeploy(servicePath) != null) {
             throw new RuleServiceDeployException(
-                String.format("The service with path '%s' is already deployed.", servicePath));
+                    String.format("The service with path '%s' is already deployed.", servicePath));
         }
         try {
             this.serviceDescriptionInProcess = serviceDescription;
@@ -283,7 +283,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         if (openClass != null) {
             Collection<OpenLMessage> messages = openClass.getAllMessages();
             Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
-                Severity.ERROR);
+                    Severity.ERROR);
             List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
             if (!errors.isEmpty()) {
                 return errors;
@@ -306,17 +306,17 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
         return services.values().stream().map(s -> {
-            Optional<OpenLService> serviceByName = Optional.ofNullable(getServiceByDeploy(s.getDeployPath()));
-            return new ServiceInfo(startDates.get(s.getDeployPath()),
-                s.getName(),
-                serviceByName.map(ServiceManagerImpl::hasError).orElse(true),
-                serviceByName.map(OpenLService::getUrls).orElseGet(Collections::emptyMap),
-                s.getDeployPath(),
-                s.getManifest() != null,
-                serviceByName.map(OpenLService::getDeployment).map(DeploymentDescription::getName).orElse(null));
-        })
-            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
-            .collect(Collectors.toList());
+                    Optional<OpenLService> serviceByName = Optional.ofNullable(getServiceByDeploy(s.getDeployPath()));
+                    return new ServiceInfo(startDates.get(s.getDeployPath()),
+                            s.getName(),
+                            serviceByName.map(ServiceManagerImpl::hasError).orElse(true),
+                            serviceByName.map(OpenLService::getUrls).orElseGet(Collections::emptyMap),
+                            s.getDeployPath(),
+                            s.getManifest() != null,
+                            serviceByName.map(OpenLService::getDeployment).map(DeploymentDescription::getName).orElse(null));
+                })
+                .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -362,8 +362,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                     publishers.add(publisher.get());
                 } else {
                     log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
-                        p,
-                        service.getDeployPath());
+                            p,
+                            service.getDeployPath());
                 }
             }
         } else {
@@ -417,9 +417,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<OpenLService> getServicesByDeployment(String deploymentName) {
         return services2.values()
-            .stream()
-            .filter(service -> service.getDeployment().getName().equals(deploymentName))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(service -> service.getDeployment().getName().equals(deploymentName))
+                .collect(Collectors.toList());
     }
 
     @Override

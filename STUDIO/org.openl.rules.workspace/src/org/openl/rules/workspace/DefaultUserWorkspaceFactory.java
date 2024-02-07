@@ -9,13 +9,13 @@ import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
 public class DefaultUserWorkspaceFactory implements UserWorkspaceFactory {
     @Override
     public UserWorkspace create(LocalWorkspaceManager localWorkspaceManager,
-            DesignTimeRepository designTimeRepository,
-            WorkspaceUser user) {
+                                DesignTimeRepository designTimeRepository,
+                                WorkspaceUser user) {
         LocalWorkspace userLocalWorkspace = localWorkspaceManager.getWorkspace(user.getUserId());
         return new UserWorkspaceImpl(user,
-            userLocalWorkspace,
-            designTimeRepository,
-            localWorkspaceManager.getLockEngine("projects"),
-            localWorkspaceManager.getLockEngine("deploy-configs"));
+                userLocalWorkspace,
+                designTimeRepository,
+                localWorkspaceManager.getLockEngine("projects"),
+                localWorkspaceManager.getLockEngine("deploy-configs"));
     }
 }

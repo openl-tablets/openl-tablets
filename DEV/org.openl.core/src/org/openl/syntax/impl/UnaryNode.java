@@ -12,7 +12,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public class UnaryNode extends ASyntaxNode {
     private final ISyntaxNode left;

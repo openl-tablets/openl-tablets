@@ -18,16 +18,16 @@ public class DeploymentRepositoriesUtil {
     }
 
     static Collection<RepositoryConfiguration> getRepositories(DeploymentManager deploymentManager,
-            PropertyResolver propertyResolver,
-            SimpleRepositoryAclService productionRepositoryAclService,
-            Permission... permissions) {
+                                                               PropertyResolver propertyResolver,
+                                                               SimpleRepositoryAclService productionRepositoryAclService,
+                                                               Permission... permissions) {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         if (permissions != null) {
             Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
             for (String configName : repositoryConfigNames) {
                 RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
                 if (Arrays.stream(permissions)
-                    .allMatch(e -> productionRepositoryAclService.isGranted(config.getId(), null, List.of(e)))) {
+                        .allMatch(e -> productionRepositoryAclService.isGranted(config.getId(), null, List.of(e)))) {
                     repos.add(config);
                 }
             }

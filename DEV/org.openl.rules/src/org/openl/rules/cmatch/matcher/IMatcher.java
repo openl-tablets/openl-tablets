@@ -14,7 +14,7 @@ public interface IMatcher {
     /**
      * Check whether actual value and check value are match or satisfy matching operation.
      *
-     * @param var actual value
+     * @param var        actual value
      * @param checkValue check value
      * @return true if it matches
      */

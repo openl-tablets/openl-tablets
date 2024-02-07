@@ -8,7 +8,6 @@ package org.openl.conf;
 
 /**
  * @author snshor
- *
  */
 public abstract class AConfigurationElement implements IConfigurationElement {
     private String uri;

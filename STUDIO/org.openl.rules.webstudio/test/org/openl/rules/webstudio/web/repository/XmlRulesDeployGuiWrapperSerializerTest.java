@@ -26,7 +26,7 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
         wrapper.setConfiguration(config);
 
         String serialized = new XmlRulesDeployGuiWrapperSerializer(serializerFactory).serialize(wrapper,
-            SupportedVersion.getLastVersion());
+                SupportedVersion.getLastVersion());
 
         String expected = "<rules-deploy>\n" + "    <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" + "    <configuration>\n" + "    <entry>\n" + "      <string>key2</string>\n" + "      <rules-deploy>\n" + "        <serviceClass>s</serviceClass>\n" + "      </rules-deploy>\n" + "    </entry>\n" + "    <entry>\n" + "      <string>key1</string>\n" + "      <string>value2</string>\n" + "    </entry>\n" + "  </configuration>\n" + "</rules-deploy>";
         assertEquals(expected, serialized);
@@ -37,7 +37,7 @@ public class XmlRulesDeployGuiWrapperSerializerTest {
         String value = "<rules-deploy>\n" + "  <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" + "  <isProvideVariations>false</isProvideVariations>\n" + "  <serviceName>a</serviceName>\n" + "  <serviceClass>b</serviceClass>\n" + "  <url>c</url>\n" + "    <configuration>\n" + "    <entry>\n" + "      <string>key2</string>\n" + "      <rules-deploy>\n" + "        <serviceClass>s</serviceClass>\n" + "      </rules-deploy>\n" + "    </entry>\n" + "    <entry>\n" + "      <string>key1</string>\n" + "      <string>value2</string>\n" + "    </entry>\n" + "  </configuration>\n" + "\n" + "</rules-deploy>";
         RulesDeploySerializerFactory serializerFactory = new RulesDeploySerializerFactory("");
         RulesDeployGuiWrapper wrapper = new XmlRulesDeployGuiWrapperSerializer(serializerFactory).deserialize(value,
-            SupportedVersion.getLastVersion());
+                SupportedVersion.getLastVersion());
         String expected = "<configuration>\n" + "    <entry>\n" + "      <string>key2</string>\n" + "      <rules-deploy>\n" + "        <serviceClass>s</serviceClass>\n" + "      </rules-deploy>\n" + "    </entry>\n" + "    <entry>\n" + "      <string>key1</string>\n" + "      <string>value2</string>\n" + "    </entry>\n" + "  </configuration>";
 
         assertEquals(expected, wrapper.getConfiguration());

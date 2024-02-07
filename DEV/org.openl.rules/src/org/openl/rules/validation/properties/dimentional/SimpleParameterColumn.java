@@ -9,7 +9,6 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
  * column with simple dimension property(not of array type).
  *
  * @author DLiauchuk
- *
  */
 public class SimpleParameterColumn extends ADispatcherTableColumn {
 
@@ -28,7 +27,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
         if (matchExpression != null) {
             String parameterName = propertyName + ADispatcherTableColumn.LOCAL_PARAM_SUFFIX;
             result = getMatchByDefaultCodeExpression(matchExpression) + matchExpression.getMatchExpression()
-                .getCodeExpression(parameterName);
+                    .getCodeExpression(parameterName);
         } else {
             String message = String.format("Cannot create expression for '%s' property validation.", propertyName);
             throw new OpenlNotCheckedException(message);
@@ -45,7 +44,7 @@ public class SimpleParameterColumn extends ADispatcherTableColumn {
     public String getParameterDeclaration() {
         String propertyTypeName = getProperty().getType().getInstanceClass().getSimpleName();
         return String
-            .format("%s %s%s", propertyTypeName, getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
+                .format("%s %s%s", propertyTypeName, getProperty().getName(), ADispatcherTableColumn.LOCAL_PARAM_SUFFIX);
     }
 
     @Override

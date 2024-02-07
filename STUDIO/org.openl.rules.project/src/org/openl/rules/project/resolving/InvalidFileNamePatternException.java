@@ -6,7 +6,7 @@ public class InvalidFileNamePatternException extends Exception {
 
     /**
      * An error message to the platform, when a pattern is not parsed by {@link PropertiesFileNameProcessor}
-     * 
+     *
      * @param message - human readable message to understand what happened and where.
      */
     public InvalidFileNamePatternException(String message) {

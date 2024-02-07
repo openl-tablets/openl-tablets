@@ -8,7 +8,6 @@ import org.openl.util.StringUtils;
  * Lock description.
  *
  * @author Yury Molchan
- *
  */
 public class LockInfo {
 

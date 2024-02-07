@@ -5,7 +5,6 @@ package org.openl.rules.dt.type.domains;
 
 /**
  * @author snshor
- *
  */
 public interface IDomainAdaptor {
 

@@ -39,9 +39,9 @@ public class InterfaceImplBuilder {
         }
         this.clazzInterface = clazzInterface;
         this.beanName = String
-            .format(packagePath + NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
+                .format(packagePath + NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
         this.scriptName = String
-            .format(packagePath + SCRIPT_NAME_PATTERN, clazzInterface.getSimpleName(), counter.incrementAndGet());
+                .format(packagePath + SCRIPT_NAME_PATTERN, clazzInterface.getSimpleName(), counter.incrementAndGet());
         init();
     }
 
@@ -62,7 +62,7 @@ public class InterfaceImplBuilder {
     }
 
     private void collectFieldsAndMethods(Class<?> clazzInterface,
-            Set<Method> usedMethods) throws IntrospectionException {
+                                         Set<Method> usedMethods) throws IntrospectionException {
 
         BeanInfo info = Introspector.getBeanInfo(clazzInterface);
         PropertyDescriptor[] properties = info.getPropertyDescriptors();
@@ -76,8 +76,8 @@ public class InterfaceImplBuilder {
             if (!usedMethods.contains(method.getMethod())) {
                 Method methodRef = method.getMethod();
                 MethodDescription methodDescription = new MethodDescription(method.getName(),
-                    methodRef.getReturnType(),
-                    methodRef.getParameterTypes());
+                        methodRef.getReturnType(),
+                        methodRef.getParameterTypes());
 
                 if (!beanStubMethods.contains(methodDescription)) {
                     beanStubMethods.add(methodDescription);

@@ -14,9 +14,9 @@ import org.openl.rules.util.dates.DateInterval.Unit;
 
 /**
  * A set of util methods to work with dates.
- *
+ * <p>
  * Note: Days and months begin from 1 (not like in Java from 0). Years begin from 0000.
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan, Vladyslav Pikus
@@ -238,8 +238,8 @@ public final class Dates {
      * Calculate difference between two dates
      *
      * @param startDate start date
-     * @param endDate end date
-     * @param unitName method type
+     * @param endDate   end date
+     * @param unitName  method type
      * @return difference between two dates
      */
     public static Double dateDif(Date startDate, Date endDate, String unitName) {

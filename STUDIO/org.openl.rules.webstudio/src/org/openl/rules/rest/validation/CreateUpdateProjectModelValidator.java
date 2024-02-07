@@ -58,9 +58,9 @@ public class CreateUpdateProjectModelValidator implements Validator {
             CommentValidator.forRepo(model.getRepoName()).validate(model.getComment());
         } catch (Exception e) {
             errors.rejectValue("comment",
-                "repo.invalid.comment.message",
-                new String[] { e.getMessage() },
-                e.getMessage());
+                    "repo.invalid.comment.message",
+                    new String[]{e.getMessage()},
+                    e.getMessage());
         }
     }
 
@@ -93,10 +93,10 @@ public class CreateUpdateProjectModelValidator implements Validator {
                     } else {
                         final Path currentPath = Paths.get(model.getFullPath());
                         if (designTimeRepository.getProjects(model.getRepoName())
-                            .stream()
-                            .map(AProjectFolder::getRealPath)
-                            .map(Paths::get)
-                            .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+                                .stream()
+                                .map(AProjectFolder::getRealPath)
+                                .map(Paths::get)
+                                .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
                             throw new ConflictException("duplicated.project.2.message");
                         }
                     }

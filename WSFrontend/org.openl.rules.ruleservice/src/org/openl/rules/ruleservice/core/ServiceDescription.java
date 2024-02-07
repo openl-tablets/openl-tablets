@@ -14,11 +14,10 @@ import org.openl.rules.project.model.RulesDeploy;
 
 /**
  * Class designed for storing service info.
- *
+ * <p>
  * Immutable.
  *
  * @author Marat Kamalov
- *
  */
 public final class ServiceDescription {
     private final String name;
@@ -49,21 +48,21 @@ public final class ServiceDescription {
      * @param modules
      */
     ServiceDescription(String name,
-            String url,
-            String deployPath,
-            String serviceClassName,
-            String rmiServiceClassName,
-            String rmiName,
-            String annotationTemplateClassName,
-            boolean provideRuntimeContext,
-            boolean provideVariations,
-            Collection<Module> modules,
-            DeploymentDescription deployment,
-            Map<String, Object> configuration,
-            String[] publishers,
-            ResourceLoader resourceLoader,
-            Manifest manifest,
-            RulesDeploy rulesDeploy) {
+                       String url,
+                       String deployPath,
+                       String serviceClassName,
+                       String rmiServiceClassName,
+                       String rmiName,
+                       String annotationTemplateClassName,
+                       boolean provideRuntimeContext,
+                       boolean provideVariations,
+                       Collection<Module> modules,
+                       DeploymentDescription deployment,
+                       Map<String, Object> configuration,
+                       String[] publishers,
+                       ResourceLoader resourceLoader,
+                       Manifest manifest,
+                       RulesDeploy rulesDeploy) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
@@ -93,21 +92,21 @@ public final class ServiceDescription {
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
         this(builder.name,
-            builder.url,
-            builder.servicePath,
-            builder.serviceClassName,
-            builder.rmiServiceClassName,
-            builder.rmiName,
-            builder.annotationTemplateClassName,
-            builder.provideRuntimeContext,
-            builder.provideVariations,
-            builder.modules,
-            builder.deployment,
-            builder.configuration,
-            builder.publishers.toArray(new String[] {}),
-            builder.resourceLoader,
-            builder.manifest,
-            builder.rulesDeploy);
+                builder.url,
+                builder.servicePath,
+                builder.serviceClassName,
+                builder.rmiServiceClassName,
+                builder.rmiName,
+                builder.annotationTemplateClassName,
+                builder.provideRuntimeContext,
+                builder.provideVariations,
+                builder.modules,
+                builder.deployment,
+                builder.configuration,
+                builder.publishers.toArray(new String[]{}),
+                builder.resourceLoader,
+                builder.manifest,
+                builder.rulesDeploy);
     }
 
     public RulesDeploy getRulesDeploy() {
@@ -233,7 +232,7 @@ public final class ServiceDescription {
 
     public String[] getPublishers() {
         if (publishers == null) {
-            return new String[] {};
+            return new String[]{};
         }
         return publishers;
     }
@@ -257,7 +256,6 @@ public final class ServiceDescription {
      * Builder for ServiceDescription.
      *
      * @author Marat Kamalov
-     *
      */
     public static class ServiceDescriptionBuilder {
         private String name;

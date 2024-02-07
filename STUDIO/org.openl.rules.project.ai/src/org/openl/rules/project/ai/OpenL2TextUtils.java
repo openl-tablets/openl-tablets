@@ -45,26 +45,26 @@ public final class OpenL2TextUtils {
     }
 
     public static String methodToString(ExecutableRulesMethod rulesMethod,
-            boolean replaceAliasesWithBaseTypes,
-            boolean tableAsCode,
-            boolean onlyMethodCells,
-            int maxRows) {
+                                        boolean replaceAliasesWithBaseTypes,
+                                        boolean tableAsCode,
+                                        boolean onlyMethodCells,
+                                        int maxRows) {
         if (rulesMethod instanceof Spreadsheet) {
             return spreadsheetToString((Spreadsheet) rulesMethod,
-                replaceAliasesWithBaseTypes,
-                tableAsCode,
-                onlyMethodCells);
+                    replaceAliasesWithBaseTypes,
+                    tableAsCode,
+                    onlyMethodCells);
         } else if (rulesMethod instanceof DecisionTable) {
             DecisionTable decisionTable = (DecisionTable) rulesMethod;
             return tableSyntaxNodeToString(decisionTable.getSyntaxNode(),
-                decisionTable.getDtInfo() != null && decisionTable.getDtInfo().isTransposed(),
-                replaceAliasesWithBaseTypes,
-                maxRows);
+                    decisionTable.getDtInfo() != null && decisionTable.getDtInfo().isTransposed(),
+                    replaceAliasesWithBaseTypes,
+                    maxRows);
         } else {
             return tableSyntaxNodeToString(rulesMethod.getSyntaxNode(),
-                false,
-                replaceAliasesWithBaseTypes,
-                Integer.MAX_VALUE);
+                    false,
+                    replaceAliasesWithBaseTypes,
+                    Integer.MAX_VALUE);
         }
     }
 
@@ -80,7 +80,7 @@ public final class OpenL2TextUtils {
                         SimpleNodeUsage simpleNodeUsage = (SimpleNodeUsage) nodeUsage;
                         if (simpleNodeUsage.getType() instanceof DomainOpenClass) {
                             cellValue = cellValue.substring(0, simpleNodeUsage.getStart()) + openClassToName(
-                                ((DomainOpenClass) simpleNodeUsage.getType()).getBaseClass()) + cellValue
+                                    ((DomainOpenClass) simpleNodeUsage.getType()).getBaseClass()) + cellValue
                                     .substring(simpleNodeUsage.getEnd());
                         }
                     }
@@ -115,12 +115,12 @@ public final class OpenL2TextUtils {
     }
 
     public static String spreadsheetToString(Spreadsheet spreadsheet,
-            boolean replaceAliasesWithBaseTypes,
-            boolean tableAsCode,
-            boolean onlyMethodCells) {
+                                             boolean replaceAliasesWithBaseTypes,
+                                             boolean tableAsCode,
+                                             boolean onlyMethodCells) {
         Function<ICell, String> cellToStr = (ICell cell) -> cellToString(cell,
-            spreadsheet.getSyntaxNode().getMetaInfoReader(),
-            replaceAliasesWithBaseTypes);
+                spreadsheet.getSyntaxNode().getMetaInfoReader(),
+                replaceAliasesWithBaseTypes);
         StringBuilder sb = new StringBuilder();
         // Write table header
         if (!tableAsCode) {
@@ -141,7 +141,7 @@ public final class OpenL2TextUtils {
                 for (int i = 0; i < spreadsheet.getColumnNames().length; i++) {
                     SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[j][i];
                     if ((!spreadsheetCell.isMethodCell() || NullOpenClass
-                        .isAnyNull(spreadsheetCell.getType())) && onlyMethodCells) {
+                            .isAnyNull(spreadsheetCell.getType())) && onlyMethodCells) {
                         continue;
                     }
                     if (spreadsheetCell.isMethodCell()) {
@@ -150,14 +150,14 @@ public final class OpenL2TextUtils {
                         sb.append("var");
                     }
                     Set<String> fieldNames = spreadsheet.getColumnNames().length > 1 ? findFieldNames(spreadsheet
-                        .getFieldsCoordinates(), j, i) : Collections.singleton("$" + spreadsheet.getRowNames()[j]);
+                            .getFieldsCoordinates(), j, i) : Collections.singleton("$" + spreadsheet.getRowNames()[j]);
                     // Join field names with comma
                     if (!fieldNames.isEmpty()) {
                         sb.append(" ").append(String.join(", ", fieldNames));
                     }
                     sb.append(" = ");
                     boolean isString = spreadsheetCell.isValueCell() && JavaOpenClass.STRING
-                        .equals(spreadsheetCell.getType());
+                            .equals(spreadsheetCell.getType());
                     if (isString) {
                         sb.append("\"");
                     }
@@ -190,9 +190,9 @@ public final class OpenL2TextUtils {
     }
 
     public static String tableSyntaxNodeToString(TableSyntaxNode tableSyntaxNode,
-            boolean transposeBody,
-            boolean replaceAliasesWithBaseTypes,
-            int maxRows) {
+                                                 boolean transposeBody,
+                                                 boolean replaceAliasesWithBaseTypes,
+                                                 int maxRows) {
         Function<ICell, String> cellToStr = (
                 ICell cell) -> cellToString(cell, tableSyntaxNode.getMetaInfoReader(), replaceAliasesWithBaseTypes);
         StringBuilder sb = new StringBuilder();
@@ -208,7 +208,7 @@ public final class OpenL2TextUtils {
         }
         // Skip the properties section
         if (table.getCell(0, d).getStringValue() != null && "properties"
-            .equalsIgnoreCase(table.getCell(0, d).getStringValue().trim())) {
+                .equalsIgnoreCase(table.getCell(0, d).getStringValue().trim())) {
             d += table.getCell(0, d).getHeight();
         }
         table = table.getSubtable(0, d, width, height - d);
@@ -256,11 +256,11 @@ public final class OpenL2TextUtils {
             }
             DomainOpenClass domainOpenClass = (DomainOpenClass) openClass;
             sb.append("vocabulary ")
-                .append(openClassToName(domainOpenClass))
-                .append(" : ")
-                .append(openClassToName(domainOpenClass.getBaseClass()))
-                .append(" {")
-                .append("\n");
+                    .append(openClassToName(domainOpenClass))
+                    .append(" : ")
+                    .append(openClassToName(domainOpenClass.getBaseClass()))
+                    .append(" {")
+                    .append("\n");
             Iterator<?> itr = domainOpenClass.getDomain().iterator();
             while (itr.hasNext()) {
                 sb.append("\t");
@@ -303,14 +303,14 @@ public final class OpenL2TextUtils {
 
     public static String dimensionalPropertiesToString(ExecutableRulesMethod rulesMethod, ObjectMapper objectMapper) {
         if (rulesMethod.getMethodProperties() != null && !rulesMethod.getMethodProperties()
-            .getAllDimensionalProperties()
-            .isEmpty()) {
+                .getAllDimensionalProperties()
+                .isEmpty()) {
             if (objectMapper == null) {
                 objectMapper = createObjectMapper();
             }
             try {
                 Map<String, Object> props = new HashMap<>(
-                    rulesMethod.getMethodProperties().getAllDimensionalProperties());
+                        rulesMethod.getMethodProperties().getAllDimensionalProperties());
                 if (props.containsKey("state")) {
                     UsStatesEnum[] states = (UsStatesEnum[]) props.get("state");
                     props.put("state", Arrays.stream(states).map(UsStatesEnum::toString).toArray());
@@ -333,7 +333,7 @@ public final class OpenL2TextUtils {
                 for (int j = 0; j < width; j++) {
                     ICell cell = tableSyntaxNode.getTable().getSource().getCell(j, i);
                     CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(),
-                        cell.getAbsoluteColumn());
+                            cell.getAbsoluteColumn());
                     if (cellMetaInfo != null && cellMetaInfo.getUsedNodes() != null) {
                         for (NodeUsage nodeUsage : cellMetaInfo.getUsedNodes()) {
                             if (nodeUsage instanceof MethodUsage) {
@@ -357,7 +357,7 @@ public final class OpenL2TextUtils {
                 for (int j = 0; j < width; j++) {
                     ICell cell = tableSyntaxNode.getTable().getSource().getCell(j, i);
                     CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(),
-                        cell.getAbsoluteColumn());
+                            cell.getAbsoluteColumn());
                     if (cellMetaInfo != null && cellMetaInfo.getUsedNodes() != null) {
                         for (NodeUsage nodeUsage : cellMetaInfo.getUsedNodes()) {
                             if (nodeUsage instanceof SimpleNodeUsage) {
@@ -389,17 +389,17 @@ public final class OpenL2TextUtils {
     }
 
     public static void collectTypes(IOpenClass type,
-            Set<IOpenClass> container,
-            int maxDepth,
-            boolean replaceAliasesWithBaseTypes) {
+                                    Set<IOpenClass> container,
+                                    int maxDepth,
+                                    boolean replaceAliasesWithBaseTypes) {
         collectTypes(type, container, 0, maxDepth, replaceAliasesWithBaseTypes);
     }
 
     private static void collectTypes(IOpenClass type,
-            Set<IOpenClass> container,
-            int depth,
-            int maxDepth,
-            boolean replaceAliasesWithBaseTypes) {
+                                     Set<IOpenClass> container,
+                                     int depth,
+                                     int maxDepth,
+                                     boolean replaceAliasesWithBaseTypes) {
         if (depth > maxDepth) {
             return;
         }
@@ -425,7 +425,7 @@ public final class OpenL2TextUtils {
             }
             String className = type.getInstanceClass() != null ? type.getInstanceClass().getName() : type.getName();
             if (className.startsWith("java.lang.") || className.startsWith("java.util.") || className
-                .startsWith("java.math.")) {
+                    .startsWith("java.math.")) {
                 return;
             }
             if (type.getFields().isEmpty()) {

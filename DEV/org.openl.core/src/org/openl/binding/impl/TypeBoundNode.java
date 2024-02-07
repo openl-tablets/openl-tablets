@@ -6,7 +6,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class TypeBoundNode extends ABoundNode {
     private final IOpenClass type;

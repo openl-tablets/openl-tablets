@@ -9,7 +9,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class IndexNode extends ATargetBoundNode {
 

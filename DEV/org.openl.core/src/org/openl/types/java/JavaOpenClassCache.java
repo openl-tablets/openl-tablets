@@ -30,7 +30,7 @@ public final class JavaOpenClassCache {
      * instead
      */
     private final Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<>(AbstractReferenceMap.ReferenceStrength.SOFT,
-        AbstractReferenceMap.ReferenceStrength.SOFT);
+            AbstractReferenceMap.ReferenceStrength.SOFT);
 
     public static JavaOpenClassCache getInstance() {
         return JavaOpenClassCacheHolder.INSTANCE;

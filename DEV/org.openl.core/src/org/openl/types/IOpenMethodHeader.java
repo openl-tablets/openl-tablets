@@ -8,7 +8,6 @@ package org.openl.types;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenMethodHeader extends IOpenMember {
     IMethodSignature getSignature();

@@ -147,7 +147,7 @@ public class TagTemplateService {
 
     private String escapeNonTagPart(String nonTagRegex) {
         // Escape all characters except * and ?
-        nonTagRegex = NONE_WILDCARD_PATTERN.matcher(nonTagRegex).replaceAll( "\\\\Q$1\\\\E");
+        nonTagRegex = NONE_WILDCARD_PATTERN.matcher(nonTagRegex).replaceAll("\\\\Q$1\\\\E");
 
         // Replace File wildcard * with regex .*
         nonTagRegex = nonTagRegex.replace("*", ".*");

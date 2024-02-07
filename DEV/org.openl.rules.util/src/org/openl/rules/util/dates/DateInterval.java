@@ -11,11 +11,12 @@ import java.util.Date;
 public abstract class DateInterval {
 
     DateInterval() {
-        /* NON */ }
+        /* NON */
+    }
 
     /**
      * Calculate a difference in full days. The result are always integer.
-     *
+     * <p>
      * Current implementation is an equivalent to Excel native functions DATEDIF(start, end, "D")
      *
      * @return difference in full
@@ -34,7 +35,7 @@ public abstract class DateInterval {
     /**
      * Calculate a difference in months. If parameter has {@code Scale.INT} - the result will be calculated in full
      * months, otherwise will contain a fractional part of a last uncompleted month
-     *
+     * <p>
      * Current implementation is an equivalent to Excel native functions DATEDIF(start, end, "M")
      *
      * @param scale specifies a scale of the result
@@ -45,7 +46,7 @@ public abstract class DateInterval {
     /**
      * Calculate a difference in years. If parameter has {@code Scale.INT} - the result will be calculated in full
      * years, otherwise will contain a fractional part of a last uncompleted year
-     *
+     * <p>
      * Current implementation is an equivalent to Excel native functions DATEDIF(start, end, "Y")
      *
      * @param scale specifies a scale of the result
@@ -72,7 +73,7 @@ public abstract class DateInterval {
     /**
      * Calculate a difference in months regarding last year. If parameter has {@code Scale.INT} - the result will be
      * calculated in full months, otherwise will contain a fractional part of a last uncompleted month
-     *
+     * <p>
      * Current implementation is an equivalent to Excel native functions DATEDIF(start, end, "YM")
      *
      * @param scale specifies a scale of the result
@@ -84,7 +85,7 @@ public abstract class DateInterval {
      * Choose a suitable implementation for target date interval
      *
      * @param start start date
-     * @param end end date
+     * @param end   end date
      * @return
      */
     public static DateInterval between(Date start, Date end) {
@@ -98,7 +99,7 @@ public abstract class DateInterval {
      * Choose a suitable implementation for target date interval
      *
      * @param start start date
-     * @param end end date
+     * @param end   end date
      * @return
      */
     public static DateInterval between(Calendar start, Calendar end) {

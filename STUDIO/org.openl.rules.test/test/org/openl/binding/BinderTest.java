@@ -24,14 +24,13 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class BinderTest {
 
     private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
         IOpenMethodHeader header = OpenLManager
-            .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
+                .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         assertEquals(type, header.getType());
         assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }

@@ -106,10 +106,10 @@ public class DeploymentManager implements InitializingBean {
             if (deployRepo.supports().folders()) {
 
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
-                    designRepository,
-                    rulesPath,
-                    deploymentPath,
-                    user.getUserName())) {
+                        designRepository,
+                        rulesPath,
+                        deploymentPath,
+                        user.getUserName())) {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(user.getUserInfo());
@@ -142,10 +142,10 @@ public class DeploymentManager implements InitializingBean {
 
                     final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
-                        .setBuiltBy(user.getUserName())
-                        .setBuildNumber(pd.getProjectVersion().getRevision())
-                        .setImplementationTitle(projectName)
-                        .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
+                            .setBuiltBy(user.getUserName())
+                            .setBuildNumber(pd.getProjectVersion().getRevision())
+                            .setImplementationTitle(projectName)
+                            .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
                     if (pd.getBranch() != null) {
                         manifestBuilder.setBuildBranch(pd.getBranch());
                     }
@@ -153,23 +153,23 @@ public class DeploymentManager implements InitializingBean {
                     if (designRepo.supports().folders()) {
                         String technicalName = projectName;
                         AProject designProject = designRepository
-                            .getProjectByPath(repositoryId, branch, projectPath, version);
+                                .getProjectByPath(repositoryId, branch, projectPath, version);
                         if (designProject != null) {
                             technicalName = designProject.getName();
                         }
                         archiveAndSave(designRepo,
-                            rulesPath,
-                            technicalName,
-                            version,
-                            deployRepo,
-                            dest,
-                            manifestBuilder.build());
+                                rulesPath,
+                                technicalName,
+                                version,
+                                deployRepo,
+                                dest,
+                                manifestBuilder.build());
                     } else {
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
                         includeManifestIntoArchiveAndSave(deployRepo,
-                            dest,
-                            srcPrj.getStream(),
-                            manifestBuilder.build());
+                                dest,
+                                srcPrj.getStream(),
+                                manifestBuilder.build());
                     }
                 }
             }
@@ -183,9 +183,9 @@ public class DeploymentManager implements InitializingBean {
     }
 
     private void includeManifestIntoArchiveAndSave(Repository deployRepo,
-            FileData dest,
-            InputStream in,
-            Manifest manifest) throws ProjectException {
+                                                   FileData dest,
+                                                   InputStream in,
+                                                   Manifest manifest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
@@ -199,12 +199,12 @@ public class DeploymentManager implements InitializingBean {
     }
 
     private void archiveAndSave(Repository designRepo,
-            String rulesPath,
-            String projectName,
-            String version,
-            Repository deployRepo,
-            FileData dest,
-            Manifest manifest) throws ProjectException {
+                                String rulesPath,
+                                String projectName,
+                                String version,
+                                Repository deployRepo,
+                                FileData dest,
+                                Manifest manifest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.archive(designRepo, rulesPath, projectName, version, out, manifest);
@@ -216,11 +216,11 @@ public class DeploymentManager implements InitializingBean {
     }
 
     private List<FileData> findProjectsToDelete(List<FileData> existingProjects,
-            Collection<ProjectDescriptor> projectsToDeploy) {
+                                                Collection<ProjectDescriptor> projectsToDeploy) {
         List<FileData> projectsToDelete = new ArrayList<>(existingProjects);
         // Filter out projects that will be replaced with a new version
         for (ProjectDescriptor projectToDeploy : projectsToDeploy) {
-            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext();) {
+            for (Iterator<FileData> it = projectsToDelete.iterator(); it.hasNext(); ) {
                 String folderPath = it.next().getName();
                 String projectName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
                 if (projectName.equals(projectToDeploy.getProjectName())) {
@@ -246,12 +246,12 @@ public class DeploymentManager implements InitializingBean {
                     AProject project;
                     if (projectPath != null) {
                         project = designRepository.getProjectByPath(repositoryId,
-                            branch,
-                            projectPath,
-                            pd.getProjectVersion().getVersionName());
+                                branch,
+                                projectPath,
+                                pd.getProjectVersion().getVersionName());
                     } else {
                         project = designRepository
-                            .getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
+                                .getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
                     }
 
                     AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
@@ -269,10 +269,10 @@ public class DeploymentManager implements InitializingBean {
                 }
             } catch (Exception e) {
                 LOG.error(
-                    "Project loading from repository was failed! " + "Project with name '{}' in deploy configuration '{}' has been skipped.",
-                    pd.getProjectName(),
-                    deploymentConfiguration.getName(),
-                    e);
+                        "Project loading from repository was failed! " + "Project with name '{}' in deploy configuration '{}' has been skipped.",
+                        pd.getProjectName(),
+                        deploymentConfiguration.getName(),
+                        e);
             }
         }
 

@@ -45,8 +45,8 @@ public class OffsetValueArgumentResolver extends AbstractPaginationValueArgument
         if (offset < 0) {
             Method annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
-                String.format("Invalid default page offset configured for method '%s'. Must not be less than zero.",
-                    annotatedMethod));
+                    String.format("Invalid default page offset configured for method '%s'. Must not be less than zero.",
+                            annotatedMethod));
         }
         return Offset.of(offset, getDefaultPageSize(parameter, defaultAnno));
     }

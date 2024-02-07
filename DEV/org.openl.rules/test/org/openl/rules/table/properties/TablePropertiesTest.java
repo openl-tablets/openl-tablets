@@ -51,7 +51,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     private Map<String, Object> initDefaultProperties() {
         List<TablePropertyDefinition> propertiesWithDefaultValues = TablePropertyDefinitionUtils
-            .getPropertiesToBeSetByDefault();
+                .getPropertiesToBeSetByDefault();
         Map<String, Object> defaultProperties = new HashMap<>();
 
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesWithDefaultValues) {
@@ -108,7 +108,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         assertEquals("Driver Age Type Table", tsns[4].getTableProperties().getName());
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         assertEquals("02/04/2237",
-            sdf.format((Date) tsns[4].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE)));
+                sdf.format((Date) tsns[4].getTableProperties().getPropertyValue(PROPERTY_EFFECTIVE_DATE)));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
         Date dateValue = new Date(4098);
         result = getPropertyValueAsString(PROPERTY_EFFECTIVE_DATE, dateValue);
         SimpleDateFormat sDF = new SimpleDateFormat(
-            TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
+                TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
         assertEquals(sDF.format(dateValue), result);
 
         result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, Boolean.TRUE);

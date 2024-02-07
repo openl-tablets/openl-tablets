@@ -17,6 +17,7 @@ import java.io.Serializable;
  */
 ///////////////////////////////////////////////////////////////////////////////
 //: Observer.java
+
 /**
  * An abstract class for the observer in the observer-subject (or subscriber-publisher) design pattern.
  */
@@ -24,9 +25,8 @@ public abstract class Observer implements EventOfInterest.Constants, Serializabl
     /**
      * Returns true if the "event" is the one this observer is interested in.
      *
-     * @return true if the "event" is the one this observer is interested in.
-     *
      * @param event EventOfInterest.
+     * @return true if the "event" is the one this observer is interested in.
      */
     final public boolean interestedIn(EventOfInterest event) {
         return (subscriberMask() & event.type()) != 0;

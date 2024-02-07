@@ -86,7 +86,7 @@ public class BranchesBean {
             if (repository.supports().branches()) {
                 try {
                     List<String> projectBranches = ((BranchRepository) repository)
-                        .getBranches(project.getDesignFolderName());
+                            .getBranches(project.getDesignFolderName());
 
                     List<SelectItem> projectBranchesList = new ArrayList<>();
                     for (String projectBranch : projectBranches) {
@@ -117,7 +117,7 @@ public class BranchesBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         WebStudioWorkspaceRelatedDependencyManager workspaceDependencyManager = model
-            .getWebStudioWorkspaceDependencyManager();
+                .getWebStudioWorkspaceDependencyManager();
         if (workspaceDependencyManager != null) {
             workspaceDependencyManager.pause();
         }
@@ -134,7 +134,7 @@ public class BranchesBean {
             // in case when UI check will not be fired
             if (isProjectLockedInBranch(currentProjectName, branchToMergeTo)) {
                 showErrorMessage(
-                    "The project is currently in editing in " + branchToMergeTo + " branch and merge cannot be done .");
+                        "The project is currently in editing in " + branchToMergeTo + " branch and merge cannot be done .");
                 return;
             }
 
@@ -149,7 +149,7 @@ public class BranchesBean {
 
                 studio.freezeProject(nameBeforeMerge);
                 ((BranchRepository) designRepository).forBranch(branchToMergeTo)
-                    .merge(branchToMergeFrom, getUserWorkspace().getUser().getUserInfo(), null);
+                        .merge(branchToMergeFrom, getUserWorkspace().getUser().getUserInfo(), null);
                 if (opened) {
                     if (project.isDeleted()) {
                         project.close();
@@ -181,10 +181,10 @@ public class BranchesBean {
                 workspaceDependencyManager.resume();
             }
             MergeConflictInfo info = new MergeConflictInfo(e,
-                getProject(currentProjectName),
-                branchToMergeFrom,
-                branchToMergeTo,
-                currentBranch);
+                    getProject(currentProjectName),
+                    branchToMergeFrom,
+                    branchToMergeTo,
+                    currentBranch);
             ConflictUtils.saveMergeConflict(info);
             LOG.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
@@ -235,10 +235,10 @@ public class BranchesBean {
 
     private boolean isBranchProtected(String branch) {
         return Optional.ofNullable(getProject(currentProjectName))
-            .map(RulesProject::getDesignRepository)
-            .filter(repo -> repo.supports().branches())
-            .map(repo -> ((BranchRepository) repo).isBranchProtected(branch))
-            .orElse(Boolean.FALSE);
+                .map(RulesProject::getDesignRepository)
+                .filter(repo -> repo.supports().branches())
+                .map(repo -> ((BranchRepository) repo).isBranchProtected(branch))
+                .orElse(Boolean.FALSE);
     }
 
     public boolean isLocked() {
@@ -332,7 +332,7 @@ public class BranchesBean {
         if (!found) {
             // Get base branch. It can be different from project.getDesignRepository().getBranch().
             branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository()
-                .getRepository(currentRepositoryId)).getBranch();
+                    .getRepository(currentRepositoryId)).getBranch();
 
             boolean existInCombobox = false;
             List<SelectItem> branchesToMerge = getBranchesToMerge();

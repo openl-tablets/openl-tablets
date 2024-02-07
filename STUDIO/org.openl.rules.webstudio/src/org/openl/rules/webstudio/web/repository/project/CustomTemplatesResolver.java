@@ -22,7 +22,7 @@ public class CustomTemplatesResolver extends TemplatesResolver {
 
     private final String templatesPath;
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver(
-        new TemplateResourceLoader());
+            new TemplateResourceLoader());
 
     public CustomTemplatesResolver(String webStudioHome) {
         templatesPath = new File(webStudioHome, PROJECT_TEMPLATES_FOLDER).getPath();

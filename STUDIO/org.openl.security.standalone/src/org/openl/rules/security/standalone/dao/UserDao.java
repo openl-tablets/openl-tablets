@@ -14,7 +14,6 @@ public interface UserDao extends Dao<User> {
      * Return User by name or <code>null</code> if no such User.
      *
      * @param name user name
-     *
      * @return User or <code>null</code>.
      */
     User getUserByName(String name);

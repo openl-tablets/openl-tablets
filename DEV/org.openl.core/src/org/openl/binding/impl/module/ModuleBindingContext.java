@@ -13,7 +13,6 @@ import org.openl.binding.impl.component.ComponentBindingContext;
  * Common binding context for full module.
  *
  * @author snshor
- *
  */
 public class ModuleBindingContext extends ComponentBindingContext {
 

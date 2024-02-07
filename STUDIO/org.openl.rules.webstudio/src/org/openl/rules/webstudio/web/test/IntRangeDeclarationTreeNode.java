@@ -11,9 +11,9 @@ public class IntRangeDeclarationTreeNode extends SimpleParameterTreeNode {
     private final Logger log = LoggerFactory.getLogger(IntRangeDeclarationTreeNode.class);
 
     public IntRangeDeclarationTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                       Object value,
+                                       IOpenClass fieldType,
+                                       ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 

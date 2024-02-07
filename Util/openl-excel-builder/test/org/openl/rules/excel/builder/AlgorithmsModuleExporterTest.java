@@ -42,15 +42,15 @@ public class AlgorithmsModuleExporterTest {
     @Test
     public void testAlgorithmsModuleGeneration() throws IOException {
         EnvironmentModel environmentModel = new EnvironmentModel(Arrays.asList("Apple", "Car"),
-            Arrays.asList("Building", "Person"));
+                Arrays.asList("Building", "Person"));
 
         SpreadsheetModel resultModel = new SpreadsheetModel();
         resultModel.setType("String");
         resultModel.setName("TestSpr");
 
         resultModel.setParameters(
-            Arrays.asList(new ParameterModel(new TypeInfo(Integer.class), "id"),
-                new ParameterModel(new TypeInfo(Integer.class), "count")));
+                Arrays.asList(new ParameterModel(new TypeInfo(Integer.class), "id"),
+                        new ParameterModel(new TypeInfo(Integer.class), "count")));
 
         StepModel longStep = new StepModel("balance", "Long", "=0L");
         StepModel formulaStepUpperCase = new StepModel("Formula", "String", "=Test");
@@ -58,7 +58,7 @@ public class AlgorithmsModuleExporterTest {
         StepModel valueStep = new StepModel("Step", "String", "=Test");
         StepModel formulaOneStep = new StepModel("Formula1", "String", "=Test");
         resultModel
-            .setSteps(Arrays.asList(longStep, formulaStepLowerCase, formulaStepUpperCase, valueStep, formulaOneStep));
+                .setSteps(Arrays.asList(longStep, formulaStepLowerCase, formulaStepUpperCase, valueStep, formulaOneStep));
 
         DatatypeModel dt = new DatatypeModel("Test");
         FieldModel stringField = new FieldModel("type", "String", "Hello, World");
@@ -68,9 +68,9 @@ public class AlgorithmsModuleExporterTest {
 
         try (ByteArrayOutputStream algorithmsFileOutputSteam = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(Collections.singletonList(resultModel),
-                Collections.singletonList(testModel),
-                algorithmsFileOutputSteam,
-                environmentModel);
+                    Collections.singletonList(testModel),
+                    algorithmsFileOutputSteam,
+                    environmentModel);
             try (OutputStream fos = new FileOutputStream(ALGORITHMS)) {
                 fos.write(algorithmsFileOutputSteam.toByteArray());
             }

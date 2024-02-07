@@ -63,8 +63,8 @@ final class WildcardBranchNameFilterImpl implements WildcardBranchNameFilter {
         Objects.requireNonNull(patterns, "Branch name pattern list cannot be null.");
         final FileSystem fs = FileSystems.getDefault();
         matchers = Stream.of(patterns)
-            .map(pattern -> fs.getPathMatcher("glob:" + pattern))
-            .collect(Collectors.toList());
+                .map(pattern -> fs.getPathMatcher("glob:" + pattern))
+                .collect(Collectors.toList());
         if (matchers.isEmpty()) {
             throw new IllegalArgumentException("Branch name pattern list cannot be empty.");
         }

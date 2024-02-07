@@ -46,9 +46,9 @@ public final class OpenLTest {
     public void checkTestBehavior() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
-            .setExecutionMode(false)
-            .setProject("test-resources/check-openl-test")
-            .build();
+                .setExecutionMode(false)
+                .setProject("test-resources/check-openl-test")
+                .build();
         IOpenClass openClass = simpleProjectEngineFactory.getCompiledOpenClass().getOpenClass();
 
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
@@ -60,7 +60,7 @@ public final class OpenLTest {
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Main", testSuiteMethod.getModuleName(), "Module name must be initialized");
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("HelloTest12()", testUnitsResults.getName(), "Unexpected test name");
@@ -79,7 +79,7 @@ public final class OpenLTest {
             TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
             assertEquals("Second Module", testSuiteMethod.getModuleName(), "Module name must be initialized");
             Object instance = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
-            Object result = testSuiteMethod.invoke(instance, new Object[] {}, new SimpleRulesVM().getRuntimeEnv());
+            Object result = testSuiteMethod.invoke(instance, new Object[]{}, new SimpleRulesVM().getRuntimeEnv());
             assertTrue(result instanceof TestUnitsResults);
             TestUnitsResults testUnitsResults = (TestUnitsResults) result;
             assertEquals("GreetingTest()", testUnitsResults.getName(), "Unexpected test name");

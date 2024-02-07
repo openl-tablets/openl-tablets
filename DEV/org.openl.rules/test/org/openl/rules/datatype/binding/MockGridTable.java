@@ -10,11 +10,11 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * Default implementation for IGridTable. Is based on the two-dimensional array, the analog of the grid.
- *
+ * <p>
  * The purpose of the implementation: use it for test, without creating underlying excel sheet.
- *
+ * <p>
  * Supports merged cells horizontally and vertically.
- *
+ * <p>
  * Cell is considered to be mergered if there is not empty cell followed by the null cell.
  *
  * @author Denis Levchuk
@@ -113,7 +113,7 @@ public class MockGridTable extends AGridTable {
      * Counts the number if the null cells down
      *
      * @param column current column index
-     * @param row current row
+     * @param row    current row
      * @return number of null cells down after the given one
      */
     private int downEmptyCells(int column, int row) {
@@ -134,7 +134,7 @@ public class MockGridTable extends AGridTable {
      * Counts the number if the null cells right
      *
      * @param column current column index
-     * @param row current row
+     * @param row    current row
      * @return number of null cells right after the given one
      */
     private int rightEmptyCells(int column, int row) {

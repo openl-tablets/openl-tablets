@@ -32,17 +32,17 @@ public class AST {
     }
 
     private Pair<IPosition, IPosition> f(IBoundNode boundNode,
-            Map<IBoundNode, ILocation> map,
-            Map<IBoundNode, ILocation> locationMap,
-            IPosition start,
-            IPosition end) {
+                                         Map<IBoundNode, ILocation> map,
+                                         Map<IBoundNode, ILocation> locationMap,
+                                         IPosition start,
+                                         IPosition end) {
         Pair<IPosition, IPosition> p = buildLocationMaps(boundNode, map, locationMap);
         if (start == null || p.getLeft() != null && start.getAbsolutePosition(textInfo) > p.getLeft()
-            .getAbsolutePosition(textInfo)) {
+                .getAbsolutePosition(textInfo)) {
             start = p.getLeft();
         }
         if (end == null || p.getRight() != null && end.getAbsolutePosition(textInfo) < p.getRight()
-            .getAbsolutePosition(textInfo)) {
+                .getAbsolutePosition(textInfo)) {
             end = p.getRight();
         }
         return Pair.of(start, end);
@@ -97,8 +97,8 @@ public class AST {
     }
 
     private Pair<IPosition, IPosition> buildLocationMaps(IBoundNode boundNode,
-            Map<IBoundNode, ILocation> extensiveLocationMap,
-            Map<IBoundNode, ILocation> locationMap) {
+                                                         Map<IBoundNode, ILocation> extensiveLocationMap,
+                                                         Map<IBoundNode, ILocation> locationMap) {
         ILocation location = boundNode.getSyntaxNode().getSourceLocation();
         IPosition start = location != null ? location.getStart() : null;
         IPosition end = location != null ? location.getEnd() : null;

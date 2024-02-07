@@ -16,7 +16,6 @@ import org.openl.types.IOpenIndex;
 
 /**
  * @author snshor
- *
  */
 public class IndexNodeBinder extends ANodeBinder {
 
@@ -34,8 +33,8 @@ public class IndexNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node,
-            IBindingContext bindingContext,
-            IBoundNode targetNode) throws Exception {
+                                 IBindingContext bindingContext,
+                                 IBoundNode targetNode) throws Exception {
 
         if (node.getNumberOfChildren() != 1) {
             return makeErrorNode("Index node must have  exactly 1 subnode", node, bindingContext);
@@ -46,7 +45,7 @@ public class IndexNodeBinder extends ANodeBinder {
         IOpenClass indexExprType = children[0].getType();
         IOpenClass containerType = targetNode.getType();
 
-        IOpenClass[] types = { containerType, indexExprType };
+        IOpenClass[] types = {containerType, indexExprType};
         IOpenIndex index = getMethodBasedIndex(types, bindingContext);
 
         if (index != null) {
@@ -60,17 +59,17 @@ public class IndexNodeBinder extends ANodeBinder {
         }
 
         String message = String
-            .format("Index operator %s[%s] is not found.", targetNode.getType(), indexExprType.getName());
+                .format("Index operator %s[%s] is not found.", targetNode.getType(), indexExprType.getName());
         return makeErrorNode(message, node, bindingContext);
     }
 
     private IOpenIndex getMethodBasedIndex(IOpenClass[] types, IBindingContext bindingContext) {
 
         IMethodCaller reader = BinaryOperatorNodeBinder
-            .findBinaryOperatorMethodCaller(INDEX_METHOD_NAME, types, bindingContext);
+                .findBinaryOperatorMethodCaller(INDEX_METHOD_NAME, types, bindingContext);
 
         if (reader == null) {
-            IOpenClass[] params = { types[1] };
+            IOpenClass[] params = {types[1]};
             reader = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0], false);
         }
 
@@ -81,11 +80,11 @@ public class IndexNodeBinder extends ANodeBinder {
         IOpenClass returnType = reader.getMethod().getType();
 
         IMethodCaller writer = bindingContext.findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE,
-            INDEX_METHOD_NAME,
-            new IOpenClass[] { types[0], types[1], returnType });
+                INDEX_METHOD_NAME,
+                new IOpenClass[]{types[0], types[1], returnType});
 
         if (writer == null) {
-            IOpenClass[] params = { types[1], returnType };
+            IOpenClass[] params = {types[1], returnType};
             writer = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0], false);
         }
 

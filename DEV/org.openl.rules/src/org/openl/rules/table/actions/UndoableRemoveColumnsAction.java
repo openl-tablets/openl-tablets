@@ -40,8 +40,8 @@ public class UndoableRemoveColumnsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove,
-            IGridRegion fullTableRegion,
-            IGridTable table) {
+                                                     IGridRegion fullTableRegion,
+                                                     IGridTable table) {
         return GridTool.removeColumns(numberToRemove, startCol, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 

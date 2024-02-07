@@ -11,10 +11,10 @@ final class CustomSpreadsheetResultConstructor extends AOpenMethodDelegator {
     private final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
     public CustomSpreadsheetResultConstructor(IOpenMethod delegate,
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+                                              CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         super(delegate);
         this.customSpreadsheetResultOpenClass = Objects.requireNonNull(customSpreadsheetResultOpenClass,
-            "type cannot be null");
+                "type cannot be null");
     }
 
     @Override

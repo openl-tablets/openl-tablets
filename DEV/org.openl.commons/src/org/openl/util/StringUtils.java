@@ -37,7 +37,7 @@ public class StringUtils {
      * StringUtils.split(" a, b, c", ',') = ["a", "b", "c"]
      * </pre>
      *
-     * @param str the String to parse, may be null
+     * @param str       the String to parse, may be null
      * @param separator the character used as the delimiter
      * @return an array of parsed Strings, {@code null} if null String input
      */
@@ -174,7 +174,7 @@ public class StringUtils {
      * StringUtils.join([null, "", "a"], ',')   = "null,,a"
      * </pre>
      *
-     * @param values the array of values to join together, may be null
+     * @param values    the array of values to join together, may be null
      * @param separator the separator character to use, null treated as ""
      * @return the joined String, {@code null} if null array input
      */
@@ -288,10 +288,10 @@ public class StringUtils {
      * StringUtils.contains("abc", "Z")  = false
      * </pre>
      *
-     * @param str the String to check, may be null
+     * @param str       the String to check, may be null
      * @param searchStr the String to find, may be null
      * @return true if the String contains the search String irrespective of case or false if not or {@code null} string
-     *         input
+     * input
      */
     public static boolean containsIgnoreCase(final String str, final String searchStr) {
         if (str == null || searchStr == null) {
@@ -493,7 +493,6 @@ public class StringUtils {
      * StringUtils.camelToKebab("aBAR")      = "a-bar"
      * </pre>
      *
-     *
      * @param camel - CamelCased string
      * @return - kebab-cased string
      */
@@ -522,9 +521,9 @@ public class StringUtils {
     /**
      * Find position of the first occurrence of the symbol is matched to the predicate.
      *
-     * @param text  the string where a not white space symbol should be searched
-     * @param start the start position of the searching inclusive
-     * @param end   the final position of searching exclusive
+     * @param text   the string where a not white space symbol should be searched
+     * @param start  the start position of the searching inclusive
+     * @param end    the final position of searching exclusive
      * @param tester the predicate for searching the symbol
      * @return position of the symbol or -1
      */
@@ -542,9 +541,9 @@ public class StringUtils {
     /**
      * Find position of the last occurrence of the symbol is matched to the predicate.
      *
-     * @param text  the string where a not white space symbol should be searched
-     * @param start the start position of the searching inclusive
-     * @param end   the final position of searching exclusive
+     * @param text   the string where a not white space symbol should be searched
+     * @param start  the start position of the searching inclusive
+     * @param end    the final position of searching exclusive
      * @param tester the predicate for searching the symbol
      * @return position of the symbol or -1
      */

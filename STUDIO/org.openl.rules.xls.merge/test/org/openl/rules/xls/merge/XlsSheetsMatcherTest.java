@@ -92,8 +92,8 @@ public class XlsSheetsMatcherTest {
 
     private static void error(String sourceFile, String msg, Object... args) {
         LOG.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] sheet\n        {}",
-            sourceFile,
-            MessageFormatter.arrayFormat(msg, args).getMessage());
+                sourceFile,
+                MessageFormatter.arrayFormat(msg, args).getMessage());
     }
 
 }

@@ -20,7 +20,7 @@ public final class DeployUtils {
     }
 
     public static Collection<Deployment> getLastDeploymentProjects(Repository repository,
-            String deployPath) throws IOException {
+                                                                   String deployPath) throws IOException {
 
         Map<String, Deployment> latestDeployments = new HashMap<>();
         Map<String, Integer> versionsList = new HashMap<>();
@@ -62,10 +62,10 @@ public final class DeployUtils {
                     folderStructure = false;
                 }
                 Deployment deployment = new Deployment(repository,
-                    folderPath,
-                    deploymentName,
-                    commonVersion,
-                    folderStructure);
+                        folderPath,
+                        deploymentName,
+                        commonVersion,
+                        folderStructure);
                 latestDeployments.put(deploymentName, deployment);
             }
         }

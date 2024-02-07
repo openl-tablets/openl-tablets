@@ -79,14 +79,14 @@ public abstract class TableWriter<T extends TableView> {
                     nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
                 }
                 if (!UndoableInsertRowsAction.canInsertRows(originalTable, 1) || !UndoableInsertColumnsAction
-                    .canInsertColumns(originalTable, nColsToInsert)) {
+                        .canInsertColumns(originalTable, nColsToInsert)) {
                     actions.add(UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter()));
                 }
                 GridRegionAction allTable = new GridRegionAction(originalRegion,
-                    UndoableEditTableAction.ROWS,
-                    UndoableEditTableAction.INSERT,
-                    GridRegionAction.ActionType.EXPAND,
-                    1);
+                        UndoableEditTableAction.ROWS,
+                        UndoableEditTableAction.INSERT,
+                        GridRegionAction.ActionType.EXPAND,
+                        1);
                 allTable.doAction(originalTable);
                 actions.add(allTable);
             }
@@ -106,8 +106,8 @@ public abstract class TableWriter<T extends TableView> {
      * Creates or updates cell in the table.
      *
      * @param gridTable table to update
-     * @param cellKey relative cell coordinates
-     * @param value new cell value
+     * @param cellKey   relative cell coordinates
+     * @param value     new cell value
      */
     protected void createOrUpdateCell(IGridTable gridTable, CellKey cellKey, Object value) {
         List<IUndoableGridTableAction> actions = new ArrayList<>();

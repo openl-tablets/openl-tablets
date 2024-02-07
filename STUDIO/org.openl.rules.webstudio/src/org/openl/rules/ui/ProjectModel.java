@@ -110,8 +110,8 @@ public class ProjectModel {
     private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
     private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
-        node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
-        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+            node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
+            Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     /**
      * Compiled rules with errors. Representation of wrapper.
@@ -206,8 +206,8 @@ public class ProjectModel {
     public synchronized int getErrorNodesNumber() {
         int count = 0;
         Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
-            .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
-            .collect(Collectors.toList());
+                .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
+                .collect(Collectors.toList());
         for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
             for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
                 if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
@@ -254,8 +254,8 @@ public class ProjectModel {
     }
 
     private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode,
-            Severity severity,
-            Collection<OpenLMessage> openLMessages) {
+                                                Severity severity,
+                                                Collection<OpenLMessage> openLMessages) {
         List<OpenLMessage> messages = new ArrayList<>();
         for (OpenLMessage openLMessage : openLMessages) {
             if (openLMessage.getSourceLocation() != null && openLMessage.getSeverity() == severity) {
@@ -381,7 +381,7 @@ public class ProjectModel {
      *
      * @param method method to check
      * @return <code>true</code> if {@link IOpenMethod} object represents the given table syntax node;
-     *         <code>false</code> - otherwise
+     * <code>false</code> - otherwise
      */
     private boolean isInstanceOfTable(IOpenMethod method, String uri) {
 
@@ -451,7 +451,7 @@ public class ProjectModel {
         IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
             return ProjectHelper.testers(method,
-                currentOpenedModule ? openedModuleCompiledOpenClass : compiledOpenClass);
+                    currentOpenedModule ? openedModuleCompiledOpenClass : compiledOpenClass);
         }
         return null;
     }
@@ -461,7 +461,7 @@ public class ProjectModel {
      *
      * @param tableUri uri for method table
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
-     *         runs without any parameters and tests without cases and runs.
+     * runs without any parameters and tests without cases and runs.
      */
     public IOpenMethod[] getTestAndRunMethods(String tableUri, boolean currentOpenedModule) {
         IOpenMethod method = getMethod(tableUri);
@@ -507,7 +507,7 @@ public class ProjectModel {
 
     /**
      * Get all workbooks of all modules
-     * 
+     *
      * @return all workbooks
      */
     public Collection<WorkbookSyntaxNode> getAllEditableWorkbookNodes() {
@@ -521,7 +521,7 @@ public class ProjectModel {
             s = s.substring(s.indexOf("/") + 1);
             try {
                 if (studio.getDesignRepositoryAclService()
-                    .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.EDIT))) {
+                        .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.EDIT))) {
                     ret.addAll(List.of(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
                 }
             } catch (ProjectException ignored) {
@@ -562,8 +562,8 @@ public class ProjectModel {
     public synchronized ProjectCompilationStatus getCompilationStatus() {
         ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
         if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
-            .getWebstudioConfiguration()
-            .isCompileThisModuleOnly()) {
+                .getWebstudioConfiguration()
+                .isCompileThisModuleOnly()) {
             compilationStatus.addMessages(compiledOpenClass.getAllMessages());
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
@@ -572,7 +572,7 @@ public class ProjectModel {
                 return compilationStatus.build();
             }
             Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
-                .findAllProjectDependencyLoaders(moduleInfo.getProject());
+                    .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
                 compilationStatus.addMessages(compiledOpenClass.getAllMessages());
                 dependencyLoaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(e -> {
@@ -585,22 +585,22 @@ public class ProjectModel {
                         if (!Objects.equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
                             if (dependencyLoader.getRefToCompiledDependency() != null) {
                                 compilationStatus.addMessages(
-                                    dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages());
+                                        dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages());
                             }
                         }
                     } else {
                         compilationStatus.addModulesCount(1);
                         if (Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName()) && Objects
-                            .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
+                                .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
                             // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
                             // rewrite the algorithm to handle with it is required here
                             compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
-                                .addModulesCompiled(1);
+                                    .addModulesCompiled(1);
                         } else {
                             if (dependencyLoader.getRefToCompiledDependency() != null) {
                                 compilationStatus.addMessages(
-                                    dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
-                                    .addModulesCompiled(1);
+                                                dependencyLoader.getRefToCompiledDependency().getCompiledOpenClass().getMessages())
+                                        .addModulesCompiled(1);
                             }
                         }
                     }
@@ -678,9 +678,9 @@ public class ProjectModel {
         if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
             try {
                 AProjectArtefact rulesDescriptorArtifact = currentProject
-                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 return studio.getDesignRepositoryAclService()
-                    .isGranted(rulesDescriptorArtifact, List.of(AclPermission.EDIT));
+                        .isGranted(rulesDescriptorArtifact, List.of(AclPermission.EDIT));
             } catch (ProjectException ignored) {
                 return false;
             }
@@ -691,7 +691,7 @@ public class ProjectModel {
 
     private boolean isEditableProject(RulesProject rulesProject) {
         return !isCurrentBranchProtected() && (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject
-            .isOpenedForEditing());
+                .isOpenedForEditing());
     }
 
     public boolean getCanUpdate() {
@@ -699,9 +699,9 @@ public class ProjectModel {
             if (studio.getCurrentModule() == null) {
                 RulesProject currentProject = getProject();
                 return studio.getDesignRepositoryAclService()
-                    .isGranted(currentProject, List.of(AclPermission.EDIT)) || studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.EDIT)) || studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.ADD)) || studio.getDesignRepositoryAclService()
-                            .isGranted(currentProject, List.of(AclPermission.DELETE));
+                        .isGranted(currentProject, List.of(AclPermission.DELETE));
             }
             return true;
         }
@@ -806,13 +806,13 @@ public class ProjectModel {
 
     /**
      * Adds new object to target tree node.
-     *
+     * <p>
      * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
      * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
      * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
      *
      * @param targetNode target node to which will be added new object
-     * @param object object to add
+     * @param object     object to add
      */
     private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
 
@@ -927,7 +927,7 @@ public class ProjectModel {
             }
             TreeNode rfChild = build(child);
             if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
-                .equals(rfChild.getType())) {
+                    .equals(rfChild.getType())) {
                 // skip workbook or worksheet node if it has no children nodes
                 if (!rfChild.getChildrenKeysIterator().hasNext()) {
                     continue;
@@ -1020,29 +1020,29 @@ public class ProjectModel {
         Set<TableSyntaxNode> result = ConcurrentHashMap.newKeySet();
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.findAllProjectDependencyLoaders(getProjectDescriptor())
-                .stream()
-                .filter(IDependencyLoader::isProjectLoader)
-                .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
-                .flatMap(Collection::stream)
-                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
-                .filter(Objects::nonNull)
-                .map(Arrays::asList)
-                .forEach(result::addAll);
+                    .stream()
+                    .filter(IDependencyLoader::isProjectLoader)
+                    .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
+                    .flatMap(Collection::stream)
+                    .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                    .filter(Objects::nonNull)
+                    .map(Arrays::asList)
+                    .forEach(result::addAll);
         }
         return result;
     }
 
     private synchronized Set<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
         return Optional.ofNullable(studio.getCurrentProject())
-            .map(AProjectFolder::getName)
-            .map(this::getModuleSyntaxNodesByProject)
-            .map(nodes -> nodes.stream()
-                .filter(Objects::nonNull)
-                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
-                .map(Arrays::asList)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet()))
-            .orElse(Collections.emptySet());
+                .map(AProjectFolder::getName)
+                .map(this::getModuleSyntaxNodesByProject)
+                .map(nodes -> nodes.stream()
+                        .filter(Objects::nonNull)
+                        .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                        .map(Arrays::asList)
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
     }
 
     public synchronized int getNumberOfTables() {
@@ -1073,7 +1073,7 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[] { null, null, null }, "root", null);
+        return new ProjectTreeNode(new String[]{null, null, null}, "root", null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
@@ -1111,7 +1111,7 @@ public class ProjectModel {
                 break;
             case SINGLE:
                 webStudioWorkspaceDependencyManager
-                    .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
+                        .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
@@ -1122,9 +1122,9 @@ public class ProjectModel {
         Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
         boolean isParallel = threads != null && threads > 1;
         return runTest(test,
-            isParallel,
-            currentOpenedModule ? openedModuleCompiledOpenClass.getOpenClassWithErrors()
-                                : compiledOpenClass.getOpenClassWithErrors());
+                isParallel,
+                currentOpenedModule ? openedModuleCompiledOpenClass.getOpenClassWithErrors()
+                        : compiledOpenClass.getOpenClassWithErrors());
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
@@ -1150,13 +1150,13 @@ public class ProjectModel {
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
             Set<TableSyntaxNode> nodes = WebStudioUtils.getWebStudio().getCurrentModule() != null ? getSearchScopeData(
-                SearchScope.CURRENT_MODULE) : new LinkedHashSet<>();
+                    SearchScope.CURRENT_MODULE) : new LinkedHashSet<>();
             getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_MODULE) {
             return Arrays.stream(getXlsModuleNode().getXlsTableSyntaxNodes())
-                .sorted(DEFAULT_NODE_CMP)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .sorted(DEFAULT_NODE_CMP)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
             throw new IllegalStateException();
         }
@@ -1246,8 +1246,8 @@ public class ProjectModel {
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
-                .loadDependency(AbstractDependencyManager.buildResolvedDependency(moduleInfo))
-                .getCompiledOpenClass();
+                    .loadDependency(AbstractDependencyManager.buildResolvedDependency(moduleInfo))
+                    .getCompiledOpenClass();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
@@ -1256,9 +1256,9 @@ public class ProjectModel {
             }
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
                 ResolvedDependency projectDependency = AbstractDependencyManager
-                    .buildResolvedDependency(moduleInfo.getProject());
+                        .buildResolvedDependency(moduleInfo.getProject());
                 if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependency,
-                    projectCompilationCompleted)) {
+                        projectCompilationCompleted)) {
                     compileProject(false, false);
                 }
             } else {
@@ -1284,7 +1284,7 @@ public class ProjectModel {
                     try {
                         this.compiledOpenClass = this.validate(projectDescriptor);
                         XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                            .getMetaInfo();
+                                .getMetaInfo();
                         getModuleSyntaxNodesByProject(projectDescriptor.getName()).add(metaInfo1.getXlsModuleNode());
                         redraw();
                     } catch (Exception | LinkageError e) {
@@ -1345,10 +1345,10 @@ public class ProjectModel {
     public RulesInstantiationStrategy getRulesInstantiationStrategy(ProjectDescriptor projectDescriptor) {
         List<Module> modules = projectDescriptor.getModules();
         RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-            webStudioWorkspaceDependencyManager,
-            false);
+                webStudioWorkspaceDependencyManager,
+                false);
         Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-            .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
         instantiationStrategy.setExternalParameters(externalParameters);
         return instantiationStrategy;
     }
@@ -1356,23 +1356,23 @@ public class ProjectModel {
     private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                .buildDependencyManager(projectDescriptor);
+                    .buildDependencyManager(projectDescriptor);
             webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
             projectCompilationCompleted = null;
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
-                .resolveWorkspace(projectDescriptor);
+                    .resolveWorkspace(projectDescriptor);
             Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
-                .map(ProjectDescriptor::getName)
-                .collect(Collectors.toSet());
+                    .map(ProjectDescriptor::getName)
+                    .collect(Collectors.toSet());
             boolean foundOpenedProject = false;
             boolean allProjectCanBeReused = true;
             Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
-                .getDependencyLoaders()
-                .stream()
-                .filter(IDependencyLoader::isProjectLoader)
-                .collect(Collectors.toList());
+                    .getDependencyLoaders()
+                    .stream()
+                    .filter(IDependencyLoader::isProjectLoader)
+                    .collect(Collectors.toList());
             for (IDependencyLoader projectDependencyLoader : projectDependencyLoaders) {
                 if (projectDescriptor.getName().equals(projectDependencyLoader.getProject().getName())) {
                     foundOpenedProject = true;
@@ -1387,15 +1387,15 @@ public class ProjectModel {
                     xlsModuleSyntaxNodesPerProject.clear();
                     xlsModuleSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                        .buildDependencyManager(projectDescriptor);
+                            .buildDependencyManager(projectDescriptor);
                     webStudioWorkspaceDependencyManager
-                        .registerOnCompilationCompleteListener(this::addCompiledDependency);
+                            .registerOnCompilationCompleteListener(this::addCompiledDependency);
                     webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
                     projectCompilationCompleted = null;
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager
-                        .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
+                            .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
                 }
             }
         }
@@ -1404,7 +1404,7 @@ public class ProjectModel {
     public synchronized void traceElement(TestSuite testSuite) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         boolean currentOpenedModule = Boolean
-            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         try {
             if (currentOpenedModule) {
                 Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
@@ -1437,12 +1437,12 @@ public class ProjectModel {
 
     public synchronized boolean isCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
-            .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
     public synchronized boolean isOpenedModuleCompiledSuccessfully() {
         return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
-            .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
+                .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
                 .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
@@ -1501,11 +1501,11 @@ public class ProjectModel {
     private void initHistoryStoragePath() {
         if (WebStudioUtils.getSession() != null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                .getLocalWorkspace()
-                .getLocation();
+                    .getLocalWorkspace()
+                    .getLocation();
             this.historyStoragePath = Paths
-                .get(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
-                .toString();
+                    .get(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+                    .toString();
         }
     }
 
@@ -1529,8 +1529,8 @@ public class ProjectModel {
         for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
             XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
             if (rulesRootPath != null && module.getSourceFile()
-                .getName()
-                .equals(FileUtils.getName(rulesRootPath.getPath()))) {
+                    .getName()
+                    .equals(FileUtils.getName(rulesRootPath.getPath()))) {
                 return module;
             }
         }
@@ -1539,7 +1539,7 @@ public class ProjectModel {
 
     /**
      * Returns true if both are true: 1) Old project version is opened and 2) project is not modified yet.
-     *
+     * <p>
      * Otherwise return false
      */
     public synchronized boolean isConfirmOverwriteNewerRevision() {
@@ -1583,7 +1583,7 @@ public class ProjectModel {
     public boolean isProjectCompilationCompleted() {
         if (moduleInfo != null) {
             ResolvedDependency projectDependency = AbstractDependencyManager
-                .buildResolvedDependency(moduleInfo.getProject());
+                    .buildResolvedDependency(moduleInfo.getProject());
             return Objects.equals(projectCompilationCompleted, projectDependency);
         }
         return false;

@@ -17,19 +17,19 @@ import org.openl.util.CollectionUtils;
 public final class NodeUsageFactory {
 
     private static final List<NodeUsageCreator> CREATORS = Arrays.asList(MethodBoundNodeUsageCreator.getInstance(),
-        FieldBoundNodeUsageCreator.getInstance(),
-        TypeNodeUsageCreator.getInstance(),
-        ConstructorNodeCreator.getInstance());
+            FieldBoundNodeUsageCreator.getInstance(),
+            TypeNodeUsageCreator.getInstance(),
+            ConstructorNodeCreator.getInstance());
 
     private NodeUsageFactory() {
     }
 
     /**
-     *  Create {@link NodeUsage} list for given bound node and source code string
+     * Create {@link NodeUsage} list for given bound node and source code string
      *
-     * @param boundNode bound node to convert
+     * @param boundNode    bound node to convert
      * @param sourceString source code
-     * @param startIndex start index
+     * @param startIndex   start index
      * @return node usage list
      */
     public static List<NodeUsage> createNodeUsageList(IBoundNode boundNode, String sourceString, int startIndex) {
@@ -40,9 +40,9 @@ public final class NodeUsageFactory {
     }
 
     private static void findNodeUsages(List<NodeUsage> nodeUsages,
-            IBoundNode boundNode,
-            String sourceString,
-            int startIndex) {
+                                       IBoundNode boundNode,
+                                       String sourceString,
+                                       int startIndex) {
         if (boundNode == null) {
             return;
         }

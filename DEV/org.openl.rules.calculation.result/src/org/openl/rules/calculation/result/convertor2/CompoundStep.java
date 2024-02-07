@@ -18,7 +18,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Spreadsheet row(step) that has nested SpreadsheetResult or SpreadsheetResult[] value for one of the columns.
  *
  * @author DLiauchuk
- *
  */
 
 @XmlRootElement

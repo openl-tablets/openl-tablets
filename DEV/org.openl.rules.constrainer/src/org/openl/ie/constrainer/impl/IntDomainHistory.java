@@ -197,7 +197,7 @@ public final class IntDomainHistory implements Serializable {
 
     /**
      * The function stores range removal from Int domain.
-     *
+     * <p>
      * added by SV 20.01.03 to support removeRangeInternal in IntVarImpl
      *
      * @param range_min

@@ -19,7 +19,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         XlsSheetSourceCodeModule sheet = (XlsSheetSourceCodeModule) nodeObject;
 
-        return new String[] { sheet.getSheetName(), sheet.getSheetName(), sheet.getSheetName() };
+        return new String[]{sheet.getSheetName(), sheet.getSheetName(), sheet.getSheetName()};
     }
 
     /**

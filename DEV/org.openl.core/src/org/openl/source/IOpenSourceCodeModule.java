@@ -25,7 +25,7 @@ public interface IOpenSourceCodeModule {
 
     String getUri();
 
-    default String getFileUri(){
+    default String getFileUri() {
         return getUri();
     }
 

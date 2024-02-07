@@ -15,7 +15,7 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class SingleRangeIndexEvaluator extends ARangeIndexEvaluator {
 
     public SingleRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
-            ConditionCasts conditionCasts) {
+                                     ConditionCasts conditionCasts) {
         super(rangeAdaptor, 1, conditionCasts);
     }
 

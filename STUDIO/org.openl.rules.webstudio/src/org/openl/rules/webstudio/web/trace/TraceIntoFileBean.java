@@ -59,7 +59,7 @@ public class TraceIntoFileBean {
     }
 
     private void print(ITracerObject tracer, int level, Writer writer, long deadline) throws IOException,
-                                                                                      TimeoutException {
+            TimeoutException {
         if (deadline < System.currentTimeMillis()) {
             throw new TimeoutException();
         }

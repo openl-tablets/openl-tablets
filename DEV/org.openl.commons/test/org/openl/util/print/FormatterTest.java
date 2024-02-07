@@ -79,7 +79,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(new Integer[] { 1, 2, 3, 4, 5 });
+        String devStr = printDevView(new Integer[]{1, 2, 3, 4, 5});
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
@@ -93,7 +93,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(new int[] { 1, 2, 3, 4, 5 });
+        String devStr = printDevView(new int[]{1, 2, 3, 4, 5});
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
@@ -113,7 +113,7 @@ public class FormatterTest {
         MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"), Locale.US);
         String busStr = printBusView(myType);
         assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  locale=en-US\n  str=foo\n  }",
-            busStr);
+                busStr);
     }
 
     private void assertContains(String text, String expected) {

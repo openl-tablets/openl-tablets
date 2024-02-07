@@ -84,7 +84,7 @@ public class SpreadsheetStructureBuilder {
     private final XlsModuleOpenClass xlsModuleOpenClass;
 
     private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
-        this);
+            this);
 
     public static final ThreadLocal<Stack<Set<SpreadsheetCell>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 
@@ -99,8 +99,8 @@ public class SpreadsheetStructureBuilder {
     }
 
     public SpreadsheetStructureBuilder(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext,
-            IOpenMethodHeader spreadsheetHeader,
-            XlsModuleOpenClass xlsModuleOpenClass) {
+                                       IOpenMethodHeader spreadsheetHeader,
+                                       XlsModuleOpenClass xlsModuleOpenClass) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.tableBody = tableSyntaxNode.getTableBody();
         this.bindingContext = bindingContext;
@@ -254,7 +254,7 @@ public class SpreadsheetStructureBuilder {
         var code = source.getCode();
 
         String name = getSpreadsheetCellFieldName(columnHeaders[columnIndex].getDefinitionName(),
-            rowHeaders[rowIndex].getDefinitionName());
+                rowHeaders[rowIndex].getDefinitionName());
 
         IOpenClass type = spreadsheetCell.getType();
 
@@ -278,11 +278,11 @@ public class SpreadsheetStructureBuilder {
                 IOpenMethod method;
                 if (header.getType() == null) {
                     method = OpenLManager.makeMethodWithUnknownType(openl,
-                        srcCode,
-                        name,
-                        signature,
-                        declaringClass,
-                        columnBindingContext);
+                            srcCode,
+                            name,
+                            signature,
+                            declaringClass,
+                            columnBindingContext);
                     spreadsheetCell.setType(method.getType() != null ? method.getType() : NullOpenClass.the);
                 } else {
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
@@ -292,7 +292,7 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setType(NullOpenClass.the);
                 String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
-                    .createError(message, e, LocationUtils.createTextInterval(code), source));
+                        .createError(message, e, LocationUtils.createTextInterval(code), source));
             }
 
         } else if (spreadsheetCell.isConstantCell()) {
@@ -375,20 +375,20 @@ public class SpreadsheetStructureBuilder {
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
             if (field1 == null) {
                 createSpreadsheetCellField(spreadsheetType,
-                    spreadsheetCell,
-                    simplifiedFieldName,
-                    SpreadsheetCellRefType.SINGLE_COLUMN);
+                        spreadsheetCell,
+                        simplifiedFieldName,
+                        SpreadsheetCellRefType.SINGLE_COLUMN);
             }
         } else if (oneRowSpreadsheet) {
             // add simplified field name
             String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
             if (field1 == null || field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
-                .isLastColumnRef()) {
+                    .isLastColumnRef()) {
                 createSpreadsheetCellField(spreadsheetType,
-                    spreadsheetCell,
-                    simplifiedFieldName,
-                    SpreadsheetCellRefType.SINGLE_ROW);
+                        spreadsheetCell,
+                        simplifiedFieldName,
+                        SpreadsheetCellRefType.SINGLE_ROW);
             }
         }
     }
@@ -402,7 +402,7 @@ public class SpreadsheetStructureBuilder {
      * Is represented as {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN} rowName, e.g. $Value$Final
      *
      * @param columnName name of cell column
-     * @param rowName name of the row column
+     * @param rowName    name of the row column
      * @return {@link #DOLLAR_SIGN}columnName{@link #DOLLAR_SIGN}rowName, e.g. $Value$Final
      */
     public static String getSpreadsheetCellFieldName(String columnName, String rowName) {
@@ -493,13 +493,13 @@ public class SpreadsheetStructureBuilder {
 
     private SpreadsheetContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
         Map<Integer, SpreadsheetContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
-            e -> new HashMap<>());
+                e -> new HashMap<>());
         return contexts.computeIfAbsent(rowIndex, e -> makeSpreadsheetResultContext(columnIndex, rowBindingContext));
     }
 
     private SpreadsheetContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
         SpreadsheetOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
-            e -> makeColumnComponentOpenClass(columnIndex));
+                e -> makeColumnComponentOpenClass(columnIndex));
         return new SpreadsheetContext(rowBindingContext, columnOpenClass, xlsModuleOpenClass);
     }
 
@@ -542,9 +542,9 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void proc(int rowIndex,
-            ComponentOpenClass rowOpenClass,
-            int columnIndex,
-            SpreadsheetHeaderDefinition columnHeader) {
+                      ComponentOpenClass rowOpenClass,
+                      int columnIndex,
+                      SpreadsheetHeaderDefinition columnHeader) {
         if (columnHeader == null) {
             return;
         }
@@ -557,22 +557,22 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void createSpreadsheetCellField(ComponentOpenClass rowOpenClass,
-            SpreadsheetCell cell,
-            String fieldName,
-            SpreadsheetCellRefType spreadsheetCellRefType) {
+                                            SpreadsheetCell cell,
+                                            String fieldName,
+                                            SpreadsheetCellRefType spreadsheetCellRefType) {
         SpreadsheetStructureBuilderHolder structureBuilderContainer = getSpreadsheetStructureBuilderHolder();
         SpreadsheetCellField field;
         if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
             field = new SpreadsheetCellField(structureBuilderContainer,
-                rowOpenClass,
-                fieldName,
-                cell,
-                spreadsheetCellRefType);
+                    rowOpenClass,
+                    fieldName,
+                    cell,
+                    spreadsheetCellRefType);
         } else {
             field = new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
-                rowOpenClass,
-                fieldName,
-                cell);
+                    rowOpenClass,
+                    fieldName,
+                    cell);
         }
         rowOpenClass.addField(field);
     }
@@ -674,7 +674,7 @@ public class SpreadsheetStructureBuilder {
 
         if (returnHeaderDefinition == null) {
             // No RETURN, get the last row
-            returnHeaderDefinition = rowHeaders[height -1];
+            returnHeaderDefinition = rowHeaders[height - 1];
         }
 
         if (Boolean.FALSE
@@ -783,10 +783,10 @@ public class SpreadsheetStructureBuilder {
                     IMetaInfo typeMeta = type.getMetaInfo();
                     if (typeMeta != null) {
                         SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-                            typeMeta.getDisplayName(INamedThing.SHORT),
-                            typeMeta.getSourceUrl(),
-                            type,
-                            NodeType.DATATYPE);
+                                typeMeta.getDisplayName(INamedThing.SHORT),
+                                typeMeta.getSourceUrl(),
+                                type,
+                                NodeType.DATATYPE);
                         nodeUsages.add(nodeUsage);
                     }
                 }

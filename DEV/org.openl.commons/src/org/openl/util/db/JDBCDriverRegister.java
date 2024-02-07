@@ -27,14 +27,14 @@ public class JDBCDriverRegister {
 
         // Defaults drivers
         registerDrivers("org.h2.Driver",
-            "org.hsqldb.jdbcDriver",
-            "org.postgresql.Driver",
-            "org.mariadb.jdbc.Driver",
-            "com.mysql.cj.jdbc.Driver",
-            "com.mysql.jdbc.Driver",
-            "com.ibm.db2.jcc.DB2Driver",
-            "oracle.jdbc.OracleDriver",
-            "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                "org.hsqldb.jdbcDriver",
+                "org.postgresql.Driver",
+                "org.mariadb.jdbc.Driver",
+                "com.mysql.cj.jdbc.Driver",
+                "com.mysql.jdbc.Driver",
+                "com.ibm.db2.jcc.DB2Driver",
+                "oracle.jdbc.OracleDriver",
+                "com.microsoft.sqlserver.jdbc.SQLServerDriver");
     }
 
     private static void registerDrivers(String... drivers) {
@@ -57,10 +57,10 @@ public class JDBCDriverRegister {
                 int minorVersion = dr.getMinorVersion();
 
                 log.info("JDBC Driver: '{}' - OK.\n      Path: {}\n      Version: {}.{}",
-                    driver,
-                    path,
-                    majorVersion,
-                    minorVersion);
+                        driver,
+                        path,
+                        majorVersion,
+                        minorVersion);
             } catch (Exception e) {
                 log.info("JDBC Driver: '{}' - ERROR.\n      Path: {}", driver, path, e);
             }

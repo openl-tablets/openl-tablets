@@ -17,9 +17,9 @@ public class CommandFormatException extends Exception {
     }
 
     public CommandFormatException(String message,
-            Throwable cause,
-            boolean enableSuppression,
-            boolean writableStackTrace) {
+                                  Throwable cause,
+                                  boolean enableSuppression,
+                                  boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

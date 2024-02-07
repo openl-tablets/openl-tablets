@@ -19,8 +19,8 @@ public class InterfaceClassGeneratorImpl implements InterfaceClassGenerator {
 
     @Override
     public Class<?> generateInterface(String className,
-            IOpenClass openClass,
-            ClassLoader classLoader) throws Exception {
+                                      IOpenClass openClass,
+                                      ClassLoader classLoader) throws Exception {
         return InterfaceGenerator.generateInterface(className, openClass, classLoader, includes, excludes);
     }
 }

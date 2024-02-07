@@ -353,8 +353,8 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public FileData save(FileData folderData,
-            Iterable<FileItem> files,
-            ChangesetType changesetType) throws IOException {
+                         Iterable<FileItem> files,
+                         ChangesetType changesetType) throws IOException {
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
         for (FileItem change : files) {

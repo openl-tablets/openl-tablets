@@ -19,7 +19,7 @@ public class OptimizedDTConditionBuildingTest {
     @BeforeEach
     public void initEngine() {
         RulesEngineFactory<DTConditionBuilding> engineFactory = new RulesEngineFactory<>(SRC,
-            DTConditionBuilding.class);
+                DTConditionBuilding.class);
 
         instance = engineFactory.newEngineInstance();
     }

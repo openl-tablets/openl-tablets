@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * @author User
- *
  */
 public class ConversionRuleBean {
     private String operation;
@@ -31,10 +30,10 @@ public class ConversionRuleBean {
             String theNameForDebug = nameForDebug[i];
 
             ConversionRuleStep step = new ConversionRuleStep(theOperationType,
-                theOperationParam1,
-                theOperationParam2,
-                theLabelInstruction,
-                theNameForDebug);
+                    theOperationParam1,
+                    theOperationParam2,
+                    theLabelInstruction,
+                    theNameForDebug);
 
             steps.add(step);
         }

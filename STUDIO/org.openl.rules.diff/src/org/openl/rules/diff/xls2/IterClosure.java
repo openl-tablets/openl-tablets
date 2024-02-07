@@ -4,7 +4,6 @@ package org.openl.rules.diff.xls2;
  * Helper interface.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface IterClosure {
     /**

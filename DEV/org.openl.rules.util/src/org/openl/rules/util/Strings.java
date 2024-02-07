@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /**
  * A set of util methods to work with strings.
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan
@@ -41,7 +41,7 @@ public final class Strings {
      * contains("abc", "z")  = false
      * </pre>
      *
-     * @param str the String to check, may be null
+     * @param str       the String to check, may be null
      * @param searchStr the String to find, may be null
      * @return true if the String contains the search String, false if not or <code>null</code> string input
      */
@@ -70,7 +70,7 @@ public final class Strings {
      * contains("abc", 'z') = false
      * </pre>
      *
-     * @param str the String to check, may be null
+     * @param str        the String to check, may be null
      * @param searchChar the character to find
      * @return true if the String contains the search character, false if not or <code>null</code> string input
      */
@@ -102,7 +102,7 @@ public final class Strings {
      * containsAny("aba", ['z'])           = false
      * </pre>
      *
-     * @param str the String to check, may be null
+     * @param str   the String to check, may be null
      * @param chars the chars to search for, may be null
      * @return the <code>true</code> if any of the chars are found, <code>false</code> if no match or null input
      */
@@ -139,7 +139,7 @@ public final class Strings {
      * containsAny("aba","z")          = false
      * </pre>
      *
-     * @param str the String to check, may be null
+     * @param str         the String to check, may be null
      * @param searchChars the chars to search for, may be null
      * @return the <code>true</code> if any of the chars are found, <code>false</code> if no match or null input
      */
@@ -200,7 +200,7 @@ public final class Strings {
      * Returns a string whose value is this string, with any leading and trailing whitespace removed.
      *
      * @return A string whose value is this string, with any leading and trailing white space removed, or this string if
-     *         it has no leading or trailing white space.
+     * it has no leading or trailing white space.
      */
     public static String trim(String str) {
         return str == null ? null : str.trim();
@@ -219,7 +219,7 @@ public final class Strings {
      * startsWith("ABCDEF", "abc") = false <br />
      * </code>
      *
-     * @param str the String to check, may be null
+     * @param str    the String to check, may be null
      * @param prefix the prefix to find, may be null
      * @return true if the String starts with the prefix, case sensitive, or both null
      */
@@ -247,7 +247,7 @@ public final class Strings {
      * endsWith("ABCDEF", "cde") = false <br />
      * </code>
      *
-     * @param str the String to check, may be null
+     * @param str    the String to check, may be null
      * @param suffix the suffix to find, may be null
      * @return true if the String ends with the suffix, case sensitive, or both null
      */
@@ -280,9 +280,9 @@ public final class Strings {
      * substring("abc", -2) = "bc" <br />
      * substring("abc", -4) = "abc" <br />
      *
-     * @param str the String to get the substring from, may be null
+     * @param str        the String to get the substring from, may be null
      * @param beginIndex the position to start from, negative means count back from the end of the String by this many
-     *            characters
+     *                   characters
      * @return substring from start position, null if null String input
      */
     public static String substring(String str, int beginIndex) {
@@ -328,11 +328,11 @@ public final class Strings {
      * substring("abc", -4, 2)  = "ab" <br />
      * </code>
      *
-     * @param str the String to get the substring from, may be null
+     * @param str        the String to get the substring from, may be null
      * @param beginIndex the position to start from, negative means count back from the end of the String by this many
-     *            characters
-     * @param endIndex the position to end at (exclusive), negative means count back from the end of the String by this
-     *            many characters
+     *                   characters
+     * @param endIndex   the position to end at (exclusive), negative means count back from the end of the String by this
+     *                   many characters
      * @return substring from start position to end positon, null if null String input
      */
     public static String substring(String str, int beginIndex, int endIndex) {
@@ -385,7 +385,7 @@ public final class Strings {
      * removeStart("abc", "")    = "abc" <br />
      * </code>
      *
-     * @param str the source String to search, may be null
+     * @param str    the source String to search, may be null
      * @param remove the String to search for and remove, may be null
      * @return the substring with the string removed if found, null if null String input
      */
@@ -416,7 +416,7 @@ public final class Strings {
      * removeEnd("abc", "")    = "abc" <br />
      * </code>
      *
-     * @param str the source String to search, may be null
+     * @param str    the source String to search, may be null
      * @param remove the String to search for and remove, may be null
      * @return the String to search for and remove, may be null
      */
@@ -492,9 +492,9 @@ public final class Strings {
      * replace("aba", "a", "z")   = "zbz" <br />
      * </code>
      *
-     * @param str text to search and replace in, may be null
+     * @param str          text to search and replace in, may be null
      * @param searchString the String to search for, may be null
-     * @param replacement the String to replace it with, may be null
+     * @param replacement  the String to replace it with, may be null
      * @return the text with any replacements processed, null if null String input
      */
     public static String replace(String str, String searchString, String replacement) {
@@ -522,10 +522,10 @@ public final class Strings {
      * replace("abaa", "a", "z", -1)  = "zbzz" <br />
      * </code>
      *
-     * @param str text to search and replace in, may be null
+     * @param str          text to search and replace in, may be null
      * @param searchString the String to search for, may be null
-     * @param replacement the String to replace it with, may be null
-     * @param max maximum number of values to replace, or -1 if no maximum
+     * @param replacement  the String to replace it with, may be null
+     * @param max          maximum number of values to replace, or -1 if no maximum
      * @return the text with any replacements processed, null if null String input
      */
     public static String replace(String str, String searchString, String replacement, int max) {
@@ -557,7 +557,8 @@ public final class Strings {
     public static String toString(Object obj) {
         if (obj == null) {
             return null;
-        } if (obj instanceof Number) {
+        }
+        if (obj instanceof Number) {
             return Numbers.toString((Number) obj);
         }
         return obj.toString();
@@ -630,22 +631,22 @@ public final class Strings {
      * [!charlist]- matches any single character not in {@code charlist}
      * X+ - matches @{code X} one or more times
      * </pre>
-     *
+     * <p>
      * <br/>
      * Examples:<br/>
      * <br/>
      * <code>
-     *     like(null, "")      = true<br/>
-     *     like("", "#")       = false<br/>
-     *     like("9", "#")      = true<br/>
-     *     like("a", "?")      = true<br/>
-     *     like("a", "@")      = true<br/>
-     *     like("1a23", "*")   = true<br/>
-     *     like("foo@bar.com", "?+\@?+\.?+")                = true<br/>
-     *     like("+38(099) 123-12-12", "+##(###) ###-##-##") = true<br/>
+     * like(null, "")      = true<br/>
+     * like("", "#")       = false<br/>
+     * like("9", "#")      = true<br/>
+     * like("a", "?")      = true<br/>
+     * like("a", "@")      = true<br/>
+     * like("1a23", "*")   = true<br/>
+     * like("foo@bar.com", "?+\@?+\.?+")                = true<br/>
+     * like("+38(099) 123-12-12", "+##(###) ###-##-##") = true<br/>
      * </code>
      *
-     * @param str any String
+     * @param str     any String
      * @param pattern pattern
      * @return {@code true} if the String matches given pattern
      */
@@ -764,15 +765,16 @@ public final class Strings {
      * Examples:<br/>
      * <br/>
      * <code>
-     *     textJoin(null, null)                       = null<br/>
-     *     textJoin(",", null)                        = null<br/>
-     *     textJoin(",", [])                          = ""<br/>
-     *     textJoin(null, ["a,b,c"])                  = "a,b,c"<br/>
-     *     textJoin(", ", ["a", "b", "c"])            = "a, b, c"<br/>
-     *     textJoin(",", ["a", "", "b", null, "c"])   = "a, b, c"<br/>
+     * textJoin(null, null)                       = null<br/>
+     * textJoin(",", null)                        = null<br/>
+     * textJoin(",", [])                          = ""<br/>
+     * textJoin(null, ["a,b,c"])                  = "a,b,c"<br/>
+     * textJoin(", ", ["a", "b", "c"])            = "a, b, c"<br/>
+     * textJoin(",", ["a", "", "b", null, "c"])   = "a, b, c"<br/>
      * </code>
+     *
      * @param delimiter the delimiting string
-     * @param values an array of objects to join by target delimiter
+     * @param values    an array of objects to join by target delimiter
      * @return the single string computing by joining of each array element
      */
     public static String textJoin(String delimiter, Object... values) {
@@ -808,15 +810,15 @@ public final class Strings {
      * Examples:<br/>
      * <br/>
      * <code>
-     *     textSplit(null, null)           = null<br/>
-     *     textSplit(",", null)            = null<br/>
-     *     textSplit(null, "a,b,c")        = ["a,b,c"]<br/>
-     *     textSplit(",", "a,b,c")         = ["a", "b", "c"]<br/>
-     *     textSplit(",", ",,a,,b,,c,,")   = ["a", "b", "c"]<br/>
+     * textSplit(null, null)           = null<br/>
+     * textSplit(",", null)            = null<br/>
+     * textSplit(null, "a,b,c")        = ["a,b,c"]<br/>
+     * textSplit(",", "a,b,c")         = ["a", "b", "c"]<br/>
+     * textSplit(",", ",,a,,b,,c,,")   = ["a", "b", "c"]<br/>
      * </code>
      *
      * @param delimiter the delimiting string
-     * @param str string to split
+     * @param str       string to split
      * @return the array of strings computing by splitting target string by given delimiter
      */
     public static String[] textSplit(String delimiter, String str) {
@@ -824,7 +826,7 @@ public final class Strings {
             return null;
         }
         if (isEmpty0(str) || isEmpty0(delimiter)) {
-            return new String[] {str};
+            return new String[]{str};
         }
         List<String> list = new ArrayList<>();
         final int len = str.length();
@@ -857,18 +859,17 @@ public final class Strings {
      * Format string with given pattern and the given arguments.<br/>
      * <br/>
      * Examples:
-     * 
+     *
      * <pre>
      * {@code format(null) = null}
      * {@code format("")   = ""}
      * {@code format("Hello, {0}!", "John") = "Hello, John!"}
      * {@code format("{0}, {1}!", "Good evening", "John") = "Good evening, John!"}
      * </pre>
-     * 
+     *
      * @param pattern pattern
-     * @param args object(s) to format
+     * @param args    object(s) to format
      * @return formatted string
-     * 
      * @see MessageFormat
      */
     public static String format(String pattern, Object... args) {
@@ -881,6 +882,7 @@ public final class Strings {
 
     /**
      * Convert string locale to {@link Locale}
+     *
      * @param localeStr locale as string
      * @return parsed {@link Locale} object
      */

@@ -34,7 +34,6 @@ import org.openl.util.CollectionUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for compilation operations.
- *
  */
 public class OpenLCompileManager {
     public static final String EXTERNAL_DEPENDENCIES_KEY = "external-dependencies";
@@ -56,21 +55,21 @@ public class OpenLCompileManager {
      * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
      * compilation are suppressed.
      *
-     * @param source source
+     * @param source        source
      * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
      * @return {@link CompiledOpenClass} instance
      */
     CompiledOpenClass compileModuleWithErrors(IOpenSourceCodeModule source,
-            boolean executionMode,
-            IDependencyManager dependencyManager) {
+                                              boolean executionMode,
+                                              IDependencyManager dependencyManager) {
         ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
         return new CompiledOpenClass(openClass, processedCode.getAllMessages(), processedCode.getMessages());
     }
 
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
-            boolean executionMode,
-            IDependencyManager dependencyManager) {
+                                           boolean executionMode,
+                                           IDependencyManager dependencyManager) {
         IBindingContext bindingContext = null;
         if (executionMode) {
             bindingContext = openl.getBinder().makeBindingContext();
@@ -84,13 +83,13 @@ public class OpenLCompileManager {
     /**
      * Parses and binds source.
      *
-     * @param source source
+     * @param source         source
      * @param bindingContext binding context
      * @return processed code descriptor
      */
     private ProcessedCode processSource(IOpenSourceCodeModule source,
-            IBindingContext bindingContext,
-            IDependencyManager dependencyManager) {
+                                        IBindingContext bindingContext,
+                                        IDependencyManager dependencyManager) {
 
         IParsedCode parsedCode = openl.getParser().parseAsModule(source);
 
@@ -121,12 +120,12 @@ public class OpenLCompileManager {
                     try {
                         CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
                         OpenLClassLoader currentClassLoader = (OpenLClassLoader) Thread.currentThread()
-                            .getContextClassLoader();
+                                .getContextClassLoader();
                         ClassLoader dependencyClassLoader = loadedDependency.getClassLoader();
                         if (dependencyClassLoader != currentClassLoader
                                 && !(dependencyClassLoader instanceof OpenLClassLoader
-                                    && ((OpenLClassLoader) dependencyClassLoader)
-                                        .containsClassLoader(currentClassLoader))) {
+                                && ((OpenLClassLoader) dependencyClassLoader)
+                                .containsClassLoader(currentClassLoader))) {
 
                             currentClassLoader.addClassLoader(dependencyClassLoader);
                         }
@@ -151,7 +150,7 @@ public class OpenLCompileManager {
                 }
             } else {
                 allMessages.add(
-                    OpenLMessagesUtils.newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
+                        OpenLMessagesUtils.newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
             }
         }
 
@@ -191,10 +190,10 @@ public class OpenLCompileManager {
 
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
         allMessages
-            .addAll(bindingContext != null && bindingContext.isExecutionMode()
-                                                                               ? clearOpenLMessagesForExecutionMode(
-                                                                                   boundCode.getMessages())
-                                                                               : boundCode.getMessages());
+                .addAll(bindingContext != null && bindingContext.isExecutionMode()
+                        ? clearOpenLMessagesForExecutionMode(
+                        boundCode.getMessages())
+                        : boundCode.getMessages());
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 

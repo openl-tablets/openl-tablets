@@ -67,7 +67,7 @@ class Cursor {
 
     /**
      * Get merged region of current {@code cell}
-     * 
+     *
      * @return merged region of {@code null}
      */
     public CellRangeAddress getCellMergedRegion() {
@@ -81,7 +81,7 @@ class Cursor {
 
     /**
      * Get hidden flag of current {@code sheet}
-     * 
+     *
      * @return {@code true} or {@code false}
      */
     public boolean isSheetHidden() {
@@ -90,7 +90,7 @@ class Cursor {
 
     /**
      * Get index of current {@code sheet}
-     * 
+     *
      * @return index of the sheet (0 based)
      */
     public int getSheetIndex() {
@@ -104,10 +104,10 @@ class Cursor {
      */
     public List<XSSFShape> getSheetShapes() {
         return Optional.ofNullable(sheet.getDrawingPatriarch())
-            .filter(XSSFDrawing.class::isInstance)
-            .map(XSSFDrawing.class::cast)
-            .map(XSSFDrawing::getShapes)
-            .orElse(Collections.emptyList());
+                .filter(XSSFDrawing.class::isInstance)
+                .map(XSSFDrawing.class::cast)
+                .map(XSSFDrawing::getShapes)
+                .orElse(Collections.emptyList());
     }
 
     /**
@@ -117,9 +117,9 @@ class Cursor {
      */
     public List<XSSFPicture> getSheetPictures() {
         return getSheetShapes().stream()
-            .filter(XSSFPicture.class::isInstance)
-            .map(XSSFPicture.class::cast)
-            .collect(Collectors.toList());
+                .filter(XSSFPicture.class::isInstance)
+                .map(XSSFPicture.class::cast)
+                .collect(Collectors.toList());
     }
 
     /**

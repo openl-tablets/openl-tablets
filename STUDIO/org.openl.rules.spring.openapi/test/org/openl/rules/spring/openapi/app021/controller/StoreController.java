@@ -33,7 +33,7 @@ public class StoreController {
      */
     @Operation(summary = "Delete purchase order by ID", description = "For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors", responses = {
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
-            @ApiResponse(responseCode = "404", description = "Order not found") })
+            @ApiResponse(responseCode = "404", description = "Order not found")})
     @DeleteMapping(value = "/order/{orderId}")
     public ResponseEntity<Void> deleteOrder(
             @Parameter(description = "ID of the order that needs to be deleted") @Min(1) @PathVariable("orderId") Long orderId) {
@@ -47,7 +47,7 @@ public class StoreController {
      */
     @Operation(summary = "Returns pet inventories by status", description = "Returns a map of status codes to quantities")
     @ApiResponse(responseCode = "200", description = "successful operation")
-    @GetMapping(value = "/inventory", produces = { "application/json" })
+    @GetMapping(value = "/inventory", produces = {"application/json"})
     public ResponseEntity<Map<String, Integer>> getInventory() {
         return ResponseEntity.ok().build();
     }
@@ -58,13 +58,13 @@ public class StoreController {
      *
      * @param orderId ID of pet that needs to be fetched (required)
      * @return successful operation (status code 200) or Invalid ID supplied (status code 400) or Order not found
-     *         (status code 404)
+     * (status code 404)
      */
     @Operation(summary = "Find purchase order by ID", description = "For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions", responses = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
-            @ApiResponse(responseCode = "404", description = "Order not found") })
-    @GetMapping(value = "/order/{orderId}", produces = { "application/json", "application/xml" })
+            @ApiResponse(responseCode = "404", description = "Order not found")})
+    @GetMapping(value = "/order/{orderId}", produces = {"application/json", "application/xml"})
     public ResponseEntity<Order> getOrderById(
             @Parameter(description = "ID of pet that needs to be fetched") @Min(1) @Max(10) @PathVariable("orderId") Long orderId) {
         return ResponseEntity.ok().build();
@@ -76,11 +76,11 @@ public class StoreController {
      * @param order order placed for purchasing the pet (required)
      * @return successful operation (status code 200) or Invalid Order (status code 400)
      */
-    @Operation(summary = "Place an order for a pet", tags = { "store" }, responses = {
+    @Operation(summary = "Place an order for a pet", tags = {"store"}, responses = {
             @ApiResponse(responseCode = "200", description = "successful operation"),
-            @ApiResponse(responseCode = "400", description = "Invalid Order") })
-    @PostMapping(value = "/order", produces = { "application/json", "application/xml" }, consumes = {
-            "application/json" })
+            @ApiResponse(responseCode = "400", description = "Invalid Order")})
+    @PostMapping(value = "/order", produces = {"application/json", "application/xml"}, consumes = {
+            "application/json"})
     public ResponseEntity<Order> placeOrder(
             @Parameter(description = "order placed for purchasing the pet") @RequestBody Order order) {
         return ResponseEntity.ok().build();

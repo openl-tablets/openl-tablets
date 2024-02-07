@@ -18,10 +18,10 @@ public class ATableTracerNode extends SimpleTracerObject {
     }
 
     ATableTracerNode(String type,
-            String prefix,
-            ExecutableRulesMethod method,
-            Object[] params,
-            IRuntimeContext context) {
+                     String prefix,
+                     ExecutableRulesMethod method,
+                     Object[] params,
+                     IRuntimeContext context) {
         super(type);
         this.prefix = prefix;
         this.method = method;

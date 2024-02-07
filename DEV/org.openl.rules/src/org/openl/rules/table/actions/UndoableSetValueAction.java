@@ -83,7 +83,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         if (dataType != null) {
             IDomain<?> domain = dataType.getDomain();
             boolean keepOldMetaInfo = domain instanceof EnumDomain<?> || ClassUtils
-                .isAssignable(dataType.getInstanceClass(), INumberRange.class);
+                    .isAssignable(dataType.getInstanceClass(), INumberRange.class);
             if (keepOldMetaInfo) {
                 // Don't change meta info
                 return removeNodeUsage(prevMetaInfo);

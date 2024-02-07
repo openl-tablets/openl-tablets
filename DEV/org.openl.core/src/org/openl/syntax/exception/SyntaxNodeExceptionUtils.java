@@ -38,9 +38,9 @@ public class SyntaxNodeExceptionUtils {
     }
 
     public static SyntaxNodeException createError(String message,
-            Throwable ex,
-            ILocation location,
-            IOpenSourceCodeModule source) {
+                                                  Throwable ex,
+                                                  ILocation location,
+                                                  IOpenSourceCodeModule source) {
         Logger logger = LoggerFactory.getLogger(SyntaxNodeExceptionUtils.class);
         logger.debug(message, ex);
         return new SyntaxNodeException(message, ex, location, source);

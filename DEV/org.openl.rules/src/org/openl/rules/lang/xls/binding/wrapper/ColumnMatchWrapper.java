@@ -17,13 +17,13 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            ColumnMatch delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                              ColumnMatch delegate,
+                              ContextPropertiesInjector contextPropertiesInjector,
+                              boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

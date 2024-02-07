@@ -43,8 +43,8 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError(
-            "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^",
-            result.getGlobalError());
+                "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^",
+                result.getGlobalError());
 
         result = validateAndGetResult("./branch-name", validator);
         assertEquals(0, result.getFieldErrorCount());
@@ -55,19 +55,19 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain consecutive symbols '.' or '/'.",
-            result.getGlobalError());
+                result.getGlobalError());
 
         result = validateAndGetResult(".lock", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain '.lock/' or end with '.lock'.",
-            result.getGlobalError());
+                result.getGlobalError());
 
         result = validateAndGetResult(".lock/foo", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain '.lock/' or end with '.lock'.",
-            result.getGlobalError());
+                result.getGlobalError());
     }
 
     @Test
@@ -112,15 +112,15 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     public void test_validate_customRegex() {
         validator = new NewBranchValidator(branchRepository,
-            "^[a-z0-9_\\-]+$",
-            "Only lowercase letters, numbers, underscores and dashes are allowed.");
+                "^[a-z0-9_\\-]+$",
+                "Only lowercase letters, numbers, underscores and dashes are allowed.");
         assertNull(validateAndGetResult("foo", validator));
 
         var result = validateAndGetResult("FOOOO", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Only lowercase letters, numbers, underscores and dashes are allowed.",
-            result.getGlobalError());
+                result.getGlobalError());
     }
 
     @Test

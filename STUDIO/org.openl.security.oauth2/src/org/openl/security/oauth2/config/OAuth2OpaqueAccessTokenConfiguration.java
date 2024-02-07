@@ -27,16 +27,16 @@ public class OAuth2OpaqueAccessTokenConfiguration {
 
     @Bean
     public OpaqueTokenIntrospector opaqueTokenIntrospector(@Qualifier("environment") PropertyResolver propertyResolver,
-            OAuth2Configuration oAuth2Configuration,
-            ClientRegistrationRepository clientRegistrationRepository,
-            UserInfoClaimsConverter userInfoClaimsConverter,
-            JCacheCacheManager cacheManager) {
+                                                           OAuth2Configuration oAuth2Configuration,
+                                                           ClientRegistrationRepository clientRegistrationRepository,
+                                                           UserInfoClaimsConverter userInfoClaimsConverter,
+                                                           JCacheCacheManager cacheManager) {
         var clientRegistration = clientRegistrationRepository.findByRegistrationId("webstudio");
         return new UserInfoOpaqueTokenIntrospector(oAuth2Configuration.getIntrospectionEndpoint().get(),
-            clientRegistration,
-            userInfoClaimsConverter,
-            propertyResolver,
-            cacheManager.getCache("userInfoOAuth2Cache"));
+                clientRegistration,
+                userInfoClaimsConverter,
+                propertyResolver,
+                cacheManager.getCache("userInfoOAuth2Cache"));
     }
 
 }

@@ -107,9 +107,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
-        String.CASE_INSENSITIVE_ORDER);
+            String.CASE_INSENSITIVE_ORDER);
     private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = Comparator
-        .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
+            .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
     public static final String RULES_TREE_VIEW = "rules.tree.view";
     public static final String RULES_TREE_VIEW_DEFAULT = "rules.tree.view.default";
@@ -178,16 +178,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean needRedirect;
 
     public WebStudio(RulesUserSession rulesUserSession,
-            TestSuiteExecutor testSuiteExecutor,
-            UserSettingManagementService userSettingManagementService,
-            RepositoryAclService designRepositoryAclService,
-            SimpleRepositoryAclService productionRepositoryAclService,
-            ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
-            PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector,
-            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-            PropertyResolver propertyResolver,
-            DeploymentManager deploymentManager
+                     TestSuiteExecutor testSuiteExecutor,
+                     UserSettingManagementService userSettingManagementService,
+                     RepositoryAclService designRepositoryAclService,
+                     SimpleRepositoryAclService productionRepositoryAclService,
+                     ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
+                     PathFilter zipFilter,
+                     ZipCharsetDetector zipCharsetDetector,
+                     ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
+                     PropertyResolver propertyResolver,
+                     DeploymentManager deploymentManager
 
     ) {
         model = new ProjectModel(this, testSuiteExecutor);
@@ -197,7 +197,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
-        this.pdSerializerFactory =projectDescriptorSerializerFactory;
+        this.pdSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesUserSession = rulesUserSession;
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
@@ -307,13 +307,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     // Revert project name in rules.xml
                     var serializer = pdSerializerFactory.getSerializer(project);
                     AProjectResource artefact = (AProjectResource) project
-                        .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                     content = artefact.getContent();
                     ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     projectDescriptor.setName(project.getName());
                     if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
-                            ProjectArtifactUtils.extractResourceName(artefact)));
+                                ProjectArtifactUtils.extractResourceName(artefact)));
                     }
                     artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
                     resetProjects();
@@ -321,7 +321,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {
                         mappingData
-                            .setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
+                                .setExternalPath(userWorkspace.getDesignTimeRepository().getRulesLocation() + logicalName);
                     }
                 }
             }
@@ -451,7 +451,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     try {
                         String repoId = project.getRepository().getId();
                         List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId,
-                            k -> new ArrayList<>());
+                                k -> new ArrayList<>());
                         File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
                         File folder = new File(repoRoot, project.getFolderPath());
                         ProjectDescriptor resolvedDescriptor = projectResolver.resolve(folder);
@@ -521,10 +521,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public synchronized void init(String repositoryId, String branchName, String projectName, String moduleName) {
         try {
             log.debug("Repository id='{}' Branch='{}'  Project='{}'  Module='{}'",
-                repositoryId,
-                branchName,
-                projectName,
-                moduleName);
+                    repositoryId,
+                    branchName,
+                    projectName,
+                    moduleName);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
             needRedirect = false;
@@ -557,27 +557,27 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             boolean anotherModuleOpened = currentModule != module;
             boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
-                .getProject()
-                .getName()
-                .equals(project.getName()));
+                    .getProject()
+                    .getName()
+                    .equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (currentProject != null) {
                 // Validate the permission to read the project. If the project has read permission, then all modules of
                 // the project has the read permission too.
                 RulesProject rulesProject = getProject(repositoryId,
-                    currentProject.getProjectFolder().getFileName().toString());
+                        currentProject.getProjectFolder().getFileName().toString());
                 if (rulesProject != null && module != null) {
                     log.debug(
-                        "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
-                        repositoryId,
-                        rulesProject.getLocalFolderName(),
-                        module.getRulesRootPath().getPath());
+                            "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
+                            repositoryId,
+                            rulesProject.getLocalFolderName(),
+                            module.getRulesRootPath().getPath());
                 } else {
                     if (rulesProject != null) {
                         log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
-                            repositoryId,
-                            rulesProject.getLocalFolderName());
+                                repositoryId,
+                                rulesProject.getLocalFolderName());
                     }
                 }
             }
@@ -629,7 +629,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return null;
         }
         return CollectionUtils.findFirst(project.getModules(),
-            module -> module.getName() != null && module.getName().equals(moduleName));
+                module -> module.getName() != null && module.getName().equals(moduleName));
     }
 
     public String updateModule() {
@@ -650,8 +650,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
-                .getLocalWorkspace()
-                .getRepository(currentRepositoryId);
+                    .getLocalWorkspace()
+                    .getRepository(currentRepositoryId);
 
             File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
             String relativePath = getRelativePath(projectFolder, sourceFile);
@@ -662,8 +662,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (FileNotFoundException e) {
             log.debug("An error occurred during the module update. Close the module Excel file and try again.", e);
             throw new IllegalStateException(
-                "An error occurred during the module update. Close the module Excel file and try again.",
-                e);
+                    "An error occurred during the module update. Close the module Excel file and try again.",
+                    e);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
@@ -733,9 +733,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 String relative = getRelativePath(projectFolder, file);
                 if (!filesInZip.contains(relative)) {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
-                        List.of(AclPermission.DELETE))) {
+                            List.of(AclPermission.DELETE))) {
                         throw new Message(String.format("There is no permission for deleting '%s' file.",
-                            projectPath + "/" + relative));
+                                projectPath + "/" + relative));
                     }
                     FileData absentFileData = new FileData();
                     absentFileData.setAuthor(user.getUserInfo());
@@ -744,17 +744,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     absentResources.add(absentFileData);
                 } else {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
-                        List.of(AclPermission.EDIT))) {
+                            List.of(AclPermission.EDIT))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
-                            projectPath + "/" + relative));
+                                projectPath + "/" + relative));
                     }
                 }
             }
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
-                    List.of(AclPermission.ADD))) {
+                        List.of(AclPermission.ADD))) {
                     throw new Message(String.format("There is no permission for creating '%s' file.",
-                        ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
+                            ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
                 }
             }
             repository.delete(absentResources);
@@ -807,8 +807,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         for (Module module : project.getModules()) {
             File moduleFile = module.getRulesPath().toFile();
             String moduleHistoryPath = project.getProjectFolder()
-                .resolve(FolderHelper.resolveHistoryFolder(module))
-                .toString();
+                    .resolve(FolderHelper.resolveHistoryFolder(module))
+                    .toString();
             func.accept(moduleHistoryPath, moduleFile);
         }
     }
@@ -857,8 +857,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public synchronized void forceUpdateProjectDescriptor(String repoId,
-            ProjectDescriptor newProjectDescriptor,
-            ProjectDescriptor oldProjectDescriptor) {
+                                                          ProjectDescriptor newProjectDescriptor,
+                                                          ProjectDescriptor oldProjectDescriptor) {
         newProjectDescriptor.getModules().sort(MODULES_COMPARATOR);
         if (currentProject.equals(oldProjectDescriptor)) {
             currentProject = newProjectDescriptor;
@@ -878,7 +878,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             List<String> filesInProject = getFilesInProject(zipFilter);
 
             Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(lastUploadedFile),
-                filesInProject);
+                    filesInProject);
             if (charset == null) {
                 return true;
             }
@@ -939,13 +939,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private String validateUploadedFiles(ProjectFile zipFile,
-            PathFilter zipFilter,
-            ProjectDescriptor oldProjectDescriptor,
-            Charset charset) throws IOException {
+                                         PathFilter zipFilter,
+                                         ProjectDescriptor oldProjectDescriptor,
+                                         Charset charset) throws IOException {
         ProjectDescriptor newProjectDescriptor;
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
-                .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
+                    .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
         } catch (ProjectDescriptionException e) {
             return e.getMessage();
         }
@@ -1008,8 +1008,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // Probably a project was renamed in local workspace
             for (List<ProjectDescriptor> descriptors : getProjects().values()) {
                 Optional<ProjectDescriptor> descriptor = descriptors.stream()
-                    .filter(p -> p.getName().equals(name))
-                    .findFirst();
+                        .filter(p -> p.getName().equals(name))
+                        .findFirst();
                 if (descriptor.isPresent()) {
                     String folderName = descriptor.get().getProjectFolder().getFileName().toString();
                     project = getProjectFromWorkspace(folderName);
@@ -1064,8 +1064,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         RulesProject currentProject = getCurrentProject(); // #3
 
         return projects.stream()
-            .anyMatch(p -> p != currentProject && p.getName()
-                .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
+                .anyMatch(p -> p != currentProject && p.getName()
+                        .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
     }
 
     private void setTreeView(RulesTreeView treeView) {
@@ -1232,7 +1232,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // Get a project
             List<ProjectDescriptor> allProjects = getAllProjects();
             ProjectDescriptor project = CollectionUtils.findFirst(allProjects,
-                projectDescriptor -> tableURI.startsWith(projectDescriptor.getRelativeUri()));
+                    projectDescriptor -> tableURI.startsWith(projectDescriptor.getRelativeUri()));
             if (project == null) {
                 return null;
             }
@@ -1246,12 +1246,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return tableURI.startsWith(module1.getRelativeUri());
             });
             repositoryId = projects.entrySet()
-                .stream()
-                .filter(
-                    entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
-                .findFirst()
-                .map(Map.Entry::getKey)
-                .orElse(currentRepositoryId);
+                    .stream()
+                    .filter(
+                            entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
+                    .findFirst()
+                    .map(Map.Entry::getKey)
+                    .orElse(currentRepositoryId);
 
             if (module != null) {
                 projectName = project.getName();
@@ -1277,7 +1277,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return "#" + StringTool.encodeURL(repositoryId) + "/" + StringTool.encodeURL(projectName);
         }
         String moduleUrl = "#" + StringTool.encodeURL(repositoryId) + "/" + StringTool
-            .encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
+                .encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
         if (StringUtils.isBlank(pageUrl)) {
             return moduleUrl;
         }
@@ -1306,8 +1306,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isBranchProtected() {
         return Optional.ofNullable(getCurrentProject())
-            .map(UserWorkspaceProject::isBranchProtected)
-            .orElse(Boolean.FALSE);
+                .map(UserWorkspaceProject::isBranchProtected)
+                .orElse(Boolean.FALSE);
     }
 
     public Map<String, Object> getExternalProperties() {
@@ -1329,8 +1329,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         // move back to previous branch! Because the project is not present in new branch
                         project.setBranch(previousBranch);
                         log.warn(
-                            "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
-                            branch);
+                                "Current project does not exists in '{}' branch! Project branch was switched to the previous one",
+                                branch);
                     }
                     if (project.isDeleted()) {
                         project.close();
@@ -1360,7 +1360,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             RulesProject project = getCurrentProject();
             return ((BranchRepository) getCurrentProject().getDesignRepository())
-                .getBranches(project.getDesignFolderName());
+                    .getBranches(project.getDesignFolderName());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -1379,13 +1379,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return false;
             }
             List<String> branches = ((BranchRepository) project.getDesignRepository())
-                .getBranches(project.getDesignFolderName());
+                    .getBranches(project.getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
                     return true;
                 }
             }
@@ -1410,10 +1410,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         return deploymentManager.getRepositoryConfigNames()
-            .stream()
-            .filter(e -> !DeploymentRepositoriesUtil
-                .isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-            .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
+                .stream()
+                .filter(e -> !DeploymentRepositoriesUtil
+                        .isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
+                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -1438,7 +1438,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
             if (userWorkspace.isOpenedOtherProject(historic)) {
                 throw new Message(
-                    "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.");
+                        "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.");
             }
 
             if (project.isOpened()) {

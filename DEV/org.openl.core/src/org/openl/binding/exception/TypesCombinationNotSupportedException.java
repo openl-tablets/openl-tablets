@@ -9,7 +9,6 @@ import org.openl.types.IOpenClass;
  * If type combination is not possible then this exception is thrown.
  *
  * @author Marat Kamalov
- *
  */
 public class TypesCombinationNotSupportedException extends OpenlNotCheckedException {
 

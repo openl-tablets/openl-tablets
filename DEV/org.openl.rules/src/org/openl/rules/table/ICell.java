@@ -40,7 +40,6 @@ public interface ICell {
     ICellFont getFont();
 
     /**
-     *
      * @return grid region, if cell belongs to any merged region. In other cases <code>null</code>.
      */
     IGridRegion getRegion();
@@ -58,7 +57,7 @@ public interface ICell {
 
     /**
      * @return true if the cell has ability to provide fast access to the native value(cached) If cell has not such an
-     *         ability, the native methods should not be used
+     * ability, the native methods should not be used
      */
 
     boolean hasNativeType();

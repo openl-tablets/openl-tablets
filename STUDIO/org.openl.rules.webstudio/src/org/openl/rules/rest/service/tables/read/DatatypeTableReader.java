@@ -35,8 +35,8 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
             for (int rowId = 0; rowId < table.getHeight(); rowId++) {
                 var row = table.getRow(rowId);
                 var fieldBuilder = DatatypeFieldView.builder()
-                    .type(row.getCell(DatatypeTableWriter.TYPE_COLUMN, 0).getStringValue())
-                    .name(row.getCell(DatatypeTableWriter.NAME_COLUMN, 0).getStringValue());
+                        .type(row.getCell(DatatypeTableWriter.TYPE_COLUMN, 0).getStringValue())
+                        .name(row.getCell(DatatypeTableWriter.NAME_COLUMN, 0).getStringValue());
                 if (row.getWidth() > 2) {
                     var defaultValueCell = row.getCell(DatatypeTableWriter.DEFAULT_VALUE_COLUMN, 0);
                     fieldBuilder.defaultValue(defaultValueCell.getObjectValue());

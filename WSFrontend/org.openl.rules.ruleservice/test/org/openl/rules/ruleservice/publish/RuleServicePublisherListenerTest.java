@@ -15,8 +15,8 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesPublisherTest",
-  "ruleservice.isProvideRuntimeContext=false",
-  "production-repository.factory = repo-file"})
+        "ruleservice.isProvideRuntimeContext=false",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml"})
 public class RuleServicePublisherListenerTest {
 

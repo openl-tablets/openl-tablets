@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
  * If service method parameter is marked with @{@link NoTypeConversion} then type conversation must be avoided.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ElementType.PARAMETER})
 public @interface NoTypeConversion {
 }

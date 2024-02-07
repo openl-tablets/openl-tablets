@@ -41,13 +41,13 @@ public class CellStylesCountTest {
 
         grid.setCellStyle(0, 0, grid.getCell(1, 1).getStyle());
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-            "Styles count should be less than " + MAX_STYLES);
+                "Styles count should be less than " + MAX_STYLES);
     }
 
     @Test
     public void testTableBuilder() throws Exception {
         DatatypeAliasTableBuilder builder = new DatatypeAliasTableBuilder(
-            new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
+                new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, wbSrc)));
 
         builder.beginTable(DatatypeAliasTableBuilder.MIN_WIDTH, TableBuilder.HEADER_HEIGHT);
         builder.writeHeader("a1", "a2");
@@ -55,7 +55,7 @@ public class CellStylesCountTest {
         builder.endTable();
 
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-            "Styles count should be less than " + MAX_STYLES);
+                "Styles count should be less than " + MAX_STYLES);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class CellStylesCountTest {
 
         PoiExcelHelper.cloneStyleFrom(cellFrom);
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-            "Styles count should be less than " + MAX_STYLES);
+                "Styles count should be less than " + MAX_STYLES);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class CellStylesCountTest {
         writer.setValueToWrite(new Date());
         writer.writeCellValue();
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-            "Styles count should be less than " + MAX_STYLES);
+                "Styles count should be less than " + MAX_STYLES);
     }
 
     @Test
@@ -86,6 +86,6 @@ public class CellStylesCountTest {
 
         new CellStyleCreator(grid).getCellStyle(null);
         assertTrue(wbSrc.getWorkbook().getNumCellStyles() < MAX_STYLES,
-            "Styles count should be less than " + MAX_STYLES);
+                "Styles count should be less than " + MAX_STYLES);
     }
 }

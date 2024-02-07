@@ -84,8 +84,8 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private MailConfigModel getValidMailConfigModel() {
         return new MailConfigModel()
-            .setUrl(mailUrl)
-            .setUsername("username@email")
-            .setPassword("password");
+                .setUrl(mailUrl)
+                .setUsername("username@email")
+                .setPassword("password");
     }
 }

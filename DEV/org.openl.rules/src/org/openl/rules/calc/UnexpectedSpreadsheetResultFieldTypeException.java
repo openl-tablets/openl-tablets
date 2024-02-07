@@ -13,9 +13,9 @@ public class UnexpectedSpreadsheetResultFieldTypeException extends OpenlNotCheck
     }
 
     public UnexpectedSpreadsheetResultFieldTypeException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                                         Throwable cause,
+                                                         ILocation location,
+                                                         IOpenSourceCodeModule sourceModule) {
         super(message, cause, location, sourceModule);
     }
 

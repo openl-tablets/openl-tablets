@@ -15,7 +15,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class ArrayInitializationBinder extends ANodeBinder {
 

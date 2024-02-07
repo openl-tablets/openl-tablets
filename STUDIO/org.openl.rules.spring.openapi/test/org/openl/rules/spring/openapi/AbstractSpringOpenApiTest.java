@@ -65,11 +65,11 @@ public abstract class AbstractSpringOpenApiTest {
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
             String regExp = expectedJson.asText()
-                .replaceAll("\\[", "\\\\[")
-                .replaceAll("]", "\\\\]")
-                .replaceAll("#+", "[#\\\\d]+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*");
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("]", "\\\\]")
+                    .replaceAll("#+", "[#\\\\d]+")
+                    .replaceAll("@+", "[@\\\\w]+")
+                    .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
             if (!Pattern.compile(regExp).matcher(actualText).matches()) {
                 failDiff(expectedJson, actualJson, path);

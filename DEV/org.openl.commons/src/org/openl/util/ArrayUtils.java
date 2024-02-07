@@ -37,8 +37,8 @@ public final class ArrayUtils {
 
     /**
      * Repacks an array to the given class
-     * 
-     * @param o array
+     *
+     * @param o             array
      * @param expectedClass classTo
      * @return transformed array if it's possible to convert
      */
@@ -59,7 +59,7 @@ public final class ArrayUtils {
             dim2++;
         }
         if (!returnType.equals(expectedType) && o.getClass().isArray() && expectedType
-            .isAssignableFrom(returnType) && dim1 == dim2) {
+                .isAssignableFrom(returnType) && dim1 == dim2) {
             return convert(o, expectedClass);
         } else {
             return o;

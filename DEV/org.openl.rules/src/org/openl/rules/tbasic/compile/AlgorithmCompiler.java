@@ -34,7 +34,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author User
- *
  */
 public class AlgorithmCompiler {
     /***************************************************************************
@@ -66,14 +65,14 @@ public class AlgorithmCompiler {
         operationPreprocessors.put(OperationType.COMPILE.toString(), new CompilePreprocessor());
         operationPreprocessors.put(OperationType.DECLARE.toString(), new DeclarePreprocessor());
         operationPreprocessors.put(OperationType.DECLARE_ARRAY_ELEMENT.toString(),
-            new DeclareArrayElementPreprocessor());
+                new DeclareArrayElementPreprocessor());
         operationPreprocessors.put(OperationType.SUBROUTINE.toString(), new DeclareSubroutinePreprocessor());
         operationPreprocessors.put(OperationType.FUNCTION.toString(), new DeclareFunctionPreprocessor());
     }
 
     public AlgorithmCompiler(IBindingContext context,
-            IOpenMethodHeader header,
-            List<AlgorithmTreeNode> nodesToCompile) {
+                             IOpenMethodHeader header,
+                             List<AlgorithmTreeNode> nodesToCompile) {
         this.context = context;
         this.header = header;
         this.nodesToCompile = nodesToCompile;
@@ -98,16 +97,16 @@ public class AlgorithmCompiler {
     }
 
     private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile,
-            IOpenClass returnType,
-            CompileContext methodContext,
-            IBindingContext bindingContext) {
+                                               IOpenClass returnType,
+                                               CompileContext methodContext,
+                                               IBindingContext bindingContext) {
         // method name will be at every label
         for (StringValue label : nodesToCompile.get(0).getLabels()) {
             String methodName = label.getValue();
             IOpenMethodHeader methodHeader = new OpenMethodHeader(methodName,
-                returnType,
-                IMethodSignature.VOID,
-                thisTargetClass);
+                    returnType,
+                    IMethodSignature.VOID,
+                    thisTargetClass);
 
             AlgorithmSubroutineMethod method = new AlgorithmSubroutineMethod(methodHeader);
 
@@ -120,7 +119,7 @@ public class AlgorithmCompiler {
             functions.add(new AlgorithmFunctionCompiler(nodesToCompile, methodContext, method, this));
         }
         Map<String, AlgorithmTreeNode> internalLablesOfMethod = AlgorithmCompilerTool
-            .getAllDeclaredLables(nodesToCompile);
+                .getAllDeclaredLables(nodesToCompile);
         methodContext.registerGroupOfLabels(internalLablesOfMethod, bindingContext);
     }
 
@@ -132,15 +131,15 @@ public class AlgorithmCompiler {
     }
 
     private void declareFunction(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep convertionStep,
-            IBindingContext bindingContext) {
+                                 ConversionRuleStep convertionStep,
+                                 IBindingContext bindingContext) {
         String returnValueInstruction = convertionStep.getOperationParam1();
 
         IOpenClass returnType;
         if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
             returnType = getTypeOfField(
-                AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
-                bindingContext);
+                    AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
+                    bindingContext);
         } else {
             // TODO add support of specification instruction
             returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), bindingContext);
@@ -158,15 +157,15 @@ public class AlgorithmCompiler {
     }
 
     private void declareVariable(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep,
-            IBindingContext bindingContext) {
+                                 ConversionRuleStep conversionStep,
+                                 IBindingContext bindingContext) {
         String variableNameParameter = conversionStep.getOperationParam1();
         String variableAssignmentParameter = conversionStep.getOperationParam2();
         StringValue variableName = AlgorithmCompilerTool
-            .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
+                .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
         IOpenClass variableType = getTypeOfField(
-            AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
-            bindingContext);
+                AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
+                bindingContext);
         initNewInternalVariable(variableName.getValue(), variableType);
     }
 
@@ -174,8 +173,8 @@ public class AlgorithmCompiler {
      * Find out the type of the array element. And define the internal variable
      */
     private void declareArrayElement(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep,
-            IBindingContext bindingContext) {
+                                     ConversionRuleStep conversionStep,
+                                     IBindingContext bindingContext) {
         // Points to the location of the elementName in the TBasic table
         //
         String elementNameParameter = conversionStep.getOperationParam1();
@@ -188,20 +187,20 @@ public class AlgorithmCompiler {
         // Extract the element name
         //
         StringValue elementName = AlgorithmCompilerTool
-            .getCellContent(nodesToCompile, elementNameParameter, bindingContext);
+                .getCellContent(nodesToCompile, elementNameParameter, bindingContext);
 
         // Extract the type of the iterable array
         //
         IOpenClass iterableArrayType = getTypeOfField(
-            AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
-            bindingContext);
+                AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
+                bindingContext);
         if (!iterableArrayType.isArray()) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
-                .getAlgorithmRow()
-                .getAction()
-                .asSourceCodeModule();
+                    .getAlgorithmRow()
+                    .getAction()
+                    .asSourceCodeModule();
             BindHelper
-                .processError("Compilation failure. The cell should be of the array type", errorSource, bindingContext);
+                    .processError("Compilation failure. The cell should be of the array type", errorSource, bindingContext);
         }
         IOpenClass elementType = iterableArrayType.getComponentClass();
         initNewInternalVariable(elementName.getValue(), elementType);
@@ -213,15 +212,15 @@ public class AlgorithmCompiler {
 
         if (returnNodes == null || returnNodes.isEmpty()) {
             StringValue lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
-                .getAlgorithmRow()
-                .getAction();
+                    .getAlgorithmRow()
+                    .getAction();
             return getTypeOfField(lastAction, bindingContext);
         } else {
             // get RETURN.condition part of instruction
             String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
             return getTypeOfField(
-                AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
-                bindingContext);
+                    AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
+                    bindingContext);
         }
     }
 
@@ -253,7 +252,7 @@ public class AlgorithmCompiler {
     private List<AlgorithmTreeNode> getMainFunctionBody() {
         int currentOperationIndex = 0;
         while (currentOperationIndex < nodesToCompile.size() && !TBasicSpecificationKey.FUNCTION.toString()
-            .equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword()) && !TBasicSpecificationKey.SUB
+                .equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword()) && !TBasicSpecificationKey.SUB
                 .toString()
                 .equals(nodesToCompile.get(currentOperationIndex).getSpecificationKeyword())) {
             currentOperationIndex++;
@@ -273,14 +272,14 @@ public class AlgorithmCompiler {
         IMethodSignature signature = header.getSignature();
 
         return OpenLManager
-            .makeMethodWithUnknownType(openl,
-                src,
-                "cell_" + fieldContent.getValue(),
-                signature,
-                thisTargetClass,
-                getAlgorithmBindingContext())
-            .getMethod()
-            .getType();
+                .makeMethodWithUnknownType(openl,
+                        src,
+                        "cell_" + fieldContent.getValue(),
+                        signature,
+                        thisTargetClass,
+                        getAlgorithmBindingContext())
+                .getMethod()
+                .getType();
     }
 
     private void initialization(Algorithm algorithm, IBindingContext bindingContext) {
@@ -294,7 +293,7 @@ public class AlgorithmCompiler {
         mainCompileContext = new CompileContext();
         List<AlgorithmTreeNode> mainFunction = getMainFunctionBody();
         mainCompileContext.registerGroupOfLabels(AlgorithmCompilerTool.getAllDeclaredLables(mainFunction),
-            bindingContext);
+                bindingContext);
         functions.add(new AlgorithmFunctionCompiler(mainFunction, mainCompileContext, algorithm, this));
     }
 
@@ -335,7 +334,7 @@ public class AlgorithmCompiler {
         assert !nodesToCompile.isEmpty();
 
         ConversionRuleBean conversionRule = ConversionRulesController.getInstance()
-            .getConvertionRule(nodesToCompile, bindingContext);
+                .getConvertionRule(nodesToCompile, bindingContext);
         if (conversionRule == null) {
             return;
         }
@@ -357,8 +356,8 @@ public class AlgorithmCompiler {
     }
 
     private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep,
-            IBindingContext bindingContext) {
+                                          ConversionRuleStep conversionStep,
+                                          IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
         assert conversionStep != null;
 
@@ -367,12 +366,12 @@ public class AlgorithmCompiler {
             OperationPreprocessor preprocessor = operationPreprocessors.get(operationType);
             if (preprocessor == null) {
                 IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
-                    .getAlgorithmRow()
-                    .getOperation()
-                    .asSourceCodeModule();
+                        .getAlgorithmRow()
+                        .getOperation()
+                        .asSourceCodeModule();
                 BindHelper.processError(String.format("Unknown compilation instruction %s", operationType),
-                    errorSource,
-                    bindingContext);
+                        errorSource,
+                        bindingContext);
             } else {
                 preprocessor.preprocess(nodesToCompile, conversionStep, bindingContext);
             }
@@ -381,18 +380,18 @@ public class AlgorithmCompiler {
 
     public interface OperationPreprocessor {
         void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext);
+                        ConversionRuleStep conversionStep,
+                        IBindingContext bindingContext);
     }
 
     private final class CompilePreprocessor implements OperationPreprocessor {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext) {
+                               ConversionRuleStep conversionStep,
+                               IBindingContext bindingContext) {
             List<AlgorithmTreeNode> nodesToProcess = AlgorithmCompilerTool
-                .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
+                    .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
             try {
                 variablesStack.push(new ArrayList<>());
                 precompileNestedNodes(nodesToProcess, bindingContext);
@@ -412,8 +411,8 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext) {
+                               ConversionRuleStep conversionStep,
+                               IBindingContext bindingContext) {
             declareVariable(nodesToCompile, conversionStep, bindingContext);
         }
     }
@@ -422,8 +421,8 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext) {
+                               ConversionRuleStep conversionStep,
+                               IBindingContext bindingContext) {
             declareArrayElement(nodesToCompile, conversionStep, bindingContext);
         }
     }
@@ -432,8 +431,8 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext) {
+                               ConversionRuleStep conversionStep,
+                               IBindingContext bindingContext) {
             declareSubroutine(nodesToCompile, bindingContext);
         }
     }
@@ -442,8 +441,8 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep,
-                IBindingContext bindingContext) {
+                               ConversionRuleStep conversionStep,
+                               IBindingContext bindingContext) {
             declareFunction(nodesToCompile, conversionStep, bindingContext);
         }
     }

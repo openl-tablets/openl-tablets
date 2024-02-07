@@ -26,8 +26,8 @@ import org.openl.security.acl.permission.AclPermission;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
-  "db.user =",
-  "db.password ="})
+        "db.user =",
+        "db.password ="})
 public class AclServiceTest {
 
     @Autowired

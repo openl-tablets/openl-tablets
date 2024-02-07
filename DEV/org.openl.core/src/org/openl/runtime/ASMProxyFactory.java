@@ -17,20 +17,20 @@ import org.openl.util.ClassUtils;
 
 public final class ASMProxyFactory {
 
-    private static final  AtomicInteger nameCounter = new AtomicInteger(0);
+    private static final AtomicInteger nameCounter = new AtomicInteger(0);
     private static final String HANDLER = "_handler";
     private static final Type HANDLER_TYPE = Type.getType(ASMProxyHandler.class);
     private static final Method INVOKE_HANDLER = Method.getMethod(ASMProxyHandler.class.getDeclaredMethods()[0]);
     private static final Type CLASS_TYPE = Type.getType(Class.class);
     private static final Method GET_METHOD = Method
-        .getMethod("java.lang.reflect.Method getMethod(java.lang.String, java.lang.Class[])");
+            .getMethod("java.lang.reflect.Method getMethod(java.lang.String, java.lang.Class[])");
 
     private ASMProxyFactory() {
     }
 
     public static <T> T newProxyInstance(ClassLoader classLoader, ASMProxyHandler handler, Class<T> proxyInterface) {
         @SuppressWarnings("unchecked")
-        T proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[] { proxyInterface });
+        T proxyInstance = (T) newProxyInstance(classLoader, handler, new Class[]{proxyInterface});
         return proxyInstance;
 
     }
@@ -41,11 +41,11 @@ public final class ASMProxyFactory {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         List<Class<?>> listInterfaces = Arrays.stream(interfaces).collect(Collectors.toList());
         cw.visit(Opcodes.V1_8,
-            Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
-            proxyType.getInternalName(),
-            null,
-            Type.getInternalName(ASMProxy.class),
-            listInterfaces.stream().map(Type::getInternalName).toArray(String[]::new));
+                Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_FINAL,
+                proxyType.getInternalName(),
+                null,
+                Type.getInternalName(ASMProxy.class),
+                listInterfaces.stream().map(Type::getInternalName).toArray(String[]::new));
         writeConstructor(cw, proxyType);
         HashSet<Method> methods = new HashSet<>();
         for (Class<?> proxyInterface : interfaces) {
@@ -70,10 +70,10 @@ public final class ASMProxyFactory {
 
     private static void writeConstructor(ClassWriter cw, Type name) {
         GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
-            Method.getMethod("void <init>(" + ASMProxyHandler.class.getName() + ")"),
-            null,
-            null,
-            cw);
+                Method.getMethod("void <init>(" + ASMProxyHandler.class.getName() + ")"),
+                null,
+                null,
+                cw);
         mv.visitCode();
         mv.loadThis();
         mv.invokeConstructor(Type.getType(ASMProxy.class), Method.getMethod("void <init>()"));
@@ -86,10 +86,10 @@ public final class ASMProxyFactory {
 
     private static void writeMethods(ClassWriter cw, Method method, Type name, Type proxyInterface) {
         GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
-            method,
-            null,
-            new Type[] { Type.getType(Exception.class) },
-            cw);
+                method,
+                null,
+                new Type[]{Type.getType(Exception.class)},
+                cw);
         mv.visitCode();
         mv.loadThis();
         mv.getField(name, HANDLER, HANDLER_TYPE);
@@ -121,7 +121,7 @@ public final class ASMProxyFactory {
             return ((ASMProxy) o)._handler;
         } else {
             throw new IllegalArgumentException(
-                String.format("Expected to be proxied using '%s' class", ASMProxyFactory.class.getTypeName()));
+                    String.format("Expected to be proxied using '%s' class", ASMProxyFactory.class.getTypeName()));
         }
     }
 }

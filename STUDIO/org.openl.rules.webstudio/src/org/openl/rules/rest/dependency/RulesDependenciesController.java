@@ -45,9 +45,9 @@ public class RulesDependenciesController {
 
             var outgoingEdges = graph.outgoingEdgesOf(rulesMethod);
             outgoingEdges.stream()
-                .map(edge -> TableUtils.makeTableId(edge.getTargetVertex().getSourceUrl()))
-                .filter(depId -> !depId.equals(table.getId()))
-                .forEach(table.getDependencies()::add);
+                    .map(edge -> TableUtils.makeTableId(edge.getTargetVertex().getSourceUrl()))
+                    .filter(depId -> !depId.equals(table.getId()))
+                    .forEach(table.getDependencies()::add);
 
             tables.add(table);
         }

@@ -9,7 +9,6 @@ import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
- *
  */
 public class ParameterDeclaration implements IParameterDeclaration {
 
@@ -31,9 +30,9 @@ public class ParameterDeclaration implements IParameterDeclaration {
     }
 
     public ParameterDeclaration(IOpenClass type,
-            String name,
-            String contextProperty,
-            IOpenSourceCodeModule sourceCode) {
+                                String name,
+                                String contextProperty,
+                                IOpenSourceCodeModule sourceCode) {
         this.type = type;
         this.name = name;
         this.contextProperty = contextProperty;

@@ -20,7 +20,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class TypeCastFactory extends AConfigurationElement implements IConfigurationElement {
 
@@ -49,7 +48,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
                         String uri = getUri();
 
                         Class<?> libClass = ClassFactory
-                            .validateClassExistsAndPublic(libraryClassName, classLoader, uri);
+                                .validateClassExistsAndPublic(libraryClassName, classLoader, uri);
                         Class<?> implClass = ClassFactory.validateClassExistsAndPublic(className, classLoader, uri);
 
                         // Strange reflection logic with implementation cast!

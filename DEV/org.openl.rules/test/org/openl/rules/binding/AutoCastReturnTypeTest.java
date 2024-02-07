@@ -19,7 +19,7 @@ public class AutoCastReturnTypeTest {
 
     @Test
     public void testInitializationJavaStyle() {
-        assertArrayEquals(new String[] { "1", "2", "3", "1", "2", "3" }, TestUtils.invoke(instance, "flattenTest"));
-        assertArrayEquals(new Integer[] { 1, 2, -5, 0 }, TestUtils.invoke(instance, "getValuesTest"));
+        assertArrayEquals(new String[]{"1", "2", "3", "1", "2", "3"}, TestUtils.invoke(instance, "flattenTest"));
+        assertArrayEquals(new Integer[]{1, 2, -5, 0}, TestUtils.invoke(instance, "getValuesTest"));
     }
 }

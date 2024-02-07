@@ -34,16 +34,16 @@ public class HistoryRepositoryMapper {
     /**
      * Gets project history log filtered by {@code globalFilter} if present
      *
-     * @param name target project full name
+     * @param name         target project full name
      * @param globalFilter global filer allows regexp.
-     * @param pageable page to display
+     * @param pageable     page to display
      * @return paged history result
      * @throws IOException error
      */
     public PageResponse<ProjectRevision> getProjectHistory(String name,
-            String globalFilter,
-            boolean techRevs,
-            Pageable pageable) throws IOException {
+                                                           String globalFilter,
+                                                           boolean techRevs,
+                                                           Pageable pageable) throws IOException {
         List<FileData> history;
         if (repository.supports().searchable()) {
             history = ((SearchableRepository) repository).listHistory(name, globalFilter, techRevs, pageable);

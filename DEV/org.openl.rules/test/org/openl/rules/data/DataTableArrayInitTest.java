@@ -92,9 +92,9 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     private Object getP(Object obj) throws NoSuchFieldException,
-                                    SecurityException,
-                                    IllegalArgumentException,
-                                    IllegalAccessException {
+            SecurityException,
+            IllegalArgumentException,
+            IllegalAccessException {
         Field field = obj.getClass().getDeclaredField("p");
         field.setAccessible(true);
         Object res = field.get(obj);
@@ -103,9 +103,9 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     private Object[] getVehicles(Object obj) throws NoSuchFieldException,
-                                             SecurityException,
-                                             IllegalArgumentException,
-                                             IllegalAccessException {
+            SecurityException,
+            IllegalArgumentException,
+            IllegalAccessException {
         Field field = obj.getClass().getDeclaredField("vehicles");
         field.setAccessible(true);
         Object[] res = (Object[]) field.get(obj);
@@ -114,9 +114,9 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     private String getModel(Object obj) throws NoSuchFieldException,
-                                        SecurityException,
-                                        IllegalArgumentException,
-                                        IllegalAccessException {
+            SecurityException,
+            IllegalArgumentException,
+            IllegalAccessException {
         Field field = obj.getClass().getDeclaredField("model");
         field.setAccessible(true);
         String res = (String) field.get(obj);
@@ -125,9 +125,9 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     private Object[] getAddressArry(Object obj) throws NoSuchFieldException,
-                                                SecurityException,
-                                                IllegalArgumentException,
-                                                IllegalAccessException {
+            SecurityException,
+            IllegalArgumentException,
+            IllegalAccessException {
         Field field = obj.getClass().getDeclaredField("addressArry");
         field.setAccessible(true);
         Object[] res = (Object[]) field.get(obj);
@@ -136,9 +136,9 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
     }
 
     private int getZip(Object obj) throws NoSuchFieldException,
-                                   SecurityException,
-                                   IllegalArgumentException,
-                                   IllegalAccessException {
+            SecurityException,
+            IllegalArgumentException,
+            IllegalAccessException {
         Field field = obj.getClass().getDeclaredField("zip");
         field.setAccessible(true);
         int res = Integer.parseInt(field.get(obj).toString());

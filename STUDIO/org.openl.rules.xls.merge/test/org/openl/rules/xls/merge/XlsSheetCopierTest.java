@@ -52,7 +52,7 @@ public class XlsSheetCopierTest {
                 Files.createDirectories(destCopyFile.getParent());
             }
             try (Workbook srcWorkbook = WorkbookFactory.create(file, null, true);
-                    Workbook destWorkbook = WorkbookFactory.create(srcWorkbook instanceof XSSFWorkbook)) {
+                 Workbook destWorkbook = WorkbookFactory.create(srcWorkbook instanceof XSSFWorkbook)) {
                 if (srcWorkbook instanceof XSSFWorkbook) {
                     StylesTable srcStylesTable = ((XSSFWorkbook) srcWorkbook).getStylesSource();
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();

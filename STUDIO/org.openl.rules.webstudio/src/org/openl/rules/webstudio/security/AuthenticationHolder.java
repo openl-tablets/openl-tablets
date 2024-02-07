@@ -15,11 +15,11 @@ import org.springframework.security.core.Authentication;
  * does not hold. Should contain password.</li>
  * </ul>
  * </p>
- *
+ * <p>
  * For example needed to easily access user password while filling UserDetails and user authorities in AD.
  */
 public final class AuthenticationHolder {
-    private AuthenticationHolder(){
+    private AuthenticationHolder() {
     }
 
     private static final ThreadLocal<Authentication> AUTHENTICATION_HOLDER = new ThreadLocal<>();

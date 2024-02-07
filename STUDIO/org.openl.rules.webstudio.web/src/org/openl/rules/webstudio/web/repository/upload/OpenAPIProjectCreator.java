@@ -67,15 +67,15 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String algorithmsModuleName;
 
     public OpenAPIProjectCreator(ProjectFile projectFile,
-            String repositoryId,
-            String projectName,
-            String projectFolder,
-            UserWorkspace userWorkspace,
-            String comment,
-            String modelsPath,
-            String algorithmsPath,
-            String modelsModuleName,
-            String algorithmsModuleName) throws ProjectException {
+                                 String repositoryId,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 String modelsPath,
+                                 String algorithmsPath,
+                                 String modelsModuleName,
+                                 String algorithmsModuleName) throws ProjectException {
         super(projectName, projectFolder, userWorkspace);
         this.repositoryId = repositoryId;
         if (!checkFileSize(projectFile)) {
@@ -144,10 +144,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     @Override
     protected RulesProjectBuilder getProjectBuilder() throws ProjectException {
         RulesProjectBuilder projectBuilder = new RulesProjectBuilder(getUserWorkspace(),
-            repositoryId,
-            getProjectName(),
-            getProjectFolder(),
-            comment);
+                repositoryId,
+                getProjectName(),
+                getProjectFolder(),
+                comment);
 
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         try {
@@ -167,19 +167,19 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             environmentModel.setDependencies(Collections.singletonList(modelsModuleName));
 
             addFile(projectBuilder,
-                openAPIHelper.generateDataTypesFile(datatypeModels),
-                modelsPath,
-                "Error uploading dataTypes file.");
+                    openAPIHelper.generateDataTypesFile(datatypeModels),
+                    modelsPath,
+                    "Error uploading dataTypes file.");
 
             addFile(projectBuilder,
-                openAPIHelper.generateAlgorithmsModule(spreadsheetModels, dataModels, environmentModel),
-                algorithmsPath,
-                "Error uploading spreadsheets file.");
+                    openAPIHelper.generateAlgorithmsModule(spreadsheetModels, dataModels, environmentModel),
+                    algorithmsPath,
+                    "Error uploading spreadsheets file.");
 
             addFile(projectBuilder,
-                uploadedOpenAPIFile.getInput(),
-                uploadedOpenAPIFile.getName(),
-                "Error uploading openAPI file.");
+                    uploadedOpenAPIFile.getInput(),
+                    uploadedOpenAPIFile.getName(),
+                    "Error uploading openAPI file.");
 
             OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
             boolean hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
@@ -191,16 +191,16 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             }
 
             InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass,
-                projectModel.getIncludeMethodFilter());
+                    projectModel.getIncludeMethodFilter());
             addFile(projectBuilder,
-                rulesFile,
-                ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
-                String.format("Error uploading %s file.",
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                    rulesFile,
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
+                    String.format("Error uploading %s file.",
+                            ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
-                openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
-                RULES_DEPLOY_XML,
-                "Error uploading rules-deploy.xml file.");
+                    openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
+                    RULES_DEPLOY_XML,
+                    "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
             projectBuilder.cancel();
             throw new ProjectException(e.getMessage(), e);
@@ -210,18 +210,18 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     }
 
     private void addGroovyScriptFile(RulesProjectBuilder projectBuilder,
-            GroovyScriptFile groovyScriptFile) throws ProjectException {
+                                     GroovyScriptFile groovyScriptFile) throws ProjectException {
         String path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
         addFile(projectBuilder,
-            IOUtils.toInputStream(groovyScriptFile.getScriptText()),
-            path,
-            String.format("Error uploading of '%s' file.", groovyScriptFile));
+                IOUtils.toInputStream(groovyScriptFile.getScriptText()),
+                path,
+                String.format("Error uploading of '%s' file.", groovyScriptFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,
-            InputStream inputStream,
-            String fileName,
-            String errorMessage) throws ProjectException {
+                         InputStream inputStream,
+                         String fileName,
+                         String errorMessage) throws ProjectException {
         try (InputStream file = inputStream) {
             projectBuilder.addFile(fileName, file);
         } catch (IOException e) {
@@ -230,7 +230,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     }
 
     private ProjectModel getProjectModel(RulesProjectBuilder projectBuilder,
-            OpenAPIModelConverter converter) throws ProjectException {
+                                         OpenAPIModelConverter converter) throws ProjectException {
         ProjectModel projectModel;
         try {
             projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getTempFile().getAbsolutePath());

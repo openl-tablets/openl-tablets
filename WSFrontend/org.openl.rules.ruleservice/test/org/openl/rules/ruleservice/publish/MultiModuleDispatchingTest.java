@@ -16,7 +16,7 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/MultiModuleDispatchingTest",
-  "production-repository.factory = repo-file"})
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";
@@ -43,7 +43,7 @@ public class MultiModuleDispatchingTest {
 
         // dispatching by java code
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+                OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setLob("lob1_1");
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob2_1");

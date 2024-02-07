@@ -26,14 +26,13 @@ import org.openl.types.IOpenMethodHeader;
 
 /**
  * @author snshor
- *
  */
 public class MethodTableBoundNode extends AMethodBasedNode {
 
     public MethodTableBoundNode(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            IOpenMethodHeader header,
-            ModuleOpenClass module) {
+                                OpenL openl,
+                                IOpenMethodHeader header,
+                                ModuleOpenClass module) {
 
         super(tableSyntaxNode, openl, header, module);
     }

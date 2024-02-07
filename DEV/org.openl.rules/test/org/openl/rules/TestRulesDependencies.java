@@ -37,7 +37,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             assertEquals(1, rulesMethods.size(), "There is only one rules dependency");
 
             ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Rules int getCalcAge(int constant)")
-                .getMember();
+                    .getMember();
             boolean f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 if (executableMethod.getName().equals(dependentMethod.getName())) {
@@ -74,23 +74,23 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
             Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
             expectedRuledDependencies
-                .add((ExecutableMethod) findTable("Rules String driverAgeType(Driver driver)").getMember());
+                    .add((ExecutableMethod) findTable("Rules String driverAgeType(Driver driver)").getMember());
             expectedRuledDependencies
-                .add((ExecutableMethod) findTable("Rules String driverEligibility(Driver driver, String ageType)")
-                    .getMember());
+                    .add((ExecutableMethod) findTable("Rules String driverEligibility(Driver driver, String ageType)")
+                            .getMember());
             expectedRuledDependencies
-                .add((ExecutableMethod) findTable("Rules String driverRisk(Driver driver)").getMember());
+                    .add((ExecutableMethod) findTable("Rules String driverRisk(Driver driver)").getMember());
             expectedRuledDependencies.add((ExecutableMethod) findTable(
-                "Rules DoubleValue driverTypeScore(String driverAgeType, String driverEligibility)").getMember());
+                    "Rules DoubleValue driverTypeScore(String driverAgeType, String driverEligibility)").getMember());
             expectedRuledDependencies.add(
-                (ExecutableMethod) findTable("Rules DoubleValue driverPremium(Driver driver, String driverAgeType)")
-                    .getMember());
+                    (ExecutableMethod) findTable("Rules DoubleValue driverPremium(Driver driver, String driverAgeType)")
+                            .getMember());
             expectedRuledDependencies
-                .add((ExecutableMethod) findTable("Rules DoubleValue driverRiskScore(String driverRisk)").getMember());
+                    .add((ExecutableMethod) findTable("Rules DoubleValue driverRiskScore(String driverRisk)").getMember());
             expectedRuledDependencies.add(
-                (ExecutableMethod) findTable("Rules DoubleValue driverRiskPremium(String driverRisk)").getMember());
+                    (ExecutableMethod) findTable("Rules DoubleValue driverRiskPremium(String driverRisk)").getMember());
             expectedRuledDependencies.add((ExecutableMethod) findTable(
-                "Rules DoubleValue driverAccidentPremium(Driver driver, String driverRisk)").getMember());
+                    "Rules DoubleValue driverAccidentPremium(Driver driver, String driverRisk)").getMember());
 
             int d = 0;
             for (ExecutableMethod executableMethod : rulesMethods) {
@@ -168,7 +168,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
 
         Set<ExecutableMethod> expectedRuledDependencies = new HashSet<>();
         expectedRuledDependencies
-            .add((ExecutableMethod) findTable("Rules DoubleValue riskScore(String driverRisk)").getMember());
+                .add((ExecutableMethod) findTable("Rules DoubleValue riskScore(String driverRisk)").getMember());
         boolean allContains = true;
         for (ExecutableMethod method : expectedRuledDependencies) {
             boolean f = false;

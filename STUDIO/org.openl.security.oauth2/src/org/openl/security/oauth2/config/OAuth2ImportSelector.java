@@ -18,9 +18,9 @@ public class OAuth2ImportSelector implements ImportSelector, BeanFactoryAware {
         var oAuth2Config = beanFactory.getBean(OAuth2Configuration.class);
 
         if (oAuth2Config.getIntrospectionEndpoint().isPresent()) {
-            return new String[] { OAuth2OpaqueAccessTokenConfiguration.class.getName() };
+            return new String[]{OAuth2OpaqueAccessTokenConfiguration.class.getName()};
         } else {
-            return new String[] { OAuth2JwtAccessTokenConfiguration.class.getName() };
+            return new String[]{OAuth2JwtAccessTokenConfiguration.class.getName()};
         }
     }
 

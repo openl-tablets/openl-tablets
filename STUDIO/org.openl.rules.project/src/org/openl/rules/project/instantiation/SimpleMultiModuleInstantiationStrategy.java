@@ -20,15 +20,15 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     private RulesEngineFactory<?> engineFactory;
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            boolean executionMode) {
+                                                  IDependencyManager dependencyManager,
+                                                  ClassLoader classLoader,
+                                                  boolean executionMode) {
         super(modules, dependencyManager, classLoader, executionMode);
     }
 
     public SimpleMultiModuleInstantiationStrategy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            boolean executionMode) {
+                                                  IDependencyManager dependencyManager,
+                                                  boolean executionMode) {
         super(modules, dependencyManager, executionMode);
     }
 
@@ -88,8 +88,8 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[] {};
-                String[] excludes = new String[] {};
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

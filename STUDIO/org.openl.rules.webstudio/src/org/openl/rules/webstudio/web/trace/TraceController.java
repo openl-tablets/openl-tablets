@@ -40,8 +40,8 @@ public class TraceController {
     }
 
     private List<TraceNode> createNodes(Iterable<ITracerObject> children,
-            TraceHelper traceHelper,
-            boolean showRealNumbers) {
+                                        TraceHelper traceHelper,
+                                        boolean showRealNumbers) {
         List<TraceNode> nodes = new ArrayList<>(16);
         for (ITracerObject child : children) {
             nodes.add(createNode(child, traceHelper, showRealNumbers));

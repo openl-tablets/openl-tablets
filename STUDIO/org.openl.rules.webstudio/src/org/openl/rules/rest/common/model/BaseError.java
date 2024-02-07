@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Base Error model for handling Exceptions in WebStudio REST API
- * 
+ *
  * @author Vladyslav Pikus
  * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice
  */

@@ -43,9 +43,9 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
     ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
-            XlsModuleOpenClass moduleOpenClass,
-            ILogicalTable table,
-            OpenL openl) {
+                            XlsModuleOpenClass moduleOpenClass,
+                            ILogicalTable table,
+                            OpenL openl) {
         this.tableSyntaxNode = syntaxNode;
         this.moduleOpenClass = moduleOpenClass;
         this.table = table;
@@ -137,7 +137,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     }
                 } catch (RuntimeException e) {
-                String message = String.format("Cannot parse cell value '%s'.", value);
+                    String message = String.format("Cannot parse cell value '%s'.", value);
                     BindHelper.processError(message, e, defaultValueSrc, cxt);
                 }
             }
@@ -145,16 +145,16 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
         try {
             FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
-                constantName,
-                tableSyntaxNode,
-                tableSyntaxNode.getUri());
+                    constantName,
+                    tableSyntaxNode,
+                    tableSyntaxNode.getUri());
 
             ConstantOpenField constantField = new ConstantOpenField(constantName,
-                objectValue,
-                value,
-                constantType,
-                moduleOpenClass,
-                fieldMetaInfo);
+                    objectValue,
+                    value,
+                    constantType,
+                    moduleOpenClass,
+                    fieldMetaInfo);
 
             moduleOpenClass.addField(constantField);
 

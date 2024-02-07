@@ -44,9 +44,9 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
         for (int row = 1; row < height; row++) {
             var stepParts = SpreadsheetTableReader.splitStepDeclaration(tableBody.getCell(0, row).getStringValue());
             var stepBuilder = SpreadsheetStepView.builder()
-                .name(stepParts.getLeft())
-                .type(stepParts.getRight())
-                .value(tableBody.getCell(1, row).getObjectValue());
+                    .name(stepParts.getLeft())
+                    .type(stepParts.getRight())
+                    .value(tableBody.getCell(1, row).getObjectValue());
             steps.add(stepBuilder.build());
         }
         builder.steps(steps);

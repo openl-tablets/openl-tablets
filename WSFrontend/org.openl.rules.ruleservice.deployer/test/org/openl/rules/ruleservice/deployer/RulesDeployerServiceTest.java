@@ -89,7 +89,7 @@ public class RulesDeployerServiceTest {
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
         verify(mockedDeployRepo, times(1))
-            .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
+                .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
         assertNotNull(fileChangesFromZipCaptor.getValue());
         assertNotNull(fileDataCaptor.getValue());
     }
@@ -123,7 +123,7 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     @Test
@@ -173,7 +173,7 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     @Test
@@ -181,9 +181,9 @@ public class RulesDeployerServiceTest {
         init(Repository.class, false);
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
-            .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
+                .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
         when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
-            .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
+                .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"), output);
         Map<String, byte[]> entries = unzip(new ByteArrayInputStream(output.toByteArray()));
@@ -198,7 +198,7 @@ public class RulesDeployerServiceTest {
     public void testRead2() throws IOException {
         init(Repository.class, false);
         when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2"))
-            .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
+                .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         deployer.read("project2", toSet("project2/project2"), output);
         final byte[] actualBytes = output.toByteArray();
@@ -278,7 +278,7 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     private List<FileItem> catchDeployFileItems() throws IOException {

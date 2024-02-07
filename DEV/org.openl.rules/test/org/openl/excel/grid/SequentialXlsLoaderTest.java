@@ -12,7 +12,7 @@ public class SequentialXlsLoaderTest {
         assertEquals("C:/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("C:\\f1\\f2\\", "m2"));
         assertEquals("file://f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("file://f1/f2/m1", "m2"));
         assertEquals("file://C:/f1/f2/m2",
-            SequentialXlsLoader.getParentAndMergePaths("file://C:\\f1\\f2\\", "m2"));
+                SequentialXlsLoader.getParentAndMergePaths("file://C:\\f1\\f2\\", "m2"));
 
         assertEquals("/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("/f1/./././f2/m1", "m2"));
         assertEquals("/f1/f2/m2", SequentialXlsLoader.getParentAndMergePaths("/f1/f2/", "./m2"));

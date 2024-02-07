@@ -8,9 +8,9 @@ import java.util.concurrent.ForkJoinWorkerThread;
 /**
  * Custom implementation of {@code ForkJoinPool.ForkJoinWorkerThreadFactory} to fix
  * {@link java.security.AccessControlException} when application run with custom {@code java.security.policy} file.
- *
+ * <p>
  * Default {@link ForkJoinPool} factory implementation initializes thread with ProtectionDomain with no privileges:
- * 
+ *
  * <pre>
  *  access:
  *  domain that failed ProtectionDomain null
@@ -18,15 +18,14 @@ import java.util.concurrent.ForkJoinWorkerThread;
  *  <no principals>
  *  null
  * </pre>
- * 
+ * <p>
  * that cause permission check failing
  *
- * @link <a href="https://github.com/opensearch-project/OpenSearch/issues/1649">Is it possible to remove
- *       "modifyThreadGroup" checking from SecureSM?</a>
- * @link <a href="https://stackoverflow.com/q/63059618">How to handle AccessControlException with ProtectionDomain
- *       null</a>
- *
  * @author Vladyslav Pikus
+ * @link <a href="https://github.com/opensearch-project/OpenSearch/issues/1649">Is it possible to remove
+ * "modifyThreadGroup" checking from SecureSM?</a>
+ * @link <a href="https://stackoverflow.com/q/63059618">How to handle AccessControlException with ProtectionDomain
+ * null</a>
  */
 public class WorkerThreadFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
 

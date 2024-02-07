@@ -88,17 +88,17 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                     TextInfo text = new TextInfo(value1.getMiddle());
                     int start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
                     int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
-                                                                                                         // because
-                                                                                                         // location
-                                                                                                         // returns
-                                                                                                         // 'end'
-                                                                                                         // inclusively
+                    // because
+                    // location
+                    // returns
+                    // 'end'
+                    // inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
-                        end,
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        parameterType,
-                        NodeType.DATATYPE));
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            parameterType,
+                            NodeType.DATATYPE));
                 }
             }
 
@@ -117,7 +117,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
             IMetaInfo metaInfo = type.getMetaInfo();
             if (metaInfo != null) {
                 StringSourceCodeModule source = new StringSourceCodeModule(value2.getValue(),
-                    getTableSyntaxNode().getUri());
+                        getTableSyntaxNode().getUri());
                 IdentifierNode[] paramNodes;
                 try {
                     paramNodes = Tokenizer.tokenize(source, "[] \n\r");
@@ -126,10 +126,10 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                 }
                 if (paramNodes.length > 0) {
                     SimpleNodeUsage nodeUsage = new SimpleNodeUsage(paramNodes[0],
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        type,
-                        NodeType.DATATYPE);
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            type,
+                            NodeType.DATATYPE);
                     return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 }
             }

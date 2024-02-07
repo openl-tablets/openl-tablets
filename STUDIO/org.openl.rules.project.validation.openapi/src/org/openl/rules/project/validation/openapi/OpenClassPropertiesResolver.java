@@ -24,7 +24,7 @@ class OpenClassPropertiesResolver {
 
     private IOpenField resolveOpenFieldByPropertyName(IOpenClass openClass, String propertyName) {
         BeanPropertyDefinition beanPropertyDefinition = resolveOpenBeanPropertyDefinitionByPropertyName(openClass,
-            propertyName);
+                propertyName);
         if (beanPropertyDefinition != null) {
             String fieldName;
             if (beanPropertyDefinition.getAccessor() instanceof AnnotatedField) {
@@ -48,10 +48,10 @@ class OpenClassPropertiesResolver {
     }
 
     private BeanPropertyDefinition resolveOpenBeanPropertyDefinitionByPropertyName(IOpenClass openClass,
-            String propertyName) {
+                                                                                   String propertyName) {
         final BeanDescription beanDesc = context.getObjectMapper()
-            .getSerializationConfig()
-            .introspect(TypeFactory.defaultInstance().constructType(openClass.getInstanceClass()));
+                .getSerializationConfig()
+                .introspect(TypeFactory.defaultInstance().constructType(openClass.getInstanceClass()));
         for (BeanPropertyDefinition beanPropertyDefinition : beanDesc.findProperties()) {
             if (Objects.equals(propertyName, beanPropertyDefinition.getName())) {
                 return beanPropertyDefinition;

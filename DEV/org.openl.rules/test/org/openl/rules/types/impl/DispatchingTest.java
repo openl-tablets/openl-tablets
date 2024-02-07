@@ -94,7 +94,7 @@ public class DispatchingTest {
     public void testRequestDate() throws Exception {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        Object[][] testData = { { "2011-08-15", "2012-01-01", 4.0 }, { "2011-08-15", "2009-01-01", 2.0 } };
+        Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
         for (int i = 0; i < testData.length; i++) {
             IRulesRuntimeContext context = initContext();
@@ -145,21 +145,21 @@ public class DispatchingTest {
     public void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
         IRulesRuntimeContext context = initContext();
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = initContext();
         Calendar cal = new GregorianCalendar();
         cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal.getTime());
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = initContext();
         Calendar cal2 = new GregorianCalendar();
         cal2.set(2019, Calendar.OCTOBER, 4, 0, 0, 0);
         cal2.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal2.getTime());
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
     }
 
     public void calcBenchmark() {

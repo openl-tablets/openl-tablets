@@ -10,7 +10,6 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  * Represents OpenL file in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeFile extends AbstractTreeNode {
 
@@ -29,14 +28,18 @@ public class TreeFile extends AbstractTreeNode {
         return EMPTY_LIST;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIcon() {
         // file is always leaf node
         return getIconLeaf();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIconLeaf() {
         // TODO: different types of files should have own icons

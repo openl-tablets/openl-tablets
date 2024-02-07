@@ -46,10 +46,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
 
     private ADeploymentProject(WorkspaceUser user,
-            Repository repository,
-            String folderPath,
-            String version,
-            LockEngine lockEngine) {
+                               Repository repository,
+                               String folderPath,
+                               String version,
+                               LockEngine lockEngine) {
         super(user, repository, folderPath, version);
         this.lockEngine = lockEngine;
     }
@@ -65,10 +65,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public void addProjectDescriptor(String repositoryId,
-            String name,
-            String path,
-            String branch,
-            CommonVersion version) {
+                                     String name,
+                                     String path,
+                                     String branch,
+                                     CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
@@ -156,9 +156,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     fileData.setSize(out.size());
 
                     FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
-                        new ByteArrayInputStream(out.toByteArray()));
+                            new ByteArrayInputStream(out.toByteArray()));
                     setFileData(getRepository()
-                        .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
+                            .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);
                 }
@@ -277,7 +277,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     InputStream content = null;
                     try {
                         content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                            .getContent();
+                                .getContent();
                         List<ProjectDescriptor> newDescriptors = new ProjectDescriptorSerializer().deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;

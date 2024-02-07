@@ -59,10 +59,10 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     @Autowired
     public ProjectDeploymentServiceImpl(ProjectDescriptorArtefactResolver projectDescriptorResolver,
-            DeploymentManager deploymentManager,
-            ProjectVersionCacheManager projectVersionCacheManager,
-            PropertyResolver propertyResolver,
-            RepositoryAclService deployConfigRepositoryAclService) {
+                                        DeploymentManager deploymentManager,
+                                        ProjectVersionCacheManager projectVersionCacheManager,
+                                        PropertyResolver propertyResolver,
+                                        RepositoryAclService deployConfigRepositoryAclService) {
         this.projectDescriptorResolver = projectDescriptorResolver;
         this.deploymentManager = deploymentManager;
         this.projectVersionCacheManager = projectVersionCacheManager;
@@ -77,7 +77,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     @Override
     public List<DeploymentProjectItem> getDeploymentProjectItems(AProject project,
-            String deployRepoName) throws ProjectException {
+                                                                 String deployRepoName) throws ProjectException {
         UserWorkspace userWorkspace = getUserWorkspace();
         if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
             return Collections.emptyList();
@@ -108,7 +108,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             Collection<ProjectDescriptor> descriptors = latestDeploymentVersion.getProjectDescriptors();
             for (ProjectDescriptor<?> descr : descriptors) {
                 if (projectName
-                    .equals(descr.getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId()
+                        .equals(descr.getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId()
                         .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
                     projectDescriptor = descr;
                     break;
@@ -132,7 +132,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             try {
                 deployedProject = getDeployedProject(project, deploymentProject.getName(), deployRepoName);
                 lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
-                    .getDeployedProjectVersion(deployedProject) : null;
+                        .getDeployedProjectVersion(deployedProject) : null;
             } catch (IOException e) {
                 log.debug("Error occurred: ", e);
                 item.setMessages("Internal error while reading project cache.");
@@ -160,7 +160,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 }
             } else {
                 if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !deployConfigRepositoryAclService
-                    .isGranted(deploymentProject, List.of(AclPermission.EDIT)) || isMainBranchProtected(
+                        .isGranted(deploymentProject, List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -189,10 +189,10 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                         } else if (lastDeployedVersion == null) {
                             if (projectVersionCacheManager.isCacheCalculated()) {
                                 item.setMessages(
-                                    "Can be updated to '" + to + "' and then deployed. Deployed version is unknown.");
+                                        "Can be updated to '" + to + "' and then deployed. Deployed version is unknown.");
                             } else {
                                 item.setMessages(
-                                    "Can be updated to '" + to + "' and then deployed. Deployed version is being defined.");
+                                        "Can be updated to '" + to + "' and then deployed. Deployed version is being defined.");
                             }
                         } else {
                             String repositoryId = projectDescriptor.getRepositoryId();
@@ -203,11 +203,11 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                             if (projectDescriptor.getPath() != null) {
                                 try {
                                     version = userWorkspace.getDesignTimeRepository()
-                                        .getProjectByPath(repositoryId,
-                                            projectDescriptor.getBranch(),
-                                            projectDescriptor.getPath(),
-                                            lastDeployedVersion)
-                                        .getVersion();
+                                            .getProjectByPath(repositoryId,
+                                                    projectDescriptor.getBranch(),
+                                                    projectDescriptor.getPath(),
+                                                    lastDeployedVersion)
+                                            .getVersion();
                                 } catch (IOException e) {
                                     log.error(e.getMessage(), e);
                                     version = null;
@@ -215,26 +215,26 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                                 }
                             } else {
                                 version = userWorkspace.getDesignTimeRepository()
-                                    .getProject(repositoryId,
-                                        projectDescriptor.getProjectName(),
-                                        new CommonVersionImpl(lastDeployedVersion))
-                                    .getVersion();
+                                        .getProject(repositoryId,
+                                                projectDescriptor.getProjectName(),
+                                                new CommonVersionImpl(lastDeployedVersion))
+                                        .getVersion();
                             }
 
                             if (version != null) {
                                 if (version.getVersionInfo() == null) {
                                     item.setMessages(
-                                        "Can be updated to '" + to + "' and then deployed. Deployed version is unknown.");
+                                            "Can be updated to '" + to + "' and then deployed. Deployed version is unknown.");
                                 } else {
                                     String from = Utils.getDescriptiveVersion(version, dateTimeFormat);
                                     item.setMessages(
-                                        "Can be updated to '" + to + "' from '" + from + "' and then deployed.");
+                                            "Can be updated to '" + to + "' from '" + from + "' and then deployed.");
                                 }
                             }
                         }
                     } else {
                         item.setMessages(
-                            "The project version will be updated. All dependent projects should be added to deploy configuration.");
+                                "The project version will be updated. All dependent projects should be added to deploy configuration.");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
@@ -244,11 +244,11 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             result.add(item);
         }
         if (!userWorkspace.hasDDProject(projectName) && userWorkspace.getDesignTimeRepository()
-            .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
+                .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
                 userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 null,
                 List.of(AclPermission.CREATE)) && !isMainBranchProtected(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -258,7 +258,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     item.setMessages("Create deploy configuration to deploy.");
                 } else {
                     item.setMessages(
-                        "Create deploy configuration and add all dependent projects to just created deploy configuration.");
+                            "Create deploy configuration and add all dependent projects to just created deploy configuration.");
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
@@ -284,23 +284,23 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     @Override
     public AProject getDeployedProject(AProject wsProject,
-            String deployConfigName,
-            String repositoryConfigName) throws IOException {
+                                       String deployConfigName,
+                                       String repositoryConfigName) throws IOException {
         Repository deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         boolean folderStructure;
 
         if (deployRepo.supports().folders()) {
             folderStructure = !deployRepo
-                .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName))
-                .isEmpty();
+                    .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName))
+                    .isEmpty();
         } else {
             folderStructure = false;
         }
         Deployment deployment = new Deployment(deployRepo,
-            deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + deployConfigName,
-            deployConfigName,
-            null,
-            folderStructure);
+                deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + deployConfigName,
+                deployConfigName,
+                null,
+                folderStructure);
         return (AProject) deployment.getProject(wsProject.getName());
     }
 
@@ -320,21 +320,21 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
                 if (!deployConfigRepositoryAclService.isGranted(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                    null,
-                    List.of(AclPermission.CREATE))) {
+                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                        null,
+                        List.of(AclPermission.CREATE))) {
                     WebStudioUtils
-                        .addErrorMessage("There is no permission for creating a new deployment configuration.");
+                            .addErrorMessage("There is no permission for creating a new deployment configuration.");
                     return null;
                 }
                 // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
-                    AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
-                    true)) {
+                        AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
+                        true)) {
                     String message = String.format(
-                        "Granting permissions to a new deployment configuration '%s' is failed.",
-                        ProjectArtifactUtils.extractResourceName(deployConfiguration));
+                            "Granting permissions to a new deployment configuration '%s' is failed.",
+                            ProjectArtifactUtils.extractResourceName(deployConfiguration));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }
@@ -349,27 +349,27 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             }
 
             boolean sameVersion = deployConfiguration
-                .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
+                    .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
                     .compareTo(
-                        deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
+                            deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
             } else if (deployConfiguration.isLocked()) {
                 // someone else is locked it while we were thinking
                 WebStudioUtils
-                    .addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by another user.");
+                        .addWarnMessage("Deploy configuration '" + deploymentName + "' is locked by another user.");
                 return null;
             } else {
                 deployConfiguration.open();
                 // rewrite project->version
                 String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
                 deployConfiguration.addProjectDescriptor(project.getRepository()
-                    .getId(), project.getBusinessName(), project.getRealPath(), branch, project.getVersion());
+                        .getId(), project.getBusinessName(), project.getRealPath(), branch, project.getVersion());
 
                 Comments deployConfigRepoComments = new Comments(propertyResolver, repoId);
                 String comment = create ? deployConfigRepoComments.createProject(deploymentName)
-                                        : deployConfigRepoComments.saveProject(deploymentName);
+                        : deployConfigRepoComments.saveProject(deploymentName);
                 deployConfiguration.getFileData().setComment(comment);
 
                 deployConfiguration.save();

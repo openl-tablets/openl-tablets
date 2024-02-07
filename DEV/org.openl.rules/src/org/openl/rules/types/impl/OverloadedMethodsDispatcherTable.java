@@ -32,8 +32,8 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
             return openMethod.invoke(target, updateArguments(params, env, openMethod), env);
         } else {
             log.warn(
-                "Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
+                    "Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
             return super.invoke(target, params, env);
         }
     }

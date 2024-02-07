@@ -31,9 +31,9 @@ public class ShowMessageBean {
         Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
 
         return moduleMessages.stream()
-            .filter(m -> m.getId() == openLMessageId)
-            .findFirst()
-            .map(Collections::singletonList)
-            .orElse(Collections.emptyList());
+                .filter(m -> m.getId() == openLMessageId)
+                .findFirst()
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
     }
 }

@@ -34,10 +34,10 @@ class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
     @Override
     public byte[] byteCode() {
         return new WrapperBeanClassGenerator(beanName,
-            fields,
-            parentType,
-            parentFields,
-            originalMethodTypeFields,
-            methodName).byteCode();
+                fields,
+                parentType,
+                parentFields,
+                originalMethodTypeFields,
+                methodName).byteCode();
     }
 }

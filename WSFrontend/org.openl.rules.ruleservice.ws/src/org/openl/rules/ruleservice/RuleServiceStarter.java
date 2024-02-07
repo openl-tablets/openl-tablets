@@ -7,7 +7,6 @@ import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 
 /**
  * Application main class. Sets up other classes.
- *
  */
 public final class RuleServiceStarter {
     private RuleServiceStarter() {

@@ -15,7 +15,7 @@ public class MockRuntimeEnv implements IRuntimeEnv {
     private IRuntimeContext context;
 
     public MockRuntimeEnv(MockRuntimeEnv mockRuntimeEnv) {
-        this(new MockRunner(), 0, new Object[] {});
+        this(new MockRunner(), 0, new Object[]{});
         this.pushThis(mockRuntimeEnv.getThis());
         this.pushLocalFrame(this.getLocalFrame());
     }

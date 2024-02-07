@@ -1,9 +1,7 @@
 package org.openl.rules.table.ui;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public interface ICellFont {
 

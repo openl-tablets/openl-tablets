@@ -16,6 +16,7 @@ import java.io.Serializable;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of a {@link Goal} that instaintiates the constraint integer variable.
  * <p>
@@ -26,7 +27,6 @@ import java.io.Serializable;
  * GoalInstantiate can use both recursive and non-recursive search algorithms. Recursive implementation iterates the
  * domain looking for a value that can be assigned to a variable by GoalSetValue. Non-recursive implementations invokes
  * GoalSetValue ones and removes the given value if it fails.
- *
  */
 public class GoalInstantiate extends GoalImpl {
     /**

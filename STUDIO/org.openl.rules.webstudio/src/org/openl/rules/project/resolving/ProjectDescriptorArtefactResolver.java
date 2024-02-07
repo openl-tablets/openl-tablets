@@ -55,7 +55,7 @@ public class ProjectDescriptorArtefactResolver {
         }
 
         AProjectArtefact artefact = project
-            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (artefact instanceof AProjectResource) {
             InputStream content = null;
             try {
@@ -83,9 +83,9 @@ public class ProjectDescriptorArtefactResolver {
         } catch (Exception e) {
             // Error in user data, not application logic - debug log level will be used
             log.warn("Cannot get project descriptor for project '{}'. Physical project name will be used. Cause: {}",
-                project.getName(),
-                e.getMessage(),
-                e);
+                    project.getName(),
+                    e.getMessage(),
+                    e);
         }
         if (pd != null) {
             return pd.getName();

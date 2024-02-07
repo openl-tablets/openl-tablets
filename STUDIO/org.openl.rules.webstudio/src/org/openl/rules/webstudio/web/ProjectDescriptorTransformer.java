@@ -41,8 +41,8 @@ public class ProjectDescriptorTransformer implements ResourceTransformer {
 
             try {
                 IProjectDescriptorSerializer serializer = WebStudioUtils
-                    .getBean(ProjectDescriptorSerializerFactory.class)
-                    .getSerializer(resource);
+                        .getBean(ProjectDescriptorSerializerFactory.class)
+                        .getSerializer(resource);
                 ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(newProjectName);
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));

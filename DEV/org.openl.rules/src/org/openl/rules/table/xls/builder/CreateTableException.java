@@ -17,7 +17,7 @@ public class CreateTableException extends Exception {
      * be initialized by a call to {@link #initCause}.
      *
      * @param message the detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
-     *            method.
+     *                method.
      */
     public CreateTableException(String message) {
         super(message);
@@ -30,8 +30,8 @@ public class CreateTableException extends Exception {
      * exception's detail message.
      *
      * @param message the detail message (which is saved for later retrieval by the {@link #getMessage()} method).
-     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
-     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
+     * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
+     *                value is permitted, and indicates that the cause is nonexistent or unknown.)
      * @since 1.4
      */
     public CreateTableException(String message, Throwable cause) {
@@ -45,7 +45,7 @@ public class CreateTableException extends Exception {
      * throwables (for example, {@link java.security.PrivilegedActionException}).
      *
      * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
-     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
+     *              value is permitted, and indicates that the cause is nonexistent or unknown.)
      * @since 1.4
      */
     public CreateTableException(Throwable cause) {

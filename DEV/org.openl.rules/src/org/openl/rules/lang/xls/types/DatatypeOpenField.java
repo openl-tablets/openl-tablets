@@ -25,10 +25,10 @@ public class DatatypeOpenField extends AOpenField {
     private final String contextProperty;
 
     public DatatypeOpenField(IOpenClass declaringClass,
-            String name,
-            IOpenClass type,
-            String contextProperty,
-            boolean isTransient) {
+                             String name,
+                             IOpenClass type,
+                             String contextProperty,
+                             boolean isTransient) {
         super(name, type);
         this.declaringClass = declaringClass;
         this.contextProperty = contextProperty;

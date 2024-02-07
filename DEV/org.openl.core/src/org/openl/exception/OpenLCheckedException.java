@@ -6,7 +6,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * Parent for OpenL Java exceptions.
- *
  */
 public class OpenLCheckedException extends Exception implements OpenLException {
 
@@ -32,9 +31,9 @@ public class OpenLCheckedException extends Exception implements OpenLException {
     }
 
     public OpenLCheckedException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                 Throwable cause,
+                                 ILocation location,
+                                 IOpenSourceCodeModule sourceModule) {
         super(message, cause);
         this.location = location;
         if (sourceModule != null) {

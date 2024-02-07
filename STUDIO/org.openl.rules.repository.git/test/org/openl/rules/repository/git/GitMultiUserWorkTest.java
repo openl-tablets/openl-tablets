@@ -71,7 +71,7 @@ public class GitMultiUserWorkTest {
                         if ((commitNo + 1) % 10 == 0) {
                             repo.merge(branchName, new UserInfo("admin", "admin@email", "Admin"), null);
                             assertTrue(repo.isMergedInto(branchName, repo.getBranch()),
-                                "Branch must be merged to the master");
+                                    "Branch must be merged to the master");
                         }
                     }
                     repo.deleteBranch(projectPath, branchName);

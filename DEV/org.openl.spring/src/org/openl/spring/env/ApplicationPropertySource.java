@@ -43,7 +43,7 @@ import org.openl.util.StringUtils;
  * <li>file:openl/prod.properties</li>
  * <li>file:openl/qa.properties</li>
  * </ol>
- * 
+ * <p>
  * Default Application externalized configuration: <br>
  * Can be overridden using {@code openl.config.name} or {@code spring.config.name} properties for names. <br>
  * And {@code openl.config.location} or {@code spring.config.location} properties for folders and locations.
@@ -75,11 +75,11 @@ import org.openl.util.StringUtils;
  * <li>file:${user.home}/{appName}-{profile}.properties</li>
  * </ol>
  *
- * @see <a href=
- *      "https://docs.spring.io/spring-boot/docs/current/reference
- *          /html/spring-boot-features.html#boot-features-external-config">Spring
- *      Boot. Externalized Configuration.</a>
  * @author Yury Molchan
+ * @see <a href=
+ * "https://docs.spring.io/spring-boot/docs/current/reference
+ * /html/spring-boot-features.html#boot-features-external-config">Spring
+ * Boot. Externalized Configuration.</a>
  */
 public class ApplicationPropertySource extends EnumerablePropertySource<Deque<PropertySource<?>>> {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertySource.class);
@@ -173,13 +173,13 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         }
 
         Arrays.sort(resources,
-            Comparator.comparing(Resource::getFilename,
-                Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder())));
+                Comparator.comparing(Resource::getFilename,
+                        Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder())));
         for (Resource resource : resources) {
             try {
                 if (resource.exists()) {
                     Map<String, String> props = new HashMap<>();
-                    try( var in = resource.getInputStream()) {
+                    try (var in = resource.getInputStream()) {
                         PropertiesUtils.load(in, props::put);
                     }
                     if (isProfiled) {

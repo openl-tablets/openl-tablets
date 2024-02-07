@@ -43,16 +43,16 @@ public class AclCommandSupportTest {
             fail();
         } catch (CommandFormatException e) {
             assertEquals(
-                String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
-                e.getMessage());
+                    String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
+                    e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD1");
             fail();
         } catch (CommandFormatException e) {
             assertEquals(
-                String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
-                e.getMessage());
+                    String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
+                    e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN:/DESIGN/rules/Project1:user:username:VIEW,ADD1");

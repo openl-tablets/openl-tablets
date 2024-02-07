@@ -24,7 +24,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
     static {
         WrapperValidation.validateWrapperClass(AbstractColumnMatchWrapper.class,
-            AbstractColumnMatchWrapper.class.getSuperclass());
+                AbstractColumnMatchWrapper.class.getSuperclass());
     }
 
     protected final ColumnMatch delegate;

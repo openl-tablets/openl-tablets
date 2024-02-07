@@ -14,7 +14,6 @@ import org.openl.rules.security.Privilege;
 
 /**
  * Maps JWT claims to OpenL {@link Privilege}s.
- *
  */
 public class OpenLJwtGrantedAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
@@ -22,7 +21,7 @@ public class OpenLJwtGrantedAuthoritiesConverter implements Converter<Jwt, Colle
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
 
     public OpenLJwtGrantedAuthoritiesConverter(JwtGrantedAuthoritiesConverter delegate,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                               BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.delegate = delegate;
         this.privilegeMapper = privilegeMapper;
     }

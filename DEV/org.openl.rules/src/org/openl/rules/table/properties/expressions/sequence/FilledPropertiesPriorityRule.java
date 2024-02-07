@@ -12,7 +12,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 public class FilledPropertiesPriorityRule implements IPriorityRule {
 
     private static final String[] dimensionProperties = TablePropertyDefinitionUtils
-        .getDimensionalTablePropertiesNames();
+            .getDimensionalTablePropertiesNames();
 
     @Override
     public int compare(ITableProperties properties1, ITableProperties properties2) {

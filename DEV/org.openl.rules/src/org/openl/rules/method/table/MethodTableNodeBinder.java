@@ -15,15 +15,14 @@ import org.openl.types.impl.OpenMethodHeader;
 
 /**
  * @author snshor
- *
  */
 public class MethodTableNodeBinder extends AExecutableNodeBinder {
 
     @Override
     protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            OpenMethodHeader header,
-            XlsModuleOpenClass module) {
+                                          OpenL openl,
+                                          OpenMethodHeader header,
+                                          XlsModuleOpenClass module) {
 
         return new MethodTableBoundNode(tableSyntaxNode, openl, header, module);
     }

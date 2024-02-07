@@ -16,7 +16,7 @@ import org.openl.util.conf.Version;
  * Finds table with biggest version(it will later table) or "active" table;
  *
  * @return -1 if the first later or "active", 1 if second later "active" and 0 if tables are "inactive" and have similar
- *         versions
+ * versions
  */
 public final class TableVersionComparator implements Comparator<ITableProperties> {
 
@@ -32,7 +32,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
             throw new IllegalArgumentException(
-                "Incomparable tables. Tables should have similar name, signature and dimension properties.");
+                    "Incomparable tables. Tables should have similar name, signature and dimension properties.");
         }
         return compare(PropertiesHelper.getTableProperties(first), PropertiesHelper.getTableProperties(second));
     }

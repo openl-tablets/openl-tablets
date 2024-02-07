@@ -27,8 +27,8 @@ import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class,
-  UserManagementConfiguration.class,
-  AclServiceTestConfiguration.class})
+        UserManagementConfiguration.class,
+        AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password ="})
 public class UserManagementTest {
 
@@ -103,12 +103,12 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-            .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
-            .withFeature(Feature.EXTERNAL_LAST_NAME)
-            .withFeature(Feature.EXTERNAL_FIRST_NAME)
-            .withFeature(Feature.EXTERNAL_EMAIL)
-            .withFeature(Feature.EMAIL_VERIFIED)
-            .getRawFeatures();
+                .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
+                .withFeature(Feature.EXTERNAL_LAST_NAME)
+                .withFeature(Feature.EXTERNAL_FIRST_NAME)
+                .withFeature(Feature.EXTERNAL_EMAIL)
+                .withFeature(Feature.EMAIL_VERIFIED)
+                .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(4, queryCount.getSelect());
@@ -135,12 +135,12 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-            .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
-            .withFeature(Feature.EXTERNAL_LAST_NAME)
-            .withFeature(Feature.EXTERNAL_FIRST_NAME)
-            .withFeature(Feature.EXTERNAL_EMAIL)
-            .withFeature(Feature.EMAIL_VERIFIED)
-            .getRawFeatures();
+                .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
+                .withFeature(Feature.EXTERNAL_LAST_NAME)
+                .withFeature(Feature.EXTERNAL_FIRST_NAME)
+                .withFeature(Feature.EXTERNAL_EMAIL)
+                .withFeature(Feature.EMAIL_VERIFIED)
+                .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(5, queryCount.getSelect());
@@ -168,12 +168,12 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-            .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
-            .withFeature(Feature.EXTERNAL_LAST_NAME)
-            .withFeature(Feature.EXTERNAL_FIRST_NAME)
-            .withoutFeature(Feature.EXTERNAL_EMAIL)
-            .withFeature(Feature.EMAIL_VERIFIED)
-            .getRawFeatures();
+                .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
+                .withFeature(Feature.EXTERNAL_LAST_NAME)
+                .withFeature(Feature.EXTERNAL_FIRST_NAME)
+                .withoutFeature(Feature.EXTERNAL_EMAIL)
+                .withFeature(Feature.EMAIL_VERIFIED)
+                .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(7, queryCount.getSelect());
@@ -200,12 +200,12 @@ public class UserManagementTest {
         assertFalse(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-            .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
-            .withoutFeature(Feature.EXTERNAL_LAST_NAME)
-            .withoutFeature(Feature.EXTERNAL_FIRST_NAME)
-            .withoutFeature(Feature.EXTERNAL_EMAIL)
-            .withFeature(Feature.EMAIL_VERIFIED)
-            .getRawFeatures();
+                .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
+                .withoutFeature(Feature.EXTERNAL_LAST_NAME)
+                .withoutFeature(Feature.EXTERNAL_FIRST_NAME)
+                .withoutFeature(Feature.EXTERNAL_EMAIL)
+                .withFeature(Feature.EMAIL_VERIFIED)
+                .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(7, queryCount.getSelect());
@@ -226,9 +226,9 @@ public class UserManagementTest {
     @Test
     public void testSave() {
         Consumer<String> saveTask = username -> userService
-            .addUser(username, "John", "Doe", "qwerty", "jdoe@test", "John Doe");
+                .addUser(username, "John", "Doe", "qwerty", "jdoe@test", "John Doe");
 
-        String[] forbiddenNames = { "a..aa",
+        String[] forbiddenNames = {"a..aa",
                 ".aa",
                 "aa.",
                 " aa",
@@ -251,7 +251,7 @@ public class UserManagementTest {
                 "a\u2029",
                 "a\t",
                 "a\n",
-                "a\r" };
+                "a\r"};
         for (String username : forbiddenNames) {
             try {
                 saveTask.accept(username);
@@ -263,7 +263,7 @@ public class UserManagementTest {
             assertFalse(userService.existsByName(username));
         }
 
-        String[] allowedNames = { "a1!@#$&()_-+='.,", "фы漢語,汉语ęął", "a" };
+        String[] allowedNames = {"a1!@#$&()_-+='.,", "фы漢語,汉语ęął", "a"};
         for (String username : allowedNames) {
             saveTask.accept(username);
             assertTrue(userService.existsByName(username));

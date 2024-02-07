@@ -38,9 +38,9 @@ public class OpenAPITypeUtils {
     public static final String DEFAULT_RUNTIME_CONTEXT = "DefaultRulesRuntimeContext";
     public static final String LINK_TO_DEFAULT_RUNTIME_CONTEXT = SCHEMAS_LINK + DEFAULT_RUNTIME_CONTEXT;
     public static final TypeInfo RUNTIME_CONTEXT_TYPE = new TypeInfo(IRulesRuntimeContext.class,
-        TypeInfo.Type.RUNTIMECONTEXT);
+            TypeInfo.Type.RUNTIMECONTEXT);
     public static final TypeInfo SPREADSHEET_RESULT_TYPE = new TypeInfo(SpreadsheetResult.class,
-        TypeInfo.Type.SPREADSHEET);
+            TypeInfo.Type.SPREADSHEET);
 
     public static final String OBJECT = "Object";
     public static final String DATE = "Date";
@@ -64,41 +64,41 @@ public class OpenAPITypeUtils {
 
     private static Map<String, TypeInfo> initPrimitiveMap() {
         return Map.of(float.class.getSimpleName(),
-            new TypeInfo(float.class),
-            double.class.getSimpleName(),
-            new TypeInfo(double.class),
-            long.class.getSimpleName(),
-            new TypeInfo(long.class),
-            int.class.getSimpleName(),
-            new TypeInfo(int.class),
-            boolean.class.getSimpleName(),
-            new TypeInfo(boolean.class));
+                new TypeInfo(float.class),
+                double.class.getSimpleName(),
+                new TypeInfo(double.class),
+                long.class.getSimpleName(),
+                new TypeInfo(long.class),
+                int.class.getSimpleName(),
+                new TypeInfo(int.class),
+                boolean.class.getSimpleName(),
+                new TypeInfo(boolean.class));
     }
 
     private static Map<String, TypeInfo> initWrapperMap() {
         return Map.of(Date.class.getSimpleName(),
-            new TypeInfo(Date.class),
-            String.class.getSimpleName(),
-            new TypeInfo(String.class),
-            float.class.getSimpleName(),
-            new TypeInfo(Float.class),
-            double.class.getSimpleName(),
-            new TypeInfo(Double.class),
-            long.class.getSimpleName(),
-            new TypeInfo(Long.class),
-            int.class.getSimpleName(),
-            new TypeInfo(Integer.class),
-            boolean.class.getSimpleName(),
-            new TypeInfo(Boolean.class),
-            Object.class.getSimpleName(),
-            new TypeInfo(Object.class),
-            "bigInt",
-            new TypeInfo(BigInteger.class));
+                new TypeInfo(Date.class),
+                String.class.getSimpleName(),
+                new TypeInfo(String.class),
+                float.class.getSimpleName(),
+                new TypeInfo(Float.class),
+                double.class.getSimpleName(),
+                new TypeInfo(Double.class),
+                long.class.getSimpleName(),
+                new TypeInfo(Long.class),
+                int.class.getSimpleName(),
+                new TypeInfo(Integer.class),
+                boolean.class.getSimpleName(),
+                new TypeInfo(Boolean.class),
+                Object.class.getSimpleName(),
+                new TypeInfo(Object.class),
+                "bigInt",
+                new TypeInfo(BigInteger.class));
     }
 
     public static TypeInfo extractType(OpenAPIRefResolver openAPIRefResolver,
-            Schema<?> schema,
-            boolean allowPrimitiveTypes) {
+                                       Schema<?> schema,
+                                       boolean allowPrimitiveTypes) {
         boolean isRefToComplexType = false;
         Schema<?> foundSchema = null;
         if (schema.get$ref() != null) {
@@ -124,7 +124,7 @@ public class OpenAPITypeUtils {
         TypeInfo result = null;
         if ("string".equals(schemaType)) {
             result = "date".equals(format) || "date-time".equals(format) ? WRAPPER_CLASSES.get(DATE)
-                                                                         : WRAPPER_CLASSES.get(STRING);
+                    : WRAPPER_CLASSES.get(STRING);
         } else if ("number".equals(schemaType)) {
             if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);
@@ -134,10 +134,10 @@ public class OpenAPITypeUtils {
         } else if ("integer".equals(schemaType)) {
             if ("int64".equals(format)) {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(LONG_PRIMITIVE)
-                                             : WRAPPER_CLASSES.get(LONG_PRIMITIVE);
+                        : WRAPPER_CLASSES.get(LONG_PRIMITIVE);
             } else if ("int32".equals(format)) {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
-                                             : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
+                        : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             } else {
                 result = WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             }
@@ -150,19 +150,19 @@ public class OpenAPITypeUtils {
             int dim = type.getDimension() + 1;
             if (type.isReference()) {
                 result = new TypeInfo(name,
-                    name,
-                    type.getType() == TypeInfo.Type.SPREADSHEET || type
-                        .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
-                    dim,
-                    true);
+                        name,
+                        type.getType() == TypeInfo.Type.SPREADSHEET || type
+                                .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
+                        dim,
+                        true);
             } else {
                 String className = getArrayClassName(type.getJavaName(), dim);
                 result = new TypeInfo(className,
-                    name,
-                    type.getType() == TypeInfo.Type.SPREADSHEET || type
-                        .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
-                    dim,
-                    false);
+                        name,
+                        type.getType() == TypeInfo.Type.SPREADSHEET || type
+                                .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
+                        dim,
+                        false);
             }
         }
         if (result == null) {
@@ -217,12 +217,12 @@ public class OpenAPITypeUtils {
 
     public static boolean isSimpleType(String type) {
         return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
-            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT.equals(type) || isPrimitiveType(type);
+                .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT.equals(type) || isPrimitiveType(type);
     }
 
     public static boolean isPrimitiveType(String type) {
         return FLOAT_PRIMITIVE.equals(type) || BOOLEAN_PRIMITIVE.equals(type) || INTEGER_PRIMITIVE
-            .equals(type) || LONG_PRIMITIVE.equals(type) || DOUBLE_PRIMITIVE.equals(type);
+                .equals(type) || LONG_PRIMITIVE.equals(type) || DOUBLE_PRIMITIVE.equals(type);
     }
 
     public static String getSimpleValue(String type) {
@@ -329,16 +329,16 @@ public class OpenAPITypeUtils {
     public static Map<String, List<String>> getChildrenMap(OpenAPI openAPI) {
         Map<String, Schema> allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
         Map<String, List<Map.Entry<String, Schema>>> groupedByParent = allSchemas.entrySet()
-            .stream()
-            .filter(entry -> isComposedSchema(entry.getValue()))
-            .filter(entry -> OpenAPITypeUtils.getParentName((ComposedSchema) entry.getValue(), openAPI) != null)
-            .collect(Collectors
-                .groupingBy(entry -> OpenAPITypeUtils.getParentName((ComposedSchema) entry.getValue(), openAPI)));
+                .stream()
+                .filter(entry -> isComposedSchema(entry.getValue()))
+                .filter(entry -> OpenAPITypeUtils.getParentName((ComposedSchema) entry.getValue(), openAPI) != null)
+                .collect(Collectors
+                        .groupingBy(entry -> OpenAPITypeUtils.getParentName((ComposedSchema) entry.getValue(), openAPI)));
 
         return groupedByParent.entrySet()
-            .stream()
-            .collect(Collectors.toMap(mapEntry -> SCHEMAS_LINK + mapEntry.getKey(),
-                entry -> entry.getValue().stream().map(x -> SCHEMAS_LINK + x.getKey()).collect(Collectors.toList())));
+                .stream()
+                .collect(Collectors.toMap(mapEntry -> SCHEMAS_LINK + mapEntry.getKey(),
+                        entry -> entry.getValue().stream().map(x -> SCHEMAS_LINK + x.getKey()).collect(Collectors.toList())));
     }
 
     public static Map<String, Schema> getFieldsOfChild(ComposedSchema cs) {

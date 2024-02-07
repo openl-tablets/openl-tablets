@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
  * not passed to the rule, but can be used by other parts of the system. For example: CXF, interceptors etc.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ElementType.PARAMETER})
 public @interface ExternalParam {
 }

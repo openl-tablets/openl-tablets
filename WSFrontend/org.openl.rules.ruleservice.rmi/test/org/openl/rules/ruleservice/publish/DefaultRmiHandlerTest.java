@@ -16,10 +16,10 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
 @TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
-  "ruleservice.rmiPort=31099",
-  "ruleservice.publishers=RMI",
-  "production-repository.uri=test-resources/DefaultRmiHandlerTest",
-  "production-repository.factory = repo-file"})
+        "ruleservice.rmiPort=31099",
+        "ruleservice.publishers=RMI",
+        "production-repository.uri=test-resources/DefaultRmiHandlerTest",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class DefaultRmiHandlerTest {
 
@@ -34,12 +34,12 @@ public class DefaultRmiHandlerTest {
 
         Registry registry = LocateRegistry.getRegistry(31099);
         DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler) registry
-            .lookup("DefaultRmiHandlerTest/simpleProject");
+                .lookup("DefaultRmiHandlerTest/simpleProject");
 
         assertNotNull(defaultRmiHandler);
 
         String result = (String) defaultRmiHandler
-            .execute("baseHello", new Class<?>[] { int.class }, new Object[] { 10 });
+                .execute("baseHello", new Class<?>[]{int.class}, new Object[]{10});
 
         assertEquals("Good Morning", result);
 

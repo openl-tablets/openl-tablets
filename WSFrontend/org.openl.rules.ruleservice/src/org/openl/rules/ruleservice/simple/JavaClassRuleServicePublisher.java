@@ -49,7 +49,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             OpenLService registeredService = frontend.findServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
-                    String.format("Service '%s' is already deployed.", service.getName()));
+                        String.format("Service '%s' is already deployed.", service.getName()));
             }
             frontend.registerService(service);
             runningServices.put(service.getDeployPath(), service);

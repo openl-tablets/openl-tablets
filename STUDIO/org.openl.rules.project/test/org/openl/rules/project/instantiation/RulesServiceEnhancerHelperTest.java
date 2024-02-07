@@ -20,7 +20,7 @@ public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassDecoration() throws Exception {
         Class<?> enhanced = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
     }
 
@@ -30,7 +30,7 @@ public class RulesServiceEnhancerHelperTest {
         for (Method method : simple.getMethods()) {
             try {
                 Method m = enhanced.getMethod(method.getName(),
-                    ArrayUtils.insert(0, method.getParameterTypes(), IRulesRuntimeContext.class));
+                        ArrayUtils.insert(0, method.getParameterTypes(), IRulesRuntimeContext.class));
                 assertTrue(Modifier.isPublic(m.getModifiers()));
                 if (checkAnnotations) {
                     // check annotations: all annotations should remain after
@@ -55,10 +55,10 @@ public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassUndecoration() throws Exception {
         Class<?> undecorated = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced.class, undecorated, true);
         Class<?> undecorated2 = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced2.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced2.class, undecorated2, true);
     }
 

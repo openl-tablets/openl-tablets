@@ -14,8 +14,7 @@ public class Version implements Comparable<Version> {
 
     private interface IVersionStartPatternFinder {
         /**
-         *
-         * @param s target string
+         * @param s             target string
          * @param previousStart index of previously found start or -1 if this is first
          * @return index of possible start for version or -1
          */
@@ -78,7 +77,7 @@ public class Version implements Comparable<Version> {
     public static final int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
     public static final String JAVA_VERSION_PATTERN = ".._";
 
-    private final int[] version = new int[] { -1, -1, -1, -1 };
+    private final int[] version = new int[]{-1, -1, -1, -1};
     private String pattern = JAVA_VERSION_PATTERN;
 
     public static int calcNumbersSeparatedByDots(String s, int from, String pattern) {

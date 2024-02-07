@@ -16,7 +16,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
- *
  */
 public abstract class AGenericConfiguration extends AConfigurationElement {
 
@@ -61,37 +60,37 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
         try {
 
             Class<?> implementingClass = ClassFactory
-                .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
+                    .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
 
             Object res = ClassFactory.newInstance(implementingClass, getUri());
 
             if (classResourse != null) {
                 Class<?> resourceClass = ClassFactory
-                    .validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
+                        .validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
                 Method m = ClassFactory
-                    .validateHasMethod(implementingClass, "setClassResource", new Class[] { Class.class }, getUri());
+                        .validateHasMethod(implementingClass, "setClassResource", new Class[]{Class.class}, getUri());
                 m.invoke(res, resourceClass);
             }
 
             if (fileResource != null) {
                 File f = new File(fileResource);
                 Method m = ClassFactory
-                    .validateHasMethod(implementingClass, "setFile", new Class[] { File.class }, getUri());
+                        .validateHasMethod(implementingClass, "setFile", new Class[]{File.class}, getUri());
                 m.invoke(res, f);
             }
 
             if (urlResource != null) {
                 URL url = new URL(urlResource);
                 Method m = ClassFactory
-                    .validateHasMethod(implementingClass, "setURL", new Class[] { File.class }, getUri());
+                        .validateHasMethod(implementingClass, "setURL", new Class[]{File.class}, getUri());
                 m.invoke(res, url);
             }
 
             if (properties != null) {
                 Method m = ClassFactory.validateHasMethod(implementingClass,
-                    "setProperty",
-                    new Class[] { String.class, String.class },
-                    getUri());
+                        "setProperty",
+                        new Class[]{String.class, String.class},
+                        getUri());
                 for (StringProperty prop : properties) {
                     m.invoke(res, prop.getName(), prop.getValue());
                 }
@@ -125,24 +124,24 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
     @Override
     public void validate(IConfigurableResourceContext cxt) {
         Class<?> implementingClass = ClassFactory
-            .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
+                .validateClassExistsAndPublic(implementingClassName, cxt.getClassLoader(), getUri());
         ClassFactory.validateSuper(implementingClass, getImplementingClass(), getUri());
         ClassFactory.validateHaveNewInstance(implementingClass, getUri());
 
         if (classResourse != null) {
             ClassFactory.validateClassExistsAndPublic(classResourse, cxt.getClassLoader(), getUri());
             ClassFactory
-                .validateHasMethod(implementingClass, "setClassResource", new Class[] { Class.class }, getUri());
+                    .validateHasMethod(implementingClass, "setClassResource", new Class[]{Class.class}, getUri());
         }
 
         if (fileResource != null) {
             if (!new File(fileResource).exists()) {
                 throw new OpenLConfigurationException(String.format("File %s does not exist", fileResource),
-                    getUri(),
-                    null);
+                        getUri(),
+                        null);
             }
 
-            ClassFactory.validateHasMethod(implementingClass, "setFile", new Class[] { File.class }, getUri());
+            ClassFactory.validateHasMethod(implementingClass, "setFile", new Class[]{File.class}, getUri());
         }
 
         if (urlResource != null) {
@@ -152,14 +151,14 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
                 throw new OpenLConfigurationException("Cannot connect to URL " + urlResource, getUri(), t);
             }
 
-            ClassFactory.validateHasMethod(implementingClass, "setURL", new Class[] { URL.class }, getUri());
+            ClassFactory.validateHasMethod(implementingClass, "setURL", new Class[]{URL.class}, getUri());
         }
 
         if (properties != null) {
             ClassFactory.validateHasMethod(implementingClass,
-                "setProperty",
-                new Class[] { String.class, String.class },
-                getUri());
+                    "setProperty",
+                    new Class[]{String.class, String.class},
+                    getUri());
         }
 
     }

@@ -12,9 +12,11 @@ package org.openl.ie.constrainer.consistencyChecking;
  *
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
+ *
  * @author unascribed
  * @version 1.0
  */
+
 import org.openl.ie.constrainer.IntBoolExp;
 import org.openl.ie.constrainer.IntExpArray;
 import org.openl.ie.constrainer.IntVar;

@@ -25,14 +25,14 @@ public class CommentValidator {
             WebStudioUtils.validate(pattern.matcher(comment).matches(), invalidMessage);
         }
         WebStudioUtils.validate(comment.length() <= MAX_COMMENT_LENGTH,
-            "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
+                "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
     public static CommentValidator forRepo(String repoId) {
         boolean customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
         if (customComments) {
             return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
-                Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
+                    Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
         } else {
             return new CommentValidator(null, null);
         }

@@ -40,7 +40,7 @@ public final class ASMUtils {
 
     /**
      * Builds a map for searching a method
-     * 
+     *
      * @param clazz a target class to build a map
      * @return returns a map
      */

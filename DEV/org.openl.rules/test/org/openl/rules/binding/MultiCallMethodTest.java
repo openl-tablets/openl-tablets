@@ -31,7 +31,7 @@ public class MultiCallMethodTest {
     @Test
     public void testInt() {
         assertEquals(5, instance.intTest(4));
-        assertEquals(7, instance.intArrayTest(new int[] { 4, 5, 6 })[2]);
+        assertEquals(7, instance.intArrayTest(new int[]{4, 5, 6})[2]);
     }
 
     @Test

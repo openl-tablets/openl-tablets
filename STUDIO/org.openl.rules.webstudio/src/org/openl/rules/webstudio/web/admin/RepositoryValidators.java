@@ -39,20 +39,20 @@ public final class RepositoryValidators {
     /**
      * Check that name, path are configured correctly and repository name does not have duplicates.
      *
-     * @param repoConfig Repository configuration
+     * @param repoConfig               Repository configuration
      * @param repositoryConfigurations list of all configurations
      * @throws RepositoryValidationException if repository was configured incorrectly
      */
     public static void validate(RepositoryConfiguration repoConfig,
-            List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
+                                List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         if (StringUtils.isEmpty(repoConfig.getName())) {
             String msg = "Repository name is empty. Please, enter repository name.";
             throw new RepositoryValidationException(msg);
         }
         if (!NameChecker.checkName(repoConfig.getName())) {
             String msg = String.format(
-                "Repository name '%s' contains illegal characters. Please, correct repository name.",
-                repoConfig.getName());
+                    "Repository name '%s' contains illegal characters. Please, correct repository name.",
+                    repoConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
@@ -61,7 +61,7 @@ public final class RepositoryValidators {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
-                        repoConfig.getName());
+                            repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -75,7 +75,7 @@ public final class RepositoryValidators {
                     Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
                     if (path.equals(otherPath)) {
                         String msg = String
-                            .format("Repository local path '%s' already exists. Please, insert a new one.", path);
+                                .format("Repository local path '%s' already exists. Please, insert a new one.", path);
                         throw new RepositoryValidationException(msg);
                     }
                 }
@@ -91,7 +91,7 @@ public final class RepositoryValidators {
     }
 
     private static void validateCommonRepository(RepositoryConfiguration repoConfig,
-            List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
+                                                 List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
         CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
         String path = settings.getPath();
         if (StringUtils.isEmpty(path)) {
@@ -104,7 +104,7 @@ public final class RepositoryValidators {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
-                        repoConfig.getName());
+                            repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
@@ -115,7 +115,7 @@ public final class RepositoryValidators {
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
                             String msg = String.format("Repository path '%s' already exists. Please, insert a new one.",
-                                path);
+                                    path);
                             throw new RepositoryValidationException(msg);
                         }
                     }
@@ -129,7 +129,7 @@ public final class RepositoryValidators {
     }
 
     static void validateConnection(RepositoryConfiguration repoConfig,
-            RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
+                                   RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
             if (repositoryFactoryProxy != null) {
                 /* Close connection to repository before checking connection */
@@ -139,16 +139,16 @@ public final class RepositoryValidators {
             validateInstantiation(repoConfig);
         } catch (Exception e) {
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)),
-                e);
+                    String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)),
+                    e);
         }
     }
 
     private static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
-            .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
         try (Repository repository = RepositoryInstatiator
-            .newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
+                .newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             repository.validateConnection();
         }

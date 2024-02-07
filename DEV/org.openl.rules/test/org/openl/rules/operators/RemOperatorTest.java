@@ -14,7 +14,6 @@ import org.openl.rules.TestUtils;
  * Test remainder operator ('%') in rules
  *
  * @author DLiauchuk
- *
  */
 public class RemOperatorTest {
 
@@ -103,15 +102,15 @@ public class RemOperatorTest {
     public void testBigIntegerValue() {
         assertEquals("passed", instance.testRemBigIntegerValue(new BigInteger("10"), new BigInteger("5")));
         assertEquals("not passed",
-            instance.testRemBigIntegerValue(new BigInteger("17"), new BigInteger("3")));
+                instance.testRemBigIntegerValue(new BigInteger("17"), new BigInteger("3")));
     }
 
     @Test
     public void testBigDecimalValue() {
         assertEquals("passed",
-            instance.testRemBigDecimalValue(new BigDecimal("4.44"), new BigDecimal("2.22")));
+                instance.testRemBigDecimalValue(new BigDecimal("4.44"), new BigDecimal("2.22")));
         assertEquals("not passed",
-            instance.testRemBigDecimalValue(new BigDecimal("5.57"), new BigDecimal("44")));
+                instance.testRemBigDecimalValue(new BigDecimal("5.57"), new BigDecimal("44")));
     }
 
     public interface RulesInterf {

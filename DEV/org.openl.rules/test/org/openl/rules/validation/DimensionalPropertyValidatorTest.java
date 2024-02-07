@@ -69,11 +69,11 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
-                (TableSyntaxNode) method.getInfo().getSyntaxNode());
+                    (TableSyntaxNode) method.getInfo().getSyntaxNode());
             assertEquals(1, messages.size());
             assertEquals(
-                "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, BY, DZ})",
-                messages.get(0).getSummary());
+                    "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, BY, DZ})",
+                    messages.get(0).getSummary());
         }
     }
 
@@ -85,11 +85,11 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
-                (TableSyntaxNode) method.getInfo().getSyntaxNode());
+                    (TableSyntaxNode) method.getInfo().getSyntaxNode());
             assertEquals(1, messages.size());
             assertEquals(
-                "Ambiguous definition of properties values. Details: (country={AL, AR, DZ}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
-                messages.get(0).getSummary());
+                    "Ambiguous definition of properties values. Details: (country={AL, AR, DZ}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
+                    messages.get(0).getSummary());
         }
     }
 
@@ -102,7 +102,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         for (IOpenMethod method : methods) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
             List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
-                (TableSyntaxNode) method.getInfo().getSyntaxNode());
+                    (TableSyntaxNode) method.getInfo().getSyntaxNode());
             if (props.getState().length == 1 && props.getCountry().length == 1) {
                 assertEquals(0, messages.size());
             } else {

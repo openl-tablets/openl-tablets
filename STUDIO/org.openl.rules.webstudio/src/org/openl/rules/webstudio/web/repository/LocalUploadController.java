@@ -84,8 +84,8 @@ public class LocalUploadController {
     private final RepositoryAclService designRepositoryAclService;
 
     public LocalUploadController(PropertyResolver propertyResolver,
-            ProjectTagsBean projectTagsBean,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                                 ProjectTagsBean projectTagsBean,
+                                 @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.projectTagsBean = projectTagsBean;
         this.designRepositoryAclService = designRepositoryAclService;
@@ -178,7 +178,7 @@ public class LocalUploadController {
      * need to upgrade JSF version to fully support java 8. Until then use anonymous class instead.
      */
     private static final Comparator<File> fileNameComparator = Comparator.comparing(File::getName,
-        String.CASE_INSENSITIVE_ORDER);
+            String.CASE_INSENSITIVE_ORDER);
 
     public String upload() {
         if (StringUtils.isBlank(repositoryId)) {
@@ -197,12 +197,12 @@ public class LocalUploadController {
                 if (bean.isSelected()) {
                     try {
                         String comment = getDesignRepoComments().createProject(createProjectCommentTemplate,
-                            bean.getProjectName());
+                                bean.getProjectName());
 
                         UserWorkspace userWorkspace = WebStudioUtils.getRulesUserSession().getUserWorkspace();
                         if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, bean.getProjectName())) {
                             WebStudioUtils.addErrorMessage(
-                                "It is not possible to create the project as a project with the same name already exists.");
+                                    "It is not possible to create the project as a project with the same name already exists.");
                             return null;
                         }
                         if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(CREATE))) {
@@ -214,11 +214,11 @@ public class LocalUploadController {
                             throw new FileNotFoundException(baseFolder.getName());
                         }
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
-                            .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
+                                .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService
-                            .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
+                                .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
                             String message = String.format("Granting permissions to a new project '%s' is failed.",
-                                ProjectArtifactUtils.extractResourceName(createdProject));
+                                    ProjectArtifactUtils.extractResourceName(createdProject));
                             WebStudioUtils.addErrorMessage(message);
                         }
                         projectTagsBean.saveTags(createdProject);
@@ -227,7 +227,7 @@ public class LocalUploadController {
                         String msg;
                         if (!NameChecker.checkName(bean.getProjectName())) {
                             msg = "Failed to create the project '" + bean
-                                .getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
+                                    .getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
                         } else if (e.getCause() instanceof FileNotFoundException) {
                             if (e.getMessage().contains(".xls")) {
                                 msg = "Failed to create the project. Please, close Excel file and try again.";
@@ -290,6 +290,6 @@ public class LocalUploadController {
 
     private Comments getDesignRepoComments() {
         return repositoryId == null ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
-                                    : new Comments(propertyResolver, repositoryId);
+                : new Comments(propertyResolver, repositoryId);
     }
 }

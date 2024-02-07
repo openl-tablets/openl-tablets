@@ -171,7 +171,7 @@ public class InstallWizard implements Serializable {
                 }
 
                 deployConfigRepositoryConfiguration = new RepositoryConfiguration("deploy-config",
-                    properties);
+                        properties);
                 if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 }
@@ -217,24 +217,24 @@ public class InstallWizard implements Serializable {
 
     private void readCasProperties() {
         casSettings = new CASSettings(propertyResolver.getProperty("security.cas.app-url"),
-            propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
-            propertyResolver.getProperty("security.cas.attribute.first-name"),
-            propertyResolver.getProperty("security.cas.attribute.last-name"),
-            propertyResolver.getProperty("security.cas.attribute.display-name"),
-            propertyResolver.getProperty("security.cas.attribute.email"),
-            propertyResolver.getProperty("security.cas.attribute.groups"));
+                propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
+                propertyResolver.getProperty("security.cas.attribute.first-name"),
+                propertyResolver.getProperty("security.cas.attribute.last-name"),
+                propertyResolver.getProperty("security.cas.attribute.display-name"),
+                propertyResolver.getProperty("security.cas.attribute.email"),
+                propertyResolver.getProperty("security.cas.attribute.groups"));
     }
 
     private void readSamlProperties() {
         samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.entity-id"),
-            propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
-            propertyResolver.getProperty("security.saml.attribute.username"),
-            propertyResolver.getProperty("security.saml.attribute.first-name"),
-            propertyResolver.getProperty("security.saml.attribute.last-name"),
-            propertyResolver.getProperty("security.saml.attribute.display-name"),
-            propertyResolver.getProperty("security.saml.attribute.email"),
-            propertyResolver.getProperty("security.saml.attribute.groups"),
-            propertyResolver.getProperty("security.saml.server-certificate"));
+                propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
+                propertyResolver.getProperty("security.saml.attribute.username"),
+                propertyResolver.getProperty("security.saml.attribute.first-name"),
+                propertyResolver.getProperty("security.saml.attribute.last-name"),
+                propertyResolver.getProperty("security.saml.attribute.display-name"),
+                propertyResolver.getProperty("security.saml.attribute.email"),
+                propertyResolver.getProperty("security.saml.attribute.groups"),
+                propertyResolver.getProperty("security.saml.server-certificate"));
     }
 
     private void readOauth2Properties() {
@@ -301,7 +301,7 @@ public class InstallWizard implements Serializable {
                 properties.setProperty("security.oauth2.attribute.first-name", oauth2Settings.getFirstNameAttribute());
                 properties.setProperty("security.oauth2.attribute.last-name", oauth2Settings.getSecondNameAttribute());
                 properties.setProperty("security.oauth2.attribute.display-name",
-                    oauth2Settings.getDisplayNameAttribute());
+                        oauth2Settings.getDisplayNameAttribute());
                 properties.setProperty("security.oauth2.attribute.email", oauth2Settings.getEmailAttribute());
                 properties.setProperty("security.oauth2.attribute.groups", oauth2Settings.getGroupsAttribute());
             }
@@ -323,8 +323,8 @@ public class InstallWizard implements Serializable {
             destroyRepositoryObjects();
 
             FacesContext.getCurrentInstance()
-                .getExternalContext()
-                .redirect(WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
+                    .getExternalContext()
+                    .redirect(WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
 
             return "/";
         } catch (Exception e) {
@@ -419,11 +419,11 @@ public class InstallWizard implements Serializable {
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
-                    domain,
-                    url);
+                        domain,
+                        url);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    password);
+                        username,
+                        password);
                 ldapAuthenticationProvider.setSearchFilter(ldapFilter);
                 ldapAuthenticationProvider.authenticate(authenticationToken);
             } catch (AuthenticationException e) {
@@ -442,7 +442,7 @@ public class InstallWizard implements Serializable {
         UIViewRoot viewRoot = context.getViewRoot();
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
@@ -460,7 +460,7 @@ public class InstallWizard implements Serializable {
         String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
-            .getSubmittedValue();
+                .getSubmittedValue();
 
         if (StringUtils.isBlank(entityId)) {
             throw new ValidatorException(createErrorMessage("Entity ID cannot be blank."));
@@ -761,7 +761,7 @@ public class InstallWizard implements Serializable {
         connectionProductionRepoController.setProperties(properties);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
-            .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+                .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
         connectionProductionRepoController.clearForm();
     }
 

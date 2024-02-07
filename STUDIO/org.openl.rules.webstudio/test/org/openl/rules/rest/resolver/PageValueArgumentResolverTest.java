@@ -64,8 +64,8 @@ public class PageValueArgumentResolverTest {
     @Test
     public void testBadRequest() throws Exception {
         var mockMvcResult = mockMvc
-            .perform(get("/pagination-test/pageOrOffset").queryParam("page", "100").queryParam("offset", "11"))
-            .andReturn();
+                .perform(get("/pagination-test/pageOrOffset").queryParam("page", "100").queryParam("offset", "11"))
+                .andReturn();
         BadRequestException error = (BadRequestException) mockMvcResult.getResolvedException();
         assertNotNull(error);
         assertEquals("openl.error.400.invalid.pageable.query.message", error.getErrorCode());

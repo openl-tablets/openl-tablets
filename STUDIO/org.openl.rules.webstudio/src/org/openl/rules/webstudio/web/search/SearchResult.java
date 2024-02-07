@@ -12,8 +12,8 @@ public class SearchResult {
     List<TableSyntaxNode> tableSyntaxNodes;
 
     public SearchResult(List<TableSyntaxNode> tableSyntaxNodes,
-            int tableCountForIndexing,
-            int expectedIndexingDuration) {
+                        int tableCountForIndexing,
+                        int expectedIndexingDuration) {
         this.tableCountForIndexing = tableCountForIndexing;
         this.expectedIndexingDuration = expectedIndexingDuration;
         this.tableSyntaxNodes = tableSyntaxNodes;

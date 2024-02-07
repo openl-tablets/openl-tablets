@@ -17,13 +17,13 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
     private IOpenClass type;
     private IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public MatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            MatchingOpenMethodDispatcher delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                                               MatchingOpenMethodDispatcher delegate,
+                                               ContextPropertiesInjector contextPropertiesInjector,
+                                               boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

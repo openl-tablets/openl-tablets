@@ -33,13 +33,13 @@ public final class ProjectArtifactUtils {
         if (projectArtefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
             ProjectState projectState = localRepository
-                .getProjectState(projectArtefact.getProject().getFileData().getName());
+                    .getProjectState(projectArtefact.getProject().getFileData().getName());
             if (projectState.getFileData() == null) {
                 return failSafePath(projectArtefact.getArtefactPath().getStringValue());
             }
             String repoPath = getRepoPath(projectState.getFileData());
             return StringUtils.isBlank(
-                projectArtefact.getInternalPath()) ? repoPath : repoPath + "/" + projectArtefact.getInternalPath();
+                    projectArtefact.getInternalPath()) ? repoPath : repoPath + "/" + projectArtefact.getInternalPath();
         } else {
             return getRepoPath(projectArtefact.getFileData());
         }

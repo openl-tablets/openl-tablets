@@ -13,7 +13,7 @@ public class ExcelSheetView extends ExcelSheetProfile implements RulesTreeView {
             new WorksheetTreeNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() };
+            new TableVersionTreeNodeBuilder()};
 
     @Override
     @SuppressWarnings("unchecked")

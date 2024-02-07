@@ -111,10 +111,10 @@ public class LaunchFileServlet extends HttpServlet {
             try {
                 String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
                 ExcelLauncher.launch(excelScriptPath,
-                    parser.getWbPath(),
-                    parser.getWbName(),
-                    parser.getWsName(),
-                    parser.getRange());
+                        parser.getWbPath(),
+                        parser.getWbName(),
+                        parser.getWsName(),
+                        parser.getRange());
 
                 return;
             } catch (Exception e) {
@@ -126,7 +126,7 @@ public class LaunchFileServlet extends HttpServlet {
         if (Files.isRegularFile(pathToFile)) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition",
-                WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
+                    WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
 
             try (var in = Files.newInputStream(pathToFile); var out = response.getOutputStream()) {
                 in.transferTo(out);

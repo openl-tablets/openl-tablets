@@ -45,15 +45,15 @@ public class DiffController {
 
     @Operation(summary = "diff.compare-xls.summary", description = "diff.compare-xls.desc")
     @PostMapping(value = "xls", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Parameters({ @Parameter(name = "file1", description = "diff.field.file.1", content = @Content(encoding = {
-            @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel") })),
+    @Parameters({@Parameter(name = "file1", description = "diff.field.file.1", content = @Content(encoding = {
+            @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel")})),
             @Parameter(name = "file2", description = "diff.field.file.2", content = @Content(encoding = {
-                    @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel") })),
-            @Parameter(name = "fileName", in = ParameterIn.QUERY, description = "diff.field.file-name") })
+                    @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel")})),
+            @Parameter(name = "fileName", in = ParameterIn.QUERY, description = "diff.field.file-name")})
     @ApiResponse(description = "diff.compare-xls.303.desc", headers = @Header(name = HttpHeaders.LOCATION, required = true))
     public ResponseEntity<?> compareXls(@RequestParam(value = "file1", required = false) MultipartFile file1,
-            @RequestParam(value = "file2", required = false) MultipartFile file2,
-            @RequestParam(value = "fileName", required = false) String fileName) {
+                                        @RequestParam(value = "file2", required = false) MultipartFile file2,
+                                        @RequestParam(value = "fileName", required = false) String fileName) {
         try {
             String requestId = UUID.randomUUID().toString();
 
@@ -67,8 +67,8 @@ public class DiffController {
                 root = root.substring(0, root.lastIndexOf('/'));
             }
             return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                .location(new URI(root + "/faces/pages/public/showDiff.xhtml?id=" + requestId))
-                .build();
+                    .location(new URI(root + "/faces/pages/public/showDiff.xhtml?id=" + requestId))
+                    .build();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

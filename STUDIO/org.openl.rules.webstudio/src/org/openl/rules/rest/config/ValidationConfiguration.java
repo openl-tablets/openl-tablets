@@ -33,7 +33,7 @@ public class ValidationConfiguration {
 
     @Bean
     public LocalValidatorFactoryBean localValidatorFactoryBean(AutowireCapableBeanFactory beanFactory,
-            @Qualifier("validationMessageSource") MessageSource validationMessageSource) {
+                                                               @Qualifier("validationMessageSource") MessageSource validationMessageSource) {
         var validatorFactory = new LocalValidatorFactoryBean();
         validatorFactory.setValidationMessageSource(validationMessageSource);
         validatorFactory.setConstraintValidatorFactory(new SpringConstraintValidatorFactory(beanFactory));

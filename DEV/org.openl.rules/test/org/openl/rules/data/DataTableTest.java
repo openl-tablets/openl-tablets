@@ -16,9 +16,7 @@ import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class DataTableTest extends BaseOpenlBuilderHelper {
 
@@ -172,6 +170,6 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         Collection<OpenLMessage> messages = getCompiledOpenClass().getAllMessages();
         assertEquals(1, messages.size());
         assertEquals("Cannot parse cell value '1 < 2'. Expected value of type 'ClassForStringConstructorLoadingTests'.",
-            messages.iterator().next().getSummary());
+                messages.iterator().next().getSummary());
     }
 }

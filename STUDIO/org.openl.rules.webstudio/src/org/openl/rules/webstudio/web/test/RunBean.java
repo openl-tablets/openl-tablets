@@ -44,7 +44,7 @@ public class RunBean {
         testSuite = runTestHelper.getTestSuite();
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         boolean currentOpenedModule = Boolean
-            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         if (testSuite != null) {
             results = WebStudioUtils.getProjectModel().runTest(testSuite, currentOpenedModule);
         }

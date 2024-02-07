@@ -30,24 +30,24 @@ public class CommentsTest {
         String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
         String newBranchNameTemplate = "WebStudio/{project-name}/{username}/{current-date} {foo}";
         comments = new Comments(dateTimeFormat,
-            saveProjectTemplate,
-            createProjectTemplate,
-            archiveProjectTemplate,
-            restoreProjectTemplate,
-            eraseProjectTemplate,
-            copiedFromTemplate,
-            restoredFromTemplate,
-            newBranchNameTemplate);
+                saveProjectTemplate,
+                createProjectTemplate,
+                archiveProjectTemplate,
+                restoreProjectTemplate,
+                eraseProjectTemplate,
+                copiedFromTemplate,
+                restoredFromTemplate,
+                newBranchNameTemplate);
 
         comments2 = new Comments(dateTimeFormat,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE,
-            TEMPLATE);
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE,
+                TEMPLATE);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class CommentsTest {
     @Test
     public void testParseSourceOfCopy() {
         List<String> commentParts = comments
-            .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
+                .getCommentParts("Project {username} {myProjectName} is copied-from. {foo}");
         assertEquals(3, commentParts.size());
         assertEquals("Project {username} {", commentParts.get(0));
         assertEquals("myProjectName", commentParts.get(1));
@@ -150,8 +150,8 @@ public class CommentsTest {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
         assertEquals(
-            "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
-            actual);
+                "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+                actual);
     }
 
     @Test
@@ -159,18 +159,18 @@ public class CommentsTest {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
         assertEquals(
-            "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
-            actualWithSymbol);
+                "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+                actualWithSymbol);
     }
 
     @Test
     public void testNewBranch() {
         assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}",
-            comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
+                comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
         assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
-            comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
+                comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
         assertEquals("WebStudio/Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
-            comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
+                comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class CommentsTest {
         assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
         assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}",
-            comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
+                comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
     }
 
 }

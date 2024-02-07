@@ -107,8 +107,8 @@ public class AzureBlobRepositoryTest {
     @Test
     public void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
-            new FileItem("rules/project1/new-path/file14", IOUtils.toInputStream("Added")),
-            new FileItem("rules/project1/file11", IOUtils.toInputStream("Modified")));
+                new FileItem("rules/project1/new-path/file14", IOUtils.toInputStream("Added")),
+                new FileItem("rules/project1/file11", IOUtils.toInputStream("Modified")));
 
         FileData folderData = createFileData("rules/project1");
 
@@ -259,15 +259,15 @@ public class AzureBlobRepositoryTest {
         BlobContainerClient client = mock(BlobContainerClient.class);
         when(client.listBlobs(any(), any())).thenAnswer(invocation -> mockListBlobs(invocation.getArgument(0)));
         when(client.getBlobVersionClient(any(), any()))
-            .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), invocation.getArgument(1)));
+                .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), invocation.getArgument(1)));
         when(client.getBlobClient(any()))
-            .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), null));
+                .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), null));
 
         addBlobsForProject("rules/project1", "version11", "rules/project1/file11", "rules/project1/file12");
         addBlobsForProject("rules/project2",
-            "version21",
-            "rules/project2/folder1/file23",
-            "rules/project2/folder2/file24");
+                "version21",
+                "rules/project2/folder1/file23",
+                "rules/project2/folder2/file24");
 
         return client;
     }
@@ -283,17 +283,17 @@ public class AzureBlobRepositoryTest {
         if (options.getDetails().getRetrieveVersions()) {
             List<BlobEmulation> versions = blobs.get(options.getPrefix());
             final List<BlobItem> list = new ArrayList<>(
-                versions == null ? Collections.emptyList()
-                                 : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
+                    versions == null ? Collections.emptyList()
+                            : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
             // To conform behavior of Azure Blob Storage
             Collections.reverse(list);
             return mockPagedIterable(list);
         }
         return mockPagedIterable(blobs.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
-            .map(entry -> entry.getValue().get(0).getBlobItem())
-            .collect(Collectors.toList()));
+                .stream()
+                .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
+                .map(entry -> entry.getValue().get(0).getBlobItem())
+                .collect(Collectors.toList()));
     }
 
     private BlobClient mockGetBlobVersionClient(String blobName, String versionId) throws IOException {
@@ -322,14 +322,14 @@ public class AzureBlobRepositoryTest {
         when(client.getBlobName()).thenReturn(blobName);
         when(client.getVersionId()).thenReturn(versionId);
         when(client.uploadWithResponse(any(), any(), any()))
-            .thenAnswer(invocation -> mockUploadWithResponse(client, invocation.getArgument(0)));
+                .thenAnswer(invocation -> mockUploadWithResponse(client, invocation.getArgument(0)));
         BlobProperties properties = mockBlobProperties(versionId, blob);
         when(client.getProperties()).thenReturn(properties);
 
         doAnswer(invocation -> mockDelete(Objects.requireNonNull(blob))).when(client).delete();
 
         when(client.downloadContent()).thenAnswer(invocation -> BinaryData.fromBytes(Objects.requireNonNull(blob)
-            .getContent()));
+                .getContent()));
         return client;
     }
 
@@ -385,8 +385,8 @@ public class AzureBlobRepositoryTest {
     }
 
     private void addBlobsForProject(String projectName,
-            String versionId,
-            String... fileNamesInProject) throws IOException {
+                                    String versionId,
+                                    String... fileNamesInProject) throws IOException {
         AzureCommit commit = new AzureCommit();
         final ArrayList<FileInfo> files = new ArrayList<>();
         for (String fileName : fileNamesInProject) {
@@ -394,8 +394,8 @@ public class AzureBlobRepositoryTest {
             final String revision = UUID.randomUUID().toString();
 
             addBlob(AzureBlobRepository.CONTENT_PREFIX + fileName,
-                revision,
-                fileContent.getBytes(StandardCharsets.UTF_8));
+                    revision,
+                    fileContent.getBytes(StandardCharsets.UTF_8));
 
             FileInfo fileInfo = new FileInfo();
             fileInfo.setPath(fileName);
@@ -445,7 +445,7 @@ public class AzureBlobRepositoryTest {
 
     private FileData addFileToProject2AndSave() throws IOException {
         List<FileItem> changes = List
-            .of(new FileItem("rules/project2/new-path/new-file", IOUtils.toInputStream("Added")));
+                .of(new FileItem("rules/project2/new-path/new-file", IOUtils.toInputStream("Added")));
         FileData folderData = createFileData("rules/project2");
 
         return repo.save(folderData, changes, ChangesetType.DIFF);

@@ -47,7 +47,7 @@ public class ExcelTemplateUtils {
     public static final String DATA_TABLE_TYPE = "{returnType}";
     public static final short DATE_TIME_FORMAT = (short) BuiltinFormats.getBuiltinFormat("m/d/yy h:mm");
     public static final short DATE_FORMAT = (short) BuiltinFormats
-        .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
+            .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
 
     private ExcelTemplateUtils() {
     }
@@ -66,7 +66,7 @@ public class ExcelTemplateUtils {
         Map<String, TableStyle> templateStyles = new HashMap<>();
         ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
         try (OPCPackage fs = OPCPackage
-            .open(Objects.requireNonNull(classLoader.getResourceAsStream("template.xlsx"), "Template wasn't found."))) {
+                .open(Objects.requireNonNull(classLoader.getResourceAsStream("template.xlsx"), "Template wasn't found."))) {
             XSSFWorkbook wb = new XSSFWorkbook(fs);
 
             Sheet dataTypeSheet = wb.getSheet(DATATYPES_SHEET);
@@ -129,7 +129,7 @@ public class ExcelTemplateUtils {
         String valueHeader = sprValueHeader.getStringCellValue();
 
         NameValueRowStyle headerRowStyle = new SpreadsheetTableRowStyleImpl(targetStepHeaderStyle,
-            targetValueHeaderStyle);
+                targetValueHeaderStyle);
 
         Row sprFieldRow = sprResultSheet.getRow(TOP_MARGIN + 2);
 
@@ -156,15 +156,15 @@ public class ExcelTemplateUtils {
         NameValueRowStyle lastRowStyle = new SpreadsheetTableRowStyleImpl(targetLastFieldStyle, targetLastValueStyle);
 
         return new SpreadsheetTableStyleImpl(sprTableHeaderText,
-            targetTableHeaderStyle,
-            headerSettings,
-            headerRowStyle,
-            stepHeader,
-            valueHeader,
-            rowStyle,
-            lastRowStyle,
-            dateStyle,
-            dateTimeStyle);
+                targetTableHeaderStyle,
+                headerSettings,
+                headerRowStyle,
+                stepHeader,
+                valueHeader,
+                rowStyle,
+                lastRowStyle,
+                dateStyle,
+                dateTimeStyle);
     }
 
     private static TableStyle extractDatatypeStyle(Sheet dataTypeSheet, Workbook targetWorkbook) {
@@ -200,8 +200,8 @@ public class ExcelTemplateUtils {
         dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
 
         DataTypeRowStyle rowStyle = new DataTypeTableRowStyleImpl(targetClassStyle,
-            targetNameStyle,
-            targetDefaultValueStyle);
+                targetNameStyle,
+                targetDefaultValueStyle);
 
         Row lastDataTypeRow = dataTypeSheet.getRow(TOP_MARGIN + 2);
 
@@ -214,17 +214,17 @@ public class ExcelTemplateUtils {
         Cell dtLastDefaultValueCell = lastDataTypeRow.getCell(LEFT_MARGIN + 2);
         CellStyle targetLastDefaultValueStyle = copyCellStyle(targetWorkbook, dtLastDefaultValueCell);
         DataTypeRowStyle lastRowStyle = new DataTypeTableRowStyleImpl(targetLastClassStyle,
-            targetLastFieldNameStyle,
-            targetLastDefaultValueStyle);
+                targetLastFieldNameStyle,
+                targetLastDefaultValueStyle);
 
         return new DataTypeTableStyleImpl(headerValueString,
-            targetHeaderStyle,
-            headerSettings,
-            rowStyle,
-            dateStyle,
-            dateTimeStyle,
-            lastRowStyle,
-            targetFont);
+                targetHeaderStyle,
+                headerSettings,
+                rowStyle,
+                dateStyle,
+                dateTimeStyle,
+                lastRowStyle,
+                targetFont);
 
     }
 
@@ -256,10 +256,10 @@ public class ExcelTemplateUtils {
         NameValueRowStyle lastRowStyle = extractRowStyle(targetWorkbook, lastRow);
 
         return new EnvironmentTableStyleImpl(envHeaderText,
-            targetTableHeaderStyle,
-            headerSettings,
-            regularRowStyle,
-            lastRowStyle);
+                targetTableHeaderStyle,
+                headerSettings,
+                regularRowStyle,
+                lastRowStyle);
     }
 
     private static TableStyle extractDataTableStyle(Sheet dataSheet, Workbook targetWorkbook) {
@@ -295,15 +295,15 @@ public class ExcelTemplateUtils {
         dateFieldStyle.setDataFormat(DATE_TIME_FORMAT);
 
         return new DataTableStyleImpl(headerText,
-            targetHeaderStyle,
-            headerSettings,
-            typeFont,
-            tableNameFont,
-            targetSubheaderStyle,
-            columnHeaderStyle,
-            new NameValueRowStyleImpl(valueCellStyle, valueCellStyle),
-            dateFieldStyle,
-            dateTimeFieldStyle);
+                targetHeaderStyle,
+                headerSettings,
+                typeFont,
+                tableNameFont,
+                targetSubheaderStyle,
+                columnHeaderStyle,
+                new NameValueRowStyleImpl(valueCellStyle, valueCellStyle),
+                dateFieldStyle,
+                dateTimeFieldStyle);
     }
 
     private static NameValueRowStyle extractRowStyle(Workbook targetWorkbook, Row regularRow) {

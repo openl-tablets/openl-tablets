@@ -19,7 +19,7 @@ import org.openl.util.StringUtils;
  * OpenL default property sources. Collects all openl-default.properties files.
  * <p>
  * Note: All openl-default.properties must contains unique keys.
- * 
+ *
  * @author Yury Molchan
  */
 public class DefaultPropertySource extends EnumerablePropertySource<Map<String, String>> {
@@ -82,9 +82,9 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
             pos = path.lastIndexOf('/', pos); // path separator
             path = path.substring(pos + 1);
 
-            writeLine(out,  "#-------------------------------------------------------------------------------------------#");
-            writeLine(out,  "### From: " + path);
-            writeLine(out,  "#-------------------------------------------------------------------------------------------#");
+            writeLine(out, "#-------------------------------------------------------------------------------------------#");
+            writeLine(out, "### From: " + path);
+            writeLine(out, "#-------------------------------------------------------------------------------------------#");
             try (var in = url.openStream()) {
                 in.transferTo(out);
             }

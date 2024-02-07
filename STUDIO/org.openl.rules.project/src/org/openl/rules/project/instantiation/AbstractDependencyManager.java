@@ -49,7 +49,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private final Object dependencyLoadersFlag = new Object();
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<IDependencyLoader>> compilationStackThreadLocal = ThreadLocal
-        .withInitial(ArrayDeque::new);
+            .withInitial(ArrayDeque::new);
     private final Map<ProjectDescriptor, ClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
@@ -64,7 +64,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return new ResolvedDependency(DependencyType.PROJECT, new IdentifierNode(null, null, projectName, null));
         }
         return new ResolvedDependency(DependencyType.MODULE,
-            new IdentifierNode(null, null, projectName + "/" + moduleName, null));
+                new IdentifierNode(null, null, projectName + "/" + moduleName, null));
     }
 
     public static ResolvedDependency buildResolvedDependency(ProjectDescriptor project) {
@@ -129,14 +129,14 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         @Override
         public String toString() {
             return String.format("DependencyReference [dependOnThisDependency=%s, dependency=%s]",
-                dependOnThisDependency.getDependency(),
-                dependency.getDependency());
+                    dependOnThisDependency.getDependency(),
+                    dependency.getDependency());
         }
     }
 
     protected AbstractDependencyManager(ClassLoader rootClassLoader,
-            boolean executionMode,
-            Map<String, Object> externalParameters) {
+                                        boolean executionMode,
+                                        Map<String, Object> externalParameters) {
         this.rootClassLoader = rootClassLoader;
         this.executionMode = executionMode;
         this.externalParameters = new HashMap<>();
@@ -180,10 +180,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         try {
             if (log.isDebugEnabled()) {
                 log.debug(
-                    compilationStack
-                        .contains(dependencyLoader) ? "Dependency '{}' in the compilation stack."
-                                                    : "Dependency '{}' is not found in the compilation stack.",
-                    dependency);
+                        compilationStack
+                                .contains(dependencyLoader) ? "Dependency '{}' in the compilation stack."
+                                : "Dependency '{}' is not found in the compilation stack.",
+                        dependency);
             }
             boolean isCircularDependency = compilationStack.contains(dependencyLoader);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
@@ -193,11 +193,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
             if (isCircularDependency) {
                 throw new OpenLCompilationException(
-                    String.format("Circular dependency is detected: %s.",
-                        buildCircularDependencyDetails(dependencyLoader, compilationStack)),
-                    null,
-                    dependency.getNode().getSourceLocation(),
-                    dependency.getNode().getModule());
+                        String.format("Circular dependency is detected: %s.",
+                                buildCircularDependencyDetails(dependencyLoader, compilationStack)),
+                        null,
+                        dependency.getNode().getSourceLocation(),
+                        dependency.getNode().getModule());
             }
 
             CompiledDependency compiledDependency;
@@ -223,13 +223,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     public IDependencyLoader findDependencyLoader(ResolvedDependency dependency) {
         return getDependencyLoaders().stream()
-            .filter(
-                e -> DependencyType.ANY.equals(dependency.getType())
-                                                                     ? Objects.equals(dependency.getNode(),
-                                                                         e.getDependency().getNode())
-                                                                     : Objects.equals(dependency, e.getDependency()))
-            .findFirst()
-            .orElse(null);
+                .filter(
+                        e -> DependencyType.ANY.equals(dependency.getType())
+                                ? Objects.equals(dependency.getNode(),
+                                e.getDependency().getNode())
+                                : Objects.equals(dependency, e.getDependency()))
+                .findFirst()
+                .orElse(null);
     }
 
     public Collection<IDependencyLoader> findAllProjectDependencyLoaders(ProjectDescriptor project) {
@@ -240,8 +240,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         while (!queue.isEmpty()) {
             ProjectDescriptor projectDescriptor = queue.poll();
             getDependencyLoaders().stream()
-                .filter(e -> Objects.equals(e.getProject(), projectDescriptor))
-                .forEach(dependencyLoadersForProject::add);
+                    .filter(e -> Objects.equals(e.getProject(), projectDescriptor))
+                    .forEach(dependencyLoadersForProject::add);
             if (projectDescriptor.getDependencies() != null) {
                 for (ProjectDependencyDescriptor pdd : projectDescriptor.getDependencies()) {
                     IDependencyLoader dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
@@ -257,7 +257,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     @Override
     public Collection<ResolvedDependency> resolveDependency(IDependency dependency,
-            boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
+                                                            boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
         String value = dependency.getNode().getIdentifier();
         boolean withWildcard;
         if (withWildcardSupport) {
@@ -270,25 +270,25 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         value = "\\Q" + value + "\\E";
         IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
-                                                                                     : null;
+                : null;
         Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(
-            currentDependencyLoader.getProject()) : getDependencyLoaders();
+                currentDependencyLoader.getProject()) : getDependencyLoaders();
 
         // Filter by dependency type
         if (DependencyType.PROJECT.equals(dependency.getType())) {
             visibleDependencyLoaders = visibleDependencyLoaders.stream()
-                .filter(IDependencyLoader::isProjectLoader)
-                .collect(Collectors.toSet());
+                    .filter(IDependencyLoader::isProjectLoader)
+                    .collect(Collectors.toSet());
         } else if (DependencyType.MODULE.equals(dependency.getType())) {
             visibleDependencyLoaders = visibleDependencyLoaders.stream()
-                .filter(e -> !e.isProjectLoader())
-                .collect(Collectors.toSet());
+                    .filter(e -> !e.isProjectLoader())
+                    .collect(Collectors.toSet());
         }
 
         Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
         for (IDependencyLoader dl : visibleDependencyLoaders) {
             if (!Objects.equals(currentDependencyLoader,
-                dl) && !(dl.isProjectLoader() && currentDependencyLoader != null && Objects.equals(dl.getProject(),
+                    dl) && !(dl.isProjectLoader() && currentDependencyLoader != null && Objects.equals(dl.getProject(),
                     currentDependencyLoader.getProject()))) {
                 if (Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
                     dependencyLoaders.add(dl);
@@ -299,7 +299,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         for (IDependencyLoader dl : visibleDependencyLoaders) {
             if (!dl.isProjectLoader()) {
                 if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl) && Pattern.matches(value,
-                    dl.getModule().getName())) {
+                        dl.getModule().getName())) {
                     dependencyLoaders.add(dl);
                 }
             }
@@ -307,31 +307,31 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         if (dependencyLoaders.stream().anyMatch(e -> !e.isProjectLoader())) {
             dependencyLoaders = dependencyLoaders.stream()
-                .filter(e -> !e.isProjectLoader())
-                .collect(Collectors.toSet());
+                    .filter(e -> !e.isProjectLoader())
+                    .collect(Collectors.toSet());
         }
 
         Collection<ResolvedDependency> ret = dependencyLoaders.stream()
-            .map(e -> new ResolvedDependency(e.isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE,
-                new IdentifierNode(dependency.getNode().getType(),
-                    dependency.getNode().getLocation(),
-                    e.getDependency().getNode().getIdentifier(),
-                    null)))
-            .collect(Collectors.toSet());
+                .map(e -> new ResolvedDependency(e.isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE,
+                        new IdentifierNode(dependency.getNode().getType(),
+                                dependency.getNode().getLocation(),
+                                e.getDependency().getNode().getIdentifier(),
+                                null)))
+                .collect(Collectors.toSet());
 
         if (!withWildcard && ret.size() != 1) {
             if (ret.isEmpty()) {
                 throw new DependencyNotFoundException(
-                    String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
-                    null,
-                    dependency.getNode().getSourceLocation(),
-                    dependency.getNode().getModule());
+                        String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                        null,
+                        dependency.getNode().getSourceLocation(),
+                        dependency.getNode().getModule());
             } else {
                 throw new AmbiguousDependencyException(
-                    String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
-                    null,
-                    dependency.getNode().getSourceLocation(),
-                    dependency.getNode().getModule());
+                        String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
+                        null,
+                        dependency.getNode().getSourceLocation(),
+                        dependency.getNode().getModule());
             }
         }
         return ret;
@@ -342,34 +342,34 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
         if (dependencyLoader == null) {
             throw new OpenLCompilationException(
-                String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
-                null,
-                dependency.getNode().getSourceLocation(),
-                dependency.getNode().getModule());
+                    String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                    null,
+                    dependency.getNode().getSourceLocation(),
+                    dependency.getNode().getModule());
         }
         return dependencyLoader;
     }
 
     private static String buildCircularDependencyDetails(IDependencyLoader dependencyLoader,
-            Deque<IDependencyLoader> compilationStack) {
+                                                         Deque<IDependencyLoader> compilationStack) {
         StringBuilder sb = new StringBuilder();
 
         Map<String, List<Module>> p = compilationStack.stream()
-            .filter(e -> !e.isProjectLoader())
-            .map(IDependencyLoader::getModule)
-            .collect(Collectors.groupingBy(Module::getName));
+                .filter(e -> !e.isProjectLoader())
+                .map(IDependencyLoader::getModule)
+                .collect(Collectors.groupingBy(Module::getName));
 
         Iterator<IDependencyLoader> itr = compilationStack.iterator();
         sb.append("'");
         sb.insert(0,
-            !dependencyLoader.isProjectLoader() && p.get(dependencyLoader.getModule().getName())
-                .size() == 1 ? dependencyLoader.getModule().getName() : dependencyLoader.getDependency());
+                !dependencyLoader.isProjectLoader() && p.get(dependencyLoader.getModule().getName())
+                        .size() == 1 ? dependencyLoader.getModule().getName() : dependencyLoader.getDependency());
         while (itr.hasNext()) {
             IDependencyLoader s = itr.next();
             sb.insert(0, "' -> '");
             sb.insert(0,
-                !s.isProjectLoader() && p.get(s.getModule().getName()).size() == 1 ? s.getModule().getName()
-                                                                                   : s.getDependency());
+                    !s.isProjectLoader() && p.get(s.getModule().getName()).size() == 1 ? s.getModule().getName()
+                            : s.getDependency());
             if (Objects.equals(dependencyLoader, s)) {
                 break;
             }
@@ -382,9 +382,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
         throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", node.getIdentifier()),
-            null,
-            node.getSourceLocation(),
-            node.getModule());
+                null,
+                node.getSourceLocation(),
+                node.getModule());
     }
 
     public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
@@ -394,7 +394,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     public synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
-            Set<ProjectDescriptor> breadcrumbs) {
+                                                                  Set<ProjectDescriptor> breadcrumbs) {
         getDependencyLoaders(); // Init dependency loaders
         if (externalJarsClassloaders.get(project) != null) {
             return externalJarsClassloaders.get(project);
@@ -404,15 +404,15 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
             Collection<IDependencyLoader> projectDependencyLoaders = getDependencyLoaders().stream()
-                .filter(IDependencyLoader::isProjectLoader)
-                .collect(Collectors.toCollection(ArrayList::new));
+                    .filter(IDependencyLoader::isProjectLoader)
+                    .collect(Collectors.toCollection(ArrayList::new));
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 for (IDependencyLoader dl : projectDependencyLoaders) {
                     if (Objects.equals(projectDependencyDescriptor.getName(), dl.getProject().getName())) {
                         if (!breadcrumbs.contains(dl.getProject())) {
                             breadcrumbs.add(dl.getProject());
                             externalJarsClassloader
-                                .addClassLoader(getExternalJarsClassLoaderRec(dl.getProject(), breadcrumbs));
+                                    .addClassLoader(getExternalJarsClassLoaderRec(dl.getProject(), breadcrumbs));
                             breadcrumbs.remove(dl.getProject());
                         }
                         break;
@@ -483,7 +483,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
                 IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
                 if (openClass instanceof XlsModuleOpenClass && ((XlsModuleOpenClass) openClass)
-                    .isAppliedChangesToClasspath()) {
+                        .isAppliedChangesToClasspath()) {
                     // Datatypes are generated into the project classloader. If module contains datatype then
                     // whole project needs to be recompiled.
                     Deque<ProjectDescriptor> queue1 = new ArrayDeque<>();

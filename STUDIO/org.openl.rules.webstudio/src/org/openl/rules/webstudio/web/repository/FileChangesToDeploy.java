@@ -39,7 +39,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
     private InputStream openedStream;
 
     FileChangesToDeploy(Collection<ProjectDescriptor> projectDescriptors,
-            DesignTimeRepository designRepo,
+                        DesignTimeRepository designRepo,
                         String rulesPath,
                         String deploymentPath,
                         String username) {
@@ -84,9 +84,9 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     String technicalName = projectName;
                     try {
                         AProject designProject = designRepo.getProjectByPath(repositoryId,
-                            branch,
-                            projectPath,
-                            version);
+                                branch,
+                                projectPath,
+                                version);
                         if (designProject != null) {
                             technicalName = designProject.getName();
                         }
@@ -120,7 +120,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
                         Repository repository = RepositoryUtils
-                            .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
+                                .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             LOG.warn("Cannot find files in project {}", projectName);
@@ -141,7 +141,7 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                         FileItem srcPrj = baseRepo.readHistory(rulesPath + projectName, version);
                         if (srcPrj == null) {
                             throw new FileNotFoundException(String
-                                .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
+                                    .format("File '%s' for version %s is not found.", rulesPath + projectName, version));
                         }
                         IOUtils.closeQuietly(openedStream);
                         ZipInputStream stream = new ZipInputStream(addManifestIntoArchive(srcPrj.getStream(), manifestBuilder.build()));

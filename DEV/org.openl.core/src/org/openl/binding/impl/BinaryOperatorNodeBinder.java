@@ -32,12 +32,12 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static IBoundNode bindOperator(ISyntaxNode node,
-            String operatorName,
-            IBoundNode b1,
-            IBoundNode b2,
-            IBindingContext bindingContext) {
+                                          String operatorName,
+                                          IBoundNode b1,
+                                          IBoundNode b2,
+                                          IBindingContext bindingContext) {
 
-        IOpenClass[] types = { b1.getType(), b2.getType() };
+        IOpenClass[] types = {b1.getType(), b2.getType()};
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(operatorName, types, bindingContext);
         if (methodCaller == null) {
             String message = errorMsg(operatorName, types[0], types[1]);
@@ -47,11 +47,11 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller instanceof CastingMethodCaller) {
             IOpenMethod method = methodCaller.getMethod();
             if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass()
-                .getInstanceClass() == Comparison.class) {
+                    .getInstanceClass() == Comparison.class) {
                 IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
                 if (parameterTypes.length == 2) {
                     if (parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1]
-                        .getInstanceClass() == Object.class) {
+                            .getInstanceClass() == Object.class) {
                         validateComparisonWithObjectIncluded(b1, b2, method, node, bindingContext);
                     }
                     validateComparisonLiteralWithDomainType(b1, b2, method, node, bindingContext);
@@ -63,38 +63,38 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     private static void validateComparisonLiteralWithDomainType(IBoundNode b1,
-            IBoundNode b2,
-            IOpenMethod method,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                                                                IBoundNode b2,
+                                                                IOpenMethod method,
+                                                                ISyntaxNode node,
+                                                                IBindingContext bindingContext) {
         validateComparisonLiteralWithDomainTypeInternal(b1, b2, method, node, bindingContext);
         validateComparisonLiteralWithDomainTypeInternal(b2, b1, method, node, bindingContext);
     }
 
     @SuppressWarnings("unchecked")
     private static void validateComparisonLiteralWithDomainTypeInternal(IBoundNode b1,
-            IBoundNode b2,
-            IOpenMethod method,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                                                                        IBoundNode b2,
+                                                                        IOpenMethod method,
+                                                                        ISyntaxNode node,
+                                                                        IBindingContext bindingContext) {
         if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode) {
             IDomain<Object> domain = (IDomain<Object>) b1.getType().getDomain();
             LiteralBoundNode literalBoundNode = (LiteralBoundNode) b2;
             if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
                 BindHelper.processWarn(String.format(
-                    "Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
-                    ((LiteralBoundNode) b2).getValue(),
-                    b1.getType().getName(),
-                    "ne".equals(method.getName())), node, bindingContext);
+                        "Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
+                        ((LiteralBoundNode) b2).getValue(),
+                        b1.getType().getName(),
+                        "ne".equals(method.getName())), node, bindingContext);
             }
         }
     }
 
     private static void validateComparisonWithObjectIncluded(IBoundNode b1,
-            IBoundNode b2,
-            IOpenMethod method,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                                                             IBoundNode b2,
+                                                             IOpenMethod method,
+                                                             ISyntaxNode node,
+                                                             IBindingContext bindingContext) {
         IOpenClass b1Type = b1.getType();
         IOpenClass b2Type = b2.getType();
         if (!Objects.equals(b1Type, b2Type)) {
@@ -115,10 +115,10 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
                 return;
             }
             BindHelper.processWarn(String.format(
-                "Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
-                b1.getType().getName(),
-                b2.getType().getName(),
-                "ne".equals(method.getName())), node, bindingContext);
+                    "Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
+                    b1.getType().getName(),
+                    b2.getType().getName(),
+                    "ne".equals(method.getName())), node, bindingContext);
         }
     }
 
@@ -127,8 +127,8 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     public static IMethodCaller findBinaryOperatorMethodCaller(String methodName,
-            IOpenClass[] types,
-            IBindingContext bindingContext) {
+                                                               IOpenClass[] types,
+                                                               IBindingContext bindingContext) {
 
         IMethodCaller methodCaller = findSingleBinaryOperatorMethodCaller(methodName, types, bindingContext);
 
@@ -140,7 +140,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
 
         if (inverse != null) {
 
-            IOpenClass[] invTypes = new IOpenClass[] { types[1], types[0] };
+            IOpenClass[] invTypes = new IOpenClass[]{types[1], types[0]};
             methodCaller = findSingleBinaryOperatorMethodCaller(inverse, invTypes, bindingContext);
 
             if (methodCaller != null) {
@@ -152,20 +152,20 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     }
 
     private static IMethodCaller findSingleBinaryOperatorMethodCaller(String methodName,
-            IOpenClass[] argumentTypes,
-            IBindingContext bindingContext) {
+                                                                      IOpenClass[] argumentTypes,
+                                                                      IBindingContext bindingContext) {
 
         // An attempt to find the method <namespace>.<methodName>(argumentTypes) in the binding context.
         // This is the most privileged place for searching.
         // @author DLiauchuk
         //
         IMethodCaller methodCaller = bindingContext
-            .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, argumentTypes);
+                .findMethodCaller(ISyntaxConstants.OPERATORS_NAMESPACE, methodName, argumentTypes);
         if (methodCaller != null) {
             return methodCaller;
         }
 
-        IOpenClass[] types2 = { argumentTypes[1] };
+        IOpenClass[] types2 = {argumentTypes[1]};
 
         // An attempt to find method <methodName>(argumentTypes[1]), using the first argument type as a possible
         // collection of suitable methods.

@@ -16,7 +16,7 @@ public abstract class AbstractReflectiveEntityOperations<M, T, E> implements Ent
         try {
             Class<M> entityMapperClass = getEntityMapperClass();
             Class<?> mapperBuilderClass = entityMapperClass.getClassLoader()
-                .loadClass(entityMapperClass.getName() + "Builder");
+                    .loadClass(entityMapperClass.getName() + "Builder");
             Constructor<?> entityMapperBuilderConstructor = mapperBuilderClass.getConstructor(CqlSession.class);
             Object entityMapperBuilder = entityMapperBuilderConstructor.newInstance(session);
             Method entityMapperBuilderBuildMethod = mapperBuilderClass.getMethod("build");

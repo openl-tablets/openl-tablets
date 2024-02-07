@@ -60,9 +60,9 @@ public class Lock {
             }
         } catch (Exception e) {
             LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
-                lockPath,
-                e.getClass().getName(),
-                e.getMessage());
+                    lockPath,
+                    e.getClass().getName(),
+                    e.getMessage());
         } finally {
             if (!lockAcquired) {
                 // Delete because of it loos lock
@@ -210,7 +210,7 @@ public class Lock {
                 Path anotherName = file.toPath().getFileName();
                 FileTime another = Files.getLastModifiedTime(file.toPath());
                 if (current.compareTo(
-                    another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
+                        another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
                     return false;
                 }
             }

@@ -72,7 +72,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Checks if provided table is a datatype table.
-     * 
+     *
      * @param table table to check
      * @return {@code true} if provided table is a datatype table, {@code false} otherwise
      */
@@ -82,7 +82,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Checks if provided table is a simple rules table.
-     * 
+     *
      * @param table table to check
      * @return {@code true} if provided table is a simple rules table, {@code false} otherwise
      */
@@ -112,7 +112,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Checks if provided table is a rules table.
-     * 
+     *
      * @param table table to check
      * @return {@code true} if provided table is a rules table, {@code false} otherwise
      */
@@ -122,7 +122,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Checks if provided table is a simple spreadsheet table.
-     * 
+     *
      * @param table table to check
      * @return {@code true} if provided table is a simple spreadsheet table, {@code false} otherwise
      */
@@ -138,7 +138,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Checks if provided table is a spreadsheet table.
-     * 
+     *
      * @param table table to check
      * @return {@code true} if provided table is a spreadsheet table, {@code false} otherwise
      */
@@ -148,7 +148,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Gets height of provided table without empty rows.
-     * 
+     *
      * @param table table to get height
      * @return height of provided table without empty rows
      */
@@ -171,7 +171,7 @@ public abstract class OpenLTableUtils {
 
     /**
      * Gets width of provided table without empty columns.
-     * 
+     *
      * @param table table to get width
      * @return width of provided table without empty columns
      */

@@ -11,7 +11,6 @@ import org.openl.util.StringUtils;
  * Builder for module properties table.
  *
  * @author DLiauchuk
- *
  */
 public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
@@ -36,7 +35,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return XlsNodeTypes.XLS_PROPERTIES.toString()
-            .equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
+                .equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
     }
 
     @Override

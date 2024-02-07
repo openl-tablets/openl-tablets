@@ -22,8 +22,8 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
     }
 
     public OpenLRulesMethodHandler(Object openlInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnvBuilder runtimeEnvBuilder) {
+                                   Map<Method, IOpenMember> methodMap,
+                                   IRuntimeEnvBuilder runtimeEnvBuilder) {
         super(openlInstance, methodMap, runtimeEnvBuilder);
     }
 
@@ -50,8 +50,8 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
                     output.append("\n\tArgs: {");
                     for (int i = 0; i < args.length; i++) {
                         output.append('"')
-                            .append(((IOpenMethod) targetMethod).getSignature().getParameterName(i))
-                            .append("\":");
+                                .append(((IOpenMethod) targetMethod).getSignature().getParameterName(i))
+                                .append("\":");
                         output.append(LoggingHandler.convert(args[i]));
                         if (i < (args.length - 1)) {
                             output.append(',');
@@ -66,7 +66,7 @@ public class OpenLRulesMethodHandler extends OpenLMethodHandler implements IRule
             try {
                 if (targetMethod instanceof IOpenMethod) {
                     validationHandler
-                        .validateProxyArguments(((IOpenMethod) targetMethod).getSignature(), getRuntimeEnv(), args);
+                            .validateProxyArguments(((IOpenMethod) targetMethod).getSignature(), getRuntimeEnv(), args);
                 }
                 result = super.invoke(method, args);
             } catch (Exception e) {

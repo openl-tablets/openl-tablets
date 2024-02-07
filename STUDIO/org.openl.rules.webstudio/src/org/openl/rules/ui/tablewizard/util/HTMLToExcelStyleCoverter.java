@@ -188,9 +188,9 @@ public class HTMLToExcelStyleCoverter {
                 } catch (Exception e) {
                     HSSFColor similarColor = palette.findSimilarColor(rgbColor[0], rgbColor[1], rgbColor[2]);
                     palette.setColorAtIndex(similarColor.getIndex(),
-                        (byte) rgbColor[0],
-                        (byte) rgbColor[1],
-                        (byte) rgbColor[2]);
+                            (byte) rgbColor[0],
+                            (byte) rgbColor[1],
+                            (byte) rgbColor[2]);
                     hssfColor = palette.getColor(similarColor.getIndex());
                 }
             }
@@ -272,14 +272,14 @@ public class HTMLToExcelStyleCoverter {
                     short[] rgb = stringRGBToShort(style.getString(styleName));
                     return PoiExcelHelper.getColor(rgb, workbook);
                 } else {
-                    return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
+                    return PoiExcelHelper.getColor(new short[]{0, 0, 0}, workbook);
                 }
             } catch (JSONException e) {
-                return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
+                return PoiExcelHelper.getColor(new short[]{0, 0, 0}, workbook);
             }
         }
 
-        return PoiExcelHelper.getColor(new short[] { 0, 0, 0 }, workbook);
+        return PoiExcelHelper.getColor(new short[]{0, 0, 0}, workbook);
     }
 
     public static short getColorByHtmlStyleName(String styleName, JSONObject style, Workbook workbook) {
@@ -363,10 +363,10 @@ public class HTMLToExcelStyleCoverter {
         }
         // FIXME equals fronts never find
         XSSFFont font = workbook
-            .findFont(boldWeight, indexedColor, fontHeight, name, italic, strikeout, typeOffset, underline);
+                .findFont(boldWeight, indexedColor, fontHeight, name, italic, strikeout, typeOffset, underline);
 
         if (font == null || color != null && !font.getXSSFColor().equals(color) || color == null && font.getXSSFColor()
-            .getIndexed() != indexedColor) {
+                .getIndexed() != indexedColor) {
             font = workbook.createFont();
 
             if (color != null) {

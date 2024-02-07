@@ -13,7 +13,6 @@ import org.openl.types.IParameterDeclaration;
 
 /**
  * @author Marat Kamalov
- *
  */
 public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
@@ -23,16 +22,16 @@ public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
     @Override
     protected DTColumnsDefinition createDefinition(IOpenMethodHeader header,
-            String expression,
-            List<ExpressionIdentifier> identifiers,
-            Map<String, List<IParameterDeclaration>> parameters) {
+                                                   String expression,
+                                                   List<ExpressionIdentifier> identifiers,
+                                                   Map<String, List<IParameterDeclaration>> parameters) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.ACTION,
-            getTableName(),
-            header,
-            expression,
-            identifiers,
-            parameters,
-            getTableSyntaxNode());
+                getTableName(),
+                header,
+                expression,
+                identifiers,
+                parameters,
+                getTableSyntaxNode());
     }
 
     @Override

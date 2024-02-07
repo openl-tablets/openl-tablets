@@ -6,7 +6,6 @@ package org.openl.syntax.impl;
 
 /**
  * @author snshor
- *
  */
 public interface ISyntaxConstants {
 

@@ -24,8 +24,8 @@ public final class KafkaDeployUtils {
             resource = resourceLoader.getResource(KAFKA_DEPLOY_ALTERNATIVE_FILE_NAME);
             if (!resource.exists()) {
                 throw new FileNotFoundException(String.format("File '%s' or '%s' is not found.",
-                    KAFKA_DEPLOY_FILE_NAME,
-                    KAFKA_DEPLOY_ALTERNATIVE_FILE_NAME));
+                        KAFKA_DEPLOY_FILE_NAME,
+                        KAFKA_DEPLOY_ALTERNATIVE_FILE_NAME));
             }
         }
         ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();

@@ -54,9 +54,9 @@ public final class OpenLRulesHelper {
                 instance = projectEngineFactory.newInstance();
             } catch (Exception e) {
                 throw new ResourceCompileException(
-                    String.format("Resource with name '%s' in deployment with id '%s' compilation has been failed",
-                        resource,
-                        deploymentId));
+                        String.format("Resource with name '%s' in deployment with id '%s' compilation has been failed",
+                                resource,
+                                deploymentId));
             }
             deploymentCache.add(resource, instance);
         }
@@ -81,20 +81,20 @@ public final class OpenLRulesHelper {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public ProjectEngineFactory get(String deploymentId, String resource) {
         DeploymentEntityManager deploymentEntityManager = Context.getCommandContext().getDeploymentEntityManager();
 
         DeploymentEntity deployment = deploymentEntityManager.findDeploymentById(deploymentId);
         if (deployment == null) {
             throw new ActivitiObjectNotFoundException(
-                String.format("Deployment with id '%s' is not found.", deploymentId),
-                DeploymentEntity.class);
+                    String.format("Deployment with id '%s' is not found.", deploymentId),
+                    DeploymentEntity.class);
         }
 
         // First find in cache
         DeploymentCache<ProjectEngineFactory> deploymentCache = cache.computeIfAbsent(deploymentId,
-            e -> new DefaultDeploymentCache<>());
+                e -> new DefaultDeploymentCache<>());
 
         ProjectEngineFactory<Object> projectEngineFactory = deploymentCache.get(resource);
         if (projectEngineFactory != null) {
@@ -108,31 +108,31 @@ public final class OpenLRulesHelper {
 
                 SimpleProjectEngineFactoryBuilder simpleProjectEngineFactoryBuilder =
                         new SimpleProjectEngineFactoryBuilder()
-                            .setExecutionMode(true)
-                            .setProject(openlProjectFolder.getCanonicalPath())
-                            .setWorkspace(openlProjectFolder.getCanonicalPath());
+                                .setExecutionMode(true)
+                                .setProject(openlProjectFolder.getCanonicalPath())
+                                .setWorkspace(openlProjectFolder.getCanonicalPath());
                 if (rulesDeploy != null) {
                     simpleProjectEngineFactoryBuilder.setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
                     if (rulesDeploy.getServiceClass() != null) {
                         Class<?> interfaceClass = Thread.currentThread()
-                            .getContextClassLoader()
-                            .loadClass(rulesDeploy.getServiceClass());
+                                .getContextClassLoader()
+                                .loadClass(rulesDeploy.getServiceClass());
                         simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);
                     }
                 }
 
                 SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
-                    .build();
+                        .build();
 
                 deploymentCache.add(resource, simpleProjectEngineFactory);
 
                 return simpleProjectEngineFactory;
             } catch (IOException | ClassNotFoundException | JAXBException e) {
                 throw new ResourcePrepareException(
-                    String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.",
-                        resource,
-                        deploymentId),
-                    e);
+                        String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.",
+                                resource,
+                                deploymentId),
+                        e);
             }
         }
     }

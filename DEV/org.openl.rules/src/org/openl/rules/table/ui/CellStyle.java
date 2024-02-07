@@ -7,7 +7,6 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 /**
  * @author snshor
- *
  */
 public class CellStyle implements ICellStyle {
 

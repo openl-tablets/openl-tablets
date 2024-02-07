@@ -12,7 +12,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenRunner {
 
@@ -26,7 +25,6 @@ public interface IOpenRunner {
      * skip it altogether) of a local frame
      *
      * @since 5.9.4
-     *
      */
 
     Object runExpression(IBoundNode expressionNode, Object[] params, IRuntimeEnv env);

@@ -23,7 +23,6 @@ import org.openl.rules.calculation.result.convertor2.SpreadsheetColumnExtractor;
  * Rating result converter to convert {@link SpreadsheetResult} to {@link CompoundStep}.
  *
  * @author Marat Kamalov
- *
  */
 public class ResultConvertorWithBlackList {
 
@@ -68,7 +67,7 @@ public class ResultConvertorWithBlackList {
         blackList.add("Row2");
 
         NestedSpreadsheetConfiguration<SimpleStep, CompoundStep> configuration = new NestedSpreadsheetConfiguration<SimpleStep, CompoundStep>(
-            columnsToExtractForLevels) {
+                columnsToExtractForLevels) {
             @Override
             protected RowExtractor<CompoundStep> initCompoundRowExtractor(
                     List<SpreadsheetColumnExtractor<CompoundStep>> compoundExtractors) {
@@ -83,7 +82,7 @@ public class ResultConvertorWithBlackList {
 
             @Override
             protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel,
-                    ColumnToExtract column) {
+                                                                                   ColumnToExtract column) {
                 return new NestedSpreadsheedColumnExtractorWithPostProcessing(nestingLevel, this, column);
             }
 

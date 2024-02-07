@@ -23,7 +23,7 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
         IOpenClass rightType = right.getType();
 
         if ((leftType.getInstanceClass() == boolean.class || leftType.getInstanceClass() == Boolean.class) && (rightType
-            .getInstanceClass() == boolean.class || rightType.getInstanceClass() == Boolean.class)) {
+                .getInstanceClass() == boolean.class || rightType.getInstanceClass() == Boolean.class)) {
 
             return new BinaryOpNodeAnd(node, left, right);
         }
@@ -31,8 +31,8 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
         int index = node.getType().lastIndexOf('.');
         String methodName = node.getType().substring(index + 1);
         IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName,
-            new IOpenClass[] { leftType, rightType },
-            bindingContext);
+                new IOpenClass[]{leftType, rightType},
+                bindingContext);
 
         if (methodCaller == null) {
             String message = errorMsg(methodName, leftType, rightType);

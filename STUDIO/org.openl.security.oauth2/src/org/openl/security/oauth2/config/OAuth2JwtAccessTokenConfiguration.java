@@ -33,7 +33,7 @@ public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean(OAuth2AccessTokenConfiguration.AUTH_PROVIDER_BEAN_NAME)
     public AuthenticationProvider oauth2AccessTokenAuthenticationProvider(JwtDecoder decoder,
-            JwtAuthenticationConverter jwtAuthenticationConverter) {
+                                                                          JwtAuthenticationConverter jwtAuthenticationConverter) {
 
         var provider = new JwtAuthenticationProvider(decoder);
         provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
@@ -42,11 +42,11 @@ public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean
     public JwtDecoder jwtDecoder(@Value("${security.oauth2.issuer-uri}") String issuerUri,
-            ClientRegistrationRepository clientRegistrationRepository) {
+                                 ClientRegistrationRepository clientRegistrationRepository) {
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
 
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-            new OidcIdTokenValidator(clientRegistrationRepository.findByRegistrationId("webstudio")));
+                new OidcIdTokenValidator(clientRegistrationRepository.findByRegistrationId("webstudio")));
 
         jwtDecoder.setJwtValidator(validator);
         return jwtDecoder;

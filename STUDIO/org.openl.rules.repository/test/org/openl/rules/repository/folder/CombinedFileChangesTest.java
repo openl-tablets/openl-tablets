@@ -48,20 +48,20 @@ public class CombinedFileChangesTest {
         final String file1 = "deployments/my-deployment1/project1/file1";
         final String file2 = "deployments/my-deployment1/project1/rules/file2";
         List<FileItem> project1Changes = Arrays.asList(
-            createFileItem(file1, "hello1"),
-            createFileItem(file2, "hello2")
+                createFileItem(file1, "hello1"),
+                createFileItem(file2, "hello2")
         );
 
         final String file3 = "deployments/my-deployment1/project2/file1";
         final String file4 = "deployments/my-deployment1/project2/rules/file2";
         List<FileItem> project2Changes = Arrays.asList(
-            createFileItem(file3, "hello3"),
-            createFileItem(file4, "hello4")
+                createFileItem(file3, "hello3"),
+                createFileItem(file4, "hello4")
         );
 
         CombinedFileChanges changes = new CombinedFileChanges(Arrays.asList(
-            project1Changes,
-            project2Changes
+                project1Changes,
+                project2Changes
         ));
 
         repo.save(folder, changes, ChangesetType.FULL);

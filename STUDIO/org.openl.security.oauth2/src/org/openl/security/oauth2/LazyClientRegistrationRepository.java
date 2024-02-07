@@ -30,14 +30,14 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
     private void init() {
         try {
             ClientRegistration clientRegistration = ClientRegistrations
-                .fromOidcIssuerLocation(propertyResolver.getProperty("security.oauth2.issuer-uri"))
-                .clientId(propertyResolver.getProperty("security.oauth2.client-id"))
-                .registrationId("webstudio")
-                .clientSecret(propertyResolver.getProperty("security.oauth2.client-secret"))
-                .scope(StringUtils.split(propertyResolver.getProperty("security.oauth2.scope"), ','))
-                .authorizationGrantType(
-                    new AuthorizationGrantType(propertyResolver.getProperty("security.oauth2.grant-type")))
-                .build();
+                    .fromOidcIssuerLocation(propertyResolver.getProperty("security.oauth2.issuer-uri"))
+                    .clientId(propertyResolver.getProperty("security.oauth2.client-id"))
+                    .registrationId("webstudio")
+                    .clientSecret(propertyResolver.getProperty("security.oauth2.client-secret"))
+                    .scope(StringUtils.split(propertyResolver.getProperty("security.oauth2.scope"), ','))
+                    .authorizationGrantType(
+                            new AuthorizationGrantType(propertyResolver.getProperty("security.oauth2.grant-type")))
+                    .build();
             clientRegistrationRepository = new InMemoryClientRegistrationRepository(clientRegistration);
         } catch (Exception e) {
             log.warn("", e);
@@ -54,6 +54,6 @@ public class LazyClientRegistrationRepository implements ClientRegistrationRepos
             }
         }
         return clientRegistrationRepository != null ? clientRegistrationRepository.findByRegistrationId(registrationId)
-            : null;
+                : null;
     }
 }

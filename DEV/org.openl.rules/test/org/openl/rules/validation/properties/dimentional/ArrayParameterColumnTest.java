@@ -33,7 +33,7 @@ public class ArrayParameterColumnTest {
         List<ITableProperties> properties = new ArrayList<>();
         properties.add(tableProperty);
         ArrayParameterColumn arrayColumn1 = new ArrayParameterColumn(getArrayProperty(),
-            new DispatcherTableRules(properties));
+                new DispatcherTableRules(properties));
         assertEquals("country == null || contains(countryLocal,country)", arrayColumn1.getCodeExpression());
 
     }
@@ -104,16 +104,16 @@ public class ArrayParameterColumnTest {
         arrayProperty.setDimensional(true);
         arrayProperty.setDisplayName("Countries");
         arrayProperty.setExpression(
-            new MatchingExpression("contains(country)"));
+                new MatchingExpression("contains(country)"));
         arrayProperty.setGroup("Business Dimension");
         arrayProperty.setInheritanceLevel(
-            new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
+                new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         arrayProperty.setName("country");
         arrayProperty.setPrimaryKey(false);
         arrayProperty.setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
         arrayProperty.setSystem(false);
         arrayProperty.setType(
-            JavaOpenClass.getOpenClass(CountriesEnum[].class));
+                JavaOpenClass.getOpenClass(CountriesEnum[].class));
         return arrayProperty;
     }
 }

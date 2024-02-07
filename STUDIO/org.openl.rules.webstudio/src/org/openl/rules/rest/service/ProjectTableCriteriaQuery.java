@@ -19,7 +19,7 @@ public class ProjectTableCriteriaQuery {
 
     private ProjectTableCriteriaQuery(Builder builder) {
         this.kinds = builder.kinds == null ? Collections.emptyList()
-                                           : Collections.unmodifiableCollection(builder.kinds);
+                : Collections.unmodifiableCollection(builder.kinds);
         this.name = builder.name;
         this.properties = builder.properties == null ? Collections.emptyMap() : Map.copyOf(builder.properties);
     }

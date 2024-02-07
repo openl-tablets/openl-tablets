@@ -10,7 +10,6 @@ import org.openl.binding.IOpenLibrary;
 
 /**
  * @author snshor
- *
  */
 public interface IMethodFactoryConfigurationElement extends IConfigurationElement {
 

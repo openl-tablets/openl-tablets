@@ -47,7 +47,7 @@ public class StyleTrackingListener implements HSSFListener {
 
         String format;
         if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || customFormats
-            .get(formatIndex) != null) {
+                .get(formatIndex) != null) {
             format = customFormats.get(formatIndex).getFormatString();
         } else {
             format = HSSFDataFormat.getBuiltinFormat((short) formatIndex);
@@ -59,7 +59,6 @@ public class StyleTrackingListener implements HSSFListener {
      * Returns the index of the format string, used by your cell, or -1 if none found
      *
      * @param cell the cell
-     *
      * @return the index of the format string
      */
     public int getFormatIndex(CellValueRecordInterface cell) {

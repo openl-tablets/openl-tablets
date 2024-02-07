@@ -11,7 +11,6 @@ import org.openl.util.text.ILocation;
  * properties, extend your class from this one.
  *
  * @author DLiauchuk
- *
  */
 public class TablePropertiesException extends SyntaxNodeException {
 

@@ -15,9 +15,9 @@ import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {
-  "production-repository.factory = repo-zip",
-  "production-repository.uri = test-resources/openl-repository/deploy",
-  "production-repository.archives = ErrorTest/ErrorTest, org.openl.tablets.tutorial4/org.openl.tablets.tutorial4"})
+        "production-repository.factory = repo-zip",
+        "production-repository.uri = test-resources/openl-repository/deploy",
+        "production-repository.archives = ErrorTest/ErrorTest, org.openl.tablets.tutorial4/org.openl.tablets.tutorial4"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
 public class ZipSpringConfigurationServiceManagerTest {
@@ -38,8 +38,8 @@ public class ZipSpringConfigurationServiceManagerTest {
     public void testExceptionFramework() throws Exception {
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("ErrorTest_ErrorTest",
-                "vehicleEligibilityScore",
-                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
+                    "vehicleEligibilityScore",
+                    RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
         });
     }
 

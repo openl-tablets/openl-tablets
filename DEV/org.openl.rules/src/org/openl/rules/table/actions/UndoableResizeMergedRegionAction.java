@@ -16,22 +16,22 @@ public class UndoableResizeMergedRegionAction implements IUndoableGridTableActio
     private IGridRegion newRegion;
 
     public UndoableResizeMergedRegionAction(IGridRegion initialRegion,
-            int numberOfRowsOrColumns,
-            boolean isInsert,
-            boolean isColumns) {
+                                            int numberOfRowsOrColumns,
+                                            boolean isInsert,
+                                            boolean isColumns) {
         this.initialRegion = initialRegion;
         int increase = isInsert ? numberOfRowsOrColumns : -numberOfRowsOrColumns;
         try {
             if (isColumns) {
                 newRegion = new GridRegion(initialRegion.getTop(),
-                    initialRegion.getLeft(),
-                    initialRegion.getBottom(),
-                    initialRegion.getRight() + increase);
+                        initialRegion.getLeft(),
+                        initialRegion.getBottom(),
+                        initialRegion.getRight() + increase);
             } else {
                 newRegion = new GridRegion(initialRegion.getTop(),
-                    initialRegion.getLeft(),
-                    initialRegion.getBottom() + increase,
-                    initialRegion.getRight());
+                        initialRegion.getLeft(),
+                        initialRegion.getBottom() + increase,
+                        initialRegion.getRight());
             }
         } catch (IllegalArgumentException e) {
             // Wrong region created

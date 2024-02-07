@@ -57,19 +57,19 @@ public class OpenL2TextCommand {
     private final boolean parsingMode;
 
     public OpenL2TextCommand(Path dir,
-            Path workspace,
-            Path outputDir,
-            boolean omitTypes,
-            int maxTypesDeep,
-            boolean replaceAliasesWithBaseTypes,
-            boolean includeDimensionalProperties,
-            boolean omitMethodRefs,
-            boolean includeAllRulesMethods,
-            boolean omitDispatchingMethods,
-            boolean tableAsCode,
-            boolean onlyMethodCells,
-            int maxRows,
-            boolean parsingMode) {
+                             Path workspace,
+                             Path outputDir,
+                             boolean omitTypes,
+                             int maxTypesDeep,
+                             boolean replaceAliasesWithBaseTypes,
+                             boolean includeDimensionalProperties,
+                             boolean omitMethodRefs,
+                             boolean includeAllRulesMethods,
+                             boolean omitDispatchingMethods,
+                             boolean tableAsCode,
+                             boolean onlyMethodCells,
+                             int maxRows,
+                             boolean parsingMode) {
         this.dir = Objects.requireNonNull(dir, "dir cannot be null");
         this.workspace = Objects.requireNonNull(workspace, "workspace cannot be null");
         this.outputDir = Objects.requireNonNull(outputDir, "outputDir cannot be null");
@@ -105,22 +105,22 @@ public class OpenL2TextCommand {
             // Iterate over Excel files in the dir folder
             try (Stream<Path> paths = Files.walk(dir)) {
                 paths.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".xls") || p.toString().endsWith(".xlsx") || p.toString()
-                        .endsWith(".xlsm") || p.toString().endsWith(".xlsb"))
-                    .forEach(p -> {
-                        try {
-                            Parser parser = new Parser(
-                                new UserContext(Thread.currentThread().getContextClassLoader(), "."));
-                            IParsedCode parsedCode = parser.parseAsModule(new URLSourceCodeModule(p.toUri().toURL()));
-                            TableSyntaxNode[] tableSyntaxNodes = ((XlsModuleSyntaxNode) parsedCode.getTopNode())
-                                .getXlsTableSyntaxNodes();
-                            for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-                                writeExcelTable(tableSyntaxNode);
+                        .filter(p -> p.toString().endsWith(".xls") || p.toString().endsWith(".xlsx") || p.toString()
+                                .endsWith(".xlsm") || p.toString().endsWith(".xlsb"))
+                        .forEach(p -> {
+                            try {
+                                Parser parser = new Parser(
+                                        new UserContext(Thread.currentThread().getContextClassLoader(), "."));
+                                IParsedCode parsedCode = parser.parseAsModule(new URLSourceCodeModule(p.toUri().toURL()));
+                                TableSyntaxNode[] tableSyntaxNodes = ((XlsModuleSyntaxNode) parsedCode.getTopNode())
+                                        .getXlsTableSyntaxNodes();
+                                for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+                                    writeExcelTable(tableSyntaxNode);
+                                }
+                            } catch (Exception e) {
+                                log.error("Failed to parse excel file: {}", p, e);
                             }
-                        } catch (Exception e) {
-                            log.error("Failed to parse excel file: {}", p, e);
-                        }
-                    });
+                        });
             } catch (IOException e) {
                 log.error("Failed to iterate over files in the dir folder: {}", dir, e);
             }
@@ -128,17 +128,17 @@ public class OpenL2TextCommand {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = null;
             try {
                 simpleProjectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
-                    .setProject(dir.toFile().getPath())
-                    .setWorkspace(workspace.toFile().getPath())
-                    .setExecutionMode(false)
-                    .setProvideVariations(false)
-                    .setProvideRuntimeContext(false)
-                    .build();
+                        .setProject(dir.toFile().getPath())
+                        .setWorkspace(workspace.toFile().getPath())
+                        .setExecutionMode(false)
+                        .setProvideVariations(false)
+                        .setProvideRuntimeContext(false)
+                        .build();
                 CompiledOpenClass compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();
                 if (compiledOpenClass.hasErrors()) {
                     StringBuilder sb = new StringBuilder();
                     for (OpenLMessage message : OpenLMessagesUtils
-                        .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR)) {
+                            .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR)) {
                         sb.append("    ").append(message.getSummary()).append("\n");
                     }
                     log.error("Rules '%s' are compiled with errors: \n{}", sb.toString());
@@ -149,7 +149,7 @@ public class OpenL2TextCommand {
                 if (includeAllRulesMethods) {
                     for (IOpenMethod openMethod : openClass.getMethods()) {
                         allRulesMethods
-                            .add(OpenL2TextUtils.methodHeaderToString(openMethod, replaceAliasesWithBaseTypes));
+                                .add(OpenL2TextUtils.methodHeaderToString(openMethod, replaceAliasesWithBaseTypes));
                     }
                 }
 
@@ -257,7 +257,7 @@ public class OpenL2TextCommand {
             Files.writeString(filePath, content);
         } catch (IOException e) {
             String errorMessage = String
-                .format("Error writing content to file '%s' while processing directory '%s'.", filePath, dir);
+                    .format("Error writing content to file '%s' while processing directory '%s'.", filePath, dir);
             log.error(errorMessage, e);
         }
     }

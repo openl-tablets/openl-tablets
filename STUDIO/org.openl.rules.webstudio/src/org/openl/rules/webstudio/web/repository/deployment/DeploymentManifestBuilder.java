@@ -13,13 +13,12 @@ import org.openl.util.StringUtils;
 /**
  * Builds {@link Manifest} entry for deployment. Default parameters:</br>
  * <p>
- *     Manifest-Version: 1.0</br>
- *     Build-Date: current date in ISO 8601 format</br>
- *     Created-By: OpenL WebStudio v.{@code project.version}</br>
+ * Manifest-Version: 1.0</br>
+ * Build-Date: current date in ISO 8601 format</br>
+ * Created-By: OpenL WebStudio v.{@code project.version}</br>
  * </p>
- *
+ * <p>
  * Optional parameters: Build-Number, Built-By, Branch-Name, Implementation-Title
- *
  */
 public class DeploymentManifestBuilder {
 
@@ -31,6 +30,7 @@ public class DeploymentManifestBuilder {
 
     /**
      * Set {@code Build-Number} property
+     *
      * @param number project revision number
      * @return {@code this}
      */
@@ -41,6 +41,7 @@ public class DeploymentManifestBuilder {
 
     /**
      * Set {@code Built-By} property
+     *
      * @param builtBy current user
      * @return {@code this}
      */
@@ -51,6 +52,7 @@ public class DeploymentManifestBuilder {
 
     /**
      * Set {@code Implementation-Title} property
+     *
      * @param implementationTitle project title
      * @return {@code this}
      */
@@ -61,6 +63,7 @@ public class DeploymentManifestBuilder {
 
     /**
      * Set {@code Build-Branch} property
+     *
      * @param buildBranch working branch
      * @return {@code this}
      */
@@ -71,6 +74,7 @@ public class DeploymentManifestBuilder {
 
     /**
      * Set {@code Build-Branch} property
+     *
      * @param implementationVersion working branch
      * @return {@code this}
      */

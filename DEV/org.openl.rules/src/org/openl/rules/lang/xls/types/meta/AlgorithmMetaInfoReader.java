@@ -99,7 +99,7 @@ public class AlgorithmMetaInfoReader extends AMethodMetaInfoReader<AlgorithmBoun
                     IMethodCaller methodCaller = ((OpenLEvaluationOperation) step).getOpenLStatement();
                     if (methodCaller instanceof CompositeMethod) {
                         List<NodeUsage> nodeUsages = MetaInfoReaderUtils
-                            .getNodeUsages((CompositeMethod) methodCaller, sourceModule.getCode(), 0);
+                                .getNodeUsages((CompositeMethod) methodCaller, sourceModule.getCode(), 0);
 
                         return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                     }

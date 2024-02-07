@@ -13,9 +13,9 @@ public class Profile {
             CATEGORY_DETAILED_VIEW,
             CATEGORY_INVERSE_VIEW};
 
-    public static final RulesProfile[] PROFILES = { new TypeProfile(),
+    public static final RulesProfile[] PROFILES = {new TypeProfile(),
             new ExcelSheetProfile(),
             new CategoryProfile(),
             new CategoryDetailedProfile(),
-            new CategoryInversedProfile() };
+            new CategoryInversedProfile()};
 }

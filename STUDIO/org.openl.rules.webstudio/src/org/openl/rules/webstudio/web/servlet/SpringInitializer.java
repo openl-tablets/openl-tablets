@@ -87,7 +87,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         // Register a WEB context path for easy access from Spring beans
         applicationContext.addBeanFactoryPostProcessor(
-            bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
+                bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
 
         // Register Utility 'Props' class
         Props.setEnvironment(applicationContext.getEnvironment());
@@ -110,7 +110,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     /**
      * Register Spring Dispatcher Servlet
-     * 
+     *
      * @param sc servlet context
      */
     private void registerDispatcherServlet(ServletContext sc) {

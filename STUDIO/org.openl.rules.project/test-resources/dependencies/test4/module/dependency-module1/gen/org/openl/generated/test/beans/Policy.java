@@ -1,6 +1,6 @@
 /*
- * This class has been generated. Do not change it. 
-*/
+ * This class has been generated. Do not change it.
+ */
 
 package org.openl.generated.test.beans;
 

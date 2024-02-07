@@ -45,7 +45,7 @@ public class ProjectHistoryController {
     @PostMapping(value = "/restore", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void restore(@Parameter(description = "history.restore.req-body.desc") @RequestBody String versionToRestore,
-            HttpSession session) throws Exception {
+                        HttpSession session) throws Exception {
         var webStudio = WebStudioUtils.getWebStudio(session);
         if (webStudio == null) {
             return;

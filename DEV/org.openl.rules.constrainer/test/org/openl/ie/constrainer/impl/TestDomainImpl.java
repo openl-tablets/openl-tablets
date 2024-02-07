@@ -42,8 +42,8 @@ public class TestDomainImpl {
 
     @Test
     public void testContains() {
-        int[] goodArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
+        int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
         for (int i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainImpl.contains(goodArray[i]));
             assertFalse(_probeDomainImpl.contains(badArray[i]));

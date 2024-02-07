@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * {@link NicePrinterAdaptor} for the beans. It will prints the bean by "toString()" method if it specified and will
  * print all bean properties othewise.
  *
@@ -56,7 +55,7 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
 
     private static boolean isToStringSpecified(Class<?> clazz) {
         try {
-            return clazz.getMethod("toString", new Class<?>[] {}).getDeclaringClass() != Object.class;
+            return clazz.getMethod("toString", new Class<?>[]{}).getDeclaringClass() != Object.class;
         } catch (NoSuchMethodException e) {
             return false;
         }

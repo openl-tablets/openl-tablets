@@ -23,7 +23,6 @@ import org.openl.types.IOpenMethodHeader;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableBoundNode extends AMethodBasedNode {
 
@@ -31,9 +30,9 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     private boolean initialized = false;
 
     public DecisionTableBoundNode(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            IOpenMethodHeader header,
-            ModuleOpenClass module) {
+                                  OpenL openl,
+                                  IOpenMethodHeader header,
+                                  ModuleOpenClass module) {
 
         super(tableSyntaxNode, openl, header, module);
     }
@@ -47,17 +46,17 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
             dim++;
         }
         boolean isTypeCustomSpreadsheetResult = type instanceof SpreadsheetResultOpenClass && OpenLSystemProperties
-            .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
+                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
         DecisionTable decisionTable = new DecisionTable(getHeader(), this, isTypeCustomSpreadsheetResult);
         if (decisionTable.isTypeCustomSpreadsheetResult()) {
             decisionTable.setDim(dim);
             decisionTable.setCustomSpreadsheetResultType(
-                (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                    Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + decisionTable.getName()));
+                    (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                            Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + decisionTable.getName()));
             try {
                 RulesModuleBindingContextHelper.compileAllTypesInSignature(getHeader().getSignature(), bindingContext);
                 new DecisionTableLoader()
-                    .loadAndBind(getTableSyntaxNode(), decisionTable, getOpenl(), getModule(), bindingContext);
+                        .loadAndBind(getTableSyntaxNode(), decisionTable, getOpenl(), getModule(), bindingContext);
             } catch (Exception e) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, getTableSyntaxNode());
                 bindingContext.addError(error);
@@ -73,7 +72,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         if (!initialized && getDecisionTable() != null) {
             RulesModuleBindingContextHelper.compileAllTypesInSignature(getHeader().getSignature(), bindingContext);
             new DecisionTableLoader()
-                .loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
+                    .loadAndBind(getTableSyntaxNode(), getDecisionTable(), getOpenl(), getModule(), bindingContext);
         }
     }
 

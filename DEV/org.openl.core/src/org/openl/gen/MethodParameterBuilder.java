@@ -21,7 +21,7 @@ public class MethodParameterBuilder {
 
     /**
      * Build {@link TypeDescription} object
-     * 
+     *
      * @return instance of {@link TypeDescription}
      */
     public TypeDescription build() {
@@ -41,7 +41,7 @@ public class MethodParameterBuilder {
 
     /**
      * Create builder from {@link Class} type
-     * 
+     *
      * @param parameterType method parameter class
      * @return method parameter builder
      */
@@ -51,7 +51,7 @@ public class MethodParameterBuilder {
 
     /**
      * Create builder from custom type
-     * 
+     *
      * @param parameterType method parameter class
      * @return method parameter builder
      */

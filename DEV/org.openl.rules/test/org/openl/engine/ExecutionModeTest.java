@@ -62,7 +62,7 @@ public class ExecutionModeTest {
         assertEquals(120, result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("modification", new IOpenClass[] { JavaOpenClass.INT });
+        IOpenMethod openMethod = moduleOpenClass.getMethod("modification", new IOpenClass[]{JavaOpenClass.INT});
         if (openMethod instanceof Algorithm) {
             assertNull(((Algorithm) openMethod).getBoundNode());
         } else {
@@ -79,10 +79,10 @@ public class ExecutionModeTest {
 
     @Test
     public void testSpreadsheetExecution() throws NoSuchMethodException,
-                                           InvocationTargetException,
-                                           IllegalAccessException {
+            InvocationTargetException,
+            IllegalAccessException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
-            "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
+                "./test/rules/calc1/SpreadsheetResult_SimpleBean_Test.xls");
         engineFactory.setExecutionMode(true);
 
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
@@ -110,8 +110,8 @@ public class ExecutionModeTest {
 
     @Test
     public void testColumnMatchExecution() throws NoSuchMethodException,
-                                           InvocationTargetException,
-                                           IllegalAccessException {
+            InvocationTargetException,
+            IllegalAccessException {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>("./test/rules/cmatch1/match4-1.xls");
         engineFactory.setExecutionMode(true);
 
@@ -124,7 +124,7 @@ public class ExecutionModeTest {
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenMethod openMethod = moduleOpenClass.getMethod("runColumnMatch",
-            new IOpenClass[] { JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT });
+                new IOpenClass[]{JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT, JavaOpenClass.INT});
         if (openMethod instanceof ColumnMatch) {
             assertNull(((ColumnMatch) openMethod).getBoundNode());
         } else {
@@ -142,7 +142,7 @@ public class ExecutionModeTest {
     @Test
     public void testOverloaded() {
         RulesEngineFactory<ITestI> engineFactory = new RulesEngineFactory<>("test/rules/overload/Overload.xls",
-            ITestI.class);
+                ITestI.class);
         engineFactory.setExecutionMode(true);
 
         ITestI instance = (ITestI) engineFactory.newInstance();
@@ -171,7 +171,7 @@ public class ExecutionModeTest {
     public void testSkipedTables() {
         // in execution mode test tables and run tables have to be skipped
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(
-            "./test/rules/testmethod/UserExceptionTest.xlsx");
+                "./test/rules/testmethod/UserExceptionTest.xlsx");
         engineFactory.setExecutionMode(true);
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
         IOpenField testMethod = moduleOpenClass.getField("driverRiskTest1");
@@ -191,7 +191,7 @@ public class ExecutionModeTest {
 
             IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
             IOpenMethod methodWithError = moduleOpenClass.getMethod("npe",
-                new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
+                    new IOpenClass[]{JavaOpenClass.getOpenClass(Integer.class)});
             assertNotNull(methodWithError);
 
             Class<?> interfaceClass = engineFactory.getInterfaceClass();

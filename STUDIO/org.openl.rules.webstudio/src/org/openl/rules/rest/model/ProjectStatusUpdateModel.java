@@ -17,7 +17,7 @@ import org.openl.util.StringUtils;
  */
 public class ProjectStatusUpdateModel {
 
-    @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "OPENED", "CLOSED" }))
+    @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"OPENED", "CLOSED"}))
     @JsonDeserialize(using = ProjectStatusDeserializer.class)
     private ProjectStatus status;
 

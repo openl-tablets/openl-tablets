@@ -58,8 +58,8 @@ public class StyleIndexHandler extends DefaultHandler {
             sharedFormulaIndex = attributes.getValue("si");
             sharedFormulaRef = attributes.getValue("ref");
             if (IGridRegion.Tool.contains(tableRegion,
-                current.getColumn(),
-                current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
+                    current.getColumn(),
+                    current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
                 readFormula = true;
             }
         }
@@ -78,7 +78,7 @@ public class StyleIndexHandler extends DefaultHandler {
             readFormula = false;
             if (sharedFormulaIndex != null && sharedFormulaRef != null) {
                 sharedFormulas.put(sharedFormulaIndex,
-                    new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
+                        new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
             }
             if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
                 try {
@@ -108,10 +108,10 @@ public class StyleIndexHandler extends DefaultHandler {
 
         SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
         Ptg[] parsedTokens = FormulaParser.parse(formulaDefinition
-            .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
+                .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
         Ptg[] convertedTokens = sf.convertSharedFormulas(parsedTokens,
-            current.getRow() - ref.getFirstRow(),
-            current.getColumn() - ref.getFirstColumn());
+                current.getRow() - ref.getFirstRow(),
+                current.getColumn() - ref.getFirstColumn());
         // Formulas with links to other workbooks are not supported
         return FormulaRenderer.toFormulaString(null, convertedTokens);
     }

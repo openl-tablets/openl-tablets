@@ -40,11 +40,11 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     private final GrantedAuthority relevantSystemWideGrantedAuthority;
 
     public GetUserPrivileges(UserManagementService userManagementService,
-            GroupManagementService groupManagementService,
-            GrantedAuthority relevantSystemWideGrantedAuthority,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
+                             GroupManagementService groupManagementService,
+                             GrantedAuthority relevantSystemWideGrantedAuthority,
+                             @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+                             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.defaultGroup = Props.text("security.default-group");
@@ -71,7 +71,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         User userDetails = userManagementService.getUser(user);
         if (userDetails != null) {
             privileges.addAll(
-                userDetails.getAuthorities().stream().map(GetUserPrivileges::toPrivilege).collect(Collectors.toList()));
+                    userDetails.getAuthorities().stream().map(GetUserPrivileges::toPrivilege).collect(Collectors.toList()));
         }
 
         return privileges;
@@ -107,13 +107,13 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
             group1.setName(relevantSystemWideGrantedAuthority.getAuthority());
             SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group1)).build();
             SecurityContextHolder.getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
+                    .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
             deployConfigRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
-                List.of(new GrantedAuthoritySid(group.getName())));
+                    List.of(new GrantedAuthoritySid(group.getName())));
             designRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
-                List.of(new GrantedAuthoritySid(group.getName())));
+                    List.of(new GrantedAuthoritySid(group.getName())));
             productionRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
-                List.of(new GrantedAuthoritySid(group.getName())));
+                    List.of(new GrantedAuthoritySid(group.getName())));
         } finally {
             SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
         }

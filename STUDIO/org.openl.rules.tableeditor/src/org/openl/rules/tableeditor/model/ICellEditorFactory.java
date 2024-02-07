@@ -2,10 +2,10 @@ package org.openl.rules.tableeditor.model;
 
 /**
  * @author snshor
- *
- *         Provides interface for table editor creator. An implementation can differ in different scenarios It allows to
- *         separate an actual implementation from the caller, for example, the call to makeCodeEditor() may return
- *         simple multi-line editor for now
+ * <p>
+ * Provides interface for table editor creator. An implementation can differ in different scenarios It allows to
+ * separate an actual implementation from the caller, for example, the call to makeCodeEditor() may return
+ * simple multi-line editor for now
  */
 
 public interface ICellEditorFactory {
@@ -26,8 +26,8 @@ public interface ICellEditorFactory {
     /**
      * Creates numeric editor with min, max bounds.
      *
-     * @param min minimum possible number
-     * @param max maximum possible number
+     * @param min     minimum possible number
+     * @param max     maximum possible number
      * @param intOnly true if only integer numbers only allowed (byte, int, long etc)
      * @return cell editor
      */

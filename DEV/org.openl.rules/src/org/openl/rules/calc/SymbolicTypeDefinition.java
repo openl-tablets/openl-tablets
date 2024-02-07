@@ -12,10 +12,10 @@ public class SymbolicTypeDefinition {
     private final IOpenSourceCodeModule source;
 
     public SymbolicTypeDefinition(IdentifierNode name,
-            IdentifierNode type,
-            boolean asterisk,
-            boolean tilde,
-            IOpenSourceCodeModule source) {
+                                  IdentifierNode type,
+                                  boolean asterisk,
+                                  boolean tilde,
+                                  IOpenSourceCodeModule source) {
         this.name = name;
         this.type = type;
         this.asterisk = asterisk;

@@ -15,12 +15,11 @@ import org.openl.types.IOpenMember;
 
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning instances of them.
- *
+ * <p>
  * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutation of listed below
  * OpenL not cloned classes.
  *
  * @author DLiauchuk
- *
  */
 public class OpenLCloner extends Cloner {
 

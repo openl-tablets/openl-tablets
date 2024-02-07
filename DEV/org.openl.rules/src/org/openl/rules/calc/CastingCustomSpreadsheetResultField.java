@@ -31,9 +31,9 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     private final IOpenClass[] declaringClasses;
 
     public CastingCustomSpreadsheetResultField(IOpenClass declaringClass,
-            String name,
-            IOpenField field1,
-            IOpenField field2) {
+                                               String name,
+                                               IOpenField field1,
+                                               IOpenField field2) {
         super(declaringClass, name, null);
         Objects.requireNonNull(field1, "field1 cannot be null");
         Objects.requireNonNull(field2, "field2 cannot be null");
@@ -117,13 +117,13 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     }
                 }
                 if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()
-                    .next() == xlsModuleOpenClass) {
+                        .next() == xlsModuleOpenClass) {
                     Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
-                        .map(CustomSpreadsheetResultOpenClass.class::cast)
-                        .collect(Collectors.toSet());
+                            .map(CustomSpreadsheetResultOpenClass.class::cast)
+                            .collect(Collectors.toSet());
                     if (customSpreadsheetResultOpenClasses.size() > 1) {
                         this.type = xlsModuleOpenClass.buildOrGetCombinedSpreadsheetResult(
-                            customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     } else {
                         this.type = customSpreadsheetResultOpenClasses.iterator().next();
                     }
@@ -134,7 +134,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     while (itr.hasNext()) {
                         IOpenClass t1 = itr.next();
                         CastToWiderType castToWiderType = CastToWiderType
-                            .create(xlsModuleOpenClass.getRulesModuleBindingContext(), t, t1);
+                                .create(xlsModuleOpenClass.getRulesModuleBindingContext(), t, t1);
                         t = castToWiderType.getWiderType();
                     }
                     this.casts = new ArrayList<>();

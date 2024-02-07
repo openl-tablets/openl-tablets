@@ -19,7 +19,6 @@ import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.Nested
  * Column extractor for nesting spreadsheet values(e.g. SpreadsheetResult or SpreadsheetResult[])
  *
  * @author DLiauchuk
- *
  */
 @Deprecated
 public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor<CompoundStep> {
@@ -34,8 +33,8 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
      */
 
     public NestedSpreadsheedColumnExtractor(int nestingLevel,
-            NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration,
-            ColumnToExtract column) {
+                                            NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration,
+                                            ColumnToExtract column) {
         super(column, configuration);
         this.nestingLevel = nestingLevel;
     }
@@ -103,7 +102,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
 
     private List<? extends CalculationStep> convertCompoundPremium(SpreadsheetResult result) {
         NestedSpreadsheetResultConverter<? extends CalculationStep, ? extends CompoundStep> converter = createNextLevelConverter(
-            getConfiguration());
+                getConfiguration());
         return converter.process(result);
     }
 }

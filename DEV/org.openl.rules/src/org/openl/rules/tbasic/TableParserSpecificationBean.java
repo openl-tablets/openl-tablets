@@ -5,7 +5,6 @@ package org.openl.rules.tbasic;
 
 /**
  * @author User
- *
  */
 public class TableParserSpecificationBean {
     public enum ValueNecessity {

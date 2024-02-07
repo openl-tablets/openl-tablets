@@ -47,7 +47,7 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
             Pattern.compile(pattern);
         } catch (PatternSyntaxException patternSyntaxException) {
             WebStudioUtils.throwValidationError(
-                String.format("Branch name pattern '%s' is not valid regular expression.", value)
+                    String.format("Branch name pattern '%s' is not valid regular expression.", value)
             );
         }
     }
@@ -59,8 +59,8 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         if (clientId.endsWith(suffix)) {
             String prefix = clientId.substring(0, clientId.length() - suffix.length());
             String remoteRepository = context.getExternalContext()
-                .getRequestParameterMap()
-                .get(prefix + "gitRemoteRepository");
+                    .getRequestParameterMap()
+                    .get(prefix + "gitRemoteRepository");
             if ("on".equals(remoteRepository)) {
                 super.url(context, toValidate, value);
             }

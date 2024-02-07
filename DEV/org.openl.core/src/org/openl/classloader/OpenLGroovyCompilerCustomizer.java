@@ -35,7 +35,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
 
     private static class OpenLGroovyCompilerCustomizerHolder {
         private static final OpenLGroovyCompilerCustomizer INSTANCE = new OpenLGroovyCompilerCustomizer(
-            CompilePhase.CONVERSION);
+                CompilePhase.CONVERSION);
     }
 
     public static OpenLGroovyCompilerCustomizer getInstance() {
@@ -62,7 +62,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
         }
         Annotation[] tmp = null;
         try (InputStream inputStream = OpenLGroovyCompilerCustomizer.class
-            .getResourceAsStream("OpenLGroovyCompilerCustomizer.ifMissedIgnoreAnnotations")) {
+                .getResourceAsStream("OpenLGroovyCompilerCustomizer.ifMissedIgnoreAnnotations")) {
             if (inputStream != null) {
                 Scanner scanner = new Scanner(inputStream);
                 Collection<Annotation> annotations = new ArrayList<>();
@@ -86,26 +86,26 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
         for (Annotation annotation : ifMissedIgnoreAnnotations) {
             ClassNode annotationClassNode = annotationNode.getClassNode();
             if (annotationClassNode.getPackageName() == null && Objects.equals(annotation.nameWithoutPackage,
-                annotationClassNode.getNameWithoutPackage())) {
+                    annotationClassNode.getNameWithoutPackage())) {
                 // Import case
                 if (sourceUnit.getAST()
-                    .getImports()
-                    .stream()
-                    .anyMatch(e -> Objects.equals(annotation.packageName, e.getType().getPackageName()) && Objects
-                        .equals(annotation.nameWithoutPackage, e.getType().getNameWithoutPackage()))) {
+                        .getImports()
+                        .stream()
+                        .anyMatch(e -> Objects.equals(annotation.packageName, e.getType().getPackageName()) && Objects
+                                .equals(annotation.nameWithoutPackage, e.getType().getNameWithoutPackage()))) {
                     return annotation;
                 }
                 // Star imports case
                 if (sourceUnit.getAST()
-                    .getStarImports()
-                    .stream()
-                    .anyMatch(e -> Objects.equals(annotation.packageName + ".", e.getPackageName()))) {
+                        .getStarImports()
+                        .stream()
+                        .anyMatch(e -> Objects.equals(annotation.packageName + ".", e.getPackageName()))) {
                     return annotation;
                 }
             }
             // Full class name
             if (annotationClassNode.getPackageName() != null && Objects.equals(annotation.packageName,
-                annotationClassNode.getPackageName()) && Objects.equals(annotation.nameWithoutPackage,
+                    annotationClassNode.getPackageName()) && Objects.equals(annotation.nameWithoutPackage,
                     annotationClassNode.getNameWithoutPackage())) {
                 return annotation;
             }
@@ -115,8 +115,8 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
 
     @Override
     public void call(SourceUnit source,
-            GeneratorContext context,
-            ClassNode classNode) throws CompilationFailedException {
+                     GeneratorContext context,
+                     ClassNode classNode) throws CompilationFailedException {
         removeAnnotationsIfNotFoundInClassloader(source, classNode.getAnnotations());
         for (MethodNode methodNode : classNode.getMethods()) {
             removeAnnotationsIfNotFoundInClassloader(source, methodNode.getAnnotations());
@@ -135,7 +135,7 @@ final class OpenLGroovyCompilerCustomizer extends CompilationCustomizer {
             imports.removeIf(e -> {
                 for (Annotation annotation : ifMissedIgnoreAnnotations) {
                     if (Objects.equals(annotation.packageName, e.getType().getPackageName()) && Objects
-                        .equals(annotation.nameWithoutPackage, e.getType().getNameWithoutPackage())) {
+                            .equals(annotation.nameWithoutPackage, e.getType().getNameWithoutPackage())) {
                         try {
                             cl.loadClass(annotation.packageName + "." + annotation.nameWithoutPackage);
                         } catch (ClassNotFoundException e1) {

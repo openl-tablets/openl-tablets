@@ -176,7 +176,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Save project
      *
      * @param project project
-     * @param model project status update model
+     * @param model   project status update model
      * @throws ProjectException if failed to save project
      */
     public void save(RulesProject project, ProjectStatusUpdateModel model) throws ProjectException {
@@ -187,7 +187,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             CommentValidator.forRepo(project.getRepository().getId()).validate(comment);
         } catch (Exception e) {
-            throw new BadRequestException("repo.invalid.comment.message", new Object[] { e.getMessage() });
+            throw new BadRequestException("repo.invalid.comment.message", new Object[]{e.getMessage()});
         }
         project.getFileData().setComment(comment);
         try {
@@ -239,7 +239,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Open project
      *
-     * @param project project
+     * @param project          project
      * @param openDependencies open project dependencies
      * @throws ProjectException if failed to open project
      */
@@ -248,8 +248,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private void open(RulesProject project,
-            boolean openDependencies,
-            ProjectStatusUpdateModel model) throws ProjectException {
+                      boolean openDependencies,
+                      ProjectStatusUpdateModel model) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }
@@ -262,8 +262,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         if (model.getRevision().isPresent()) {
             AProject historic = new AProject(project.getDesignRepository(),
-                project.getDesignFolderName(),
-                model.getRevision().get());
+                    project.getDesignFolderName(),
+                    model.getRevision().get());
             if (workspace.isOpenedOtherProject(historic)) {
                 throw new ConflictException("open.duplicated.project");
             }
@@ -360,7 +360,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Create a new branch
      *
      * @param project project
-     * @param model branch creation model
+     * @param model   branch creation model
      * @throws ProjectException if failed to create a new branch
      */
     public void createBranch(RulesProject project, CreateBranchModel model) throws ProjectException {
@@ -382,7 +382,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (project.isSupportsBranches()) {
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
                     return true;
                 }
             }
@@ -394,7 +394,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * Get project tables
      *
      * @param project project
-     * @param query filter query
+     * @param query   filter query
      * @return project tables
      */
     public Collection<SummaryTableView> getTables(RulesProject project, ProjectTableCriteriaQuery query) {
@@ -402,19 +402,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var selectors = buildTableSelector(query);
         return moduleModel.search(selectors, SearchScope.CURRENT_PROJECT)
-            .stream()
-            .map(summaryTableReader::read)
-            .collect(Collectors.toList());
+                .stream()
+                .map(summaryTableReader::read)
+                .collect(Collectors.toList());
     }
 
     private Predicate<TableSyntaxNode> buildTableSelector(ProjectTableCriteriaQuery query) {
         Predicate<TableSyntaxNode> selectors = tsn -> !XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType());
 
         var tableTypes = query.getKinds()
-            .stream()
-            .map(OpenLTableUtils.getTableTypeItems().inverse()::get)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .stream()
+                .map(OpenLTableUtils.getTableTypeItems().inverse()::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
         if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(tsn -> tableTypes.contains(tsn.getType()));
@@ -456,7 +456,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Get table data
-     * 
+     *
      * @param project project
      * @param tableId table id
      * @return table data
@@ -479,8 +479,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Update table
      *
-     * @param project project
-     * @param tableId table id
+     * @param project   project
+     * @param tableId   table id
      * @param tableView new table data
      * @throws ProjectException if project is locked by another user
      */
@@ -529,15 +529,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Append new lines to table
      *
-     * @param project project
-     * @param tableId table id
+     * @param project   project
+     * @param tableId   table id
      * @param tableView lines to append
-     *
      * @throws ProjectException if project is locked by another user
      */
     public void appendTableLines(RulesProject project,
-            String tableId,
-            AppendTableView tableView) throws ProjectException {
+                                 String tableId,
+                                 AppendTableView tableView) throws ProjectException {
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();

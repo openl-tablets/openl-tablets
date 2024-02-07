@@ -57,8 +57,8 @@ public class RepositoryProjectRulesDeployConfig {
     private final RepositoryAclService designRepositoryAclService;
 
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
-            RulesDeploySerializerFactory rulesDeploySerializerFactory,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                                              RulesDeploySerializerFactory rulesDeploySerializerFactory,
+                                              @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
 
@@ -74,7 +74,7 @@ public class RepositoryProjectRulesDeployConfig {
         }
 
         if (lastProject != project || !Objects.equals(lastBranch, project.getBranch()) || !Objects.equals(version,
-            project.getHistoryVersion())) {
+                project.getHistoryVersion())) {
             rulesDeploy = null;
             lastProject = project;
             lastBranch = project.getBranch();
@@ -93,7 +93,7 @@ public class RepositoryProjectRulesDeployConfig {
         created = true;
         rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
         rulesDeploy.setProvideRuntimeContext(true);
-        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
+        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
     }
 
     public void deleteRulesDeploy() {
@@ -103,7 +103,7 @@ public class RepositoryProjectRulesDeployConfig {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
-                        ProjectArtifactUtils.extractResourceName(projectArtefact)));
+                            ProjectArtifactUtils.extractResourceName(projectArtefact)));
                     return;
                 }
                 project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -128,29 +128,29 @@ public class RepositoryProjectRulesDeployConfig {
             UserWorkspaceProject project = getProject();
 
             InputStream inputStream = IOUtils
-                .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
+                    .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
-                        ProjectArtifactUtils.extractResourceName(artefact)));
+                            ProjectArtifactUtils.extractResourceName(artefact)));
                     return;
                 }
                 artefact.setContent(inputStream);
             } else {
                 if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
-                        ProjectArtifactUtils.extractResourceName(project),
-                        RULES_DEPLOY_CONFIGURATION_FILE));
+                            ProjectArtifactUtils.extractResourceName(project),
+                            RULES_DEPLOY_CONFIGURATION_FILE));
                     return;
                 }
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                    .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
-                        ProjectArtifactUtils.extractResourceName(projectArtefact));
+                            ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
                 }
                 repositoryTreeState.refreshSelectedNode();
@@ -170,7 +170,7 @@ public class RepositoryProjectRulesDeployConfig {
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
         if (project.getRepository() instanceof FileSystemRepository) {
             File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(),
-                project.getFolderPath());
+                    project.getFolderPath());
             return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();

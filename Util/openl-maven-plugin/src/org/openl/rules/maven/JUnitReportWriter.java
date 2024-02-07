@@ -28,7 +28,7 @@ import org.openl.types.impl.ThisField;
  * Creates a xml report files compatible with surefire and JUnit formats. See
  * http://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd See
  * https://github.com/windyroad/JUnit-Schema/blob/master/JUnit.xsd
- *
+ * <p>
  * Not thread-safe.
  */
 class JUnitReportWriter {
@@ -113,11 +113,11 @@ class JUnitReportWriter {
     }
 
     private void writeTestsuite(String name,
-            int tests,
-            int failures,
-            int errors,
-            long executionTime,
-            List<ITestUnit> testUnits) throws XMLStreamException {
+                                int tests,
+                                int failures,
+                                int errors,
+                                long executionTime,
+                                List<ITestUnit> testUnits) throws XMLStreamException {
 
         xml.writeStartDocument("UTF-8", "1.0");
         start("testsuite");
@@ -191,18 +191,18 @@ class JUnitReportWriter {
                 summaryBuilder.append('\n');
                 if (comparisonResult.getFieldName() == null || ThisField.THIS.equals(comparisonResult.getFieldName())) {
                     summaryBuilder.append("Expected: <")
-                        .append(comparisonResult.getExpectedValue())
-                        .append("> but was <")
-                        .append(comparisonResult.getActualValue())
-                        .append(">");
+                            .append(comparisonResult.getExpectedValue())
+                            .append("> but was <")
+                            .append(comparisonResult.getActualValue())
+                            .append(">");
                 } else {
                     summaryBuilder.append("Field ")
-                        .append(comparisonResult.getFieldName())
-                        .append(" expected: <")
-                        .append(comparisonResult.getExpectedValue())
-                        .append("> but was <")
-                        .append(comparisonResult.getActualValue())
-                        .append(">");
+                            .append(comparisonResult.getFieldName())
+                            .append(" expected: <")
+                            .append(comparisonResult.getExpectedValue())
+                            .append("> but was <")
+                            .append(comparisonResult.getActualValue())
+                            .append(">");
                 }
             }
         }

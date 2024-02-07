@@ -35,7 +35,7 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         TableSyntaxNode firstTable = findTable("Rules String testDT(int arg)", null);
         ICell returnExpressionCell = firstTable.getGridTable().getCell(1, 2);
         assertTrue(
-            CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(firstTable.getMetaInfoReader(), returnExpressionCell)));
+                CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(firstTable.getMetaInfoReader(), returnExpressionCell)));
         // method in return values
         TableSyntaxNode secondTable = findTable("Rules String testDT(int arg)", "test");
         MetaInfoReader secondMetaReader = secondTable.getMetaInfoReader();
@@ -59,34 +59,34 @@ public class MethodUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         CellMetaInfo secondMethodMeta = getMetaInfo(metaInfoReader, secondMethodCell);
         IOpenMethod secondMethodInOverloading = ((MethodUsage) secondMethodMeta.getUsedNodes().get(0)).getMethod();
         assertNotSame(firstMethodInOverloading.getInfo().getSourceUrl(),
-            secondMethodInOverloading.getInfo().getSourceUrl());
+                secondMethodInOverloading.getInfo().getSourceUrl());
     }
 
     @Test
     public void testMetaInfoInDecisionTableWithMergedCells() {
         TableSyntaxNode testDT1Table = findTable("Rules String[] testDT1(int x)", null);
-        int[][] retCells1 = { { 1, 5 }, { 1, 6 } };
+        int[][] retCells1 = {{1, 5}, {1, 6}};
         for (int[] cell : retCells1) {
             ICell retCell = testDT1Table.getGridTable().getCell(cell[0], cell[1]);
             assertTrue(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(testDT1Table.getMetaInfoReader(), retCell)));
         }
 
         TableSyntaxNode testDT2Table = findTable("Rules String[] testDT2(int x)", null);
-        int[][] retCells2 = { { 1, 5 }, { 1, 6 }, { 2, 5 }, { 2, 6 } };
+        int[][] retCells2 = {{1, 5}, {1, 6}, {2, 5}, {2, 6}};
         for (int[] cell : retCells2) {
             ICell retCell = testDT2Table.getGridTable().getCell(cell[0], cell[1]);
             assertTrue(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(testDT2Table.getMetaInfoReader(), retCell)));
         }
 
         TableSyntaxNode testDT3Table = findTable("Rules String[][] testDT3(int x)", null);
-        int[][] retCells3 = { { 1, 5 }, { 1, 6 }, { 2, 5 }, { 2, 6 }, { 3, 5 }, { 3, 6 } };
+        int[][] retCells3 = {{1, 5}, {1, 6}, {2, 5}, {2, 6}, {3, 5}, {3, 6}};
         for (int[] cell : retCells3) {
             ICell retCell = testDT3Table.getGridTable().getCell(cell[0], cell[1]);
             assertTrue(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(testDT3Table.getMetaInfoReader(), retCell)));
         }
 
         TableSyntaxNode testDT4Table = findTable("Rules String[][] testDT4(int x)", null);
-        int[][] retCells4 = { { 1, 5 }, { 1, 6 }, { 1, 7 }, { 2, 5 }, { 2, 6 }, { 2, 7 } };
+        int[][] retCells4 = {{1, 5}, {1, 6}, {1, 7}, {2, 5}, {2, 6}, {2, 7}};
         for (int[] cell : retCells4) {
             ICell retCell = testDT4Table.getGridTable().getCell(cell[0], cell[1]);
             assertTrue(CellMetaInfo.isCellContainsNodeUsages(getMetaInfo(testDT4Table.getMetaInfoReader(), retCell)));

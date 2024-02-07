@@ -68,7 +68,7 @@ public class RulesDeployerRestController {
     @Consumes("application/zip")
     @Produces("text/plain;charset=UTF-8")
     public Response deploy(@PathParam("deployPath") final String deployPath,
-            @Context HttpServletRequest request) throws Exception {
+                           @Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(deployPath, request.getInputStream(), true);
             notifyDeploymentsUpdated();
@@ -93,14 +93,14 @@ public class RulesDeployerRestController {
             return Response.status(Status.NOT_FOUND).build();
         }
         final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name())
-            .replace("+", "%20");
+                .replace("+", "%20");
         return Response
-            .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,
-                services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()),
-                outputStream))
-            .header("Content-Disposition",
-                "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
-            .build();
+                .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,
+                        services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()),
+                        outputStream))
+                .header("Content-Disposition",
+                        "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
+                .build();
     }
 
     /**
@@ -116,7 +116,7 @@ public class RulesDeployerRestController {
             return Response.status(Status.NOT_FOUND).build();
         }
         boolean deleted = rulesDeployerService.delete(deploymentName,
-            services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
+                services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
         if (deleted) {
             notifyDeploymentsUpdated();
         }

@@ -13,7 +13,7 @@ import org.openl.types.java.JavaOpenMethod;
 public interface MethodCallerWrapper {
 
     IMethodCaller handle(IMethodCaller methodCaller,
-            JavaOpenMethod javaOpenMethod,
-            IOpenClass[] callParams,
-            ICastFactory castFactory);
+                         JavaOpenMethod javaOpenMethod,
+                         IOpenClass[] callParams,
+                         ICastFactory castFactory);
 }

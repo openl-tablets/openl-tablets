@@ -17,6 +17,7 @@ import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 public class SpreadsheetSerializer extends StdSerializer<SpreadsheetResult> {
 
     private SpreadsheetResultBeanPropertyNamingStrategy namingStrategy;
+
     public SpreadsheetSerializer(SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
         super(SpreadsheetResult.class);
         this.namingStrategy = namingStrategy;

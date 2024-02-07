@@ -85,7 +85,7 @@ public class TestIntVarImpl {
                 bit_fast.removeValue(-i);
             } catch (Failure f) {
                 fail(
-                    "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
+                        "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
             }
 
             bit_smallUndo[i - min] = bit_small.createUndo();
@@ -95,7 +95,7 @@ public class TestIntVarImpl {
                 bit_small.removeValue(-i);
             } catch (Failure f) {
                 fail(
-                    "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
+                        "test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
             }
 
             plainUndo[i - min] = plain.createUndo();

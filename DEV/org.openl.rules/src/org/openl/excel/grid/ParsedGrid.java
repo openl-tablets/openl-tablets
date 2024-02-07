@@ -49,10 +49,10 @@ public class ParsedGrid extends AGrid {
     private transient TableStyles currentTableStyles;
 
     ParsedGrid(String workbookPath,
-            XlsSheetSourceCodeModule sheetSource,
-            SheetDescriptor sheet,
-            Object[][] cells,
-            boolean use1904Windowing) {
+               XlsSheetSourceCodeModule sheetSource,
+               SheetDescriptor sheet,
+               Object[][] cells,
+               boolean use1904Windowing) {
         this.workbookPath = workbookPath;
         this.cells = cells;
         this.sheetSource = sheetSource;
@@ -151,9 +151,9 @@ public class ParsedGrid extends AGrid {
         for (CellRowCol start : startPoints) {
             CellRowCol end = findBottomRight(start.row, start.col);
             GridRegion region = new GridRegion(getFirstRowNum() + start.row,
-                getFirstColNum() + start.col,
-                getFirstRowNum() + end.row,
-                getFirstColNum() + end.col);
+                    getFirstColNum() + start.col,
+                    getFirstRowNum() + end.row,
+                    getFirstColNum() + end.col);
             regions.add(region);
             regionsPool.add(region);
         }

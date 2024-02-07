@@ -47,8 +47,8 @@ public interface RulesInstantiationStrategy {
      * If no, creates {@link OpenLClassLoader} with project classLoader of current module as parent.
      *
      * @return {@link ClassLoader} that will be used for openl compilation.
-     *
-     *         throws RulesInstantiationException some strategies compile dependencies during classloader build.
+     * <p>
+     * throws RulesInstantiationException some strategies compile dependencies during classloader build.
      */
     ClassLoader getClassLoader() throws RulesInstantiationException;
 

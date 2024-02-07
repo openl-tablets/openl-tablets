@@ -23,7 +23,7 @@ public final class OpenClassHelper {
             args[i] = JavaOpenClass.getOpenClass(methodArgs[i]);
         }
         return openClass instanceof ADynamicClass ? ((ADynamicClass) openClass).getMethod(methodName, args, false)
-                                                  : openClass.getMethod(methodName, args);
+                : openClass.getMethod(methodName, args);
     }
 
     public static IOpenField findRulesField(IOpenClass openClass, String methodName) {

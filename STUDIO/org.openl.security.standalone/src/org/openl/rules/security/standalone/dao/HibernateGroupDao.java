@@ -37,12 +37,12 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
     @Transactional
     public void deleteGroupById(final Long id) {
         getSession().createNativeQuery(
-            "delete from OpenL_Group2Group where includedGroupID = :id")
-            .setParameter("id", id)
-            .executeUpdate();
+                        "delete from OpenL_Group2Group where includedGroupID = :id")
+                .setParameter("id", id)
+                .executeUpdate();
         getSession().createNativeQuery("delete from OpenL_Groups where id = :id")
-            .setParameter("id", id)
-            .executeUpdate();
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     @Override

@@ -33,7 +33,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
@@ -135,9 +134,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     @Override
     public Object transformLocalParameterValue(String name,
-            IBaseCondition condition,
-            Object value,
-            DecisionTableAnalyzer dtan) {
+                                               IBaseCondition condition,
+                                               Object value,
+                                               DecisionTableAnalyzer dtan) {
 
         if (value != null && value.getClass().isArray()) {
             int[] res = new int[Array.getLength(value)];
@@ -152,9 +151,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     public Object transformSingleLocalParameterValue(String name,
-            IBaseCondition condition,
-            Object value,
-            DecisionTableAnalyzer dtan) {
+                                                     IBaseCondition condition,
+                                                     Object value,
+                                                     DecisionTableAnalyzer dtan) {
 
         Object result = value;
         if (value instanceof IntRange) {

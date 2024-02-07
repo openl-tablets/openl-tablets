@@ -77,16 +77,16 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class<?>[] { IEngineWrapper.class };
+        return new Class<?>[]{IEngineWrapper.class};
     }
 
     @Override
     protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
+                                                       Map<Method, IOpenMember> methodMap,
+                                                       IRuntimeEnv runtimeEnv) {
         OpenLMethodHandler openLMethodHandler = new OpenLMethodHandler(openClassInstance,
-            methodMap,
-            getRuntimeEnvBuilder());
+                methodMap,
+                getRuntimeEnvBuilder());
         if (runtimeEnv != null) {
             openLMethodHandler.setRuntimeEnv(runtimeEnv);
         }

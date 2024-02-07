@@ -49,7 +49,7 @@ public class XmlProjectDescriptorSerializerTest {
         descriptor.setAutoIncluded(true);
         projectDescriptor.setDependencies(List.of(descriptor));
 
-        projectDescriptor.setPropertiesFileNamePatterns(new String[] {" {lob}"});
+        projectDescriptor.setPropertiesFileNamePatterns(new String[]{" {lob}"});
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
 
         return projectDescriptor;
@@ -81,9 +81,9 @@ public class XmlProjectDescriptorSerializerTest {
     @Test
     public void testDeserialize() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
-            .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
 
-        assertArrayEquals(new String[] {"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
         assertEquals("properties-file-name-processor", pd.getPropertiesFileNameProcessor());
     }
 
@@ -99,7 +99,7 @@ public class XmlProjectDescriptorSerializerTest {
         Module m = modules.get(0);
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
-        assertArrayEquals(new String[] {"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class XmlProjectDescriptorSerializerTest {
         Module m = modules.get(0);
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
-        assertArrayEquals(new String[] {"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
     }
 
 }

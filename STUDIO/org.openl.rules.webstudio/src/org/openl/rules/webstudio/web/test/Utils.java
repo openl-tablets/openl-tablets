@@ -77,8 +77,8 @@ public final class Utils {
     }
 
     private static TestUnitsResults[] runAllTests(ProjectModel model,
-            IOpenMethod[] tests,
-            boolean currentOpenedModule) {
+                                                  IOpenMethod[] tests,
+                                                  boolean currentOpenedModule) {
         if (Arrays.isNotEmpty(tests)) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
@@ -87,7 +87,7 @@ public final class Utils {
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
                 Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher) ? ((OpenMethodDispatcher) testedMethod)
-                    .getCandidates() : Collections.singleton(testedMethod);
+                        .getCandidates() : Collections.singleton(testedMethod);
                 boolean noErrors = true;
                 for (IOpenMethod method : methods) {
                     noErrors = noErrors && model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty();
@@ -110,7 +110,7 @@ public final class Utils {
             return null;
         }
         CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
-                                                                  : model.getCompiledOpenClass();
+                : model.getCompiledOpenClass();
         IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass) {
             return ((XlsModuleOpenClass) moduleClass).getDataBase();

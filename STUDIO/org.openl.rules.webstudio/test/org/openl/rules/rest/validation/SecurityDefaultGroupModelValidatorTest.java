@@ -29,15 +29,15 @@ public class SecurityDefaultGroupModelValidatorTest extends AbstractConstraintVa
     public void testNotValid1() {
         GroupSettingsModel model = new GroupSettingsModel();
         model.setDefaultGroup(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.");
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.");
 
         BindingResult bindingResult = validateAndGetResult(model);
         assertEquals(1, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("defaultGroup",
-            "The size must be between 0 and 65.",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
-            bindingResult.getFieldError("defaultGroup"));
+                "The size must be between 0 and 65.",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
+                bindingResult.getFieldError("defaultGroup"));
     }
 
 }

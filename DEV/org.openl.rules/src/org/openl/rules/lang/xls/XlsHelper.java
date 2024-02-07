@@ -104,11 +104,11 @@ public final class XlsHelper {
     }
 
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,
-            XlsSheetSourceCodeModule source) throws OpenLCompilationException {
+                                                        XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         GridCellSourceCodeModule src = new GridCellSourceCodeModule(table);
         IdentifierNode[] headerTokens = Tokenizer.tokenize(src, " \n\r");
         if (headerTokens.length == 0) {
-            headerTokens = new IdentifierNode[] { Tokenizer.firstToken(src, " \n\r") };
+            headerTokens = new IdentifierNode[]{Tokenizer.firstToken(src, " \n\r")};
         }
         IdentifierNode headerToken = headerTokens[0];
         String header = headerTokens[0].getIdentifier();
@@ -122,7 +122,7 @@ public final class XlsHelper {
         List<String> collectParameters = new ArrayList<>();
         boolean isCollect = false;
         if (header.equals(IXlsTableNames.SIMPLE_DECISION_TABLE) || header
-            .equals(IXlsTableNames.SMART_DECISION_TABLE) || header
+                .equals(IXlsTableNames.SMART_DECISION_TABLE) || header
                 .equals(IXlsTableNames.SIMPLE_DECISION_LOOKUP) || header.equals(IXlsTableNames.SMART_DECISION_LOOKUP)) {
             if (headerTokens.length > 1 && headerTokens[1].getIdentifier().equals(IXlsTableNames.COLLECT)) {
                 isCollect = true;
@@ -134,11 +134,11 @@ public final class XlsHelper {
                         collectParameters.add(headerTokens[i].getIdentifier());
                     }
                     ILocation location = new TextInterval(headerToken.getLocation().getStart(),
-                        headerTokens[i].getLocation().getEnd());
+                            headerTokens[i].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 } else {
                     ILocation location = new TextInterval(headerToken.getLocation().getStart(),
-                        headerTokens[1].getLocation().getEnd());
+                            headerTokens[1].getLocation().getEnd());
                     headerToken = new IdentifierNode(headerToken.getType(), location, header, headerToken.getModule());
                 }
             }
@@ -148,7 +148,7 @@ public final class XlsHelper {
         if (XlsNodeTypes.XLS_SPREADSHEET.toString().equals(xlsType)) {
             headerNode = new HeaderSyntaxNode(src, headerToken);
         } else {
-            headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[] {}));
+            headerNode = new HeaderSyntaxNode(src, headerToken, isCollect, collectParameters.toArray(new String[]{}));
         }
 
         GridLocation pos = new GridLocation(table);

@@ -34,36 +34,36 @@ class ContextPropertiesInjector {
             int paramIndex = i;
             try {
                 paramType.getFields()
-                    .stream()
-                    .filter(IOpenField::isContextProperty)
-                    .forEach(field -> contextInjections.put(field.getContextProperty(),
-                        createFieldContextPropertyInjection(paramIndex, field, castFactory)));
+                        .stream()
+                        .filter(IOpenField::isContextProperty)
+                        .forEach(field -> contextInjections.put(field.getContextProperty(),
+                                createFieldContextPropertyInjection(paramIndex, field, castFactory)));
             } catch (Exception | LinkageError e) {
                 LOG.debug("Ignored error: ", e);
             }
             if (methodSignature instanceof MethodSignature) {
                 String contextParameter = ((MethodSignature) methodSignature).getParameterDeclaration(i)
-                    .getContextProperty();
+                        .getContextProperty();
                 if (contextParameter != null) {
                     contextInjections.put(contextParameter,
-                        createParameterContextPropertyInjection(paramIndex,
-                            methodSignature.getParameterType(i),
-                            contextParameter,
-                            castFactory));
+                            createParameterContextPropertyInjection(paramIndex,
+                                    methodSignature.getParameterType(i),
+                                    contextParameter,
+                                    castFactory));
                 }
             }
             i++;
         }
         this.contextPropertyInjections = !contextInjections.isEmpty()
-                                                                      ? contextInjections.values()
-                                                                          .toArray(PROPERTY_INJECTIONS)
-                                                                      : null;
+                ? contextInjections.values()
+                .toArray(PROPERTY_INJECTIONS)
+                : null;
     }
 
     private static IContextPropertyInjection createParameterContextPropertyInjection(int paramIndex,
-            IOpenClass type,
-            String contextProperty,
-            ICastFactory castFactory) {
+                                                                                     IOpenClass type,
+                                                                                     String contextProperty,
+                                                                                     ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextProperty);
         if (contextType == null) {
             throw new IllegalStateException(String.format("Context property '%s' is not found.", contextProperty));
@@ -71,35 +71,35 @@ class ContextPropertiesInjector {
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(type, contextTypeOpenClass);
         if (openCast == null || !openCast
-            .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
+                .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
             throw new IllegalStateException(
-                String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
-                    contextProperty,
-                    type.getName(),
-                    contextTypeOpenClass.getName()));
+                    String.format("Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                            contextProperty,
+                            type.getName(),
+                            contextTypeOpenClass.getName()));
         } else {
             return new ParameterContextPropertyInjection(paramIndex, contextProperty, openCast);
         }
     }
 
     private static IContextPropertyInjection createFieldContextPropertyInjection(int paramIndex,
-            IOpenField field,
-            ICastFactory castFactory) {
+                                                                                 IOpenField field,
+                                                                                 ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
         if (contextType == null) {
             throw new IllegalStateException(
-                String.format("Context property '%s' is not found.", field.getContextProperty()));
+                    String.format("Context property '%s' is not found.", field.getContextProperty()));
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
         if (ContextPropertyBinderUtils.isNonValidCastForContextProperty(openCast)) {
             throw new IllegalStateException(String.format(
-                "Type mismatch for context property '%s' for field '%s' in class '%s'. " + "Cannot convert from '%s' to '%s'.",
-                field.getContextProperty(),
-                field.getName(),
-                field.getDeclaringClass().getName(),
-                field.getType().getName(),
-                contextTypeOpenClass.getName()));
+                    "Type mismatch for context property '%s' for field '%s' in class '%s'. " + "Cannot convert from '%s' to '%s'.",
+                    field.getContextProperty(),
+                    field.getName(),
+                    field.getDeclaringClass().getName(),
+                    field.getType().getName(),
+                    contextTypeOpenClass.getName()));
         } else {
             return new FieldContextPropertyInjection(paramIndex, field, openCast);
         }
@@ -110,7 +110,7 @@ class ContextPropertiesInjector {
             IRulesRuntimeContext rulesRuntimeContext = null;
             for (IContextPropertyInjection contextPropertiesInjector : contextPropertyInjections) {
                 rulesRuntimeContext = contextPropertiesInjector
-                    .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+                        .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
             }
             if (rulesRuntimeContext != null) {
                 env.pushContext(rulesRuntimeContext);

@@ -26,10 +26,10 @@ public class ConditionOpenLServiceTaskTest {
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-condition-test.bpmn20.xml")
-            .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-condition-test.bpmn20.xml")
+                .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
+                .deploy();
     }
 
     @Test

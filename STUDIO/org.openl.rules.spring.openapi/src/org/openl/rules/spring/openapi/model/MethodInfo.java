@@ -23,7 +23,7 @@ import org.openl.rules.spring.openapi.OpenApiUtils;
  */
 public class MethodInfo {
 
-    public static final String[] ALL_MEDIA_TYPES = new String[] { MediaType.ALL_VALUE };
+    public static final String[] ALL_MEDIA_TYPES = new String[]{MediaType.ALL_VALUE};
 
     private final HandlerMethod handler;
     private final RequestMethod requestMethod;
@@ -95,14 +95,14 @@ public class MethodInfo {
 
     public boolean isFormRequest() {
         return consumes.length == 1 && (MediaType.APPLICATION_FORM_URLENCODED_VALUE
-            .equals(consumes[0]) || MediaType.MULTIPART_FORM_DATA_VALUE.equals(consumes[0]));
+                .equals(consumes[0]) || MediaType.MULTIPART_FORM_DATA_VALUE.equals(consumes[0]));
     }
 
     public static class Builder {
 
         private static final Function<Set<MediaType>, String[]> MEDIA_TYPES_TO_ARRAY = set -> set.stream()
-            .map(Object::toString)
-            .toArray(String[]::new);
+                .map(Object::toString)
+                .toArray(String[]::new);
 
         private final HandlerMethod handler;
         private final String[] produces;
@@ -127,14 +127,14 @@ public class MethodInfo {
             }
 
             httpStatus = Optional.ofNullable(handler.getMethodAnnotation(ResponseStatus.class))
-                .map(ResponseStatus::value)
-                .orElse(null);
+                    .map(ResponseStatus::value)
+                    .orElse(null);
         }
 
         public static Builder from(HandlerMethod handler, RequestMappingInfo mappingInfo) {
             return new Builder(handler,
-                MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
-                MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
+                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
+                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
         }
 
         public Builder requestMethod(RequestMethod requestMethod) {

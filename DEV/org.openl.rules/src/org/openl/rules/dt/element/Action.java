@@ -51,15 +51,15 @@ public class Action extends FunctionalRow implements IAction {
     private final boolean skipEmptyResult;
 
     public Action(String name,
-            int row,
-            ILogicalTable decisionTable,
-            ActionType actionType,
-            DTScale.RowScale scale,
-            DecisionTable decisionTableInvocableMethod) {
+                  int row,
+                  ILogicalTable decisionTable,
+                  ActionType actionType,
+                  DTScale.RowScale scale,
+                  DecisionTable decisionTableInvocableMethod) {
         super(name, row, decisionTable, scale);
         this.actionType = actionType;
         this.skipEmptyResult = decisionTableInvocableMethod
-            .getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
+                .getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
                 .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing());
     }
 
@@ -126,8 +126,8 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private void setCustomSpreadsheetResultOpenClassToArray(Object o,
-            int dimension,
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+                                                            int dimension,
+                                                            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (o == null) {
             return;
         }
@@ -142,15 +142,15 @@ public class Action extends FunctionalRow implements IAction {
             } else {
                 for (int i = 0; i < size; i++) {
                     setCustomSpreadsheetResultOpenClassToArray(Array.get(o, i),
-                        dimension - 1,
-                        customSpreadsheetResultOpenClass);
+                            dimension - 1,
+                            customSpreadsheetResultOpenClass);
                 }
             }
         }
     }
 
     private Object setCustomSpreadsheetResultOpenClassToArray(Object e,
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+                                                              CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (e instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) e;
             SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
@@ -172,8 +172,8 @@ public class Action extends FunctionalRow implements IAction {
                 return setCustomSpreadsheetResultOpenClassToArray(value, (CustomSpreadsheetResultOpenClass) t);
             }
             setCustomSpreadsheetResultOpenClassToArray(value,
-                singleActionReturnTypeDim,
-                (CustomSpreadsheetResultOpenClass) t);
+                    singleActionReturnTypeDim,
+                    (CustomSpreadsheetResultOpenClass) t);
             return value;
         }
         return value;
@@ -188,18 +188,18 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext) {
+                                                                         IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
             cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                tableSyntaxNode.getHeader().getCollectParameters()[0]);
+                    tableSyntaxNode.getHeader().getCollectParameters()[0]);
         }
         return cType != null ? cType : JavaOpenClass.OBJECT;
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
-            IOpenClass type,
-            IBindingContext bindingContext) {
+                                                                      IOpenClass type,
+                                                                      IBindingContext bindingContext) {
         if (type.isArray()) {
             return type.getComponentClass();
         }
@@ -207,7 +207,7 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass cType = null;
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
                 cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                    tableSyntaxNode.getHeader().getCollectParameters()[0]);
+                        tableSyntaxNode.getHeader().getCollectParameters()[0]);
             }
             return cType != null ? cType : JavaOpenClass.OBJECT;
         }
@@ -215,7 +215,7 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass cType = null;
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
                 cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
-                    tableSyntaxNode.getHeader().getCollectParameters()[1]);
+                        tableSyntaxNode.getHeader().getCollectParameters()[1]);
             }
             return cType != null ? cType : JavaOpenClass.OBJECT;
         }
@@ -224,13 +224,13 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     public void prepareAction(DecisionTable decisionTable,
-            IOpenMethodHeader header,
-            IMethodSignature signature,
-            OpenL openl,
-            IBindingContext bindingContext,
-            RuleRow ruleRow,
-            IOpenClass ruleExecutionType,
-            TableSyntaxNode tableSyntaxNode) throws Exception {
+                              IOpenMethodHeader header,
+                              IMethodSignature signature,
+                              OpenL openl,
+                              IBindingContext bindingContext,
+                              RuleRow ruleRow,
+                              IOpenClass ruleExecutionType,
+                              TableSyntaxNode tableSyntaxNode) throws Exception {
 
         IOpenClass methodType = JavaOpenClass.VOID;
         if (isReturnAction()) {
@@ -253,25 +253,25 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         prepare(decisionTable,
-            methodType,
-            signature,
-            openl,
-            bindingContext,
-            ruleRow,
-            ruleExecutionType,
-            tableSyntaxNode);
+                methodType,
+                signature,
+                openl,
+                bindingContext,
+                ruleRow,
+                ruleExecutionType,
+                tableSyntaxNode);
 
         IParameterDeclaration[] params = getParams();
         CompositeMethod method = getMethod();
         String code = Optional.ofNullable(method.getMethodBodyBoundNode())
-            .map(IBoundNode::getSyntaxNode)
-            .map(ISyntaxNode::getModule)
-            .map(IOpenSourceCodeModule::getCode)
-            .orElse(null);
+                .map(IBoundNode::getSyntaxNode)
+                .map(ISyntaxNode::getModule)
+                .map(IOpenSourceCodeModule::getCode)
+                .orElse(null);
 
         isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0]) && params[0]
-            .getName()
-            .equals(code);
+                .getName()
+                .equals(code);
 
         if ((isReturnAction() || isCollectReturnAction()) && decisionTable.isTypeCustomSpreadsheetResult()) {
             IOpenClass t = method.getBodyType();
@@ -294,8 +294,8 @@ public class Action extends FunctionalRow implements IAction {
         } else {
             if (isCollectReturnAction()) {
                 this.singleActionReturnType = extractMethodTypeForCollectReturnAction(tableSyntaxNode,
-                    decisionTable.getType(),
-                    bindingContext);
+                        decisionTable.getType(),
+                        bindingContext);
             }
         }
         singleActionReturnTypeDim = 0;
@@ -312,16 +312,16 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     protected void prepareParams(IOpenClass declaringClass,
-            IMethodSignature signature,
-            IOpenClass methodType,
-            IOpenSourceCodeModule methodSource,
-            OpenL openl,
-            IBindingContext bindingContext) throws Exception {
+                                 IMethodSignature signature,
+                                 IOpenClass methodType,
+                                 IOpenSourceCodeModule methodSource,
+                                 OpenL openl,
+                                 IBindingContext bindingContext) throws Exception {
 
         if (EXTRA_RET.equals(
-            methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())) {
+                methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())) {
             ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
-            params = new IParameterDeclaration[] { extraParam };
+            params = new IParameterDeclaration[]{extraParam};
             paramInitialized = new BitSet(1);
             paramInitialized.set(0);
             paramsUniqueNames = new HashSet<>();
@@ -333,27 +333,27 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
-            IMethodSignature signature,
-            IOpenClass methodType,
-            IOpenClass declaringClass,
-            OpenL openl,
-            IBindingContext bindingContext) throws Exception {
+                                                        IMethodSignature signature,
+                                                        IOpenClass methodType,
+                                                        IOpenClass declaringClass,
+                                                        OpenL openl,
+                                                        IBindingContext bindingContext) throws Exception {
 
         IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
-            signature,
-            methodType,
-            declaringClass,
-            openl,
-            bindingContext);
+                signature,
+                methodType,
+                declaringClass,
+                openl,
+                bindingContext);
 
         if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils
-            .isEmpty(source.getCode())) {
+                .isEmpty(source.getCode())) {
             if (hasDeclaredParams()) {
                 // trigger parameter compilation & initialization
                 super.prepareParams(declaringClass, signature, methodType, null, openl, bindingContext);
                 // generate return statement to return parameter
                 return new StringSourceCodeModule(params[0].getName() != null ? params[0].getName() : EXTRA_RET,
-                    source.getUri());
+                        source.getUri());
             }
             return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }

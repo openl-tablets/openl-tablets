@@ -53,8 +53,8 @@ public class TestSuite implements INamedThing {
     }
 
     public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor,
-            final IOpenClass openClass,
-            final int ntimes) {
+                                           final IOpenClass openClass,
+                                           final int ntimes) {
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
 
@@ -136,7 +136,7 @@ public class TestSuite implements INamedThing {
 
     /**
      * @return <code>true</code> in case this test suite is virtual, and <code>false</code> if this test suite
-     *         corresponds to particular test table.
+     * corresponds to particular test table.
      */
     public boolean isVirtualTestSuite() {
         return testSuiteMethod == null;

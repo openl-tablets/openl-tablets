@@ -19,7 +19,6 @@ import org.openl.syntax.impl.NaryNode;
 
 /**
  * @author snshor
- *
  */
 public class XlsModuleSyntaxNode extends NaryNode {
 
@@ -28,9 +27,9 @@ public class XlsModuleSyntaxNode extends NaryNode {
     private final Set<String> imports;
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
-            IOpenSourceCodeModule module,
-            OpenlSyntaxNode openlNode,
-            Collection<String> imports) {
+                               IOpenSourceCodeModule module,
+                               OpenlSyntaxNode openlNode,
+                               Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;

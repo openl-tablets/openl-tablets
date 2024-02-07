@@ -57,29 +57,29 @@ public class TestMethodOpenClass extends ADynamicClass {
 
     protected void addExpectedError() {
         IOpenField errorField = new DynamicObjectField(this,
-            TestMethodHelper.EXPECTED_ERROR,
-            new UserErrorOpenClass());
+                TestMethodHelper.EXPECTED_ERROR,
+                new UserErrorOpenClass());
         addField(errorField);
     }
 
     protected void addContext() {
         IOpenField contextField = new DynamicObjectField(this,
-            TestMethodHelper.CONTEXT_NAME,
-            JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class));
+                TestMethodHelper.CONTEXT_NAME,
+                JavaOpenClass.getOpenClass(DefaultRulesRuntimeContext.class));
         addField(contextField);
     }
 
     protected void addDescription() {
         IOpenField descriptionField = new DynamicObjectField(this,
-            TestMethodHelper.DESCRIPTION_NAME,
-            JavaOpenClass.STRING);
+                TestMethodHelper.DESCRIPTION_NAME,
+                JavaOpenClass.STRING);
         addField(descriptionField);
     }
 
     protected void addExpectedResult(IOpenMethod testedMethod) {
         IOpenField resultField = new DynamicObjectField(this,
-            TestMethodHelper.EXPECTED_RESULT_NAME,
-            testedMethod.getType());
+                TestMethodHelper.EXPECTED_RESULT_NAME,
+                testedMethod.getType());
         addField(resultField);
     }
 

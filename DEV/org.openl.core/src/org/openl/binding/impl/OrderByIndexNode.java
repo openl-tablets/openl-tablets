@@ -25,11 +25,11 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
     private final IOpenClass type;
 
     OrderByIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode orderBy,
-            ILocalVar tempVar,
-            IOpenCast openCast,
-            boolean isDecreasing) {
+                     IBoundNode targetNode,
+                     IBoundNode orderBy,
+                     ILocalVar tempVar,
+                     IOpenCast openCast,
+                     boolean isDecreasing) {
         super(syntaxNode, targetNode, orderBy);
         this.tempVar = tempVar;
         this.isDecreasing = isDecreasing;
@@ -59,7 +59,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
         Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
 
         TreeMap<T, Object> map = new TreeMap<>(
-            Comparator.<T> nullsLast(isDecreasing ? Comparator.reverseOrder() : Comparator.naturalOrder()));
+                Comparator.<T>nullsLast(isDecreasing ? Comparator.reverseOrder() : Comparator.naturalOrder()));
 
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();

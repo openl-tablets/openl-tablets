@@ -9,9 +9,7 @@ import java.util.Arrays;
 import org.openl.util.ArrayTool;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class MathUtils {
 
@@ -244,7 +242,7 @@ public class MathUtils {
     private static void validateIndex(boolean throwException, int position) {
         if (throwException) {
             throw new IllegalArgumentException(
-                String.format("There is no position '%d' in the given array.", position));
+                    String.format("There is no position '%d' in the given array.", position));
         }
     }
 

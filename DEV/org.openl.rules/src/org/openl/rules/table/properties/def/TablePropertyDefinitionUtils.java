@@ -27,7 +27,6 @@ import org.openl.util.StringUtils;
  * See also {@link PropertiesChecker} for more methods.
  *
  * @author DLiauchuk
- *
  */
 public final class TablePropertyDefinitionUtils {
 
@@ -54,12 +53,12 @@ public final class TablePropertyDefinitionUtils {
         for (TablePropertyDefinition propertyWithDefaultValue : propertiesToBeSetByDefault) {
             String defaultPropertyName = propertyWithDefaultValue.getName();
             TablePropertyDefinition propertyDefinition = TablePropertyDefinitionUtils
-                .getPropertyByName(defaultPropertyName);
+                    .getPropertyByName(defaultPropertyName);
             Class<?> defaultPropertyValueType = propertyDefinition.getType().getInstanceClass();
 
             IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(defaultPropertyValueType);
             Object defaultValue = converter.parse(propertyWithDefaultValue.getDefaultValue(),
-                propertyWithDefaultValue.getFormat());
+                    propertyWithDefaultValue.getFormat());
 
             propertiesMapToBeSetByDefault.put(defaultPropertyName, defaultValue);
         }
@@ -69,14 +68,14 @@ public final class TablePropertyDefinitionUtils {
         TablePropertyDefinition[] definitions = DefaultPropertyDefinitions.getDefaultDefinitions();
         for (TablePropertyDefinition definition : definitions) {
             if (definition.getInheritanceLevel() != null && Arrays.asList(definition.getInheritanceLevel())
-                .contains(InheritanceLevel.GLOBAL)) {
+                    .contains(InheritanceLevel.GLOBAL)) {
                 globalDefaultProperties.add(definition);
             }
         }
         Map<String, Object> defaultGlobalProperties = new HashMap<>();
         for (TablePropertyDefinition tablePropertyDefinition : globalDefaultProperties) {
             Object v = TablePropertyDefinitionUtils.getPropertiesMapToBeSetByDefault()
-                .get(tablePropertyDefinition.getName());
+                    .get(tablePropertyDefinition.getName());
             if (v != null) {
                 defaultGlobalProperties.put(tablePropertyDefinition.getName(), v);
             }
@@ -149,10 +148,10 @@ public final class TablePropertyDefinitionUtils {
 
     public static String getDefaultValueForProperty(String propertyName) {
         return Arrays.stream(DefaultPropertyDefinitions.getDefaultDefinitions())
-            .filter(e -> Objects.equals(e.getName(), propertyName))
-            .map(TablePropertyDefinition::getDefaultValue)
-            .findFirst()
-            .orElse(null);
+                .filter(e -> Objects.equals(e.getName(), propertyName))
+                .map(TablePropertyDefinition::getDefaultValue)
+                .findFirst()
+                .orElse(null);
     }
 
     /**
@@ -245,8 +244,8 @@ public final class TablePropertyDefinitionUtils {
     }
 
     public static TablePropertyDefinition[] getDefaultDefinitionsForTable(String tableType,
-            InheritanceLevel inheritanceLevel,
-            boolean ignoreSystem) {
+                                                                          InheritanceLevel inheritanceLevel,
+                                                                          boolean ignoreSystem) {
         List<TablePropertyDefinition> resultDefinitions = new ArrayList<>();
 
         for (TablePropertyDefinition propertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
@@ -254,7 +253,7 @@ public final class TablePropertyDefinitionUtils {
             if (PropertiesChecker.isPropertySuitableForTableType(name, tableType) && (inheritanceLevel == null // any
                     // level
                     || ArrayUtils.contains(propertyDefinition.getInheritanceLevel(),
-                        inheritanceLevel)) && (!ignoreSystem || !propertyDefinition.isSystem())) {
+                    inheritanceLevel)) && (!ignoreSystem || !propertyDefinition.isSystem())) {
                 resultDefinitions.add(propertyDefinition);
             }
         }
@@ -279,7 +278,7 @@ public final class TablePropertyDefinitionUtils {
      *
      * @param propertyName property name.
      * @return the table type in which this property can be defined. <code>NULL</code> if property can be defined for
-     *         each type of tables.
+     * each type of tables.
      */
     public static XlsNodeTypes[] getSuitableTableTypes(String propertyName) {
         TablePropertyDefinition propDefinition = getPropertyByName(propertyName);
@@ -298,7 +297,7 @@ public final class TablePropertyDefinitionUtils {
     }
 
     public static Map<String, Object> mergeGlobalProperties(Map<String, Object> properties1,
-            Map<String, Object> properties2) {
+                                                            Map<String, Object> properties2) {
         if (properties1 == null) {
             return properties2;
         }

@@ -78,7 +78,7 @@ public class RunTestHelper {
         }
         String uri = table.getUri();
         IOpenMethod method = currentOpenedModule || !model.isProjectCompilationCompleted()
-            ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
+                ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
         if (method instanceof OpenMethodDispatcher) {
             method = model.getCurrentDispatcherMethod(method, uri);
@@ -106,9 +106,9 @@ public class RunTestHelper {
             if (runtimeContext != null) {
                 // if context is provided, project method must be retrieved
                 CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
-                                                                     : model.getCompiledOpenClass();
+                        : model.getCompiledOpenClass();
                 method = compiledOpenClass.getOpenClassWithErrors()
-                    .getMethod(method.getName(), method.getSignature().getParameterTypes());
+                        .getMethod(method.getName(), method.getSignature().getParameterTypes());
             }
             testSuite = new TestSuite(new TestDescription(method, runtimeContext, params, db));
         }

@@ -45,7 +45,7 @@ public class ArrayHolder {
             for (int i = 0; i < values2.length; i++) {
                 if (values2[i] != null) {
                     Object array = componentType.getAggregateInfo()
-                        .makeIndexedAggregate(componentType.getComponentClass(), values2[i].length);
+                            .makeIndexedAggregate(componentType.getComponentClass(), values2[i].length);
                     for (int j = 0; j < values2[i].length; j++) {
                         if (values2[i][j] instanceof CompositeMethod) {
                             CompositeMethod compositeMethod = (CompositeMethod) values2[i][j];
@@ -53,8 +53,8 @@ public class ArrayHolder {
                             Array.set(array, j, result);
                         } else {
                             Array.set(array,
-                                j,
-                                values2[i][j] == null ? componentType.getComponentClass().nullObject() : values2[i][j]);
+                                    j,
+                                    values2[i][j] == null ? componentType.getComponentClass().nullObject() : values2[i][j]);
                         }
                     }
                     Array.set(res, i, array);

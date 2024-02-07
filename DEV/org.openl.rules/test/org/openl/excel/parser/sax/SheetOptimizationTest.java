@@ -17,7 +17,7 @@ public class SheetOptimizationTest {
     @Test
     public void readFileWithBigSheets() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
-            .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
+                .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(1, sheets.size());
 
@@ -33,7 +33,7 @@ public class SheetOptimizationTest {
     @Test
     public void mergedCells() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
-            .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
+                .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(3, sheets.size());
 

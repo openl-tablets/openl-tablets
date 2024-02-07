@@ -9,7 +9,7 @@ public class SecuredRepositoryFactoryProxy extends RepositoryFactoryProxy {
     private final SimpleRepositoryAclService simpleRepositoryAclService;
 
     public SecuredRepositoryFactoryProxy(RepositoryFactoryProxy delegate,
-            SimpleRepositoryAclService simpleRepositoryAclService) {
+                                         SimpleRepositoryAclService simpleRepositoryAclService) {
         this.delegate = delegate;
         this.simpleRepositoryAclService = simpleRepositoryAclService;
     }
@@ -22,7 +22,7 @@ public class SecuredRepositoryFactoryProxy extends RepositoryFactoryProxy {
     @Override
     public Repository getRepositoryInstance(String configName) {
         return SecuredRepositoryFactory.wrapToSecureRepo(delegate.getRepositoryInstance(configName),
-            simpleRepositoryAclService);
+                simpleRepositoryAclService);
     }
 
     @Override

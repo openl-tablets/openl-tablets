@@ -25,8 +25,8 @@ public class XlsDefinitions {
             return false;
         }
         if (dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters() != dtColumnDefinition2.getHeader()
-            .getSignature()
-            .getNumberOfParameters()) {
+                .getSignature()
+                .getNumberOfParameters()) {
             return false;
         }
         if (!Objects.equals(dtColumnDefinition1.getExpression(), dtColumnDefinition2.getExpression())) {
@@ -35,7 +35,7 @@ public class XlsDefinitions {
         Map<String, IOpenClass> map = new HashMap<>();
         for (int i = 0; i < dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters(); i++) {
             map.put(dtColumnDefinition1.getHeader().getSignature().getParameterName(i),
-                dtColumnDefinition1.getHeader().getSignature().getParameterType(i));
+                    dtColumnDefinition1.getHeader().getSignature().getParameterType(i));
         }
         for (int i = 0; i < dtColumnDefinition2.getHeader().getSignature().getNumberOfParameters(); i++) {
             IOpenClass type = map.get(dtColumnDefinition2.getHeader().getSignature().getParameterName(i));
@@ -65,7 +65,7 @@ public class XlsDefinitions {
                     return false;
                 }
                 if (!Objects.equals(parameterDeclaration1.getName(), parameterDeclaration2.getName()) || !Objects
-                    .equals(parameterDeclaration1.getType(), parameterDeclaration2.getType())) {
+                        .equals(parameterDeclaration1.getType(), parameterDeclaration2.getType())) {
                     return false;
                 }
             }
@@ -98,20 +98,20 @@ public class XlsDefinitions {
 
     public Collection<DTColumnsDefinition> getConditionDefinitions() {
         return dtColumnsDefinitions.stream()
-            .filter(e -> DTColumnsDefinitionType.CONDITION.equals(e.getType()))
-            .collect(Collectors.toList());
+                .filter(e -> DTColumnsDefinitionType.CONDITION.equals(e.getType()))
+                .collect(Collectors.toList());
     }
 
     public Collection<DTColumnsDefinition> getActionDefinitions() {
         return dtColumnsDefinitions.stream()
-            .filter(e -> DTColumnsDefinitionType.ACTION.equals(e.getType()))
-            .collect(Collectors.toList());
+                .filter(e -> DTColumnsDefinitionType.ACTION.equals(e.getType()))
+                .collect(Collectors.toList());
     }
 
     public Collection<DTColumnsDefinition> getReturnDefinitions() {
         return dtColumnsDefinitions.stream()
-            .filter(e -> DTColumnsDefinitionType.RETURN.equals(e.getType()))
-            .collect(Collectors.toList());
+                .filter(e -> DTColumnsDefinitionType.RETURN.equals(e.getType()))
+                .collect(Collectors.toList());
     }
 
     public void addAll(XlsDefinitions xlsModuleDefinitions) {

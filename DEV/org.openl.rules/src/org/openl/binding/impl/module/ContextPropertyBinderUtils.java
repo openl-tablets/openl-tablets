@@ -15,14 +15,14 @@ public final class ContextPropertyBinderUtils {
     }
 
     public static String validateContextProperty(String contextProperty,
-            IOpenClass expectedType,
-            IBindingContext bindingContext) {
+                                                 IOpenClass expectedType,
+                                                 IBindingContext bindingContext) {
         String errorMessage = null;
         Class<?> contextPropertyClass = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextProperty);
         if (contextPropertyClass == null) {
             errorMessage = String.format("Property '%s' is not found in the context. Available properties: [%s].",
-                contextProperty,
-                String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet()));
+                    contextProperty,
+                    String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet()));
         } else {
             IOpenClass contextPropertyType = JavaOpenClass.getOpenClass(contextPropertyClass);
             IOpenCast openCast = null;
@@ -32,10 +32,10 @@ public final class ContextPropertyBinderUtils {
             }
             if (isNonValidCastForContextProperty(openCast)) {
                 errorMessage = String.format(
-                    "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
-                    contextProperty,
-                    expectedType.getName(),
-                    contextPropertyType.getName());
+                        "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
+                        contextProperty,
+                        expectedType.getName(),
+                        contextPropertyType.getName());
             }
         }
         return errorMessage;
@@ -43,7 +43,7 @@ public final class ContextPropertyBinderUtils {
 
     public static boolean isNonValidCastForContextProperty(IOpenCast openCast) {
         return openCast == null || !openCast.isImplicit() && !(extractIfNestedOpenCast(
-            openCast) instanceof EnumToStringCast) && !(extractIfNestedOpenCast(openCast) instanceof StringToEnumCast);
+                openCast) instanceof EnumToStringCast) && !(extractIfNestedOpenCast(openCast) instanceof StringToEnumCast);
     }
 
     private static IOpenCast extractIfNestedOpenCast(IOpenCast openCast) {

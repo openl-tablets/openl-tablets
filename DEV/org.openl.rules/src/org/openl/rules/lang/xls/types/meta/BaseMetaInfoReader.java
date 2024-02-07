@@ -68,12 +68,12 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
 
     private static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-            .getName() + " = " + constantOpenField.getValueAsString();
+                .getName() + " = " + constantOpenField.getValueAsString();
         return new SimpleNodeUsage(start,
-            end,
-            description,
-            constantOpenField.getMemberMetaInfo().getSourceUrl(),
-            NodeType.OTHER);
+                end,
+                description,
+                constantOpenField.getMemberMetaInfo().getSourceUrl(),
+                NodeType.OTHER);
     }
 
     @Override
@@ -116,8 +116,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 }
                 if (!nodeUsages.isEmpty()) {
                     return cellMetaInfo != null ? new CellMetaInfo(cellMetaInfo.getDataType(),
-                        cellMetaInfo.isMultiValue(),
-                        nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                            cellMetaInfo.isMultiValue(),
+                            nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                 }
             }
             return cellMetaInfo;

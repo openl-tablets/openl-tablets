@@ -53,11 +53,11 @@ import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 public final class KafkaService implements Runnable {
 
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
-        Runtime.getRuntime().availableProcessors(),
-        Runtime.getRuntime().availableProcessors() * 2,
-        60L,
-        TimeUnit.SECONDS,
-        new LinkedBlockingQueue<>());
+            Runtime.getRuntime().availableProcessors(),
+            Runtime.getRuntime().availableProcessors() * 2,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>());
 
     private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
@@ -78,43 +78,43 @@ public final class KafkaService implements Runnable {
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public static KafkaService createService(OpenLService service,
-            String requestIdHeaderKey,
-            String inTopic,
-            String outTopic,
-            String dltTopic,
-            KafkaConsumer<String, RequestMessage> consumer,
-            KafkaProducer<String, Object> producer,
-            KafkaProducer<String, byte[]> dltProducer,
-            ObjectSerializer objectSerializer,
-            StoreLogDataManager storeLogDataManager,
-            boolean storeLogDataEnabled,
-            RulesDeploy rulesDeploy) throws KafkaServiceException {
+                                             String requestIdHeaderKey,
+                                             String inTopic,
+                                             String outTopic,
+                                             String dltTopic,
+                                             KafkaConsumer<String, RequestMessage> consumer,
+                                             KafkaProducer<String, Object> producer,
+                                             KafkaProducer<String, byte[]> dltProducer,
+                                             ObjectSerializer objectSerializer,
+                                             StoreLogDataManager storeLogDataManager,
+                                             boolean storeLogDataEnabled,
+                                             RulesDeploy rulesDeploy) throws KafkaServiceException {
         return new KafkaService(service,
-            requestIdHeaderKey,
-            inTopic,
-            outTopic,
-            dltTopic,
-            consumer,
-            producer,
-            dltProducer,
-            objectSerializer,
-            storeLogDataManager,
-            storeLogDataEnabled,
-            rulesDeploy);
+                requestIdHeaderKey,
+                inTopic,
+                outTopic,
+                dltTopic,
+                consumer,
+                producer,
+                dltProducer,
+                objectSerializer,
+                storeLogDataManager,
+                storeLogDataEnabled,
+                rulesDeploy);
     }
 
     private KafkaService(OpenLService service,
-            String requestIdHeaderKey,
-            String inTopic,
-            String outTopic,
-            String dltTopic,
-            KafkaConsumer<String, RequestMessage> consumer,
-            KafkaProducer<String, Object> producer,
-            KafkaProducer<String, byte[]> dltProducer,
-            ObjectSerializer objectSerializer,
-            StoreLogDataManager storeLogDataManager,
-            boolean storageEnabled,
-            RulesDeploy rulesDeploy) throws KafkaServiceException {
+                         String requestIdHeaderKey,
+                         String inTopic,
+                         String outTopic,
+                         String dltTopic,
+                         KafkaConsumer<String, RequestMessage> consumer,
+                         KafkaProducer<String, Object> producer,
+                         KafkaProducer<String, byte[]> dltProducer,
+                         ObjectSerializer objectSerializer,
+                         StoreLogDataManager storeLogDataManager,
+                         boolean storageEnabled,
+                         RulesDeploy rulesDeploy) throws KafkaServiceException {
         this.service = Objects.requireNonNull(service);
         this.requestIdHeaderKey = requestIdHeaderKey;
         this.inTopic = Objects.requireNonNull(inTopic);
@@ -130,7 +130,7 @@ public final class KafkaService implements Runnable {
         this.storageEnabled = storageEnabled;
         try {
             PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
+                    .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
             if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
                 this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
             } else {
@@ -255,20 +255,20 @@ public final class KafkaService implements Runnable {
                                 String outputTopic = getOutTopic(consumerRecord);
                                 if (!StringUtils.isBlank(outputTopic)) {
                                     Object result = requestMessage.getMethod()
-                                        .invoke(service.getServiceBean(), requestMessage.getParameters());
+                                            .invoke(service.getServiceBean(), requestMessage.getParameters());
                                     Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                     ProducerRecord<String, Object> producerRecord;
                                     if (header == null) {
                                         producerRecord = new ProducerRecord<>(outputTopic,
-                                            consumerRecord.key(),
-                                            result);
+                                                consumerRecord.key(),
+                                                result);
                                     } else {
                                         Integer partition = Integer
-                                            .parseInt(new String(header.value(), StandardCharsets.UTF_8));
+                                                .parseInt(new String(header.value(), StandardCharsets.UTF_8));
                                         producerRecord = new ProducerRecord<>(outputTopic,
-                                            partition,
-                                            consumerRecord.key(),
-                                            result);
+                                                partition,
+                                                consumerRecord.key(),
+                                                result);
                                     }
                                     if (requestIdHeader != null) {
                                         producerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
@@ -294,10 +294,10 @@ public final class KafkaService implements Runnable {
                                             try {
                                                 if (log.isErrorEnabled()) {
                                                     log.error(
-                                                        "Failed to send a result message for method '{}' in service '{}' to output topic '{}'.",
-                                                        requestMessage.getMethod(),
-                                                        getService().getDeployPath(),
-                                                        getOutTopic(consumerRecord), exception);
+                                                            "Failed to send a result message for method '{}' in service '{}' to output topic '{}'.",
+                                                            requestMessage.getMethod(),
+                                                            getService().getDeployPath(),
+                                                            getOutTopic(consumerRecord), exception);
                                                 }
                                             } catch (Exception e) {
                                                 log.error("Unexpected error.", e);
@@ -313,7 +313,7 @@ public final class KafkaService implements Runnable {
                                 }
                             } catch (InvocationTargetException | UndeclaredThrowableException e) {
                                 Throwable ex = e.getCause();
-                                sendError(consumerRecord, storeLogData, ex instanceof Exception ?  (Exception) ex : e, requestIdHeader);
+                                sendError(consumerRecord, storeLogData, ex instanceof Exception ? (Exception) ex : e, requestIdHeader);
                             } catch (Exception e) {
                                 sendError(consumerRecord, storeLogData, e, requestIdHeader);
                             } finally {
@@ -330,7 +330,7 @@ public final class KafkaService implements Runnable {
                     countDownLatch.await();
                     for (ConsumerRecord<String, RequestMessage> record : records) {
                         currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
-                            new OffsetAndMetadata(record.offset() + 1));
+                                new OffsetAndMetadata(record.offset() + 1));
                     }
                     try {
                         consumer.commitSync(currentOffsets);
@@ -369,16 +369,16 @@ public final class KafkaService implements Runnable {
     }
 
     private void setDltHeaders(ConsumerRecord<String, RequestMessage> record,
-            Exception e,
-            ProducerRecord<?, ?> dltRecord) {
+                               Exception e,
+                               ProducerRecord<?, ?> dltRecord) {
         dltRecord.headers()
-            .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY,
-                record.key() == null ? null : record.key().getBytes(StandardCharsets.UTF_8));
+                .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY,
+                        record.key() == null ? null : record.key().getBytes(StandardCharsets.UTF_8));
         dltRecord.headers()
-            .add(KafkaHeaders.DLT_ORIGINAL_PARTITION,
-                String.valueOf(record.partition()).getBytes(StandardCharsets.UTF_8));
+                .add(KafkaHeaders.DLT_ORIGINAL_PARTITION,
+                        String.valueOf(record.partition()).getBytes(StandardCharsets.UTF_8));
         dltRecord.headers()
-            .add(KafkaHeaders.DLT_ORIGINAL_OFFSET, String.valueOf(record.offset()).getBytes(StandardCharsets.UTF_8));
+                .add(KafkaHeaders.DLT_ORIGINAL_OFFSET, String.valueOf(record.offset()).getBytes(StandardCharsets.UTF_8));
         dltRecord.headers().add(KafkaHeaders.DLT_ORIGINAL_TOPIC, record.topic().getBytes(StandardCharsets.UTF_8));
 
         setDltHeadersForException(dltRecord, record.value().getException());
@@ -387,25 +387,25 @@ public final class KafkaService implements Runnable {
 
         if (record.key() != null) {
             dltRecord.headers()
-                .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY, record.key().getBytes(StandardCharsets.UTF_8));
+                    .add(KafkaHeaders.DLT_ORIGINAL_MESSAGE_KEY, record.key().getBytes(StandardCharsets.UTF_8));
         }
     }
 
     private void setDltHeadersForException(ProducerRecord<?, ?> dltRecord, Exception exception) {
         if (exception != null) {
             dltRecord.headers()
-                .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
+                    .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
             ExceptionDetails details = ServiceInvocationAdvice
-                .getExceptionDetailAndType(exception, sprBeanPropertyNamingStrategy)
-                .getRight();
+                    .getExceptionDetailAndType(exception, sprBeanPropertyNamingStrategy)
+                    .getRight();
             dltRecord.headers()
-                .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
-                    Optional.ofNullable(details.getMessage())
-                        .map(s -> s.getBytes(StandardCharsets.UTF_8))
-                        .orElse(null));
+                    .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
+                            Optional.ofNullable(details.getMessage())
+                                    .map(s -> s.getBytes(StandardCharsets.UTF_8))
+                                    .orElse(null));
             dltRecord.headers()
-                .add(KafkaHeaders.DLT_EXCEPTION_STACKTRACE,
-                    ExceptionUtils.getStackTrace(exception).getBytes(StandardCharsets.UTF_8));
+                    .add(KafkaHeaders.DLT_EXCEPTION_STACKTRACE,
+                            ExceptionUtils.getStackTrace(exception).getBytes(StandardCharsets.UTF_8));
         }
     }
 
@@ -438,9 +438,9 @@ public final class KafkaService implements Runnable {
                 }
                 if (exception != null && log.isErrorEnabled()) {
                     log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
-                        dltTopic,
-                        System.lineSeparator(),
-                        record.value().asText(), exception);
+                            dltTopic,
+                            System.lineSeparator(),
+                            record.value().asText(), exception);
                 } else if (storeLogData != null) {
                     try {
                         getStoreLogDataManager().store(storeLogData);
@@ -452,9 +452,9 @@ public final class KafkaService implements Runnable {
         } catch (Exception e1) {
             if (log.isErrorEnabled()) {
                 log.error("Failed to send a message to dead letter queue topic '{}'.{}Payload: {}",
-                    dltTopic,
-                    System.lineSeparator(),
-                    record.value().asText(), e1);
+                        dltTopic,
+                        System.lineSeparator(),
+                        record.value().asText(), e1);
             }
         }
     }

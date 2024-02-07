@@ -33,12 +33,12 @@ class LazyFileData extends FileData {
     private boolean deleteStatusLoaded = false;
 
     LazyFileData(String branch,
-            String fullPath,
-            GitRepository gitRepo,
-            ObjectId fromCommit,
-            ObjectId fileId,
-            CommitMessageParser commitMessageParser,
-            CommitMessageParser commitMessageParserOld) {
+                 String fullPath,
+                 GitRepository gitRepo,
+                 ObjectId fromCommit,
+                 ObjectId fileId,
+                 CommitMessageParser commitMessageParser,
+                 CommitMessageParser commitMessageParserOld) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -54,12 +54,12 @@ class LazyFileData extends FileData {
     }
 
     LazyFileData(String branch,
-            String fullPath,
-            GitRepository gitRepo,
-            RevCommit fileCommit,
-            ObjectId fileId,
-            CommitMessageParser commitMessageParser,
-            CommitMessageParser commitMessageParserOld) {
+                 String fullPath,
+                 GitRepository gitRepo,
+                 RevCommit fileCommit,
+                 ObjectId fileId,
+                 CommitMessageParser commitMessageParser,
+                 CommitMessageParser commitMessageParserOld) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {

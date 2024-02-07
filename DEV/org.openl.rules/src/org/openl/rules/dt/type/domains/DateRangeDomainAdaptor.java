@@ -9,7 +9,6 @@ import org.openl.ie.constrainer.IntVar;
  * Adaptor for date ranges. Helps to access dates in range by index and retrieve index of date within the range.
  *
  * @author PUdalau
- *
  */
 public class DateRangeDomainAdaptor implements IDomainAdaptor {
     private final DateRangeDomain domain;

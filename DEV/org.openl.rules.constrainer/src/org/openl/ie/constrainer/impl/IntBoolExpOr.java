@@ -20,6 +20,7 @@ import org.openl.ie.constrainer.Subject;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of the expression: <code>(IntBoolExp1 || IntBoolExp2)</code>.
  */

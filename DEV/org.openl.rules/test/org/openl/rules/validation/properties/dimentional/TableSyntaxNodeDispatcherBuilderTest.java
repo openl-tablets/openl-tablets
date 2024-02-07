@@ -19,8 +19,8 @@ public class TableSyntaxNodeDispatcherBuilderTest {
         RulesModuleBindingContext context = mock(RulesModuleBindingContext.class);
         XlsModuleOpenClass moduleOpenClass = mock(XlsModuleOpenClass.class);
         TableSyntaxNodeDispatcherBuilder builder = new TableSyntaxNodeDispatcherBuilder(context,
-            moduleOpenClass,
-            dispatcher);
+                moduleOpenClass,
+                dispatcher);
         assertNull(builder.build());
     }
 

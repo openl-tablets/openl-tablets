@@ -16,7 +16,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Allows to create or assign administrators from the properties file.
- * 
+ * <p>
  * There are two cases are supported:<br>
  * 1) When roles are managed externally (in LDAP/AD for example). Then ADMIN privilege is set to groups.<br>
  * 2) When roles are managed in WebStudio. Then a group with ADMIN privilege is set to users.<br>
@@ -56,11 +56,11 @@ public class AdminUsers {
         String adminGroup = assignPrivileges(username);
         if (user == null) {
             userService.addUser(username,
-                null,
-                null,
-                username,
-                null,
-                null
+                    null,
+                    null,
+                    username,
+                    null,
+                    null
             );
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {

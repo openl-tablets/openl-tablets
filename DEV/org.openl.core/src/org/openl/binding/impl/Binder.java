@@ -34,11 +34,11 @@ public class Binder implements IOpenBinder {
     private final INameSpacedMethodFactory methodFactory;
 
     public Binder(INodeBinderFactory nodeBinderFactory,
-            INameSpacedMethodFactory methodFactory,
-            ICastFactory castFactory,
-            INameSpacedVarFactory varFactory,
-            INameSpacedTypeFactory typeFactory,
-            OpenL openl) {
+                  INameSpacedMethodFactory methodFactory,
+                  ICastFactory castFactory,
+                  INameSpacedVarFactory varFactory,
+                  INameSpacedTypeFactory typeFactory,
+                  OpenL openl) {
 
         this.nodeBinderFactory = nodeBinderFactory;
         this.methodFactory = methodFactory;

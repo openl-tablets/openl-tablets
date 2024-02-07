@@ -10,7 +10,6 @@ import org.openl.exception.OpenlNotCheckedException;
 
 /**
  * @author snshor
- *
  */
 public class DuplicatedVarException extends OpenlNotCheckedException {
 

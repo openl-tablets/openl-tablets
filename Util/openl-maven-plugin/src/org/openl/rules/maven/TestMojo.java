@@ -156,11 +156,11 @@ public final class TestMojo extends BaseOpenLMojo {
 
         info("");
         info("Total tests run: ",
-            summary.getRunTests(),
-            ", Failures: ",
-            summary.getFailedTests(),
-            ", Errors: ",
-            summary.getErrors());
+                summary.getRunTests(),
+                ", Failures: ",
+                summary.getFailedTests(),
+                ", Errors: ",
+                summary.getErrors());
         info("");
         if (summary.getFailedTests() > 0 || summary.getErrors() > 0) {
             throw new MojoFailureException("There are errors in the OpenL tests.");
@@ -170,7 +170,7 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary runAllTests(String sourcePath,
-            boolean hasDependencies) throws IOException, RulesInstantiationException, ProjectResolvingException {
+                                boolean hasDependencies) throws IOException, RulesInstantiationException, ProjectResolvingException {
 
         String testSourcePath = sourcePath;
         String mainSourcePath = null;
@@ -188,15 +188,15 @@ public final class TestMojo extends BaseOpenLMojo {
         }
 
         return singleModuleMode || maxModulesInMemory > 0 ? executeModuleByModule(testSourcePath,
-            mainSourcePath,
-            hasDependencies) : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
+                mainSourcePath,
+                hasDependencies) : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
     private Summary executeAllAtOnce(String testSourcePath,
-            String mainSourcePath,
-            boolean hasDependencies) throws MalformedURLException,
-                                     RulesInstantiationException,
-                                     ProjectResolvingException {
+                                     String mainSourcePath,
+                                     boolean hasDependencies) throws MalformedURLException,
+            RulesInstantiationException,
+            ProjectResolvingException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
@@ -210,10 +210,10 @@ public final class TestMojo extends BaseOpenLMojo {
                 builder.setProjectDependencies(mainSourcePath);
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
-                .setClassLoader(classLoader)
-                .setExecutionMode(false)
-                .setExternalParameters(externalParameters)
-                .build();
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(false)
+                    .setExternalParameters(externalParameters)
+                    .build();
 
             CompiledOpenClass openLRules = factory.getCompiledOpenClass();
             return executeTests(openLRules);
@@ -223,8 +223,8 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary executeModuleByModule(String testSourcePath,
-            String mainSourcePath,
-            boolean hasDependencies) throws MalformedURLException, ProjectResolvingException {
+                                          String mainSourcePath,
+                                          boolean hasDependencies) throws MalformedURLException, ProjectResolvingException {
         ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
@@ -251,10 +251,10 @@ public final class TestMojo extends BaseOpenLMojo {
             builder.setWorkspace(workspaceFolder.getPath());
         }
         SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
-            .setClassLoader(classLoader)
-            .setExecutionMode(false)
-            .setExternalParameters(externalParameters)
-            .build();
+                .setClassLoader(classLoader)
+                .setExecutionMode(false)
+                .setExternalParameters(externalParameters)
+                .build();
 
         Deque<ResolvedDependency> queueToReset = new ArrayDeque<>();
         for (Module module : modules) {
@@ -270,7 +270,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
                         String message = String
-                            .format("Failed to load module '%s': %s", module.getName(), openLMessage.getSummary());
+                                .format("Failed to load module '%s': %s", module.getName(), openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -311,7 +311,7 @@ public final class TestMojo extends BaseOpenLMojo {
             error("");
             error("There are compilation errors. It can affect test execution.");
             Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
-                .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.ERROR);
+                    .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
                 String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
@@ -356,15 +356,15 @@ public final class TestMojo extends BaseOpenLMojo {
                     int suitErrors = result.getNumberOfErrors();
 
                     info("Tests run: ",
-                        suitTests,
-                        ", Failures: ",
-                        suitFailures,
-                        ", Errors: ",
-                        suitErrors,
-                        ". Time elapsed: ",
-                        formatTime(result.getExecutionTime()),
-                        " sec.",
-                        result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
+                            suitTests,
+                            ", Failures: ",
+                            suitFailures,
+                            ", Errors: ",
+                            suitErrors,
+                            ". Time elapsed: ",
+                            formatTime(result.getExecutionTime()),
+                            " sec.",
+                            result.getNumberOfFailures() > 0 ? " " + FAILURE : "");
 
                     if (result.getNumberOfFailures() > 0) {
                         showFailures(test, result, summaryFailures, summaryErrors);
@@ -418,9 +418,9 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private void showFailures(TestSuiteMethod test,
-            TestUnitsResults result,
-            List<String> summaryFailures,
-            List<String> summaryErrors) {
+                              TestUnitsResults result,
+                              List<String> summaryFailures,
+                              List<String> summaryErrors) {
         int num = 1;
         String moduleName = test.getModuleName();
         String modulePrefix = moduleName == null ? "" : moduleName + ".";
@@ -432,12 +432,12 @@ public final class TestMojo extends BaseOpenLMojo {
                 String description = testUnit.getDescription();
 
                 info("  Test case: #",
-                    num,
-                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : (" (" + description + ")"),
-                    ". Time elapsed: ",
-                    formatTime(testUnit.getExecutionTime()),
-                    " sec. ",
-                    failureType);
+                        num,
+                        ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : (" (" + description + ")"),
+                        ". Time elapsed: ",
+                        formatTime(testUnit.getExecutionTime()),
+                        " sec. ",
+                        failureType);
 
                 if (status == TR_NEQ) {
                     StringBuilder summaryBuilder = new StringBuilder(modulePrefix + test.getName() + "#" + num);
@@ -452,10 +452,10 @@ public final class TestMojo extends BaseOpenLMojo {
                             if (fieldName == null || ThisField.THIS.equals(fieldName)) {
                                 info("    Expected: <" + expectedValue + "> but was: <" + actualValue + ">");
                                 summaryBuilder.append(" expected: <")
-                                    .append(expectedValue)
-                                    .append("> but was <")
-                                    .append(actualValue)
-                                    .append(">");
+                                        .append(expectedValue)
+                                        .append("> but was <")
+                                        .append(actualValue)
+                                        .append(">");
                             } else {
                                 if (rowNum > 0) {
                                     summaryBuilder.append(",");
@@ -463,12 +463,12 @@ public final class TestMojo extends BaseOpenLMojo {
                                 info("    Field " + fieldName + " expected: <" + expectedValue + "> but was: <" + actualValue + ">");
 
                                 summaryBuilder.append(" field ")
-                                    .append(fieldName)
-                                    .append(" expected: <")
-                                    .append(expectedValue)
-                                    .append("> but was <")
-                                    .append(actualValue)
-                                    .append(">");
+                                        .append(fieldName)
+                                        .append(" expected: <")
+                                        .append(expectedValue)
+                                        .append("> but was <")
+                                        .append(actualValue)
+                                        .append(">");
                             }
                             rowNum++;
                         }
@@ -515,7 +515,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 return string.substring(1, string.length() - 1); // Remove the first and the last brackets in [[1, 2, 3]]
             }
         }
-        return  Objects.toString(value);
+        return Objects.toString(value);
     }
 
     private TestSuiteExecutor createTestSuiteExecutor() {
@@ -553,11 +553,11 @@ public final class TestMojo extends BaseOpenLMojo {
         private final boolean hasCompilationErrors;
 
         public Summary(int runTests,
-                int failedTests,
-                int errors,
-                List<String> summaryFailures,
-                List<String> summaryErrors,
-                boolean hasCompilationErrors) {
+                       int failedTests,
+                       int errors,
+                       List<String> summaryFailures,
+                       List<String> summaryErrors,
+                       boolean hasCompilationErrors) {
             this.runTests = runTests;
             this.failedTests = failedTests;
             this.errors = errors;

@@ -28,12 +28,12 @@ public class CopyMethodCallerWrapper implements MethodCallerWrapper {
 
     @Override
     public IMethodCaller handle(IMethodCaller methodCaller,
-            JavaOpenMethod javaOpenMethod,
-            IOpenClass[] callParams,
-            ICastFactory castFactory) {
+                                JavaOpenMethod javaOpenMethod,
+                                IOpenClass[] callParams,
+                                ICastFactory castFactory) {
         return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, this::buildMethodDetails),
-            methodCaller.getMethod().getType(),
-            JavaNoCast.getInstance());
+                methodCaller.getMethod().getType(),
+                JavaNoCast.getInstance());
     }
 
 }

@@ -26,7 +26,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
-        .compareToIgnoreCase(o2.getName());
+            .compareToIgnoreCase(o2.getName());
 
     private final String userId;
     private final File location;
@@ -80,11 +80,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         AProject lp;
         synchronized (localProjects) {
             lp = localProjects.values()
-                .stream()
-                .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                    .equalsIgnoreCase(name))
-                .findFirst()
-                .orElse(null);
+                    .stream()
+                    .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
+                            .equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(null);
         }
         if (lp == null) {
             throw new ProjectException("Cannot find project ''{0}''.", null, name);
@@ -113,11 +113,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public List<? extends AProject> getProjects(String repositoryId) {
         synchronized (localProjects) {
             return localProjects.entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
-                .map(Map.Entry::getValue)
-                .sorted(PROJECTS_COMPARATOR)
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .map(Map.Entry::getValue)
+                    .sorted(PROJECTS_COMPARATOR)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -129,10 +129,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     public boolean hasProject(String repositoryId, String name) {
         synchronized (localProjects) {
             Optional<AProject> lp = localProjects.values()
-                .stream()
-                .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                    .equalsIgnoreCase(name))
-                .findFirst();
+                    .stream()
+                    .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
+                            .equalsIgnoreCase(name))
+                    .findFirst();
             return lp.isPresent();
         }
     }
@@ -165,9 +165,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                             mappedName = mapper.getMappedName(name, repositoryPath);
                         } else {
                             mappedName = mappedPath.startsWith(rulesLocation)
-                                                                              ? mappedPath
-                                                                                  .substring(rulesLocation.length())
-                                                                              : mappedPath;
+                                    ? mappedPath
+                                    .substring(rulesLocation.length())
+                                    : mappedPath;
                         }
                     }
                     mappingData.setExternalPath(rulesLocation + mappedName);

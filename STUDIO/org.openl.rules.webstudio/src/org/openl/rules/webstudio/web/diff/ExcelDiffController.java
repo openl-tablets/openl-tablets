@@ -64,8 +64,8 @@ public class ExcelDiffController extends AbstractDiffController {
 
     private void defineChangesStatus(DiffTreeNode diffTree) {
         if (diffTree != null && Stream.of(diffTree.getElements())
-            .filter(e -> !DiffStatus.ORIGINAL.equals(e.getDiffStatus()))
-            .allMatch(e -> DiffStatus.EQUALS.equals(e.getDiffStatus()))) {
+                .filter(e -> !DiffStatus.ORIGINAL.equals(e.getDiffStatus()))
+                .allMatch(e -> DiffStatus.EQUALS.equals(e.getDiffStatus()))) {
             this.changesStatus = FORMATTING_OR_METADATA;
         }
     }

@@ -13,7 +13,6 @@ import org.openl.types.IMethodCaller;
  * and returns some value if necessary.
  *
  * @author User
- *
  */
 public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
     private final boolean hasReturnValue;
@@ -22,7 +21,7 @@ public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
      * Create an instance of <code>ReturnOperation</code>.
      *
      * @param openLStatement Expression which result must be calculated and returned. If openLStatement is blank then
-     *            operation just end execution of some function.
+     *                       operation just end execution of some function.
      */
     public ReturnOperation(IMethodCaller openLStatement) {
         super(openLStatement);

@@ -19,7 +19,7 @@ public class OpenLMessageTests extends BaseOpenlBuilderHelper {
         for (OpenLMessage message : getCompiledOpenClass().getAllMessages()) {
             if (message instanceof OpenLErrorMessage) {
                 assertTrue(message.getSourceLocation()
-                    .endsWith("OpenLMessagesTest.xlsx?sheet=VehiclePremium&cell=C3&start=0&end=0"));
+                        .endsWith("OpenLMessagesTest.xlsx?sheet=VehiclePremium&cell=C3&start=0&end=0"));
             }
         }
 

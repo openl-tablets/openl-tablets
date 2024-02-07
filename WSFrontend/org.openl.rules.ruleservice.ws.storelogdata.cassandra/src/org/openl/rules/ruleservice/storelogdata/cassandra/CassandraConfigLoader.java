@@ -40,13 +40,13 @@ public class CassandraConfigLoader {
         return new DefaultDriverConfigLoader(() -> {
             ConfigFactory.invalidateCaches();
             Config config = ConfigFactory.defaultOverrides()
-                .withFallback(
-                    Parseable
-                        .newProperties(getAppContextProperties(),
-                            ConfigParseOptions.defaults().setOriginDescription("spring context properties"))
-                        .parse())
-                .withFallback(ConfigFactory.defaultReference())
-                .resolve();
+                    .withFallback(
+                            Parseable
+                                    .newProperties(getAppContextProperties(),
+                                            ConfigParseOptions.defaults().setOriginDescription("spring context properties"))
+                                    .parse())
+                    .withFallback(ConfigFactory.defaultReference())
+                    .resolve();
             return config.getConfig(DefaultDriverConfigLoader.DEFAULT_ROOT_PATH);
         });
     }

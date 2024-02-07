@@ -14,7 +14,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class JavaLibraryConfiguration extends AConfigurationElement implements IMethodFactoryConfigurationElement {
 

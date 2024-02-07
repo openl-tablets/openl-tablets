@@ -64,17 +64,17 @@ public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyR
     @SuppressWarnings("unchecked")
     private boolean isAcceptable(Class aClass, MediaType mediaType) {
         return MediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType) && DATE_TYPE_SET.stream()
-            .anyMatch(aClass::isAssignableFrom);
+                .anyMatch(aClass::isAssignableFrom);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Object readFrom(Class aClass,
-            Type type,
-            Annotation[] annotations,
-            MediaType mediaType,
-            MultivaluedMap multivaluedMap,
-            InputStream inputStream) throws IOException, WebApplicationException {
+                           Type type,
+                           Annotation[] annotations,
+                           MediaType mediaType,
+                           MultivaluedMap multivaluedMap,
+                           InputStream inputStream) throws IOException, WebApplicationException {
         try {
             final var str = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             return objectMapper.readValue(quote(str), aClass);
@@ -89,12 +89,12 @@ public class TextPlainMessageProvider implements MessageBodyWriter, MessageBodyR
 
     @Override
     public void writeTo(Object o,
-            Class aClass,
-            Type type,
-            Annotation[] annotations,
-            MediaType mediaType,
-            MultivaluedMap multivaluedMap,
-            OutputStream outputStream) throws IOException {
+                        Class aClass,
+                        Type type,
+                        Annotation[] annotations,
+                        MediaType mediaType,
+                        MultivaluedMap multivaluedMap,
+                        OutputStream outputStream) throws IOException {
 
         String str = unquote(objectMapper.writeValueAsString(o));
         outputStream.write(str.getBytes(StandardCharsets.UTF_8));

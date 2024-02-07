@@ -105,10 +105,10 @@ public class Module {
 
     public String getRelativeUri() {
         return Optional.ofNullable(project.getProjectFolder().getParent())
-            .orElse(project.getProjectFolder())
-            .toUri()
-            .relativize(getRulesPath().toUri())
-            .toString();
+                .orElse(project.getProjectFolder())
+                .toUri()
+                .relativize(getRulesPath().toUri())
+                .toString();
     }
 
     @Override

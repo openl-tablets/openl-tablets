@@ -40,7 +40,7 @@ public class PropertyTableBoundNode extends ATableBoundNode implements IMemberBo
         }
         if (InheritanceLevel.GLOBAL.getDisplayName().equals(propertiesInstance.getScope())) {
             ITableProperties globalProperties = TablePropertyDefinitionUtils
-                .buildGlobalTableProperties(propertiesInstance.getAllProperties());
+                    .buildGlobalTableProperties(propertiesInstance.getAllProperties());
             openClass.addGlobalTableProperties(globalProperties);
         }
     }

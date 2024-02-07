@@ -13,7 +13,6 @@ import org.openl.util.CategorizedMap;
 
 /**
  * @author snshor
- *
  */
 public class LibraryFactoryConfiguration extends AConfigurationElement implements IConfigurationElement {
 
@@ -35,9 +34,9 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
     }
 
     public IOpenField getVar(String namespace,
-            String name,
-            IConfigurableResourceContext cxt,
-            boolean strictMatch) throws AmbiguousFieldException {
+                             String name,
+                             IConfigurableResourceContext cxt,
+                             boolean strictMatch) throws AmbiguousFieldException {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
         return lib == null ? null : lib.getField(name, cxt, strictMatch);
     }

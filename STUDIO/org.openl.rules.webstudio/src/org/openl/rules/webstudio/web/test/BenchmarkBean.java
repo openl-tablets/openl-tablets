@@ -36,7 +36,7 @@ public class BenchmarkBean {
 
     private static boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
-            .getNumberOfTestsCases();
+                .getNumberOfTestsCases();
     }
 
     public void addLastBenchmark() {
@@ -45,7 +45,7 @@ public class BenchmarkBean {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
         IOpenMethod table = model.isProjectCompilationCompleted() ?
-            model.getMethod(testSuiteUri) : model.getOpenedModuleMethod(testSuiteUri);
+                model.getMethod(testSuiteUri) : model.getOpenedModuleMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = TableSyntaxNodeUtils.getTestName(table);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
@@ -53,17 +53,17 @@ public class BenchmarkBean {
             IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
             ToLongFunction<Integer> bu = times -> testSuite.invokeSequentially(openClass, times).getExecutionTime();
             BenchmarkInfoView biv = runBenchmark(tableId,
-                testName,
-                testInfo,
-                bu, ParameterWithValueDeclaration.EMPTY_ARRAY,
-                testSuite.getNumberOfTests());
+                    testName,
+                    testInfo,
+                    bu, ParameterWithValueDeclaration.EMPTY_ARRAY,
+                    testSuite.getNumberOfTests());
             benchmarks.add(0, biv);
         } else {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
                 IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
                 int numTest = i;
                 ToLongFunction<Integer> bu = times -> testSuite.executeTest(openClass, numTest, times)
-                    .getExecutionTime();
+                        .getExecutionTime();
 
                 ParameterWithValueDeclaration[] params = testSuite.getTest(i).getExecutionParams();
                 BenchmarkInfoView biv = runBenchmark(tableId, testName, testInfo, bu, params, 1);
@@ -145,11 +145,11 @@ public class BenchmarkBean {
     private static final long MIN_NANOS = 3 * 1_000_000_000L;
 
     private static BenchmarkInfoView runBenchmark(String tableId,
-            String testName,
-            String testInfo,
-            ToLongFunction<Integer> bu,
-            ParameterWithValueDeclaration[] params,
-            int nUnitRuns) {
+                                                  String testName,
+                                                  String testInfo,
+                                                  ToLongFunction<Integer> bu,
+                                                  ParameterWithValueDeclaration[] params,
+                                                  int nUnitRuns) {
 
         int runs = 1;
         while (true) {

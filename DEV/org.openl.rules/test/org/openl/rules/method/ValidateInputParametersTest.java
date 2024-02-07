@@ -30,8 +30,8 @@ public class ValidateInputParametersTest {
     public void test() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
             IOpenMethod method = engineFactory.getCompiledOpenClass()
-                .getOpenClass()
-                .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
+                    .getOpenClass()
+                    .getMethod("SHTable", new IOpenClass[]{JavaOpenClass.STRING});
 
             assertNotNull(method);
 
@@ -47,8 +47,8 @@ public class ValidateInputParametersTest {
     public void testArray() {
         assertThrows(OutsideOfValidDomainException.class, () -> {
             IOpenMethod method = engineFactory.getCompiledOpenClass()
-                .getOpenClass()
-                .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
+                    .getOpenClass()
+                    .getMethod("DTTable2", new IOpenClass[]{JavaOpenClass.getOpenClass(String[].class)});
 
             assertNotNull(method);
 

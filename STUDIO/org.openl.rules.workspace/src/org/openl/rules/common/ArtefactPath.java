@@ -29,7 +29,6 @@ public interface ArtefactPath {
      * special delimiter '/'.
      *
      * @param skip number of elements to skip
-     *
      * @return string with the path
      */
     String getStringValue(int skip);

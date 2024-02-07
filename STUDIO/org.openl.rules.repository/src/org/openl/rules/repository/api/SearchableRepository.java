@@ -12,10 +12,10 @@ public interface SearchableRepository extends Repository {
 
     /**
      * Gets paged commit history for project by {@code globalFilter} if provided
-     * 
-     * @param name Project name
+     *
+     * @param name         Project name
      * @param globalFilter global filer allows regexp.
-     * @param page page to display
+     * @param page         page to display
      * @return page log
      * @throws IOException error
      */

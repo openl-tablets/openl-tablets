@@ -40,7 +40,7 @@ public interface RuleServiceLoader {
     /**
      * Gets a deployment from data source.
      *
-     * @param deploymentName target deployment name
+     * @param deploymentName    target deployment name
      * @param deploymentVersion target version
      * @return deployment
      */

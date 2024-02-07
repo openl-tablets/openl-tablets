@@ -23,8 +23,8 @@ public class ArrayInPropSectionTest extends BaseOpenlBuilderHelper {
 
         if (resultTsn != null) {
             assertEquals(resultTsn.getTableProperties().getTableProperties().size(),
-                4,
-                "Check that number of properties defined in table is 4");
+                    4,
+                    "Check that number of properties defined in table is 4");
             assertEquals("tag1", resultTsn.getTableProperties().getTags()[0]);
             assertEquals("tag3", resultTsn.getTableProperties().getTags()[1]);
             assertEquals("tag4", resultTsn.getTableProperties().getTags()[2]);

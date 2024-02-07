@@ -57,7 +57,7 @@ public class DimensionPropertiesDomainsCollectorTest extends BaseOpenlBuilderHel
         assertEquals(expirationDateMaxInd, effectiveDateMaxInd);
 
         IDomainAdaptor currentDateDomainAdaptor = propertiesDomains
-            .get(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM);
+                .get(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM);
         int currentDateMaxInd = currentDateDomainAdaptor.getMax();
         assertEquals(currentDateMaxInd, expirationDateMaxInd);
     }

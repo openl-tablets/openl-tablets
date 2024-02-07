@@ -25,7 +25,6 @@ import javax.validation.Payload;
 public @interface TableNameConstraint {
 
     /**
-     *
      * @return the error message
      */
     String message() default "{webstudio.invalid.name}";

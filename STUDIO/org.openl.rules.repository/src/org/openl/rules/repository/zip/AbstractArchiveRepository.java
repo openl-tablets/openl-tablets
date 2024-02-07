@@ -57,10 +57,9 @@ abstract class AbstractArchiveRepository implements Repository, Closeable {
     /**
      * Verifies if it's an archive
      *
-     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
-     *
      * @param path path to archive
      * @return {@code true} if it's archive, otherwise {@code false}
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
      */
     public static boolean zipArchiveFilter(Path path) {
         if (!Files.isRegularFile(path)) {

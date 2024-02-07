@@ -13,7 +13,8 @@ public class IntersectedPropertiesPriorityRule implements IPriorityRule {
     public int compare(ITableProperties tableProperties1, ITableProperties tableProperties2) {
         boolean nested = false;
         boolean contains = false;
-        propsLoop: for (String propName : PROPERTY_NAMES) {
+        propsLoop:
+        for (String propName : PROPERTY_NAMES) {
 
             switch (intersectionMatcher.match(propName, tableProperties1, tableProperties2)) {
                 case NESTED:

@@ -10,7 +10,6 @@ import org.openl.util.text.IPosition;
 
 /**
  * @author snshor
- *
  */
 public class GridLocation implements ILocation {
 
@@ -24,8 +23,8 @@ public class GridLocation implements ILocation {
 
         start = new GridPosition(table.getGridColumn(0, 0), table.getGridRow(0, 0), table.getGrid());
         end = new GridPosition(table.getGridColumn(width - 1, height - 1),
-            table.getGridRow(width - 1, height - 1),
-            table.getGrid());
+                table.getGridRow(width - 1, height - 1),
+                table.getGrid());
     }
 
     @Override

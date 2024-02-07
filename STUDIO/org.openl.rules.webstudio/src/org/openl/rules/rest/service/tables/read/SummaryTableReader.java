@@ -36,10 +36,10 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var url = table.getUriParser();
         try {
             var file = new File("").getCanonicalFile()
-                .toPath()
-                .relativize(Path.of(url.getWbPath()))
-                .resolve(url.getWbName())
-                .toString();
+                    .toPath()
+                    .relativize(Path.of(url.getWbPath()))
+                    .resolve(url.getWbName())
+                    .toString();
             builder.file(file.replace("\\", "/"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to resolve module location", e);
@@ -51,7 +51,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         if (member instanceof AMethod) {
             var methodHeader = ((AMethod) member).getHeader();
             builder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
-                .returnType(MethodUtil.printType(methodHeader.getType()));
+                    .returnType(MethodUtil.printType(methodHeader.getType()));
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {

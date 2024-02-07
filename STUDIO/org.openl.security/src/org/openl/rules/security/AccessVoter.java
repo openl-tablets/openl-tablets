@@ -34,7 +34,6 @@ public class AccessVoter extends AuthenticatedVoter {
      * This implementation supports any type of class, because it does not query the presented secure object.
      *
      * @param aClass the secure object
-     *
      * @return always <code>true</code>
      */
     @Override
@@ -50,8 +49,8 @@ public class AccessVoter extends AuthenticatedVoter {
     /**
      * Votes whether access should be granted.
      *
-     * @param authentication Authentication (Principal)
-     * @param object Ignored in current implementation
+     * @param authentication   Authentication (Principal)
+     * @param object           Ignored in current implementation
      * @param configAttributes attributes (required Authorities)
      * @return {@link #ACCESS_DENIED} or {@link #ACCESS_ABSTAIN} or {@link #ACCESS_GRANTED}
      */

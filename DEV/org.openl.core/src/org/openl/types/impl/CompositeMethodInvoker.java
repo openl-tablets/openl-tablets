@@ -16,7 +16,6 @@ import org.openl.vm.IRuntimeEnv;
  * Invoker for {@link CompositeMethod}.
  *
  * @author DLiauchuk
- *
  */
 public class CompositeMethodInvoker implements Invokable {
     private static final Logger LOG = LoggerFactory.getLogger(CompositeMethodInvoker.class);
@@ -37,7 +36,7 @@ public class CompositeMethodInvoker implements Invokable {
             BlockNode mbb = (BlockNode) methodBodyBoundNode;
             IBoundNode[] children = mbb.getChildren();
             if (children != null && children.length == 1 && mbb.getLocalFrameSize() == method.getSignature()
-                .getNumberOfParameters()) {
+                    .getNumberOfParameters()) {
                 expressionNode = children[0];
             }
         }
@@ -77,7 +76,7 @@ public class CompositeMethodInvoker implements Invokable {
             IOpenRunner runner = env.getRunner();
 
             return expressionNode == null ? runner.run(methodBodyBoundNode, params, env)
-                                          : runner.runExpression(expressionNode, params, env);
+                    : runner.runExpression(expressionNode, params, env);
         } catch (ControlSignalReturn csret) {
             LOG.debug("Error occurred: ", csret);
             return csret.getReturnValue();

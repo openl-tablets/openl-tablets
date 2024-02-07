@@ -33,7 +33,7 @@ import org.openl.util.IOUtils;
 
 /**
  * This services helps to merge two conflicted revisions based on base revision
- * 
+ *
  * @author Vladyslav Pikus
  */
 public class XlsWorkbookMerger implements Closeable {
@@ -54,7 +54,7 @@ public class XlsWorkbookMerger implements Closeable {
 
     /**
      * Close all workbooks
-     * 
+     *
      * @throws IOException if happen while closing
      */
     @Override
@@ -111,9 +111,9 @@ public class XlsWorkbookMerger implements Closeable {
                     continue;
                 } else {
                     boolean hasChanges = XlsSheetsMatcher.hasChanges(ourWorkbook,
-                        ourWorkbook.getSheet(sheetName),
-                        theirWorkbook,
-                        theirWorkbook.getSheet(sheetName));
+                            ourWorkbook.getSheet(sheetName),
+                            theirWorkbook,
+                            theirWorkbook.getSheet(sheetName));
                     if (!hasChanges) {
                         continue;
                     }
@@ -199,16 +199,16 @@ public class XlsWorkbookMerger implements Closeable {
      * Merge changes from {@code their} workbook and {@code our} workbook using {@link SheetDiffResult} to
      * {@code output} workbook
      *
-     * @param our our workbook
-     * @param their their workbook
+     * @param our        our workbook
+     * @param their      their workbook
      * @param diffResult difference result for these workbooks
-     * @param output output stream
+     * @param output     output stream
      * @throws IOException if happen while merge
      */
     public static void merge(InputStream our,
-            InputStream their,
-            WorkbookDiffResult diffResult,
-            OutputStream output) throws IOException {
+                             InputStream their,
+                             WorkbookDiffResult diffResult,
+                             OutputStream output) throws IOException {
         if (diffResult.hasConflicts()) {
             throw new IllegalStateException("Can not merge because of conflicts.");
         }
@@ -220,24 +220,24 @@ public class XlsWorkbookMerger implements Closeable {
         var sheetDiffResult = diffResult.getSheetDiffResult();
         var paletteDifResult = diffResult.getPaletteDiffResult();
         try (StreamWorkbook ourBook = new StreamWorkbook(our, false);
-                StreamWorkbook theirBook = new StreamWorkbook(their, true)) {
+             StreamWorkbook theirBook = new StreamWorkbook(their, true)) {
             if (sheetDiffResult.hasChangesToMerge()) {
                 List<Cell> formulas = new ArrayList<>();
                 for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
                     switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
                         case UPDATED:
                             XlsSheetCopier.copy(theirBook,
-                                theirBook.getSheet(sheetName),
-                                ourBook,
-                                ourBook.getSheet(sheetName),
-                                formulas);
+                                    theirBook.getSheet(sheetName),
+                                    ourBook,
+                                    ourBook.getSheet(sheetName),
+                                    formulas);
                             break;
                         case CREATED:
                             XlsSheetCopier.copy(theirBook,
-                                theirBook.getSheet(sheetName),
-                                ourBook,
-                                ourBook.createSheet(sheetName),
-                                formulas);
+                                    theirBook.getSheet(sheetName),
+                                    ourBook,
+                                    ourBook.createSheet(sheetName),
+                                    formulas);
                             break;
                         case REMOVED:
                             int sheetIdx = ourBook.getSheetIndex(sheetName);
@@ -278,8 +278,8 @@ public class XlsWorkbookMerger implements Closeable {
     /**
      * Initialize merge analyzing
      *
-     * @param base base revision workbook
-     * @param our our revision workbook
+     * @param base  base revision workbook
+     * @param our   our revision workbook
      * @param their their revision
      * @return initialized class
      * @throws IOException if happen

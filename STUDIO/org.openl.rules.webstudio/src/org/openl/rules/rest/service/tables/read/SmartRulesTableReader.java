@@ -46,8 +46,8 @@ public class SmartRulesTableReader extends ExecutableTableReader<SmartRulesView,
     }
 
     private void processRules(SmartRulesView.Builder builder,
-            List<SmartRulesHeaderView> headers,
-            ILogicalTable rulesBody) {
+                              List<SmartRulesHeaderView> headers,
+                              ILogicalTable rulesBody) {
         var list = new ArrayList<LinkedHashMap<String, Object>>();
         var sourceTable = rulesBody.getSource();
         var height = OpenLTableUtils.getHeightWithoutEmptyRows(sourceTable);

@@ -26,8 +26,8 @@ import org.openl.util.ClassUtils;
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
-    private static final String[] CAST_LIBRARY_NAMES = new String[] {
-            CastOperators.class.getName() };
+    private static final String[] CAST_LIBRARY_NAMES = new String[]{
+            CastOperators.class.getName()};
     static ICastFactory castFactory;
 
     @BeforeAll
@@ -37,7 +37,7 @@ public abstract class AbstractMethodSearchTest {
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
             TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName,
-                CastFactory.class.getName());
+                    CastFactory.class.getName());
             typecast.addJavaCast(javaCast);
         }
 
@@ -46,18 +46,18 @@ public abstract class AbstractMethodSearchTest {
     }
 
     final void assertInvoke(Object expected,
-            Class<?> target,
-            String methodName,
-            Class<?>... classes) throws AmbiguousMethodException {
+                            Class<?> target,
+                            String methodName,
+                            Class<?>... classes) throws AmbiguousMethodException {
         Object[] args = toArgs(classes);
         assertInvoke(expected, target, methodName, classes, args);
     }
 
     final void assertInvoke(Object expected,
-            Class<?> target,
-            String methodName,
-            Class<?>[] classes,
-            Object[] args) throws AmbiguousMethodException {
+                            Class<?> target,
+                            String methodName,
+                            Class<?>[] classes,
+                            Object[] args) throws AmbiguousMethodException {
         JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
 
         IOpenClass[] openClasses = toOpenClasses(classes);
@@ -107,9 +107,9 @@ public abstract class AbstractMethodSearchTest {
     }
 
     final void assertMethod(Class<?> target,
-            String methodName,
-            Class<?>[] classes,
-            Object... expects) throws AmbiguousMethodException {
+                            String methodName,
+                            Class<?>[] classes,
+                            Object... expects) throws AmbiguousMethodException {
         assertEquals(classes.length, expects.length);
         for (int i = 0; i < classes.length; i++) {
             Object expected = expects[i];
@@ -118,10 +118,10 @@ public abstract class AbstractMethodSearchTest {
     }
 
     final void assertMethod(Class<?> target,
-            String methodName,
-            Class<?> class1,
-            Class<?>[] classes,
-            Object... expects) throws AmbiguousMethodException {
+                            String methodName,
+                            Class<?> class1,
+                            Class<?>[] classes,
+                            Object... expects) throws AmbiguousMethodException {
         assertEquals(classes.length, expects.length);
         for (int i = 0; i < classes.length; i++) {
             Object expected = expects[i];
@@ -130,9 +130,9 @@ public abstract class AbstractMethodSearchTest {
     }
 
     final void assertMethod(Object expected,
-            Class<?> target,
-            String methodName,
-            Class<?>... classes) throws AmbiguousMethodException {
+                            Class<?> target,
+                            String methodName,
+                            Class<?>... classes) throws AmbiguousMethodException {
         if (NF.equals(expected)) {
             assertNotFound(target, methodName, classes);
         } else if (AMB.equals(expected)) {
@@ -143,7 +143,7 @@ public abstract class AbstractMethodSearchTest {
                 assertInvoke(notExpected, target, methodName, classes);
                 IOpenClass[] openClasses = toOpenClasses(classes);
                 fail("Not expected '" + notExpected + "' result for method " + methodDescriptor(methodName,
-                    openClasses) + ".");
+                        openClasses) + ".");
             } catch (AssertionError ex) {
                 // It is expected an assertion error
             }

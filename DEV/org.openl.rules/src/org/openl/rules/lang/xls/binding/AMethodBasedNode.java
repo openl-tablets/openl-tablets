@@ -120,7 +120,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
             for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
                 IOpenClass parameterType = OpenClassUtils
-                    .getRootComponentClass(header.getSignature().getParameterType(i));
+                        .getRootComponentClass(header.getSignature().getParameterType(i));
 
                 ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
                 if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
@@ -141,9 +141,9 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     protected void addTypeError(IBindingContext bindingContext,
-            IOpenClass type,
-            ILocation location,
-            IOpenSourceCodeModule syntaxNode) {
+                                IOpenClass type,
+                                ILocation location,
+                                IOpenSourceCodeModule syntaxNode) {
         String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
         bindingContext.addError(error);
@@ -153,9 +153,9 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
         ICell cell = getTableSyntaxNode().getGridTable().getCell(0, 0);
         TextInfo tableHeaderText = new TextInfo(cell.getStringValue());
         return getTableSyntaxNode().getHeader()
-            .getHeaderToken()
-            .getLocation()
-            .getEnd()
-            .getAbsolutePosition(tableHeaderText);
+                .getHeaderToken()
+                .getLocation()
+                .getEnd()
+                .getAbsolutePosition(tableHeaderText);
     }
 }

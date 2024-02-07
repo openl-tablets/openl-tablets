@@ -19,10 +19,10 @@ class TransformToUniqueIndexNode extends ABoundNode {
     private final IOpenCast openCast;
 
     TransformToUniqueIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode transformer,
-            ILocalVar tempVar,
-            IOpenCast openCast) {
+                               IBoundNode targetNode,
+                               IBoundNode transformer,
+                               ILocalVar tempVar,
+                               IOpenCast openCast) {
         super(syntaxNode, targetNode, transformer);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
@@ -33,8 +33,8 @@ class TransformToUniqueIndexNode extends ABoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         Iterator<Object> elementsIterator = targetNode.getType()
-            .getAggregateInfo()
-            .getIterator(targetNode.evaluate(env));
+                .getAggregateInfo()
+                .getIterator(targetNode.evaluate(env));
         Collection<Object> result = new LinkedHashSet<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();

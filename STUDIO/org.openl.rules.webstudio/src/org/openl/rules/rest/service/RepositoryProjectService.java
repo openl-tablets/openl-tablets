@@ -29,8 +29,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     private final DesignTimeRepository designTimeRepository;
 
     public RepositoryProjectService(DesignTimeRepository designTimeRepository,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            OpenLProjectService projectService) {
+                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                    OpenLProjectService projectService) {
         super(designRepositoryAclService, projectService);
         this.designTimeRepository = designTimeRepository;
     }
@@ -65,7 +65,7 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
                 filter = filter.and(project -> !project.isDeleted() && !project.isLastVersion());
             } else if (status == ProjectStatus.CLOSED) {
                 filter = filter
-                    .and(project -> !project.isDeleted() && project.isLastVersion() && !project.isModified());
+                        .and(project -> !project.isDeleted() && project.isLastVersion() && !project.isModified());
             }
         } else {
             // doesn't show deleted to keep backward compatibility

@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 /**
  * Helper class, that provides methods for creation logical tables and calculating logical columns and rows.
- *
  */
 public class LogicalTableHelper {
 
@@ -52,8 +51,8 @@ public class LogicalTableHelper {
     }
 
     public static ILogicalTable logicalTable(IGridTable table,
-            ILogicalTable columnOffsetsTable,
-            ILogicalTable rowOffsetsTable) {
+                                             ILogicalTable columnOffsetsTable,
+                                             ILogicalTable rowOffsetsTable) {
         int[] columnOffsets = null;
         if (columnOffsetsTable instanceof LogicalTable) {
             columnOffsets = ((LogicalTable) columnOffsetsTable).getColumnOffset();
@@ -174,9 +173,8 @@ public class LogicalTableHelper {
     }
 
     /**
-     *
      * @return table with 1 column, if necessary transposed, caller is responsible to check that table is either 1xN or
-     *         Nx1
+     * Nx1
      */
     public static ILogicalTable make1ColumnTable(ILogicalTable t) {
         if (t.getWidth() == 1) {
@@ -229,7 +227,7 @@ public class LogicalTableHelper {
         }
 
         System
-            .arraycopy(columnOffsets, toColumn, newColumnOffsets, fromColumn + gridColumnsToUnmerge, restOfColumns + 1); // copy
+                .arraycopy(columnOffsets, toColumn, newColumnOffsets, fromColumn + gridColumnsToUnmerge, restOfColumns + 1); // copy
         // the
         // rest+1
 

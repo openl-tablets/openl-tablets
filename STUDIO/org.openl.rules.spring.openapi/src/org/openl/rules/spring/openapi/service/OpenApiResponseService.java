@@ -15,7 +15,7 @@ public interface OpenApiResponseService {
     /**
      * Generate OpenApi Responses for Spring Controller Advice bean
      *
-     * @param apiContext current OpenApi context
+     * @param apiContext           current OpenApi context
      * @param controllerAdviceInfo controller advice to scan
      */
     void generateResponses(OpenApiContext apiContext, ControllerAdviceInfo controllerAdviceInfo);

@@ -40,7 +40,7 @@ public class RulesUtilsAdditionalTest {
         String stringValue;
         Integer intValue;
         Inner[] inners;
-        Inner[] innersNotEmpty = new Inner[] { new Inner() };
+        Inner[] innersNotEmpty = new Inner[]{new Inner()};
 
         public Inner getInner() {
             return inner;

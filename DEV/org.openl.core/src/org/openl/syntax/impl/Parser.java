@@ -83,7 +83,7 @@ public class Parser implements IOpenParser {
      * Creates {@link ParsedCode} object.
      *
      * @param grammar grammar
-     * @param source source
+     * @param source  source
      * @return new instance of {@link ParsedCode}
      */
     private ParsedCode makeParsedCode(IGrammar grammar, IOpenSourceCodeModule source) {
@@ -92,7 +92,7 @@ public class Parser implements IOpenParser {
 
         SyntaxNodeException error = grammar.getError();
         SyntaxNodeException[] nonNullError = error == null ? SyntaxNodeException.EMPTY_ARRAY
-                                                           : new SyntaxNodeException[] { error };
+                : new SyntaxNodeException[]{error};
         return new ParsedCode(node, source, nonNullError, null);
     }
 

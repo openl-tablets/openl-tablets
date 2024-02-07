@@ -74,7 +74,7 @@ public final class RulesUtilsAdditional {
     }
 
     private static Object instantiateValue(Class<?> fieldType,
-            boolean notNullsForSimpleTypes) throws InstantiationException, IllegalAccessException {
+                                           boolean notNullsForSimpleTypes) throws InstantiationException, IllegalAccessException {
         if (notNullsForSimpleTypes) {
             if (fieldType == Boolean.class) {
                 return Boolean.FALSE;

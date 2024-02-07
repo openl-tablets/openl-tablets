@@ -13,17 +13,17 @@ public class VariationResultSPRToPlainConverterAdvice extends AbstractSPRToPlain
     @Override
     @SuppressWarnings("unchecked")
     public VariationsResult<Object> afterReturning(Method interfaceMethod,
-            Object result,
-            Object... args) throws Exception {
+                                                   Object result,
+                                                   Object... args) throws Exception {
         VariationsResult<SpreadsheetResult> variationsResult = (VariationsResult<SpreadsheetResult>) result;
         VariationsResult<Object> ret = new VariationsResult<>();
 
         for (Map.Entry<String, SpreadsheetResult> entry : variationsResult.getVariationResults().entrySet()) {
             ret.registerResult(entry.getKey(),
-                SpreadsheetResult.convertSpreadsheetResult(entry.getValue(),
-                    getConvertToType().getLeft(),
-                    getConvertToType().getRight(),
-                    getSpreadsheetResultBeanPropertyNamingStrategy()));
+                    SpreadsheetResult.convertSpreadsheetResult(entry.getValue(),
+                            getConvertToType().getLeft(),
+                            getConvertToType().getRight(),
+                            getSpreadsheetResultBeanPropertyNamingStrategy()));
         }
 
         for (Map.Entry<String, String> entry : variationsResult.getVariationFailures().entrySet()) {

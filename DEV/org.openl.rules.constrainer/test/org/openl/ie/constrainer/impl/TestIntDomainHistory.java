@@ -128,8 +128,8 @@ public class TestIntDomainHistory {
         IntDomainHistory history = intvar.history();
         new IntDomainHistory(intvar);
 
-        int[] maxVals = { intvar.max(), 95, 90, 85, 80, 75, 70, 65, 60 };
-        int[] minVals = { intvar.min(), 5, 10, 15, 25, 30, 35, 40, 45 };
+        int[] maxVals = {intvar.max(), 95, 90, 85, 80, 75, 70, 65, 60};
+        int[] minVals = {intvar.min(), 5, 10, 15, 25, 30, 35, 40, 45};
         int[] indices = new int[maxVals.length];
         int[] sizes = new int[maxVals.length];
         sizes[0] = intvar.size();

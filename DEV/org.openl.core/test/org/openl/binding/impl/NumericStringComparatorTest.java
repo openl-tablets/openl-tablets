@@ -12,7 +12,7 @@ public class NumericStringComparatorTest {
     public void testCompare() {
 
         assertTrue(compare("A07B", "A7A") > 0);
-        assertTrue(compare("A07B", "A07A")> 0);
+        assertTrue(compare("A07B", "A07A") > 0);
 
         assertTrue(compare("A07B", "A06") > 0);
         assertTrue(compare("A07B", "A6") > 0);

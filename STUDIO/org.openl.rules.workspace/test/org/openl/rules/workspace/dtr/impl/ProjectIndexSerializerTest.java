@@ -67,7 +67,7 @@ public class ProjectIndexSerializerTest {
 
         assertEquals("Project7", projectIndex.getProjects().get(2).getName());
         assertEquals("foo/bar/project-custom-name", projectIndex.getProjects().get(2).getPath());
-        assertEquals(createDate(2023, 2, 28, 12, 34,14), projectIndex.getProjects().get(2).getModifiedAt());
+        assertEquals(createDate(2023, 2, 28, 12, 34, 14), projectIndex.getProjects().get(2).getModifiedAt());
         assertFalse(projectIndex.getProjects().get(2).isArchived());
     }
 

@@ -20,7 +20,6 @@ import java.io.Serializable;
 /**
  * An interface for constrainer object. Constrained variables, expressions, constraints, and goals implement that
  * interface.
- *
  */
 public interface ConstrainerObject extends Serializable {
     /**

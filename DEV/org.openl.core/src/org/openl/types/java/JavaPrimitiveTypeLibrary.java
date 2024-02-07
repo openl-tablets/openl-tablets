@@ -14,7 +14,6 @@ import org.openl.types.ITypeLibrary;
 
 /**
  * @author snshor
- *
  */
 public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
 

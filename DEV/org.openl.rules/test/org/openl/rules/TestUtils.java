@@ -67,7 +67,7 @@ public class TestUtils {
             int protectionFromCyclicDependency = 0;
             while (protectionFromCyclicDependency < CYCLIC_DEPENDENCY_THRESHOLD
                     && throwable != null
-                    && ! (throwable instanceof CompositeOpenlException)) {
+                    && !(throwable instanceof CompositeOpenlException)) {
                 throwable = throwable.getCause();
                 protectionFromCyclicDependency++;
             }
@@ -80,23 +80,23 @@ public class TestUtils {
     }
 
     public static void assertErrorMessagesArePresent(OpenLMessage[] messages, String... expectedMessages) {
-        for (String expectedMessage: expectedMessages) {
+        for (String expectedMessage : expectedMessages) {
             boolean messageIsFound = false;
-            for (OpenLMessage message: messages) {
+            for (OpenLMessage message : messages) {
                 if (message.getSummary().contains(expectedMessage)) {
                     messageIsFound = true;
                     break;
                 }
             }
-            if (! messageIsFound) {
+            if (!messageIsFound) {
                 fail("Message \"" + expectedMessage + "\" is expected, but has not been found");
             }
         }
     }
 
     public static void assertErrorMessagesAreAbsent(OpenLMessage[] messages, String... nonExpectedMessages) {
-        for (String nonExpectedMessage: nonExpectedMessages) {
-            for (OpenLMessage message: messages) {
+        for (String nonExpectedMessage : nonExpectedMessages) {
+            for (OpenLMessage message : messages) {
                 if (message.getSummary().contains(nonExpectedMessage)) {
                     fail("Message \"" + nonExpectedMessage + "\" is not expected but has been found");
                 }

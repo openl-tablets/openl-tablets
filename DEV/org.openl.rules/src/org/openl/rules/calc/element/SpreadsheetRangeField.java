@@ -21,14 +21,14 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
     private final String rangeName;
 
     public SpreadsheetRangeField(String name,
-            String rangeName,
-            int sx,
-            int sy,
-            int ex,
-            int ey,
-            IOpenClass rangeType,
-            IOpenCast[][] casts,
-            IOpenClass declaringClass) {
+                                 String rangeName,
+                                 int sx,
+                                 int sy,
+                                 int ex,
+                                 int ey,
+                                 IOpenClass rangeType,
+                                 IOpenCast[][] casts,
+                                 IOpenClass declaringClass) {
         super(declaringClass, name, rangeType.getArrayType(1));
         this.rangeName = Objects.requireNonNull(rangeName, "rangeName cannot be null");
         this.sx = sx;

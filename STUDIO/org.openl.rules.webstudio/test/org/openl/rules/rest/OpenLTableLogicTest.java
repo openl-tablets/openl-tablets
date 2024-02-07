@@ -32,7 +32,7 @@ public class OpenLTableLogicTest {
             TableSyntaxNodeAdapter tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
             if (((IOpenLTable) tableSyntaxNodeAdapter).getDisplayName().equals("HelloTest")) {
                 List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
-                    pm, false);
+                        pm, false);
                 assertEquals(3, targetTables.size());
                 assertEquals("Hello [state = AL]", targetTables.get(0).getName());
                 assertEquals("Hello [state = AZ]", targetTables.get(1).getName());

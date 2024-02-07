@@ -40,11 +40,11 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
     private long retryPeriod = 10;
 
     public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
-            DeployStrategy deployStrategy,
-            PropertyResolver propertyResolver) {
+                                   DeployStrategy deployStrategy,
+                                   PropertyResolver propertyResolver) {
         var repositoryFactory = propertyResolver.getProperty("production-repository.factory");
         this.enabled = !"repo-jar"
-            .equals(repositoryFactory) && deployStrategy != null && deployStrategy != DeployStrategy.NEVER;
+                .equals(repositoryFactory) && deployStrategy != null && deployStrategy != DeployStrategy.NEVER;
         this.rulesDeployerService = rulesDeployerService;
         this.deployStrategy = deployStrategy;
     }
@@ -82,7 +82,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             filesToDeploy.add(physicalFile);
         } else {
             throw new RuleServiceRuntimeException(
-                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
+                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
         }
     }
 

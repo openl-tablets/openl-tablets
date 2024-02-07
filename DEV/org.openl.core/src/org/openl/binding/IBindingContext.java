@@ -23,7 +23,6 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
  */
 public interface IBindingContext extends ICastFactory {
 
@@ -39,7 +38,7 @@ public interface IBindingContext extends ICastFactory {
      * Adds new type to binding context.
      *
      * @param namespace type namespace
-     * @param type type
+     * @param type      type
      * @throws DuplicatedTypeException if an error has occurred
      */
     IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
@@ -49,8 +48,8 @@ public interface IBindingContext extends ICastFactory {
     INodeBinder findBinder(ISyntaxNode node);
 
     IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException;
+                                   String name,
+                                   IOpenClass[] parTypes) throws AmbiguousMethodException;
 
     IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException;
 
@@ -63,8 +62,8 @@ public interface IBindingContext extends ICastFactory {
 
     /**
      * @return reference to the variable holding a range object. The specifics of the range object is that it is defined
-     *         by a pair of the variables called start and end. There is no common range interface, the details must be
-     *         contained in the implementation of a particular range type
+     * by a pair of the variables called start and end. There is no common range interface, the details must be
+     * contained in the implementation of a particular range type
      */
 
     IOpenField findRange(String namespace, String rangeStartName, String rangeEndName) throws OpenLCompilationException;

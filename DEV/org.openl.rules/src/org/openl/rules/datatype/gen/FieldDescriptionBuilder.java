@@ -55,7 +55,7 @@ public class FieldDescriptionBuilder {
         return this;
     }
 
-    public FieldDescriptionBuilder setTransient(boolean isTransient){
+    public FieldDescriptionBuilder setTransient(boolean isTransient) {
         this.isTransient = isTransient;
         return this;
     }
@@ -89,8 +89,6 @@ public class FieldDescriptionBuilder {
      * the default value will be represented in the wrapper class for this primitive, e.g.<br>
      * {@link #getType()} returns <code>int.class</code> and the default value will be wrapped<br>
      * with {@link Integer}.
-     *
-     *
      */
     private Object getDefaultValue() {
         if (defaultValue == null) {

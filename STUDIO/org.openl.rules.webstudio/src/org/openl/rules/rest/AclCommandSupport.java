@@ -74,7 +74,7 @@ public class AclCommandSupport {
 
         /**
          * Get repository type name in correct case to show in user messages.
-         * 
+         *
          * @return repository type name.
          */
         public String getName() {
@@ -104,12 +104,12 @@ public class AclCommandSupport {
         String[] permissions;
 
         public AclCommand(Action action,
-                SidType sidType,
-                String sid,
-                RepoType repoType,
-                String repo,
-                String resource,
-                String[] permissions) {
+                          SidType sidType,
+                          String sid,
+                          RepoType repoType,
+                          String repo,
+                          String resource,
+                          String[] permissions) {
             this.action = action;
             this.sidType = sidType;
             this.sid = sid;
@@ -162,16 +162,16 @@ public class AclCommandSupport {
             String sid = split[4];
             String[] permissions = StringUtils.split(split[5], ',');
             permissions = Arrays.stream(permissions)
-                .map(String::trim)
-                .map(String::toUpperCase)
-                .filter(e -> !e.isEmpty())
-                .toArray(String[]::new);
+                    .map(String::trim)
+                    .map(String::toUpperCase)
+                    .filter(e -> !e.isEmpty())
+                    .toArray(String[]::new);
             if (permissions.length == 0 && Action.SET != action) {
                 throw new CommandFormatException(MSG2);
             }
             for (String permission : permissions) {
                 if (listAllSupportedPermissions(repoType).stream()
-                    .noneMatch(e -> Objects.equals(AclPermission.toString(e), permission.toUpperCase()))) {
+                        .noneMatch(e -> Objects.equals(AclPermission.toString(e), permission.toUpperCase()))) {
                     throw new CommandFormatException(String.format(MSG3, permission, repoType.getName()));
                 }
             }

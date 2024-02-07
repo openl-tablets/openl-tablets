@@ -44,8 +44,8 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Transactional
     public void deleteUserByName(final String name) {
         getSession().createNativeQuery("delete from OpenL_Users where loginName = :name")
-            .setParameter("name", name)
-            .executeUpdate();
+                .setParameter("name", name)
+                .executeUpdate();
     }
 
     @Override

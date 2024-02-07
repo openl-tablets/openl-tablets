@@ -24,17 +24,17 @@ import org.openl.security.acl.MutableAclService;
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
     public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-            MutableAclService aclService,
-            String rootId,
-            Class<?> objectIdentityClass) {
+                                    MutableAclService aclService,
+                                    String rootId,
+                                    Class<?> objectIdentityClass) {
         super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
     }
 
     public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-            MutableAclService aclService,
-            String rootId,
-            Class<?> objectIdentityClass,
-            Sid relevantSystemWideSid) {
+                                    MutableAclService aclService,
+                                    String rootId,
+                                    Class<?> objectIdentityClass,
+                                    Sid relevantSystemWideSid) {
         super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass, relevantSystemWideSid);
     }
 
@@ -51,7 +51,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         if (projectArtefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
             ProjectState projectState = localRepository
-                .getProjectState(projectArtefact.getProject().getFileData().getName());
+                    .getProjectState(projectArtefact.getProject().getFileData().getName());
             if (projectState.getFileData() != null) {
                 return getRepoPath(projectState.getFileData()) + "/" + projectArtefact.getInternalPath();
             }

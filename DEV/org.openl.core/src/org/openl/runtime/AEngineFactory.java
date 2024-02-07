@@ -27,15 +27,15 @@ public abstract class AEngineFactory {
     }
 
     protected final Object prepareProxyInstance(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv,
-            ClassLoader classLoader) {
+                                                Map<Method, IOpenMember> methodMap,
+                                                IRuntimeEnv runtimeEnv,
+                                                ClassLoader classLoader) {
 
         Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
 
         return ASMProxyFactory.newProxyInstance(classLoader,
-            prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
-            proxyInterfaces);
+                prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+                proxyInterfaces);
     }
 
     public final Object newInstance(IRuntimeEnv runtimeEnv) {
@@ -53,8 +53,8 @@ public abstract class AEngineFactory {
     protected abstract IRuntimeEnvBuilder getRuntimeEnvBuilder();
 
     protected abstract IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv);
+                                                                Map<Method, IOpenMember> methodMap,
+                                                                IRuntimeEnv runtimeEnv);
 
     public abstract CompiledOpenClass getCompiledOpenClass();
 
@@ -100,12 +100,12 @@ public abstract class AEngineFactory {
                 } else {
                     if (interfaceMethod.getParameterCount() == 0) {
                         IOpenField openField = OpenClassHelper.findRulesField(moduleOpenClass,
-                            interfaceMethod.getName());
+                                interfaceMethod.getName());
                         if (openField != null) {
                             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                                openField.getType(),
-                                interfaceMethodName,
-                                interfaceMethod.getName());
+                                    openField.getType(),
+                                    interfaceMethodName,
+                                    interfaceMethod.getName());
                             throw new RuntimeException(message);
                         }
                     }
@@ -114,7 +114,7 @@ public abstract class AEngineFactory {
                 // throw runtime exception.
                 //
                 String message = String.format("There is no implementation in rules for interface method '%s'",
-                    interfaceMethod);
+                        interfaceMethod);
 
                 throw new OpenlNotCheckedException(message);
             }
@@ -132,9 +132,9 @@ public abstract class AEngineFactory {
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                openClassReturnType.getName(),
-                interfaceMethod.getName(),
-                interfaceReturnType.getName());
+                    openClassReturnType.getName(),
+                    interfaceMethod.getName(),
+                    interfaceReturnType.getName());
             throw new ClassCastException(message);
         }
     }

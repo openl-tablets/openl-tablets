@@ -18,8 +18,8 @@ public class EqualsIndex extends ARuleIndex {
     private final Map<Object, DecisionTableRuleNode> valueNodes;
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-            Map<Object, DecisionTableRuleNode> valueNodes,
-            ConditionCasts conditionCasts) {
+                       Map<Object, DecisionTableRuleNode> valueNodes,
+                       ConditionCasts conditionCasts) {
         super(emptyOrFormulaNodes, conditionCasts);
         this.valueNodes = Objects.requireNonNull(valueNodes, "valueNodes cannot be null");
     }
@@ -78,7 +78,7 @@ public class EqualsIndex extends ARuleIndex {
             }
 
             DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
-                e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
+                    e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
 
             builder.addRule(ruleN);
         }

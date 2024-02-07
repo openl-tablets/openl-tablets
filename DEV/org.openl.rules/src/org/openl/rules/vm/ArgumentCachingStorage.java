@@ -30,7 +30,7 @@ public class ArgumentCachingStorage {
 
     public ArgumentCachingStorage(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
         this.simpleRulesRuntimeEnv = Objects.requireNonNull(simpleRulesRuntimeEnv,
-            "simpleRulesRuntimeEnv cannot be null");
+                "simpleRulesRuntimeEnv cannot be null");
     }
 
     private final Storage storage = new Storage();
@@ -56,7 +56,7 @@ public class ArgumentCachingStorage {
             for (int i = 0; i < params.length; i++) {
                 if (params[i] != null) {
                     clonedParams[i] = ((XlsModuleOpenClass) simpleRulesRuntimeEnv.getTopClass()).getCloner()
-                        .deepClone(params[i]);
+                            .deepClone(params[i]);
                 }
             }
             data.add(new InvocationData(clonedParams, result));

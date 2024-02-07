@@ -77,9 +77,9 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userInfoModel.setDisplayName(wrongDisplayName);
         BindingResult bindingResult = validateAndGetResult(userInfoModel);
         assertFieldError("displayName",
-            "Must be less than 64.",
-            wrongDisplayName,
-            bindingResult.getFieldError("displayName"));
+                "Must be less than 64.",
+                wrongDisplayName,
+                bindingResult.getFieldError("displayName"));
     }
 
     @Test
@@ -145,17 +145,17 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userCreateModel.setInternalPassword(wrongInternalPassword);
         BindingResult bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
-            CANNOT_BE_EMPTY,
-            wrongInternalPassword,
-            bindingResult.getFieldError("internalPassword"));
+                CANNOT_BE_EMPTY,
+                wrongInternalPassword,
+                bindingResult.getFieldError("internalPassword"));
 
         wrongInternalPassword = new InternalPasswordModel().setPassword(RandomStringUtils.random(26, "pass"));
         userCreateModel.setInternalPassword(wrongInternalPassword);
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
-            MUST_BE_LESS_THAN_25,
-            wrongInternalPassword,
-            bindingResult.getFieldError("internalPassword"));
+                MUST_BE_LESS_THAN_25,
+                wrongInternalPassword,
+                bindingResult.getFieldError("internalPassword"));
     }
 
     @Test
@@ -179,16 +179,16 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userCreateModel.setUsername(".aa");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            "The name cannot start or end with '.'.",
-            ".aa",
-            bindingResult.getFieldError("username"));
+                "The name cannot start or end with '.'.",
+                ".aa",
+                bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("aa.");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            "The name cannot start or end with '.'.",
-            "aa.",
-            bindingResult.getFieldError("username"));
+                "The name cannot start or end with '.'.",
+                "aa.",
+                bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername(" aa");
         bindingResult = validateAndGetResult(userCreateModel);
@@ -253,16 +253,16 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userCreateModel.setUsername("a\u2028");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            MUST_NOT_CONTAIN_FOLLOWING_CHARS,
-            "a\u2028",
-            bindingResult.getFieldError("username"));
+                MUST_NOT_CONTAIN_FOLLOWING_CHARS,
+                "a\u2028",
+                bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("a\u2029");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            MUST_NOT_CONTAIN_FOLLOWING_CHARS,
-            "a\u2029",
-            bindingResult.getFieldError("username"));
+                MUST_NOT_CONTAIN_FOLLOWING_CHARS,
+                "a\u2029",
+                bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("a\t");
         bindingResult = validateAndGetResult(userCreateModel);
@@ -280,9 +280,9 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(userManagementService.existsByName(anyString())).thenReturn(Boolean.TRUE);
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            "A user with such username already exists.",
-            "jsmith",
-            bindingResult.getFieldError("username"));
+                "A user with such username already exists.",
+                "jsmith",
+                bindingResult.getFieldError("username"));
 
     }
 
@@ -314,76 +314,76 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(userManagementService.getUser(anyString())).thenReturn(existedUser);
         BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
-            "Enter your password.",
-            changePasswordModel,
-            bindingResult.getFieldError("changePassword"));
+                "Enter your password.",
+                changePasswordModel,
+                bindingResult.getFieldError("changePassword"));
 
         changePasswordModel = new ChangePasswordModel().setNewPassword("pass2")
-            .setCurrentPassword("pass")
-            .setConfirmPassword("pass1");
+                .setCurrentPassword("pass")
+                .setConfirmPassword("pass1");
         userProfileEditModel.setChangePassword(changePasswordModel);
         bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
-            "The new password and confirmed password do not match.",
-            changePasswordModel,
-            bindingResult.getFieldError("changePassword"));
+                "The new password and confirmed password do not match.",
+                changePasswordModel,
+                bindingResult.getFieldError("changePassword"));
 
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         when(passwordEncoder.matches("pass1", "passHash1")).thenReturn(true);
         changePasswordModel = new ChangePasswordModel().setNewPassword("pass2")
-            .setCurrentPassword("pass1")
-            .setConfirmPassword("pass2");
+                .setCurrentPassword("pass1")
+                .setConfirmPassword("pass2");
         userProfileEditModel.setChangePassword(changePasswordModel);
         bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
-            "Incorrect current password.",
-            changePasswordModel,
-            bindingResult.getFieldError("changePassword"));
+                "Incorrect current password.",
+                changePasswordModel,
+                bindingResult.getFieldError("changePassword"));
     }
 
     private UserCreateModel getValidUserCreateModel() {
         Set<String> groups = new HashSet<>();
         groups.add("Administrators");
         return new UserCreateModel().setDisplayName("John Smith")
-            .setFirstName("John")
-            .setEmail("jsmith@email")
-            .setLastName("Smith")
-            .setInternalPassword(new InternalPasswordModel().setPassword("pass"))
-            .setGroups(groups)
-            .setUsername("jsmith");
+                .setFirstName("John")
+                .setEmail("jsmith@email")
+                .setLastName("Smith")
+                .setInternalPassword(new InternalPasswordModel().setPassword("pass"))
+                .setGroups(groups)
+                .setUsername("jsmith");
     }
 
     private UserEditModel getValidUserEditModel() {
         Set<String> groups = new HashSet<>();
         groups.add("Administrators");
         return new UserEditModel().setDisplayName("John Smith")
-            .setFirstName("John")
-            .setEmail("jsmith@email")
-            .setLastName("Smith")
-            .setPassword("pass")
-            .setGroups(groups);
+                .setFirstName("John")
+                .setEmail("jsmith@email")
+                .setLastName("Smith")
+                .setPassword("pass")
+                .setGroups(groups);
     }
 
     private UserInfoModel getValidUserInfoModel() {
         return new UserInfoModel().setDisplayName("John Smith")
-            .setFirstName("John")
-            .setEmail("jsmith@email")
-            .setLastName("Smith");
+                .setFirstName("John")
+                .setEmail("jsmith@email")
+                .setLastName("Smith");
     }
 
     private UserProfileEditModel getValidUserProfileEditModel() {
         return new UserProfileEditModel().setChangePassword(
-            new ChangePasswordModel().setConfirmPassword("pass2").setNewPassword("pass2").setCurrentPassword("pass"))
-            .setShowComplexResult(true)
-            .setShowFormulas(true)
-            .setShowRealNumbers(true)
-            .setTestsFailuresOnly(true)
-            .setTestsFailuresPerTest(20)
-            .setTestsPerPage(20)
-            .setShowHeader(true)
-            .setDisplayName("John Smith")
-            .setFirstName("John")
-            .setEmail("jsmith@email")
-            .setLastName("Smith");
+                        new ChangePasswordModel().setConfirmPassword("pass2").setNewPassword("pass2").setCurrentPassword("pass"))
+                .setShowComplexResult(true)
+                .setShowFormulas(true)
+                .setShowRealNumbers(true)
+                .setTestsFailuresOnly(true)
+                .setTestsFailuresPerTest(20)
+                .setTestsPerPage(20)
+                .setShowHeader(true)
+                .setDisplayName("John Smith")
+                .setFirstName("John")
+                .setEmail("jsmith@email")
+                .setLastName("Smith");
     }
 }

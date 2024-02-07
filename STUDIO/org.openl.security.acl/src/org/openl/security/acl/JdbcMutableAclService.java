@@ -21,10 +21,10 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private final Sid relevantSystemWideSid;
 
     public JdbcMutableAclService(DataSource dataSource,
-            LookupStrategy lookupStrategy,
-            AclCache aclCache,
-            String jdbcUrl,
-            Sid relevantSystemWideSid) {
+                                 LookupStrategy lookupStrategy,
+                                 AclCache aclCache,
+                                 String jdbcUrl,
+                                 Sid relevantSystemWideSid) {
         super(dataSource, lookupStrategy, aclCache);
         this.jdbcUrl = jdbcUrl;
         this.aclCache = aclCache;
@@ -66,7 +66,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     public void updateSid(Sid sid, String newSidName) {
         if (sid instanceof GrantedAuthoritySid) {
             this.jdbcOperations
-                .update(updateSidQuery, newSidName, ((GrantedAuthoritySid) sid).getGrantedAuthority(), false);
+                    .update(updateSidQuery, newSidName, ((GrantedAuthoritySid) sid).getGrantedAuthority(), false);
         } else if (sid instanceof PrincipalSid) {
             this.jdbcOperations.update(updateSidQuery, newSidName, ((PrincipalSid) sid).getPrincipal(), true);
         } else {

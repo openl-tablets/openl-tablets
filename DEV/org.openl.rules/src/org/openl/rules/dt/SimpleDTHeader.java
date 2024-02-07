@@ -5,12 +5,12 @@ class SimpleDTHeader extends DTHeader {
     private String title;
 
     SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int row, int width) {
-        super(new int[] { methodParameterIndex }, statement, column, row, width, width, false);
+        super(new int[]{methodParameterIndex}, statement, column, row, width, width, false);
         this.title = title;
     }
 
     SimpleDTHeader(int methodParameterIndex, String statement, int column, int row) {
-        super(new int[] { methodParameterIndex }, statement, column, row, 1, 1, true);
+        super(new int[]{methodParameterIndex}, statement, column, row, 1, 1, true);
     }
 
     public String getTitle() {

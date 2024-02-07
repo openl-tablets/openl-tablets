@@ -8,7 +8,8 @@ public enum DecisionTableColumnHeaders {
     RULE("RULE"),
     RETURN("RET"),
     COLLECT_RETURN("CRET"),
-    KEY("KEY"),;
+    KEY("KEY"),
+    ;
 
     private final String key;
 

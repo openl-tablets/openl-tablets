@@ -13,7 +13,6 @@ import org.openl.util.StringUtils;
  * Builder for category properties table.
  *
  * @author DLiauchuk
- *
  */
 public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
@@ -39,7 +38,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return XlsNodeTypes.XLS_PROPERTIES.toString()
-            .equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode);
+                .equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode);
     }
 
     @Override

@@ -123,8 +123,8 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
 
     private String formatName(String fieldName) {
         return StringUtils.join(Arrays.stream(StringUtils.splitByCharacterTypeCamelCase(fieldName))
-            .map(StringUtils::capitalize)
-            .collect(Collectors.toList()), ' ');
+                .map(StringUtils::capitalize)
+                .collect(Collectors.toList()), ' ');
     }
 
     @Override

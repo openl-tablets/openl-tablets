@@ -30,7 +30,7 @@ public class WebResourceFilter implements Filter {
     private static final String WEBRESOURCE_PREFIX = "/webresource/";
     private static final String WEBRESOURCE_PATTERN = "/**" + WEBRESOURCE_PREFIX + "**";
     private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("^(.+?);jsessionid=\\w+$",
-        Pattern.CASE_INSENSITIVE);
+            Pattern.CASE_INSENSITIVE);
 
     private FilterConfig filterConfig;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -41,7 +41,7 @@ public class WebResourceFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-                                                                                              ServletException {
+            ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getRequestURI();

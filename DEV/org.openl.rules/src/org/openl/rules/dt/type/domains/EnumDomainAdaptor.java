@@ -11,7 +11,6 @@ import org.openl.ie.constrainer.IntVar;
 
 /**
  * @author snshor
- *
  */
 public class EnumDomainAdaptor implements IDomainAdaptor {
 

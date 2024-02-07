@@ -40,7 +40,7 @@ public class DeployConfigRepositoryController {
     private final RepositoryAclService deployConfigRepositoryAclService;
 
     public DeployConfigRepositoryController(DesignTimeRepository designTimeRepository,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
+                                            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
         this.designTimeRepository = designTimeRepository;
         this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
@@ -60,9 +60,9 @@ public class DeployConfigRepositoryController {
     @GetMapping("/configs/{config-name}/history")
     @Parameters({
             @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
-            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50")) })
+            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50"))})
     @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
-    @JsonView({ UserInfoModel.View.Short.class })
+    @JsonView({UserInfoModel.View.Short.class})
     public PageResponse<ProjectRevision> getProjectRevision(
             @Parameter(description = "deploy-repo.param.config-name.desc") @PathVariable("config-name") String name,
             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,

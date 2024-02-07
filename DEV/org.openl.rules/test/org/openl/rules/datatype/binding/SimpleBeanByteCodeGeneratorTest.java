@@ -144,7 +144,7 @@ public class SimpleBeanByteCodeGeneratorTest {
             instance2 = clazz.getDeclaredConstructor().newInstance();
             equalsMethod = clazz.getMethod("equals", Object.class);
             setFirstField = clazz.getMethod("setFirstField", String.class);
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
+            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -154,7 +154,7 @@ public class SimpleBeanByteCodeGeneratorTest {
         try {
             assertNotNull(setFirstField);
             setFirstField.invoke(instance1, "TestValue");
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
+            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -163,7 +163,7 @@ public class SimpleBeanByteCodeGeneratorTest {
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
         ClassLoader simpleClassLoader = new OpenLClassLoader(
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleClassLoader);

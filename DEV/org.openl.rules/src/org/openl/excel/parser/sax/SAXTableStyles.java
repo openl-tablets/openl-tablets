@@ -25,10 +25,10 @@ public class SAXTableStyles implements TableStyles {
     private final Map<CellAddress, String> formulas;
 
     public SAXTableStyles(IGridRegion region,
-            int[][] cellIndexes,
-            StylesTable stylesTable,
-            CommentsTable sheetComments,
-            Map<CellAddress, String> formulas) {
+                          int[][] cellIndexes,
+                          StylesTable stylesTable,
+                          CommentsTable sheetComments,
+                          Map<CellAddress, String> formulas) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.stylesTable = stylesTable;
