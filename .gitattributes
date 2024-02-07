@@ -1,7 +1,25 @@
+* text=auto
 
+#Binaries
+**/*.zip binary
+**/*.gzip binary
+**/*.xls binary
+**/*.xlsx binary
+**/*.doc binary
+**/*.docx binary
+**/*.pdf binary
+**/*.jar binary
+**/*.class binary
+**/*.jpg binary
+**/*.gif binary
+**/*.png binary
+**/*.ico binary
+**/*.xmind binary
+**/*.vsd binary
 
 # Windows files
 **/*.cmd eol=crlf
+**/*.vbs eol=crlf
 
 # Unix files
 **/*.sh eol=lf
