@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Layout, Row, Col, Menu } from 'antd'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
 
@@ -39,8 +39,8 @@ export const Header = () => {
                             </div>
                         </Col>
                         <Col>
-                            <div className="header__title" style={titleStyle}>
-                                {t('common:openl_studio')}
+                            <div className="header__title">
+                                <Link style={titleStyle} to="/" >{t('common:openl_studio')}</Link>
                             </div>
                         </Col>
                     </Row>
@@ -57,7 +57,7 @@ export const Header = () => {
                         }}
                     >
                         <Menu.Item key="/redirect/editor">{t('common:menu.editor')}</Menu.Item>
-                        <Menu.Item key="/redirect/repository">{t('common:menu.repository')}</Menu.Item>
+                        <Menu.Item key="/faces/pages/modules/repository/index.xhtml">{t('common:menu.repository')}</Menu.Item>
                     </Menu>
                 </Col>
                 <Col>

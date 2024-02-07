@@ -1,4 +1,4 @@
-import { AnyAction, configureStore, createAsyncThunk, ThunkDispatch } from '@reduxjs/toolkit'
+import { configureStore, createAsyncThunk } from '@reduxjs/toolkit'
 import { notificationReducer } from 'containers/notification'
 import { userReducer } from 'containers/user'
 
