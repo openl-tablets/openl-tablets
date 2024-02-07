@@ -5,7 +5,7 @@ import { UserLogo } from '../../components/UserLogo'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { RootState } from '../../store/store'
+import { RootState } from 'store'
 import { useSelector } from 'react-redux'
 
 interface UserMenuProps {
@@ -55,10 +55,10 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                     onClose()
                 }}
             >
-                <Menu.Item key="/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
-                <Menu.Item key="/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
+                <Menu.Item key="/administration/user/profile" icon={<UserOutlined />}>{t('common:user_menu.my_profile')}</Menu.Item>
+                <Menu.Item key="/administration/user/settings" icon={<SettingOutlined />}>{t('common:user_menu.my_settings')}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item key="/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
+                <Menu.Item key="/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                 <Menu.Divider />
                 <Menu.Item key="3" icon={<QuestionOutlined />}>
                     TODO:

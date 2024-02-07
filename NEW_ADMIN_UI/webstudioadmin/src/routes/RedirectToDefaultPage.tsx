@@ -5,7 +5,7 @@ export const RedirectToDefaultPage = () => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        navigate('/system')
+        navigate('/administration/system')
     }, [])
 
     return null

@@ -15,7 +15,9 @@ import { UserPage } from 'pages/UserPage'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
-// import { RedirectToDefaultPage } from './RedirectToDefaultPage'
+import { IFrame } from '../containers/IFrame'
+import { AdministrationLayout } from '../layouts/AdministrationLayout'
+import { RedirectToDefaultPage } from './RedirectToDefaultPage'
 
 const basePath = process.env.REACT_APP_BASE_PATH || ''
 
@@ -23,23 +25,27 @@ const RootRoutes: React.FC = () => {
     return (
         <BrowserRouter basename={basePath}>
             <Routes>
+                <Route element={<RedirectToDefaultPage />} path="/faces/pages/modules/administration/*" />
                 <Route element={<DefaultLayout />} path="/">
-                    <Route index element={<System />} />
-                    <Route element={<System />} path="/index.xhtml" />
-                    <Route element={<System />} path="/system" />
-                    <Route element={<Users />} path="/users" />
-                    <Route element={<Groups />} path="/admin/management/groups" />
-                    <Route element={<Notification />} path="/notification" />
-                    <Route element={<Tags />} path="/tags" />
-                    <Route element={<Email />} path="/mail" />
-                    <Route element={<RepoDesignPage />} path="/repository/design" />
-                    <Route element={<RepoDeployConfPage />} path="/repository/config" />
-                    <Route element={<RepoDeploymentPage />} path="/repository/deployment" />
-                    <Route element={<UserPage />} path="/user">
-                        <Route element={<UserProfile />} path="profile" />
-                        <Route element={<UserSettings />} path="settings" />
+                    <Route element={<AdministrationLayout />} path="administration">
+                        <Route index element={<System />} />
+                        <Route element={<System />} path="index.xhtml" />
+                        <Route element={<System />} path="system" />
+                        <Route element={<Users />} path="users" />
+                        <Route element={<Groups />} path="admin/management/groups" />
+                        <Route element={<Notification />} path="notification" />
+                        <Route element={<Tags />} path="tags" />
+                        <Route element={<Email />} path="mail" />
+                        <Route element={<RepoDesignPage />} path="repository/design" />
+                        <Route element={<RepoDeployConfPage />} path="repository/config" />
+                        <Route element={<RepoDeploymentPage />} path="repository/deployment" />
+                        <Route element={<UserPage />} path="user">
+                            <Route element={<UserProfile />} path="profile" />
+                            <Route element={<UserSettings />} path="settings" />
+                        </Route>
                     </Route>
-                    <Route element={<RedirectRoute />} path="/redirect/:page" />
+                    <Route element={<IFrame />} path="faces/*" />
+                    <Route element={<RedirectRoute />} path="redirect/:page" />
                     <Route element={<NoMatch />} path="*" />
                 </Route>
             </Routes>
