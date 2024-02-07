@@ -46,7 +46,7 @@ public class TestDownloadController {
     @GetMapping(value = "/testcase")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> download(
             @Parameter(description = "test.field.test-table-id") @RequestParam(value = Constants.REQUEST_PARAM_ID, required = false) String id,
             @Parameter(description = "test.field.test-range") @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
@@ -68,17 +68,17 @@ public class TestDownloadController {
     }
 
     private ResponseEntity<?> prepareResponse(HttpServletRequest request,
-            HttpServletResponse response,
-            String cookieName,
-            StreamingResponseBody streamingOutput) {
+                                              HttpServletResponse response,
+                                              String cookieName,
+                                              StreamingResponseBody streamingOutput) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             streamingOutput.writeTo(output);
             response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
-                .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
-                .body(output.toByteArray());
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
+                    .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
+                    .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to export results.";
             LOG.error(message, e);
@@ -91,12 +91,12 @@ public class TestDownloadController {
     @GetMapping(value = "/rule")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
-            @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
-            @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+                                    @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
+                                    @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response) {
         HttpSession session = request.getSession();
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
 
@@ -105,7 +105,7 @@ public class TestDownloadController {
         if (testSuite != null) {
             final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
             StreamingResponseBody streamingOutput = output -> new RulesResultExport()
-                .export(output, -1, skipEmptyParameters, results);
+                    .export(output, -1, skipEmptyParameters, results);
             return prepareResponse(request, response, cookieName, streamingOutput);
         }
 

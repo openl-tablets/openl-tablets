@@ -22,8 +22,8 @@ import org.openl.util.JAXBUtils;
 
 public class OpenApiSupportConverter implements ModelConverter {
     public Schema<?> resolve(AnnotatedType annotatedType,
-            ModelConverterContext context,
-            Iterator<ModelConverter> chain) {
+                             ModelConverterContext context,
+                             Iterator<ModelConverter> chain) {
         if (annotatedType.getCtxAnnotations() != null) {
             if (Arrays.stream(annotatedType.getCtxAnnotations()).anyMatch(e -> e instanceof XmlTransient)) {
                 return null;
@@ -48,13 +48,13 @@ public class OpenApiSupportConverter implements ModelConverter {
             }
         }
         return modifySchemaWithAnnotatedType(annotatedType,
-            chain.next().resolve(annotatedType, context, chain),
-            context);
+                chain.next().resolve(annotatedType, context, chain),
+                context);
     }
 
     private Schema<?> modifySchemaWithAnnotatedType(AnnotatedType annotatedType,
-            Schema<?> returnedSchema,
-            ModelConverterContext context) {
+                                                    Schema<?> returnedSchema,
+                                                    ModelConverterContext context) {
         Schema<?> schema = returnedSchema;
         if (schema != null && schema.getName() == null) {
             schema = context.resolve(annotatedType);
@@ -78,12 +78,12 @@ public class OpenApiSupportConverter implements ModelConverter {
                                 String customPropertyName = null;
                                 XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
                                 if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
-                                    .equals(xmlAttributeAnn.name())) {
+                                        .equals(xmlAttributeAnn.name())) {
                                     customPropertyName = xmlAttributeAnn.name();
                                 }
                                 XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
                                 if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
-                                    .equals(xmlElementAnn.name())) {
+                                        .equals(xmlElementAnn.name())) {
                                     customPropertyName = xmlElementAnn.name();
                                 }
                                 String getterMethod = ClassUtils.getter(prop.getName());

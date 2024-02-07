@@ -33,8 +33,8 @@ public class Test4 {
     @Test
     public void test4() {
         TestUtils.assertEx("test/rules/cmatch1/match4-4.xls",
-            "Score algorithm supports int or Integer return type only.",
-            "range=B3:M10");
+                "Score algorithm supports int or Integer return type only.",
+                "range=B3:M10");
     }
 
     public interface ITest4 {

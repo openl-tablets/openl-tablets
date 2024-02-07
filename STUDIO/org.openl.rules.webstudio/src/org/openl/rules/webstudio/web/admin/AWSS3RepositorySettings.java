@@ -47,8 +47,8 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         secretKey = properties.getProperty(secretKeyPath);
         sseAlgorithm = properties.getProperty(sseAlgorithmPath);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
-            .map(Integer::parseInt)
-            .orElse(null);
+                .map(Integer::parseInt)
+                .orElse(null);
     }
 
     public String getServiceEndpoint() {

@@ -23,7 +23,7 @@ public class InterfaceByteCodeBuilder {
 
     /**
      * Build {@link JavaInterfaceByteCodeGenerator} object
-     * 
+     *
      * @return instance of {@link JavaInterfaceByteCodeGenerator}
      */
     public JavaInterfaceByteCodeGenerator buildJava() {

@@ -44,10 +44,10 @@ public class TableViewMenuBean {
     }
 
     private void initRequestParams() {
-        String[] menuParams = { "transparency", "filterType" };
+        String[] menuParams = {"transparency", "filterType"};
         requestParams = WebTool.listRequestParams((ServletRequest) WebStudioUtils.getExternalContext().getRequest(), menuParams);
 
-        String[] menuParamsView = { "transparency", "filterType", "view" };
+        String[] menuParamsView = {"transparency", "filterType", "view"};
         requestParamsView = WebTool.listRequestParams((ServletRequest) WebStudioUtils.getExternalContext().getRequest(), menuParamsView);
     }
 

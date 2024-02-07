@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
  * CXF interceptor for collecting response data for logging to external source feature.
  *
  * @author Marat Kamalov
- *
  */
 @NoJSR250Annotations
 public class CollectResponseMessageOutInterceptor extends AbstractPhaseInterceptor<Message> {
@@ -65,7 +64,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractPhaseIntercept
                 newOut.registerCallback(new LoggingCallback(message, os));
             } else {
                 org.apache.cxf.io.CacheAndWriteOutputStream newOut = new org.apache.cxf.io.CacheAndWriteOutputStream(
-                    os);
+                        os);
                 message.setContent(OutputStream.class, newOut);
                 newOut.registerCallback(new LoggingCallback(message, os));
             }

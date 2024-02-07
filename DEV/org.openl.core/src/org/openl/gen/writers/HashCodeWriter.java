@@ -24,8 +24,8 @@ public class HashCodeWriter extends DefaultBeanByteCodeWriter {
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param allFields collection of fields for current class and parent`s ones.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param allFields           collection of fields for current class and parent`s ones.
      */
     public HashCodeWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, null, allFields);

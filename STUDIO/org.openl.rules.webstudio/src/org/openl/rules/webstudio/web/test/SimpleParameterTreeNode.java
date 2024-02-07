@@ -24,9 +24,9 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
 
     public SimpleParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                   Object value,
+                                   IOpenClass fieldType,
+                                   ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
@@ -52,12 +52,12 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         if (boolean.class == instanceClass) {
             return "boolean";
         } else if (ClassUtils.isAssignable(instanceClass,
-            Boolean.class) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
+                Boolean.class) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
             return "selection";
         } else if (ClassUtils.isAssignable(instanceClass, Date.class)) {
             return "date";
         } else if (ClassUtils.isAssignable(instanceClass,
-            Number.class) || byte.class == instanceClass || short.class == instanceClass || int.class == instanceClass || long.class == instanceClass || float.class == instanceClass || double.class == instanceClass) {
+                Number.class) || byte.class == instanceClass || short.class == instanceClass || int.class == instanceClass || long.class == instanceClass || float.class == instanceClass || double.class == instanceClass) {
             return "number";
         } else {
             return "string";
@@ -89,7 +89,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             try {
                 IString2DataConvertor converter = String2DataConvertorFactory
-                    .getConvertor(getType().getInstanceClass());
+                        .getConvertor(getType().getInstanceClass());
                 setValueForced(converter.parse(value, null));
             } catch (Exception e) {
                 setError("Failed to set value '" + value + "' to field '" + getName() + "' " + getType());

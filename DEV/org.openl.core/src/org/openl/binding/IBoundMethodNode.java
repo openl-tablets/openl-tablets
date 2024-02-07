@@ -8,7 +8,6 @@ package org.openl.binding;
 
 /**
  * @author snshor
- *
  */
 public interface IBoundMethodNode extends IBoundNode {
 

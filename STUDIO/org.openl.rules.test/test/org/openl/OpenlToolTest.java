@@ -1,4 +1,5 @@
 package org.openl;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class OpenlToolTest {
 
@@ -33,11 +33,11 @@ public class OpenlToolTest {
         IBindingContext cxt = openl.getBinder().makeBindingContext();
 
         IOpenMethod m = OpenLManager
-            .makeMethodWithUnknownType(openl, new StringSourceCodeModule("5", null), name, signature, declaringClass, cxt);
+                .makeMethodWithUnknownType(openl, new StringSourceCodeModule("5", null), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.INT, m.getType());
 
         m = OpenLManager
-            .makeMethodWithUnknownType(openl, new StringSourceCodeModule("if (true) return 5.0; else return 9.1;", null), name, signature, declaringClass, cxt);
+                .makeMethodWithUnknownType(openl, new StringSourceCodeModule("if (true) return 5.0; else return 9.1;", null), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.DOUBLE, m.getType());
 
     }

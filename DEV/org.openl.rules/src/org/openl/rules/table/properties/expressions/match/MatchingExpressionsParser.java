@@ -28,7 +28,7 @@ public class MatchingExpressionsParser {
 
         if (StringUtils.isEmpty(operationName) || StringUtils.isEmpty(contextAttribute)) {
             throw new OpenLRuntimeException(
-                "Wrong matching expression format. Expected: <operationName>(<contextAttribute>) or MAX|MIN(LE|GE(<contextAttribute>))");
+                    "Wrong matching expression format. Expected: <operationName>(<contextAttribute>) or MAX|MIN(LE|GE(<contextAttribute>))");
         }
 
         return MatchingExpressionFactory.getMatchingExpression(operationName, contextAttribute);

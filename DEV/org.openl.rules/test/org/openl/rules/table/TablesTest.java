@@ -12,7 +12,6 @@ import org.openl.source.impl.URLSourceCodeModule;
 
 /**
  * @author snshor
- *
  */
 public class TablesTest {
 

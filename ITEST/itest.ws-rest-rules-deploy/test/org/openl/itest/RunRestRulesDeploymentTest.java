@@ -131,7 +131,7 @@ public class RunRestRulesDeploymentTest {
         executor.start();
 
         AsyncExecutor deployers = AsyncExecutor.start(() -> client.send("EPBDS-8758/doSomething_v2.deploy.post"),
-            () -> client.send("EPBDS-8758/doSomething_v3.deploy.post"));
+                () -> client.send("EPBDS-8758/doSomething_v3.deploy.post"));
 
         TimeUnit.SECONDS.sleep(1);
         boolean deployErrors = deployers.stop();

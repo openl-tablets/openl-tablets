@@ -46,14 +46,14 @@ public class MethodDescriptionBuilder {
 
     /**
      * Build {@link MethodDescription} object
-     * 
+     *
      * @return instance of {@link MethodDescription}
      */
     public MethodDescription build() {
         return new MethodDescription(methodName,
-            returnType,
-            params.toArray(MethodDescription.NO_ARGS),
-            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+                returnType,
+                params.toArray(MethodDescription.NO_ARGS),
+                annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
 
     /**

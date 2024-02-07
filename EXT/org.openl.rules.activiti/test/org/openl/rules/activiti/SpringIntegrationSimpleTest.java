@@ -22,10 +22,10 @@ public class SpringIntegrationSimpleTest {
     @BeforeEach
     public void deploy() {
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-spring-integration-test.bpmn20.xml")
-            .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-spring-integration-test.bpmn20.xml")
+                .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
+                .deploy();
     }
 
     @Test

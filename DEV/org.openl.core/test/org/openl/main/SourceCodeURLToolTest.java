@@ -31,8 +31,8 @@ public class SourceCodeURLToolTest {
         StringWriter stringWriter = new StringWriter();
         try (PrintWriter printWriter = new PrintWriter(stringWriter)) {
             SourceCodeURLTool.printCodeAndError(location,
-                " SpreadsheetResult MyS1pr (Stri1ng currentAgeBand,  String SIC)",
-                printWriter);
+                    " SpreadsheetResult MyS1pr (Stri1ng currentAgeBand,  String SIC)",
+                    printWriter);
         }
 
         final String actual = stringWriter.toString();

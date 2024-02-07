@@ -14,14 +14,14 @@ import org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB;
 
 public interface Simple4ServiceAnnotationTemplate {
 
-    @StoreLogDataToCassandra(value = { HelloEntity1.class,
+    @StoreLogDataToCassandra(value = {HelloEntity1.class,
             HelloEntity2.class,
             HelloEntity3.class,
-            HelloEntity8.class }, sync = true)
-    @StoreLogDataToDB(value = { org.openl.itest.db.HelloEntity1.class,
+            HelloEntity8.class}, sync = true)
+    @StoreLogDataToDB(value = {org.openl.itest.db.HelloEntity1.class,
             org.openl.itest.db.HelloEntity2.class,
             org.openl.itest.db.HelloEntity3.class,
-            org.openl.itest.db.HelloEntity8.class }, sync = true)
+            org.openl.itest.db.HelloEntity8.class}, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 

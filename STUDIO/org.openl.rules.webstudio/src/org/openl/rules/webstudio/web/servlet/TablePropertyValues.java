@@ -18,13 +18,13 @@ public class TablePropertyValues extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-                                                                                   IOException {
+            IOException {
         doPost(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-                                                                                    IOException {
+            IOException {
         String propName = request.getParameter("propName");
 
         TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils.getPropertyByName(propName);
@@ -34,15 +34,15 @@ public class TablePropertyValues extends HttpServlet {
             if (propDefinition.getType() != null && propDefinition.getType().isArray()) {
                 String[] values = EnumUtils.getNames(propDefinition.getType().getInstanceClass().getComponentType());
                 String[] displayValues = EnumUtils
-                    .getValues(propDefinition.getType().getInstanceClass().getComponentType());
+                        .getValues(propDefinition.getType().getInstanceClass().getComponentType());
 
                 String choisesString = "\"" + String.join("\", \"", values) + "\"";
                 String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
                 String params = String.format(
-                    "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
-                    choisesString,
-                    displayValuesString);
+                        "{\"type\" : \"MULTI\", \"choices\" : [%s], \"displayValues\" : [%s], \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                        choisesString,
+                        displayValuesString);
 
                 outputStream.println(params);
             } else if (propDefinition.getType().getInstanceClass().isEnum()) {
@@ -53,9 +53,9 @@ public class TablePropertyValues extends HttpServlet {
                 String displayValuesString = "\"" + String.join("\", \"", displayValues) + "\"";
 
                 String params = String.format(
-                    "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
-                    choisesString,
-                    displayValuesString);
+                        "{\"type\" : \"SINGLE\", \"param\" : {\"choices\" : [%s], \"displayValues\" : [%s]}, \"separator\" : \",\", \"separatorEscaper\" : \"&#92;&#92;&#92;&#92;\"}",
+                        choisesString,
+                        displayValuesString);
 
                 outputStream.println(params);
             } else if (Date.class == propDefinition.getType().getInstanceClass()) {

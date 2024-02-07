@@ -17,7 +17,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public final class DecisionTableValidator implements IValidator {
     private static final DecisionTableValidator INSTANCE = new DecisionTableValidator();
@@ -30,8 +29,8 @@ public final class DecisionTableValidator implements IValidator {
     }
 
     public static DecisionTableValidationResult validateTable(IDecisionTable decisionTable,
-            Map<String, IDomainAdaptor> domains,
-            IOpenClass type) {
+                                                              Map<String, IDomainAdaptor> domains,
+                                                              IOpenClass type) {
 
         IDecisionTableValidatedObject validatedObject = new DecisionTableValidatedObject(decisionTable, domains);
         OpenL openl = ((XlsModuleOpenClass) type).getOpenl();

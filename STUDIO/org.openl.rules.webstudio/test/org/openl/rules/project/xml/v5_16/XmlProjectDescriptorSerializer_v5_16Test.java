@@ -23,16 +23,16 @@ public class XmlProjectDescriptorSerializer_v5_16Test {
 
         String xml = new BaseProjectDescriptorSerializer<>(
                 new ProjectDescriptorVersionConverter_5_16(), ProjectDescriptor_v5_16.class)
-            .serialize(projectDescriptor);
+                .serialize(projectDescriptor);
         assertEquals(xml, PROJECT_DESCRIPTOR_V5_12_XML);
     }
 
     @Test
-    public void testDeserialize()  throws Exception {
+    public void testDeserialize() throws Exception {
         ProjectDescriptor deserializedProject = new BaseProjectDescriptorSerializer<>(
                 new ProjectDescriptorVersionConverter_5_16(), ProjectDescriptor_v5_16.class)
-            .deserialize(
-                new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_12.xml"));
+                .deserialize(
+                        new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_12.xml"));
         assertProjectDescriptorDeserializedCorrectly(deserializedProject);
     }
 }

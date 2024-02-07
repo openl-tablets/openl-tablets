@@ -15,11 +15,11 @@ public class ProjectDependenciesImportAndClasspathTest {
     @Test
     public void test() throws Exception {
         ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
-            .setProject(SRC)
-            .setExecutionMode(false)
-            .setWorkspace(SRC_WORKSPACE)
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject(SRC)
+                .setExecutionMode(false)
+                .setWorkspace(SRC_WORKSPACE)
+                .setProvideRuntimeContext(true)
+                .build();
         assertNotNull(projectEngineFactory);
         assertFalse(projectEngineFactory.getCompiledOpenClass().hasErrors());
     }

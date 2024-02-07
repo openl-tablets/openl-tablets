@@ -74,7 +74,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     private FileData getFileDataForVersionableRepo(Repository repository) {
         FileData fileData;// In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a
-                          // folder.
+        // folder.
         try {
             if (!isHistoric() || isLastVersion()) {
                 fileData = repository.check(getFolderPath());
@@ -410,7 +410,7 @@ public class AProject extends AProjectFolder implements IProject {
                         FileItem fileItem;
                         if (projectFrom.isHistoric()) {
                             fileItem = projectFrom.getRepository()
-                                .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
                             fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
@@ -454,15 +454,15 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     private FileData unpack(AProject projectFrom,
-            Repository repositoryTo,
-            String folderTo,
-            CommonUser user) throws ProjectException {
+                            Repository repositoryTo,
+                            String folderTo,
+                            CommonUser user) throws ProjectException {
         ZipInputStream stream = null;
         try {
             FileItem fileItem;
             if (projectFrom.isHistoric()) {
                 fileItem = projectFrom.getRepository()
-                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
             } else {
                 fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
             }
@@ -473,7 +473,7 @@ public class AProject extends AProjectFolder implements IProject {
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserInfo());
             return repositoryTo
-                .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
+                    .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
@@ -482,7 +482,7 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws IOException,
-                                                                                           ProjectException {
+            ProjectException {
         if (artefact instanceof AProjectResource) {
             AProjectResource resource = (AProjectResource) artefact;
             zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));

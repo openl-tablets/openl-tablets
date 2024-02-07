@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * {@link IOpenMethod} implementation for table method component.
- *
+ * <p>
  * TODO: rename to MethodTable.
  */
 @Executable
@@ -33,13 +33,13 @@ public class TableMethod extends ExecutableRulesMethod {
     /**
      * Constructs new instance of class.
      *
-     * @param header method header
-     * @param methodBodyBoundNode method body bound node - code block that will be invoked by OpenL engine at runtime
+     * @param header               method header
+     * @param methodBodyBoundNode  method body bound node - code block that will be invoked by OpenL engine at runtime
      * @param methodTableBoundNode table bound node (table itself)
      */
     public TableMethod(IOpenMethodHeader header,
-            IBoundMethodNode methodBodyBoundNode,
-            MethodTableBoundNode methodTableBoundNode) {
+                       IBoundMethodNode methodBodyBoundNode,
+                       MethodTableBoundNode methodTableBoundNode) {
         super(header, methodTableBoundNode);
         method = new CompositeMethod(header, methodBodyBoundNode);
 

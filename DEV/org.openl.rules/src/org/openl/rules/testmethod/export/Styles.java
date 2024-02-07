@@ -130,7 +130,7 @@ final class Styles {
         byte red = (byte) (rgb >> 16 & 0xFF);
         byte green = (byte) (rgb >> 8 & 0xFF);
         byte blue = (byte) (rgb & 0xFF);
-        return new byte[] { red, green, blue };
+        return new byte[]{red, green, blue};
     }
 
 }

@@ -59,10 +59,10 @@ public class ExecutableRulesMethodVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access,
-            String name,
-            String descriptor,
-            String signature,
-            String[] exceptions) {
+                                     String name,
+                                     String descriptor,
+                                     String signature,
+                                     String[] exceptions) {
         if (Modifier.isStatic(access) || Modifier.isPrivate(access))
             return null;
         if ("<init>".equals(name) || Modifier.isProtected(access))

@@ -19,12 +19,12 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     private final ResolvedDependency dependency;
 
     LazyCompiledOpenClass(RuleServiceDependencyManager dependencyManager,
-            LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
-            ResolvedDependency dependency) {
+                          LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
+                          ResolvedDependency dependency) {
         super(NullOpenClass.the, null);
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.lazyRuleServiceDependencyLoader = Objects.requireNonNull(lazyRuleServiceDependencyLoader,
-            "lazyRuleServiceDependencyLoader cannot be null");
+                "lazyRuleServiceDependencyLoader cannot be null");
         this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
     }
 

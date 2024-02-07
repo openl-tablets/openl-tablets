@@ -26,8 +26,8 @@ public class DeployClasspathJarsBeanTest {
         var propertyResolver = mock(PropertyResolver.class);
         when(propertyResolver.getProperty("production-repository.factory")).thenReturn("repo-jdbc");
         var classpathDeployer = new DeployClasspathJarsBean(unstableDeployerService,
-            DeployStrategy.ALWAYS,
-            propertyResolver);
+                DeployStrategy.ALWAYS,
+                propertyResolver);
         classpathDeployer.setRetryPeriod(1);
         classpathDeployer.setFilesToDeploy(Arrays.asList(new File("1"), new File("2")));
 

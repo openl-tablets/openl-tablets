@@ -37,7 +37,7 @@ public class DispatcherTableReturnColumnTest {
     @Test
     public void testGetRuleValue() {
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "key"),
-            new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
+                new ParameterDeclaration(JavaOpenClass.FLOAT, "value"));
         DispatcherTableReturnColumn retColumn = createDTColumn(JavaOpenClass.FLOAT, signature);
         assertEquals("=aMethod$3(arg_key,arg_value)", retColumn.getRuleValue(3, 5));
 

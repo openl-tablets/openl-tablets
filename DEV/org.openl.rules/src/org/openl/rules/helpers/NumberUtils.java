@@ -69,7 +69,6 @@ public final class NumberUtils {
      *
      * @param value
      * @return number of values after the comma
-     *
      * @throws {@link NullPointerException} if the income is <code>null</code>
      */
     public static int getScale(Number value) {

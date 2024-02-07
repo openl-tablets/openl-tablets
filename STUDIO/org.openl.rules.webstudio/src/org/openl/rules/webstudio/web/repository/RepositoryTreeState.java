@@ -178,20 +178,20 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final String id = RepositoryUtils.getTreeNodeId(repoId);
 
                         final List<RulesProject> subProjects = rulesProjects.stream()
-                            .filter(project -> project.getRepository().getId().equals(repoId))
-                            .collect(Collectors.toList());
+                                .filter(project -> project.getRepository().getId().equals(repoId))
+                                .collect(Collectors.toList());
 
                         if (!subProjects.isEmpty()) {
                             rulesRepository.add(new TreeProjectGrouping(id,
-                                name,
-                                subProjects,
-                                grouping,
-                                1,
-                                tagService,
-                                hideDeleted,
-                                projectDescriptorResolver,
-                                projectService,
-                                repositories));
+                                    name,
+                                    subProjects,
+                                    grouping,
+                                    1,
+                                    tagService,
+                                    hideDeleted,
+                                    projectDescriptorResolver,
+                                    projectService,
+                                    repositories));
 
                             withoutRepo.removeAll(subProjects);
                         }
@@ -214,22 +214,22 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
 
                         final List<RulesProject> subProjects = rulesProjects.stream()
-                            .filter(project -> (projectsForTags.stream()
-                                .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath()) &&
-                                        p.getRepositoryId().equals(project.getRepository().getId())))))
-                            .collect(Collectors.toList());
+                                .filter(project -> (projectsForTags.stream()
+                                        .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath()) &&
+                                                p.getRepositoryId().equals(project.getRepository().getId())))))
+                                .collect(Collectors.toList());
 
                         if (!subProjects.isEmpty()) {
                             rulesRepository.add(new TreeProjectGrouping(id,
-                                name,
-                                subProjects,
-                                grouping,
-                                1,
-                                tagService,
-                                hideDeleted,
-                                projectDescriptorResolver,
-                                projectService,
-                                repositories));
+                                    name,
+                                    subProjects,
+                                    grouping,
+                                    1,
+                                    tagService,
+                                    hideDeleted,
+                                    projectDescriptorResolver,
+                                    projectService,
+                                    repositories));
 
                             withoutTags.removeAll(subProjects);
                         }
@@ -283,7 +283,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // Should never happen
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
-                                                                                   : rootCause.getMessage());
+                    : rootCause.getMessage());
             log.error(message, e);
             errorsContainer.addPermanentError(message);
             setSelectedNode(rulesRepository);
@@ -371,15 +371,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     TreeProject getProjectNodeByBusinessName(String repoId, String businessName) {
         return findProjectNode(getRulesRepository().getChildNodes(),
-            project -> ((RulesProject) project.getData()).getBusinessName()
-                .equals(businessName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
+                project -> ((RulesProject) project.getData()).getBusinessName()
+                        .equals(businessName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
     }
 
     public TreeProject getProjectNodeByPhysicalName(String repoId, String physicalName) {
         return findProjectNode(getRulesRepository().getChildNodes(),
-            project -> project.getData()
-                .getName()
-                .equals(physicalName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
+                project -> project.getData()
+                        .getName()
+                        .equals(physicalName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
     }
 
     private TreeProject findProjectNode(List<TreeNode> nodes, Predicate<TreeProject> predicate) {
@@ -461,9 +461,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     if (artefact instanceof AProject) {
                         String actualPath = ((AProject) artefact).getRealPath();
                         currentNode = getAllProjectNodes(parentNode).stream()
-                            .filter(child -> actualPath.equals(((AProject) child.getData()).getRealPath()))
-                            .findFirst()
-                            .orElse(null);
+                                .filter(child -> actualPath.equals(((AProject) child.getData()).getRealPath()))
+                                .findFirst()
+                                .orElse(null);
                     }
                 }
 
@@ -476,8 +476,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                             try {
                                 RulesProject rulesProject = (RulesProject) project;
                                 boolean containsBranch = ((BranchRepository) rulesProject.getDesignRepository())
-                                    .getBranches(((RulesProject) project).getDesignFolderName())
-                                    .contains(branch);
+                                        .getBranches(((RulesProject) project).getDesignFolderName())
+                                        .contains(branch);
                                 if (containsBranch) {
                                     // Update branch for the project
                                     newProject.setBranch(branch);
@@ -688,7 +688,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
             if (artefact != null) {
                 AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
-                                                                            : artefact.getProject();
+                        : artefact.getProject();
 
                 // project can be null if selected artefact is a Deployment.
                 if (project != null) {
@@ -710,7 +710,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     private void invalidateSelectionIfDeleted(String name,
-            Collection<? extends UserWorkspaceProject> existingProjects) {
+                                              Collection<? extends UserWorkspaceProject> existingProjects) {
         UserWorkspaceProject existing = null;
         for (UserWorkspaceProject existingProject : existingProjects) {
             if (name.equals(existingProject.getName())) {
@@ -738,7 +738,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanEdit() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
-            .isOpenedForEditing() || selectedProject.isLocked()) {
+                .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
 
@@ -775,20 +775,20 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return true;
         }
         return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-            DELETE_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
+                DELETE_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
         return selectedProject.isOpenedForEditing() && selectedProject
-            .isModified() && isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
+                .isModified() && isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
             return selectedProject != null && selectedProject.isModified() && isGranted(
-                EDIT_PROJECTS) && !isCurrentBranchProtected(selectedProject);
+                    EDIT_PROJECTS) && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -868,7 +868,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
             if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
-                .isOpenedForEditing() || selectedProject.isOpened()) {
+                    .isOpenedForEditing() || selectedProject.isOpened()) {
                 return false;
             }
 
@@ -967,7 +967,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
             List<String> branches = ((BranchRepository) project.getDesignRepository())
-                .getBranches(((RulesProject) project).getDesignFolderName());
+                    .getBranches(((RulesProject) project).getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }
@@ -1005,7 +1005,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     /**
      * Returns true if both are true: 1) Old project version is opened and 2) project is not modified yet.
-     *
+     * <p>
      * Otherwise return false
      */
     public boolean isConfirmOverwriteNewerRevision() {
@@ -1048,9 +1048,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
         }
         final List<String> groupings = tagTypeService.getAllTagTypes()
-            .stream()
-            .map(TagType::getName)
-            .collect(Collectors.toList());
+                .stream()
+                .map(TagType::getName)
+                .collect(Collectors.toList());
         groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
         groupings.add(TreeProjectGrouping.GROUPING_NONE);
         groupings.add(null);

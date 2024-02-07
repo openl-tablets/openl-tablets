@@ -40,8 +40,8 @@ public class XlsPreBinder extends XlsBinder {
 
     @Override
     protected void finalizeBind(IMemberBoundNode memberBoundNode,
-            TableSyntaxNode tableSyntaxNode,
-            RulesModuleBindingContext rulesModuleBindingContext) {
+                                TableSyntaxNode tableSyntaxNode,
+                                RulesModuleBindingContext rulesModuleBindingContext) {
         if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode || memberBoundNode instanceof ADtColumnsDefinitionTableBoundNode || memberBoundNode instanceof SpreadsheetBoundNode) {
             try {
                 memberBoundNode.finalizeBind(rulesModuleBindingContext);
@@ -56,30 +56,30 @@ public class XlsPreBinder extends XlsBinder {
 
     @Override
     protected XlsModuleOpenClass createModuleOpenClass(XlsModuleSyntaxNode moduleNode,
-            OpenL openl,
-            IDataBase dbase,
-            Set<CompiledDependency> moduleDependencies,
-            boolean appliedChangesToClasspath,
-            IBindingContext bindingContext) {
+                                                       OpenL openl,
+                                                       IDataBase dbase,
+                                                       Set<CompiledDependency> moduleDependencies,
+                                                       boolean appliedChangesToClasspath,
+                                                       IBindingContext bindingContext) {
         if (prebindHandler != null) {
             return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
-                new XlsMetaInfo(moduleNode),
-                openl,
-                dbase,
-                moduleDependencies,
-                Thread.currentThread().getContextClassLoader(),
-                appliedChangesToClasspath,
-                bindingContext,
-                prebindHandler);
+                    new XlsMetaInfo(moduleNode),
+                    openl,
+                    dbase,
+                    moduleDependencies,
+                    Thread.currentThread().getContextClassLoader(),
+                    appliedChangesToClasspath,
+                    bindingContext,
+                    prebindHandler);
         } else {
             return new XlsModuleOpenClass(XlsHelper.getModuleName(moduleNode),
-                new XlsMetaInfo(moduleNode),
-                openl,
-                dbase,
-                moduleDependencies,
-                Thread.currentThread().getContextClassLoader(),
-                appliedChangesToClasspath,
-                bindingContext);
+                    new XlsMetaInfo(moduleNode),
+                    openl,
+                    dbase,
+                    moduleDependencies,
+                    Thread.currentThread().getContextClassLoader(),
+                    appliedChangesToClasspath,
+                    bindingContext);
         }
     }
 }

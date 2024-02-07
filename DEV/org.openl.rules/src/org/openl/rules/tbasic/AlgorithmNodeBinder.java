@@ -11,9 +11,9 @@ public class AlgorithmNodeBinder extends AExecutableNodeBinder {
 
     @Override
     protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            OpenMethodHeader header,
-            XlsModuleOpenClass module) {
+                                          OpenL openl,
+                                          OpenMethodHeader header,
+                                          XlsModuleOpenClass module) {
 
         return new AlgorithmBoundNode(tableSyntaxNode, openl, header, module);
     }

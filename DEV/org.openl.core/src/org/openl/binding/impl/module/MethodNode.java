@@ -14,7 +14,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberBoundNode {
 

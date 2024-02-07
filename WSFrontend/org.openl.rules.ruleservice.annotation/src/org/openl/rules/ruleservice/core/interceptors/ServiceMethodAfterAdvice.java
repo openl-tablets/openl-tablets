@@ -5,9 +5,8 @@ import java.lang.reflect.Method;
 /**
  * After advice for intercepting method calls. Implementation must be thread safe.
  *
- * @author Marat Kamalov
- *
  * @param <T>
+ * @author Marat Kamalov
  */
 public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
 
@@ -18,7 +17,7 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      *
      * @param method service method
      * @param result method return value
-     * @param args method arguments
+     * @param args   method arguments
      * @return method return value
      * @throws Exception
      */
@@ -31,7 +30,7 @@ public interface ServiceMethodAfterAdvice<T> extends ServiceMethodAdvice {
      *
      * @param method service method
      * @param result method return value
-     * @param args method arguments
+     * @param args   method arguments
      * @return method return value
      * @throws Exception
      */

@@ -59,7 +59,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 parameterTypes = getTypes(children);
 
                 var methodCaller = bindingContext
-                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+                        .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
@@ -81,13 +81,13 @@ public class MethodNodeBinder extends ANodeBinder {
                         argumentType = argumentType.getComponentClass();
                     }
                     IBoundNode field = bindAsFieldBoundNode(node,
-                        methodName,
-                        parameterTypes,
-                        children,
-                        childrenCount,
-                        argumentType,
-                        dims,
-                        bindingContext);
+                            methodName,
+                            parameterTypes,
+                            children,
+                            childrenCount,
+                            argumentType,
+                            dims,
+                            bindingContext);
                     if (field != null) {
                         bindingContext.addMessages(openLMessages);
                         return field;
@@ -101,7 +101,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 childNodes[i] = node.getChild(i);
             }
             var iBoundNode = Optional.ofNullable(type)
-                .map(t -> ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, t, funcNode));
+                    .map(t -> ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, t, funcNode));
             if (iBoundNode.isPresent()) {
                 return iBoundNode.get();
             }
@@ -122,13 +122,13 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
-            String methodName,
-            IOpenClass[] argumentTypes,
-            IBoundNode[] children,
-            int childrenCount,
-            IOpenClass argumentType,
-            int dims,
-            IBindingContext bindingContext) throws Exception {
+                                                  String methodName,
+                                                  IOpenClass[] argumentTypes,
+                                                  IBoundNode[] children,
+                                                  int childrenCount,
+                                                  IOpenClass argumentType,
+                                                  int dims,
+                                                  IBindingContext bindingContext) throws Exception {
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
@@ -138,7 +138,7 @@ public class MethodNodeBinder extends ANodeBinder {
             if (field != null) {
                 if (!Objects.equals(field.getName(), methodName)) {
                     bindingContext.addMessage(OpenLMessagesUtils
-                        .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
+                            .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
                 }
                 if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
                     var t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
@@ -192,20 +192,20 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,
-            IBindingContext bindingContext,
-            IBoundNode target,
-            IMethodCaller methodCaller) {
+                                      IBindingContext bindingContext,
+                                      IBoundNode target,
+                                      IMethodCaller methodCaller) {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
                 BindHelper
-                    .processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
-                        methodCaller.getMethod().getName(),
-                        target.getType().getName()), node, bindingContext);
+                        .processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
+                                methodCaller.getMethod().getName(),
+                                target.getType().getName()), node, bindingContext);
             } else {
                 return makeErrorNode(String.format("Accessing to non-static method '%s' of static type '%s'.",
-                    methodCaller.getMethod().getName(),
-                    target.getType().getName()), node, bindingContext);
+                        methodCaller.getMethod().getName(),
+                        target.getType().getName()), node, bindingContext);
             }
         }
         return null;

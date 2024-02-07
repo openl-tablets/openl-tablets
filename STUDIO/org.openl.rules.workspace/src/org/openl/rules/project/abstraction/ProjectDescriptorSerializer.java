@@ -30,7 +30,7 @@ public class ProjectDescriptorSerializer {
         jaxbSerializer = new JAXBSerializer(Wrapper.class);
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public InputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             jaxbSerializer.marshal(new Wrapper(descriptors), outputStream);
@@ -38,7 +38,7 @@ public class ProjectDescriptorSerializer {
         }
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public List<ProjectDescriptor> deserialize(InputStream source) throws JAXBException {
         try {
             if (source.available() == 0) {
@@ -48,13 +48,13 @@ public class ProjectDescriptorSerializer {
             throw new IllegalArgumentException(e);
         }
         return Optional.ofNullable(((Wrapper) jaxbSerializer.unmarshal(source)).getDescriptors())
-            .orElseGet(ArrayList::new);
+                .orElseGet(ArrayList::new);
     }
 
     /**
      * For internal purpose, to wrap list of elements to the main tag
      */
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlRootElement(name = "descriptors")
     private static final class Wrapper {
@@ -73,12 +73,12 @@ public class ProjectDescriptorSerializer {
 
         public List<ProjectDescriptor> getDescriptors() {
             return descriptors.stream()
-                .map(descriptor -> new ProjectDescriptorImpl(descriptor.repositoryId,
-                    descriptor.projectName,
-                    descriptor.path,
-                    descriptor.branch,
-                    new CommonVersionImpl(descriptor.projectVersion)))
-                .collect(Collectors.toList());
+                    .map(descriptor -> new ProjectDescriptorImpl(descriptor.repositoryId,
+                            descriptor.projectName,
+                            descriptor.path,
+                            descriptor.branch,
+                            new CommonVersionImpl(descriptor.projectVersion)))
+                    .collect(Collectors.toList());
         }
     }
 

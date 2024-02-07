@@ -34,7 +34,7 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
             if (t1 != null) {
                 ICell propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
                 if (row < firstRowCell.getHeight() + propertiesCell.getHeight() && PropertiesHelper.PROPERTIES_HEADER
-                    .equals(propertiesCell.getStringValue())) {
+                        .equals(propertiesCell.getStringValue())) {
                     Transform t2 = transform(propertiesCell.getWidth(), row);
                     if (t2 != null) {
                         ICell propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
@@ -43,21 +43,21 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
                             ICell propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
                             if (column >= propertiesCell.getWidth() + propertiesNameCell.getWidth()) {
                                 IGridRegion reg = getRegionContaining(
-                                    propertiesCell.getWidth() + propertiesNameCell.getWidth(),
-                                    row);
+                                        propertiesCell.getWidth() + propertiesNameCell.getWidth(),
+                                        row);
                                 IGridRegion region;
                                 if (reg != null) {
                                     region = new GridRegion(reg.getTop(),
-                                        reg.getLeft(),
-                                        reg.getBottom(),
-                                        reg.getLeft() + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
-                                            .getWidth()));
+                                            reg.getLeft(),
+                                            reg.getBottom(),
+                                            reg.getLeft() + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                                    .getWidth()));
                                 } else {
                                     region = new GridRegion(row,
-                                        column,
-                                        row,
-                                        column + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
-                                            .getWidth()));
+                                            column,
+                                            row,
+                                            column + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                                    .getWidth()));
                                 }
                                 return new CompositeCell(column, row, region, propertiesValueCell, t3.getGridTable());
                             }

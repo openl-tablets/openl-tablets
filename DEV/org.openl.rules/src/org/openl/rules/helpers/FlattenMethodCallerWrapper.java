@@ -19,9 +19,9 @@ public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
 
     @Override
     public IMethodCaller handle(IMethodCaller methodCaller,
-            JavaOpenMethod javaOpenMethod,
-            IOpenClass[] callParams,
-            ICastFactory castFactory) {
+                                JavaOpenMethod javaOpenMethod,
+                                IOpenClass[] callParams,
+                                ICastFactory castFactory) {
         final int[] dims = new int[callParams.length];
         IOpenClass t = null;
         IOpenClass[] rootComponentClasses = new IOpenClass[callParams.length];
@@ -49,8 +49,8 @@ public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
         }
         final FlattenMethodDetails flattenMethodDetails = new FlattenMethodDetails(t.getArrayType(1), dims, openCasts);
         return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, e -> flattenMethodDetails),
-            t.getArrayType(1),
-            JavaNoCast.getInstance());
+                t.getArrayType(1),
+                JavaNoCast.getInstance());
     }
 
 }

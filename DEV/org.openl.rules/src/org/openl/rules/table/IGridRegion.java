@@ -11,7 +11,6 @@ import org.openl.util.StringUtils;
 
 /**
  * @author snshor
- *
  */
 public interface IGridRegion {
     IGridRegion[] EMPTY_REGION = new IGridRegion[0];
@@ -36,7 +35,7 @@ public interface IGridRegion {
          * Return absolute row index taking into account region.
          *
          * @param region Region which contains row.
-         * @param row Row index in the region.
+         * @param row    Row index in the region.
          * @return Absolute row index.
          */
         public static int getAbsoluteRow(IGridRegion region, int row) {
@@ -132,7 +131,7 @@ public interface IGridRegion {
             int rowIndex = region.getBottom();
             int columnIndex = region.getRight();
             return rowIndex >= 0 && rowIndex <= spreadsheetConstants
-                .getMaxRowIndex() && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
+                    .getMaxRowIndex() && columnIndex >= 0 && columnIndex <= spreadsheetConstants.getMaxColumnIndex();
         }
     }
 

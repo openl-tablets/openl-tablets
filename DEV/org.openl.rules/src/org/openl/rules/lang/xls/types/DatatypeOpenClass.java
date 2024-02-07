@@ -226,12 +226,12 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
                     DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
                     if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
                         return new DatatypeOpenMethod(javaOpenMethod,
-                            this,
-                            javaOpenMethod.getParameterTypes(),
-                            field.getType());
+                                this,
+                                javaOpenMethod.getParameterTypes(),
+                                field.getType());
                     }
                     if (Objects.equals(datatypeOpenField.getSetter(), javaMethod)) {
-                        IOpenClass[] parameterTypes = new IOpenClass[] { field.getType() };
+                        IOpenClass[] parameterTypes = new IOpenClass[]{field.getType()};
                         return new DatatypeOpenMethod(javaOpenMethod, this, parameterTypes, javaOpenMethod.getType());
                     }
                 }
@@ -278,11 +278,11 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {
                 MethodKey candidate = new MethodKey(
-                    getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
+                        getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
                 if (mk.equals(candidate)) {
                     ParameterDeclaration[] parameters = getFields().stream()
-                        .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
-                        .toArray(ParameterDeclaration[]::new);
+                            .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
+                            .toArray(ParameterDeclaration[]::new);
                     return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);
                 }
             }

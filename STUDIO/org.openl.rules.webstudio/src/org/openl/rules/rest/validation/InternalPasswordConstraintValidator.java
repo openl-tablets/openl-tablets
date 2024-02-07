@@ -24,14 +24,14 @@ public class InternalPasswordConstraintValidator implements ConstraintValidator<
         if (StringUtils.isNotBlank(value.getPassword())) {
             if (value.getPassword().length() > 25) {
                 context.unwrap(HibernateConstraintValidatorContext.class)
-                    .addMessageParameter("max", 25)
-                    .buildConstraintViolationWithTemplate("{openl.constraints.size.max.message}")
-                    .addConstraintViolation();
+                        .addMessageParameter("max", 25)
+                        .buildConstraintViolationWithTemplate("{openl.constraints.size.max.message}")
+                        .addConstraintViolation();
                 return false;
             }
         } else if (canCreateInternalUsers) {
             context.buildConstraintViolationWithTemplate("{javax.validation.constraints.NotBlank.message}")
-                .addConstraintViolation();
+                    .addConstraintViolation();
             return false;
         }
         return true;

@@ -10,7 +10,6 @@ import org.openl.binding.IOpenLibrary;
 
 /**
  * @author snshor
- *
  */
 public class GenericLibraryConfiguration extends AGenericConfiguration implements IMethodFactoryConfigurationElement {
 

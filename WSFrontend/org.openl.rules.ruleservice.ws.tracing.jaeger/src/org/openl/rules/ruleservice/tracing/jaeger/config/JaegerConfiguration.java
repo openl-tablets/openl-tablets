@@ -19,21 +19,21 @@ public class JaegerConfiguration implements ApplicationListener<ContextRefreshed
     private final Tracer tracer;
 
     public JaegerConfiguration(@Value("${jaeger.service.name}") String applicationName,
-            @Value("${jaeger.agent.host}") String jaegerHost,
-            @Value("${jaeger.agent.port}") Integer jaegerPort) {
+                               @Value("${jaeger.agent.host}") String jaegerHost,
+                               @Value("${jaeger.agent.port}") Integer jaegerPort) {
         Configuration.SamplerConfiguration samplerConfig = Configuration.SamplerConfiguration.fromEnv()
-            .withType(ConstSampler.TYPE)
-            .withParam(1);
+                .withType(ConstSampler.TYPE)
+                .withParam(1);
 
         Configuration.SenderConfiguration senderConfiguration = Configuration.SenderConfiguration.fromEnv()
-            .withAgentHost(jaegerHost)
-            .withAgentPort(jaegerPort);
+                .withAgentHost(jaegerHost)
+                .withAgentPort(jaegerPort);
 
         this.tracer = Configuration.fromEnv(applicationName)
-            .withSampler(samplerConfig)
-            .withReporter(
-                Configuration.ReporterConfiguration.fromEnv().withLogSpans(true).withSender(senderConfiguration))
-            .getTracer();
+                .withSampler(samplerConfig)
+                .withReporter(
+                        Configuration.ReporterConfiguration.fromEnv().withLogSpans(true).withSender(senderConfiguration))
+                .getTracer();
     }
 
     @Override

@@ -51,10 +51,10 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         TableRow row0 = columnMatch.getRows().get(0);
 
         CellMetaInfo metaInfo = searchMetaInfo(columnMatch,
-            rowNum,
-            colNum,
-            row0.get(VALUES),
-            columnMatch.getReturnValues());
+                rowNum,
+                colNum,
+                row0.get(VALUES),
+                columnMatch.getReturnValues());
         if (metaInfo != NOT_FOUND) {
             return metaInfo;
         }
@@ -63,20 +63,20 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
             TableRow totalScoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_TOTAL_SCORE_IDX);
             MatchNode totalScore = columnMatch.getTotalScore();
             metaInfo = searchMetaInfo(columnMatch,
-                rowNum,
-                colNum,
-                totalScoreRow.get(VALUES),
-                totalScore.getCheckValues());
+                    rowNum,
+                    colNum,
+                    totalScoreRow.get(VALUES),
+                    totalScore.getCheckValues());
             if (metaInfo != NOT_FOUND) {
                 return metaInfo;
             }
 
             TableRow scoreRow = columnMatch.getRows().get(WeightAlgorithmCompiler.ROW_SCORE_IDX);
             metaInfo = searchMetaInfo(columnMatch,
-                rowNum,
-                colNum,
-                scoreRow.get(VALUES),
-                asObjects(columnMatch.getColumnScores()));
+                    rowNum,
+                    colNum,
+                    scoreRow.get(VALUES),
+                    asObjects(columnMatch.getColumnScores()));
             if (metaInfo != NOT_FOUND) {
                 return metaInfo;
             }
@@ -94,10 +94,10 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
     }
 
     private CellMetaInfo searchMetaInfo(ColumnMatch columnMatch,
-            int rowNum,
-            int colNum,
-            SubValue[] subValues,
-            Object[] values) {
+                                        int rowNum,
+                                        int colNum,
+                                        SubValue[] subValues,
+                                        Object[] values) {
         IGrid grid = columnMatch.getSyntaxNode().getTableBody().getSource().getGrid();
         for (int sv = 0; sv < subValues.length; sv++) {
             SubValue subValue = subValues[sv];

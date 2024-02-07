@@ -5,9 +5,13 @@ import java.util.List;
 public interface MethodModel extends Model {
 
     PathInfo getPathInfo();
+
     String getType();
+
     List<InputParameter> getParameters();
+
     boolean isInclude();
+
     void setInclude(boolean include);
 
     default String getMethodFilterPattern() {

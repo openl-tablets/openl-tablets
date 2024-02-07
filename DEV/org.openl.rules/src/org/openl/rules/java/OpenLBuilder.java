@@ -58,7 +58,7 @@ import org.openl.vm.SimpleVM;
 
 public class OpenLBuilder extends AOpenLBuilder {
 
-    private static final String[] JAVA_LIBRARY_NAMES = new String[] { Round.class.getName(),
+    private static final String[] JAVA_LIBRARY_NAMES = new String[]{Round.class.getName(),
             Booleans.class.getName(),
             Strings.class.getName(),
             Dates.class.getName(),
@@ -70,18 +70,18 @@ public class OpenLBuilder extends AOpenLBuilder {
             Miscs.class.getName(),
             Numbers.class.getName(),
             RulesUtils.class.getName(),
-            CtrUtils.class.getName() };
+            CtrUtils.class.getName()};
 
-    private static final String[] JAVA_OPERATORS_CLASSES = new String[] {
+    private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
             Operators.class.getName(),
-            Comparison.class.getName() };
+            Comparison.class.getName()};
 
-    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[] {
+    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[]{
             IntRange.class.getName(),
             DoubleRange.class.getName(),
             CharRange.class.getName(),
             StringRange.class.getName(),
-            DateRange.class.getName() };
+            DateRange.class.getName()};
 
     @Override
     protected SimpleVM createVM() {
@@ -101,12 +101,12 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setExtendsCategory(OpenL.OPENL_J_NAME);
         op.setCategory(OpenL.OPENL_JAVA_NAME);
 
-        String[] binders = { "function",
+        String[] binders = {"function",
                 MethodNodeBinder.class.getName(),
                 "op.ternary.qmark",
                 IfNodeBinderWithCSRSupport.class.getName(),
                 "parameter.declaration",
-                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(), };
+                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(),};
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
@@ -140,7 +140,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         TypeCastFactory typecast = op.createTypecast();
         for (String typeCastClassName : JAVA_TYPE_CAST_CLASSES) {
             TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(typeCastClassName,
-                CastFactory.class.getName());
+                    CastFactory.class.getName());
             typecast.addJavaCast(javacast);
         }
 

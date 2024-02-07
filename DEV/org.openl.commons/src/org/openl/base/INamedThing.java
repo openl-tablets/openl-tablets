@@ -8,8 +8,8 @@ package org.openl.base;
 
 /**
  * @author snshor
- *
- *         Wow, almost everything has a name.
+ * <p>
+ * Wow, almost everything has a name.
  */
 public interface INamedThing {
 

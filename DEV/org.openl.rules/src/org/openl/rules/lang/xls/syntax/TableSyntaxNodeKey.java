@@ -26,7 +26,6 @@ public class TableSyntaxNodeKey {
     }
 
     /**
-     *
      * @return {@link DimensionPropertiesMethodKey} for {@link TableSyntaxNode} member.
      */
     public DimensionPropertiesMethodKey getMethodKey() {

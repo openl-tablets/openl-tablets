@@ -11,12 +11,12 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class CategoryView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = { new ModulePropertiesTableNodeBuilder(),
+    private final BaseTableTreeNodeBuilder[] sorters = {new ModulePropertiesTableNodeBuilder(),
             new CategoryTreeNodeBuilder(),
             new CategoryPropertiesTableNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() };
+            new TableVersionTreeNodeBuilder()};
 
     @Override
     public String getName() {

@@ -9,7 +9,7 @@ public class NameCheckerTest {
 
     @Test
     public void testCheckNameBad() {
-        final String[] badNames = { "\\f",
+        final String[] badNames = {"\\f",
                 "f/g",
                 "f*",
                 "?f*",
@@ -27,7 +27,7 @@ public class NameCheckerTest {
                 "test ",
                 "test.",
                 "test..",
-                "test..." };
+                "test..."};
 
         for (String s : badNames) {
             boolean res = NameChecker.checkName(s);
@@ -39,7 +39,7 @@ public class NameCheckerTest {
 
     @Test
     public void testCheckNameOk() {
-        final String[] okNames = { "a-b", "1,2,3", "hello world", "PublicClass$InnerClass" };
+        final String[] okNames = {"a-b", "1,2,3", "hello world", "PublicClass$InnerClass"};
 
         for (String s : okNames) {
             assertTrue(NameChecker.checkName(s));

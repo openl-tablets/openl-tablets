@@ -7,7 +7,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 public class ParameterRegistry extends ObjectRegistry<ParameterWithValueDeclaration> {
     private static ParameterRegistry getCurrent(String requestId) {
         return (ParameterRegistry) WebStudioUtils.getExternalContext().getSessionMap()
-            .get(Constants.SESSION_PARAM_PARAMETERS + requestId);
+                .get(Constants.SESSION_PARAM_PARAMETERS + requestId);
     }
 
     private static ParameterRegistry getCurrentOrCreate(String requestId) {
@@ -15,7 +15,7 @@ public class ParameterRegistry extends ObjectRegistry<ParameterWithValueDeclarat
         if (parameterRegistry == null) {
             parameterRegistry = new ParameterRegistry();
             WebStudioUtils.getExternalContext().getSessionMap()
-                .put(Constants.SESSION_PARAM_PARAMETERS + requestId, parameterRegistry);
+                    .put(Constants.SESSION_PARAM_PARAMETERS + requestId, parameterRegistry);
         }
         return parameterRegistry;
     }

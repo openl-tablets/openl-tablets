@@ -18,11 +18,11 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
     protected IBoundNode createBoundNode(ISyntaxNode node,
-            IBoundNode targetNode,
-            IBoundNode expressionNode,
-            ILocalVar localVar,
-            IOpenCast openCast,
-            IBindingContext bindingContext) {
+                                         IBoundNode targetNode,
+                                         IBoundNode expressionNode,
+                                         ILocalVar localVar,
+                                         IOpenCast openCast,
+                                         IBindingContext bindingContext) {
         IOpenClass type = expressionNode.getType();
         if (expressionNode.getType() == NullOpenClass.the) {
             String message = "Expected a parameter for 'Order By' expression.";
@@ -30,10 +30,10 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
         }
         Class<?> instanceClass = type.getInstanceClass();
         if (!Comparable.class
-            .isAssignableFrom(instanceClass) && (!instanceClass.isPrimitive() || instanceClass == void.class)) {
+                .isAssignableFrom(instanceClass) && (!instanceClass.isPrimitive() || instanceClass == void.class)) {
             return makeErrorNode("Expected Comparable type for 'Order By' expression.",
-                expressionNode.getSyntaxNode(),
-                bindingContext);
+                    expressionNode.getSyntaxNode(),
+                    bindingContext);
         }
         boolean isDecreasing = node.getType().contains("decreasing");
         return new OrderByIndexNode(node, targetNode, expressionNode, localVar, openCast, isDecreasing);

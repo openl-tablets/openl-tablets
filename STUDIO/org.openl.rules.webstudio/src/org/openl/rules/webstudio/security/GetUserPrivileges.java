@@ -27,7 +27,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     private final String defaultGroup;
 
     public GetUserPrivileges(UserManagementService userManagementService,
-            GroupManagementService groupManagementService) {
+                             GroupManagementService groupManagementService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.defaultGroup = Props.text("security.default-group");
@@ -80,8 +80,8 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         // Create if absent
         groupManagementService.addGroup(defaultGroup, "A default group for authenticated users");
         groupManagementService.updateGroup(defaultGroup,
-            Collections.emptySet(),
-            Collections.singleton(Privileges.VIEW_PROJECTS.getAuthority()));
+                Collections.emptySet(),
+                Collections.singleton(Privileges.VIEW_PROJECTS.getAuthority()));
         return groupManagementService.getGroupByName(defaultGroup);
 
     }

@@ -107,10 +107,10 @@ public class JavaOpenClass extends AOpenClass {
         try {
             return type.getConstructor(Class.class).newInstance(c);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                | InvocationTargetException e) {
+                 | InvocationTargetException e) {
             throw new IllegalStateException(String.format("Failed to instantiate '%s' class to support @%s annotation",
-                type.getTypeName(),
-                CustomJavaOpenClass.class.getSimpleName()), e);
+                    type.getTypeName(),
+                    CustomJavaOpenClass.class.getSimpleName()), e);
         }
     }
 
@@ -522,8 +522,8 @@ public class JavaOpenClass extends AOpenClass {
                         if (generatedImplClass == null) {
                             InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
                             generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
-                                builder.byteCode(),
-                                Thread.currentThread().getContextClassLoader());
+                                    builder.byteCode(),
+                                    Thread.currentThread().getContextClassLoader());
                         }
                     }
                 }

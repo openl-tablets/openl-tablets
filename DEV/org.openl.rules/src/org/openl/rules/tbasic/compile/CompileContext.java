@@ -58,8 +58,8 @@ public class CompileContext {
         if (isLabelRegistered(labelName)) {
             IOpenSourceCodeModule errorSource = sourceNode.getAlgorithmRow().getOperation().asSourceCodeModule();
             BindHelper.processError("Such label has been already declared : '" + labelName + "'.",
-                errorSource,
-                bindingContext);
+                    errorSource,
+                    bindingContext);
         } else {
             existingLables.put(labelName, sourceNode);
         }

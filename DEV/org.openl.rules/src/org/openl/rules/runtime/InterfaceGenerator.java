@@ -30,7 +30,6 @@ import org.openl.util.ClassUtils;
 
 /**
  * The factory class that provides methods to generate interface class using methods (rules) of IOpenClass.
- *
  */
 public class InterfaceGenerator {
 
@@ -41,15 +40,15 @@ public class InterfaceGenerator {
     /**
      * Generates interface class using collection of rules.
      *
-     * @param className name of result class
-     * @param rules collection of rules what will be used as interface methods
+     * @param className   name of result class
+     * @param rules       collection of rules what will be used as interface methods
      * @param classLoader class loader what will be used to load generated interface
      * @return generated interface
      * @throws Exception if an error has occurred
      */
     public static Class<?> generateInterface(String className,
-            RuleInfo[] rules,
-            ClassLoader classLoader) throws Exception {
+                                             RuleInfo[] rules,
+                                             ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
 
@@ -79,10 +78,10 @@ public class InterfaceGenerator {
      * @throws Exception if an error has occurred
      */
     public static Class<?> generateInterface(String className,
-            IOpenClass openClass,
-            ClassLoader classLoader,
-            String[] includes,
-            String[] excludes) throws Exception {
+                                             IOpenClass openClass,
+                                             ClassLoader classLoader,
+                                             String[] includes,
+                                             String[] excludes) throws Exception {
         if (!className.contains(".")) {
             className = "org.openl.generated.interfaces." + className;
         }
@@ -202,7 +201,7 @@ public class InterfaceGenerator {
     /**
      * Creates rule info using rule name, parameters types and return type.
      *
-     * @param ruleName rule name
+     * @param ruleName   rule name
      * @param paramTypes parameters types
      * @param returnType return type
      * @return rule info
@@ -222,13 +221,13 @@ public class InterfaceGenerator {
      *
      * @param member member (method or field)
      * @return <code>true</code> - if member should be ignored (will be skipped due interface generation phase),
-     *         <code>false</code> - otherwise
+     * <code>false</code> - otherwise
      */
     private static boolean isIgnoredMember(IOpenMember member, Map<IOpenClass, Boolean> validationMap) {
         if (member instanceof DataOpenField) {
             DataOpenField dataOpenField = (DataOpenField) member;
             if (XlsNodeTypes.XLS_RUN_METHOD.equals(dataOpenField.getNodeType()) || XlsNodeTypes.XLS_TEST_METHOD
-                .equals(dataOpenField.getNodeType())) {
+                    .equals(dataOpenField.getNodeType())) {
                 return true;
             }
         }

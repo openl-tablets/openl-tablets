@@ -38,22 +38,22 @@ public class FileChangesFromFolderTest {
     @Test
     public void testIterator2() throws IOException {
         Map<String, byte[]> actualEntries = executeIterator("test-resources/archive.zip",
-            root -> new FileChangesFromFolder(root,
-                "/root-folder",
-                path -> !Objects.equals(path.toString(), "/deployment.yaml"),
-                new FileAdaptor() {
-                    @Override
-                    public boolean accept(Path path) {
-                        return Objects.equals(path.toString(), "/project2/rules.xml");
-                    }
+                root -> new FileChangesFromFolder(root,
+                        "/root-folder",
+                        path -> !Objects.equals(path.toString(), "/deployment.yaml"),
+                        new FileAdaptor() {
+                            @Override
+                            public boolean accept(Path path) {
+                                return Objects.equals(path.toString(), "/project2/rules.xml");
+                            }
 
-                    @Override
-                    public InputStream apply(InputStream inputStream) {
-                        return new ByteArrayInputStream(
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut magna quam."
-                                .getBytes(StandardCharsets.UTF_8));
-                    }
-                }));
+                            @Override
+                            public InputStream apply(InputStream inputStream) {
+                                return new ByteArrayInputStream(
+                                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut magna quam."
+                                                .getBytes(StandardCharsets.UTF_8));
+                            }
+                        }));
 
         assertEquals(6, actualEntries.size());
         assertSizeEquals(290, actualEntries.get("/root-folder/project1/rules-deploy.xml"));
@@ -61,9 +61,9 @@ public class FileChangesFromFolderTest {
         assertSizeEquals(318, actualEntries.get("/root-folder/project1/rules.xml"));
         assertSizeEquals(8235, actualEntries.get("/root-folder/project2/rules/Project2-Main.xlsx"));
         assertSizeEquals(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut magna quam."
-                .getBytes(StandardCharsets.UTF_8).length,
-            actualEntries.get("/root-folder/project2/rules.xml"));
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ut magna quam."
+                        .getBytes(StandardCharsets.UTF_8).length,
+                actualEntries.get("/root-folder/project2/rules.xml"));
         assertSizeEquals(290, actualEntries.get("/root-folder/project2/rules-deploy.xml"));
     }
 
@@ -73,7 +73,7 @@ public class FileChangesFromFolderTest {
     }
 
     private static Map<String, byte[]> executeIterator(String pathToArchive,
-            FileChangesFactory factory) throws IOException {
+                                                       FileChangesFactory factory) throws IOException {
         Map<String, byte[]> actualEntries = new HashMap<>();
         try (FileSystem fs = openFileSystem(pathToArchive)) {
             try (FileChangesFromFolder changes = factory.create(fs.getPath("/"))) {

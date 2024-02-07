@@ -16,7 +16,7 @@ import org.openl.types.IOpenClass;
  * @deprecated use @Autowire IOpenClass openClass
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 @Deprecated
 @Autowired
 @Qualifier("openClass")

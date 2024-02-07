@@ -183,7 +183,7 @@ public class ProjectDescriptor {
 
     public URL[] getClassPathUrls() {
         if (projectFolder == null) {
-            return new URL[] {};
+            return new URL[]{};
         }
         URL projectUrl;
         try {
@@ -203,17 +203,17 @@ public class ProjectDescriptor {
                         suffix = "!/";
                     }
                     projectUrl = new URL(projectUrl.getProtocol(),
-                        projectUrl.getHost(),
-                        projectUrl.getPort(),
-                        projectUrl.getPath() + suffix,
-                        null);
+                            projectUrl.getHost(),
+                            projectUrl.getPort(),
+                            projectUrl.getPath() + suffix,
+                            null);
                 }
             }
         } catch (MalformedURLException e) {
-            return new URL[] {};
+            return new URL[]{};
         }
         if (classpath == null) {
-            return new URL[] { projectUrl };
+            return new URL[]{projectUrl};
         }
         if (classPathUrls == null) {
             synchronized (this) {
@@ -231,16 +231,16 @@ public class ProjectDescriptor {
                         } catch (URISyntaxException | MalformedURLException e1) {
                             try {
                                 url = new URL(projectUrl.getProtocol(),
-                                    projectUrl.getHost(),
-                                    projectUrl.getPort(),
-                                    projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
-                                    null).toURI().normalize().toURL();
+                                        projectUrl.getHost(),
+                                        projectUrl.getPort(),
+                                        projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
+                                        null).toURI().normalize().toURL();
                                 originalUrl = url;
                                 // FIXME
                                 if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
                                     try {
                                         Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
-                                            FileUtils.getExtension(path));
+                                                FileUtils.getExtension(path));
                                         temp.toFile().deleteOnExit();
                                         try (InputStream is = url.openStream()) {
                                             Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);

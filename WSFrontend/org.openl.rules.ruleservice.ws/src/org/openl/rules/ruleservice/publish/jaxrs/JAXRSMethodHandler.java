@@ -65,7 +65,7 @@ public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Metho
             o = m.invoke(target, args);
         } catch (InvocationTargetException | UndeclaredThrowableException e) {
             Throwable ex = e.getCause();
-            throw  ex instanceof Exception ?  (Exception) ex : e;
+            throw ex instanceof Exception ? (Exception) ex : e;
         }
 
         if (o instanceof Response) {

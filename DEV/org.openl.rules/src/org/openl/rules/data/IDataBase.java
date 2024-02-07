@@ -15,7 +15,6 @@ import org.openl.rules.table.ILogicalTable;
 
 /**
  * @author snshor
- *
  */
 public interface IDataBase {
 
@@ -30,9 +29,9 @@ public interface IDataBase {
     Collection<ITable> getTables();
 
     void preLoadTable(ITable table,
-            ITableModel dataModel,
-            ILogicalTable dataWithHeader,
-            OpenlToolAdaptor ota) throws Exception;
+                      ITableModel dataModel,
+                      ILogicalTable dataWithHeader,
+                      OpenlToolAdaptor ota) throws Exception;
 
     void clearOddDataForExecutionMode();
 }

@@ -14,7 +14,6 @@ import org.openl.types.impl.MethodDelegator;
 
 /**
  * @author snshor
- *
  */
 public final class ProjectHelper {
 
@@ -83,7 +82,7 @@ public final class ProjectHelper {
             return true;
         }
         if (toTest instanceof OpenMethodDispatcher && ((OpenMethodDispatcher) toTest).getCandidates()
-            .contains(tested)) {
+                .contains(tested)) {
             return true;
         }
         if (tested instanceof MethodDelegator) {

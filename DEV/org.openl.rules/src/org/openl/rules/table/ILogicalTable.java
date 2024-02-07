@@ -6,26 +6,22 @@ package org.openl.rules.table;
  * To make {@link ILogicalTable} from your source {@link IGridTable} use
  * {@link LogicalTableHelper#logicalTable(IGridTable)}.
  *
- *
  * @author snshor
  */
 public interface ILogicalTable extends ITable<ILogicalTable> {
 
     /**
-     *
      * @return underlying {@link IGridTable}
      */
     IGridTable getSource();
 
     /**
-     *
      * @param column index of the column
      * @return width of the column by its index.
      */
     int getColumnWidth(int column);
 
     /**
-     *
      * @param row index of the row
      * @return height of the row by its index.
      */

@@ -41,13 +41,13 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
     @PostConstruct
     public void setup() {
         supportedInjects = Collections
-            .singleton(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
+                .singleton(new Inject<>(InjectEntityManager.class, this::getEntityManager, EntityManager::close));
     }
 
     @Override
     public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToDB storeLogDataToDB = AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData,
-            StoreLogDataToDB.class);
+                StoreLogDataToDB.class);
         if (storeLogDataToDB != null) {
             return storeLogDataToDB.sync();
         }
@@ -79,7 +79,7 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
         StoreLogDataToDB storeLogDataToDBAnnotation = storeLogData.getServiceClass()
-            .getAnnotation(StoreLogDataToDB.class);
+                .getAnnotation(StoreLogDataToDB.class);
         Method serviceMethod = storeLogData.getServiceMethod();
         if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToDB.class)) {
             storeLogDataToDBAnnotation = serviceMethod.getAnnotation(StoreLogDataToDB.class);
@@ -102,12 +102,12 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
                             entities.add(entityClass.newInstance());
                         } catch (InstantiationException | IllegalAccessException e) {
                             throw new StoreLogDataException(
-                                String
-                                    .format("Failed to instantiate entity class '%s'%s.",
-                                        entityClass.getTypeName(),
-                                        serviceMethod != null ? (" for method '" + MethodUtil
-                                            .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY),
-                                e);
+                                    String
+                                            .format("Failed to instantiate entity class '%s'%s.",
+                                                    entityClass.getTypeName(),
+                                                    serviceMethod != null ? (" for method '" + MethodUtil
+                                                            .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY),
+                                    e);
                         }
                     }
                 }
@@ -121,12 +121,12 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
             } catch (Exception e) {
                 if (serviceMethod != null) {
                     throw new StoreLogDataException(String.format("Failed to populate entity '%s' for method '%s'.",
-                        entity.getClass().getTypeName(),
-                        MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                            entity.getClass().getTypeName(),
+                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
                 } else {
                     throw new StoreLogDataException(
-                        String.format("Failed to populate entity '%s'.", entity.getClass().getTypeName()),
-                        e);
+                            String.format("Failed to populate entity '%s'.", entity.getClass().getTypeName()),
+                            e);
                 }
             }
         }

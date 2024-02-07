@@ -200,7 +200,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
          *
          * @param fileName the system-dependent file name
          * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
-         *             exist but cannot be created, or cannot be opened for any other reason.
+         *                               exist but cannot be created, or cannot be opened for any other reason.
          */
         private DeferredCreateFileOutputStream(String fileName) throws FileNotFoundException {
             this.fileName = fileName;
@@ -212,7 +212,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
          *
          * @param fileName the checking file
          * @throws FileNotFoundException if the file exists but is a directory rather than a regular file, does not
-         *             exist but cannot be created, or cannot be opened for any other reason.
+         *                               exist but cannot be created, or cannot be opened for any other reason.
          */
         private void throwExceptionIfNotWritable(String fileName) throws FileNotFoundException {
             FileOutputStream os = null;
@@ -258,7 +258,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
          * Invokes the delegate's <code>write(byte[])</code> method.
          *
          * @param bts the bytes to write
-         * @param st The start offset
+         * @param st  The start offset
          * @param end The number of bytes to write
          * @throws IOException if an I/O error occurs
          */

@@ -19,7 +19,7 @@ public class DelegatedDynamicObject extends DynamicObject {
      * Create an instance by its type and other instance to be wrapped. All the fields of other
      * <code>IDynamicObject</code> instance will be accessible through this instance.
      *
-     * @param type The type of the instance
+     * @param type   The type of the instance
      * @param parent The other instance to wrap
      */
     public DelegatedDynamicObject(IOpenClass type, IDynamicObject parent) {

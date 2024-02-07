@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
 public final class DataOpenFieldLazyWrapper extends DataOpenField {
     static {
         WrapperValidation.validateWrapperClass(DataOpenFieldLazyWrapper.class,
-            DataOpenFieldLazyWrapper.class.getSuperclass());
+                DataOpenFieldLazyWrapper.class.getSuperclass());
     }
 
     private final DataOpenField delegate;

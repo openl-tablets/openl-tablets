@@ -30,7 +30,7 @@ public class TypeDescription {
     /**
      * Initialize type description with given parameters
      *
-     * @param typeName type name
+     * @param typeName    type name
      * @param annotations type annotations
      * @throws NullPointerException if type name is null
      */
@@ -96,7 +96,7 @@ public class TypeDescription {
 
     /**
      * Check if type is an array
-     * 
+     *
      * @return {@code true} if type is an array, otherwise {@code false}
      */
     public boolean isArray() {

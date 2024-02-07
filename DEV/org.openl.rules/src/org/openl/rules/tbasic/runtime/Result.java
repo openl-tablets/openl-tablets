@@ -3,7 +3,6 @@ package org.openl.rules.tbasic.runtime;
 /**
  * The <code>Result</code> class stores result of execution some operation and command for VM which operation must be
  * next.
- *
  */
 public class Result {
 
@@ -24,7 +23,7 @@ public class Result {
      * Create an instance of <code>Result</code> for operation which returned value. Initialized with order to compiler
      * what to do after current operation.
      *
-     * @param returnType Order to compiler
+     * @param returnType  Order to compiler
      * @param returnValue Result of execution of operation.
      */
     public Result(ReturnType returnType, Object returnValue) {
@@ -40,7 +39,6 @@ public class Result {
     }
 
     /**
-     *
      * @return Result of execution of operation.
      */
     public Object getValue() {

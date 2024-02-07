@@ -95,7 +95,7 @@ public class OpenLMessageSource {
      * Follows the rules defined by {@link java.util.Locale#toString()}.
      *
      * @param basename the basename of the bundle
-     * @param locale the locale
+     * @param locale   the locale
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {

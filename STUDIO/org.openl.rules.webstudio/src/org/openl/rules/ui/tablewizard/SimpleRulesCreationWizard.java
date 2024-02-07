@@ -74,9 +74,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         domainTypes.addAll(WizardUtils.importedClasses());
 
         this.typesList = domainTypes.stream()
-            .filter(x -> !x.isEmpty())
-            .map(DomainTypeHolder::new)
-            .collect(Collectors.toList());
+                .filter(x -> !x.isEmpty())
+                .map(DomainTypeHolder::new)
+                .collect(Collectors.toList());
 
         initWorkbooks();
     }
@@ -92,14 +92,14 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public List<SelectItem> getPropertyList() {
         List<SelectItem> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-            .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
+                .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
 
         SelectItem selectItem = new SelectItem("");
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
         Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
-            .groupProperties(propDefinitions);
+                .groupProperties(propDefinitions);
         for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<>();
 

@@ -32,8 +32,8 @@ public final class OpenApiProjectValidatorTest {
     @Test
     public void testOpenApiValidator() {
         final RulesInFolderTestRunnerWithOpenApiValidator rulesInFolderTestRunnerWithOpenApiValidator = new RulesInFolderTestRunnerWithOpenApiValidator(
-            false,
-            false);
+                false,
+                false);
         assertFalse(rulesInFolderTestRunnerWithOpenApiValidator.run(DIR), "Test is failed.");
     }
 

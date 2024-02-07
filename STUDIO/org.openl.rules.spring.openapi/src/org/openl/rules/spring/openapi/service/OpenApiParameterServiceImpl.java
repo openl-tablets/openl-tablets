@@ -55,8 +55,8 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
 
     @Autowired
     public OpenApiParameterServiceImpl(Optional<List<ModelConverter>> modelConverters,
-            OpenApiPropertyResolver apiPropertyResolver,
-            RequestMappingHandlerAdapter mappingHandlerAdapter) {
+                                       OpenApiPropertyResolver apiPropertyResolver,
+                                       RequestMappingHandlerAdapter mappingHandlerAdapter) {
         this.apiPropertyResolver = apiPropertyResolver;
         this.mappingHandlerAdapter = mappingHandlerAdapter;
         modelConverters.ifPresent(converters -> {
@@ -71,7 +71,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     /**
      * Parses {@link Parameter} from all places in the method e.g. {@link io.swagger.v3.oas.models.Operation},
      * {@link io.swagger.v3.oas.annotations.Parameter}, and method parameters
-     * 
+     *
      * @param apiContext current OpenAPI context
      * @param methodInfo method info
      * @param paramInfos the list of query, cookie, path and header method parameters
@@ -79,9 +79,9 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
      */
     @Override
     public Collection<Parameter> generateParameters(OpenApiContext apiContext,
-            MethodInfo methodInfo,
-            List<ParameterInfo> paramInfos,
-            Set<io.swagger.v3.oas.annotations.Parameter> ignore) {
+                                                    MethodInfo methodInfo,
+                                                    List<ParameterInfo> paramInfos,
+                                                    Set<io.swagger.v3.oas.annotations.Parameter> ignore) {
         Map<PKey, Parameter> parameters = new LinkedHashMap<>();
 
         // process Parameters from Open API Operation annotation
@@ -97,7 +97,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
 
         // process API Parameters from method
         var apiParameters = ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(),
-            io.swagger.v3.oas.annotations.Parameter.class);
+                io.swagger.v3.oas.annotations.Parameter.class);
         if (apiParameters != null) {
             for (var apiParameter : apiParameters) {
                 if (ignore.contains(apiParameter)) {
@@ -145,8 +145,8 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     }
 
     private Parameter parseParameter(MethodInfo methodInfo,
-            io.swagger.v3.oas.annotations.Parameter apiParameter,
-            Components components) {
+                                     io.swagger.v3.oas.annotations.Parameter apiParameter,
+                                     Components components) {
         var parameter = new Parameter();
 
         if (StringUtils.isNotBlank(apiParameter.ref())) {
@@ -156,12 +156,12 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
 
         var type = ParameterProcessor.getParameterType(apiParameter);
         ParameterProcessor.applyAnnotations(parameter,
-            type,
-            Collections.singletonList(apiParameter),
-            components,
-            new String[0],
-            methodInfo.getConsumes(),
-            methodInfo.getJsonView());
+                type,
+                Collections.singletonList(apiParameter),
+                components,
+                new String[0],
+                methodInfo.getConsumes(),
+                methodInfo.getJsonView());
 
         if (StringUtils.isNotBlank(parameter.getDescription())) {
             parameter.description(apiPropertyResolver.resolve(parameter.getDescription()));
@@ -223,12 +223,12 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
             parameterType = paramInfo.getType();
         }
         ParameterProcessor.applyAnnotations(parameter,
-            parameterType,
-            paramInfo.getParameter() != null ? List.of(paramInfo.getParameter()) : Collections.emptyList(),
-            components,
-            new String[0],
-            methodInfo.getConsumes(),
-            paramInfo.getJsonView());
+                parameterType,
+                paramInfo.getParameter() != null ? List.of(paramInfo.getParameter()) : Collections.emptyList(),
+                components,
+                new String[0],
+                methodInfo.getConsumes(),
+                paramInfo.getJsonView());
 
         if (StringUtils.isNotBlank(parameter.getDescription())) {
             parameter.description(apiPropertyResolver.resolve(parameter.getDescription()));
@@ -250,7 +250,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
      * Applies javax validation annotations from method parameter to provided schema
      *
      * @param paramInfo method parameter
-     * @param schema schema to apply validation annotations
+     * @param schema    schema to apply validation annotations
      */
     @Override
     public void applyValidationAnnotations(ParameterInfo paramInfo, Schema<?> schema) {
@@ -282,16 +282,16 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     /**
      * Resolves OpenAPI schema from requested type
      *
-     * @param type type to resolve
+     * @param type       type to resolve
      * @param components schema container
-     * @param jsonView json view annotation for requested type
+     * @param jsonView   json view annotation for requested type
      * @return resolved schema or null
      */
     @SuppressWarnings("rawtypes")
     @Override
     public Schema resolveSchema(Type type, Components components, JsonView jsonView) {
         var resolvedSchema = ModelConverters.getInstance()
-            .resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true).jsonViewAnnotation(jsonView));
+                .resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true).jsonViewAnnotation(jsonView));
         if (resolvedSchema.schema == null) {
             return null;
         }
@@ -317,7 +317,7 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
     @Override
     public String[] getMediaTypesForType(Class<?> cl) {
         Set<MediaType> possibleMediaTypes = new TreeSet<>(
-            MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
+                MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
         for (var converter : mappingHandlerAdapter.getMessageConverters()) {
             possibleMediaTypes.addAll(converter.getSupportedMediaTypes(cl));
         }

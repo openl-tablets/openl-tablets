@@ -8,7 +8,7 @@ import org.openl.binding.impl.method.NonNullLiteral;
 
 /**
  * A set of util methods to work with arrays.
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan
@@ -70,8 +70,8 @@ public final class Arrays {
      * Arrays.addElement(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
      *
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     * @param array    the array to add the element to, may be <code>null</code>
+     * @param index    the position of the new object
      * @param elements the objects to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
@@ -106,7 +106,7 @@ public final class Arrays {
             return null;
         }
         Object oneElementArray = Array
-            .newInstance(element != null ? element.getClass() : array.getClass().getComponentType(), 1);
+                .newInstance(element != null ? element.getClass() : array.getClass().getComponentType(), 1);
         if (element != null) {
             Array.set(oneElementArray, 0, element);
         }
@@ -174,7 +174,7 @@ public final class Arrays {
      * ArrayUtils.removeElement(["a", "b", "a"], "a") = ["b", "a"]  <br />
      * </code>
      *
-     * @param array the array to remove the element from, may be null
+     * @param array    the array to remove the element from, may be null
      * @param elements
      * @return the element to be removed
      */

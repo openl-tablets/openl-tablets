@@ -46,14 +46,14 @@ public class ProjectDescriptorSerializerTest {
     public void serializeEmpty() throws IOException, JAXBException {
         assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"), serializer.serialize(null));
         assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"),
-            serializer.serialize(Collections.emptyList()));
+                serializer.serialize(Collections.emptyList()));
     }
 
     @Test
     @SuppressWarnings("rawtypes")
     public void deserialize() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
-            .deserialize(new FileInputStream("test-resources/xml/descriptor1.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/descriptor1.xml"));
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
         assertEquals(expected.get(0).getProjectName(), result.get(0).getProjectName());
@@ -90,7 +90,7 @@ public class ProjectDescriptorSerializerTest {
     @SuppressWarnings("rawtypes")
     public void deserializeEmpty() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
-            .deserialize(new FileInputStream("test-resources/xml/empty_descriptor.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/empty_descriptor.xml"));
         assertEquals(0, result.size());
     }
 
@@ -104,29 +104,29 @@ public class ProjectDescriptorSerializerTest {
     @SuppressWarnings("rawtypes")
     private static List<ProjectDescriptor> makeDescriptors() {
         ProjectDescriptor prj1 = new ProjectDescriptorImpl("design",
-            "project1 & \\ <>",
-            "project1 & \\ <>",
-            "master",
-            new CommonVersionImpl(3, 5, 11));
+                "project1 & \\ <>",
+                "project1 & \\ <>",
+                "master",
+                new CommonVersionImpl(3, 5, 11));
         ProjectDescriptor prj2 = new ProjectDescriptorImpl("design2",
-            "project2",
-            null,
-            null,
-            new CommonVersionImpl(17));
+                "project2",
+                null,
+                null,
+                new CommonVersionImpl(17));
         ProjectDescriptor prj3 = new ProjectDescriptorImpl(null, "project0", null, null, new CommonVersionImpl(0));
         return new ArrayList<>(Arrays.asList(prj1, prj2, prj3));
     }
 
     private static void assertXml(Object expected, Object actual) {
         Iterator<Difference> differences = DiffBuilder.compare(expected)
-            .withTest(actual)
-            .ignoreWhitespace()
-            .checkForSimilar()
-            .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
-            .withDifferenceEvaluator(DifferenceEvaluators.Default)
-            .build()
-            .getDifferences()
-            .iterator();
+                .withTest(actual)
+                .ignoreWhitespace()
+                .checkForSimilar()
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
+                .withDifferenceEvaluator(DifferenceEvaluators.Default)
+                .build()
+                .getDifferences()
+                .iterator();
         if (differences.hasNext()) {
             fail("Difference\n\t" + differences.next());
         }

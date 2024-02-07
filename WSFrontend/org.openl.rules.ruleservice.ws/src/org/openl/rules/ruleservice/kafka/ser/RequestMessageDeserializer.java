@@ -68,9 +68,9 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     private Entry generateWrapperClass(Method m) throws Exception {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
         String[] parameterNames = MethodUtils
-            .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
+                .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
         String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
-            .getName() + "$" + RandomStringUtils.random(16, true, false);
+                .getName() + "$" + RandomStringUtils.random(16, true, false);
 
         int i = 0;
         JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
@@ -110,9 +110,9 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
                 return buildRequestMessage(methodParametersWrapperClassInfo, rawData);
             } catch (Exception e) {
                 return new RequestMessage(methodParametersWrapperClassInfo.getMethod(),
-                    new RequestMessageFormatException("Invalid message format.", e),
-                    rawData,
-                    encoding);
+                        new RequestMessageFormatException("Invalid message format.", e),
+                        rawData,
+                        encoding);
             }
         } else {
             Method m = null;
@@ -130,22 +130,22 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
                 return buildRequestMessage(entry, rawData);
             } catch (Exception e) {
                 return new RequestMessage(m,
-                    new RequestMessageFormatException("Invalid message format.", e),
-                    rawData,
-                    encoding);
+                        new RequestMessageFormatException("Invalid message format.", e),
+                        rawData,
+                        encoding);
             }
         }
     }
 
     protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException,
-                                                                              IllegalAccessException {
+            IllegalAccessException {
         final Method method = entry.getMethod();
         final int numOfParameters = method.getParameterCount();
         if (numOfParameters == 0) {
-            return new RequestMessage(method, new Object[] {}, rawData, encoding);
+            return new RequestMessage(method, new Object[]{}, rawData, encoding);
         } else if (numOfParameters == 1) {
             Object arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
-            return new RequestMessage(method, new Object[] { arg }, rawData, encoding);
+            return new RequestMessage(method, new Object[]{arg}, rawData, encoding);
         } else {
             Object wrapperTarget = objectMapper.readValue(new String(rawData, encoding), entry.getWrapperClass());
             Object[] parameters = new Object[numOfParameters];

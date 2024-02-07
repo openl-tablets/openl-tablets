@@ -12,7 +12,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public interface IConditionEvaluator extends IBaseConditionEvaluator {
 

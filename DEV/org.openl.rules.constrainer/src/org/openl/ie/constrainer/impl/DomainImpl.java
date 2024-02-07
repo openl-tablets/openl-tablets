@@ -10,6 +10,7 @@ import org.openl.ie.constrainer.IntVar;
 //
 //: DomainImpl.java
 //
+
 /**
  * An implementation of the Domain interface that supports plain domain. This implementation keeps only min/max values.
  *
@@ -89,7 +90,7 @@ public class DomainImpl implements Domain {
 
     /**
      * Does nothing
-     *
+     * <p>
      * added by SV 20.01.03
      *
      * @param min

@@ -31,10 +31,10 @@ public class RulesProjectBuilder {
     private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
-            String repositoryId,
-            String projectName,
-            String projectFolder,
-            String comment) {
+                               String repositoryId,
+                               String projectName,
+                               String projectFolder,
+                               String comment) {
         this.workspace = workspace;
         this.comment = comment;
         String internalPath = projectFolder + projectName;
@@ -63,11 +63,11 @@ public class RulesProjectBuilder {
             localRepository.initialize();
 
             project = new RulesProject(workspace.getUser(),
-                localRepository,
-                localData,
-                designRepository,
-                designData,
-                workspace.getProjectsLockEngine());
+                    localRepository,
+                    localData,
+                    designRepository,
+                    designData,
+                    workspace.getProjectsLockEngine());
         }
     }
 
@@ -141,7 +141,7 @@ public class RulesProjectBuilder {
     private void checkName(String artefactName) throws ProjectException {
         if (!NameChecker.checkName(artefactName)) {
             throw new ProjectException(
-                String.format("File or folder name '%s' is invalid. %s", artefactName, NameChecker.BAD_NAME_MSG));
+                    String.format("File or folder name '%s' is invalid. %s", artefactName, NameChecker.BAD_NAME_MSG));
 
         }
     }

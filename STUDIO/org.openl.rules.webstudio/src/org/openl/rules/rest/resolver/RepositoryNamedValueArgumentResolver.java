@@ -24,7 +24,6 @@ import org.openl.util.StringUtils;
  * for more information on how named values are processed.
  *
  * @author Vladyslav Pikus
- *
  * @see DesignRepository
  * @see DesignTimeRepository
  */
@@ -52,7 +51,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
     @Override
     protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
         DesignRepository anno = Objects.requireNonNull(parameter.getParameterAnnotation(DesignRepository.class),
-            "No 'DesignRepository' annotation");
+                "No 'DesignRepository' annotation");
         return new DesignRepositoryNamedValueInfo(anno);
     }
 
@@ -71,7 +70,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
     @SuppressWarnings("unchecked")
     private Map<String, String> resolverUriTemplateVars(NativeWebRequest request) {
         return (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE,
-            RequestAttributes.SCOPE_REQUEST);
+                RequestAttributes.SCOPE_REQUEST);
     }
 
     private static class DesignRepositoryNamedValueInfo extends NamedValueInfo {

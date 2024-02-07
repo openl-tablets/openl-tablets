@@ -46,7 +46,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     private final boolean lazyCompilation;
     private final PathMatcher wildcardPatternMatcher = new AntPathMatcher();
     private final ThreadLocal<Deque<CompilationInfo>> compilationInfoThreadLocal = ThreadLocal
-        .withInitial(ArrayDeque::new);
+            .withInitial(ArrayDeque::new);
 
     public boolean isLazyCompilation() {
         return lazyCompilation;
@@ -75,8 +75,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     public void compilationCompleted(IDependencyLoader dependencyLoader,
-            DependencyCompilationType compilationType,
-            boolean writeToLog) {
+                                     DependencyCompilationType compilationType,
+                                     boolean writeToLog) {
         Deque<CompilationInfo> compilationInfoStack = compilationInfoThreadLocal.get();
         try {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
@@ -84,11 +84,11 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
             if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - {} - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
-                    compilationType,
-                    dependencyLoader.getModule().getName(),
-                    dependencyLoader.getProject().getName(),
-                    deployment.getName(),
-                    t - compilationInfo.embeddedTime);
+                        compilationType,
+                        dependencyLoader.getModule().getName(),
+                        dependencyLoader.getProject().getName(),
+                        deployment.getName(),
+                        t - compilationInfo.embeddedTime);
             }
 
             if (!compilationInfoStack.isEmpty()) {
@@ -108,7 +108,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     public CompiledDependency loadDependency(final ResolvedDependency dependency) throws OpenLCompilationException {
         try {
             return MaxThreadsForCompileSemaphore.getInstance()
-                .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
+                    .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
@@ -117,10 +117,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     public RuleServiceDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader,
-            ClassLoader rootClassLoader,
-            boolean lazyCompilation,
-            Map<String, Object> externalParameters) {
+                                        RuleServiceLoader ruleServiceLoader,
+                                        ClassLoader rootClassLoader,
+                                        boolean lazyCompilation,
+                                        Map<String, Object> externalParameters) {
         super(rootClassLoader, true, externalParameters);
         this.deployment = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
         this.ruleServiceLoader = Objects.requireNonNull(ruleServiceLoader, "ruleService cannot be null");
@@ -168,13 +168,13 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                     RulesDeploy rulesDeploy;
                     try {
                         IProjectArtefact artifact = aProject
-                            .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
+                                .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
                         if (artifact instanceof IProjectResource) {
                             IProjectResource resource = (IProjectResource) artifact;
                             content = resource.getContent();
                             rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             WildcardPattern[] compilationPatterns = rulesDeploy
-                                .getLazyModulesForCompilationPatterns();
+                                    .getLazyModulesForCompilationPatterns();
                             if (compilationPatterns != null) {
                                 for (WildcardPattern wp : compilationPatterns) {
                                     wildcardPatterns.add(wp.getValue());
@@ -191,13 +191,13 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                         IDependencyLoader moduleLoader;
                         if (isLazyCompilation()) {
                             boolean compileAfterLazyCompilation = compilationAfterLazyCompilationRequired(
-                                wildcardPatterns,
-                                m.getName());
+                                    wildcardPatterns,
+                                    m.getName());
                             moduleLoader = new LazyRuleServiceDependencyLoader(deployment,
-                                project,
-                                m,
-                                compileAfterLazyCompilation,
-                                this);
+                                    project,
+                                    m,
+                                    compileAfterLazyCompilation,
+                                    this);
                         } else {
                             moduleLoader = new RuleServiceDependencyLoader(project, m, this);
                         }
@@ -215,10 +215,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                    String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
-                        projectName,
-                        deploymentName),
-                    e);
+                        String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                                projectName,
+                                deploymentName),
+                        e);
             }
         }
         return dependencyLoaders;

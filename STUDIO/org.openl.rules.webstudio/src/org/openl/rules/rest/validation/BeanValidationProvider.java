@@ -28,7 +28,7 @@ public class BeanValidationProvider {
     /**
      * Invokes all bean validators. The following validators will not be executed if previous one returned error.
      *
-     * @param bean POJO bean to validate
+     * @param bean       POJO bean to validate
      * @param validators additional validators
      */
     public void validate(Object bean, Validator... validators) {

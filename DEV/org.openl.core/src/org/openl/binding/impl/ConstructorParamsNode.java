@@ -7,7 +7,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * constructor with parameters
- *
+ * <p>
  * Example:
  * <p>
  * ObjectType(value1, value2, ObjectType2(value3);

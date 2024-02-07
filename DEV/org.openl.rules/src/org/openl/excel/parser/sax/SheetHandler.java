@@ -197,7 +197,7 @@ public class SheetHandler extends DefaultHandler {
                         } else {
                             double d = Double.parseDouble(n);
                             if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
-                                formatString)) {
+                                    formatString)) {
                                 parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
                             } else {
                                 parsedValue = NumberUtils.intOrDouble(d);
@@ -317,7 +317,7 @@ public class SheetHandler extends DefaultHandler {
             int c = mergedCell.getFirstColumn() - start.getColumn();
             if (r >= 0 && c >= 0 && cells[r][c] != null) {
                 if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
-                    .getColumn()) {
+                        .getColumn()) {
                     int maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
                     int maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
                     effectiveEnd = new CellAddress(maxRow, maxCol);

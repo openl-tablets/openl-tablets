@@ -11,8 +11,8 @@ import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyC
 final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
 
     public RuleServiceDependencyLoader(ProjectDescriptor project,
-            Module module,
-            RuleServiceDependencyManager dependencyManager) {
+                                       Module module,
+                                       RuleServiceDependencyManager dependencyManager) {
         super(project, module, true, dependencyManager);
     }
 
@@ -26,13 +26,13 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
             try {
                 compiledDependency = super.compileDependency();
                 ruleServiceDeploymentRelatedDependencyManager.compilationCompleted(this,
-                    DependencyCompilationType.NONLAZY,
-                    !compiledDependency.getCompiledOpenClass().hasErrors());
+                        DependencyCompilationType.NONLAZY,
+                        !compiledDependency.getCompiledOpenClass().hasErrors());
                 return compiledDependency;
             } finally {
                 if (compiledDependency == null) {
                     ruleServiceDeploymentRelatedDependencyManager
-                        .compilationCompleted(this, DependencyCompilationType.NONLAZY, false);
+                            .compilationCompleted(this, DependencyCompilationType.NONLAZY, false);
                 }
             }
         } else {

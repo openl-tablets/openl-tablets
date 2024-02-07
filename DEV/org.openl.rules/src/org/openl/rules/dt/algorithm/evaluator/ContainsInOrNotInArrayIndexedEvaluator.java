@@ -30,7 +30,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluator {
 

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * To hint a type for runtime generated classes.
- * 
+ *
  * <pre>
  * {@code
  * interface Service {
@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 public @interface RulesType {
     String value();
 }

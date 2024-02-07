@@ -22,12 +22,12 @@ public class BenchmarkInfoView {
     private boolean selected;
 
     BenchmarkInfoView(long times,
-            long nanos,
-            int nUnitRuns,
-            String tableId,
-            String testName,
-            String testInfo,
-            ParameterWithValueDeclaration params[]) {
+                      long nanos,
+                      int nUnitRuns,
+                      String tableId,
+                      String testName,
+                      String testInfo,
+                      ParameterWithValueDeclaration params[]) {
         this.nUnitRuns = nUnitRuns;
         this.times = times;
         this.nanos = nanos;

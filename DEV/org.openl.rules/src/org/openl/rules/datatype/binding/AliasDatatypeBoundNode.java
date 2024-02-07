@@ -18,8 +18,8 @@ public class AliasDatatypeBoundNode implements IMemberBoundNode {
     private final ModuleOpenClass moduleOpenClass;
 
     public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode,
-            DomainOpenClass domain,
-            ModuleOpenClass moduleOpenClass) {
+                                  DomainOpenClass domain,
+                                  ModuleOpenClass moduleOpenClass) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.domainOpenClass = domain;
         this.moduleOpenClass = moduleOpenClass;

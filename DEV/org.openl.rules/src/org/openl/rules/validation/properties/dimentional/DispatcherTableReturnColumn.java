@@ -8,7 +8,6 @@ import org.openl.types.IOpenClass;
  * table in return column there are calls for original table from the group for every rule.
  *
  * @author DLiauchuk
- *
  */
 public class DispatcherTableReturnColumn {
 
@@ -47,17 +46,17 @@ public class DispatcherTableReturnColumn {
     public String getRuleValue(int ruleIndex, int elementNum) {
         final StringBuilder builder = new StringBuilder(128);
         builder.append('=')
-            .append(methodName)
-            .append(TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER)
-            .append(ruleIndex)
-            .append('(');
+                .append(methodName)
+                .append(TableSyntaxNodeDispatcherBuilder.AUXILIARY_METHOD_DELIMETER)
+                .append(ruleIndex)
+                .append('(');
 
         boolean prependComma = false;
         final int numberOfParameters = originalSignature.getNumberOfParameters();
         for (int i = 0; i < numberOfParameters; i++) {
             final String parameterName = originalSignature.getParameterName(i);
             final String parameter = TableSyntaxNodeDispatcherBuilder
-                .getDispatcherParameterNameForOriginalParameter(parameterName);
+                    .getDispatcherParameterNameForOriginalParameter(parameterName);
             if (prependComma) {
                 builder.append(',');
             }

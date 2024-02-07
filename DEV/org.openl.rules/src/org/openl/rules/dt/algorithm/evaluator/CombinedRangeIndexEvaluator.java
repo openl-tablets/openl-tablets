@@ -17,8 +17,8 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
 
     public CombinedRangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
-            int nparams,
-            ConditionCasts conditionCasts) {
+                                       int nparams,
+                                       ConditionCasts conditionCasts) {
         super(rangeAdaptor, nparams, conditionCasts);
     }
 
@@ -33,29 +33,29 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         final DecisionTableRuleNode nextNode = nextNodeBuilder.makeNode();
         final RangeIndexNodeAdaptor indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
         RangeAscIndex minIndex = new RangeAscIndex(nextNode,
-            minIndexNodes,
-            indexNodeAdaptor,
-            emptyRulesBuilder.makeNode().getRules());
+                minIndexNodes,
+                indexNodeAdaptor,
+                emptyRulesBuilder.makeNode().getRules());
 
         it.reset();
         emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
         List<IndexNode> maxIndexNodes = collectMaxIndexNodes(condition, it, emptyRulesBuilder);
         RangeDescIndex maxIndex = new RangeDescIndex(nextNode,
-            maxIndexNodes,
-            indexNodeAdaptor,
-            emptyRulesBuilder.makeNode().getRules());
+                maxIndexNodes,
+                indexNodeAdaptor,
+                emptyRulesBuilder.makeNode().getRules());
 
         return new CombinedRangeIndex(minIndex,
-            maxIndex,
-            nextNode,
-            nparams == 2 ? conditionCasts.getCastToConditionType() : null);
+                maxIndex,
+                nextNode,
+                nparams == 2 ? conditionCasts.getCastToConditionType() : null);
     }
 
     @SuppressWarnings("unchecked")
     private List<IndexNode> collectMinIndexNodes(ICondition condition,
-            IIntIterator it,
-            DecisionTableRuleNodeBuilder nextNodeBuilder,
-            DecisionTableRuleNodeBuilder emptyRulesBuilder) {
+                                                 IIntIterator it,
+                                                 DecisionTableRuleNodeBuilder nextNodeBuilder,
+                                                 DecisionTableRuleNodeBuilder emptyRulesBuilder) {
 
         List<IndexNode> nodes = new ArrayList<>(it.size());
         while (it.hasNext()) {
@@ -68,7 +68,7 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
                 continue;
             }
             Comparable<Object> vFrom = rangeAdaptor == null ? (Comparable<Object>) origVal
-                                                            : rangeAdaptor.getMin(origVal);
+                    : rangeAdaptor.getMin(origVal);
             nodes.add(new IndexNode(vFrom, ruleN));
         }
 
@@ -77,8 +77,8 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
 
     @SuppressWarnings("unchecked")
     private List<IndexNode> collectMaxIndexNodes(ICondition condition,
-            IIntIterator it,
-            DecisionTableRuleNodeBuilder emptyRulesBuilder) {
+                                                 IIntIterator it,
+                                                 DecisionTableRuleNodeBuilder emptyRulesBuilder) {
 
         List<IndexNode> nodes = new ArrayList<>(it.size());
         final int paramN = nparams == 2 ? 1 : 0;

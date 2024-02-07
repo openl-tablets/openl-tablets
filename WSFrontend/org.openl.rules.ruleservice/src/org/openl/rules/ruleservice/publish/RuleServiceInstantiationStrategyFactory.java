@@ -8,7 +8,6 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
  * Resolve strategy for creating service bean.
  *
  * @author Marat Kamalov
- *
  */
 public interface RuleServiceInstantiationStrategyFactory {
     /**

@@ -46,32 +46,32 @@ public final class Comments {
         dateTimeFormat = Objects.requireNonNull(environment.getProperty("data.format.datetime"));
         Objects.requireNonNull(repoId, "prefix cannot be null");
         saveProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.save");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.save");
         createProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.create");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.create");
         archiveProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.archive");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.archive");
         restoreProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restore");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restore");
         eraseProjectTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.erase");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.erase");
         copiedFromTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.copied-from");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.copied-from");
         restoredFromTemplate = environment
-            .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restored-from");
+                .getProperty(REPOSITORY_PREFIX + repoId + ".comment-template.user-message.default.restored-from");
         newBranchNameTemplate = environment.getProperty(REPOSITORY_PREFIX + repoId + ".new-branch.pattern");
     }
 
     // protected for tests
     protected Comments(String dateTimeFormat,
-            String saveProjectTemplate,
-            String createProjectTemplate,
-            String archiveProjectTemplate,
-            String restoreProjectTemplate,
-            String eraseProjectTemplate,
-            String copiedFromTemplate,
-            String restoredFromTemplate,
-            String newBranchNameTemplate) {
+                       String saveProjectTemplate,
+                       String createProjectTemplate,
+                       String archiveProjectTemplate,
+                       String restoreProjectTemplate,
+                       String eraseProjectTemplate,
+                       String copiedFromTemplate,
+                       String restoredFromTemplate,
+                       String newBranchNameTemplate) {
         this.dateTimeFormat = Objects.requireNonNull(dateTimeFormat);
         this.saveProjectTemplate = saveProjectTemplate;
         this.createProjectTemplate = createProjectTemplate;
@@ -113,16 +113,16 @@ public final class Comments {
 
     public String copiedFrom(String sourceProjectName) {
         return copiedFromTemplate.replace(PROJECT_NAME,
-            sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
+                sourceProjectName == null ? StringUtils.EMPTY : sourceProjectName);
     }
 
     public String newBranch(String projectName, String userName, String date) {
         String simplifiedProjName = Optional.ofNullable(projectName)
-            .map(s -> s.replaceAll("[^\\p{LD}\\-$]", "")) // Remove restricted symbols
-            .orElse(StringUtils.EMPTY);
+                .map(s -> s.replaceAll("[^\\p{LD}\\-$]", "")) // Remove restricted symbols
+                .orElse(StringUtils.EMPTY);
         return newBranchNameTemplate.replace(PROJECT_NAME, simplifiedProjName)
-            .replace(USER_NAME, userName == null ? StringUtils.EMPTY : userName)
-            .replace(CURRENT_DATE, date == null ? StringUtils.EMPTY : date);
+                .replace(USER_NAME, userName == null ? StringUtils.EMPTY : userName)
+                .replace(CURRENT_DATE, date == null ? StringUtils.EMPTY : date);
     }
 
     public List<String> getCommentParts(String comment) {
@@ -146,8 +146,8 @@ public final class Comments {
     public String restoredFrom(String revisionNum, String userName, Date modifiedAt) {
         String dateStr = modifiedAt == null ? "" : new SimpleDateFormat(dateTimeFormat).format(modifiedAt);
         return restoredFromTemplate.replace(REVISION, StringUtils.trimToEmpty(revisionNum))
-            .replace(AUTHOR, StringUtils.trimToEmpty(userName))
-            .replace(DATETIME, dateStr);
+                .replace(AUTHOR, StringUtils.trimToEmpty(userName))
+                .replace(DATETIME, dateStr);
     }
 
     public String getCreateProjectTemplate() {

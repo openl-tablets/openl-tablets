@@ -41,7 +41,7 @@ public class ProjectResourceLoader {
                 if (resolvingStrategy != null) {
                     try {
                         ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder.toPath());
-                        try (URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[] { url })) {
+                        try (URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[]{url})) {
                             URL resourceURL = urlClassLoader1.getResource(name);
                             if (resourceURL != null) {
                                 projectResources.add(new ProjectResource(projectDescriptor, resourceURL));

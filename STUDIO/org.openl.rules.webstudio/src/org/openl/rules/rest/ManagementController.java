@@ -37,7 +37,7 @@ import org.openl.util.StringUtils;
 
 /**
  * Manages Users and Groups.
- * 
+ *
  * @author Yury Molchan
  */
 @RestController
@@ -55,10 +55,10 @@ public class ManagementController {
 
     @Autowired
     public ManagementController(GroupDao groupDao,
-            GroupManagementService groupManagementService,
-            InMemoryProperties properties,
-            BeanValidationProvider validationProvider,
-            ExternalGroupService extGroupService) {
+                                GroupManagementService groupManagementService,
+                                InMemoryProperties properties,
+                                BeanValidationProvider validationProvider,
+                                ExternalGroupService extGroupService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
@@ -125,7 +125,7 @@ public class ManagementController {
     public Map<String, String> getPrivileges() {
         SecurityChecker.allow(Privileges.ADMIN);
         return Arrays.stream(Privileges.values())
-            .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
+                .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
     }
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
@@ -134,9 +134,9 @@ public class ManagementController {
             @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
             @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
-            .stream()
-            .map(org.openl.rules.security.Group::getName)
-            .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
+                .stream()
+                .map(org.openl.rules.security.Group::getName)
+                .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
     public static class UIGroup {
@@ -145,9 +145,9 @@ public class ManagementController {
             description = group.getDescription();
             privileges = group.getPrivileges();
             roles = group.getIncludedGroups()
-                .stream()
-                .map(Group::getName)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                    .stream()
+                    .map(Group::getName)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }
 

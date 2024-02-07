@@ -77,7 +77,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             Registry registry = getRegistry();
             String rmiName = service.getRmiName() != null ? service.getRmiName()
-                                                          : URLHelper.processURL(service.getUrl());
+                    : URLHelper.processURL(service.getUrl());
 
             Remote rmiHandler;
             if (service.getRmiServiceClass() == null) {

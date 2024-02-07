@@ -37,20 +37,20 @@ public final class RepositoryValidators {
     /**
      * Check that name, path are configured correctly and repository name does not have duplicates.
      *
-     * @param prodConfig Repository configuration
+     * @param prodConfig                         Repository configuration
      * @param productionRepositoryConfigurations list of all production configurations
      * @throws RepositoryValidationException if repository was configured incorrectly
      */
     public static void validate(RepositoryConfiguration prodConfig,
-            List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
+                                List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
             String msg = "Repository name is empty. Enter a repository name.";
             throw new RepositoryValidationException(msg);
         }
         if (!NameChecker.checkName(prodConfig.getName())) {
             String msg = String.format(
-                "The '%s' repository name contains unsupported characters. Modify the repository name and try again.",
-                prodConfig.getName());
+                    "The '%s' repository name contains unsupported characters. Modify the repository name and try again.",
+                    prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
@@ -59,7 +59,7 @@ public final class RepositoryValidators {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
                     String msg = String.format("The '%s' repository name already exists. Try another name.",
-                        prodConfig.getName());
+                            prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -73,8 +73,8 @@ public final class RepositoryValidators {
                     Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
                     if (path.equals(otherPath)) {
                         String msg = String.format(
-                            "The '%s' repository local path already exists. Try another value.",
-                            path);
+                                "The '%s' repository local path already exists. Try another value.",
+                                path);
                         throw new RepositoryValidationException(msg);
                     }
                 }
@@ -90,7 +90,7 @@ public final class RepositoryValidators {
     }
 
     private static void validateCommonRepository(RepositoryConfiguration prodConfig,
-            List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
+                                                 List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
         CommonRepositorySettings settings = (CommonRepositorySettings) prodConfig.getSettings();
         String path = settings.getPath();
         if (StringUtils.isEmpty(path)) {
@@ -103,7 +103,7 @@ public final class RepositoryValidators {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
                     String msg = String.format("The '%s' repository name already exists. Try another name.",
-                        prodConfig.getName());
+                            prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
@@ -114,7 +114,7 @@ public final class RepositoryValidators {
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
                             String msg = String.format("The '%s' repository local path already exists. Try another value.",
-                                path);
+                                    path);
                             throw new RepositoryValidationException(msg);
                         }
                     }
@@ -128,7 +128,7 @@ public final class RepositoryValidators {
     }
 
     static void validateConnection(RepositoryConfiguration repoConfig,
-            RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
+                                   RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
             if (repositoryFactoryProxy != null) {
                 /* Close connection to repository before checking connection */
@@ -138,13 +138,13 @@ public final class RepositoryValidators {
             validateInstantiation(repoConfig);
         } catch (Exception e) {
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)), e);
+                    String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)), e);
         }
     }
 
     private static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
-            .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
         try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             repository.validateConnection();

@@ -80,6 +80,7 @@ public class InputArgsBean {
     private String inputTextBean;
 
     private static final List<IOpenClass> predefinedTypes;
+
     static {
         predefinedTypes = new ArrayList<>();
 
@@ -176,9 +177,9 @@ public class InputArgsBean {
             ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setRulesDeploy(rulesDeploy);
             objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) WebStudioUtils.getWebStudio()
-                .getModel()
-                .getCompiledOpenClass()
-                .getOpenClassWithErrors());
+                    .getModel()
+                    .getCompiledOpenClass()
+                    .getOpenClassWithErrors());
             objectMapperFactory.setClassLoader(classLoader);
             // Default values from webservices. TODO this should be configurable
             objectMapperFactory.setPolymorphicTypeValidation(true);
@@ -198,7 +199,7 @@ public class InputArgsBean {
 
     public void fillBean() {
         if (StringUtils.isNotBlank(inputTextBean) && InputTestCaseType.BEAN
-            .equals(inputTestCaseType) && argumentTreeNodes != null) {
+                .equals(inputTestCaseType) && argumentTreeNodes != null) {
             try {
                 Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
                 if (stringStringMap.isEmpty()) {
@@ -211,7 +212,7 @@ public class InputArgsBean {
                         arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass(), objectMapper));
                     } else if (argumentTreeNodes.length == 1) {
                         argumentTreeNodes[0].setValueForced(JsonUtils
-                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
+                                .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
                     }
                 }
             } catch (JsonParseException e) {
@@ -252,14 +253,14 @@ public class InputArgsBean {
                 ObjectMapper objectMapper = configureObjectMapper();
                 if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
                     parsedArguments[0] = JsonUtils
-                        .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
+                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
                 } else {
                     for (int i = 0; i < argumentTreeNodes.length; i++) {
                         String field = stringStringMap.get(argumentTreeNodes[i].getName());
                         if (field != null) {
                             parsedArguments[i] = tryParseJson(field,
-                                argumentTreeNodes[i].getType().getInstanceClass(),
-                                objectMapper);
+                                    argumentTreeNodes[i].getType().getInstanceClass(),
+                                    objectMapper);
                             stringStringMap.remove(argumentTreeNodes[i].getName());
                         }
                     }
@@ -302,9 +303,9 @@ public class InputArgsBean {
 
     private String constructJsonExceptionMessage(JsonParseException e) {
         return String.format("%s</br>[line: %s, column: %s]",
-            e.getOriginalMessage(),
-            e.getLocation().getLineNr(),
-            e.getLocation().getColumnNr());
+                e.getOriginalMessage(),
+                e.getLocation().getLineNr(),
+                e.getLocation().getColumnNr());
     }
 
     public void initObject() {
@@ -316,13 +317,13 @@ public class InputArgsBean {
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
         Object value = ParameterTreeBuilder.canInstantiate(fieldType)
-                                                                      ? fieldType
-                                                                          .newInstance(new SimpleVM().getRuntimeEnv())
-                                                                      : null;
+                ? fieldType
+                .newInstance(new SimpleVM().getRuntimeEnv())
+                : null;
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-            .fieldNameInParent(currentNode.getName())
-            .parent(parent)
-            .build();
+                .fieldNameInParent(currentNode.getName())
+                .parent(parent)
+                .build();
         ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(config);
         currentNode.setValueForced(newNode.getValueForced());
 
@@ -360,7 +361,7 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
         ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature()
-            .getNumberOfParameters()];
+                .getNumberOfParameters()];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
@@ -395,8 +396,8 @@ public class InputArgsBean {
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(args[i].getType(), args[i].getValue())
-                .fieldNameInParent(args[i].getName())
-                .build();
+                    .fieldNameInParent(args[i].getName())
+                    .build();
             argTreeNodes[i] = ParameterTreeBuilder.createNode(config);
         }
         return argTreeNodes;

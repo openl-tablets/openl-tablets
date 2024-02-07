@@ -31,7 +31,7 @@ public class SpringBootWebAppTest {
     public void adminInfo() {
         String response = restTemplate.getForObject("/admin/ui/info", String.class);
         assertThat(response).contains(
-            "\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
+                "\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SpringBootWebAppTest {
     @Test
     public void deployZipFromOpenLFolder() {
         String response = restTemplate
-            .postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
+                .postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
         assertThat(response).contains("Hello, John Smith");
     }
 

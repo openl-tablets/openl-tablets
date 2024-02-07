@@ -72,10 +72,10 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected <T, E extends IRuntimeEnv, R> R doInvoke(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                       T target,
+                                                       Object[] params,
+                                                       E env,
+                                                       Object source) {
         if (!isOn()) {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
@@ -157,10 +157,10 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                                 T target,
+                                                                 Object[] params,
+                                                                 E env,
+                                                                 Object source) {
         if (!isOn()) {
             return;
         }

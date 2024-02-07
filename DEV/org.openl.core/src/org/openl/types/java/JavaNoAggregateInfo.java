@@ -14,7 +14,6 @@ import org.openl.types.impl.AAggregateInfo;
 
 /**
  * @author snshor
- *
  */
 public class JavaNoAggregateInfo extends AAggregateInfo {
 

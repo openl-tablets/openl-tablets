@@ -19,10 +19,10 @@ public class DTColumnsDefinitionField implements IOpenField {
     private final DTColumnsDefinition dtColumnsDefinition;
 
     DTColumnsDefinitionField(String name,
-            IOpenClass type,
-            IOpenClass declaringClass,
-            DTColumnsDefinition dtColumnsDefinition,
-            String title) {
+                             IOpenClass type,
+                             IOpenClass declaringClass,
+                             DTColumnsDefinition dtColumnsDefinition,
+                             String title) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.type = Objects.requireNonNull(type, "type cannot be null");
         this.declaringClass = Objects.requireNonNull(declaringClass, "declaringClass cannot be null");

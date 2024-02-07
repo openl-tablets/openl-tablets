@@ -21,10 +21,8 @@ import org.openl.util.PropertiesUtils;
  * 2) It tries to load properties file in the following order: 2.1) as URL 2.2) as resource in context classpath 2.3) as
  * file in context filesystem
  *
- * @see org.openl.conf.IConfigurableResourceContext
- *
  * @author snshor
- *
+ * @see org.openl.conf.IConfigurableResourceContext
  */
 public class PropertyFileLoader {
 
@@ -37,9 +35,9 @@ public class PropertyFileLoader {
     private final PropertyFileLoader parent;
 
     public PropertyFileLoader(String propertiesFileDefaultName,
-            String propertiesFileProperty,
-            IConfigurableResourceContext context,
-            PropertyFileLoader parent) {
+                              String propertiesFileProperty,
+                              IConfigurableResourceContext context,
+                              PropertyFileLoader parent) {
         this.context = context;
         this.propertiesFileDefaultName = propertiesFileDefaultName;
         this.propertiesFileProperty = propertiesFileProperty;

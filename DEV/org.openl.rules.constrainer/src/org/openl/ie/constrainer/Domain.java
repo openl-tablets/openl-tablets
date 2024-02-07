@@ -17,6 +17,7 @@ import java.io.Serializable;
  */
 ///////////////////////////////////////////////////////////////////////////////
 //import java.util.Set;
+
 /**
  * An interface for the domain of the constrained integer variable. Domain is a set of the possible values of the
  * constrained variables.

@@ -50,7 +50,7 @@ public class RunTracingITest {
     private static MockTracer tracer;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-        DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
+            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
     @BeforeAll
     public static void setUp() throws Exception {
@@ -59,7 +59,7 @@ public class RunTracingITest {
         tracer = new MockTracer();
         GlobalTracer.registerIfAbsent(tracer);
         server = JettyServer.startSharingClassLoader(
-            Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
+                Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
         client = server.client();
     }
 
@@ -161,39 +161,39 @@ public class RunTracingITest {
         client.send("admin/services.get");
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
-                final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
-                final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
-                final String stringURL = (String) objectURL;
-                return containsURL && stringURL.contains("/admin/services");
-            }));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
+                    final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
+                    final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
+                    final String stringURL = (String) objectURL;
+                    return containsURL && stringURL.contains("/admin/services");
+                }));
 
         client.send("simple2.tracing.ws.post");
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
-                final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
-                final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
-                final String stringURL = (String) objectURL;
-                return containsURL && stringURL.contains("/deployment1/simple2");
-            }));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
+                    final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
+                    final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
+                    final String stringURL = (String) objectURL;
+                    return containsURL && stringURL.contains("/deployment1/simple2");
+                }));
     }
 
     private Optional<MockSpan> findKafkaSpan(List<MockSpan> mockSpans, String topicName) {
         return mockSpans.stream()
-            .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.operationName().equals(topicName))
-            .findFirst();
+                .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.operationName().equals(topicName))
+                .findFirst();
     }
 
     private Optional<MockSpan> findKafkaSpan(List<MockSpan> mockSpans, long traceId, String topicName) {
         return mockSpans.stream()
-            .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.context().traceId() == traceId && mockSpan
-                .operationName()
-                .equals(topicName))
-            .findFirst();
+                .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.context().traceId() == traceId && mockSpan
+                        .operationName()
+                        .equals(topicName))
+                .findFirst();
     }
 
     private Optional<MockSpan> findSpanByURL(List<MockSpan> finishedSpans, String endpoint) {
@@ -216,8 +216,8 @@ public class RunTracingITest {
     }
 
     private void testKafka(ProducerRecord<String, String> producerRecord,
-            String outTopic,
-            Consumer<ConsumerRecord<String, String>> check ) {
+                           String outTopic,
+                           Consumer<ConsumerRecord<String, String>> check) {
         var servers = KAFKA_CONTAINER.getBootstrapServers();
         try (var producer = createKafkaProducer(servers); var consumer = createKafkaConsumer(servers)) {
             consumer.subscribe(Collections.singletonList(outTopic));
@@ -229,20 +229,20 @@ public class RunTracingITest {
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
         return new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            bootstrapServers,
-            ProducerConfig.CLIENT_ID_CONFIG,
-            UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
+                bootstrapServers,
+                ProducerConfig.CLIENT_ID_CONFIG,
+                UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
     }
 
     private KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
         return new KafkaConsumer<>(ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            bootstrapServers,
-            ConsumerConfig.GROUP_ID_CONFIG,
-            "tc-" + UUID.randomUUID(),
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-            "earliest",
-            METADATA_MAX_AGE_CONFIG,
-            1000), new StringDeserializer(), new StringDeserializer());
+                bootstrapServers,
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "tc-" + UUID.randomUUID(),
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest",
+                METADATA_MAX_AGE_CONFIG,
+                1000), new StringDeserializer(), new StringDeserializer());
     }
 
     private void checkKafkaResponse(KafkaConsumer<String, String> consumer, Consumer<ConsumerRecord<String, String>> check) {

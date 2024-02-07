@@ -18,7 +18,6 @@ import org.openl.util.StringUtils;
  * Used in Install Wizard only.
  *
  * @author Pavel Tarasevich
- *
  */
 
 @Service
@@ -123,7 +122,7 @@ public class ConnectionProductionRepoController {
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 if (s.isSecure() && (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword()))) {
                     throw new RepositoryValidationException(
-                        "Invalid login or password. Try again.");
+                            "Invalid login or password. Try again.");
                 }
             }
 

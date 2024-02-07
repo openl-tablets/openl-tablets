@@ -6,7 +6,6 @@ package org.openl.rules.lang.xls;
 
 /**
  * @author snshor
- *
  */
 public interface IXlsTableNames {
 

@@ -13,8 +13,8 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
     private final ChainedGroovyScriptWriter writerChain;
 
     public GroovyInterfaceImplGenerator(String beanFullName,
-            Class<?> clazzInterface,
-            List<MethodDescription> beanStubMethods) {
+                                        Class<?> clazzInterface,
+                                        List<MethodDescription> beanStubMethods) {
         super(beanFullName);
 
         this.clazzInterface = clazzInterface;
@@ -85,7 +85,7 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         for (String defaultImport : getDefaultImports()) {
             // Remove Generic parameters to use in imports
             defaultImport = defaultImport.indexOf("<") > 0 ? defaultImport.substring(0, defaultImport.indexOf("<"))
-                                                           : defaultImport;
+                    : defaultImport;
             imports.append("import").append(" ").append(defaultImport);
             imports.append(GroovyMethodWriter.LINE_SEPARATOR);
         }

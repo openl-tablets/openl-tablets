@@ -31,12 +31,12 @@ public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     public OpenApiSecurityServiceImpl(ApplicationContext context) {
         this.globalSecuritySchemes = context
-            .getBeansWithAnnotation(io.swagger.v3.oas.annotations.security.SecurityScheme.class)
-            .values()
-            .stream()
-            .map(Object::getClass)
-            .map(this::getSecurityScheme)
-            .collect(Collectors.toList());
+                .getBeansWithAnnotation(io.swagger.v3.oas.annotations.security.SecurityScheme.class)
+                .values()
+                .stream()
+                .map(Object::getClass)
+                .map(this::getSecurityScheme)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -150,16 +150,16 @@ public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     private static SecurityScheme.In getIn(String value) {
         return Arrays.stream(SecurityScheme.In.values())
-            .filter(i -> i.toString().equals(value))
-            .findFirst()
-            .orElse(null);
+                .filter(i -> i.toString().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 
     private static SecurityScheme.Type getType(String value) {
         return Arrays.stream(SecurityScheme.Type.values())
-            .filter(i -> i.toString().equals(value))
-            .findFirst()
-            .orElse(null);
+                .filter(i -> i.toString().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean isEmpty(io.swagger.v3.oas.annotations.security.OAuthFlows oAuthFlows) {

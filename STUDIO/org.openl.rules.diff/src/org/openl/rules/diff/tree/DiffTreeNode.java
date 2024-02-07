@@ -14,7 +14,6 @@ import java.util.List;
  * Each element represents an artifact in comparing data under corresponding index.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface DiffTreeNode {
     /**

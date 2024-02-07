@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An interface for the constraint boolean expression as an [0..1] integer expression where 0 is false and 1 is true.
  */

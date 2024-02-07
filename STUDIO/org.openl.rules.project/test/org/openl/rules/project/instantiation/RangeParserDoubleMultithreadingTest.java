@@ -38,8 +38,8 @@ public class RangeParserDoubleMultithreadingTest {
     private void rangeParserDoubleWithBracket() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<DoubleRange> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<DoubleRange> factory = builder.setProject("test-resources/concurrency-test")
-            .setInterfaceClass(DoubleRange.class)
-            .build();
+                .setInterfaceClass(DoubleRange.class)
+                .build();
 
         DoubleRange instance = factory.newInstance();
 

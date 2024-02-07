@@ -77,7 +77,7 @@ public class ReturnTypesProxyInterfacesTest {
 
     @Test
     public void testPrimitiveLongArrayReturnType() {
-        final long[] expected = new long[] { 1, 2, 3 };
+        final long[] expected = new long[]{1, 2, 3};
         final long[] actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
         assertArraysEquals(expected, actual);
     }

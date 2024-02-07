@@ -53,6 +53,6 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     public void testHashCode() {
         // same hash codes for equal objects
         assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)).hashCode(),
-            new TableSyntaxNodeKey(driverAgeTypeTables.get(1)).hashCode());
+                new TableSyntaxNodeKey(driverAgeTypeTables.get(1)).hashCode());
     }
 }

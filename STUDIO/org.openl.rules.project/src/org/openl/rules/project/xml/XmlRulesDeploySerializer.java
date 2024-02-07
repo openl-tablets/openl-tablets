@@ -60,16 +60,17 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         }
     }
 
-    public static final class MapAdapter extends XmlAdapter<MapAdapter.MapType,Map<String, Object>> {
+    public static final class MapAdapter extends XmlAdapter<MapAdapter.MapType, Map<String, Object>> {
 
-        public MapAdapter() {}
+        public MapAdapter() {
+        }
 
         @Override
         public MapType marshal(Map<String, Object> arg0) {
             if (arg0 == null) return null;
             List<MapStringEntryType> mapStringEntryTypes = new ArrayList<>();
             MapType mapType = new MapType();
-            for(Map.Entry<String, Object> entry : arg0.entrySet()) {
+            for (Map.Entry<String, Object> entry : arg0.entrySet()) {
                 if (!(entry.getValue() instanceof String)) {
                     throw new IllegalArgumentException("Expected string value in the Rules Deploy configuration");
                 }
@@ -84,7 +85,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         @Override
         public Map<String, Object> unmarshal(MapType arg0) {
             HashMap<String, Object> hashMap = new HashMap<>();
-            for(MapStringEntryType myEntryType : arg0.entry) {
+            for (MapStringEntryType myEntryType : arg0.entry) {
                 hashMap.put(myEntryType.getString()[0], myEntryType.getString()[1]);
             }
             return hashMap;

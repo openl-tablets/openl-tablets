@@ -35,14 +35,14 @@ public class ProjectVersionCacheManager implements InitializingBean {
         ensureCacheIsNotEmpty();
         String md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         return md5 != null ? projectVersionCacheDB
-            .getVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
+                .getVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
     }
 
     public String getDesignBusinessVersionOfDeployedProject(AProject project) throws IOException {
         ensureCacheIsNotEmpty();
         String md5 = getProjectMD5(project, ProjectVersionH2CacheDB.RepoType.DEPLOY);
         return md5 != null ? projectVersionCacheDB
-            .getDesignBusinessVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
+                .getDesignBusinessVersion(project.getBusinessName(), md5, ProjectVersionH2CacheDB.RepoType.DESIGN) : null;
     }
 
     public boolean isCacheCalculated() {
@@ -101,14 +101,14 @@ public class ProjectVersionCacheManager implements InitializingBean {
             return null;
         }
         return md5Strings.isEmpty() ? null
-                                    : DigestUtils.md5Hex(md5Strings.stream().sorted().collect(Collectors.joining()));
+                : DigestUtils.md5Hex(md5Strings.stream().sorted().collect(Collectors.joining()));
     }
 
     private String getProjectMD5(AProject wsProject, ProjectVersionH2CacheDB.RepoType repoType) throws IOException {
         String hash = projectVersionCacheDB.getHash(wsProject.getBusinessName(),
-            wsProject.getVersion().getVersionName(),
-            wsProject.getVersion().getVersionInfo().getCreatedAt(),
-            repoType);
+                wsProject.getVersion().getVersionName(),
+                wsProject.getVersion().getVersionInfo().getCreatedAt(),
+                repoType);
         if (StringUtils.isEmpty(hash)) {
             hash = computeMD5(wsProject);
             projectVersionCacheDB.insertProject(wsProject.getBusinessName(), wsProject.getVersion(), hash, repoType);

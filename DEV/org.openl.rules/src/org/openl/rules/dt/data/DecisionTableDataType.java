@@ -85,8 +85,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 return f;
             } else {
                 List<IOpenField> decisionRowFields = conditionParameterFields.stream()
-                    .filter(e -> e instanceof DecisionRowField)
-                    .collect(Collectors.toList());
+                        .filter(e -> e instanceof DecisionRowField)
+                        .collect(Collectors.toList());
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
@@ -105,8 +105,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
         if (f != null) {
             nonConflictConditionParamNames.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
             nonConflictConditionParamNamesNonStrictMatch
-                .computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
-                .add(f);
+                    .computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
+                    .add(f);
         }
     }
 

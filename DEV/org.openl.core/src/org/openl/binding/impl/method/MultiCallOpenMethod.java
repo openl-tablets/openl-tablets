@@ -81,13 +81,13 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
     }
 
     private int callDelegateAndPopulateResult(Object target,
-            IRuntimeEnv env,
-            Object[] params,
-            Object[] callParameters,
-            int iteratedArg,
-            Object result,
-            int resultLength,
-            int callIndex) {
+                                              IRuntimeEnv env,
+                                              Object[] params,
+                                              Object[] callParameters,
+                                              int iteratedArg,
+                                              Object result,
+                                              int resultLength,
+                                              int callIndex) {
         int iteratedParamNum = multiCallParameterIndexes[iteratedArg];
         Object iteratedParameter = params[iteratedParamNum];
         int length = Array.getLength(iteratedParameter);
@@ -95,13 +95,13 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             callParameters[iteratedParamNum] = Array.get(iteratedParameter, i);
             if (iteratedArg < multiCallParameterIndexes.length - 1) {
                 callIndex = callDelegateAndPopulateResult(target,
-                    env,
-                    params,
-                    callParameters,
-                    iteratedArg + 1,
-                    result,
-                    resultLength,
-                    callIndex);
+                        env,
+                        params,
+                        callParameters,
+                        iteratedArg + 1,
+                        result,
+                        resultLength,
+                        callIndex);
             } else {
                 invokeMethodAndSetResultToArray(target, env, callParameters, result, resultLength, callIndex);
                 callIndex++;
@@ -113,11 +113,11 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
     @SuppressWarnings("unchecked")
     protected void invokeMethodAndSetResultToArray(Object target,
-            IRuntimeEnv env,
-            Object[] callParameters,
-            Object results,
-            int resultLength,
-            int index) {
+                                                   IRuntimeEnv env,
+                                                   Object[] callParameters,
+                                                   Object results,
+                                                   int resultLength,
+                                                   int index) {
         Object value;
         if (ArrayUtils.indexOf(callParameters, null) >= 0) {
             value = methodCaller.invoke(target, callParameters.clone(), env);

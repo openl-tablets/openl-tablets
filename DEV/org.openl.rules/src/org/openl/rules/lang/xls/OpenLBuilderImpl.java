@@ -24,10 +24,10 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private String[] packageImports = new String[] {};
-    private String[] classImports = new String[] {};
+    private String[] packageImports = new String[]{};
+    private String[] classImports = new String[]{};
 
-    private String[] libraries = new String[] {};
+    private String[] libraries = new String[]{};
 
     @Override
     protected SimpleVM createVM() {
@@ -82,7 +82,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                 thisNamespaceLibrary.addJavalib(javaLib);
 
                 JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
-                    CastFactory.class.getName());
+                        CastFactory.class.getName());
                 typeCastFactory.addJavaCast(javaCastComponent);
 
             }

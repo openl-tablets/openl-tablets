@@ -16,17 +16,16 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
     private final Map<String, FieldDescription> allFields;
 
     /**
-     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentType class descriptor for super class.
-     * @param fields fields of generating class.
-     * @param parentFields fields of super class.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param parentType          class descriptor for super class.
+     * @param fields              fields of generating class.
+     * @param parentFields        fields of super class.
      */
     public ConstructorWithParametersWriter(String beanNameWithPackage,
-            TypeDescription parentType,
-            Map<String, FieldDescription> parentFields,
-            Map<String, FieldDescription> fields) {
+                                           TypeDescription parentType,
+                                           Map<String, FieldDescription> parentFields,
+                                           Map<String, FieldDescription> fields) {
         super(beanNameWithPackage, parentType, fields);
         this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : new LinkedHashMap<>();
         this.allFields = new LinkedHashMap<>(this.parentFields);
@@ -41,13 +40,13 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
         String parentName = getParentType().getTypeName().replace('.', '/');
         if (parentFields.isEmpty()) {
             methodVisitor = classWriter
-                .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(getBeanFields()), null, null);
+                    .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(getBeanFields()), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, parentName, "<init>", "()V");
         } else {
             // Parent fields are not empty only if parent class is datatype and constructor exists in generated class.
             methodVisitor = classWriter
-                .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(allFields), null, null);
+                    .visitMethod(Opcodes.ACC_PUBLIC, "<init>", getMethodSignatureForByteCode(allFields), null, null);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
 
             // push to stack all parameters for parent constructor
@@ -55,7 +54,7 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 FieldDescription field = fieldEntry.getValue();
                 methodVisitor.visitVarInsn(getConstantForVarInsn(field), i);
                 if (long.class.getName().equals(field.getTypeName()) || double.class.getName()
-                    .equals(field.getTypeName())) {
+                        .equals(field.getTypeName())) {
                     i += 2;
                 } else {
                     i++;
@@ -63,9 +62,9 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
             }
 
             methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-                parentName,
-                "<init>",
-                getMethodSignatureForByteCode(parentFields));
+                    parentName,
+                    "<init>",
+                    getMethodSignatureForByteCode(parentFields));
         }
 
         // Set all fields that is not presented in parent
@@ -78,11 +77,11 @@ public class ConstructorWithParametersWriter extends DefaultBeanByteCodeWriter {
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 methodVisitor.visitVarInsn(getConstantForVarInsn(fieldType), i);
                 methodVisitor.visitFieldInsn(Opcodes.PUTFIELD,
-                    getBeanNameWithPackage(),
-                    fieldName,
-                    fieldType.getTypeDescriptor());
+                        getBeanNameWithPackage(),
+                        fieldName,
+                        fieldType.getTypeDescriptor());
                 if (long.class.getName().equals(fieldType.getTypeName()) || double.class.getName()
-                    .equals(fieldType.getTypeName())) {
+                        .equals(fieldType.getTypeName())) {
                     i += 2;
                 } else {
                     i++;

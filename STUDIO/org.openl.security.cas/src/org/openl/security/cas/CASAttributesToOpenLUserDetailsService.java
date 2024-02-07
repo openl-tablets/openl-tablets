@@ -28,8 +28,8 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
     private final String displayNameAttribute;
 
     public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
-            Consumer<User> syncUserData,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                  Consumer<User> syncUserData,
+                                                  BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
         this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
@@ -96,13 +96,13 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
         String username = assertion.getPrincipal().getName();
 
         SimpleUser simpleUser = SimpleUser.builder()
-            .setFirstName(firstName)
-            .setLastName(lastName)
-            .setUsername(username)
-            .setPrivileges(grantedAuthorities)
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .build();
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setUsername(username)
+                .setPrivileges(grantedAuthorities)
+                .setEmail(email)
+                .setDisplayName(displayName)
+                .build();
 
         syncUserData.accept(simpleUser);
 

@@ -19,7 +19,6 @@ import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
- *
  */
 public class JavaListAggregateInfo extends AAggregateInfo {
 

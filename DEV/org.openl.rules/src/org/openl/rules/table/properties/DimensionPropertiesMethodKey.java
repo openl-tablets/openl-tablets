@@ -13,11 +13,10 @@ import org.openl.types.impl.MethodKey;
 
 /**
  * Immutable Key to check identity of {@link ExecutableRulesMethod} methods.
- *
+ * <p>
  * Methods are identical when they have the same method signature and the same business dimension properties.
  *
  * @author DLiauchuk
- *
  */
 public final class DimensionPropertiesMethodKey {
 
@@ -44,15 +43,15 @@ public final class DimensionPropertiesMethodKey {
         }
 
         Map<String, Object> thisMethodProperties = PropertiesHelper.getTableProperties(method)
-            .getAllDimensionalProperties();
+                .getAllDimensionalProperties();
         Map<String, Object> otherMethodProperties = PropertiesHelper.getTableProperties(key.getMethod())
-            .getAllDimensionalProperties();
+                .getAllDimensionalProperties();
 
         return compareMethodDimensionProperties(thisMethodProperties, otherMethodProperties);
     }
 
     public static boolean compareMethodDimensionProperties(Map<String, Object> thisMethodProperties,
-            Map<String, Object> otherMethodProperties) {
+                                                           Map<String, Object> otherMethodProperties) {
         if (thisMethodProperties.size() != otherMethodProperties.size()) {
             return false;
         }
@@ -83,7 +82,7 @@ public final class DimensionPropertiesMethodKey {
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
                     Object property = methodProperties.get(dimensionalPropertyName);
                     hash = 31 * hash + (property instanceof Object[] ? Arrays.deepHashCode((Object[]) property)
-                                                                     : Objects.hashCode(property));
+                            : Objects.hashCode(property));
                 }
             }
             hashCode = hash;
@@ -105,7 +104,7 @@ public final class DimensionPropertiesMethodKey {
                 }
                 stringBuilder.append(dimensionalPropertyNames[i]).append('=');
                 stringBuilder.append(
-                    PropertiesHelper.getTableProperties(method).getPropertyValueAsString(dimensionalPropertyNames[i]));
+                        PropertiesHelper.getTableProperties(method).getPropertyValueAsString(dimensionalPropertyNames[i]));
             }
         }
         return stringBuilder.append(']').toString();
@@ -116,7 +115,7 @@ public final class DimensionPropertiesMethodKey {
      *
      * @param propertyValue checking value
      * @return true if propertyValue is null or it contains only null values. If it contains any not null value -
-     *         falseT;
+     * falseT;
      */
     private static boolean isEmpty(Object propertyValue) {
         if (propertyValue == null) {

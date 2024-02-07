@@ -27,8 +27,8 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
 
     public UserInfoUserDetailsServiceImpl(UserDao userDao,
-            AdminUsers adminUsersInitializer,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                          AdminUsers adminUsersInitializer,
+                                          BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.userDao = userDao;
         this.adminUsersInitializer = adminUsersInitializer;
         this.privilegeMapper = privilegeMapper;
@@ -47,15 +47,15 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
         Collection<Privilege> privileges = privilegeMapper.apply(user.getLoginName(), Collections.emptyList());
 
         SimpleUser simpleUser = SimpleUser.builder()
-            .setFirstName(user.getFirstName())
-            .setLastName(user.getSurname())
-            .setUsername(user.getLoginName())
-            .setPrivileges(privileges)
-            .setPasswordHash(user.getPasswordHash())
-            .setEmail(user.getEmail())
-            .setDisplayName(user.getDisplayName())
-            .setExternalFlags(user.getUserExternalFlags())
-            .build();
+                .setFirstName(user.getFirstName())
+                .setLastName(user.getSurname())
+                .setUsername(user.getLoginName())
+                .setPrivileges(privileges)
+                .setPasswordHash(user.getPasswordHash())
+                .setEmail(user.getEmail())
+                .setDisplayName(user.getDisplayName())
+                .setExternalFlags(user.getUserExternalFlags())
+                .build();
 
         return simpleUser;
     }

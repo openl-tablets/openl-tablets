@@ -4,7 +4,6 @@ import org.openl.util.AOpenIterator;
 
 /**
  * @author snshor
- *
  */
 public abstract class AIntIterator extends AOpenIterator<Integer> implements IIntIterator {
 

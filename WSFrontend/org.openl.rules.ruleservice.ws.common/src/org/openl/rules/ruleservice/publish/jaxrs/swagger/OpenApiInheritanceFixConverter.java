@@ -69,7 +69,7 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private static Map<AnnotatedType, Schema> getModelByType(ModelConverterContextImpl context) {
         try {
             Field modelByTypeField = ModelConverterContextImpl.class.getDeclaredField("modelByType");
@@ -80,7 +80,7 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
         }
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     private static Map<String, Schema> getModelByName(ModelConverterContextImpl context) {
         try {
             Field modelByNameField = ModelConverterContextImpl.class.getDeclaredField("modelByName");

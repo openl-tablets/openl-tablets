@@ -19,9 +19,7 @@ import org.openl.rules.ruleservice.publish.lazy.LazyInstantiationStrategy;
  * RulesInstantiationStrategyFactory if one module in service. Returns LazyMultiModuleInstantiationStrategy strategy if
  * more than one module in service.
  *
- *
  * @author Marat Kamalov
- *
  */
 public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceInstantiationStrategyFactory {
 
@@ -37,10 +35,12 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         return lazyCompilation;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public RulesInstantiationStrategy getStrategy(ServiceDescription serviceDescription,
-            IDependencyManager dependencyManager) {
+                                                  IDependencyManager dependencyManager) {
         Objects.requireNonNull(serviceDescription, "serviceDescription cannot be null");
         Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         Collection<Module> modules = serviceDescription.getModules();
@@ -49,11 +49,11 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
             if (dependencyManager instanceof RuleServiceDependencyManager) {
                 log.debug("Lazy loading strategy is used for service '{}'.", serviceDescription.getDeployPath());
                 return new LazyInstantiationStrategy(serviceDescription.getDeployment(),
-                    modules,
-                    (RuleServiceDependencyManager) dependencyManager);
+                        modules,
+                        (RuleServiceDependencyManager) dependencyManager);
             } else {
                 log.error("Failed to use lazy loading strategy with dependency manager '{}'.",
-                    dependencyManager.getClass());
+                        dependencyManager.getClass());
             }
         }
         log.debug("Multi module loading strategy has been used for service '{}'.", serviceDescription.getDeployPath());

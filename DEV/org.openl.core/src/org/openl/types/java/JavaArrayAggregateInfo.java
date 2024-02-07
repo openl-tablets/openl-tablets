@@ -17,7 +17,6 @@ import org.openl.util.AIndexedIterator;
 
 /**
  * @author snshor
- *
  */
 public class JavaArrayAggregateInfo extends AAggregateInfo {
 

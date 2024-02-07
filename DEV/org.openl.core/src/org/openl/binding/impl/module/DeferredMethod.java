@@ -18,7 +18,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class DeferredMethod extends AMethod {
     private final ISyntaxNode methodBodyNode;
@@ -32,10 +31,10 @@ public class DeferredMethod extends AMethod {
      * @param declaringClass
      */
     public DeferredMethod(String name,
-            IOpenClass typeClass,
-            IMethodSignature signature,
-            IOpenClass declaringClass,
-            ISyntaxNode methodBodyNode) {
+                          IOpenClass typeClass,
+                          IMethodSignature signature,
+                          IOpenClass declaringClass,
+                          ISyntaxNode methodBodyNode) {
         super(new OpenMethodHeader(name, typeClass, signature, declaringClass));
         this.methodBodyNode = methodBodyNode;
     }

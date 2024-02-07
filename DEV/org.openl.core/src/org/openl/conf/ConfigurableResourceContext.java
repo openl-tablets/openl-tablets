@@ -15,7 +15,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
-    private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
+    private static final String[] DEFAULT_FILESYSTEM_ROOTS = {".", ""};
 
     private final IOpenLConfiguration config;
     private ClassLoader classLoader;

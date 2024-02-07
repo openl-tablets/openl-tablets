@@ -57,13 +57,13 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ValidationError> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
-            .map(ResponseStatus::code)
-            .orElse(HttpStatus.BAD_REQUEST);
+                .map(ResponseStatus::code)
+                .orElse(HttpStatus.BAD_REQUEST);
         return _handleExceptionInternal(e,
-            handleBindingResult(code, e.getBindingResult()),
-            new HttpHeaders(),
-            code,
-            request);
+                handleBindingResult(code, e.getBindingResult()),
+                new HttpHeaders(),
+                code,
+                request);
     }
 
     @ExceptionHandler(RestRuntimeException.class)
@@ -71,10 +71,10 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var httpStatus = e.getHttpStatus();
         if (httpStatus != null) {
             return _handleExceptionInternal(e,
-                mapCommonException(httpStatus, e),
-                new HttpHeaders(),
-                httpStatus,
-                request);
+                    mapCommonException(httpStatus, e),
+                    new HttpHeaders(),
+                    httpStatus,
+                    request);
         } else {
             HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
             LOG.error(e.getMessage(), e);
@@ -82,7 +82,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         }
     }
 
-    @ExceptionHandler({ Exception.class, RuntimeException.class })
+    @ExceptionHandler({Exception.class, RuntimeException.class})
     public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
         LOG.error(e.getMessage(), e);
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
@@ -90,22 +90,22 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
         return handleExceptionInternal(e,
-            handleBindingResult(status, e.getBindingResult()),
-            new HttpHeaders(),
-            status,
-            request);
+                handleBindingResult(status, e.getBindingResult()),
+                new HttpHeaders(),
+                status,
+                request);
     }
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception e,
-            Object body,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
+                                                             Object body,
+                                                             HttpHeaders headers,
+                                                             HttpStatus status,
+                                                             WebRequest request) {
         var handledEx = super.handleExceptionInternal(e, body, headers, status, request);
         if (handledEx.hasBody()) {
             var handledBody = handledEx.getBody();
@@ -113,25 +113,25 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                 return handledEx;
             } else {
                 var builder = BaseError.builder()
-                    .message(Optional.ofNullable(handledBody)
-                        .map(Object::toString)
-                        .filter(StringUtils::isNotBlank)
-                        .orElseGet(status::getReasonPhrase));
+                        .message(Optional.ofNullable(handledBody)
+                                .map(Object::toString)
+                                .filter(StringUtils::isNotBlank)
+                                .orElseGet(status::getReasonPhrase));
                 return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             }
         } else {
             var builder = BaseError.builder()
-                .code(buildErrorCode(status.value() + ".default.message"))
-                .message(e.getMessage());
+                    .code(buildErrorCode(status.value() + ".default.message"))
+                    .message(e.getMessage());
             return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
         }
     }
 
     private <T extends BaseError> ResponseEntity<T> _handleExceptionInternal(Exception e,
-            T body,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
+                                                                             T body,
+                                                                             HttpHeaders headers,
+                                                                             HttpStatus status,
+                                                                             WebRequest request) {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, e, WebRequest.SCOPE_REQUEST);
         }
@@ -140,9 +140,9 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @Override
     protected ResponseEntity<Object> handleBindException(BindException e,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
+                                                         HttpHeaders headers,
+                                                         HttpStatus status,
+                                                         WebRequest request) {
         var handledEx = super.handleBindException(e, headers, status, request);
         var bindingErrorModel = handleBindingResult(status, e.getBindingResult());
         return new ResponseEntity<>(bindingErrorModel, handledEx.getHeaders(), handledEx.getStatusCode());
@@ -150,17 +150,17 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
-            HttpHeaders headers,
-            HttpStatus status,
-            WebRequest request) {
+                                                        HttpHeaders headers,
+                                                        HttpStatus status,
+                                                        WebRequest request) {
         var handledEx = super.handleTypeMismatch(ex, headers, status, request);
         var builder = ValidationError.builder()
-            .message(status.getReasonPhrase())
-            .addField(org.openl.rules.rest.common.model.FieldError.builder()
-                .field(getFieldName(ex))
-                .message(ex.getLocalizedMessage())
-                .rejectedValue(ex.getValue())
-                .build());
+                .message(status.getReasonPhrase())
+                .addField(org.openl.rules.rest.common.model.FieldError.builder()
+                        .field(getFieldName(ex))
+                        .message(ex.getLocalizedMessage())
+                        .rejectedValue(ex.getValue())
+                        .build());
         return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
     }
 
@@ -175,30 +175,30 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var builder = ValidationError.builder();
         if (bindingResult.getGlobalErrorCount() == 1 && !bindingResult.hasFieldErrors()) {
             builder.code(buildErrorCode(bindingResult.getGlobalError().getCode()))
-                .message(resolveLocalMessage(bindingResult.getGlobalError()));
+                    .message(resolveLocalMessage(bindingResult.getGlobalError()));
         } else {
             builder.message(status.getReasonPhrase());
             if (bindingResult.hasFieldErrors()) {
                 bindingResult.getFieldErrors()
-                    .stream()
-                    .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
-                    .map(fieldError -> org.openl.rules.rest.common.model.FieldError.builder()
-                        .code(buildErrorCode(fieldError.getCode()))
-                        .field(fieldError.getField())
-                        .rejectedValue(fieldError.getRejectedValue())
-                        .message(resolveLocalMessage(fieldError))
-                        .build())
-                    .forEach(builder::addField);
+                        .stream()
+                        .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
+                        .map(fieldError -> org.openl.rules.rest.common.model.FieldError.builder()
+                                .code(buildErrorCode(fieldError.getCode()))
+                                .field(fieldError.getField())
+                                .rejectedValue(fieldError.getRejectedValue())
+                                .message(resolveLocalMessage(fieldError))
+                                .build())
+                        .forEach(builder::addField);
             }
             if (bindingResult.hasGlobalErrors()) {
                 bindingResult.getGlobalErrors()
-                    .stream()
-                    .sorted(Comparator.comparing(ObjectError::getCode, String.CASE_INSENSITIVE_ORDER))
-                    .map(objErr -> BaseError.builder()
-                        .code(buildErrorCode(objErr.getCode()))
-                        .message(resolveLocalMessage(objErr))
-                        .build())
-                    .forEach(builder::addError);
+                        .stream()
+                        .sorted(Comparator.comparing(ObjectError::getCode, String.CASE_INSENSITIVE_ORDER))
+                        .map(objErr -> BaseError.builder()
+                                .code(buildErrorCode(objErr.getCode()))
+                                .message(resolveLocalMessage(objErr))
+                                .build())
+                        .forEach(builder::addError);
             }
         }
         return builder.build();
@@ -241,7 +241,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             builder.code(restEx.getErrorCode()).message(resolveLocalMessage(restEx));
         } else {
             builder.message(
-                Optional.ofNullable(e.getMessage()).filter(StringUtils::isNotBlank).orElseGet(status::getReasonPhrase));
+                    Optional.ofNullable(e.getMessage()).filter(StringUtils::isNotBlank).orElseGet(status::getReasonPhrase));
         }
         return builder.build();
     }

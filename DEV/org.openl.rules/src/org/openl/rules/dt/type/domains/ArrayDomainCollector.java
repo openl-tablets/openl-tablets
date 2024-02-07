@@ -33,7 +33,7 @@ public class ArrayDomainCollector implements IDomainCollector {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public IDomainAdaptor getGatheredDomain() {
         IDomainAdaptor result = null;
         if (!arrayEnumProperties.isEmpty()) {

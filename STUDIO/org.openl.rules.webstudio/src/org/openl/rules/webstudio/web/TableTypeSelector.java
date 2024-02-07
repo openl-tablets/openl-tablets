@@ -11,7 +11,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
  * Checks if given table type exists in current array.
  *
  * @author snshor
- *
  */
 class TableTypeSelector implements Predicate<TableSyntaxNode> {
 

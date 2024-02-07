@@ -60,7 +60,6 @@ import org.openl.util.StringUtils;
 
 /**
  * @author snshor
- *
  */
 public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
@@ -109,7 +108,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
         getMergedRegionsPool().add(reg);
         return getSheet()
-            .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
+                .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
     }
 
     private RegionsPool getMergedRegionsPool() {
@@ -392,11 +391,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             newPoiStyle = ((XlsCellStyle) style).getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
         } /*
-           * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
-           * newPoiStyle.cloneStyleFrom(styleToClone);
-           *
-           * setCellStyle(newPoiStyle, style); }
-           */ else {
+         * else if (style instanceof org.openl.rules.table.ui.CellStyle) { styleToClone = poiCell.getCellStyle();
+         * newPoiStyle.cloneStyleFrom(styleToClone);
+         *
+         * setCellStyle(newPoiStyle, style); }
+         */ else {
             newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
             styleToClone = poiCell.getCellStyle();
             newPoiStyle.cloneStyleFrom(styleToClone);
@@ -627,7 +626,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     private byte[] convertRGB(short[] rgb) {
-        return new byte[] { (byte) rgb[0], (byte) rgb[1], (byte) rgb[2] };
+        return new byte[]{(byte) rgb[0], (byte) rgb[1], (byte) rgb[2]};
     }
 
     public SpreadsheetConstants getSpreadsheetConstants() {

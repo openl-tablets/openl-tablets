@@ -52,9 +52,9 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     private OpenLClassLoader(URL[] urls,
-            ClassLoader parent,
-            CompilerConfiguration config,
-            boolean useConfigurationClasspath) {
+                             ClassLoader parent,
+                             CompilerConfiguration config,
+                             boolean useConfigurationClasspath) {
         super(parent, config, useConfigurationClasspath);
         if (urls != null && urls.length > 0) {
             for (URL url : urls) {
@@ -102,7 +102,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
     public void addGeneratedClass(String name, byte[] byteCode) {
         if (generatedClasses.putIfAbsent(name, byteCode) != null) {
             throw new OpenLGeneratedClassAlreadyDefinedException(
-                String.format("Byte code for class '%s' is already defined.", name));
+                    String.format("Byte code for class '%s' is already defined.", name));
         }
 
     }
@@ -114,7 +114,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             if (bundleClassLoader instanceof OpenLClassLoader && ((OpenLClassLoader) bundleClassLoader)
-                .containsClassLoader(classLoader)) {
+                    .containsClassLoader(classLoader)) {
                 return true;
             }
         }
@@ -230,8 +230,8 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     private void findResourcesInBundles(String name,
-            Set<ClassLoader> c,
-            List<Enumeration<URL>> queue) throws IOException {
+                                        Set<ClassLoader> c,
+                                        List<Enumeration<URL>> queue) throws IOException {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             if (c.contains(bundleClassLoader)) {
                 continue;

@@ -19,10 +19,10 @@ class ConversionRuleStep {
      * @param nameForDebug
      */
     public ConversionRuleStep(String operationType,
-            String operationParam1,
-            String operationParam2,
-            String labelInstruction,
-            String nameForDebug) {
+                              String operationParam1,
+                              String operationParam2,
+                              String labelInstruction,
+                              String nameForDebug) {
         this.operationType = operationType;
         this.operationParam1 = operationParam1;
         this.operationParam2 = operationParam2;

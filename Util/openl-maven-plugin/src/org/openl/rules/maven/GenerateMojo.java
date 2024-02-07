@@ -151,29 +151,29 @@ public final class GenerateMojo extends BaseOpenLMojo {
             }
 
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                .setClassLoader(classLoader)
-                .setProvideRuntimeContext(isProvideRuntimeContext)
-                .setProvideVariations(isProvideVariations)
-                .setExecutionMode(true)
-                .setExternalParameters(externalParameters)
-                .build();
+                    .setClassLoader(classLoader)
+                    .setProvideRuntimeContext(isProvideRuntimeContext)
+                    .setProvideVariations(isProvideVariations)
+                    .setExecutionMode(true)
+                    .setExternalParameters(externalParameters)
+                    .build();
 
             CompiledOpenClass compiledOpenClass;
             // TODO Support project name
             if (StringUtils.isNotEmpty(moduleName) && interfaceClass == null) {
                 try {
                     Collection<ResolvedDependency> resolvedDependencies = factory.getDependencyManager()
-                        .resolveDependency(
-                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)),
-                            false);
+                            .resolveDependency(
+                                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)),
+                                    false);
                     CompiledDependency compiledDependency = factory.getDependencyManager()
-                        .loadDependency(resolvedDependencies.iterator().next());
+                            .loadDependency(resolvedDependencies.iterator().next());
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
                         String message = String
-                            .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
+                                .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -204,9 +204,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
-        } finally
-
-        {
+        } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
@@ -268,9 +266,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
     }
 
     private void writeCustomSpreadsheetResultBeans(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
+                                                   Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
         if (customSpreadsheetResultOpenClass
-            .isGenerateBeanClass() && !writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
+                .isGenerateBeanClass() && !writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
             Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
             info("Java Bean for Spreadsheet Result: " + cls.getName());
             Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
@@ -280,14 +278,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
             for (IOpenField openField : customSpreadsheetResultOpenClass.getFields()) {
                 if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = (CustomSpreadsheetResultOpenClass) openField
-                        .getType();
+                            .getType();
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass1,
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 } else if (openField.getType() instanceof SpreadsheetResultOpenClass) {
                     SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openField
-                        .getType();
+                            .getType();
                     writeCustomSpreadsheetResultBeans(spreadsheetResultOpenClass.toCustomSpreadsheetResultOpenClass(),
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 }
             }
         }
@@ -301,14 +299,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass,
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 }
             }
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 writeCustomSpreadsheetResultBeans(
-                    xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass(),
-                    writtenSpreadsheetResultOpenClasses);
+                        xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                .toCustomSpreadsheetResultOpenClass(),
+                        writtenSpreadsheetResultOpenClasses);
             }
         }
     }
@@ -340,7 +338,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, service);
 
             String[] argNames = MethodUtils
-                .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
+                    .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];

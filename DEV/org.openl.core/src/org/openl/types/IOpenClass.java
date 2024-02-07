@@ -16,12 +16,11 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
- *         OpenClass represents a generalized abstraction of a "class". Because we want openL to be used in a many
- *         different incarnations we have made a decision to keep an OpenClass as general as possible. It should be
- *         close in spirit to the RDF:Class and OWL:Class.
+ * <p>
+ * OpenClass represents a generalized abstraction of a "class". Because we want openL to be used in a many
+ * different incarnations we have made a decision to keep an OpenClass as general as possible. It should be
+ * close in spirit to the RDF:Class and OWL:Class.
  * @TODO put some href here
- *
  */
 
 public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
@@ -78,7 +77,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      */
     boolean isAbstract();
 
-   /**
+    /**
      * @param ioc IOpenClass to check
      * @return true if the instance of corresponding IOpenClass class belongs to the open class.
      */
@@ -86,8 +85,8 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     /**
      * @return true if instance is one of the class or it's superclasses. Warning: there may be a confusion in case of
-     *         Java primitives. Java spec says that a corresponding method of java.lang.Class will return false in case
-     *         of primitive types.
+     * Java primitives. Java spec says that a corresponding method of java.lang.Class will return false in case
+     * of primitive types.
      */
     @Override
     boolean isInstance(Object instance);
@@ -97,10 +96,10 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * consider classes as java.util.Date, java.lang.String and java.lang.Class also primitive. In general, a class is
      * considered primitive if a) it can be easily serialized/deserialized to string b) does not have read/write
      * fieldValues in java.beans sense
-     *
+     * <p>
      * One of the use of the simple classes is that they provide "terminal" points in object graph discovery.
-     *
-     *
+     * <p>
+     * <p>
      * We do not provide (yet) an automatic discovery mechanism for "simple" classes, so it is developer's
      * responsibility to extends OpenL set of simple classes with his own
      *
@@ -120,7 +119,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * an array class this method returns null.
      *
      * @return the <code>IOpenClass</code> representing the component type of this class if this class is an array
-     *
      * @see {@link IOpenClass#isArray()}
      */
     IOpenClass getComponentClass();

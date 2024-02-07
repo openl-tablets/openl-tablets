@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * EPBDS-6736 This annotation is used together with @{@link ServiceExtraMethod} to define 'pretty' names REST services
  * instead of 'arg0', 'arg1'...
- *
+ * <p>
  * It needs because Java byte code does not store arguments names in interfaces.
  */
 @Retention(RetentionPolicy.RUNTIME)

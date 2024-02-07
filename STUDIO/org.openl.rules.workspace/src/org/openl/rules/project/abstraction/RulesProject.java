@@ -35,14 +35,14 @@ public class RulesProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
 
     public RulesProject(WorkspaceUser user,
-            LocalRepository localRepository,
-            FileData localFileData,
-            Repository designRepository,
-            FileData designFileData,
-            LockEngine lockEngine) {
+                        LocalRepository localRepository,
+                        FileData localFileData,
+                        Repository designRepository,
+                        FileData designFileData,
+                        LockEngine lockEngine) {
         super(user,
-            localFileData != null ? localRepository : designRepository,
-            localFileData != null ? localFileData : designFileData);
+                localFileData != null ? localRepository : designRepository,
+                localFileData != null ? localFileData : designFileData);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
@@ -68,7 +68,7 @@ public class RulesProject extends UserWorkspaceProject {
                 setFileData(fullLocalFileData);
             } else {
                 if (localFileData.getAuthor() == null || localFileData.getAuthor().getName() == null || localFileData
-                    .getModifiedAt() == null) {
+                        .getModifiedAt() == null) {
                     // Lazy load properties
                     setFileData(null);
                 } else {
@@ -133,8 +133,8 @@ public class RulesProject extends UserWorkspaceProject {
             // local files.
             List<FileData> fileDatas = getHistoryFileDatas();
             boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
-                .getVersion()
-                .equals(oldVersion) || additionalData instanceof ConflictResolveData;
+                    .getVersion()
+                    .equals(oldVersion) || additionalData instanceof ConflictResolveData;
             if (extraCommits) {
                 openVersion(version);
             } else {
@@ -191,7 +191,7 @@ public class RulesProject extends UserWorkspaceProject {
                     try {
                         if (localRepository.check(fileData.getName()) != null) {
                             String message = String.format("Cannot close project because resource '%s' is used",
-                                fileData.getName());
+                                    fileData.getName());
                             if (deleteCause == null) {
                                 throw new ProjectException(message);
                             } else {
@@ -454,7 +454,7 @@ public class RulesProject extends UserWorkspaceProject {
                     String fromFilePath = designFolderName + "/";
                     String historyVersion = getHistoryVersion();
                     List<FileData> designFiles = historyVersion != null ? fromRepository.listFiles(fromFilePath,
-                        historyVersion) : fromRepository.list(fromFilePath);
+                            historyVersion) : fromRepository.list(fromFilePath);
 
                     for (FileData designData : designFiles) {
                         String designDataName = designData.getName();

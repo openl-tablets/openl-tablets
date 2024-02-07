@@ -78,8 +78,8 @@ public class CollectionUtils {
      *
      * @param array the checked array.
      * @return return {@code true} if the array does not contain any elements.
-     * @see Array#getLength(Object)
      * @throws IllegalArgumentException if the argument is not an array.
+     * @see Array#getLength(Object)
      */
     public static <T> boolean isEmpty(T array) {
         return array == null || Array.getLength(array) == 0;
@@ -100,9 +100,9 @@ public class CollectionUtils {
      * Returns a new Collection consisting of the elements of the input collection transformed by the given transformer.
      * <p>
      *
-     * @param <I> the type of object in the input collection.
-     * @param <O> the type of object in the output collection.
-     * @param col the collection to get the input from, may be null.
+     * @param <I>    the type of object in the input collection.
+     * @param <O>    the type of object in the output collection.
+     * @param col    the collection to get the input from, may be null.
      * @param mapper the mapper to use.
      * @return the transformed result (new list).
      * @throws NullPointerException if the mapper is null.
@@ -125,8 +125,8 @@ public class CollectionUtils {
      * Finds the first element in the given collection which matches the given predicate.
      * <p>
      *
-     * @param <T> the type of object the {@link Iterable} contains.
-     * @param col the collection to search, may be null.
+     * @param <T>       the type of object the {@link Iterable} contains.
+     * @param col       the collection to search, may be null.
      * @param predicate the predicate to use.
      * @return the first element of the collection which matches the predicate or null if none could be found.
      * @throws NullPointerException if the predicate is null.
@@ -148,11 +148,11 @@ public class CollectionUtils {
      * Selects all elements from input collection which match the given predicate into an output collection.
      * <p>
      *
-     * @param <T> the type of object the {@link Iterable} contains.
-     * @param col the collection to search, may be null.
+     * @param <T>       the type of object the {@link Iterable} contains.
+     * @param col       the collection to search, may be null.
      * @param predicate the predicate to use.
      * @return the all the elements of the collection which matches the predicate or [] if none could be found or null
-     *         if the input collection is null.
+     * if the input collection is null.
      * @throws NullPointerException if the predicate is null.
      */
     public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
@@ -175,7 +175,7 @@ public class CollectionUtils {
      * Checks an array on {@code null} value.
      *
      * @param array the checked array.
-     * @param <T> the element type of checked array.
+     * @param <T>   the element type of checked array.
      * @return {@code true} if the array contains {@code null}.
      */
     public static <T> boolean hasNull(T[] array) {

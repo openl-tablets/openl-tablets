@@ -18,6 +18,7 @@ import org.openl.ie.constrainer.UndoableInt;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An abstract implementation of the IntBoolExp that is based on some boolean subject.
  */

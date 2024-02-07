@@ -39,13 +39,13 @@ public class JacksonObjectMapperISO8601DateFormatTest {
     }
 
     public static Object[] data() {
-        return new Object[][] { { "2016-12-31T22:00:00", createDate(2016, 12, 31, 22) },
-                { "2016-12-31T22:00:00Z", createDate(2017, 1, 1, 0) },
-                { "2016-12-31T22:00:00+0200", createDate(2016, 12, 31, 22) },
-                { "2016-12-31T22:00:00+03:00", createDate(2016, 12, 31, 21) },
-                { "2016-12-31T22:00:00-07", createDate(2017, 1, 1, 7) },
-                { "2016-12-31", createDate(2016, 12, 31, 0) },
-                { "1483142400000", createDate(2016, 12, 31, 2) } };
+        return new Object[][]{{"2016-12-31T22:00:00", createDate(2016, 12, 31, 22)},
+                {"2016-12-31T22:00:00Z", createDate(2017, 1, 1, 0)},
+                {"2016-12-31T22:00:00+0200", createDate(2016, 12, 31, 22)},
+                {"2016-12-31T22:00:00+03:00", createDate(2016, 12, 31, 21)},
+                {"2016-12-31T22:00:00-07", createDate(2017, 1, 1, 7)},
+                {"2016-12-31", createDate(2016, 12, 31, 0)},
+                {"1483142400000", createDate(2016, 12, 31, 2)}};
     }
 
     private String json;

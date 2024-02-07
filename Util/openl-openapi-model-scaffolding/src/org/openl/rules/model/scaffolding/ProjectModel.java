@@ -31,12 +31,12 @@ public class ProjectModel {
     }
 
     public ProjectModel(String name,
-            boolean isRuntimeContextProvided,
-            boolean variationsProvided,
-            Set<DatatypeModel> datatypeModels,
-            List<DataModel> dataModels,
-            List<SpreadsheetModel> spreadsheetModels,
-            List<SpreadsheetModel> modelsForInterface) {
+                        boolean isRuntimeContextProvided,
+                        boolean variationsProvided,
+                        Set<DatatypeModel> datatypeModels,
+                        List<DataModel> dataModels,
+                        List<SpreadsheetModel> spreadsheetModels,
+                        List<SpreadsheetModel> modelsForInterface) {
         this.name = name;
         this.isRuntimeContextProvided = isRuntimeContextProvided;
         this.variationsProvided = variationsProvided;
@@ -81,9 +81,9 @@ public class ProjectModel {
     public Set<String> getIncludeMethodFilter() {
         if (includeMethodFilter == null) {
             includeMethodFilter = Stream.concat(spreadsheetModels.stream(), dataModels.stream())
-                .filter(MethodModel::isInclude)
-                .map(MethodModel::getMethodFilterPattern)
-                .collect(Collectors.toSet());
+                    .filter(MethodModel::isInclude)
+                    .map(MethodModel::getMethodFilterPattern)
+                    .collect(Collectors.toSet());
         }
         return includeMethodFilter;
     }

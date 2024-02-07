@@ -25,9 +25,9 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         Set<ProjectDescriptor> workspaceProjectsToResolveDependencies = resolveWorkspace(project);
         ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
         return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
-            rootClassLoader,
-            false,
-            studio.getExternalProperties(), studio.isAutoCompile());
+                rootClassLoader,
+                false,
+                studio.getExternalProperties(), studio.isAutoCompile());
     }
 
     public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
@@ -42,9 +42,9 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     private void resolveWorkspaceRec(ProjectDescriptor p, Set<ProjectDescriptor> workspace, Set<ProjectDescriptor> breadcrumbs) {
         if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
             Set<String> projectDependencyNames = p.getDependencies()
-                .stream()
-                .map(ProjectDependencyDescriptor::getName)
-                .collect(Collectors.toSet());
+                    .stream()
+                    .map(ProjectDependencyDescriptor::getName)
+                    .collect(Collectors.toSet());
             for (ProjectDescriptor pd : studio.getAllProjects()) {
                 if (projectDependencyNames.contains(pd.getName())) {
                     if (!breadcrumbs.contains(pd)) {
@@ -58,8 +58,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             }
             for (String notFoundProjectDependencyName : projectDependencyNames) {
                 log.warn("Dependency '{}' for project '{}' is not found.",
-                    p.getName(),
-                    notFoundProjectDependencyName);
+                        p.getName(),
+                        notFoundProjectDependencyName);
             }
         }
     }

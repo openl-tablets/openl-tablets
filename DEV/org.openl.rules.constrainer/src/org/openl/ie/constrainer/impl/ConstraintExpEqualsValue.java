@@ -23,6 +23,7 @@ import org.openl.ie.constrainer.Subject;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of the constraint: <code>IntExp == value</code>.
  */
@@ -67,7 +68,7 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
                 // "+interest);Debug.off();
                 IntEvent event = (IntEvent) interest;
                 if (event.isValueEvent() && event.min() != _value || event.isMaxEvent() && event.max() < _value || event
-                    .isMinEvent() && event.min() > _value) {
+                        .isMinEvent() && event.min() > _value) {
                     exp.constrainer().fail("from ObserverEqualValue");
                 }
                 _exp.setValue(_value);

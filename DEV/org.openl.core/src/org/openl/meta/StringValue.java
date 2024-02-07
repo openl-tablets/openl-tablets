@@ -44,13 +44,13 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' cannot be null");
+                "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo();
     }
 
     public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' cannot be null");
+                "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 
@@ -140,8 +140,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
-                    metaInfo.getDisplayName(IMetaInfo.LONG),
-                    new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                        metaInfo.getDisplayName(IMetaInfo.LONG),
+                        new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 this.metaInfo = valueMetaInfo;
             } catch (Exception e) {
                 LOG.debug("Failed to set meta info for StringValue '{}'", value, e);

@@ -23,13 +23,13 @@ class FieldDescriptor {
     private final List<FieldDescriptor> children;
 
     private static final BiPredicate<IOpenClass, Object> SKIP_EMPTY_PARAMETER_FILTER = (fieldType,
-            fieldValue) -> fieldValue != null && (!fieldType.isArray() || Array.getLength(fieldValue) > 0);
+                                                                                        fieldValue) -> fieldValue != null && (!fieldType.isArray() || Array.getLength(fieldValue) > 0);
 
     /**
      * Find fields from all test results. WARNING: This method is very expensive! Don't invoke it too often.
      *
-     * @param type Type of a checking object
-     * @param values All possible values for a given type. Is got from test result.
+     * @param type                Type of a checking object
+     * @param values              All possible values for a given type. Is got from test result.
      * @param skipEmptyParameters Boolean indication whether to skip empty parameters in result.
      * @return fields from all test results(values) based on boolean flag.
      */
@@ -39,9 +39,9 @@ class FieldDescriptor {
     }
 
     private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type,
-            List<?> values,
-            Boolean skipEmptyParameters,
-            Set<String> coveredFields) {
+                                                                  List<?> values,
+                                                                  Boolean skipEmptyParameters,
+                                                                  Set<String> coveredFields) {
         type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
@@ -67,9 +67,9 @@ class FieldDescriptor {
                             fieldType = CastToWiderType.defineCollectionWiderType((Collection<?>) fieldValue);
                         }
                         List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
-                            childFieldValues,
-                            skipEmptyParameters,
-                            coveredFields);
+                                childFieldValues,
+                                skipEmptyParameters,
+                                coveredFields);
                         result.add(new FieldDescriptor(field, children));
 
                         break;

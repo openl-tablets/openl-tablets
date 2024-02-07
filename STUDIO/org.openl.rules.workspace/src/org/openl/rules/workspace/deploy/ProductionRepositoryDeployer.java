@@ -45,8 +45,8 @@ import org.openl.util.ZipUtils;
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
  * repository is get from "deployer.properties" file.
  *
- * @deprecated use {@link org.openl.rules.ruleservice.deployer.RulesDeployerService}
  * @author Yury Molchan
+ * @deprecated use {@link org.openl.rules.ruleservice.deployer.RulesDeployerService}
  */
 @Deprecated
 public class ProductionRepositoryDeployer {
@@ -56,9 +56,8 @@ public class ProductionRepositoryDeployer {
     private final String prefix;
 
     /**
-     *
      * @param environment - environment in which the current application is running
-     * @param prefix - name of the production repository configuration which needed
+     * @param prefix      - name of the production repository configuration which needed
      */
     public ProductionRepositoryDeployer(PropertyResolver environment, String prefix) {
         this.environment = environment;
@@ -85,7 +84,7 @@ public class ProductionRepositoryDeployer {
 
     public void deployInternal(File zipFile, boolean skipExist) throws Exception {
         try (Repository deployRepo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + prefix,
-            environment::getProperty)) {
+                environment::getProperty)) {
             // Initialize repo
             String deployPath = environment.getProperty(Comments.REPOSITORY_PREFIX + prefix + ".base.path");
             if (deployPath == null) {
@@ -110,9 +109,9 @@ public class ProductionRepositoryDeployer {
             try {
                 Map properties = YamlMapperFactory.getYamlMapper().readValue(deployment, Map.class);
                 return Optional.ofNullable(properties.get("name"))
-                    .map(Object::toString)
-                    .filter(StringUtils::isNotBlank)
-                    .orElse(deploymentName);
+                        .map(Object::toString)
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(deploymentName);
             } catch (IOException e) {
                 log.debug(e.getMessage(), e);
             }
@@ -140,9 +139,9 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile,
-            Repository deployRepo,
-            boolean skipExist,
-            String deployPath) throws Exception {
+                               Repository deployRepo,
+                               boolean skipExist,
+                               String deployPath) throws Exception {
 
         // Temp folders
         File zipFolder = Files.createTempDirectory("openl").toFile();
@@ -210,11 +209,11 @@ public class ProductionRepositoryDeployer {
     }
 
     private FileData createFileData(Repository deployRepo,
-            boolean skipExist,
-            String deployPath,
-            File rulesFolder,
-            String defaultName,
-            String deploymentName) throws IOException {
+                                    boolean skipExist,
+                                    String deployPath,
+                                    File rulesFolder,
+                                    String defaultName,
+                                    String deploymentName) throws IOException {
         // Renamed a project according to rules.xml
         String name = defaultName;
         File rules = new File(rulesFolder, "rules.xml");

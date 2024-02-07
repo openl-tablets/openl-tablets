@@ -235,66 +235,66 @@ public class StringRangeParsingTest {
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING), new StringRange("AA..ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING), new StringRange("AA … ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING),
-            new StringRange("AA ... ZZ"));
+                new StringRange("AA ... ZZ"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("[AA; ZZ]"));
+                new StringRange("[AA; ZZ]"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.INCLUDING), new StringRange("(AA;ZZ]"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange("[AA; ZZ)"));
+                new StringRange("[AA; ZZ)"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING),
-            new StringRange("(AA; ZZ)"));
+                new StringRange("(AA; ZZ)"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING),
-            new StringRange("(AA .. ZZ)"));
+                new StringRange("(AA .. ZZ)"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("[AA .. ZZ]"));
+                new StringRange("[AA .. ZZ]"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.INCLUDING),
-            new StringRange("(AA .. ZZ]"));
+                new StringRange("(AA .. ZZ]"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange("[AA .. ZZ)"));
+                new StringRange("[AA .. ZZ)"));
 
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("AA and more"));
+                new StringRange("AA and more"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("AA or less"));
+                new StringRange("AA or less"));
 
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING),
-            new StringRange("more than AA"));
+                new StringRange("more than AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange("less than ZZ"));
+                new StringRange("less than ZZ"));
 
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange(">= AA"));
+                new StringRange(">= AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("<= AA"));
+                new StringRange("<= AA"));
 
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange(">=AA"));
+                new StringRange(">=AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "AA", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("<=AA"));
+                new StringRange("<=AA"));
 
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.EXCLUDING, BoundType.INCLUDING),
-            new StringRange("> AA"));
+                new StringRange("> AA"));
         assertEquals(new StringRange(StringRangeParser.MIN_VALUE, "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange("< ZZ"));
+                new StringRange("< ZZ"));
         assertEquals(new StringRange("AA", StringRangeParser.MAX_VALUE, BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("AA+"));
+                new StringRange("AA+"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange(">=AA <=ZZ"));
+                new StringRange(">=AA <=ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.INCLUDING),
-            new StringRange("<=ZZ >=AA"));
+                new StringRange("<=ZZ >=AA"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange(">=AA <ZZ"));
+                new StringRange(">=AA <ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.INCLUDING, BoundType.EXCLUDING),
-            new StringRange("<ZZ >=AA"));
+                new StringRange("<ZZ >=AA"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.INCLUDING),
-            new StringRange(">AA <=ZZ"));
+                new StringRange(">AA <=ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.INCLUDING),
-            new StringRange("<=ZZ >AA"));
+                new StringRange("<=ZZ >AA"));
 
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING), new StringRange(">AA <ZZ"));
         assertEquals(new StringRange("AA", "ZZ", BoundType.EXCLUDING, BoundType.EXCLUDING), new StringRange("<ZZ >AA"));
@@ -451,7 +451,7 @@ public class StringRangeParsingTest {
         assertTrue(args.length > 0);
         for (String s : args) {
             assertTrue(range.contains(s),
-                String.format("The range %s must include a string '%s'", range.toString(), s));
+                    String.format("The range %s must include a string '%s'", range.toString(), s));
         }
     }
 
@@ -460,7 +460,7 @@ public class StringRangeParsingTest {
         assertTrue(args.length > 0);
         for (String s : args) {
             assertFalse(range.contains(s),
-                String.format("The range %s must not include a string '%s'", range.toString(), s));
+                    String.format("The range %s must not include a string '%s'", range.toString(), s));
         }
     }
 

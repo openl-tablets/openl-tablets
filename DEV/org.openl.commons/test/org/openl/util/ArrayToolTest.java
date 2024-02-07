@@ -14,19 +14,19 @@ public class ArrayToolTest {
         Object[] emptyArray = new Object[0];
 
         assertArrayEquals(emptyArray, ArrayTool.removeNulls(emptyArray));
-        assertArrayEquals(emptyArray, ArrayTool.removeNulls(new Object[] { null }));
+        assertArrayEquals(emptyArray, ArrayTool.removeNulls(new Object[]{null}));
 
         int value1 = 12;
         double value2 = (double) 11;
-        Object[] array = new Object[] { value1, null, value2 };
+        Object[] array = new Object[]{value1, null, value2};
 
-        Object[] expected = new Object[] { value1, value2 };
+        Object[] expected = new Object[]{value1, value2};
 
         Object[] actual = ArrayTool.removeNulls(array);
         assertEquals(2, actual.length);
         assertArrayEquals(expected, actual);
 
-        Object[] allNulls = new Object[] { null, null, null, null };
+        Object[] allNulls = new Object[]{null, null, null, null};
         Object[] actual1 = ArrayTool.removeNulls(allNulls);
         assertEquals(0, actual1.length);
     }

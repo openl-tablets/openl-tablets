@@ -13,7 +13,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public abstract class AOpenField implements IOpenField {
     private final String name;

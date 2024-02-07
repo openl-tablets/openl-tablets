@@ -18,10 +18,10 @@ class SelectFirstIndexNode extends ABoundNode {
     private final IOpenCast openCast;
 
     SelectFirstIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode condition,
-            ILocalVar tempVar,
-            IOpenCast openCast) {
+                         IBoundNode targetNode,
+                         IBoundNode condition,
+                         ILocalVar tempVar,
+                         IOpenCast openCast) {
         super(syntaxNode, targetNode, condition);
         this.tempVar = tempVar;
         this.targetNode = targetNode;

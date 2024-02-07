@@ -25,6 +25,7 @@ public class DateToolTest {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
     }
+
     @BeforeAll
     static void setup() {
         locale = Locale.getDefault();
@@ -306,13 +307,13 @@ public class DateToolTest {
         assertEquals("12/11/13", actual);
     }
 
-    @CsvSource({ "2015-05-14,2015",
+    @CsvSource({"2015-05-14,2015",
             "2015-12-31,2015",
             "1789-05-14,1789",
             "0001-01-01,1",
             "1900-01-01,1900",
             "1899-02-28,1899",
-            "3892-05-14,3892" })
+            "3892-05-14,3892"})
     @ParameterizedTest(name = "{index}: DateTool.year({0})={1}")
     public void test_year(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -320,13 +321,13 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14,5",
+    @CsvSource({"2015-05-14,5",
             "2015-12-31,12",
             "1789-06-14,6",
             "0001-01-01,1",
             "1900-03-01,3",
             "1899-02-28,2",
-            "3892-07-14,7" })
+            "3892-07-14,7"})
     @ParameterizedTest(name = "{index}: DateTool.month({0})={1}")
     public void test_month(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -334,7 +335,7 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14,14", "2015-12-31,31", "1788-02-29,29", "0001-01-01,1", "1900-04-30,30" })
+    @CsvSource({"2015-05-14,14", "2015-12-31,31", "1788-02-29,29", "0001-01-01,1", "1900-04-30,30"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfMonth({0})={1}")
     public void test_dayOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -342,7 +343,7 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14,134",
+    @CsvSource({"2015-05-14,134",
             "2015-12-31,365",
             "2015-12-30,364",
             "2015-02-28,59",
@@ -351,7 +352,7 @@ public class DateToolTest {
             "2000-12-31,366",
             "2000-02-28,59",
             "2000-02-29,60",
-            "2000-03-01,61" })
+            "2000-03-01,61"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfYear({0})={1}")
     public void test_dayOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -359,14 +360,14 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2018-01-01,0",
+    @CsvSource({"2018-01-01,0",
             "2018-03-31,0",
             "2018-04-01,1",
             "2018-06-30,1",
             "2018-07-01,2",
             "2018-09-30,2",
             "2018-10-01,3",
-            "2018-12-31,3" })
+            "2018-12-31,3"})
     @ParameterizedTest(name = "{index}: DateTool.quarter({0})={1}")
     public void test_quarter(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -374,14 +375,14 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14,5",
+    @CsvSource({"2015-05-14,5",
             "2015-12-30,4",
             "2015-02-28,7",
             "2015-03-01,1",
             "2000-12-31,1",
             "2000-02-28,2",
             "2000-02-29,3",
-            "2000-03-01,4" })
+            "2000-03-01,4"})
     @ParameterizedTest(name = "{index}: DateTool.dayOfWeek({0})={1}")
     public void test_dayOfWeek2(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -389,13 +390,13 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14,20",
+    @CsvSource({"2015-05-14,20",
             "2015-12-31,1",
             "1789-05-14,20",
             "0001-01-01,1",
             "1899-02-28,9",
             "3892-05-14,20",
-            "2013-12-28,52" })
+            "2013-12-28,52"})
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
     public void test_weekOfYear(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -403,7 +404,7 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "2015-05-14, 3", "2015-12-31, 5", "1789-05-14, 3", "0001-01-01, 1", "1899-02-28, 5", "3892-05-14, 2" })
+    @CsvSource({"2015-05-14, 3", "2015-12-31, 5", "1789-05-14, 3", "0001-01-01, 1", "1899-02-28, 5", "3892-05-14, 2"})
     @ParameterizedTest(name = "{index}: DateTool.weekOfYear({0})={1}")
     public void test_weekOfMonth(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
@@ -411,10 +412,10 @@ public class DateToolTest {
         assertEquals(expected, actual);
     }
 
-    @CsvSource({ "8072,2018-01-01,2018-03-31",
+    @CsvSource({"8072,2018-01-01,2018-03-31",
             "8073,2018-04-01,2018-06-30",
             "8074,2018-07-01,2018-09-30",
-            "8075,2018-10-01,2018-12-31" })
+            "8075,2018-10-01,2018-12-31"})
     @ParameterizedTest(name = "{index}: When Quarter={0} between [{1}, {2}]")
     public void test_absQuarter_whenLastDateOfQuarter(Integer quarter, String d1, String d2) throws ParseException {
         var firstDate = new SimpleDateFormat("yyyy-MM-dd").parse(d1);
@@ -426,7 +427,7 @@ public class DateToolTest {
     }
 
     @ParameterizedTest(name = "{index}: DateTool.lastDayOfMonth({0})={1}")
-    @CsvSource({ "1900-01-02,31", "2015-05-14,31", "2015-12-30,31", "2015-02-28,28", "2000-12-4,31", "2015-04-30,30" })
+    @CsvSource({"1900-01-02,31", "2015-05-14,31", "2015-12-30,31", "2015-02-28,28", "2000-12-4,31", "2015-04-30,30"})
     public void test_dayOfWeek(String input, int expected) throws ParseException {
         var inputDate = new SimpleDateFormat("yyyy-MM-dd").parse(input);
         int actual = DateTool.lastDayOfMonth(inputDate);

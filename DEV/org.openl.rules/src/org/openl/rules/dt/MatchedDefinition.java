@@ -25,12 +25,12 @@ class MatchedDefinition {
     final boolean mayHaveCompilationErrors;
 
     public MatchedDefinition(DTColumnsDefinition dtColumnsDefinition,
-            String statement,
-            int[] usedMethodParameterIndexes,
-            Map<String, String> methodParametersToRename,
-            List<ExpressionIdentifier> identifiers,
-            MatchType matchType,
-            boolean mayHaveCompilationErrors) {
+                             String statement,
+                             int[] usedMethodParameterIndexes,
+                             Map<String, String> methodParametersToRename,
+                             List<ExpressionIdentifier> identifiers,
+                             MatchType matchType,
+                             boolean mayHaveCompilationErrors) {
         super();
         this.dtColumnsDefinition = dtColumnsDefinition;
         this.statement = statement;
@@ -85,10 +85,10 @@ class MatchedDefinition {
 
     public String getStatementWithReplacedIdentifiers() {
         return replaceIdentifierNodeNamesInCode(statement,
-            identifiers,
-            Pair.of(methodParametersToRename, true),
-            Pair.of(externalParametersToRename, false),
-            Pair.of(parametersToRename, true));
+                identifiers,
+                Pair.of(methodParametersToRename, true),
+                Pair.of(externalParametersToRename, false),
+                Pair.of(parametersToRename, true));
     }
 
     public int[] getUsedMethodParameterIndexes() {
@@ -116,33 +116,33 @@ class MatchedDefinition {
 
     @SafeVarargs
     static String replaceIdentifierNodeNamesInCode(String code,
-            List<ExpressionIdentifier> identifiers,
-            Pair<Map<String, String>, Boolean>... namesMaps) {
+                                                   List<ExpressionIdentifier> identifiers,
+                                                   Pair<Map<String, String>, Boolean>... namesMaps) {
         identifiers = new ArrayList<>(identifiers); // identifiers is unmodifiable
         final TextInfo textInfo = new TextInfo(code);
         identifiers.sort(Comparator
-            .<ExpressionIdentifier> comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
-            .reversed());
+                .<ExpressionIdentifier>comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
+                .reversed());
         StringBuilder sb = new StringBuilder(code);
         for (ExpressionIdentifier identifier : identifiers) {
             int start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
             int end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
             for (Pair<Map<String, String>, Boolean> m : namesMaps) {
                 if (m != null && m.getKey() != null && m.getKey()
-                    .containsKey(
-                        identifier.getIdentifier() != null
-                                                           ? (Boolean.TRUE.equals(
-                                                               m.getValue()) ? identifier.getIdentifier().toLowerCase()
-                                                                             : identifier.getIdentifier())
-                                                           : null)) {
+                        .containsKey(
+                                identifier.getIdentifier() != null
+                                        ? (Boolean.TRUE.equals(
+                                        m.getValue()) ? identifier.getIdentifier().toLowerCase()
+                                        : identifier.getIdentifier())
+                                        : null)) {
                     sb.replace(start,
-                        end + 1,
-                        m.getKey()
-                            .get(identifier.getIdentifier() != null
-                                                                    ? (Boolean.TRUE.equals(m.getValue()) ? identifier
-                                                                        .getIdentifier()
-                                                                        .toLowerCase() : identifier.getIdentifier())
-                                                                    : null));
+                            end + 1,
+                            m.getKey()
+                                    .get(identifier.getIdentifier() != null
+                                            ? (Boolean.TRUE.equals(m.getValue()) ? identifier
+                                            .getIdentifier()
+                                            .toLowerCase() : identifier.getIdentifier())
+                                            : null));
                 }
             }
         }

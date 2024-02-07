@@ -10,7 +10,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public class IdentifierNode extends TerminalNode {
 

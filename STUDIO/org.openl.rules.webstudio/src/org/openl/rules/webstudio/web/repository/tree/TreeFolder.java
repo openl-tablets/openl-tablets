@@ -21,7 +21,6 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  * Represents OpenL folder in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeFolder extends AbstractTreeNode {
 
@@ -40,13 +39,17 @@ public class TreeFolder extends AbstractTreeNode {
 
     // ------ UI methods ------
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIcon() {
         return UiConst.ICON_FOLDER;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIconLeaf() {
         // in both cases we use the same icons
@@ -100,9 +103,9 @@ public class TreeFolder extends AbstractTreeNode {
 
     protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
         AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
-            folder.getProject(),
-            folder.getRepository(),
-            folder.getFolderPath());
+                folder.getProject(),
+                folder.getRepository(),
+                folder.getFolderPath());
         for (AProjectArtefact artefact : folder.getArtefacts()) {
             if (!filter.supports(artefact.getClass()) || filter.select(artefact)) {
                 filteredFolder.addArtefact(artefact);

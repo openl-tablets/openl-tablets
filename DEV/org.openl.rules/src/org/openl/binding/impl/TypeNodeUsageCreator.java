@@ -50,7 +50,7 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         TextInfo textInfo = new TextInfo(sourceString);
         int pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
         int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns
-                                                                                     // 'end' inclusively
+        // 'end' inclusively
         if (componentOpenClass instanceof JavaOpenClass) {
             StringBuilder description = new StringBuilder();
             if (StringUtils.isNotBlank(componentOpenClass.getPackageName())) {
@@ -65,10 +65,10 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
                 return Optional.empty();
             }
             return Optional.of(new SimpleNodeUsage(pstart,
-                pend,
-                typeMeta.getDisplayName(INamedThing.SHORT),
-                typeMeta.getSourceUrl(),
-                NodeType.DATATYPE));
+                    pend,
+                    typeMeta.getDisplayName(INamedThing.SHORT),
+                    typeMeta.getSourceUrl(),
+                    NodeType.DATATYPE));
         }
     }
 

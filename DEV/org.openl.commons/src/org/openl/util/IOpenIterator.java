@@ -10,7 +10,6 @@ import java.util.Iterator;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenIterator<T> extends Iterator<T> {
 

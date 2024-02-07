@@ -69,7 +69,6 @@ public class TestTableCreationWizard extends TableCreationWizard {
     }
 
     /**
-     *
      * @return <code>TableSyntaxNode</code> from model, by the technical name of the table we have selected.
      */
     protected TableSyntaxNode getSelectedNode() {
@@ -177,9 +176,9 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
                 if (propValue != null && !propValue.isEmpty()) {
                     dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
-                        .append(dimensionProp)
-                        .append(" = ")
-                        .append(propValue);
+                            .append(dimensionProp)
+                            .append(" = ")
+                            .append(propValue);
                 }
             }
         }
@@ -196,7 +195,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
      */
     private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
         boolean executable = node
-            .isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
+                .isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
         if (!executable) {
             return false;
         }

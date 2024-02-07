@@ -14,7 +14,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSeria
  * CXF interceptor for collecting service data for logging to external source feature.
  *
  * @author Yury Molchan
- *
  */
 public class PopulateStoreLogDataInterceptor extends AbstractPhaseInterceptor<Message> {
 

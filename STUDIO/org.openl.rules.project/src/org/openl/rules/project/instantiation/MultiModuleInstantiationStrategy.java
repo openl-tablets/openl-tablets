@@ -32,15 +32,15 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
     private final Collection<Module> modules;
 
     public MultiModuleInstantiationStrategy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            boolean executionMode) {
+                                            IDependencyManager dependencyManager,
+                                            boolean executionMode) {
         this(modules, dependencyManager, null, executionMode);
     }
 
     public MultiModuleInstantiationStrategy(Collection<Module> modules,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            boolean executionMode) {
+                                            IDependencyManager dependencyManager,
+                                            ClassLoader classLoader,
+                                            boolean executionMode) {
         // multimodule is only available for execution(execution mode == true)
         super(executionMode, dependencyManager, classLoader);
         this.modules = modules;
@@ -56,12 +56,12 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
         OpenLClassLoader classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
         try {
             Set<ProjectDescriptor> projectDescriptors = modules.stream()
-                .map(Module::getProject)
-                .collect(Collectors.toSet());
+                    .map(Module::getProject)
+                    .collect(Collectors.toSet());
             for (ProjectDescriptor pd : projectDescriptors) {
                 try {
                     CompiledDependency compiledDependency = getDependencyManager()
-                        .loadDependency(AbstractDependencyManager.buildResolvedDependency(pd));
+                            .loadDependency(AbstractDependencyManager.buildResolvedDependency(pd));
                     CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
                     classLoader.addClassLoader(compiledOpenClass.getClassLoader());
                 } catch (OpenLCompilationException e) {
@@ -82,9 +82,9 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
      */
     protected IOpenSourceCodeModule createVirtualSourceCodeModule() {
         List<IDependency> dependencies = getModules().stream()
-            .map(AbstractDependencyManager::buildResolvedDependency)
-            .distinct()
-            .collect(Collectors.toList());
+                .map(AbstractDependencyManager::buildResolvedDependency)
+                .distinct()
+                .collect(Collectors.toList());
         Map<String, Object> params = new HashMap<>();
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
@@ -92,7 +92,7 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
         if (params.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
             List<IDependency> externalDependencies = (List<IDependency>) params
-                .get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY);
+                    .get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY);
             dependencies.addAll(externalDependencies);
         }
         params.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);

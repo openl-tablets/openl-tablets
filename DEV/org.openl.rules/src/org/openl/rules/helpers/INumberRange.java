@@ -5,7 +5,6 @@ package org.openl.rules.helpers;
 
 /**
  * @author snshor
- *
  */
 public interface INumberRange {
 

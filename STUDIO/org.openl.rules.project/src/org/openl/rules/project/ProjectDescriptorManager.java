@@ -96,7 +96,7 @@ public class ProjectDescriptorManager {
     }
 
     public void writeDescriptor(ProjectDescriptor descriptor,
-            OutputStream dest) throws IOException, ValidationException, JAXBException {
+                                OutputStream dest) throws IOException, ValidationException, JAXBException {
         validator.validate(descriptor);
         descriptor = cloner.deepClone(descriptor); // prevent changes argument
         // object
@@ -128,8 +128,8 @@ public class ProjectDescriptorManager {
     }
 
     public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
-            Module module,
-            String pathPattern) throws IOException {
+                                                         Module module,
+                                                         String pathPattern) throws IOException {
         List<Module> modules = new ArrayList<>();
 
         String ptrn = pathPattern.trim();
@@ -149,7 +149,7 @@ public class ProjectDescriptorManager {
                     if (module.getWebstudioConfiguration() != null) {
                         WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
                         webstudioConfiguration
-                            .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+                                .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
                         m.setWebstudioConfiguration(webstudioConfiguration);
                     }
                     m.setWildcardRulesRootPath(pathPattern);
@@ -206,8 +206,8 @@ public class ProjectDescriptorManager {
             if (isModuleWithWildcard(module)) {
                 List<Module> newModules = new ArrayList<>();
                 List<Module> modules = getAllModulesMatchingPathPattern(descriptor,
-                    module,
-                    module.getRulesRootPath().getPath());
+                        module,
+                        module.getRulesRootPath().getPath());
                 for (Module m : modules) {
                     if (!containsInProcessedModules(processedModules, m, projectRoot)) {
                         newModules.add(m);
@@ -263,7 +263,7 @@ public class ProjectDescriptorManager {
         while (itr.hasNext()) {
             Module module = itr.next();
             if (module.getWildcardRulesRootPath() == null || !wildcardPathSet
-                .contains(module.getWildcardRulesRootPath())) {
+                    .contains(module.getWildcardRulesRootPath())) {
                 module.setProject(null);
                 module.setProperties(null);
                 if (module.getWildcardRulesRootPath() != null) {
@@ -278,14 +278,14 @@ public class ProjectDescriptorManager {
                 if (module.getMethodFilter() != null) {
                     boolean f = true;
                     if (module.getMethodFilter().getExcludes() != null && module.getMethodFilter()
-                        .getExcludes()
-                        .isEmpty()) {
+                            .getExcludes()
+                            .isEmpty()) {
                         module.getMethodFilter().setExcludes(null);
                         f = false;
                     }
                     if (module.getMethodFilter().getIncludes() != null && module.getMethodFilter()
-                        .getIncludes()
-                        .isEmpty()) {
+                            .getIncludes()
+                            .isEmpty()) {
                         if (f) {
                             module.getMethodFilter().setExcludes(null);
                         } else {

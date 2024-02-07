@@ -33,7 +33,7 @@ public class RegexpValueConstraint extends AbstractConstraint {
 
     @Override
     public Object[] getParams() {
-        return new Object[] { String.class };
+        return new Object[]{String.class};
     }
 
     @Override

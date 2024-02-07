@@ -21,12 +21,12 @@ public class RangeCompilationTest {
 
     @Test
     public void testDecisionTableCompilation_and_ConditionEvaluators() throws RulesInstantiationException,
-                                                                       ProjectResolvingException {
+            ProjectResolvingException {
 
         SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test/rules/ranges")
-            .setExecutionMode(false)
-            .build();
+                .setProject("test/rules/ranges")
+                .setExecutionMode(false)
+                .build();
 
         IOpenClass openClass = factory.getCompiledOpenClass().getOpenClass();
 
@@ -52,7 +52,7 @@ public class RangeCompilationTest {
     }
 
     private <T extends IConditionEvaluator> void assertConditionEvaluatorClass(IBaseCondition condition,
-            Class<T> tClass) {
+                                                                               Class<T> tClass) {
         assertSame(tClass, condition.getConditionEvaluator().getClass());
     }
 

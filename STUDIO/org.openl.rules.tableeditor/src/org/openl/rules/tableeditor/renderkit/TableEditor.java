@@ -83,14 +83,14 @@ public class TableEditor {
         } else if (filtersParam instanceof IGridFilter[]) {
             filters = (IGridFilter[]) filtersParam;
         } else if (filtersParam instanceof IGridFilter) {
-            filters = new IGridFilter[] { (IGridFilter) filtersParam };
+            filters = new IGridFilter[]{(IGridFilter) filtersParam};
         } else if (filtersParam instanceof Collection) {
             @SuppressWarnings("unchecked")
             Collection<IGridFilter> collection = (Collection<IGridFilter>) filtersParam;
             filters = collection.toArray(new IGridFilter[0]);
         } else {
             throw new IllegalArgumentException(
-                String.format("Unsupported type of parameter '%s'", Constants.ATTRIBUTE_FILTERS));
+                    String.format("Unsupported type of parameter '%s'", Constants.ATTRIBUTE_FILTERS));
         }
     }
 

@@ -19,7 +19,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
  * source code.
  *
  * @author snshor
- *
  */
 public interface IParsedCode {
 

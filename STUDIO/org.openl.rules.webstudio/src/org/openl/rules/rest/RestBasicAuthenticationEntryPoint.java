@@ -17,8 +17,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 public class RestBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException) throws IOException {
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Writer writer = response.getWriter();

@@ -20,16 +20,16 @@ public class FieldChain extends AOpenField {
     }
 
     public FieldChain(IOpenClass type,
-            IOpenField[] fields,
-            IdentifierNode[] fieldAccessorChainTokens,
-            boolean hasAccessByArrayId) {
+                      IOpenField[] fields,
+                      IdentifierNode[] fieldAccessorChainTokens,
+                      boolean hasAccessByArrayId) {
         super(getFieldName(fields, fieldAccessorChainTokens, hasAccessByArrayId), type);
         this.fields = fields;
     }
 
     private static String getFieldName(IOpenField[] fields,
-            IdentifierNode[] fieldAccessorChainTokens,
-            boolean hasAccessByArrayId) {
+                                       IdentifierNode[] fieldAccessorChainTokens,
+                                       boolean hasAccessByArrayId) {
         String name;
 
         if (hasAccessByArrayId) {
@@ -47,8 +47,8 @@ public class FieldChain extends AOpenField {
 
     private static String makeNamesByTokens(IdentifierNode[] fieldAccessorChainTokens) {
         return Arrays.stream(fieldAccessorChainTokens)
-            .map(IdentifierNode::getIdentifier)
-            .collect(Collectors.joining("."));
+                .map(IdentifierNode::getIdentifier)
+                .collect(Collectors.joining("."));
     }
 
     @Override

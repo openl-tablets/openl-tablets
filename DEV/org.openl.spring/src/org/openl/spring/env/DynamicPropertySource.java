@@ -142,7 +142,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
                         String secretKey = getSecretKey();
                         String cipher = getCipher();
                         if (StringUtils.isNotBlank(value) && StringUtils.isNotBlank(secretKey) && StringUtils
-                            .isNotBlank(cipher)) {
+                                .isNotBlank(cipher)) {
                             value = "ENC(" + PassCoder.encode(value, secretKey, cipher) + ")";
                         }
                     } catch (Exception e) {
@@ -160,7 +160,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
         // Do clean up from default values
         properties.entrySet()
-            .removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
+                .removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
 
         // Remove version for correct determining of properties to save
         properties.remove(PROP_VERSION);
@@ -195,8 +195,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         if (value != null && value.startsWith("ENC(") && value.endsWith(")")) {
             try {
                 return PassCoder.decode(value.substring(4, value.length() - 1),
-                    DynamicPropertySource.get().getSecretKey(),
-                    DynamicPropertySource.get().getCipher());
+                        DynamicPropertySource.get().getSecretKey(),
+                        DynamicPropertySource.get().getCipher());
             } catch (Exception e) {
                 return "";
             }

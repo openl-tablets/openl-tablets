@@ -76,7 +76,7 @@ public interface ExternalGroupDao extends Dao<ExternalGroup> {
      * Search external groups by full group name or fragment
      *
      * @param groupName full group name or term fragment
-     * @param limit max results number
+     * @param limit     max results number
      * @return collection of found external groups
      */
     List<String> findAllByName(String groupName, int limit);

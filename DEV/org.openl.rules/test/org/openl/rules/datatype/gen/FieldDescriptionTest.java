@@ -23,42 +23,42 @@ public class FieldDescriptionTest {
     @Test
     public void testDefaultValue_String() {
         FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
-            .setDefaultValueAsString(DEFAULT_STRING_VALUE)
-            .build();
+                .setDefaultValueAsString(DEFAULT_STRING_VALUE)
+                .build();
         assertEquals(DEFAULT_STRING_VALUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Boolean() {
         FieldDescription field = FieldDescriptionBuilder.create(Boolean.class.getName())
-            .setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE)
-            .build();
+                .setDefaultValueAsString(DEFAULT_BOOLEAN_VALUE)
+                .build();
         assertEquals(Boolean.TRUE, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_Integer() {
         FieldDescription field = FieldDescriptionBuilder.create(Integer.class.getName())
-            .setDefaultValueAsString(DEFAULT_INTEGER_VALUE)
-            .build();
+                .setDefaultValueAsString(DEFAULT_INTEGER_VALUE)
+                .build();
         assertEquals(25, field.getDefaultValue());
     }
 
     @Test
     public void testDefaultValue_DefaultBean() {
         FieldDescription field = FieldDescriptionBuilder.create(String.class.getName())
-            .setDefaultValueAsString(DefaultValue.DEFAULT)
-            .build();
+                .setDefaultValueAsString(DefaultValue.DEFAULT)
+                .build();
         assertEquals(DefaultValue.DEFAULT, field.getDefaultValue(), "Return the default keyword itself");
 
         FieldDescription field1 = FieldDescriptionBuilder.create(Boolean.class.getName())
-            .setDefaultValueAsString(DefaultValue.DEFAULT)
-            .build();
+                .setDefaultValueAsString(DefaultValue.DEFAULT)
+                .build();
         assertEquals(DefaultValue.DEFAULT, field1.getDefaultValue(), "Return the default keyword itself");
 
         FieldDescription field2 = FieldDescriptionBuilder.create(Integer.class.getName())
-            .setDefaultValueAsString(DefaultValue.DEFAULT)
-            .build();
+                .setDefaultValueAsString(DefaultValue.DEFAULT)
+                .build();
         assertEquals(DefaultValue.DEFAULT, field2.getDefaultValue(), "Return the default keyword itself");
     }
 
@@ -67,13 +67,13 @@ public class FieldDescriptionTest {
         // Create the IOpenClass for the policy
         //
         DatatypeOpenClass policyClass = new DatatypeOpenClass(Policy.class.getSimpleName(),
-            Policy.class.getPackage().getName());
+                Policy.class.getPackage().getName());
         policyClass.setInstanceClass(Policy.class);
 
         // Create the IOpenClass for the Driver
         //
         DatatypeOpenClass driverClass = new DatatypeOpenClass(Driver.class.getSimpleName(),
-            Driver.class.getPackage().getName());
+                Driver.class.getPackage().getName());
         driverClass.setInstanceClass(Driver.class);
 
         // Create the IOpenClass for the drivers[]

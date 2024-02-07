@@ -23,9 +23,9 @@ public class CellMetaInfo {
     }
 
     public CellMetaInfo(IOpenClass domain,
-            boolean multiValue,
-            List<? extends NodeUsage> usedNodes,
-            boolean returnHeader) {
+                        boolean multiValue,
+                        List<? extends NodeUsage> usedNodes,
+                        boolean returnHeader) {
         this.domain = domain;
         this.usedNodes = usedNodes;
         if (multiValue) {

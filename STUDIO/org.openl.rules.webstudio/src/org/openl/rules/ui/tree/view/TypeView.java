@@ -9,10 +9,10 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 
 public class TypeView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = { new TableTreeNodeBuilder(),
+    private final BaseTableTreeNodeBuilder[] sorters = {new TableTreeNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() };
+            new TableVersionTreeNodeBuilder()};
 
     @Override
     public String getName() {

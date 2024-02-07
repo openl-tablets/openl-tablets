@@ -17,7 +17,7 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/LazyCompilationTest",
-    "production-repository.factory = repo-file"})
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class LazyCompilationTest {
 

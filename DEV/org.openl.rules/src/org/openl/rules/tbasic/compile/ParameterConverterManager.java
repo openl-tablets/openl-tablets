@@ -14,13 +14,15 @@ import org.openl.types.IOpenClass;
 
 /**
  * Converts the parameter defined in the TBasic table specification to the appropriate Operation constructor parameter
- *
+ * <p>
  * Created by dl on 9/16/14.
  */
 public class ParameterConverterManager {
     private final AlgorithmCompiler compiler;
 
-    /** return type for some contexts that are represented as functions **/
+    /**
+     * return type for some contexts that are represented as functions
+     **/
     private final IOpenClass returnType;
 
     private final LabelManager labelManager;
@@ -40,20 +42,20 @@ public class ParameterConverterManager {
     }
 
     public Object convertParam(List<AlgorithmTreeNode> nodesToCompile,
-            Class<?> clazz,
-            String operationParam,
-            IBindingContext bindingContext) {
+                               Class<?> clazz,
+                               String operationParam,
+                               IBindingContext bindingContext) {
 
         ParameterConverter converter = parameterConverters.get(clazz);
 
         if (converter == null) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
-                .getAlgorithmRow()
-                .getOperation()
-                .asSourceCodeModule();
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
             BindHelper.processError(String.format("Compilation failure. Cannot convert parameter %s to type %s",
-                operationParam,
-                clazz.toString()), errorSource, bindingContext);
+                    operationParam,
+                    clazz.toString()), errorSource, bindingContext);
         }
 
         return converter.convert(nodesToCompile, operationParam, bindingContext);
@@ -67,13 +69,13 @@ public class ParameterConverterManager {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam,
-                IBindingContext bindingContext) {
+                              String operationParam,
+                              IBindingContext bindingContext) {
             if (labelManager.isLabelInstruction(operationParam)) {
                 return labelManager.getLabelByInstruction(operationParam);
             } else if (AlgorithmCompilerTool.isOperationFieldInstruction(operationParam)) {
                 StringValue content = AlgorithmCompilerTool
-                    .getCellContent(nodesToCompile, operationParam, bindingContext);
+                        .getCellContent(nodesToCompile, operationParam, bindingContext);
 
                 return content.getValue();
             } else {
@@ -87,8 +89,8 @@ public class ParameterConverterManager {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam,
-                IBindingContext bindingContext) {
+                              String operationParam,
+                              IBindingContext bindingContext) {
             return Boolean.parseBoolean(operationParam);
         }
     }
@@ -97,19 +99,19 @@ public class ParameterConverterManager {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam,
-                IBindingContext bindingContext) {
+                              String operationParam,
+                              IBindingContext bindingContext) {
             if (operationParam == null) {
                 return null;
             }
 
             StringValue cellContent = AlgorithmCompilerTool
-                .getCellContent(nodesToCompile, operationParam, bindingContext);
+                    .getCellContent(nodesToCompile, operationParam, bindingContext);
 
             AlgorithmTreeNode executionNode = AlgorithmCompilerTool
-                .extractOperationNode(nodesToCompile, operationParam, bindingContext);
+                    .extractOperationNode(nodesToCompile, operationParam, bindingContext);
             String methodName = String
-                .format("%s_row_%s", operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
+                    .format("%s_row_%s", operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
 
             IOpenSourceCodeModule src = cellContent.getMetaInfo().getSource();
             // return statements for the whole Algorithm(TBasic) should be casted to the return type of

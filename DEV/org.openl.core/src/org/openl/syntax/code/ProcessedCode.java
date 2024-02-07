@@ -12,13 +12,13 @@ import org.openl.message.OpenLMessage;
 public class ProcessedCode {
 
     public ProcessedCode(IParsedCode parsedCode,
-            IBoundCode boundCode,
-            Collection<OpenLMessage> allMessages,
-            Collection<OpenLMessage> messages) {
+                         IBoundCode boundCode,
+                         Collection<OpenLMessage> allMessages,
+                         Collection<OpenLMessage> messages) {
         this.parsedCode = parsedCode;
         this.boundCode = boundCode;
         this.allMessages = allMessages != null ? Collections.unmodifiableCollection(allMessages)
-                                               : Collections.emptyList();
+                : Collections.emptyList();
         this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
     }
 

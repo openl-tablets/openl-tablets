@@ -75,7 +75,7 @@ public class DatatypeHelper {
         // If first or second row is blank or starts with number, it cannot be a type name and field name respectively,
         // in this case we can assume that the third column is definitely for defaults
         return isDefault(table.getCell(DEFAULTS_COLUMN, TYPE_NAME_COLUMN)) || isDefault(
-            table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
+                table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
     }
 
     private static boolean isDefault(ICell cell) {

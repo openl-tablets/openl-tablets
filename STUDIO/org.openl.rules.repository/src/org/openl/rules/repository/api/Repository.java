@@ -11,7 +11,7 @@ import java.util.List;
  * based on a Database or a File System. This repository does not assume that it should support transactions, sessions
  * or concurrent access. This repository must support only the atomicity of file modification, so the file always
  * contains valid data.
- *
+ * <p>
  * All path names in the repository MUST BE relative and satisfy to the following rules:
  * <ol>
  * <li>Only '/' symbol MUST be used to separate folders</li>
@@ -21,7 +21,7 @@ import java.util.List;
  * <li>The path to the root folder is the empty path</li>
  * <li>The path must be normalized, without '..' and '.'</li>
  * </ol>
- *
+ * <p>
  * Examples:
  * <ul>
  * <li>'' - the root folder</li>
@@ -36,14 +36,14 @@ import java.util.List;
 public interface Repository extends AutoCloseable {
     /**
      * Get unique identifier for Repository. Used to distinguish one repository from another. Must be unique.
-     * 
+     *
      * @return repository id.
      */
     String getId();
 
     /**
      * Get repository name shown on UI.
-     * 
+     *
      * @return repository name
      */
     String getName();
@@ -78,7 +78,7 @@ public interface Repository extends AutoCloseable {
     /**
      * Save a file.
      *
-     * @param data the file descriptor.
+     * @param data   the file descriptor.
      * @param stream the stream to save with the specified file descriptor.
      * @return the resulted file descriptor after successful writing.
      * @throws IOException if not possible to save the file.
@@ -133,7 +133,7 @@ public interface Repository extends AutoCloseable {
      * Read a file descriptor by the given path name of the given version. If the version is null, then it will work
      * like {@link #check(String)} method.
      *
-     * @param name the path name of the file to read.
+     * @param name    the path name of the file to read.
      * @param version the version of the file to read, can be null.
      * @return the file descriptor or null if the file is absent.
      * @throws IOException if not possible to read the file descriptor.
@@ -145,7 +145,7 @@ public interface Repository extends AutoCloseable {
      * Read a file by the given path name of the given version. If the version is null, then it will work like
      * {@link #read(String)} method.
      *
-     * @param name the path name of the file to read.
+     * @param name    the path name of the file to read.
      * @param version the version of the file to read, can be null.
      * @return the file descriptor or null if the file is absent.
      * @throws IOException if not possible to read the file.
@@ -158,7 +158,7 @@ public interface Repository extends AutoCloseable {
      * history.
      *
      * @param data the file descriptor to delete. The fields "name", "version", "author" and "comment" must be
-     *            initialized.
+     *             initialized.
      * @return true if file has been deleted successfully or false if the file is absent.
      * @throws IOException if not possible to delete the file.
      * @see #delete(FileData)
@@ -168,9 +168,9 @@ public interface Repository extends AutoCloseable {
     /**
      * Copy a file of the given version to the destination file. If the version is null, then copy latest version.
      *
-     * @param srcName the file to copy.
+     * @param srcName  the file to copy.
      * @param destData the destination file descriptor.
-     * @param version the version of the file to copy
+     * @param version  the version of the file to copy
      * @return the file descriptor of the resulted file.
      * @throws IOException if not possible to copy the file
      */
@@ -189,7 +189,7 @@ public interface Repository extends AutoCloseable {
      * Return a list of files recursively in the given folder and given version. Typically folder's version is version of
      * the latest changed file inside that folder.
      *
-     * @param path the folder to scan. The path must be ended by '/' or be empty.
+     * @param path    the folder to scan. The path must be ended by '/' or be empty.
      * @param version the version of the folder to read, can be null.
      * @return the list of the file descriptors. Invalid files are ignored.
      * @throws IOException if not possible to read the directory.
@@ -199,11 +199,11 @@ public interface Repository extends AutoCloseable {
     /**
      * Save the folder.
      *
-     * @param folderData folder descriptor
-     * @param files all files inside the folder recursively or only changed (modified, added, deleted) files depending
-     *            on changesetType
+     * @param folderData    folder descriptor
+     * @param files         all files inside the folder recursively or only changed (modified, added, deleted) files depending
+     *                      on changesetType
      * @param changesetType if {@link ChangesetType#DIFF}, only changed files. If {@link ChangesetType#FULL} all files
-     *            that exist in project
+     *                      that exist in project
      * @return the resulted folder descriptor after successful writing.
      * @throws IOException if not possible to save the folder.
      */
@@ -224,7 +224,7 @@ public interface Repository extends AutoCloseable {
 
     /**
      * Validate underlying connection. Default implementation does nothing.
-     * 
+     *
      * @throws IOException if connection cannot be established
      */
     default void validateConnection() throws IOException {
@@ -236,7 +236,7 @@ public interface Repository extends AutoCloseable {
      * @param path the path to validate
      * @throws InvalidPathException
      */
-    static void validatePath(String path) throws InvalidPathException{
+    static void validatePath(String path) throws InvalidPathException {
         if (path == null || path.isEmpty()) {
             return;
         }

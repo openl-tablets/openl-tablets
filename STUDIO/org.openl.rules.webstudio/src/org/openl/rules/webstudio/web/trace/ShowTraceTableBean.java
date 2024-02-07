@@ -94,7 +94,7 @@ public class ShowTraceTableBean {
 
         RegionGridSelector gridSelector = new RegionGridSelector(aRegions, true);
         ColorGridFilter colorGridFilter = new ColorGridFilter(gridSelector, defaultColorFilter);
-        return new IGridFilter[] { colorGridFilter };
+        return new IGridFilter[]{colorGridFilter};
     }
 
     public ParameterWithValueDeclaration[] getInputParameters() {
@@ -108,7 +108,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
             paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                parameters[i], tracedMethod.getSignature().getParameterType(i));
+                    parameters[i], tracedMethod.getSignature().getParameterType(i));
         }
         return paramDescriptions;
     }

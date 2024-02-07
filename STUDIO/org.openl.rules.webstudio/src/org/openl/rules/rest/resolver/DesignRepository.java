@@ -13,7 +13,7 @@ import org.springframework.core.annotation.AliasFor;
 
 /**
  * Annotation which indicates that a method parameter should be bound to a URI template variable.
- *
+ * <p>
  * Assigned value type must be assignable to {@link org.openl.rules.repository.api.Repository}
  *
  * @author Vladyslav Pikus

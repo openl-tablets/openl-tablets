@@ -14,8 +14,8 @@ public class AnnotationTransformationHelper {
     }
 
     public static String transformAnnotation(AnnotationDescription annotation,
-            Character lineOpening,
-            Set<String> imports) {
+                                             Character lineOpening,
+                                             Set<String> imports) {
         StringBuilder annotationText;
         if (lineOpening == null) {
             annotationText = new StringBuilder();

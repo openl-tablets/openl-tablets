@@ -128,7 +128,7 @@ public class S3Repository implements Repository, Closeable {
         }
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
             builder.credentialsProvider(
-                StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)));
+                    StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)));
         } else {
             builder.credentialsProvider(DefaultCredentialsProvider.create());
         }
@@ -147,15 +147,15 @@ public class S3Repository implements Repository, Closeable {
                 if (BucketVersioningStatus.ENABLED != verResp.status()) {
                     try {
                         s3.putBucketVersioning(PutBucketVersioningRequest.builder()
-                            .bucket(bucketName)
-                            .versioningConfiguration(
-                                VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
-                            .build());
+                                .bucket(bucketName)
+                                .versioningConfiguration(
+                                        VersioningConfiguration.builder().status(BucketVersioningStatus.ENABLED).build())
+                                .build());
                     } catch (S3Exception | SdkClientException e) {
                         // Possibly don't have permission
                         log.warn("Bucket versioning status: {}. Cannot enable versioning. Error message: {}",
-                            verResp.status(),
-                            e.getMessage(), e);
+                                verResp.status(),
+                                e.getMessage(), e);
                     }
                 }
             } catch (S3Exception | SdkClientException e) {
@@ -319,10 +319,10 @@ public class S3Repository implements Repository, Closeable {
 
     private void doSave(FileData data, InputStream stream) {
         var request = PutObjectRequest.builder()
-            .bucket(bucketName)
-            .key(data.getName())
-            .metadata(createInsertFileMetadata(data))
-            .build();
+                .bucket(bucketName)
+                .key(data.getName())
+                .metadata(createInsertFileMetadata(data))
+                .build();
 
         s3.putObject(request, RequestBody.fromInputStream(stream, data.getSize()));
     }
@@ -498,7 +498,7 @@ public class S3Repository implements Repository, Closeable {
                 for (var versionSummary : response.versions()) {
                     if (versionSummary.key().equals(name) && versionSummary.versionId().equals(version)) {
                         return new FileItem(checkHistory(name, version),
-                            new DrainableInputStream(doRead(name, version)));
+                                new DrainableInputStream(doRead(name, version)));
                     }
                 }
                 if (response.isTruncated()) {
@@ -539,12 +539,12 @@ public class S3Repository implements Repository, Closeable {
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
         try {
             var request = CopyObjectRequest.builder()
-                .sourceBucket(bucketName)
-                .sourceKey(srcName)
-                .sourceVersionId(version)
-                .destinationBucket(bucketName)
-                .destinationKey(destData.getName())
-                .build();
+                    .sourceBucket(bucketName)
+                    .sourceKey(srcName)
+                    .sourceVersionId(version)
+                    .destinationBucket(bucketName)
+                    .destinationKey(destData.getName())
+                    .build();
 
             var response = s3.copyObject(request);
             onModified();
@@ -585,10 +585,10 @@ public class S3Repository implements Repository, Closeable {
         }
 
         var request = PutObjectRequest.builder()
-            .bucket(bucketName)
-            .key(MODIFICATION_FILE)
-            .metadata(metadataMap)
-            .build();
+                .bucket(bucketName)
+                .key(MODIFICATION_FILE)
+                .metadata(metadataMap)
+                .build();
         s3.putObject(request, RequestBody.empty());
 
         // Invoke listener if exist
@@ -615,9 +615,9 @@ public class S3Repository implements Repository, Closeable {
             }
             if (!versions.isEmpty()) {
                 var batchDeleteRequest = DeleteObjectsRequest.builder()
-                    .bucket(bucketName)
-                    .delete(Delete.builder().objects(versions).build())
-                    .build();
+                        .bucket(bucketName)
+                        .delete(Delete.builder().objects(versions).build())
+                        .build();
                 s3.deleteObjects(batchDeleteRequest);
             }
 

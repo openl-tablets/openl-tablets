@@ -27,7 +27,7 @@ public class SpreadsheetColumnExtractorTest {
 
             @Override
             protected NestedSpreadsheedColumnExtractor initCompoundColumnExtractor(int nestingLevel,
-                    ColumnToExtract column) {
+                                                                                   ColumnToExtract column) {
                 throw new UnsupportedOperationException();
             }
         };
@@ -51,7 +51,7 @@ public class SpreadsheetColumnExtractorTest {
         String testedValue = "DOWN";
         ColumnToExtract columnToExtract = new ColumnToExtract("Code", String.class);
         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
-            getConfiguration());
+                getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
@@ -70,7 +70,7 @@ public class SpreadsheetColumnExtractorTest {
         String testedValue = "DOWN";
         ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class);
         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
-            getConfiguration());
+                getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
@@ -82,7 +82,7 @@ public class SpreadsheetColumnExtractorTest {
     public void testExtractingValueOfNotAppropriateType() {
         ColumnToExtract columnToExtract = new ColumnToExtract("Value", Double.class);
         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
-            getConfiguration());
+                getConfiguration());
 
         SimpleStep instanceToPopulate = new SimpleStep();
 

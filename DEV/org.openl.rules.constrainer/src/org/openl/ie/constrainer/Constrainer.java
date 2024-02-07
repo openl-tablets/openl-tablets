@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -34,15 +35,15 @@ import org.openl.ie.tools.FastVector;
  * An implementation of the Constrainer - a placeholder for all variables, constraints, and search goals of the problem.
  * <p>
  * The Constrainer is a Java package for modeling and solving different constraint satisfaction problems.
- *
+ * <p>
  * A problem is represented in terms of the decision variables and constraints, which define relationships between these
  * variables.
- *
+ * <p>
  * The decision variables could be represented in form of Java objects which may use the predefined constrained
  * variables such as IntVar.
- *
+ * <p>
  * The constraints themselves are objects inherited from a generic class Constraint.
- *
+ * <p>
  * A user can define new business constraints.
  *
  * <p>
@@ -120,6 +121,7 @@ public final class Constrainer implements Serializable {
      * ============================================================================== Misc: toString(), helpers, ...
      * ============================================================================
      */
+
     /**
      * This method aborts the program execution. It prints the "msg" and the stack trace. Used to display "impossible"
      * errors.
@@ -155,7 +157,6 @@ public final class Constrainer implements Serializable {
 
     /**
      * Helper to print the vector of obects.
-     *
      */
     static void printObjects(PrintStream out, String prefix, FastVector objects) {
         int size = objects.size();
@@ -229,7 +230,6 @@ public final class Constrainer implements Serializable {
      * Creates and adds a constrained boolean variable to the Constrainer.
      *
      * @param name Variable's symbolic name.
-     *
      * @return The added variable.
      */
     public IntBoolVar addIntBoolVar(String name) {
@@ -251,10 +251,9 @@ public final class Constrainer implements Serializable {
     /**
      * Adds a constrained integer variable to the Constrainer.
      *
-     * @param min The minimum possible value of the variable being added.
-     * @param max The maximum possible value of the variable being added.
+     * @param min  The minimum possible value of the variable being added.
+     * @param max  The maximum possible value of the variable being added.
      * @param type The {@link Domain} type of the variable being added.
-     *
      * @return The added variable.
      */
     public IntVar addIntVar(int min, int max, int type) {
@@ -264,8 +263,8 @@ public final class Constrainer implements Serializable {
     /**
      * Adds a constrained integer variable to the Constrainer.
      *
-     * @param min The minimum possible value of the variable being added.
-     * @param max The maximum possible value of the variable being added.
+     * @param min  The minimum possible value of the variable being added.
+     * @param max  The maximum possible value of the variable being added.
      * @param name Variable's symbolic name.
      * @return The added variable.
      */
@@ -276,8 +275,8 @@ public final class Constrainer implements Serializable {
     /**
      * Adds a constrained integer variable to the Constrainer.
      *
-     * @param min The minimum possible value of the variable being added.
-     * @param max The maximum possible value of the variable being added.
+     * @param min  The minimum possible value of the variable being added.
+     * @param max  The maximum possible value of the variable being added.
      * @param name Variable's symbolic name.
      * @param type The {@link Domain} type of the variable being added.
      * @return The added variable.
@@ -324,6 +323,7 @@ public final class Constrainer implements Serializable {
      * ============================================================================== Propagation
      * ============================================================================
      */
+
     /**
      * Adds the subject (usually variable) to the propagation queue. It happenes when the subject changes its state. The
      * notificatioin events will be generated in {@link #propagate} method.
@@ -336,6 +336,7 @@ public final class Constrainer implements Serializable {
      * ============================================================================== Undo objects
      * ============================================================================
      */
+
     /**
      * Adds an undo-object to the reversibility stack.
      *
@@ -352,7 +353,7 @@ public final class Constrainer implements Serializable {
      * one time between choice points. Constrainer notifies such objects when backtrack or choice point occures.
      *
      * @param undo_object Undo object to add.
-     * @param undoable Undoable object to add for notification.
+     * @param undoable    Undoable object to add for notification.
      */
     public void addUndo(Undo undo_object, Undoable undoable) {
         addUndo(undo_object);
@@ -439,14 +440,14 @@ public final class Constrainer implements Serializable {
      */
     void doPrintInformation() {
         _out.println(
-            "\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: " + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
+                "\nChoice Points: " + _number_of_choice_points + "  Failures: " + _number_of_failures + "  Undos: " + _number_of_undos + "  Notifications: " + _number_of_notifications + "  Memory: " + (_max_occupied_memory - _initial_memory) + "  Time: " + _execution_time + "msec");
     }
 
     /**
      * Executes the goal without state restoration.
      *
-     * @return true if success
      * @param goal org.openl.ie.constrainer.Goal
+     * @return true if success
      */
     public boolean execute(Goal goal) {
         return execute(goal, false);
@@ -458,9 +459,9 @@ public final class Constrainer implements Serializable {
      * Returns false otherwise. The second parameter allows a user to restore the state of the constrainer after the
      * succesful execution of the main_goal.
      *
-     * @return true if success
-     * @param main_goal org.openl.ie.constrainer.Goal
+     * @param main_goal    org.openl.ie.constrainer.Goal
      * @param restore_flag boolean
+     * @return true if success
      */
     synchronized public boolean execute(Goal main_goal, boolean restore_flag) {
         long execution_start = System.currentTimeMillis();
@@ -545,6 +546,7 @@ public final class Constrainer implements Serializable {
      * ============================================================================== High-level Components
      * ============================================================================
      */
+
     /**
      * Returns the expression factory for this constrainer.
      */

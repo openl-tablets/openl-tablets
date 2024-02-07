@@ -19,7 +19,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public final class NullOpenClass implements IOpenClass {
 

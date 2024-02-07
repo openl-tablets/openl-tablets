@@ -87,8 +87,8 @@ class TableSyntaxNodeDispatcherBuilder {
     private final MatchingOpenMethodDispatcher dispatcher;
 
     TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext rulesModuleBindingContext,
-            XlsModuleOpenClass moduleOpenClass,
-            MatchingOpenMethodDispatcher dispatcher) {
+                                     XlsModuleOpenClass moduleOpenClass,
+                                     MatchingOpenMethodDispatcher dispatcher) {
         if (rulesModuleBindingContext == null || moduleOpenClass == null || dispatcher == null) {
             throw new IllegalArgumentException("None of the constructor parameters can be null");
         }
@@ -102,7 +102,7 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private static IDecisionTableColumn makeColumn(TablePropertyDefinition dimensionProperty,
-            DispatcherTableRules rules) {
+                                                   DispatcherTableRules rules) {
         if (dimensionProperty.getType().isArray()) {
             return new ArrayParameterColumn(dimensionProperty, rules);
         } else {
@@ -132,8 +132,8 @@ class TableSyntaxNodeDispatcherBuilder {
             DispatcherTableRules rules = new DispatcherTableRules(propertiesFromMethods);
             List<IDecisionTableColumn> conditions = getConditions(propertiesFromMethods, rules);
             DispatcherTableReturnColumn returnColumn = new DispatcherTableReturnColumn(dispatcher.getType(),
-                dispatcher.getName(),
-                dispatcher.getSignature());
+                    dispatcher.getName(),
+                    dispatcher.getSignature());
 
             DecisionTableBuilder decisionTableBuilder = new DecisionTableBuilder();
             decisionTableBuilder.setConditions(conditions);
@@ -173,13 +173,13 @@ class TableSyntaxNodeDispatcherBuilder {
             OpenMethodHeader header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
 
             DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn,
-                moduleOpenClass.getOpenl(),
-                header,
-                moduleOpenClass);
+                    moduleOpenClass.getOpenl(),
+                    header,
+                    moduleOpenClass);
             DecisionTable decisionTable = new DecisionTable(header, boundNode, false);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(
-                new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
+                    new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
 
             loadCreatedTable(decisionTable, tsn);
 
@@ -225,7 +225,7 @@ class TableSyntaxNodeDispatcherBuilder {
      */
     private boolean needToBuild() {
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
-            .getDimensionalTableProperties();
+                .getDimensionalTableProperties();
 
         List<ITableProperties> propertiesFromMethods = getMethodsProperties();
 
@@ -238,10 +238,10 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private List<IDecisionTableColumn> getConditions(List<ITableProperties> propertiesFromMethods,
-            DispatcherTableRules rules) {
+                                                     DispatcherTableRules rules) {
 
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
-            .getDimensionalTableProperties();
+                .getDimensionalTableProperties();
 
         List<IDecisionTableColumn> conditions = new ArrayList<>();
 
@@ -293,8 +293,8 @@ class TableSyntaxNodeDispatcherBuilder {
         IMethodSignature originalSignature = getMethodSignature();
         for (int j = 0; j < originalSignature.getNumberOfParameters(); j++) {
             updatedIncomeParams.put(
-                getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
-                originalSignature.getParameterType(j));
+                    getDispatcherParameterNameForOriginalParameter(originalSignature.getParameterName(j)),
+                    originalSignature.getParameterType(j));
         }
         updatedIncomeParams.putAll(INCOME_PARAMS);
         return updatedIncomeParams;
@@ -345,24 +345,24 @@ class TableSyntaxNodeDispatcherBuilder {
      * Load and bind the decision table by OpenL.
      *
      * @param decisionTable created decision table.
-     * @param tsn created table syntax node.
+     * @param tsn           created table syntax node.
      */
     private void loadCreatedTable(DecisionTable decisionTable, TableSyntaxNode tsn) {
         tsn.setMember(decisionTable);
 
         PropertiesLoader propLoader = new PropertiesLoader(moduleOpenClass.getOpenl(),
-            rulesModuleBindingContext,
-            moduleOpenClass);
+                rulesModuleBindingContext,
+                moduleOpenClass);
         propLoader.loadDefaultProperties(tsn);
 
         setTableProperties(tsn);
 
         try {
             new DecisionTableLoader().loadAndBind(tsn,
-                decisionTable,
-                moduleOpenClass.getOpenl(),
-                moduleOpenClass,
-                createContextWithAuxiliaryMethods());
+                    decisionTable,
+                    moduleOpenClass.getOpenl(),
+                    moduleOpenClass,
+                    createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));
@@ -421,7 +421,7 @@ class TableSyntaxNodeDispatcherBuilder {
         private final Map<MethodKey, IOpenMethod> auxiliaryMethods;
 
         InternalBindingContextDelegator(RulesModuleBindingContext context,
-                Map<MethodKey, IOpenMethod> auxiliaryMethods) {
+                                        Map<MethodKey, IOpenMethod> auxiliaryMethods) {
             super(context);
             this.auxiliaryMethods = auxiliaryMethods;
         }

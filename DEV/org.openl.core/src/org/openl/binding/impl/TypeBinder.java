@@ -13,7 +13,6 @@ import org.openl.types.IOpenClass;
  * <li>int[][][]</li>
  *
  * @author Yury Molchan
- *
  */
 public class TypeBinder extends ANodeBinder {
 

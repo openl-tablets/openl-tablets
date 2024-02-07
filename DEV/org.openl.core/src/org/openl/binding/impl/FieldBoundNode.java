@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * This node handles both a single value and a multi-dimension arrays.
- *
+ * <p>
  * Examples:
  * <p>
  * Object value = target.filed
@@ -22,7 +22,6 @@ import org.openl.vm.IRuntimeEnv;
  * </p>
  *
  * @author Yury Molchan
- *
  */
 public class FieldBoundNode extends ATargetBoundNode {
 

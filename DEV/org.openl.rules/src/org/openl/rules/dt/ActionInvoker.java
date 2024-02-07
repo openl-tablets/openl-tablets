@@ -48,9 +48,9 @@ public class ActionInvoker implements Invokable {
     }
 
     private Object addReturnValues(Map<Object, Object> returnValue,
-            Object returnValues,
-            Object keyValues,
-            boolean[] f) {
+                                   Object returnValues,
+                                   Object keyValues,
+                                   boolean[] f) {
         int returnValuesLength = Array.getLength(returnValues);
         for (int i = 0; i < returnValuesLength; i++) {
             if (f[i] && isValidResult(Array.get(keyValues, i)) && isValidResult(Array.get(returnValues, i))) {
@@ -100,9 +100,9 @@ public class ActionInvoker implements Invokable {
             if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
                 try {
                     return addReturnValues((Map<Object, Object>) type.getInstanceClass().getDeclaredConstructor().newInstance(),
-                        returnValues,
-                        keyValues,
-                        f);
+                            returnValues,
+                            keyValues,
+                            f);
                 } catch (Exception e) {
                     throw new OpenLRuntimeException(e);
                 }
@@ -200,12 +200,12 @@ public class ActionInvoker implements Invokable {
     }
 
     private void executeActionAndWriteValues(Object target,
-            Object[] params,
-            IRuntimeEnv env,
-            Object values,
-            boolean[] f,
-            IBaseAction action,
-            int[] rules) {
+                                             Object[] params,
+                                             IRuntimeEnv env,
+                                             Object values,
+                                             boolean[] f,
+                                             IBaseAction action,
+                                             int[] rules) {
         for (int i = 0; i < rules.length; i++) {
             Object actionResult = action.executeAction(rules[i], target, params, env);
             if (isValidResult(actionResult) && (Array.get(values, i) == null || !f[i])) {

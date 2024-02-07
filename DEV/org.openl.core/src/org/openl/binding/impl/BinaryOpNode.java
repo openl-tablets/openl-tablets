@@ -7,7 +7,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class BinaryOpNode extends MethodBoundNode {
     public static Object evaluateBinaryMethod(IRuntimeEnv env, Object[] pars, IMethodCaller boundMethod) {
@@ -16,7 +15,7 @@ public class BinaryOpNode extends MethodBoundNode {
             return boundMethod.invoke(null, pars, env);
         }
 
-        return boundMethod.invoke(pars[0], new Object[] { pars[1] }, env);
+        return boundMethod.invoke(pars[0], new Object[]{pars[1]}, env);
     }
 
     private final boolean useBinaryMethod;
@@ -36,8 +35,8 @@ public class BinaryOpNode extends MethodBoundNode {
         Object rightValue = right.evaluate(env);
 
         if (useBinaryMethod) {
-            return boundMethod.invoke(null, new Object[] { leftValue, rightValue }, env);
+            return boundMethod.invoke(null, new Object[]{leftValue, rightValue}, env);
         }
-        return boundMethod.invoke(leftValue, new Object[] { rightValue }, env);
+        return boundMethod.invoke(leftValue, new Object[]{rightValue}, env);
     }
 }

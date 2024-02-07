@@ -546,8 +546,8 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     private PreparedStatement createInsertFileStatement(Connection connection,
-            FileData data,
-            InputStream stream) throws SQLException {
+                                                        FileData data,
+                                                        InputStream stream) throws SQLException {
 
         PreparedStatement statement = null;
         try {

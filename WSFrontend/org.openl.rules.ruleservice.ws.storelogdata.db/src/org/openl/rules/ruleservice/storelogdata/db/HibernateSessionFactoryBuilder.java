@@ -27,7 +27,7 @@ public class HibernateSessionFactoryBuilder implements ApplicationContextAware {
             synchronized (this) {
                 if (this.applicationContextProperties == null) {
                     this.applicationContextProperties = PropertiesLoader
-                        .getApplicationContextProperties(applicationContext);
+                            .getApplicationContextProperties(applicationContext);
                 }
             }
         }

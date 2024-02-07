@@ -25,25 +25,25 @@ public class HiveEntityDao {
     private final List<Field> sortedPartitionedFields;
     private final List<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
-        byte.class,
-        Short.class,
-        short.class,
-        Integer.class,
-        int.class,
-        Long.class,
-        long.class,
-        Float.class,
-        float.class,
-        Double.class,
-        double.class,
-        BigDecimal.class,
-        Boolean.class,
-        boolean.class,
-        String.class,
-        LocalDateTime.class,
-        LocalDate.class,
-        ZonedDateTime.class,
-        Date.class));
+            byte.class,
+            Short.class,
+            short.class,
+            Integer.class,
+            int.class,
+            Long.class,
+            long.class,
+            Float.class,
+            float.class,
+            Double.class,
+            double.class,
+            BigDecimal.class,
+            Boolean.class,
+            boolean.class,
+            String.class,
+            LocalDateTime.class,
+            LocalDate.class,
+            ZonedDateTime.class,
+            Date.class));
 
     public HiveEntityDao(Class<?> entityClass) throws UnsupportedFieldTypeException {
         checkTypes(entityClass);
@@ -64,11 +64,11 @@ public class HiveEntityDao {
         for (Field field : entityClass.getDeclaredFields()) {
             if (!field.isSynthetic() && !supportedTypes.contains(field.getType())) {
                 throw new UnsupportedFieldTypeException(String.format(
-                    "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed types are '%s'.",
-                    entityClass.getTypeName(),
-                    field.getName(),
-                    field.getType().getTypeName(),
-                    supportedTypes.stream().map(Class::getName).collect(Collectors.joining(", "))));
+                        "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed types are '%s'.",
+                        entityClass.getTypeName(),
+                        field.getName(),
+                        field.getType().getTypeName(),
+                        supportedTypes.stream().map(Class::getName).collect(Collectors.joining(", "))));
             }
         }
     }
@@ -89,8 +89,8 @@ public class HiveEntityDao {
     }
 
     private void setValue(PreparedStatement preparedStatement, int index, Field field, Object entity) throws IllegalAccessException,
-                                                                 SQLException,
-                                                                 UnsupportedFieldTypeException {
+            SQLException,
+            UnsupportedFieldTypeException {
         if (String.class.equals(field.getType())) {
             preparedStatement.setString(index, (String) field.get(entity));
         } else if (Integer.class.equals(field.getType()) || int.class.equals(field.getType())) {
@@ -112,7 +112,7 @@ public class HiveEntityDao {
         } else if (ZonedDateTime.class.equals(field.getType())) {
             ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
             preparedStatement.setTimestamp(index,
-                zonedDateTime == null ? null : Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
+                    zonedDateTime == null ? null : Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
         } else if (LocalDateTime.class.equals(field.getType())) {
             LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
             preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));
@@ -124,10 +124,10 @@ public class HiveEntityDao {
             preparedStatement.setDate(index, date == null ? null : new java.sql.Date(date.getTime()));
         } else {
             throw new UnsupportedFieldTypeException(
-                String.format("Field '%s' of class '%s' cannot be stored. Unsupported field type '%s'.",
-                    field.getName(),
-                    field.getType().getTypeName(),
-                    field.getType()));
+                    String.format("Field '%s' of class '%s' cannot be stored. Unsupported field type '%s'.",
+                            field.getName(),
+                            field.getType().getTypeName(),
+                            field.getType()));
         }
     }
 

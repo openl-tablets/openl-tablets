@@ -64,13 +64,13 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private static final AtomicLong incrementer = new AtomicLong();
 
-    private static final Class<?>[] VARIATION_CLASSES = new Class[] { Variation.class,
+    private static final Class<?>[] VARIATION_CLASSES = new Class[]{Variation.class,
             NoVariation.class,
             ArgumentReplacementVariation.class,
             ComplexVariation.class,
             DeepCloningVariation.class,
             JXPathVariation.class,
-            VariationsResult.class };
+            VariationsResult.class};
 
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
@@ -108,9 +108,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
     private Class<?> enhanceMixInClassWithSubTypes(Class<?> classFor,
-            Class<?> originalMixInClass,
-            Set<Class<?>> classes,
-            ClassLoader classLoader) {
+                                                   Class<?> originalMixInClass,
+                                                   Set<Class<?>> classes,
+                                                   ClassLoader classLoader) {
         Class<?> originalClass = originalMixInClass;
         if (originalClass == null) {
             originalClass = SubtypeMixin.class;
@@ -128,17 +128,17 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         String className = classFor.getName() + "$EnhancedMixInClassWithSubTypes$" + incrementer.getAndIncrement();
         ClassWriter classWriter = new ClassWriter(0);
         String typingPropertyName = StringUtils.isNotBlank(
-            getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
         if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
             typingPropertyName = null;
         }
         ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-            originalClass,
-            parentTypeClass,
-            subTypeClasses.toArray(new Class<?>[0]),
-            Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
-                .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
-            typingPropertyName);
+                originalClass,
+                parentTypeClass,
+                subTypeClasses.toArray(new Class<?>[0]),
+                Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
+                        .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
+                typingPropertyName);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
@@ -158,18 +158,18 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         mapper.enable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         mapper.registerModule(new ParameterNamesModule())
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule());
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule());
 
         mapper.registerModule(new SimpleModule()
-            .addSerializer(Double.class, new DoubleSerializer(Double.class))
-            .addSerializer(Double.TYPE, new DoubleSerializer(Double.TYPE))
-            .addSerializer(Float.class, new FloatSerializer())
-            .addSerializer(Float.TYPE, new FloatSerializer()));
+                .addSerializer(Double.class, new DoubleSerializer(Double.class))
+                .addSerializer(Double.TYPE, new DoubleSerializer(Double.TYPE))
+                .addSerializer(Float.class, new FloatSerializer())
+                .addSerializer(Float.TYPE, new FloatSerializer()));
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
-            TypeFactory.defaultInstance());
+                TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
@@ -177,7 +177,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
-            secondaryIntrospector);
+                secondaryIntrospector);
 
         mapper.setAnnotationIntrospector(introspector);
 
@@ -193,7 +193,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
-            polymorphicTypeValidation);
+                polymorphicTypeValidation);
 
         for (Class<?> clazz : getConfigurationClasses()) {
             MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
@@ -234,11 +234,11 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                     break;
             }
             mapper.activateDefaultTypingAsProperty(
-                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
-                                          : LaissezFaireSubTypeValidator.instance,
-                defaultTyping,
-                StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
-                                                                : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
+                    polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                            : LaissezFaireSubTypeValidator.instance,
+                    defaultTyping,
+                    StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
+                            : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
         } else {
             mapper.deactivateDefaultTyping();
         }
@@ -271,9 +271,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         for (Class<?> clazz : overrideClasses) {
             Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
-                mapper.findMixInClassFor(clazz),
-                overrideClasses,
-                getClassLoader());
+                    mapper.findMixInClassFor(clazz),
+                    overrideClasses,
+                    getClassLoader());
             mapper.addMixIn(clazz, subtypeMixInClass);
         }
 
@@ -293,7 +293,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     private Set<Class<?>> extractOverrideClasses(Builder basicPolymorphicTypeValidatorBuilder,
-            boolean polymorphicTypeValidation) throws ClassNotFoundException {
+                                                 boolean polymorphicTypeValidation) throws ClassNotFoundException {
         Set<Class<?>> classes = new HashSet<>();
         if (getOverrideTypes() != null) {
             for (String className : getOverrideTypes()) {
@@ -335,9 +335,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
-            boolean polymorphicTypeValidation,
-            Set<Class<?>> classes,
-            Class<?> clazz) {
+                                       boolean polymorphicTypeValidation,
+                                       Set<Class<?>> classes,
+                                       Class<?> clazz) {
         if (!classes.contains(clazz)) {
             if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
                 classes.add(clazz);
@@ -349,9 +349,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 if (xmlSeeAlso != null) {
                     for (Class<?> cls : xmlSeeAlso.value()) {
                         registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
-                            polymorphicTypeValidation,
-                            classes,
-                            cls);
+                                polymorphicTypeValidation,
+                                classes,
+                                cls);
                     }
                 }
             }
@@ -377,8 +377,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
      *     2016-12-31T22:00:00+0300 corresponds to 2016-12-31T21:00:00+0200 in local Time Zone
      * </pre>
      *
-     * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
      * @return
+     * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
      */
     private static DateFormat getISO8601Format() {
         StdDateFormat iso8601Format = new StdDateFormat();

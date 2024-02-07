@@ -17,7 +17,7 @@ class ComparableComparator<T extends Comparable<T>> extends GenericComparator<T>
     @Override
     boolean fit(Object expected, Object actual) {
         return (expected == null || Comparable.class.isAssignableFrom(
-            expected.getClass())) && (actual == null || Comparable.class.isAssignableFrom(actual.getClass()));
+                expected.getClass())) && (actual == null || Comparable.class.isAssignableFrom(actual.getClass()));
     }
 
     @Override

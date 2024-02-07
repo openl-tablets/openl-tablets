@@ -42,7 +42,7 @@ public class DeepCloningVariation extends Variation {
      * Constructs deep-cloning variation with the specified ID.
      *
      * @param variationID Unique variation ID.
-     * @param variation Delegated variation.
+     * @param variation   Delegated variation.
      */
     public DeepCloningVariation(String variationID, Variation variation) {
         super(variationID);

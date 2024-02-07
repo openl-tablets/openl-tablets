@@ -57,7 +57,7 @@ public class ConstructorNamedParamsNode extends ABoundNode implements Constructo
         IOpenMethod method = constructor.getMethodCaller().getMethod();
 
         Map<String, IOpenClass> params = Arrays.stream(getChildren()).map(node -> node.getChildren()[0])
-            .collect(StreamUtils.toLinkedMap(node -> node.getSyntaxNode().getText(), IBoundNode::getType));
+                .collect(StreamUtils.toLinkedMap(node -> node.getSyntaxNode().getText(), IBoundNode::getType));
 
         return MethodUtil.printConstructorWithNamedParameters(method, params);
     }

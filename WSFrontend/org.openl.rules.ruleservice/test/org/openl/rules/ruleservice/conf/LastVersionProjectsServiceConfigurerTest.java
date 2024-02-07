@@ -16,9 +16,9 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/LastVersionProjectsServiceConfigurerTest",
-    "production-repository.factory = repo-file"})
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
-    "classpath:openl-ruleservice-datasource-beans.xml"})
+        "classpath:openl-ruleservice-datasource-beans.xml"})
 public class LastVersionProjectsServiceConfigurerTest {
     private static final String PROJECT_NAME = "openl-project";
 

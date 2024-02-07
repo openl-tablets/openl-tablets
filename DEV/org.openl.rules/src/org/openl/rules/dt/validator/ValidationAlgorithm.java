@@ -65,8 +65,8 @@ public class ValidationAlgorithm {
             IntBoolExp[][] expressions = makeExpressions(analyzer, methodsForConditionValidation);
 
             CDecisionTableImpl cdt = new CDecisionTableImpl(expressions,
-                vars,
-                decisionTableToValidate.isOverrideAscending());
+                    vars,
+                    decisionTableToValidate.isOverrideAscending());
             // System.out.println(" **** Checking " + decisionTable);
             DTCheckerImpl tableChecker = new DTCheckerImpl(cdt);
 
@@ -77,10 +77,10 @@ public class ValidationAlgorithm {
             // System.out.println("O:" + overlappings);
 
             result = new DecisionTableValidationResult(decisionTable,
-                overlappings.toArray(new Overlapping[0]),
-                completeness.toArray(new Uncovered[0]),
-                decisionTableToValidate.getTransformer(),
-                analyzer);
+                    overlappings.toArray(new Overlapping[0]),
+                    completeness.toArray(new Uncovered[0]),
+                    decisionTableToValidate.getTransformer(),
+                    analyzer);
         } else {
             result = new DecisionTableValidationResult(decisionTable);
         }
@@ -129,7 +129,7 @@ public class ValidationAlgorithm {
         OpenMethodHeader methodHeader = new OpenMethodHeader(conditionName, methodType, newSignature, declaringClass);
 
         IBindingContext bindingContext = new ModuleBindingContext(openl.getBinder().makeBindingContext(),
-            (ModuleOpenClass) declaringClass);
+                (ModuleOpenClass) declaringClass);
 
         IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator().getFormalSourceCode(condition);
 
@@ -148,7 +148,7 @@ public class ValidationAlgorithm {
     }
 
     private IntBoolExp[][] makeExpressions(DecisionTableAnalyzer analyzer,
-            IOpenMethod[] methodsForConditionValidation) {
+                                           IOpenMethod[] methodsForConditionValidation) {
 
         int rulesNumber = decisionTableToValidate.getDecisionTable().getNumberOfRules();
         IntBoolExp[][] expressions = new IntBoolExp[rulesNumber][methodsForConditionValidation.length];
@@ -160,9 +160,9 @@ public class ValidationAlgorithm {
 
             for (int j = 0; j < methodsForConditionValidation.length; j++) {
                 ruleExpression[j] = makeExpression(i,
-                    decisionTableToValidate.getDecisionTable().getConditionRows()[j],
-                    analyzer,
-                    methodsForConditionValidation[j]);
+                        decisionTableToValidate.getDecisionTable().getConditionRows()[j],
+                        analyzer,
+                        methodsForConditionValidation[j]);
             }
         }
 
@@ -170,9 +170,9 @@ public class ValidationAlgorithm {
     }
 
     private IntBoolExp makeExpression(int ruleN,
-            IBaseCondition conditionToValidate,
-            DecisionTableAnalyzer analyzer,
-            IOpenMethod methodForConditionValidation) {
+                                      IBaseCondition conditionToValidate,
+                                      DecisionTableAnalyzer analyzer,
+                                      IOpenMethod methodForConditionValidation) {
 
         if (conditionToValidate.isEmpty(ruleN)) {
             return new IntBoolExpConst(constrainer, true);
@@ -192,9 +192,9 @@ public class ValidationAlgorithm {
                 args[i] = findVar(vars, name);
             } else {
                 args[i] = transformValue(name,
-                    conditionToValidate,
-                    conditionToValidate.getParamValue(i - tableArgsCount, ruleN),
-                    analyzer);
+                        conditionToValidate,
+                        conditionToValidate.getParamValue(i - tableArgsCount, ruleN),
+                        analyzer);
             }
         }
 
@@ -202,8 +202,8 @@ public class ValidationAlgorithm {
     }
 
     private IMethodSignature makeSignatureForCondition(IParameterDeclaration[] paramDeclarations,
-            IParameterDeclaration[] referencedSignatureParams,
-            DecisionTableAnalyzer analyzer) {
+                                                       IParameterDeclaration[] referencedSignatureParams,
+                                                       DecisionTableAnalyzer analyzer) {
 
         List<IParameterDeclaration> parameters = new ArrayList<>();
 
@@ -235,13 +235,13 @@ public class ValidationAlgorithm {
     }
 
     private List<IParameterDeclaration> getTransformedSignatureParams(IParameterDeclaration[] referencedSignatureParams,
-            DecisionTableAnalyzer analyzer) {
+                                                                      DecisionTableAnalyzer analyzer) {
         List<IParameterDeclaration> parameters = new ArrayList<>();
 
         for (IParameterDeclaration paramDeclarationFromSignature : referencedSignatureParams) {
 
             IOpenClass newType = analyzer.transformSignatureType(paramDeclarationFromSignature,
-                decisionTableToValidate);
+                    decisionTableToValidate);
 
             if (newType == null) {
                 newType = paramDeclarationFromSignature.getType();

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoggingHandler {
-    private  static final Logger LOG = LoggerFactory.getLogger("openl.rules.invoke");
+    private static final Logger LOG = LoggerFactory.getLogger("openl.rules.invoke");
     private static final ThreadLocal<LoggingCapability> INSTANCE = new ThreadLocal<>();
 
     public static void setup(LoggingCapability value) {

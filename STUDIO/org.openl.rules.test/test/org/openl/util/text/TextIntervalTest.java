@@ -14,7 +14,6 @@ import org.openl.grammar.JavaCC30Position;
 
 /**
  * @author snshor
- *
  */
 public class TextIntervalTest {
 

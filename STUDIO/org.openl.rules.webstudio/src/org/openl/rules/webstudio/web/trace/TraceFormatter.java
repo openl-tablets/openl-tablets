@@ -47,7 +47,7 @@ public class TraceFormatter {
             return getDisplayName((SpreadsheetTracerLeaf) obj, smartNumbers);
         } else if (obj instanceof OverloadedMethodChoiceTraceObject) {
             return "Overloaded method choice for method " + MethodUtil
-                .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
+                    .printSignature(((OverloadedMethodChoiceTraceObject) obj).getMethodCandidates().get(0), 0);
         } else if (obj instanceof DTRuleTracerLeaf) {
             return "Returned rule: " + Arrays.toString(((DTRuleTracerLeaf) obj).getRuleNames());
         } else if (obj instanceof ATableTracerNode) {
@@ -89,11 +89,11 @@ public class TraceFormatter {
         }
 
         return String.format("Step: row %d: %s %s %s %s",
-            operationRow,
-            operationName,
-            nameForDebug != null ? nameForDebug : "",
-            resultValue,
-            displayFieldFormattedValues);
+                operationRow,
+                operationName,
+                nameForDebug != null ? nameForDebug : "",
+                resultValue,
+                displayFieldFormattedValues);
     }
 
     private static String getFieldValuesAsString(HashMap<String, Object> fieldValues, boolean smartNumbers) {
@@ -123,7 +123,7 @@ public class TraceFormatter {
         }
         if (dti.isIndexed()) {
             return String
-                .format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
+                    .format("Indexed condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
         } else {
             return String.format("Condition: %s, Rules: %s", dti.getConditionName(), Arrays.toString(ruleNames));
         }
@@ -168,7 +168,7 @@ public class TraceFormatter {
     private static String format(Object o, boolean smartNumbers) {
         if (o instanceof Number) {
             IFormatter formatter = FormattersManager.getFormatter(o.getClass(),
-                smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
+                    smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
             return formatter.format(o);
         } else if (o != null && o.getClass().isArray()) {
             StringBuilder sb = new StringBuilder("{");
@@ -182,18 +182,18 @@ public class TraceFormatter {
             return sb.append("}").toString();
         } else {
             final Function<Object, String> getClassName = obj -> Optional.ofNullable(obj)
-                .map(Object::getClass)
-                .map(Class::getName)
-                .orElse("null");
+                    .map(Object::getClass)
+                    .map(Class::getName)
+                    .orElse("null");
             try {
                 return FormattersManager.format(o);
             } catch (Throwable e) {
                 Logger log = LoggerFactory.getLogger(TraceFormatter.class);
                 log.debug(e.getMessage(), e);
                 return String.format(
-                    "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
-                    getClassName.apply(e),
-                    getClassName.apply(o));
+                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                        getClassName.apply(e),
+                        getClassName.apply(o));
             }
         }
     }

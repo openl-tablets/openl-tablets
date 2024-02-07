@@ -19,28 +19,28 @@ public class ArraysInitializationsTest {
 
     @Test
     public void testInitializationJavaStyle() {
-        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "array"));
-        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } }, TestUtils.invoke(instance, "arrayTwoDims"));
+        assertArrayEquals(new Integer[]{1, 2, 3}, TestUtils.invoke(instance, "array"));
+        assertArrayEquals(new Integer[][]{{1, 2, 3}, {4, 5, 6}}, TestUtils.invoke(instance, "arrayTwoDims"));
     }
 
     @Test
     public void testInitializationForLocalVar() {
-        assertArrayEquals(new Integer[] { 1, 2 }, TestUtils.invoke(instance, "localVarArrayInit"));
-        assertArrayEquals(new Integer[][] { { 11, 12, 13 }, { 21, 22, 23 } },
-            TestUtils.invoke(instance, "localVarArrayTwoDimsInit"));
+        assertArrayEquals(new Integer[]{1, 2}, TestUtils.invoke(instance, "localVarArrayInit"));
+        assertArrayEquals(new Integer[][]{{11, 12, 13}, {21, 22, 23}},
+                TestUtils.invoke(instance, "localVarArrayTwoDimsInit"));
     }
 
     @Test
     public void testSimpleInitializationForLocalVar() {
-        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "localVarSimpleArrayInit"));
-        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } },
-            TestUtils.invoke(instance, "localVarSimpleArrayTwoDimsInit"));
+        assertArrayEquals(new Integer[]{1, 2, 3}, TestUtils.invoke(instance, "localVarSimpleArrayInit"));
+        assertArrayEquals(new Integer[][]{{1, 2, 3}, {4, 5, 6}},
+                TestUtils.invoke(instance, "localVarSimpleArrayTwoDimsInit"));
     }
 
     @Test
     public void testSimpleInitializationInReturn() {
-        assertArrayEquals(new Integer[] { 1, 2, 3 }, TestUtils.invoke(instance, "simpleArrayInitInReturn"));
-        assertArrayEquals(new Integer[][] { { 1, 2, 3 }, { 4, 5, 6 } },
-            TestUtils.invoke(instance, "simpleArrayTwoDimsInitInReturn"));
+        assertArrayEquals(new Integer[]{1, 2, 3}, TestUtils.invoke(instance, "simpleArrayInitInReturn"));
+        assertArrayEquals(new Integer[][]{{1, 2, 3}, {4, 5, 6}},
+                TestUtils.invoke(instance, "simpleArrayTwoDimsInitInReturn"));
     }
 }

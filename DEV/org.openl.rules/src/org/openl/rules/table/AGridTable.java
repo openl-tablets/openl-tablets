@@ -132,14 +132,14 @@ public abstract class AGridTable implements IGridTable {
     public String toString() {
         StringBuilder tableVisualization = new StringBuilder();
         tableVisualization.append(super.toString())
-            .append(isNormalOrientation() ? "[N]" : "[T]")
-            .append("(")
-            .append(getWidth())
-            .append(" x ")
-            .append(getHeight())
-            .append(")")
-            .append(getRegion().toString())
-            .append("\n");
+                .append(isNormalOrientation() ? "[N]" : "[T]")
+                .append("(")
+                .append(getWidth())
+                .append(" x ")
+                .append(getHeight())
+                .append(")")
+                .append(getRegion().toString())
+                .append("\n");
         for (int i = 0; i < getHeight(); i++) {
             int length = 0;
             for (int j = 0; j < getWidth(); j++) {

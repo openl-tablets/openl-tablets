@@ -49,10 +49,10 @@ public class TableSyntaxNode extends NaryNode {
     private volatile String tableId;
 
     public TableSyntaxNode(String type,
-            GridLocation pos,
-            XlsSheetSourceCodeModule module,
-            IGridTable gridTable,
-            HeaderSyntaxNode header) {
+                           GridLocation pos,
+                           XlsSheetSourceCodeModule module,
+                           IGridTable gridTable,
+                           HeaderSyntaxNode header) {
         super(type, pos, null, module);
         table = LogicalTableHelper.logicalTable(gridTable);
         headerNode = header;
@@ -168,7 +168,7 @@ public class TableSyntaxNode extends NaryNode {
      * Properties set by default are ignoring.
      *
      * @return <code>TRUE</code> if <code>{@link TableSyntaxNode}</code> has properties that were physically defined in
-     *         appropriate table in data source.
+     * appropriate table in data source.
      */
     public boolean hasPropertiesDefinedInTable() {
         return tableProperties != null && tableProperties.getPropertiesSection() != null;

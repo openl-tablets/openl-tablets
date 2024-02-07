@@ -60,7 +60,7 @@ public class MergeLfsRepoTest {
         repo.forBranch("br7").merge("main", author, null);
 
         assertEquals("50fa760a58f5cb4cbf025537f119ff37001d02cd",
-            repo.forBranch("br7").check("DESIGN/rules/Example 3 - Auto Policy Calculation").getVersion());
+                repo.forBranch("br7").check("DESIGN/rules/Example 3 - Auto Policy Calculation").getVersion());
     }
 
     private GitRepository createRepository(String repoPath) {

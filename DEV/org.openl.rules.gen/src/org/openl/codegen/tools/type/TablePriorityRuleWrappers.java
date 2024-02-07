@@ -17,7 +17,7 @@ public class TablePriorityRuleWrappers {
     private final JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
 
     public TablePriorityRuleWrappers(SimplePriorityRuleWrapper[] simplePriorityRuleWrappers,
-            JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {
+                                     JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {
         this.simplePriorityRuleWrappers = simplePriorityRuleWrappers;
         this.javaClassPriorityRuleWrappers = javaClassPriorityRuleWrappers;
     }
@@ -39,15 +39,15 @@ public class TablePriorityRuleWrappers {
 
                     if (operationName.equalsIgnoreCase(MIN_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                            MIN_OPERATION_NAME,
-                            propertyName));
+                                MIN_OPERATION_NAME,
+                                propertyName));
                     } else if (operationName.equalsIgnoreCase(MAX_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                            MAX_OPERATION_NAME,
-                            propertyName));
+                                MAX_OPERATION_NAME,
+                                propertyName));
                     } else {
                         throw new IllegalArgumentException(String
-                            .format("Wrong priority rule: [%s]. Unknown operator: [%s]", priorityRule, operationName));
+                                .format("Wrong priority rule: [%s]. Unknown operator: [%s]", priorityRule, operationName));
                     }
                 }
             } catch (Exception e) {
@@ -63,7 +63,7 @@ public class TablePriorityRuleWrappers {
             try {
                 if (priorityRule.startsWith(PREFIX)) {
                     wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule,
-                        priorityRule.substring(PREFIX.length()).trim()));
+                            priorityRule.substring(PREFIX.length()).trim()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

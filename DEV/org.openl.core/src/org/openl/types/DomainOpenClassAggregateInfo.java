@@ -7,7 +7,6 @@ import org.openl.types.java.JavaArrayAggregateInfo;
  * Aggregate info for {@link DomainOpenClass} for creating aggregate and component types based on domain info.
  *
  * @author DLiauchuk
- *
  */
 public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
 
@@ -20,10 +19,10 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
     public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
         IOpenClass openClass = getArrayType(componentType);
         return new DomainOpenClass(componentType.getName() + "[]",
-            openClass,
-            componentType.getDomain(),
-            ((DomainOpenClass) componentType).getModule(),
-            componentType.getMetaInfo());
+                openClass,
+                componentType.getDomain(),
+                ((DomainOpenClass) componentType).getModule(),
+                componentType.getMetaInfo());
     }
 
     /**
@@ -44,10 +43,10 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
         String componentType = domainName.replaceFirst("\\[]", "");
 
         return new DomainOpenClass(componentType,
-            super.getComponentType(domainType.getBaseClass()),
-            domainType.getDomain(),
-            domainType.getModule(),
-            domainType.getMetaInfo());
+                super.getComponentType(domainType.getBaseClass()),
+                domainType.getDomain(),
+                domainType.getModule(),
+                domainType.getMetaInfo());
     }
 
 }

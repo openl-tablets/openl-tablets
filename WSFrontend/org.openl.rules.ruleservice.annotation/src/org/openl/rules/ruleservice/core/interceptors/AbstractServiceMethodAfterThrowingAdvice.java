@@ -12,7 +12,9 @@ import java.lang.reflect.Method;
  */
 public abstract class AbstractServiceMethodAfterThrowingAdvice<T> implements ServiceMethodAfterAdvice<T> {
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @SuppressWarnings("unchecked")
     public final T afterReturning(Method method, Object result, Object... args) throws Exception {

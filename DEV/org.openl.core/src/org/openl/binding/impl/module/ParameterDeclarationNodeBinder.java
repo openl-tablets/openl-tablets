@@ -15,7 +15,6 @@ import org.openl.util.TableNameChecker;
 
 /**
  * @author snshor
- *
  */
 public class ParameterDeclarationNodeBinder extends ANodeBinder {
 
@@ -23,9 +22,9 @@ public class ParameterDeclarationNodeBinder extends ANodeBinder {
     }
 
     protected IBoundNode makeParameterNode(ISyntaxNode node,
-            String name,
-            IOpenClass type,
-            IBindingContext bindingContext) {
+                                           String name,
+                                           IOpenClass type,
+                                           IBindingContext bindingContext) {
         return new ParameterNode(node, name, type);
     }
 

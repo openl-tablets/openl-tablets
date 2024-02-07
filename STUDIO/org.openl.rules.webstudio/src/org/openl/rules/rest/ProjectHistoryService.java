@@ -45,9 +45,9 @@ public class ProjectHistoryService {
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths
-            .get(webStudio.getWorkspacePath(),
-                FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
-            .toString();
+                .get(webStudio.getWorkspacePath(),
+                        FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
+                .toString();
         File dir = new File(projectHistoryPath);
         String[] historyListFiles = dir.list();
         if (historyListFiles == null || historyListFiles.length == 1) {
@@ -55,8 +55,8 @@ public class ProjectHistoryService {
         }
         Arrays.sort(historyListFiles, Comparator.reverseOrder());
         List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
-            .map(this::createItem)
-            .collect(Collectors.toList());
+                .map(this::createItem)
+                .collect(Collectors.toList());
         ProjectHistoryItem revisionVersion = collect.remove(0);
         collect.add(revisionVersion);
         return collect;
@@ -76,7 +76,7 @@ public class ProjectHistoryService {
                 FileUtils.copy(fileToRestore, currentSourceFile);
             } catch (FileNotFoundException e) {
                 throw new LockedException(
-                    e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
+                        e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
             }
             model.reset(ReloadType.SINGLE);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
@@ -113,10 +113,10 @@ public class ProjectHistoryService {
 
     public static void deleteHistory(String projectName) throws IOException {
         File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-            .getLocalWorkspace()
-            .getLocation();
+                .getLocalWorkspace()
+                .getLocation();
         String projectHistoryPath = Paths.get(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
-            .toString();
+                .toString();
         File dir = new File(projectHistoryPath);
         // Project can contain no history
         if (dir.exists()) {

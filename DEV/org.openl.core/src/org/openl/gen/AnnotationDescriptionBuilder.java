@@ -25,7 +25,7 @@ public class AnnotationDescriptionBuilder {
     /**
      * Add annotation property
      *
-     * @param propertyName property name
+     * @param propertyName  property name
      * @param propertyValue property value
      * @return {@link this}
      */
@@ -37,7 +37,7 @@ public class AnnotationDescriptionBuilder {
     /**
      * Add annotation property
      *
-     * @param propertyName property name
+     * @param propertyName    property name
      * @param typeDescription java type description (when we need to write {@code Object.class} as value)
      * @return
      */
@@ -49,9 +49,9 @@ public class AnnotationDescriptionBuilder {
     /**
      * Add annotation property
      *
-     * @param propertyName property name
+     * @param propertyName  property name
      * @param propertyValue property value
-     * @param array determines if this property is array or not
+     * @param array         determines if this property is array or not
      * @return {@link this}
      */
     public AnnotationDescriptionBuilder withProperty(String propertyName, Object propertyValue, boolean array) {
@@ -61,6 +61,7 @@ public class AnnotationDescriptionBuilder {
 
     /**
      * Build {@link AnnotationDescription} object
+     *
      * @return instance of {@link AnnotationDescription}
      */
     public AnnotationDescription build() {

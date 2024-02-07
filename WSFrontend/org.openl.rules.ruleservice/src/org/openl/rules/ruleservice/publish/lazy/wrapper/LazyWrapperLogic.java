@@ -49,7 +49,7 @@ public final class LazyWrapperLogic {
             return new TableMethodLazyWrapper(lazyMethod, (TableMethod) openMethod);
         }
         throw new IllegalStateException(
-            String.format("Unsupported method type '%s' for lazy enhancing", openMethod.getClass().getTypeName()));
+                String.format("Unsupported method type '%s' for lazy enhancing", openMethod.getClass().getTypeName()));
     }
 
     public static IOpenField wrapField(LazyMember<IOpenField> lazyField, IOpenField field) {
@@ -63,6 +63,6 @@ public final class LazyWrapperLogic {
             return new DataOpenFieldLazyWrapper(lazyField, (DataOpenField) field);
         }
         throw new IllegalStateException(
-            String.format("Unsupported field type '%s' for lazy enhancing", field.getClass().getTypeName()));
+                String.format("Unsupported field type '%s' for lazy enhancing", field.getClass().getTypeName()));
     }
 }

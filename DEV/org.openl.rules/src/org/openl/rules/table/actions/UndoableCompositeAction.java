@@ -11,7 +11,6 @@ import org.openl.rules.table.IGridTable;
 
 /**
  * @author snshor
- *
  */
 public class UndoableCompositeAction implements IUndoableGridTableAction {
 
@@ -34,7 +33,7 @@ public class UndoableCompositeAction implements IUndoableGridTableAction {
 
     @Override
     public void undoAction(IGridTable table) {
-        for (ListIterator<IUndoableGridTableAction> iter = actions.listIterator(actions.size()); iter.hasPrevious();) {
+        for (ListIterator<IUndoableGridTableAction> iter = actions.listIterator(actions.size()); iter.hasPrevious(); ) {
             IUndoableGridTableAction action = iter.previous();
             action.undoAction(table);
         }

@@ -36,9 +36,9 @@ import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
 @SpringJUnitConfig(classes = MockConfiguration.class)
 @TestPropertySource(properties = {"repository.design-rating.comment-template.use-custom-comments = false",
-    "repository.design-rating2.comment-template.use-custom-comments = true",
-    "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
-    "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
+        "repository.design-rating2.comment-template.use-custom-comments = true",
+        "repository.design-rating2.comment-template.comment-validation-pattern = \\\\p{Upper}{3,}-\\\\d+:?\\\\s+[^\\\\s].{4,}",
+        "repository.design-rating2.comment-template.invalid-comment-message = Invalid comment"})
 public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final Consumer<FeaturesBuilder> NO_EXTRA_FEATURES = builder -> {
@@ -59,11 +59,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_Valid() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            null,
-            null,
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                null,
+                false);
 
         assertNull(validateAndGetResult(model, validator));
     }
@@ -72,11 +72,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_Valid2() throws IOException {
         mockDesignRepository(Repository.class, "design-rating2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            null,
-            "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                null,
+                "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
+                false);
 
         assertNull(validateAndGetResult(model, validator));
     }
@@ -85,11 +85,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_Valid3() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
+                false);
 
         RulesProject mockProject = mock(RulesProject.class);
         when(mockProject.getRealPath()).thenReturn("foo/bar/foo");
@@ -111,82 +111,82 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertFieldError("repoName", "Cannot be empty.", null, bindingResult.getFieldError("repoName"));
         assertFieldError("author", "Cannot be empty.", null, bindingResult.getFieldError("author"));
         assertFieldError("projectName",
-            "Project name must not be empty.",
-            null,
-            bindingResult.getFieldError("projectName"));
+                "Project name must not be empty.",
+                null,
+                bindingResult.getFieldError("projectName"));
     }
 
     @Test
     public void testCreateProject_NotValid2() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Foo?",
-            "/foo",
-            null,
-            false);
+                "John Doe",
+                "Foo?",
+                "/foo",
+                null,
+                false);
 
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(2, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("path",
-            "Path in repository cannot start with '/'.",
-            model.getPath(),
-            bindingResult.getFieldError("path"));
+                "Path in repository cannot start with '/'.",
+                model.getPath(),
+                bindingResult.getFieldError("path"));
         assertFieldError("projectName",
-            "Specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
-            model.getProjectName(),
-            bindingResult.getFieldError("projectName"));
+                "Specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
+                model.getProjectName(),
+                bindingResult.getFieldError("projectName"));
     }
 
     @Test
     public void testCreateProject_NotValid3() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "COM6",
-            "foo/COM6/bar",
-            null,
-            false);
+                "John Doe",
+                "COM6",
+                "foo/COM6/bar",
+                null,
+                false);
 
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(2, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("path", "'COM6' is a reserved word.", model.getPath(), bindingResult.getFieldError("path"));
         assertFieldError("projectName",
-            "Specified project name is a reserved word.",
-            model.getProjectName(),
-            bindingResult.getFieldError("projectName"));
+                "Specified project name is a reserved word.",
+                model.getProjectName(),
+                bindingResult.getFieldError("projectName"));
     }
 
     @Test
     public void testCreateProject_NotValid4() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Hello World",
-            "foo/?/bar/Hello World",
-            null,
-            false);
+                "John Doe",
+                "Hello World",
+                "foo/?/bar/Hello World",
+                null,
+                false);
 
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(1, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("path",
-            "Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
-            model.getPath(),
-            bindingResult.getFieldError("path"));
+                "Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
+                model.getPath(),
+                bindingResult.getFieldError("path"));
     }
 
     @Test
     public void testCreateProject_NotValid5() throws IOException {
         mockDesignRepository(Repository.class, "design-rating", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            null,
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                null,
+                false);
         when(designTimeRepository.hasProject("design-rating", model.getProjectName())).thenReturn(Boolean.TRUE);
 
         try {
@@ -201,11 +201,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_NotValid6() throws IOException {
         MappedRepository mockedRepo = mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            null,
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                null,
+                false);
 
         when(mockedRepo.check(eq(model.getFullPath()))).thenReturn(mock(FileData.class));
 
@@ -214,8 +214,8 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             fail("Ooops...");
         } catch (ConflictException e) {
             assertEquals(
-                "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.",
-                getLocalMessage(e));
+                    "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.",
+                    getLocalMessage(e));
         }
     }
 
@@ -223,11 +223,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_NotValid7() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            null,
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                null,
+                false);
 
         RulesProject mockProject = mock(RulesProject.class);
         when(mockProject.getRealPath()).thenReturn("foo");
@@ -247,11 +247,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_NotValid8() throws IOException {
         mockDesignRepository(MappedRepository.class, "design-rating", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            null,
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                null,
+                false);
 
         RulesProject mockProject = mock(RulesProject.class);
         when(mockProject.getRealPath()).thenReturn("foo/bar/Example 1 - Bank Rating/foo");
@@ -271,20 +271,20 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testCreateProject_NotValid9() throws IOException {
         mockDesignRepository(Repository.class, "design-rating2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/Example 1 - Bank Rating",
-            "Project is created",
-            false);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/Example 1 - Bank Rating",
+                "Project is created",
+                false);
 
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(2, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
 
         assertFieldError("path",
-            "Design Repository doesn't support folders. Path must be empty.",
-            model.getPath(),
-            bindingResult.getFieldError("path"));
+                "Design Repository doesn't support folders. Path must be empty.",
+                model.getPath(),
+                bindingResult.getFieldError("path"));
 
         assertFieldError("comment", "Invalid comment.", model.getComment(), bindingResult.getFieldError("comment"));
     }
@@ -329,11 +329,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     public void testUpdateProject() throws IOException, ProjectException {
         mockDesignRepository(MappedRepository.class, "design-rating2", NO_EXTRA_FEATURES);
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design-rating2",
-            "John Doe",
-            "Example 1 - Bank Rating",
-            "foo/bar/Example 1 - Bank Rating",
-            "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
-            true);
+                "John Doe",
+                "Example 1 - Bank Rating",
+                "foo/bar/Example 1 - Bank Rating",
+                "EPBDS-10682: Project 'Example 1 - Bank Rating' is created",
+                true);
         RulesProject mockProject = mock(RulesProject.class);
         when(mockProject.getRealPath()).thenReturn("foo/bar/Example 1 - Bank Rating");
 
@@ -362,8 +362,8 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
     }
 
     private <T extends Repository> T mockDesignRepository(Class<T> tClass,
-            String repoName,
-            Consumer<FeaturesBuilder> featureConfig) throws IOException {
+                                                          String repoName,
+                                                          Consumer<FeaturesBuilder> featureConfig) throws IOException {
         T mockedRepo = mock(tClass);
         when(designTimeRepository.getRepository(repoName)).thenReturn(mockedRepo);
 

@@ -7,7 +7,6 @@ import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author User
- *
  */
 public class AlgorithmOperationSource {
     private final AlgorithmTreeNode sourceNode;

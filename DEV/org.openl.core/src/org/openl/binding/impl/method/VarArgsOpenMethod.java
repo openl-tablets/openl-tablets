@@ -18,9 +18,9 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
     }
 
     public VarArgsOpenMethod(IMethodCaller methodCaller,
-            Class<?> componentVarArgClass,
-            int indexOfFirstVarArg,
-            IOpenCast[] parameterCasts) {
+                             Class<?> componentVarArgClass,
+                             int indexOfFirstVarArg,
+                             IOpenCast[] parameterCasts) {
         super(methodCaller.getMethod());
         this.methodCaller = methodCaller;
         this.componentVarArgClass = componentVarArgClass;
@@ -55,9 +55,9 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
                 Array.set(params, i, methodParameters[i + indexOfFirstVarArg]);
             } else {
                 Array.set(params,
-                    i,
-                    parameterCasts[i] != null ? parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg])
-                                              : methodParameters[i + indexOfFirstVarArg]);
+                        i,
+                        parameterCasts[i] != null ? parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg])
+                                : methodParameters[i + indexOfFirstVarArg]);
             }
         }
         return params;

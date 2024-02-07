@@ -26,7 +26,7 @@ public final class ProjectExportHelper {
         File zipFile = null;
         try {
             String zipComment = "Project '" + project.getBusinessName() + "' version " + project.getFileData()
-                .getVersion() + "\nExported by " + user.getUserName();
+                    .getVersion() + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");
             packIntoZip(zipFile, project, zipComment);
@@ -41,7 +41,7 @@ public final class ProjectExportHelper {
     }
 
     private static void packDir(ZipOutputStream zipOutputStream, AProjectFolder dir) throws IOException,
-                                                                                     ProjectException {
+            ProjectException {
         Collection<AProjectArtefact> artefacts = dir.getArtefacts();
         if (artefacts.isEmpty()) {
             return;
@@ -60,7 +60,7 @@ public final class ProjectExportHelper {
     }
 
     private static void packFile(ZipOutputStream zipOutputStream, AProjectResource file) throws IOException,
-                                                                                         ProjectException {
+            ProjectException {
         ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
@@ -71,7 +71,7 @@ public final class ProjectExportHelper {
     }
 
     private static void packIntoZip(File zipFile, AProject project, String zipComment) throws IOException,
-                                                                                       ProjectException {
+            ProjectException {
         FileOutputStream fileOutputStream = null;
         ZipOutputStream zipOutputStream = null;
 
@@ -87,7 +87,7 @@ public final class ProjectExportHelper {
                 FileItem fileItem;
                 if (project.isHistoric()) {
                     fileItem = project.getRepository()
-                        .readHistory(project.getFolderPath(), project.getFileData().getVersion());
+                            .readHistory(project.getFolderPath(), project.getFileData().getVersion());
                 } else {
                     fileItem = project.getRepository().read(project.getFolderPath());
                 }

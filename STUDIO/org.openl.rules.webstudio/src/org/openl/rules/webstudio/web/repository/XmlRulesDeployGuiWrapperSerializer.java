@@ -17,9 +17,9 @@ import org.openl.util.StringUtils;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
-        Pattern.DOTALL);
+            Pattern.DOTALL);
     private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern
-        .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
+            .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
 
     private final RulesDeploySerializerFactory serializerFactory;
 
@@ -73,7 +73,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
             public String serialize(RulesDeploy source) throws JAXBException, IOException {
                 // We process the "configuration" field ourself
                 return serializer.serialize(source)
-                        .replaceAll("<configuration>[\\s\\S]*?</configuration>","")
+                        .replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
                         .replaceAll("(?m)^[ \t]*\r?\n", "");
             }
         };

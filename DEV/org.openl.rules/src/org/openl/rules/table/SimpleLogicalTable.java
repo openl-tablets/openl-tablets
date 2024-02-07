@@ -64,8 +64,8 @@ public class SimpleLogicalTable extends ALogicalTable {
      * For test see {@link SimpleLogicalTableTest}.
      *
      * @param column from which we want to take the subtable, including this.
-     * @param row from which we want to take the subtable, including this.
-     * @param width of the needed table.
+     * @param row    from which we want to take the subtable, including this.
+     * @param width  of the needed table.
      * @param height of the needed table.
      * @return {@link SimpleLogicalTable}
      */

@@ -72,9 +72,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
 
-    private static final String[] CLEAN_UP_PROPERTIES = { "jackson.defaultTypingMode",
+    private static final String[] CLEAN_UP_PROPERTIES = {"jackson.defaultTypingMode",
             "rootClassNamesBinding",
-            CLIENT_ID_GENERATOR };
+            CLIENT_ID_GENERATOR};
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
@@ -158,7 +158,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 resource = resourceLoader.getResource("classpath:default-kafka-deploy.yml");
                 if (!resource.exists()) {
                     throw new FileNotFoundException(
-                        "File 'default-kafka-deploy.yaml' or 'default-kafka-deploy.yml' is not found.");
+                            "File 'default-kafka-deploy.yaml' or 'default-kafka-deploy.yml' is not found.");
                 }
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
@@ -174,7 +174,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yml");
                 if (!resource.exists()) {
                     throw new FileNotFoundException(
-                        "File 'immutable-kafka-deploy.yaml' or 'immutable-kafka-deploy.yml' is not found.");
+                            "File 'immutable-kafka-deploy.yaml' or 'immutable-kafka-deploy.yml' is not found.");
                 }
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
@@ -184,22 +184,22 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private void setBootstrapServers(OpenLService service,
-            BaseKafkaConfig kafkaConfig,
-            String logPrefix,
-            Properties configs) {
+                                     BaseKafkaConfig kafkaConfig,
+                                     String logPrefix,
+                                     Properties configs) {
         if (configs.containsKey(BOOTSTRAP_SERVERS)) {
             if (kafkaConfig instanceof KafkaMethodConfig) {
                 KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) kafkaConfig;
                 log.warn("{} '{}' property is overridden in service '{}' for method '{}'.",
-                    logPrefix,
-                    BOOTSTRAP_SERVERS,
-                    service.getDeployPath(),
-                    kafkaMethodConfig.getMethodName());
+                        logPrefix,
+                        BOOTSTRAP_SERVERS,
+                        service.getDeployPath(),
+                        kafkaMethodConfig.getMethodName());
             } else {
                 log.warn("{} '{}' property is overridden in service '{}'.",
-                    logPrefix,
-                    BOOTSTRAP_SERVERS,
-                    service.getDeployPath());
+                        logPrefix,
+                        BOOTSTRAP_SERVERS,
+                        service.getDeployPath());
             }
         } else {
             configs.setProperty(BOOTSTRAP_SERVERS, getDefaultBootstrapServers());
@@ -207,9 +207,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private Properties getProducerConfigs(OpenLService service,
-            BaseKafkaConfig baseKafkaDeploy,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+                                          BaseKafkaConfig baseKafkaDeploy,
+                                          KafkaDeploy kafkaDeploy,
+                                          String producerInterceptors) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getProducerConfigs());
@@ -242,9 +242,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private Properties getDltProducerConfigs(OpenLService service,
-            BaseKafkaConfig kafkaConfig,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+                                             BaseKafkaConfig kafkaConfig,
+                                             KafkaDeploy kafkaDeploy,
+                                             String producerInterceptors) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getDltProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getDltProducerConfigs());
@@ -265,9 +265,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private Properties getConsumerConfigs(OpenLService service,
-            BaseKafkaConfig kafkaConfig,
-            KafkaDeploy kafkaDeploy,
-            String producerInterceptors) throws IOException {
+                                          BaseKafkaConfig kafkaConfig,
+                                          KafkaDeploy kafkaDeploy,
+                                          String producerInterceptors) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getConsumerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getConsumerConfigs());
@@ -292,14 +292,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private void useClientIdGeneratorIfPropertyIsNotSet(Properties configs,
-            OpenLService service,
-            BaseKafkaConfig kafkaConfig) {
+                                                        OpenLService service,
+                                                        BaseKafkaConfig kafkaConfig) {
         if (configs.getProperty(CLIENT_ID) == null && configs.getProperty(CLIENT_ID_GENERATOR) != null) {
             String clientIDGeneratorClassName = configs.getProperty(CLIENT_ID_GENERATOR);
             try {
                 Class<?> clientIDGeneratorClass = Thread.currentThread()
-                    .getContextClassLoader()
-                    .loadClass(clientIDGeneratorClassName);
+                        .getContextClassLoader()
+                        .loadClass(clientIDGeneratorClassName);
                 ClientIDGenerator clientIDGenerator = (ClientIDGenerator) clientIDGeneratorClass.getDeclaredConstructor().newInstance();
                 configs.put(CLIENT_ID, clientIDGenerator.generate(service, kafkaConfig));
             } catch (Exception e) {
@@ -321,38 +321,38 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         for (Field field : config.getClass().getFields()) {
             JsonProperty jsonPropertyAnnotation = field.getAnnotation(JsonProperty.class);
             if (jsonPropertyAnnotation != null && jsonPropertyAnnotation.required() && requiredFieldIsMissed(
-                field.get(config))) {
+                    field.get(config))) {
                 missedRequiredFields.add(jsonPropertyAnnotation.value());
             }
         }
         if (!missedRequiredFields.isEmpty()) {
             String missedRequiredFieldsString = missedRequiredFields.stream()
-                .collect(Collectors.joining(",", "[", "]"));
+                    .collect(Collectors.joining(",", "[", "]"));
             if (config instanceof KafkaMethodConfig) {
                 KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) config;
                 throw new KafkaServiceConfigurationException(
-                    String.format("Missed mandatory configs %s in method '%s' configuration.",
-                        missedRequiredFieldsString,
-                        kafkaMethodConfig.getMethodName()));
+                        String.format("Missed mandatory configs %s in method '%s' configuration.",
+                                missedRequiredFieldsString,
+                                kafkaMethodConfig.getMethodName()));
             } else {
                 throw new KafkaServiceConfigurationException(String
-                    .format("Missed mandatory config %s in the service configuration.", missedRequiredFieldsString));
+                        .format("Missed mandatory config %s in the service configuration.", missedRequiredFieldsString));
             }
         }
     }
 
     private <T extends BaseKafkaConfig> T makeMergedKafkaConfig(OpenLService service,
-            T kafkaConfig,
-            KafkaDeploy kafkaDeploy) throws IOException {
+                                                                T kafkaConfig,
+                                                                KafkaDeploy kafkaDeploy) throws IOException {
         T config = cloner.deepClone(kafkaConfig);
         String consumerInterceptors = tracingProviderMap.values()
-            .stream()
-            .map(KafkaTracingProvider::getConsumerInterceptorProviders)
-            .collect(Collectors.joining(","));
+                .stream()
+                .map(KafkaTracingProvider::getConsumerInterceptorProviders)
+                .collect(Collectors.joining(","));
         String producerInterceptors = tracingProviderMap.values()
-            .stream()
-            .map(KafkaTracingProvider::getProducerInterceptorProviders)
-            .collect(Collectors.joining(","));
+                .stream()
+                .map(KafkaTracingProvider::getProducerInterceptorProviders)
+                .collect(Collectors.joining(","));
         config.setProducerConfigs(getProducerConfigs(service, kafkaConfig, kafkaDeploy, producerInterceptors));
         config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig, kafkaDeploy, consumerInterceptors));
         config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig, kafkaDeploy, producerInterceptors));
@@ -369,13 +369,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private <T> T getConfiguredValueDeserializer(OpenLService service,
-            ObjectMapper objectMapper,
-            Method method,
-            String className) throws RuleServiceInstantiationException,
-                              ClassNotFoundException,
-                              IllegalAccessException,
-                              InstantiationException,
-                              InvocationTargetException {
+                                                 ObjectMapper objectMapper,
+                                                 Method method,
+                                                 String className) throws RuleServiceInstantiationException,
+            ClassNotFoundException,
+            IllegalAccessException,
+            InstantiationException,
+            InvocationTargetException {
         if (className == null) {
             return null;
         }
@@ -390,12 +390,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private <T> T getConfiguredValueSerializer(OpenLService service,
-            ObjectMapper objectMapper,
-            String className) throws RuleServiceInstantiationException,
-                              ClassNotFoundException,
-                              IllegalAccessException,
-                              InstantiationException,
-                              InvocationTargetException {
+                                               ObjectMapper objectMapper,
+                                               String className) throws RuleServiceInstantiationException,
+            ClassNotFoundException,
+            IllegalAccessException,
+            InstantiationException,
+            InvocationTargetException {
         if (className == null) {
             return null;
         }
@@ -410,10 +410,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private <T> T getConfiguredKeySerializerOrDeserializer(OpenLService service,
-            String className) throws RuleServiceInstantiationException,
-                              ClassNotFoundException,
-                              IllegalAccessException,
-                              InstantiationException {
+                                                           String className) throws RuleServiceInstantiationException,
+            ClassNotFoundException,
+            IllegalAccessException,
+            InstantiationException {
         if (className == null) {
             return null;
         }
@@ -423,15 +423,15 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private KafkaProducer<String, Object> buildProducer(OpenLService service,
-            ObjectMapper objectMapper,
-            Properties configs) throws KafkaServiceConfigurationException {
+                                                        ObjectMapper objectMapper,
+                                                        Properties configs) throws KafkaServiceConfigurationException {
         Serializer<String> keySerializer;
         Serializer<Object> valueSerializer;
         try {
             keySerializer = getConfiguredKeySerializerOrDeserializer(service, configs.getProperty("key.serializer"));
             valueSerializer = getConfiguredValueSerializer(service,
-                objectMapper,
-                configs.getProperty("value.serializer"));
+                    objectMapper,
+                    configs.getProperty("value.serializer"));
         } catch (Exception e) {
             throw new KafkaServiceConfigurationException("Failed to constuct key/value deserializer for producer.", e);
         }
@@ -443,18 +443,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private KafkaConsumer<String, RequestMessage> buildConsumer(OpenLService service,
-            ObjectMapper objectMapper,
-            Method method,
-            Properties configs) throws KafkaServiceConfigurationException {
+                                                                ObjectMapper objectMapper,
+                                                                Method method,
+                                                                Properties configs) throws KafkaServiceConfigurationException {
         Deserializer<String> keyDeserializer;
         Deserializer<RequestMessage> valueDeserializer;
         try {
             keyDeserializer = getConfiguredKeySerializerOrDeserializer(service,
-                configs.getProperty("key.deserializer"));
+                    configs.getProperty("key.deserializer"));
             valueDeserializer = getConfiguredValueDeserializer(service,
-                objectMapper,
-                method,
-                configs.getProperty("value.deserializer"));
+                    objectMapper,
+                    method,
+                    configs.getProperty("value.deserializer"));
         } catch (Exception e) {
             throw new KafkaServiceConfigurationException("Failed to constuct key/value deserializer for consumer.", e);
         }
@@ -462,20 +462,20 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     }
 
     private <T extends BaseKafkaConfig> void createKafkaService(OpenLService service,
-            Collection<KafkaService> kafkaServices,
-            Collection<KafkaConsumer<?, ?>> kafkaConsumers,
-            Collection<KafkaProducer<?, ?>> kafkaProducers,
-            ServiceDeployContext context,
-            T mergedKafkaConfig,
-            T config,
-            Method method,
-            RulesDeploy rulesDeploy) throws KafkaServiceException {
+                                                                Collection<KafkaService> kafkaServices,
+                                                                Collection<KafkaConsumer<?, ?>> kafkaConsumers,
+                                                                Collection<KafkaProducer<?, ?>> kafkaProducers,
+                                                                ServiceDeployContext context,
+                                                                T mergedKafkaConfig,
+                                                                T config,
+                                                                Method method,
+                                                                RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
         final ObjectMapper consumerObjectMapper = createConsumerJacksonObjectMapper(mergedKafkaConfig);
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
-            consumerObjectMapper,
-            method,
-            cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));
+                consumerObjectMapper,
+                method,
+                cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));
         kafkaConsumers.add(consumer);
 
         // Build Method Kafka Producer or reuse shared
@@ -490,8 +490,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             ObjectMapper producerObjectMapper = createProducerJacksonObjectMapper(mergedKafkaConfig);
             objectSerializer = new JacksonObjectSerializer(producerObjectMapper);
             producer = buildProducer(service,
-                producerObjectMapper,
-                cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
+                    producerObjectMapper,
+                    cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
             if (possibleToReuseShared) {
                 context.setProducerAndObjectSerializer(producer, objectSerializer);
             }
@@ -518,18 +518,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         Optional<KafkaTracingProvider> tracingProvider = tracingProviderMap.values().stream().findFirst();
         var requestIdHeaderKey = org.openl.util.StringUtils.trimToNull(env.getProperty("log.request-id.header"));
         final KafkaService kafkaService = KafkaService.createService(service,
-            requestIdHeaderKey,
-            mergedKafkaConfig.getInTopic(),
-            mergedKafkaConfig.getOutTopic(),
-            mergedKafkaConfig.getDltTopic(),
-            consumer,
-            producer,
-            dltProducer,
-            objectSerializer,
-            getStoreLogDataManager(),
-            getStoreLogDataManager().isEnabled(),
-            tracingProvider.orElse(null),
-            rulesDeploy);
+                requestIdHeaderKey,
+                mergedKafkaConfig.getInTopic(),
+                mergedKafkaConfig.getOutTopic(),
+                mergedKafkaConfig.getDltTopic(),
+                consumer,
+                producer,
+                dltProducer,
+                objectSerializer,
+                getStoreLogDataManager(),
+                getStoreLogDataManager().isEnabled(),
+                tracingProvider.orElse(null),
+                rulesDeploy);
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -547,7 +547,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             var serviceDescription = getServiceDescriptionObjectFactory().getObject();
             KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(serviceDescription);
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
-                .emptyList() : kafkaDeploy.getMethodConfigs();
+                    .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
             Collection<KafkaProducer<?, ?>> kafkaProducers = new HashSet<>();
             Collection<KafkaConsumer<?, ?>> kafkaConsumers = new HashSet<>();
@@ -563,8 +563,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 validate(kafkaMethodConfig);
                 kafkaMethodConfigsMap.put(kmc, kafkaMethodConfig);
                 final Method method = KafkaHelpers.findMethodInService(service,
-                    kafkaMethodConfig.getMethodName(),
-                    kafkaMethodConfig.getMethodParameters());
+                        kafkaMethodConfig.getMethodName(),
+                        kafkaMethodConfig.getMethodParameters());
                 methodsMap.put(kmc, method);
             }
 
@@ -572,30 +572,30 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 ServiceDeployContext sharedProducersContext = new ServiceDeployContext();
                 if (kafkaDeploy.getServiceConfig() != null) {
                     KafkaServiceConfig kafkaServiceConfig = makeMergedKafkaConfig(service,
-                        kafkaDeploy.getServiceConfig(),
-                        kafkaDeploy);
+                            kafkaDeploy.getServiceConfig(),
+                            kafkaDeploy);
                     createKafkaService(service,
-                        kafkaServices,
-                        kafkaConsumers,
-                        kafkaProducers,
-                        sharedProducersContext,
-                        kafkaServiceConfig,
-                        kafkaDeploy.getServiceConfig(),
-                        null,
-                        serviceDescription.getRulesDeploy());
+                            kafkaServices,
+                            kafkaConsumers,
+                            kafkaProducers,
+                            sharedProducersContext,
+                            kafkaServiceConfig,
+                            kafkaDeploy.getServiceConfig(),
+                            null,
+                            serviceDescription.getRulesDeploy());
                 }
                 for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
                     final Method method = methodsMap.get(kmc);
                     final KafkaMethodConfig kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
                     createKafkaService(service,
-                        kafkaServices,
-                        kafkaConsumers,
-                        kafkaProducers,
-                        sharedProducersContext,
-                        kafkaMethodConfig,
-                        kmc,
-                        method,
-                        serviceDescription.getRulesDeploy());
+                            kafkaServices,
+                            kafkaConsumers,
+                            kafkaProducers,
+                            sharedProducersContext,
+                            kafkaMethodConfig,
+                            kmc,
+                            method,
+                            serviceDescription.getRulesDeploy());
                 }
             } catch (Exception e) {
                 stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
@@ -607,13 +607,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
                 throw new KafkaServiceConfigurationException(String.format(
-                    "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
-                    service.getDeployPath()));
+                        "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
+                        service.getDeployPath()));
             }
         } catch (Exception t) {
             throw new RuleServiceDeployException(
-                String.format("Failed to deploy service '%s'.", service.getDeployPath()),
-                t);
+                    String.format("Failed to deploy service '%s'.", service.getDeployPath()),
+                    t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -623,7 +623,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
             JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory()
-                .getObject();
+                    .getObject();
             try {
                 return jacksonObjectMapperFactory.createJacksonObjectMapper();
             } catch (Exception e) {
@@ -638,7 +638,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
             JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory()
-                .getObject();
+                    .getObject();
             try {
                 return jacksonObjectMapperFactory.createJacksonObjectMapper();
             } catch (Exception e) {
@@ -692,11 +692,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 } else {
                     if (t == 1 && log.isWarnEnabled()) {
                         log.warn(
-                            "Service '{}' uses the input topic name '{}' and group id '{}' for different methods {}.",
-                            service.getDeployPath(),
-                            p.getLeft(),
-                            p.getRight(),
-                            w1.get(p).stream().collect(Collectors.joining(",", "[", "]")));
+                                "Service '{}' uses the input topic name '{}' and group id '{}' for different methods {}.",
+                                service.getDeployPath(),
+                                p.getLeft(),
+                                p.getRight(),
+                                w1.get(p).stream().collect(Collectors.joining(",", "[", "]")));
                     }
                     w.put(p, t + 1);
                 }
@@ -708,10 +708,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
         Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>> triple = runningServices
-            .get(service);
+                .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", service.getDeployPath()));
+                    String.format("There is no running service with name '%s'", service.getDeployPath()));
         }
         try {
             if (stopAndClose(triple)) {
@@ -722,8 +722,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             runningServices.remove(service);
         } catch (Exception t) {
             throw new RuleServiceUndeployException(
-                String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
-                t);
+                    String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+                    t);
         }
     }
 
@@ -785,7 +785,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         }
 
         public void setProducerAndObjectSerializer(KafkaProducer<String, Object> producer,
-                ObjectSerializer objectSerializer) {
+                                                   ObjectSerializer objectSerializer) {
             this.producer = Objects.requireNonNull(producer);
             this.objectSerializer = Objects.requireNonNull(objectSerializer);
         }

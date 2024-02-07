@@ -24,7 +24,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
  * <li>Character -> Integer</li>
  * <li>Long -> BigInteger -> BigDecimal</li>
  * </ul>
- *
+ * <p>
  * The order of boxing:
  * <ul>
  * <li>primitives -> boxed -> valued</li>
@@ -32,46 +32,45 @@ import org.openl.binding.exception.AmbiguousMethodException;
  * <li>valued -> superClasses</li>
  * <li>boxed -> primitives</li>
  * </ul>
- *
  */
 public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     private static final Class<?> target = OverloadedMethods.class;
-    private static final Class<?>[] primitives = new Class[] { byte.class,
+    private static final Class<?>[] primitives = new Class[]{byte.class,
             short.class,
             int.class,
             long.class,
             float.class,
-            double.class };
-    private static final Class<?>[] boxed = new Class[] { Byte.class,
+            double.class};
+    private static final Class<?>[] boxed = new Class[]{Byte.class,
             Short.class,
             Integer.class,
             Long.class,
             Float.class,
             Double.class,
             BigInteger.class,
-            BigDecimal.class };
-    private static final Class<?>[] nonNumbers = new Class[] { boolean.class,
+            BigDecimal.class};
+    private static final Class<?>[] nonNumbers = new Class[]{boolean.class,
             char.class,
             Boolean.class,
-            Character.class };
-    private static final Class<?>[] primitivesArray = new Class[] { byte[].class,
+            Character.class};
+    private static final Class<?>[] primitivesArray = new Class[]{byte[].class,
             short[].class,
             int[].class,
             long[].class,
             float[].class,
-            double[].class };
-    private static final Class<?>[] boxedArray = new Class[] { Byte[].class,
+            double[].class};
+    private static final Class<?>[] boxedArray = new Class[]{Byte[].class,
             Short[].class,
             Integer[].class,
             Long[].class,
             Float[].class,
             Double[].class,
             BigInteger[].class,
-            BigDecimal[].class };
-    private static final Class<?>[] nonNumbersArray = new Class[] { boolean[].class,
+            BigDecimal[].class};
+    private static final Class<?>[] nonNumbersArray = new Class[]{boolean[].class,
             char[].class,
             Boolean[].class,
-            Character[].class };
+            Character[].class};
 
     @Test
     public void testSearch() throws AmbiguousMethodException {
@@ -85,30 +84,30 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
 
         assertMethod(target, "m0_mixed", primitives, "int", "int", "int", "float", "float", "BigDecimal");
         assertMethod(target,
-            "m0_mixed",
-            boxed,
-            "Short",
-            "Short",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal");
+                "m0_mixed",
+                boxed,
+                "Short",
+                "Short",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal");
         assertMethod(target, "m0_mixed", nonNumbers, NF, "int", NF, "BigDecimal");
 
         assertMethod(target, "m0_comp", primitives, "short", "short", "Comparable", "Long", "Comparable", "Comparable");
         assertMethod(target,
-            "m0_comp",
-            boxed,
-            "Comparable",
-            "Comparable",
-            "Comparable",
-            "Long",
-            "Comparable",
-            "Comparable",
-            "Comparable",
-            "Comparable");
+                "m0_comp",
+                boxed,
+                "Comparable",
+                "Comparable",
+                "Comparable",
+                "Long",
+                "Comparable",
+                "Comparable",
+                "Comparable",
+                "Comparable");
         assertMethod(target, "m0_comp", nonNumbers, "Comparable", "Comparable", "Comparable", "Comparable");
     }
 
@@ -183,38 +182,38 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
 
         assertMethod(target, "_BigInteger", primitives, "BigInteger", "BigInteger", "BigInteger", "BigInteger", NF, NF);
         assertMethod(target,
-            "_BigInteger",
-            boxed,
-            "BigInteger",
-            "BigInteger",
-            "BigInteger",
-            "BigInteger",
-            NF,
-            NF,
-            "BigInteger",
-            NF);
+                "_BigInteger",
+                boxed,
+                "BigInteger",
+                "BigInteger",
+                "BigInteger",
+                "BigInteger",
+                NF,
+                NF,
+                "BigInteger",
+                NF);
         assertMethod(target, "_BigInteger", nonNumbers, NF, "BigInteger", NF, "BigInteger");
 
         assertMethod(target,
-            "_BigDecimal",
-            primitives,
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal");
+                "_BigDecimal",
+                primitives,
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal");
         assertMethod(target,
-            "_BigDecimal",
-            boxed,
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal",
-            "BigDecimal");
+                "_BigDecimal",
+                boxed,
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal",
+                "BigDecimal");
         assertMethod(target, "_BigDecimal", nonNumbers, NF, "BigDecimal", NF, "BigDecimal");
     }
 
@@ -222,16 +221,16 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     public void testOneArgument() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
-            "m1",
-            boxed,
-            "Byte",
-            "Short",
-            "Integer",
-            "Long",
-            "Float",
-            "Double",
-            "BigInteger",
-            "BigDecimal");
+                "m1",
+                boxed,
+                "Byte",
+                "Short",
+                "Integer",
+                "Long",
+                "Float",
+                "Double",
+                "BigInteger",
+                "BigDecimal");
         assertMethod(target, "m1", nonNumbers, "boolean", "char", "Boolean", "Character");
     }
 
@@ -239,16 +238,16 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     public void testOneArgument2() throws AmbiguousMethodException {
         assertMethod(target, "m1", primitives, "byte", "short", "int", "long", "float", "double");
         assertMethod(target,
-            "m1",
-            boxed,
-            "Byte",
-            "Short",
-            "Integer",
-            "Long",
-            "Float",
-            "Double",
-            "BigInteger",
-            "BigDecimal");
+                "m1",
+                boxed,
+                "Byte",
+                "Short",
+                "Integer",
+                "Long",
+                "Float",
+                "Double",
+                "BigInteger",
+                "BigDecimal");
         assertMethod(target, "m1", nonNumbers, "boolean", "char", "Boolean", "Character");
     }
 
@@ -256,101 +255,101 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     public void testTwoArguments() throws AmbiguousMethodException {
         assertMethod(target, "m2", byte.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
-            "m2",
-            byte.class,
-            boxed,
-            "GenericByte",
-            "GenericShort",
-            "GenericInteger",
-            "GenericLong",
-            "GenericFloat",
-            "Double",
-            "GenericBigInteger",
-            "BigDecimal");
+                "m2",
+                byte.class,
+                boxed,
+                "GenericByte",
+                "GenericShort",
+                "GenericInteger",
+                "GenericLong",
+                "GenericFloat",
+                "Double",
+                "GenericBigInteger",
+                "BigDecimal");
         assertMethod(target, "m2", byte.class, nonNumbers, "GenericByte", "long", "GenericByte", "Double");
 
         assertMethod(target, "m2", short.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
-            "m2",
-            short.class,
-            boxed,
-            "GenericShort",
-            "GenericShort",
-            "GenericInteger",
-            "GenericLong",
-            "GenericFloat",
-            "Double",
-            "GenericBigInteger",
-            "BigDecimal");
+                "m2",
+                short.class,
+                boxed,
+                "GenericShort",
+                "GenericShort",
+                "GenericInteger",
+                "GenericLong",
+                "GenericFloat",
+                "Double",
+                "GenericBigInteger",
+                "BigDecimal");
         assertMethod(target, "m2", short.class, nonNumbers, "GenericShort", "long", "GenericShort", "Double");
 
         assertMethod(target, "m2", int.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
-            "m2",
-            int.class,
-            boxed,
-            "GenericInteger",
-            "GenericInteger",
-            "GenericInteger",
-            "GenericLong",
-            "GenericFloat",
-            "Double",
-            "GenericBigInteger",
-            "BigDecimal");
+                "m2",
+                int.class,
+                boxed,
+                "GenericInteger",
+                "GenericInteger",
+                "GenericInteger",
+                "GenericLong",
+                "GenericFloat",
+                "Double",
+                "GenericBigInteger",
+                "BigDecimal");
         assertMethod(target, "m2", int.class, nonNumbers, "GenericInteger", "long", "GenericInteger", "GenericInteger");
 
         assertMethod(target, "m2", long.class, primitives, "long", "long", "long", "long", "double", "double");
         assertMethod(target,
-            "m2",
-            long.class,
-            boxed,
-            "GenericLong",
-            "GenericLong",
-            "GenericLong",
-            "GenericLong",
-            "GenericFloat",
-            "Double",
-            "GenericBigInteger",
-            "BigDecimal");
+                "m2",
+                long.class,
+                boxed,
+                "GenericLong",
+                "GenericLong",
+                "GenericLong",
+                "GenericLong",
+                "GenericFloat",
+                "Double",
+                "GenericBigInteger",
+                "BigDecimal");
         assertMethod(target, "m2", long.class, nonNumbers, "GenericLong", "long", "GenericLong", "GenericLong");
 
         assertMethod(target, "m2", float.class, primitives, "double", "double", "double", "double", "double", "double");
         assertMethod(target,
-            "m2",
-            float.class,
-            boxed,
-            "GenericFloat",
-            "GenericFloat",
-            "GenericFloat",
-            "GenericFloat",
-            "GenericFloat",
-            "Double",
-            "BigDecimal",
-            "BigDecimal");
+                "m2",
+                float.class,
+                boxed,
+                "GenericFloat",
+                "GenericFloat",
+                "GenericFloat",
+                "GenericFloat",
+                "GenericFloat",
+                "Double",
+                "BigDecimal",
+                "BigDecimal");
         assertMethod(target, "m2", float.class, nonNumbers, "GenericFloat", "double", "GenericFloat", "GenericFloat");
 
         assertMethod(target,
-            "m2",
-            double.class,
-            primitives,
-            "double",
-            "double",
-            "double",
-            "double",
-            "double",
-            "double");
+                "m2",
+                double.class,
+                primitives,
+                "double",
+                "double",
+                "double",
+                "double",
+                "double",
+                "double");
         assertMethod(target,
-            "m2",
-            double.class,
-            boxed,
-            "Double",
-            "Double",
-            "Double",
-            "Double",
-            "Double",
-            "Double",
-            "BigDecimal",
-            "BigDecimal");
+                "m2",
+                double.class,
+                boxed,
+                "Double",
+                "Double",
+                "Double",
+                "Double",
+                "Double",
+                "Double",
+                "BigDecimal",
+                "BigDecimal");
         assertMethod(target, "m2", double.class, nonNumbers, "GenericDouble", "double", "GenericDouble", "Double");
     }
 
@@ -434,53 +433,53 @@ public class MethodSearchOverloadTest extends AbstractMethodSearchTest {
     @Test
     public void testGenericsVararg() throws AmbiguousMethodException {
         assertMethod(target,
-            "singleGenVararg",
-            primitives,
-            "Byte[]",
-            "Short[]",
-            "Integer[]",
-            "Long[]",
-            "Float[]",
-            "Double[]");
+                "singleGenVararg",
+                primitives,
+                "Byte[]",
+                "Short[]",
+                "Integer[]",
+                "Long[]",
+                "Float[]",
+                "Double[]");
         assertMethod(target,
-            "singleGenVararg",
-            boxed,
-            "Byte[]",
-            "Short[]",
-            "Integer[]",
-            "Long[]",
-            "Float[]",
-            "Double[]",
-            "BigInteger[]",
-            "BigDecimal[]");
+                "singleGenVararg",
+                boxed,
+                "Byte[]",
+                "Short[]",
+                "Integer[]",
+                "Long[]",
+                "Float[]",
+                "Double[]",
+                "BigInteger[]",
+                "BigDecimal[]");
         assertMethod(target, "singleGenVararg", nonNumbers, "Boolean[]", "Character[]", "Boolean[]", "Character[]");
         assertMethod(target,
-            "singleGenVararg",
-            primitivesArray,
-            "Byte[]",
-            "Short[]",
-            "Integer[]",
-            "Long[]",
-            "Float[]",
-            "Double[]");
+                "singleGenVararg",
+                primitivesArray,
+                "Byte[]",
+                "Short[]",
+                "Integer[]",
+                "Long[]",
+                "Float[]",
+                "Double[]");
         assertMethod(target,
-            "singleGenVararg",
-            boxedArray,
-            "Byte[]",
-            "Short[]",
-            "Integer[]",
-            "Long[]",
-            "Float[]",
-            "Double[]",
-            "BigInteger[]",
-            "BigDecimal[]");
+                "singleGenVararg",
+                boxedArray,
+                "Byte[]",
+                "Short[]",
+                "Integer[]",
+                "Long[]",
+                "Float[]",
+                "Double[]",
+                "BigInteger[]",
+                "BigDecimal[]");
         assertMethod(target,
-            "singleGenVararg",
-            nonNumbersArray,
-            "Boolean[]",
-            "Character[]",
-            "Boolean[]",
-            "Character[]");
+                "singleGenVararg",
+                nonNumbersArray,
+                "Boolean[]",
+                "Character[]",
+                "Boolean[]",
+                "Character[]");
         assertNotFound(target, "singleGenVararg", List.class);
     }
 }

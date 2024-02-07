@@ -59,7 +59,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
                 versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
-                    .getVersions());
+                        .getVersions());
             }
         } else {
             versions.addAll(project.getVersions());
@@ -74,16 +74,16 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             }
 
             String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
-                projectVersion.getVersionName(),
-                projectVersion.getVersionInfo().getCreatedAt(),
-                ProjectVersionH2CacheDB.RepoType.DESIGN);
+                    projectVersion.getVersionName(),
+                    projectVersion.getVersionInfo().getCreatedAt(),
+                    ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
                 Repository repo = project.getRepository();
                 String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
                 AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
-                    branch,
-                    project.getRealPath(),
-                    projectVersion.getVersionName());
+                        branch,
+                        project.getRealPath(),
+                        projectVersion.getVersionName());
                 if (designProject.isDeleted()) {
                     continue;
                 }

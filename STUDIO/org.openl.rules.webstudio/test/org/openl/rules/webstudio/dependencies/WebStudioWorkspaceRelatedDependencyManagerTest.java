@@ -34,42 +34,42 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
             File projectFile = new File(project);
             File[] dependencies = getProjectDependencies();
             return new WebStudioWorkspaceRelatedSimpleProjectEngineFactory<>(projectFile,
-                dependencies,
-                classLoader,
-                interfaceClass,
-                externalParameters,
-                provideRuntimeContext,
-                provideVariations,
-                executionMode);
+                    dependencies,
+                    classLoader,
+                    interfaceClass,
+                    externalParameters,
+                    provideRuntimeContext,
+                    provideVariations,
+                    executionMode);
         }
     }
 
     public static class WebStudioWorkspaceRelatedSimpleProjectEngineFactory<T> extends SimpleProjectEngineFactory<T> {
         public WebStudioWorkspaceRelatedSimpleProjectEngineFactory(File project,
-                File[] projectDependencies,
-                ClassLoader classLoader,
-                Class<T> interfaceClass,
-                Map<String, Object> externalParameters,
-                boolean provideRuntimeContext,
-                boolean provideVariations,
-                boolean executionMode) {
+                                                                   File[] projectDependencies,
+                                                                   ClassLoader classLoader,
+                                                                   Class<T> interfaceClass,
+                                                                   Map<String, Object> externalParameters,
+                                                                   boolean provideRuntimeContext,
+                                                                   boolean provideVariations,
+                                                                   boolean executionMode) {
             super(project,
-                projectDependencies,
-                classLoader,
-                interfaceClass,
-                externalParameters,
-                provideRuntimeContext,
-                provideVariations,
-                executionMode);
+                    projectDependencies,
+                    classLoader,
+                    interfaceClass,
+                    externalParameters,
+                    provideRuntimeContext,
+                    provideVariations,
+                    executionMode);
         }
 
         @Override
         protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
             return new WebStudioWorkspaceRelatedDependencyManager(buildProjectDescriptors(),
-                classLoader,
-                isExecutionMode(),
-                getExternalParameters(),
-                true);
+                    classLoader,
+                    isExecutionMode(),
+                    getExternalParameters(),
+                    true);
 
         }
     }
@@ -79,12 +79,12 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 5);
 
         final WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?> factory = (WebStudioWorkspaceRelatedSimpleProjectEngineFactory<?>) (new WebStudioWorkspaceRelatedSimpleProjectEngineFactoryBuilder<>()
-            .setProject("test/rules/compilation")
-            .setExecutionMode(false)
-            .build());
+                .setProject("test/rules/compilation")
+                .setExecutionMode(false)
+                .build());
 
         WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceRelatedDependencyManager = (WebStudioWorkspaceRelatedDependencyManager) factory
-            .getDependencyManager();
+                .getDependencyManager();
         Random rnd = new Random();
 
         final int times = 200;
@@ -107,17 +107,17 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                         Collection<ResolvedDependency> resolvedDependencies;
                         try {
                             resolvedDependencies = webStudioWorkspaceRelatedDependencyManager
-                                .resolveDependency(
-                                    new Dependency(DependencyType.MODULE,
-                                        new IdentifierNode(null, null, "Module" + p, null)),
-                                    false);
+                                    .resolveDependency(
+                                            new Dependency(DependencyType.MODULE,
+                                                    new IdentifierNode(null, null, "Module" + p, null)),
+                                            false);
                         } catch (OpenLCompilationException e) {
                             throw new RuntimeException(e);
                         }
                         webStudioWorkspaceRelatedDependencyManager.reset(resolvedDependencies.iterator().next());
                         try {
                             webStudioWorkspaceRelatedDependencyManager
-                                .loadDependency(resolvedDependencies.iterator().next());
+                                    .loadDependency(resolvedDependencies.iterator().next());
                         } catch (OpenLCompilationException e) {
                             e.printStackTrace();
                         }
@@ -129,16 +129,16 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                         }
                         try {
                             webStudioWorkspaceRelatedDependencyManager.loadDependencyAsync(
-                                AbstractDependencyManager.buildResolvedDependency(factory.getProjectDescriptor()),
-                                (e) -> {
-                                    try {
-                                        if (!e.getCompiledOpenClass().hasErrors()) {
-                                            count.incrementAndGet();
+                                    AbstractDependencyManager.buildResolvedDependency(factory.getProjectDescriptor()),
+                                    (e) -> {
+                                        try {
+                                            if (!e.getCompiledOpenClass().hasErrors()) {
+                                                count.incrementAndGet();
+                                            }
+                                        } finally {
+                                            countDownLatchLambda.countDown();
                                         }
-                                    } finally {
-                                        countDownLatchLambda.countDown();
-                                    }
-                                });
+                                    });
                         } catch (ProjectResolvingException e) {
                             e.printStackTrace();
                         }

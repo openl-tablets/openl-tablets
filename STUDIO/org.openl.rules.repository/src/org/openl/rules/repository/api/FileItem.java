@@ -12,7 +12,7 @@ public class FileItem implements Closeable {
     private final InputStream stream;
 
     /**
-     * @param name the full path name from the root folder.
+     * @param name   the full path name from the root folder.
      * @param stream the stream for the file. The file is deleted if stream is null.
      */
     public FileItem(String name, InputStream stream) {
@@ -23,7 +23,7 @@ public class FileItem implements Closeable {
     }
 
     /**
-     * @param data the file descriptor
+     * @param data   the file descriptor
      * @param stream the stream for the file. The file is deleted if stream is null.
      */
     public FileItem(FileData data, InputStream stream) {

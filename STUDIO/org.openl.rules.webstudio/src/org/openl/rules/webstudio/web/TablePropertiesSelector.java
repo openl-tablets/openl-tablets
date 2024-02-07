@@ -45,7 +45,7 @@ class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
         return numMatch == properties.size() && numMatch > 0;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean valuesEqual(Object searchValue, Object value) {
         boolean result = false;
 

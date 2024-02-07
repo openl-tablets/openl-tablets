@@ -64,7 +64,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     } // ~ ExpAddVectorObserver
 
-    static final private int[] event_map = { MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
+    static final private int[] event_map = {MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
             // REMOVE, REMOVE
     };
     private final IntExpArray _vars;

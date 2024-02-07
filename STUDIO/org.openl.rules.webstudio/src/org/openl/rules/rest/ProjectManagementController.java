@@ -50,9 +50,9 @@ public class ProjectManagementController {
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
-            ProjectDeploymentService projectDeploymentService,
-            DeploymentManager deploymentManager,
-            ProjectStateValidator projectStateValidator) {
+                                       ProjectDeploymentService projectDeploymentService,
+                                       DeploymentManager deploymentManager,
+                                       ProjectStateValidator projectStateValidator) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
@@ -78,13 +78,13 @@ public class ProjectManagementController {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             ProjectInfo info = new ProjectInfo(project);
             info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
-                .stream()
-                .map(ProjectInfo::new)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(ProjectInfo::new)
+                    .collect(Collectors.toList());
             info.dependencies = projectDependencyResolver.getProjectDependencies(project)
-                .stream()
-                .map(ProjectInfo::new)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(ProjectInfo::new)
+                    .collect(Collectors.toList());
             return info;
         } catch (ProjectException | JAXBException e) {
             throw new NotFoundException("project.message", name);
@@ -94,15 +94,15 @@ public class ProjectManagementController {
     /**
      * Returns deployment items for selected project.
      *
-     * @param repo repository where the project is located.
-     * @param name project name.
+     * @param repo           repository where the project is located.
+     * @param name           project name.
      * @param deployRepoName name of deploy repository.
      * @return project info.
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/deployments/{deploy-repo-name}")
     public List<DeploymentProjectItem> getDeploymentItems(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @PathVariable("deploy-repo-name") String deployRepoName) {
+                                                          @PathVariable("proj-name") String name,
+                                                          @PathVariable("deploy-repo-name") String deployRepoName) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             return projectDeploymentService.getDeploymentProjectItems(project, deployRepoName);
@@ -120,8 +120,8 @@ public class ProjectManagementController {
     @PostMapping("/{repo-name}/projects/{proj-name}/close")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void close(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            HttpSession session) {
+                      @PathVariable("proj-name") String name,
+                      HttpSession session) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
@@ -154,9 +154,9 @@ public class ProjectManagementController {
     @PostMapping("/{repo-name}/projects/{proj-name}/open")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void open(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
-            HttpSession session) {
+                     @PathVariable("proj-name") String name,
+                     @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
+                     HttpSession session) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
@@ -183,17 +183,17 @@ public class ProjectManagementController {
     /**
      * Deploy the selected project
      *
-     * @param repo repository where the project is located.
-     * @param name project name.
+     * @param repo           repository where the project is located.
+     * @param name           project name.
      * @param deployRepoName repository name where to deploy the project.
-     * @param items items to deploy.
+     * @param items          items to deploy.
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/deploy")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deploy(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam("deploy-repo-name") String deployRepoName,
-            @RequestBody String[] items) {
+                       @PathVariable("proj-name") String name,
+                       @RequestParam("deploy-repo-name") String deployRepoName,
+                       @RequestBody String[] items) {
         SecurityChecker.allow(Privileges.DEPLOY_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
@@ -204,11 +204,11 @@ public class ProjectManagementController {
                 throw new ConflictException("project.deploy.conflict.message");
             }
             List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
-                .getDeploymentProjectItems(project, repo.getId());
+                    .getDeploymentProjectItems(project, repo.getId());
             for (String item : items) {
                 Optional<DeploymentProjectItem> deploymentProjectItem = deploymentProjectItems.stream()
-                    .filter(p -> p.getName().equals(item))
-                    .findFirst();
+                        .filter(p -> p.getName().equals(item))
+                        .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
                     deploymentManager.deploy(deploymentProject, deployRepoName);
@@ -221,20 +221,21 @@ public class ProjectManagementController {
 
     /**
      * WARNING: Currently it's used only for testing purpose. Should be finalized before using in real life
+     *
      * @see org.openl.rules.webstudio.web.repository.RepositoryTreeController#deleteNode()
      */
     @Hidden
     @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/delete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
     public void delete(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam(value = "comment", required = false) final String comment) {
+                       @PathVariable("proj-name") String name,
+                       @RequestParam(value = "comment", required = false) final String comment) {
         SecurityChecker.allow(Privileges.DELETE_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!projectStateValidator.canDelete(project)) {
                 if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
-                    .isLocalOnly()) {
+                        .isLocalOnly()) {
                     throw new ConflictException("project.delete.branch.message");
                 }
                 if (project.isLocked() || project.isLockedByMe()) {

@@ -40,14 +40,14 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private final String repositoryId;
 
     public ZipFileProjectCreator(String repositoryId,
-        String uploadedFileName,
-        InputStream uploadedFileStream,
-        String projectName,
-        String projectFolder,
-        UserWorkspace userWorkspace,
-        String comment,
-        PathFilter zipFilter,
-        ZipCharsetDetector zipCharsetDetector) throws IOException {
+                                 String uploadedFileName,
+                                 InputStream uploadedFileStream,
+                                 String projectName,
+                                 String projectFolder,
+                                 UserWorkspace userWorkspace,
+                                 String comment,
+                                 PathFilter zipFilter,
+                                 ZipCharsetDetector zipCharsetDetector) throws IOException {
         super(projectName, projectFolder, userWorkspace);
         this.repositoryId = repositoryId;
         this.comment = comment;
@@ -88,10 +88,10 @@ public class ZipFileProjectCreator extends AProjectCreator {
     private ZipRulesProjectBuilder getZipProjectBuilder(Set<String> sortedNames, PathFilter zipFilter) {
         RootFolderExtractor folderExtractor = new RootFolderExtractor(sortedNames, zipFilter);
         return new ZipRulesProjectBuilder(getUserWorkspace(), repositoryId, getProjectName(),
-            getProjectFolder(),
-            zipFilter,
-            folderExtractor,
-            comment);
+                getProjectFolder(),
+                zipFilter,
+                folderExtractor,
+                comment);
     }
 
     private Set<String> sortZipEntriesNames(ZipFile zipFile) {
@@ -102,7 +102,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
         }
 
         boolean skipped = false;
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 ZipEntry item = items.nextElement();
                 sortedNames.add(item.getName());
@@ -124,7 +124,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
 
         if (!invalidNames.isEmpty()) {
             WebStudioUtils.addErrorMessage("Project has not been created. Zip file contains " + invalidNames
-                .size() + " files/folders with incorrect names:");
+                    .size() + " files/folders with incorrect names:");
 
             /*
              * Display first 20 files/folders with incorrect names
@@ -207,7 +207,7 @@ public class ZipFileProjectCreator extends AProjectCreator {
             return invalidNames;
         }
 
-        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements();) {
+        for (Enumeration<? extends ZipEntry> items = zipFile.entries(); items.hasMoreElements(); ) {
             try {
                 ZipEntry item = items.nextElement();
 

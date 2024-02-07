@@ -108,7 +108,7 @@ public class NumbersTest {
         assertEquals("1", Numbers.toString(BigInteger.ONE));
 
         assertEquals("85070591730234615847396907784232501249", Numbers.toString(reallyBigValue));
-        
+
         assertEquals("85070591730234615847396907784232501249.000", Numbers.toString(reallyBigValue, "0.000"));
         assertEquals("85,070591,730234,615847,396907,784232,501249.000", Numbers.toString(reallyBigValue, "#,######.000"));
         assertEquals("85E36", Numbers.toString(reallyBigValue, "#,#E0"));

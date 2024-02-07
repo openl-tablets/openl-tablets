@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 /**
  * @author snshor
- *
  */
 public class UndoableActions {
 

@@ -13,14 +13,14 @@ public class TagTypeDTO {
     @Parameter(description = "tags.tag-type.id.desc", required = true)
     private Long id;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     @Parameter(description = "Tag type name", required = true)
     private String name;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     private boolean extensible;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     private boolean nullable;
 
     @JsonView(GenericView.Full.class)

@@ -15,7 +15,7 @@ import org.openl.types.java.JavaOpenClass;
 public class TypeToAliasCastTest {
     @Test
     public void testSingle() {
-        IDomain<String> strDomain = new EnumDomain<>(new String[] { "Val1", "Val2" });
+        IDomain<String> strDomain = new EnumDomain<>(new String[]{"Val1", "Val2"});
         DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null, null);
         TypeToAliasCast cast = new TypeToAliasCast(domain);
 
@@ -30,7 +30,7 @@ public class TypeToAliasCastTest {
             fail("Should be exception");
         } catch (OutsideOfValidDomainException e) {
             assertEquals(e.getOriginalMessage(),
-                "Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]");
+                    "Object 'Not Existing' is outside of valid domain 'TestDomain'. Valid values: [Val1, Val2]");
         }
     }
 }

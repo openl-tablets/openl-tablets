@@ -90,7 +90,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper
-            .writeValueAsString(new DoubleRange("(0; 1)"));
+                .writeValueAsString(new DoubleRange("(0; 1)"));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
         assertNotNull(result);
 
@@ -151,8 +151,8 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setOverrideTypes(overrideTypes);
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
-        wrapper.animals = new Animal[] { new Dog() };
-        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
+        wrapper.animals = new Animal[]{new Dog()};
+        wrapper.arrayOfAnimals = new Animal[]{new Dog()};
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);
@@ -180,8 +180,8 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setOverrideTypes(overrideTypes);
         Wrapper wrapper = new Wrapper();
         wrapper.animal = new Dog();
-        wrapper.animals = new Animal[] { new Dog() };
-        wrapper.arrayOfAnimals = new Animal[] { new Dog() };
+        wrapper.animals = new Animal[]{new Dog()};
+        wrapper.arrayOfAnimals = new Animal[]{new Dog()};
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(wrapper);
         Wrapper w = objectMapper.readValue(text, Wrapper.class);

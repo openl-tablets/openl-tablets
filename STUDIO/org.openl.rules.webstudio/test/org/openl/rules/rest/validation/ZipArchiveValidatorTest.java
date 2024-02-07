@@ -19,7 +19,7 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     public void testArchives_NotOpenLProject() {
         BindingResult bindingResult = validateAndGetResult(Paths.get("test-resources/upload/zip/test-rules-xml.zip"),
-            validator);
+                validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("Unknown project structure.", bindingResult.getGlobalError());

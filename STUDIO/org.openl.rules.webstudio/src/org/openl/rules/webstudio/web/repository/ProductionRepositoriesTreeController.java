@@ -60,7 +60,7 @@ public class ProductionRepositoriesTreeController {
             return null;
         }
         if (selectedNode.getType().equals(UiConst.TYPE_PRODUCTION_REPOSITORY) || selectedNode.getType()
-            .equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
+                .equals(UiConst.TYPE_PRODUCTION_DEPLOYMENT_PROJECT)) {
             for (TreeNode node : selectedNode.getChildNodes()) {
                 if (node.getName().equals(projectName)) {
                     repositorySelectNodeStateHolder.setSelectedNode(node);
@@ -113,7 +113,7 @@ public class ProductionRepositoriesTreeController {
     public String getBusinessVersion(TreeProductProject version) {
         try {
             String businessVersion = projectVersionCacheManager
-                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+                    .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
             return businessVersion != null ? businessVersion : "No valid revision found";
         } catch (IOException e) {
             log.error("Error during getting project design version", e);

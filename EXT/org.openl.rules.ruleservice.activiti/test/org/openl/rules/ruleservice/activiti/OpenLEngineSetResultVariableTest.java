@@ -15,9 +15,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @TestPropertySource(properties = {"ruleservice.isProvideRuntimeContext=false",
-    "ruleservice.instantiation.strategy.lazy = false",
-    "production-repository.uri=test-resources/datasource",
-    "production-repository.factory = repo-file"})
+        "ruleservice.instantiation.strategy.lazy = false",
+        "production-repository.uri=test-resources/datasource",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:activiti.cfg.xml"})
 public class OpenLEngineSetResultVariableTest {
 
@@ -27,9 +27,9 @@ public class OpenLEngineSetResultVariableTest {
     @BeforeEach
     public void deploy() {
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-setResultVariable.bpmn20.xml")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-setResultVariable.bpmn20.xml")
+                .deploy();
     }
 
     @Test

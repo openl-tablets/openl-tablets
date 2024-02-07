@@ -18,17 +18,17 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     private final IOpenClass arrayType;
 
     public CollectionElementWithMultiRowField(IOpenField field,
-            String fieldPathFromRoot,
-            IOpenClass type,
-            CollectionType collectionType) {
+                                              String fieldPathFromRoot,
+                                              IOpenClass type,
+                                              CollectionType collectionType) {
         this(field, fieldPathFromRoot, type, collectionType, false);
     }
 
     public CollectionElementWithMultiRowField(IOpenField field,
-            String fieldPathFromRoot,
-            IOpenClass type,
-            CollectionType collectionType,
-            boolean pkField) {
+                                              String fieldPathFromRoot,
+                                              IOpenClass type,
+                                              CollectionType collectionType,
+                                              boolean pkField) {
         super(getName(field.getName()), type);
         this.field = field;
         this.pkField = pkField;

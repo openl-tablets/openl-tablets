@@ -33,6 +33,7 @@ public class TagType implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
     /**
      * Tag type name.
      */

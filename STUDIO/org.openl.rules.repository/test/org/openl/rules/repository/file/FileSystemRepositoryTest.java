@@ -174,10 +174,10 @@ public class FileSystemRepositoryTest {
     }
 
     private void assertSave(Repository repo,
-            String folderName,
-            String text,
-            Date modifiedAt,
-            String... fileNames) throws IOException {
+                            String folderName,
+                            String text,
+                            Date modifiedAt,
+                            String... fileNames) throws IOException {
         FileData folder = new FileData();
         folder.setName(folderName);
         if (modifiedAt != null) {

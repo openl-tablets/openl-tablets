@@ -17,7 +17,6 @@ import org.openl.util.IntegerValuesUtils;
 
 /**
  * @author snshor
- *
  */
 public class DynamicArrayAggregateInfo extends AAggregateInfo {
     public static final DynamicArrayAggregateInfo aggregateInfo = new DynamicArrayAggregateInfo();
@@ -51,7 +50,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
                 if (indexField.getType() == indexType) {
                     return new ArrayFieldIndex(componentClass, indexField);
                 } else if (IntegerValuesUtils.isIntegerValue(
-                    indexField.getType().getInstanceClass()) && String.class == indexType.getInstanceClass()) {
+                        indexField.getType().getInstanceClass()) && String.class == indexType.getInstanceClass()) {
                     // handles the case when index field of Datatype is of type int, and we try to get String index
                     // e.g. person["12"]
                     return new ArrayFieldIndex(componentClass, indexField);

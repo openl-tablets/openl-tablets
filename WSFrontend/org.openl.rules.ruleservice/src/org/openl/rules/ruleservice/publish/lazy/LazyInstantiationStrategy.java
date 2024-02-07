@@ -28,16 +28,16 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
     }
 
     public LazyInstantiationStrategy(DeploymentDescription deployment,
-            Collection<Module> modules,
-            RuleServiceDependencyManager dependencyManager) {
+                                     Collection<Module> modules,
+                                     RuleServiceDependencyManager dependencyManager) {
         super(modules, dependencyManager, true);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
 
     LazyInstantiationStrategy(DeploymentDescription deployment,
-            Collection<Module> modules,
-            RuleServiceDependencyManager dependencyManager,
-            ClassLoader classLoader) {
+                              Collection<Module> modules,
+                              RuleServiceDependencyManager dependencyManager,
+                              ClassLoader classLoader) {
         super(modules, dependencyManager, classLoader, true);
         this.deployment = Objects.requireNonNull(deployment, "deployment cannot be null");
     }
@@ -54,7 +54,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
     protected ClassLoader initClassLoader() {// Required for lazy
         if (classLoader == null) {
             ClassLoader openLClassLoader = new OpenLClassLoader(
-                Thread.currentThread().getContextClassLoader());
+                    Thread.currentThread().getContextClassLoader());
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(openLClassLoader);
@@ -97,15 +97,15 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     protected LazyEngineFactory<?> getEngineFactory() {
         Class<?> serviceClass = getServiceClass();
         if (engineFactory == null) {
             engineFactory = new LazyEngineFactory(getDeployment(),
-                getModules(),
-                getDependencyManager(),
-                serviceClass,
-                getExternalParameters());
+                    getModules(),
+                    getDependencyManager(),
+                    serviceClass,
+                    getExternalParameters());
             // Information for interface generation, if generation required.
             Collection<String> allIncludes = new HashSet<>();
             Collection<String> allExcludes = new HashSet<>();
@@ -117,8 +117,8 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
                 }
             }
             if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
-                String[] includes = new String[] {};
-                String[] excludes = new String[] {};
+                String[] includes = new String[]{};
+                String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
                 engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));

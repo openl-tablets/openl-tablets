@@ -1,6 +1,6 @@
 /*
- * This class has been generated. Do not change it. 
-*/
+ * This class has been generated. Do not change it.
+ */
 
 package org.openl.generated.test.beans;
 
@@ -38,16 +38,16 @@ public class Vehicle {
     }
 
     public Vehicle(String name,
-            String model,
-            int year,
-            boolean hasAlarm,
-            String type,
-            boolean onHighTheftProbabilityList,
-            String airbags,
-            double price,
-            String bodyType,
-            String[] coverage,
-            boolean hasRollBar) {
+                   String model,
+                   int year,
+                   boolean hasAlarm,
+                   String type,
+                   boolean onHighTheftProbabilityList,
+                   String airbags,
+                   double price,
+                   String bodyType,
+                   String[] coverage,
+                   boolean hasRollBar) {
         super();
         this.name = name;
         this.model = model;
@@ -104,7 +104,7 @@ public class Vehicle {
 
     public String toString() {
         return "Vehicle {" + " name=" + getName() + " model=" + getModel() + " year=" + getYear() + " hasAlarm=" + getHasAlarm() + " type=" + getType() + " onHighTheftProbabilityList=" + getOnHighTheftProbabilityList() + " airbags=" + getAirbags() + " price=" + getPrice() + " bodyType=" + getBodyType() + " coverage=" + ArrayUtils
-            .toString(getCoverage()) + " hasRollBar=" + getHasRollBar() + " }";
+                .toString(getCoverage()) + " hasRollBar=" + getHasRollBar() + " }";
     }
 
     public void setName(String name) {

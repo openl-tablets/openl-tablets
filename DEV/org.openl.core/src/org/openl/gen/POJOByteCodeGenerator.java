@@ -48,20 +48,19 @@ public class POJOByteCodeGenerator {
     private final Set<Consumer<ClassWriter>> typeWriters;
 
     /**
-     *
-     * @param beanName name of the generated class, with namespace (e.g. <code>my.test.TestClass</code>)
-     * @param beanFields map of fields, field name as a key, and type as value.
-     * @param parentType parent type
+     * @param beanName              name of the generated class, with namespace (e.g. <code>my.test.TestClass</code>)
+     * @param beanFields            map of fields, field name as a key, and type as value.
+     * @param parentType            parent type
      * @param additionalConstructor true if required to generate constructor with parameter
      */
     public POJOByteCodeGenerator(String beanName,
-            Map<String, FieldDescription> beanFields,
-            TypeDescription parentType,
-            Map<String, FieldDescription> parentFields,
-            Set<Consumer<ClassWriter>> typeWriters,
-            boolean additionalConstructor,
-            boolean equalsHashCodeToStringMethods,
-            boolean publicFields) {
+                                 Map<String, FieldDescription> beanFields,
+                                 TypeDescription parentType,
+                                 Map<String, FieldDescription> parentFields,
+                                 Set<Consumer<ClassWriter>> typeWriters,
+                                 boolean additionalConstructor,
+                                 boolean equalsHashCodeToStringMethods,
+                                 boolean publicFields) {
 
         this.fields = beanFields != null ? beanFields : Collections.emptyMap();
         this.parentType = parentType;
@@ -77,13 +76,13 @@ public class POJOByteCodeGenerator {
         this.writers = new ArrayList<>();
         writers.add(new DefaultConstructorWriter(beanNameWithPackage, parentType, this.fields));
         if (additionalConstructor && allFields.size() > 0 && isFollowJavaSpecification(
-            allFields) && !OBJECT_TYPE_DESCRIPTION.getTypeName().equals(parentType.getTypeDescriptor())) {
+                allFields) && !OBJECT_TYPE_DESCRIPTION.getTypeName().equals(parentType.getTypeDescriptor())) {
             // Generate constructor with parameters only in case where there are
             // less than 256 arguments.
             // 255 arguments to the method is a Java limitation
             //
             writers.add(
-                new ConstructorWithParametersWriter(beanNameWithPackage, parentType, this.parentFields, this.fields));
+                    new ConstructorWithParametersWriter(beanNameWithPackage, parentType, this.parentFields, this.fields));
         }
 
         if (!publicFields) {
@@ -111,15 +110,15 @@ public class POJOByteCodeGenerator {
     private void visitClassDescription(ClassWriter classWriter) {
         String parent = parentType.getTypeName().replace('.', '/');
         classWriter.visit(Opcodes.V1_8,
-            Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
-            beanNameWithPackage,
-            null,
-            parent,
-            getDefaultInterfaces());
+                Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
+                beanNameWithPackage,
+                null,
+                parent,
+                getDefaultInterfaces());
     }
 
     protected String[] getDefaultInterfaces() {
-        return new String[] { "java/io/Serializable" };
+        return new String[]{"java/io/Serializable"};
     }
 
     private void visitTypeWriters(ClassWriter classWriter) {
@@ -160,9 +159,9 @@ public class POJOByteCodeGenerator {
     }
 
     private void visitJAXBAnnotationsOnField(FieldVisitor fieldVisitor,
-            String fieldName,
-            FieldDescription field,
-            String javaType) {
+                                             String fieldName,
+                                             FieldDescription field,
+                                             String javaType) {
         AnnotationVisitor av = fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
 
         av.visit("name", field.getXmlName() != null ? field.getXmlName() : fieldName);
@@ -173,7 +172,7 @@ public class POJOByteCodeGenerator {
         if (field.hasDefaultValue() && !field.hasDefaultKeyWord()) {
             String defaultFieldValue = field.getDefaultValueAsString();
             if (Boolean.class.getName().equals(field.getTypeName()) || boolean.class.getName()
-                .equals(field.getTypeName())) {
+                    .equals(field.getTypeName())) {
                 defaultFieldValue = String.valueOf(field.getDefaultValue());
             } else if (field.getTypeName().equals(Date.class.getName())) {
                 Date date = (Date) field.getDefaultValue();
@@ -208,8 +207,8 @@ public class POJOByteCodeGenerator {
         for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
             int acc = (publicFields ? Opcodes.ACC_PUBLIC
-                                    : Opcodes.ACC_PROTECTED) | (field.getValue().isTransient() ? Opcodes.ACC_TRANSIENT
-                                                                                               : 0);
+                    : Opcodes.ACC_PROTECTED) | (field.getValue().isTransient() ? Opcodes.ACC_TRANSIENT
+                    : 0);
             FieldVisitor fieldVisitor = classWriter.visitField(acc, field.getKey(), fieldTypeName, null, null);
 
             if (field.getValue().isContextProperty()) {
@@ -229,15 +228,15 @@ public class POJOByteCodeGenerator {
     }
 
     protected void visitFieldVisitor(FieldVisitor fieldVisitor,
-            String fieldName,
-            FieldDescription field,
-            String javaType,
-            int index) {
+                                     String fieldName,
+                                     FieldDescription field,
+                                     String javaType,
+                                     int index) {
     }
 
     private void visitOpenLContextAnnotation(String fieldName, FieldVisitor fieldVisitor) {
         AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ContextProperty.class),
-            true);
+                true);
         annotationVisitor.visit("value", fieldName);
         annotationVisitor.visitEnd();
     }

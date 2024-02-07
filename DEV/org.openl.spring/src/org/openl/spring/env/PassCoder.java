@@ -18,21 +18,20 @@ import org.openl.util.StringUtils;
 
 /**
  * @author Pavel Tarasevich
- *
  */
 final class PassCoder {
-    private static final byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private static final byte[] bytes = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
 
     private PassCoder() {
     }
 
     static String encode(String strToEncrypt, String privateKey, String c) throws NoSuchAlgorithmException,
-                                                                        NoSuchPaddingException,
-                                                                        InvalidKeyException,
-                                                                        IllegalBlockSizeException,
-                                                                        BadPaddingException,
-                                                                        InvalidAlgorithmParameterException {
+            NoSuchPaddingException,
+            InvalidKeyException,
+            IllegalBlockSizeException,
+            BadPaddingException,
+            InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToEncrypt)) {
             return strToEncrypt;
         }
@@ -49,11 +48,11 @@ final class PassCoder {
     }
 
     static String decode(String strToDecrypt, String privateKey, String c) throws NoSuchAlgorithmException,
-                                                                        NoSuchPaddingException,
-                                                                        InvalidKeyException,
-                                                                        IllegalBlockSizeException,
-                                                                        BadPaddingException,
-                                                                        InvalidAlgorithmParameterException {
+            NoSuchPaddingException,
+            InvalidKeyException,
+            IllegalBlockSizeException,
+            BadPaddingException,
+            InvalidAlgorithmParameterException {
         if (StringUtils.isBlank(strToDecrypt)) {
             return strToDecrypt;
         }

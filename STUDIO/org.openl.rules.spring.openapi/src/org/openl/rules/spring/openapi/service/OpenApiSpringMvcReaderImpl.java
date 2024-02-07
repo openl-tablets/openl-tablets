@@ -61,11 +61,11 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiSpringMvcReaderImpl(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
-            OpenApiResponseService apiResponseService,
-            OpenApiRequestServiceImpl apiRequestService,
-            OpenApiParameterService apiParameterService,
-            OpenApiSecurityService apiSecurityService,
-            OpenApiPropertyResolver apiPropertyResolver) {
+                                      OpenApiResponseService apiResponseService,
+                                      OpenApiRequestServiceImpl apiRequestService,
+                                      OpenApiParameterService apiParameterService,
+                                      OpenApiSecurityService apiSecurityService,
+                                      OpenApiPropertyResolver apiPropertyResolver) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
@@ -78,24 +78,24 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
      * Read OpenAPI schema for controllers from list
      *
      * @param openApiContext current OpenAPI context
-     * @param controllers included Spring Controllers
+     * @param controllers    included Spring Controllers
      */
     @Override
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
         apiSecurityService.generateGlobalSecurity(openApiContext);
         var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
-            .values()
-            .stream()
-            .map(ControllerAdviceInfo::new)
-            .collect(Collectors.toList());
+                .values()
+                .stream()
+                .map(ControllerAdviceInfo::new)
+                .collect(Collectors.toList());
         handlerMethodsHelper.getHandlerMethods()
-            .entrySet()
-            .stream()
-            .filter(e -> isRestControllers(e.getValue(), controllers))
-            .forEach(e -> visitHandlerMethod(openApiContext,
-                e.getKey(),
-                e.getValue(),
-                selectControllerAdvices(controllerAdviceInfos, e.getValue().getBeanType())));
+                .entrySet()
+                .stream()
+                .filter(e -> isRestControllers(e.getValue(), controllers))
+                .forEach(e -> visitHandlerMethod(openApiContext,
+                        e.getKey(),
+                        e.getValue(),
+                        selectControllerAdvices(controllerAdviceInfos, e.getValue().getBeanType())));
 
         if (openApiContext.getOpenAPI().getTags() != null) {
             openApiContext.getOpenAPI().getTags().sort(Comparator.comparing(Tag::getName));
@@ -103,9 +103,9 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     }
 
     private void visitHandlerMethod(OpenApiContext openApiContext,
-            RequestMappingInfo mappingInfo,
-            HandlerMethod method,
-            List<ControllerAdviceInfo> controllerAdviceInfos) {
+                                    RequestMappingInfo mappingInfo,
+                                    HandlerMethod method,
+                                    List<ControllerAdviceInfo> controllerAdviceInfos) {
         if (mappingInfo.getPatternsCondition() == null) {
             return;
         }
@@ -130,8 +130,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     }
 
     private void parseMethod(OpenApiContext apiContext,
-            MethodInfo methodInfo,
-            List<ControllerAdviceInfo> controllerAdviceInfos) {
+                             MethodInfo methodInfo,
+                             List<ControllerAdviceInfo> controllerAdviceInfos) {
         final var operation = Optional.ofNullable(apiContext.getPaths().get(methodInfo.getPathPattern())).map(path -> {
             switch (methodInfo.getRequestMethod()) {
                 case GET:
@@ -191,7 +191,7 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         }
 
         if (operation.getResponses() != null && operation.getResponses().size() > 1 && operation.getResponses()
-            .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
+                .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
             var defaultResponse = operation.getResponses().remove(ApiResponses.DEFAULT);
             operation.getResponses().put("200", defaultResponse);
         }
@@ -202,10 +202,10 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         Set<Parameter> requestBodyParams = new HashSet<>();
         List<Parameter> allParamAnnos = new ArrayList<>();
         Optional.ofNullable(methodInfo.getOperationAnnotation())
-            .map(io.swagger.v3.oas.annotations.Operation::parameters)
-            .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
+                .map(io.swagger.v3.oas.annotations.Operation::parameters)
+                .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
         Optional.ofNullable(ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(), Parameter.class))
-            .ifPresent(allParamAnnos::addAll);
+                .ifPresent(allParamAnnos::addAll);
 
         ParameterInfo requestBodyParam = null;
         MethodParameter[] methodParameters = methodInfo.getHandler().getMethodParameters();
@@ -222,22 +222,22 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
             var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
             var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
             if (reqPart != null || (reqParam != null && (OpenApiUtils.isFile(parameterInfo
-                .getType()) || (formRequest && parameterInfo.getParameter() != null && parameterInfo.getParameter()
+                    .getType()) || (formRequest && parameterInfo.getParameter() != null && parameterInfo.getParameter()
                     .in() == ParameterIn.DEFAULT)))) {
                 formParameters.add(parameterInfo);
                 if (parameterInfo.getParameter() == null) {
                     // Try to find Parameter annotation in other places
                     var paramName = Optional.ofNullable(reqPart)
-                        .map(RequestPart::name)
-                        .or(() -> Optional.of(reqParam).map(RequestParam::name))
-                        .get();
+                            .map(RequestPart::name)
+                            .or(() -> Optional.of(reqParam).map(RequestParam::name))
+                            .get();
                     allParamAnnos.stream()
-                        .filter(p -> ParameterIn.DEFAULT == p.in() && paramName.equals(p.name()))
-                        .findFirst()
-                        .ifPresent(p -> {
-                            requestBodyParams.add(p);
-                            parameterInfo.setParameter(p);
-                        });
+                            .filter(p -> ParameterIn.DEFAULT == p.in() && paramName.equals(p.name()))
+                            .findFirst()
+                            .ifPresent(p -> {
+                                requestBodyParams.add(p);
+                                parameterInfo.setParameter(p);
+                            });
                 }
             } else if (apiRequestService.isRequestBody(parameterInfo)) {
                 requestBodyParam = parameterInfo;
@@ -247,11 +247,11 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         }
         // parse parameters
         apiParameterService.generateParameters(apiContext, methodInfo, parameters, requestBodyParams)
-            .forEach(operation::addParametersItem);
+                .forEach(operation::addParametersItem);
 
         // parse request body
         var sourceRequestBody = apiRequestService
-            .generateRequestBody(apiContext, methodInfo, formParameters, requestBodyParam);
+                .generateRequestBody(apiContext, methodInfo, formParameters, requestBodyParam);
         if (sourceRequestBody != null) {
             if (operation.getRequestBody() != null) {
                 apiRequestService.mergeRequestBody(sourceRequestBody, operation.getRequestBody());
@@ -272,8 +272,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     }
 
     private void parseOperation(OpenApiContext apiContext,
-            io.swagger.v3.oas.annotations.Operation apiOperation,
-            Operation operation) {
+                                io.swagger.v3.oas.annotations.Operation apiOperation,
+                                Operation operation) {
         if (apiOperation == null) {
             return;
         }
@@ -291,26 +291,26 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         }
         if (apiOperation.tags() != null) {
             Stream.of(apiOperation.tags())
-                .filter(tag -> operation.getTags() == null || !operation.getTags().contains(tag))
-                .forEach(operation::addTagsItem);
+                    .filter(tag -> operation.getTags() == null || !operation.getTags().contains(tag))
+                    .forEach(operation::addTagsItem);
         }
     }
 
     private void parseMethodTags(OpenApiContext openApiContext, HandlerMethod method, Operation operation) {
         var tags = Optional
-            .ofNullable(ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
-                io.swagger.v3.oas.annotations.tags.Tag.class))
-            .orElseGet(Collections::emptyList);
+                .ofNullable(ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
+                        io.swagger.v3.oas.annotations.tags.Tag.class))
+                .orElseGet(Collections::emptyList);
 
         AnnotationsUtils.getTags(tags.toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new), false)
-            .stream()
-            .flatMap(Collection::stream)
-            .forEach(tagItem -> {
-                openApiContext.addTagsItem(tagItem);
-                if (operation.getTags() == null || !operation.getTags().contains(tagItem.getName())) {
-                    operation.addTagsItem(tagItem.getName());
-                }
-            });
+                .stream()
+                .flatMap(Collection::stream)
+                .forEach(tagItem -> {
+                    openApiContext.addTagsItem(tagItem);
+                    if (operation.getTags() == null || !operation.getTags().contains(tagItem.getName())) {
+                        operation.addTagsItem(tagItem.getName());
+                    }
+                });
 
         var typeTags = openApiContext.getClassTags(method.getBeanType());
         if (typeTags == null) {
@@ -318,28 +318,28 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
             typeTags = openApiContext.getClassTags(method.getBeanType());
         }
         Optional.ofNullable(typeTags)
-            .map(Map::keySet)
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(tag -> operation.getTags() == null || !operation.getTags().contains(tag))
-            .forEach(operation::addTagsItem);
+                .map(Map::keySet)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(tag -> operation.getTags() == null || !operation.getTags().contains(tag))
+                .forEach(operation::addTagsItem);
     }
 
     private void processTagsFromType(OpenApiContext openApiContext, Class<?> beanType) {
         List<Stream<io.swagger.v3.oas.annotations.tags.Tag>> tags = new ArrayList<>();
         Optional
-            .ofNullable(AnnotationUtils.findAnnotation(beanType, OpenAPIDefinition.class))
-            .map(OpenAPIDefinition::tags)
-            .ifPresent(anno -> tags.add(Stream.of(anno)));
+                .ofNullable(AnnotationUtils.findAnnotation(beanType, OpenAPIDefinition.class))
+                .map(OpenAPIDefinition::tags)
+                .ifPresent(anno -> tags.add(Stream.of(anno)));
         Optional
-            .ofNullable(
-                ReflectionUtils.getRepeatableAnnotations(beanType, io.swagger.v3.oas.annotations.tags.Tag.class))
-            .ifPresent(anno -> tags.add(anno.stream()));
+                .ofNullable(
+                        ReflectionUtils.getRepeatableAnnotations(beanType, io.swagger.v3.oas.annotations.tags.Tag.class))
+                .ifPresent(anno -> tags.add(anno.stream()));
 
         AnnotationsUtils
-            .getTags(tags.stream().flatMap(Function.identity()).toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new),
-                false)
-            .ifPresent(res -> openApiContext.addClassTags(beanType, res));
+                .getTags(tags.stream().flatMap(Function.identity()).toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new),
+                        false)
+                .ifPresent(res -> openApiContext.addClassTags(beanType, res));
     }
 
     protected String getOperationId(OpenApiContext apiContext, String operationId) {
@@ -371,45 +371,45 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
 
     private Set<String> extractOperationIdFromPathItem(PathItem path) {
         return Stream
-            .of(path.getGet(),
-                path.getPost(),
-                path.getPut(),
-                path.getDelete(),
-                path.getOptions(),
-                path.getHead(),
-                path.getPatch(),
-                path.getTrace())
-            .filter(Objects::nonNull)
-            .map(Operation::getOperationId)
-            .filter(StringUtils::isNotBlank)
-            .collect(Collectors.toSet());
+                .of(path.getGet(),
+                        path.getPost(),
+                        path.getPut(),
+                        path.getDelete(),
+                        path.getOptions(),
+                        path.getHead(),
+                        path.getPatch(),
+                        path.getTrace())
+                .filter(Objects::nonNull)
+                .map(Operation::getOperationId)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
     }
 
     private static boolean isRestControllers(HandlerMethod method, Map<String, Class<?>> controllers) {
         return isRestController(method.getBeanType()) && controllers.get(method.getBean().toString()) == method
-            .getBeanType() && hasResponseBody(method);
+                .getBeanType() && hasResponseBody(method);
     }
 
     private static boolean isRestController(Class<?> cl) {
         return AnnotationUtils.findAnnotation(cl, RestController.class) != null || (AnnotationUtils.findAnnotation(cl,
-            Controller.class) != null && AnnotationUtils.findAnnotation(cl, ResponseBody.class) != null);
+                Controller.class) != null && AnnotationUtils.findAnnotation(cl, ResponseBody.class) != null);
     }
 
     private static boolean hasResponseBody(HandlerMethod method) {
         return method.hasMethodAnnotation(
-            ResponseBody.class) || AnnotationUtils.findAnnotation(method.getBeanType(), ResponseBody.class) != null;
+                ResponseBody.class) || AnnotationUtils.findAnnotation(method.getBeanType(), ResponseBody.class) != null;
     }
 
     private static boolean isDeprecatedMethod(Method method) {
         return AnnotationUtils.findAnnotation(method, Deprecated.class) != null || AnnotationUtils
-            .findAnnotation(method.getDeclaringClass(), Deprecated.class) != null;
+                .findAnnotation(method.getDeclaringClass(), Deprecated.class) != null;
     }
 
     private static List<ControllerAdviceInfo> selectControllerAdvices(
             Collection<ControllerAdviceInfo> controllerAdvices,
             Class<?> beanType) {
         return controllerAdvices.stream()
-            .filter(controllerAdvice -> new ControllerAdviceBean(controllerAdvice).isApplicableToBeanType(beanType))
-            .collect(Collectors.toList());
+                .filter(controllerAdvice -> new ControllerAdviceBean(controllerAdvice).isApplicableToBeanType(beanType))
+                .collect(Collectors.toList());
     }
 }

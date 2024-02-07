@@ -4,7 +4,6 @@ package org.openl.rules.variation;
  * Checked exception for variation API
  *
  * @author Marat Kamalov
- *
  */
 @Deprecated
 public class VariationException extends Exception {

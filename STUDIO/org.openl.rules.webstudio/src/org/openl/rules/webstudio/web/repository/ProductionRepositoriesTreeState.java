@@ -64,9 +64,9 @@ public class ProductionRepositoriesTreeState {
         for (RepositoryConfiguration repoConfig : getRepositories()) {
             String prName = repoConfig.getName();
             TreeRepository productionRepository = new TreeRepository(prName,
-                prName,
-                filter,
-                UiConst.TYPE_PRODUCTION_REPOSITORY);
+                    prName,
+                    filter,
+                    UiConst.TYPE_PRODUCTION_REPOSITORY);
             productionRepository.setData(null);
 
             root.addChild(prName, productionRepository);
@@ -78,8 +78,8 @@ public class ProductionRepositoriesTreeState {
 
             for (AProjectFolder project : repoList) {
                 TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(),
-                    project.getName(),
-                    filter);
+                        project.getName(),
+                        filter);
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
                 productionRepository.add(tpdp);

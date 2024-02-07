@@ -71,9 +71,9 @@ public class RulesFrontendImpl implements RulesFrontend {
      */
     @Override
     public Object execute(String serviceName,
-            String ruleName,
-            Class<?>[] inputParamsTypes,
-            Object[] params) throws MethodInvocationException {
+                          String ruleName,
+                          Class<?>[] inputParamsTypes,
+                          Object[] params) throws MethodInvocationException {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         Objects.requireNonNull(ruleName, "ruleName cannot be null");
         OpenLService service = getService(serviceName);
@@ -83,7 +83,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         try {
             if (service.getServiceBean() != null) {
                 Method serviceMethod = MethodUtil
-                    .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
+                        .getMatchingAccessibleMethod(service.getServiceBean().getClass(), ruleName, inputParamsTypes);
                 if (serviceMethod == null) {
                     StringBuilder sb = new StringBuilder();
                     boolean f = true;
@@ -96,7 +96,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                         sb.append(param.getTypeName());
                     }
                     throw new MethodInvocationException(String
-                        .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb, serviceName));
+                            .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb, serviceName));
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);
@@ -108,12 +108,12 @@ public class RulesFrontendImpl implements RulesFrontend {
                 }
             } else {
                 throw new MethodInvocationException(
-                    String.format("Service initialization '%s' has been failed.", serviceName), service.getException());
+                        String.format("Service initialization '%s' has been failed.", serviceName), service.getException());
             }
         } catch (RuleServiceInstantiationException e) {
             throw new MethodInvocationException(
-                String.format("Service initialization '%s' has been failed.", serviceName),
-                e);
+                    String.format("Service initialization '%s' has been failed.", serviceName),
+                    e);
         }
     }
 
@@ -141,7 +141,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         for (int i = 0; i < params.length; i++) {
             if (params[i] == null) {
                 throw new MethodInvocationException(
-                    "One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method does not supports null params.");
+                        "One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method does not supports null params.");
             }
             paramTypes[i] = params[i].getClass();
         }

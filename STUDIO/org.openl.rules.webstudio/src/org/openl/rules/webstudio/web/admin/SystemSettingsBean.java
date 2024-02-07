@@ -60,12 +60,12 @@ public class SystemSettingsBean {
     private RepositoryEditor productionRepositoryEditor;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-            RepositoryFactoryProxy designRepositoryFactoryProxy,
-            RepositoryFactoryProxy productionRepositoryFactoryProxy,
-            DeploymentManager deploymentManager,
-            DesignTimeRepository designTimeRepository,
-            RepositoryTreeState repositoryTreeState,
-            PropertyResolver propertyResolver) {
+                              RepositoryFactoryProxy designRepositoryFactoryProxy,
+                              RepositoryFactoryProxy productionRepositoryFactoryProxy,
+                              DeploymentManager deploymentManager,
+                              DesignTimeRepository designTimeRepository,
+                              RepositoryTreeState repositoryTreeState,
+                              PropertyResolver propertyResolver) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -281,7 +281,7 @@ public class SystemSettingsBean {
             // settings (such as user.mode etc) not edited in this page
             // will be reverted too. We should revert only settings edited in Administration page
             properties
-                .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
+                    .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
             deployConfigRepositoryConfiguration.revert();
             productionRepositoryEditor.reload();
@@ -338,13 +338,13 @@ public class SystemSettingsBean {
     public void deleteProductionRepository(String configName) {
         try {
             productionRepositoryEditor.deleteRepository(configName,
-                new RepositoryEditor.Callback() {
-                    @Override
-                    public void onDelete(String configName) {
-                        /* Delete Production repo from tree */
-                        productionRepositoriesTreeController.deleteProdRepo(configName);
-                    }
-                });
+                    new RepositoryEditor.Callback() {
+                        @Override
+                        public void onDelete(String configName) {
+                            /* Delete Production repo from tree */
+                            productionRepositoriesTreeController.deleteProdRepo(configName);
+                        }
+                    });
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());

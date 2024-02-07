@@ -26,7 +26,7 @@ public final class ClassLoaderUtils {
             }
         } else {
             LOG.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
-                classLoader);
+                    classLoader);
         }
     }
 }

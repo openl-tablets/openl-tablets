@@ -56,9 +56,9 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         String sprHeaderText = tableHeaderText.getString().replaceAll(SPREADSHEET_RESULT_RETURN_TYPE, model.getType());
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE, model.getName());
         String parameters = model.getParameters()
-            .stream()
-            .map(x -> x.getType().getSimpleName() + " " + x.getFormattedName())
-            .collect(Collectors.joining(", "));
+                .stream()
+                .map(x -> x.getType().getSimpleName() + " " + x.getFormattedName())
+                .collect(Collectors.joining(", "));
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_SIGNATURE, parameters);
 
         addMergedHeader(sheet, startPosition, headerStyle, headerSettings);
@@ -94,13 +94,13 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
             Cell stepNameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             stepNameCell.setCellValue(step.getName());
             stepNameCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
 
             next = next.moveRight(1);
 
             Cell stepValueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             stepValueCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
 
             stepValueCell.setCellValue(step.getValue());
 

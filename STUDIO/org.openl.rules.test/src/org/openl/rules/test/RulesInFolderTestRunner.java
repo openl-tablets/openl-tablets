@@ -45,8 +45,8 @@ public class RulesInFolderTestRunner {
     }
 
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
-            ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy rulesInstantiationStrategy) {
+                                         ProjectDescriptor projectDescriptor,
+                                         RulesInstantiationStrategy rulesInstantiationStrategy) {
         return compiledOpenClass;
     }
 
@@ -90,7 +90,7 @@ public class RulesInFolderTestRunner {
             } else if (file.isDirectory()) {
                 File[] filesInFolder = file.listFiles();
                 boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
-                    .allMatch(File::isDirectory);
+                        .allMatch(File::isDirectory);
                 try {
                     SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                     engineFactoryBuilder.setExecutionMode(executionMode);
@@ -108,8 +108,8 @@ public class RulesInFolderTestRunner {
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                     compiledOpenClass = validate(compiledOpenClass,
-                        engineFactory.getProjectDescriptor(),
-                        engineFactory.getRulesInstantiationStrategy());
+                            engineFactory.getProjectDescriptor(),
+                            engineFactory.getRulesInstantiationStrategy());
                 } catch (ProjectResolvingException | RulesInstantiationException e) {
                     error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
@@ -132,18 +132,18 @@ public class RulesInFolderTestRunner {
                 try (var input = new FileInputStream(msgFile)) {
                     String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
                     for (String message : content
-                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
                         if (!StringUtils.isBlank(message)) {
                             expectedMessages.add(message.trim());
                         }
                     }
                 } catch (IOException exc) {
                     error(messagesCount++,
-                        startTime,
-                        sourceFile,
-                        "Failed to read the message file '{}'.",
-                        msgFile,
-                        exc);
+                            startTime,
+                            sourceFile,
+                            "Failed to read the message file '{}'.",
+                            msgFile,
+                            exc);
                 }
 
                 Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
@@ -171,12 +171,12 @@ public class RulesInFolderTestRunner {
                     error(messagesCount++, startTime, sourceFile, "  UNEXPECTED messages:");
                     for (OpenLMessage msg : unexpectedMessages) {
                         error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "   {}: {}    at {}",
-                            msg.getSeverity(),
-                            msg.getSummary(),
-                            msg.getSourceLocation());
+                                startTime,
+                                sourceFile,
+                                "   {}: {}    at {}",
+                                msg.getSeverity(),
+                                msg.getSummary(),
+                                msg.getSourceLocation());
                     }
                 }
                 if (!restMessages.isEmpty()) {
@@ -192,12 +192,12 @@ public class RulesInFolderTestRunner {
             if (success && compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
                     error(messagesCount++,
-                        startTime,
-                        sourceFile,
-                        "   {}: {}    at {}",
-                        msg.getSeverity(),
-                        msg.getSummary(),
-                        msg.getSourceLocation());
+                            startTime,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
                 }
                 success = false;
             }
@@ -214,30 +214,30 @@ public class RulesInFolderTestRunner {
                         if (!allTestsMustFails) {
                             if (numberOfFailures != 0) {
                                 error(messagesCount++,
-                                    startTime,
-                                    sourceFile,
-                                    "Failed test: {}  Errors #: {}",
-                                    res.getName(),
-                                    numberOfFailures);
+                                        startTime,
+                                        sourceFile,
+                                        "Failed test: {}  Errors #: {}",
+                                        res.getName(),
+                                        numberOfFailures);
                                 List<ITestUnit> failed = res.getFilteredTestUnits(true, 3);
                                 for (ITestUnit testcase : failed) {
                                     error(messagesCount++,
-                                        startTime,
-                                        sourceFile,
-                                        "\n   #{}  \n Actual: {} \n Expected: {}",
-                                        testcase.getTest().getId(),
-                                        testcase.getActualResult(),
-                                        testcase.getExpectedResult());
+                                            startTime,
+                                            sourceFile,
+                                            "\n   #{}  \n Actual: {} \n Expected: {}",
+                                            testcase.getTest().getId(),
+                                            testcase.getActualResult(),
+                                            testcase.getExpectedResult());
                                 }
                             }
                         } else {
                             if (numberOfFailures != res.getNumberOfTestUnits()) {
                                 error(messagesCount++,
-                                    startTime,
-                                    sourceFile,
-                                    "Unexpected test result: {}  Errors #: {}",
-                                    res.getName(),
-                                    res.getNumberOfTestUnits() - numberOfFailures);
+                                        startTime,
+                                        sourceFile,
+                                        "Unexpected test result: {}  Errors #: {}",
+                                        res.getName(),
+                                        res.getNumberOfTestUnits() - numberOfFailures);
                             }
                         }
                     }

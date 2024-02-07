@@ -96,25 +96,25 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     final ConfigurableApplicationContext serviceContext;
     private final boolean loggingEnabled;
 
-    private final Function<Object, String> serializer ;
+    private final Function<Object, String> serializer;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
-            Object serviceTarget,
-            Map<Method, Method> methodMap,
-            ClassLoader serviceClassLoader,
-            Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
-            ApplicationContext applicationContext,
-            RulesDeploy rulesDeploy) {
+                                   Object serviceTarget,
+                                   Map<Method, Method> methodMap,
+                                   ClassLoader serviceClassLoader,
+                                   Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
+                                   ApplicationContext applicationContext,
+                                   RulesDeploy rulesDeploy) {
         this.serviceTarget = serviceTarget;
         this.methodMap = methodMap;
         this.serviceClassLoader = serviceClassLoader;
         this.openClass = openClass;
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
-            serviceMethodAdviceListeners) : new ArrayList<>();
+                serviceMethodAdviceListeners) : new ArrayList<>();
         this.mapClassToSprOpenClass = initMapClassToSprOpenClass();
         this.rulesDeploy = rulesDeploy;
         PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-            .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
+                .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
         if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
             this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
         } else {
@@ -139,7 +139,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         };
 
         this.loggingEnabled = Boolean
-            .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
+                .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
         AnnotationConfigApplicationContext serviceContext = new AnnotationConfigApplicationContext();
         serviceContext.setClassLoader(serviceClassLoader);
@@ -150,7 +150,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
         serviceContext.getBeanFactory().registerSingleton("serviceClassLoader", serviceClassLoader);
         serviceContext.getBeanFactory()
-            .registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
+                .registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
         try {
             Class<?> configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
             if (configurationClass.isAnnotationPresent(Configuration.class)) {
@@ -178,8 +178,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private ObjectMapper configureObjectMapper(RulesDeploy rulesDeploy,
-            ClassLoader classLoader,
-            XlsModuleOpenClass openClass) {
+                                               ClassLoader classLoader,
+                                               XlsModuleOpenClass openClass) {
         ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactory.setRulesDeploy(rulesDeploy);
         objectMapperFactory.setXlsModuleOpenClass(openClass);
@@ -206,25 +206,25 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
                 if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
                     mapClassToCustomSpreadsheetResultOpenClass.put(customSpreadsheetResultOpenClass.getBeanClass(),
-                        customSpreadsheetResultOpenClass);
+                            customSpreadsheetResultOpenClass);
                 }
             }
         }
         for (CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass : xlsModuleOpenClass
-            .getCombinedSpreadsheetResultOpenClasses()) {
+                .getCombinedSpreadsheetResultOpenClasses()) {
             if (combinedSpreadsheetResultOpenClass.isGenerateBeanClass()) {
                 mapClassToCustomSpreadsheetResultOpenClass.put(combinedSpreadsheetResultOpenClass.getBeanClass(),
-                    combinedSpreadsheetResultOpenClass);
+                        combinedSpreadsheetResultOpenClass);
             }
         }
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
-                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                .toCustomSpreadsheetResultOpenClass();
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass();
             if (customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.isGenerateBeanClass()) {
                 mapClassToCustomSpreadsheetResultOpenClass.put(
-                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
-                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
+                        customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
+                        customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
             }
         }
         return Collections.unmodifiableMap(mapClassToCustomSpreadsheetResultOpenClass);
@@ -266,9 +266,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                    MethodUtil.printQualifiedMethodName(method),
-                    interceptorClass.getTypeName()), e);
+                        "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                        MethodUtil.printQualifiedMethodName(method),
+                        interceptorClass.getTypeName()), e);
             }
         }
     }
@@ -282,9 +282,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     beforeInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                        MethodUtil.printQualifiedMethodName(method),
-                        interceptorClass.getTypeName()), e);
+                            "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                            MethodUtil.printQualifiedMethodName(method),
+                            interceptorClass.getTypeName()), e);
                 }
             }
         }
@@ -322,9 +322,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                    MethodUtil.printQualifiedMethodName(method),
-                    serviceExtraMethodHandlerClass.getTypeName()), e);
+                        "Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                        MethodUtil.printQualifiedMethodName(method),
+                        serviceExtraMethodHandlerClass.getTypeName()), e);
             }
         }
     }
@@ -339,9 +339,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     afterInterceptors.computeIfAbsent(method, e -> new ArrayList<>()).add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                        MethodUtil.printQualifiedMethodName(method),
-                        interceptorClass.getTypeName()), e);
+                            "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                            MethodUtil.printQualifiedMethodName(method),
+                            interceptorClass.getTypeName()), e);
                 }
             }
         }
@@ -356,8 +356,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private Object serviceExtraMethodInvoke(Method interfaceMethod,
-            Object serviceBean,
-            Object... args) throws Exception {
+                                            Object serviceBean,
+                                            Object... args) throws Exception {
         ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodAnnotations.get(interfaceMethod);
         if (serviceExtraMethodHandler != null) {
             return serviceExtraMethodHandler.invoke(interfaceMethod, serviceBean, args);
@@ -366,9 +366,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private Object afterInvocation(Method interfaceMethod,
-            Object result,
-            Exception t,
-            Object... args) throws Exception {
+                                   Object result,
+                                   Exception t,
+                                   Object... args) throws Exception {
         Object ret = result;
         for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, Collections.emptyList())) {
             invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
@@ -391,20 +391,20 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private void invokeAfterServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
-            Method interfaceMethod,
-            Object[] args,
-            Object ret,
-            Exception ex) {
+                                                           Method interfaceMethod,
+                                                           Object[] args,
+                                                           Object ret,
+                                                           Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
         }
     }
 
     private void invokeBeforeServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
-            Method interfaceMethod,
-            Object[] args,
-            Object ret,
-            Exception ex) {
+                                                            Method interfaceMethod,
+                                                            Object[] args,
+                                                            Object ret,
+                                                            Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
         }
@@ -420,8 +420,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             beanMethod = getTargetMember(calledMethod);
             if (beanMethod == null) {
                 var msg = String.format(
-                    "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
-                    MethodUtil.printMethod(methodName, parameterTypes));
+                        "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
+                        MethodUtil.printMethod(methodName, parameterTypes));
                 throw new RuleServiceWrapperException(new ExceptionDetails(msg), ExceptionType.SYSTEM, msg, null);
             }
         }
@@ -435,10 +435,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 Exception ex = null;
                 if (serviceMethodAroundAdvice != null) {
                     invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                        calledMethod,
-                        args,
-                        null,
-                        null);
+                            calledMethod,
+                            args,
+                            null,
+                            null);
                     try {
                         args = processArguments(calledMethod, beanMethod, args);
                         result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
@@ -446,10 +446,10 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                         ex = e;
                     } finally {
                         invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                            calledMethod,
-                            args,
-                            result,
-                            ex);
+                                calledMethod,
+                                args,
+                                result,
+                                ex);
                     }
                 } else {
                     invokeBeforeMethodInvocationOnListeners(calledMethod, args);
@@ -497,7 +497,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 engine.release();
             } else {
                 log.warn(
-                    "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
+                        "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
             }
         }
         return result;
@@ -521,9 +521,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception ex) {
+                                                        Object[] args,
+                                                        Object result,
+                                                        Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.afterMethodInvocation(interfaceMethod, args, result, ex, new Inst(interfaceMethod));
         }
@@ -536,7 +536,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Throwable ex,
-            SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
+                                                                                  SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
         Throwable t = ex;
 
         ExceptionType type = ExceptionType.SYSTEM;

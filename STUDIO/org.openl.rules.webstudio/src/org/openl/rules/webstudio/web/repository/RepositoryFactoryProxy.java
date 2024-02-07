@@ -44,7 +44,7 @@ public class RepositoryFactoryProxy {
 
     public String getRepoListConfig() {
         return repoListConfig;
-     }
+    }
 
     public Repository getRepositoryInstance(String configName) {
         if (!factories.containsKey(Objects.requireNonNull(configName))) {

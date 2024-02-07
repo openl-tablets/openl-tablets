@@ -31,8 +31,8 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
 
     @Override
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
-            URL rootDirURL,
-            String subPattern) throws IOException {
+                                                           URL rootDirURL,
+                                                           String subPattern) throws IOException {
         URLConnection con = rootDirResource.getURL().openConnection();
         JarFile jarFile;
         String jarFileUrl;
@@ -75,7 +75,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 rootEntryPath = rootEntryPath + "/";
             }
             Set<Resource> result = new LinkedHashSet<>(8);
-            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
+            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
                 JarEntry entry = entries.nextElement();
                 String entryPath = entry.getName();
                 if (entryPath.startsWith(rootEntryPath)) {

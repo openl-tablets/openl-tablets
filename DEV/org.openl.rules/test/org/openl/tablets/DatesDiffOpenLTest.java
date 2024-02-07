@@ -20,7 +20,7 @@ public class DatesDiffOpenLTest {
     @BeforeEach
     public void initEngine() {
         RulesEngineFactory<IDateDifferenceTest> engineFactory = new RulesEngineFactory<>(SRC,
-            IDateDifferenceTest.class);
+                IDateDifferenceTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

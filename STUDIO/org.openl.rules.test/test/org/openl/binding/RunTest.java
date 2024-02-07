@@ -84,7 +84,7 @@ public class RunTest {
         assertToExpected("String x = \"abc\";String y = \"abc\"; x <= y", true);
 
         assertError("String x = \"abc\";Integer y = 10; x <= y",
-            "Operator 'le(java.lang.String, java.lang.Integer)' is not found.");
+                "Operator 'le(java.lang.String, java.lang.Integer)' is not found.");
     }
 
     @Test
@@ -226,7 +226,7 @@ public class RunTest {
         assertToExpected("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][0][2]", "aaba");
 
         assertToExpected("String[] ary = {\"daab\",\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[~@ substring(0,1)][0][1]",
-            "ddd");
+                "ddd");
 
         assertToExpected("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*@ substring(0,1)].length", 4);
         assertToExpected("String[] ary = {\"aab\", \"ddd\", \"aac\", \"aaba\"}; ary[*!@ substring(0,1)].length", 2);
@@ -240,72 +240,72 @@ public class RunTest {
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; int i = 1; ary[ (i) ]", "ddd");
 
         assertToExpected(
-            "String[] ary = {\"bbcc\", \"dddee\",\"aaabbe\" ,\"aaabb\",}; ary[!@startsWith (ary[( s ) !@ s.toUpperCase().endsWith(\"BB\")])]",
-            "aaabbe");
+                "String[] ary = {\"bbcc\", \"dddee\",\"aaabbe\" ,\"aaabb\",}; ary[!@startsWith (ary[( s ) !@ s.toUpperCase().endsWith(\"BB\")])]",
+                "aaabbe");
 
         assertToExpected(
-            "String[] ary = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; ary[(s1)!@ s1.startsWith (ary[( s2 ) !@ s2.toUpperCase().startsWith(\"DD\") && s2 != s1])]",
-            "dddeedd");
+                "String[] ary = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; ary[(s1)!@ s1.startsWith (ary[( s2 ) !@ s2.toUpperCase().startsWith(\"DD\") && s2 != s1])]",
+                "dddeedd");
 
         assertToExpected(
-            "String[] ary1 = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; String[] ary2 = {\"ZZZ\", \"XXXX\",\"YYYYYY\", \"ddd\" ,\"aaabbdd\",}; ary1[(s)!@ s.startsWith(\"aa\")] + ary2[(s)!@ s.startsWith(\"ZZ\")]",
-            "aaabbddZZZ");
+                "String[] ary1 = {\"bbccdd\", \"dddee\",\"dddeedd\", \"ddd\" ,\"aaabbdd\",}; String[] ary2 = {\"ZZZ\", \"XXXX\",\"YYYYYY\", \"ddd\" ,\"aaabbdd\",}; ary1[(s)!@ s.startsWith(\"aa\")] + ary2[(s)!@ s.startsWith(\"ZZ\")]",
+                "aaabbddZZZ");
 
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.getDay() < 5]",
-            "Method 'getDay()' is not found in type 'java.lang.String'.");
+                "Method 'getDay()' is not found in type 'java.lang.String'.");
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(Date d) !@ d.getDay() < 5]",
-            "Cannot cast 'java.lang.String' to 'java.util.Date'.");
+                "Cannot cast 'java.lang.String' to 'java.util.Date'.");
 
         assertToExpected("String[] ary = {\"a\", \"b\",\"c\" ,\"a\",\"d\",\"b\",}; ary[(x)~@ x][(str)*@str[0]].length", 4);
 
         // test lists
 
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list.get(0)",
-            "bbccdd");
+                "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list.get(0)",
+                "bbccdd");
 
         assertErrorStartWith(
-            "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
-            "java.lang.ClassCastException: Cannot cast java.lang.String to java.util.Date");
+                "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
+                "java.lang.ClassCastException: Cannot cast java.lang.String to java.util.Date");
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
-            "dddee");
+                "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
+                "dddee");
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String str) select first where str.contains(\"ee\")]",
-            "dddee");
+                "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String str) select first where str.contains(\"ee\")]",
+                "dddee");
 
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) @ length() == x][0]",
-            "ddd");
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) @ length() == x][0]",
+                "ddd");
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) select all having length() == x][0]",
-            "ddd");
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); int x = 3; list[(String s) select all having length() == x][0]",
+                "ddd");
 
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ^@ toLowerCase()][0]",
-            "aab");
+                "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ^@ toLowerCase()][0]",
+                "aab");
         assertToExpected(
-            "List list = Arrays.asList(\"aab\", \"ddd\", \"aac\", \"aaba\"); list[(String s) v@  substring(0,1)][0]",
-            "ddd");
+                "List list = Arrays.asList(\"aab\", \"ddd\", \"aac\", \"aaba\"); list[(String s) v@  substring(0,1)][0]",
+                "ddd");
 
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ~@ substring(0,1)][1][0]",
-            "ddd");
+                "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) ~@ substring(0,1)][1][0]",
+                "ddd");
 
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *@ substring(0,1)].length",
-            4);
+                "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *@ substring(0,1)].length",
+                4);
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *!@ substring(0,1).toLowerCase()].length",
-            2);
+                "List list = new ArrayList(); list.add(\"AABA\"); list.add(\"ddd\"); list.add( \"aac\"); list.add(\"aab\"); list[(String x) *!@ substring(0,1).toLowerCase()].length",
+                2);
 
         // Test spaces
         assertToExpected("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order by toString() ][0]", "aaba");
         assertToExpected("String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      by toString() ][0]",
-            "aaba");
+                "aaba");
         assertToExpected(
-            "String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      increasing by toString() ][0]",
-            "aaba");
+                "String[] ary = {\"z\", \"dd\", \"aac\", \"aaba\"}; ary[ order \n      increasing by toString() ][0]",
+                "aaba");
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[ !@ startsWith(\"d\") ]", "ddd");
     }
 
@@ -313,90 +313,90 @@ public class RunTest {
     public void testSelectAllForList() {
         // Select all should return array
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all having length() == 3]",
-            new String[] { "ddd", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all having length() == 3]",
+                new String[]{"ddd", "aaa"});
         // Demonstrate that no need to cast to String if "select all" returns array instead of List
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add(\"aaaa\"); list[(String a) select all having a.startsWith(\"a\")][0].length()",
-            4);
+                "List list = new ArrayList(); list.add(\"bb\");list.add(\"aaaa\"); list[(String a) select all having a.startsWith(\"a\")][0].length()",
+                4);
         // Select all with spaces between words
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n    having length() == 3]",
-            new String[] { "ddd", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n    having length() == 3]",
+                new String[]{"ddd", "aaa"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n     where length() == 3]",
-            new String[] { "ddd", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) select all \n     where length() == 3]",
+                new String[]{"ddd", "aaa"});
     }
 
     @Test
     public void testOrderByForList() {
         // Order by should return array
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order by s]",
-            new String[] { "aaa", "bb", "ddd" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order by s]",
+                new String[]{"aaa", "bb", "ddd"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order decreasing by s]",
-            new String[] { "ddd", "bb", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order decreasing by s]",
+                new String[]{"ddd", "bb", "aaa"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order \n     decreasing by s]",
-            new String[] { "ddd", "bb", "aaa" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) order \n     decreasing by s]",
+                new String[]{"ddd", "bb", "aaa"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s)^@s]",
-            new String[] { "aaa", "bb", "ddd" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s)^@s]",
+                new String[]{"aaa", "bb", "ddd"});
         assertError("List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[^@s]",
-            "Identifier 's' is not found.");
+                "Identifier 's' is not found.");
     }
 
     @Test
     public void testTransformForList() {
         // Transform to should return array
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to s + s.length()]",
-            new String[] { "bb2", "ddd3", "aaa3" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to s + s.length()]",
+                new String[]{"bb2", "ddd3", "aaa3"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     to s + s.length()]",
-            new String[] { "bb2", "ddd3", "aaa3" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     to s + s.length()]",
+                new String[]{"bb2", "ddd3", "aaa3"});
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     unique to s + s.length()]",
-            new String[] { "bb2", "ddd3", "aaa3" });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform \n     unique to s + s.length()]",
+                new String[]{"bb2", "ddd3", "aaa3"});
         // Transform String array to array of List
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) transform to Arrays.asList(s)]",
-            new List[] { Collections.singletonList("bb"),
-                    Collections.singletonList("ddd"),
-                    Collections.singletonList("aaa") });
+                new List[]{Collections.singletonList("bb"),
+                        Collections.singletonList("ddd"),
+                        Collections.singletonList("aaa")});
         // Transform List to List of Lists
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to Arrays.asList(s)]",
-            new List[] { Collections.singletonList("bb"),
-                    Collections.singletonList("ddd"),
-                    Collections.singletonList("aaa") });
+                "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s) transform to Arrays.asList(s)]",
+                new List[]{Collections.singletonList("bb"),
+                        Collections.singletonList("ddd"),
+                        Collections.singletonList("aaa")});
     }
 
     @Test
     public void testSplitByForList() {
         // Split By should return array of arrays
         assertToExpected(
-            "List list = new ArrayList(); list.add(\"5000\");list.add( \"2002\");list.add(\"3300\");list.add(\"2113\"); list[(String s) split by substring(0,1)]",
-            new String[][] { { "5000" }, { "2002", "2113" }, { "3300" } });
+                "List list = new ArrayList(); list.add(\"5000\");list.add( \"2002\");list.add(\"3300\");list.add(\"2113\"); list[(String s) split by substring(0,1)]",
+                new String[][]{{"5000"}, {"2002", "2113"}, {"3300"}});
 
         // Split By when list contains Lists
         assertToExpected(
-            "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()]",
-            new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
+                "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()]",
+                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
         // Check array element type. It must be List, not Object (Object does not contain method size()).
         assertToExpected(
-            "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()][0][1].size()",
-            1);
+                "List list = new ArrayList(); list.add(Arrays.asList(1));list.add(Arrays.asList(2, 3));list.add(Arrays.asList(4)); list[(List l) split by size()][0][1].size()",
+                1);
     }
 
     @Test
     public void testArrayOfList() {
         // When array has the type List[] then inside of aggregate function array element type must be List, not Object.
         assertToExpected("List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split by size()]",
-            new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
+                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
         assertToExpected(
-            "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split \n    by size()]",
-            new List[][] { { Collections.singletonList(1), Collections.singletonList(4) }, { Arrays.asList(2, 3) } });
+                "List[] ary = {Arrays.asList(1), Arrays.asList(2, 3), Arrays.asList(4)}; ary[split \n    by size()]",
+                new List[][]{{Collections.singletonList(1), Collections.singletonList(4)}, {Arrays.asList(2, 3)}});
     }
 
     @Test
@@ -429,29 +429,29 @@ public class RunTest {
     public void testArrayInitializationObject() {
         assertToExpected("new Byte[0]", new Byte[0]);
         assertToExpected("new Byte[5]", new Byte[5]);
-        assertToExpected("new Byte[]{1,2,3}", new Byte[] { 1, 2, 3 });
+        assertToExpected("new Byte[]{1,2,3}", new Byte[]{1, 2, 3});
         assertToExpected("new Byte[3][]", new Byte[3][]);
         assertToExpected("new Byte[3][5]", new Byte[3][5]);
         assertToExpected("new Byte[3][5][]", new Byte[3][5][]);
-        assertToExpected("new Byte[]{}", new Byte[] {});
-        assertToExpected("new Byte[][]{}", new Byte[][] {});
-        assertToExpected("new Byte[][]{{},{4}}", new Byte[][] { {}, { 4 } });
-        assertToExpected("new Byte[][]{{1,2,3},{4}}", new Byte[][] { { 1, 2, 3 }, { 4 } });
-        assertToExpected("new Byte[]{4}", new Byte[] { 4 });
+        assertToExpected("new Byte[]{}", new Byte[]{});
+        assertToExpected("new Byte[][]{}", new Byte[][]{});
+        assertToExpected("new Byte[][]{{},{4}}", new Byte[][]{{}, {4}});
+        assertToExpected("new Byte[][]{{1,2,3},{4}}", new Byte[][]{{1, 2, 3}, {4}});
+        assertToExpected("new Byte[]{4}", new Byte[]{4});
     }
 
     @Test
     public void testArrayInitializationPrimitives() {
         assertToExpected("new int[0]", new int[0]);
         assertToExpected("new int[5]", new int[5]);
-        assertToExpected("new int[]{1,2,3}", new int[] { 1, 2, 3 });
+        assertToExpected("new int[]{1,2,3}", new int[]{1, 2, 3});
         assertToExpected("new int[3][]", new int[3][]);
         assertToExpected("new int[3][5]", new int[3][5]);
         assertToExpected("new int[3][5][]", new int[3][5][]);
-        assertToExpected("new int[]{}", new int[] {});
-        assertToExpected("new int[][]{}", new int[][] {});
-        assertToExpected("new int[][]{{},{4}}", new int[][] { {}, { 4 } });
-        assertToExpected("new int[][]{{1,2,3},{4}}", new int[][] { { 1, 2, 3 }, { 4 } });
-        assertToExpected("new int[]{4}", new int[] { 4 });
+        assertToExpected("new int[]{}", new int[]{});
+        assertToExpected("new int[][]{}", new int[][]{});
+        assertToExpected("new int[][]{{},{4}}", new int[][]{{}, {4}});
+        assertToExpected("new int[][]{{1,2,3},{4}}", new int[][]{{1, 2, 3}, {4}});
+        assertToExpected("new int[]{4}", new int[]{4});
     }
 }

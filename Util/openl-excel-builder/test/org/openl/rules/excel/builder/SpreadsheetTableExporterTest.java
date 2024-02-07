@@ -47,15 +47,15 @@ public class SpreadsheetTableExporterTest {
         StepModel integerStep = new StepModel("integerStep", "Integer", "=0");
         StepModel longStep = new StepModel("longStep", "Long", "=0L");
         resultModel
-            .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
+                .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
-            false,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.singletonList(resultModel),
-            Collections.emptyList());
+                false,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.singletonList(resultModel),
+                Collections.emptyList());
 
         ExcelFileBuilder.generateProject(projectModel);
 

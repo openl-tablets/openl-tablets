@@ -11,7 +11,6 @@ import org.openl.rules.tbasic.compile.ConversionRuleBean;
 
 /**
  * @author User
- *
  */
 public final class AlgorithmTableParserManager implements IAlgorithmTableParserManager {
     // To make class serializable, change synchronization
@@ -49,7 +48,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         URL sourceFile = AlgorithmTableParserManager.class.getResource("AlgorithmTableSpecification.xls");
 
         RulesEngineFactory<IAlgorithmTableParserManager> engineFactory = new RulesEngineFactory<>(sourceFile,
-            IAlgorithmTableParserManager.class);
+                IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
 
         rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.newInstance();
@@ -84,7 +83,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
      */
     @Override
     public TableParserSpecificationBean[] getAlgorithmSpecification() {
-        return  rulesWrapperInstance.getAlgorithmSpecification();
+        return rulesWrapperInstance.getAlgorithmSpecification();
     }
 
     @Override

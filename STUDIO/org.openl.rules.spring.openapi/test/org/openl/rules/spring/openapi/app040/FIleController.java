@@ -30,8 +30,8 @@ public class FIleController {
     @PostMapping(value = "/form/{name}", consumes = "multipart/form-data")
     @Parameter(name = "configuration", description = "Pam-Pam")
     public ResponseEntity<Void> form(@CustomPathVariable("name") final String name,
-            @RequestPart(value = "configuration") final String configuration,
-            @RequestPart(value = "file") final MultipartFile file) {
+                                     @RequestPart(value = "configuration") final String configuration,
+                                     @RequestPart(value = "file") final MultipartFile file) {
         return null;
     }
 

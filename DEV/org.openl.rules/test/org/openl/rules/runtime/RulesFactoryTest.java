@@ -27,7 +27,7 @@ public class RulesFactoryTest {
         RuleInfo rule2 = new RuleInfo();
         rule2.setName("method2");
         rule2.setReturnType(Void.class);
-        rule2.setParamTypes(new Class<?>[] { String.class, Integer.class });
+        rule2.setParamTypes(new Class<?>[]{String.class, Integer.class});
         rules[1] = rule2;
 
         Class<?> clazz = InterfaceGenerator.generateInterface(className, rules, classLoader);

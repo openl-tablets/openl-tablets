@@ -83,7 +83,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
-        String[] binders = { "literal",
+        String[] binders = {"literal",
                 LiteralNodeBinder.class.getName(),
                 "literal.integer",
                 IntNodeBinder.class.getName(),
@@ -184,7 +184,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "control.while",
                 WhileNodeBinder.class.getName(),
                 "control.return",
-                ReturnNodeBinder.class.getName() };
+                ReturnNodeBinder.class.getName()};
 
         for (int i = 0; i < binders.length / 2; i++) {
             SingleBinderFactory sbf = new SingleBinderFactory();
@@ -197,10 +197,10 @@ public class OpenLBuilder extends AOpenLBuilder {
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
         JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(
-            Operators.class.getName());
+                Operators.class.getName());
         nslc.addJavalib(javalib);
         JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration(
-            Comparison.class.getName());
+                Comparison.class.getName());
         nslc.addJavalib(javalib2);
         lfc.addConfiguredLibrary(nslc);
 
@@ -447,8 +447,8 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         TypeCastFactory typecast = op.createTypecast();
         TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
-            CastOperators.class.getName(),
-            CastFactory.class.getName());
+                CastOperators.class.getName(),
+                CastFactory.class.getName());
         typecast.addJavaCast(javacast);
 
         /*

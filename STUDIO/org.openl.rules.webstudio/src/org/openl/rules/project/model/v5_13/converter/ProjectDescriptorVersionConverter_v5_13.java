@@ -30,7 +30,7 @@ public class ProjectDescriptorVersionConverter_v5_13 implements ObjectVersionCon
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor> dependencies = CollectionUtils.map(oldVersion.getDependencies(),
-            dependencyConverter::fromOldVersion);
+                dependencyConverter::fromOldVersion);
 
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
@@ -51,11 +51,11 @@ public class ProjectDescriptorVersionConverter_v5_13 implements ObjectVersionCon
         descriptor.setClasspath(currentVersion.getClasspath());
 
         List<Module_v5_13> modules = CollectionUtils.map(currentVersion.getModules(),
-            moduleVersionConverter::toOldVersion);
+                moduleVersionConverter::toOldVersion);
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor_v5_12> dependencies = CollectionUtils.map(currentVersion.getDependencies(),
-            dependencyConverter::toOldVersion);
+                dependencyConverter::toOldVersion);
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }

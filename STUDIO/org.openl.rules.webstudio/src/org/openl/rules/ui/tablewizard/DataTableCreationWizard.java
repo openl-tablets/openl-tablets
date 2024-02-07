@@ -279,7 +279,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
         } else {
             DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass,
-                tableType, type -> getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null);
+                    tableType, type -> getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null);
 
             tree.setRoot(new DataTableTreeNode(field, true));
         }
@@ -348,9 +348,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
                 if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
                     WebStudioUtils.addMessage(clientId,
-                        "Validation Error: ",
-                        "Fill foreign key or uncheck the checkbox",
-                        FacesMessage.SEVERITY_ERROR);
+                            "Validation Error: ",
+                            "Fill foreign key or uncheck the checkbox",
+                            FacesMessage.SEVERITY_ERROR);
                     return false;
                 }
 
@@ -381,7 +381,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * Enumeration with the wizard's pages
      *
      * @author NSamatov
-     *
      */
     private enum Page {
         NO_SUCH_PAGE(-1),

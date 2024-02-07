@@ -132,9 +132,9 @@ public class ProtectedBranchTest {
         } catch (IOException e) {
             // After merge failure must rollback both commits from 'branch1'.
             assertNull(repo.check(path1),
-                "The file " + path1 + " must be absent in 'master' after rolling back merge.");
+                    "The file " + path1 + " must be absent in 'master' after rolling back merge.");
             assertNull(repo.check(path2),
-                "The file " + path2 + " must be absent in 'master' after rolling back merge.");
+                    "The file " + path2 + " must be absent in 'master' after rolling back merge.");
         }
     }
 
@@ -165,7 +165,7 @@ public class ProtectedBranchTest {
 
     private static void assumeSupportedPlatform() {
         assumeTrue(FS.DETECTED instanceof FS_POSIX || FS.DETECTED instanceof FS_Win32_Cygwin,
-            "Hooks aren't supported on your platform");
+                "Hooks aren't supported on your platform");
     }
 
 }

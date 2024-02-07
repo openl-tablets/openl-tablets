@@ -62,9 +62,7 @@ public class DTScale {
     static final DTScale STANDARD = new DTScale(0, 0);
 
     /**
-     *
      * Use this scale for vertical conditions
-     *
      */
 
     class VScale implements RowScale {
@@ -92,9 +90,7 @@ public class DTScale {
     }
 
     /**
-     *
      * Use this scale for horizontal conditions
-     *
      */
 
     class HScale implements RowScale {

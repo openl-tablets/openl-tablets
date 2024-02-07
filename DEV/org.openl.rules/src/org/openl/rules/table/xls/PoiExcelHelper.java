@@ -27,7 +27,9 @@ public final class PoiExcelHelper {
     private PoiExcelHelper() {
     }
 
-    /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
+    /**
+     * For more information, see {@link HSSFWorkbook#MAX_STYLES}
+     */
     private static final short MAX_STYLES = 4030;
 
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
@@ -91,18 +93,18 @@ public final class PoiExcelHelper {
     }
 
     public static void setCellFont(Cell cell,
-            boolean boldWeight,
-            short color,
-            short fontHeight,
-            String name,
-            boolean italic,
-            boolean strikeout,
-            short typeOffset,
-            byte underline) {
+                                   boolean boldWeight,
+                                   short color,
+                                   short fontHeight,
+                                   String name,
+                                   boolean italic,
+                                   boolean strikeout,
+                                   short typeOffset,
+                                   byte underline) {
         if (cell != null) {
             Workbook workbook = cell.getSheet().getWorkbook();
             Font font = workbook
-                .findFont(boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
+                    .findFont(boldWeight, color, fontHeight, name, italic, strikeout, typeOffset, underline);
             if (font == null) { // Create new font
                 font = cell.getSheet().getWorkbook().createFont();
                 font.setBold(boldWeight);
@@ -122,14 +124,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                boldweight,
-                font.getColor(),
-                font.getFontHeight(),
-                font.getFontName(),
-                font.getItalic(),
-                font.getStrikeout(),
-                font.getTypeOffset(),
-                font.getUnderline());
+                    boldweight,
+                    font.getColor(),
+                    font.getFontHeight(),
+                    font.getFontName(),
+                    font.getItalic(),
+                    font.getStrikeout(),
+                    font.getTypeOffset(),
+                    font.getUnderline());
         }
     }
 
@@ -137,14 +139,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                font.getBold(),
-                font.getColor(),
-                font.getFontHeight(),
-                font.getFontName(),
-                italic,
-                font.getStrikeout(),
-                font.getTypeOffset(),
-                font.getUnderline());
+                    font.getBold(),
+                    font.getColor(),
+                    font.getFontHeight(),
+                    font.getFontName(),
+                    italic,
+                    font.getStrikeout(),
+                    font.getTypeOffset(),
+                    font.getUnderline());
         }
     }
 
@@ -152,14 +154,14 @@ public final class PoiExcelHelper {
         Font font = getCellFont(cell);
         if (font != null) {
             setCellFont(cell,
-                font.getBold(),
-                font.getColor(),
-                font.getFontHeight(),
-                font.getFontName(),
-                font.getItalic(),
-                font.getStrikeout(),
-                font.getTypeOffset(),
-                underline);
+                    font.getBold(),
+                    font.getColor(),
+                    font.getFontHeight(),
+                    font.getFontName(),
+                    font.getItalic(),
+                    font.getStrikeout(),
+                    font.getTypeOffset(),
+                    underline);
         }
     }
 
@@ -190,13 +192,13 @@ public final class PoiExcelHelper {
         short blue = toShort(rgb[2]);
 
         if (tint == 0.0) { // no changes
-            return new short[] { red, green, blue };
+            return new short[]{red, green, blue};
         }
 
         if (red == green && green == blue) { // achromatic
             final double newLum = calculateLum(red, tint);
             short v = toShort(newLum);
-            return new short[] { v, v, v };
+            return new short[]{v, v, v};
         }
 
         // Find brightest and darkest components
@@ -226,7 +228,7 @@ public final class PoiExcelHelper {
         short g = toShort((green - min) * x + m);
         short b = toShort((blue - min) * x + m);
 
-        return new short[] { r, g, b };
+        return new short[]{r, g, b};
 
     }
 

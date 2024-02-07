@@ -33,10 +33,10 @@ public class Deployment extends AProjectFolder implements IDeployment {
     private final boolean folderStructure;
 
     public Deployment(Repository repository,
-            String folderName,
-            String deploymentName,
-            CommonVersion commonVersion,
-            boolean folderStructure) {
+                      String folderName,
+                      String deploymentName,
+                      CommonVersion commonVersion,
+                      boolean folderStructure) {
         super(null, repository, folderName, commonVersion == null ? null : commonVersion.getVersionName());
         this.folderStructure = folderStructure;
         init();

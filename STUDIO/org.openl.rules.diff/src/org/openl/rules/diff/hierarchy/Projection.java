@@ -18,7 +18,6 @@ import java.util.List;
  * hierarchy. But that can lead to extreme memory allocation also. This feature should be used with care.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface Projection {
     /**

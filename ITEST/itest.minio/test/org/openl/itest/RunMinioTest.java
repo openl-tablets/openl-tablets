@@ -1,4 +1,5 @@
 package org.openl.itest;
+
 import okio.Path;
 import org.junit.jupiter.api.Test;
 
@@ -15,9 +16,9 @@ public class RunMinioTest extends AbstractMinioTest {
             var client = server.client();
             verifyS3Repository();
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",
-                "deploy/multiple-deployment-datasource/project2",
-                "deploy/multiple-deployment-yaml-datasource/yaml-project1",
-                "deploy/multiple-deployment-yaml-datasource/yaml-project2");
+                    "deploy/multiple-deployment-datasource/project2",
+                    "deploy/multiple-deployment-yaml-datasource/yaml-project1",
+                    "deploy/multiple-deployment-yaml-datasource/yaml-project2");
             client.test("test-resources-smoke/stage1");
 
             try (var deployer = new RulesDeployerService(config::get)) {
@@ -25,10 +26,10 @@ public class RunMinioTest extends AbstractMinioTest {
             }
 
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",
-                "deploy/multiple-deployment-datasource/project2",
-                "deploy/multiple-deployment-yaml-datasource/yaml-project1",
-                "deploy/multiple-deployment-yaml-datasource/yaml-project2",
-                "deploy/rules-to-deploy/rules-to-deploy");
+                    "deploy/multiple-deployment-datasource/project2",
+                    "deploy/multiple-deployment-yaml-datasource/yaml-project1",
+                    "deploy/multiple-deployment-yaml-datasource/yaml-project2",
+                    "deploy/rules-to-deploy/rules-to-deploy");
 
             client.test("test-resources-smoke/stage3");
         } finally {

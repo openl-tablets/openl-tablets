@@ -11,7 +11,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  * The <code>CalculateOperation</code> class describes GOTO operation.
  *
  * @author User
- *
  */
 public class GotoOperation extends RuntimeOperation {
 

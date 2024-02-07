@@ -76,8 +76,8 @@ public class ApiConfig implements WebMvcConfigurer {
     public ObjectMapper objectMapper() {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule())
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
 

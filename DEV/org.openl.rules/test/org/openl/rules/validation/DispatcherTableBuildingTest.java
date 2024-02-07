@@ -23,7 +23,7 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     public static void before() {
         csr = System.getProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-            OpenLSystemProperties.DISPATCHING_MODE_JAVA);
+                OpenLSystemProperties.DISPATCHING_MODE_JAVA);
     }
 
     @AfterAll

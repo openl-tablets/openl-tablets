@@ -19,8 +19,8 @@ public final class ZipProjectDescriptorExtractor {
     }
 
     public static ProjectDescriptor getProjectDescriptorOrNull(ProjectFile uploadedFile,
-            PathFilter zipFilter,
-            Charset charset) {
+                                                               PathFilter zipFilter,
+                                                               Charset charset) {
         try {
             return getProjectDescriptorOrThrow(uploadedFile, zipFilter, charset);
         } catch (Exception e) {
@@ -30,8 +30,8 @@ public final class ZipProjectDescriptorExtractor {
     }
 
     public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile,
-            PathFilter zipFilter,
-            Charset charset) throws IOException {
+                                                                PathFilter zipFilter,
+                                                                Charset charset) throws IOException {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);

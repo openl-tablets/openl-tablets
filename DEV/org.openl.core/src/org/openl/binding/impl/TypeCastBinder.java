@@ -12,7 +12,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class TypeCastBinder extends ANodeBinder {
 
@@ -33,8 +32,8 @@ public class TypeCastBinder extends ANodeBinder {
 
         if (cast == null) {
             return makeErrorNode(String.format("Cannot convert from '%s' to '%s'.", from.getName(), to.getName()),
-                node,
-                bindingContext);
+                    node,
+                    bindingContext);
         }
 
         return new TypeCastNode(node, children[1], cast, to);

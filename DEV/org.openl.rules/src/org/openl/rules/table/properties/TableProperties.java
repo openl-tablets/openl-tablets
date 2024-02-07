@@ -55,11 +55,11 @@ public class TableProperties implements ITableProperties {
      * defined for current table type.
      *
      * @param downLevelProperties properties that are on the down level.
-     * @param upLevelProperties properties that are on the up level.
+     * @param upLevelProperties   properties that are on the up level.
      * @return
      */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
-            Map<String, Object> upLevelProperties) {
+                                                     Map<String, Object> upLevelProperties) {
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
@@ -674,14 +674,14 @@ public class TableProperties implements ITableProperties {
         }
         Map<String, Object> tableAndCategoryProp = mergeLevelProperties(new HashMap<>(fieldValues), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
-            moduleProperties);
+                moduleProperties);
         Map<String, Object> tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
-            globalProperties);
+                globalProperties);
         Map<String, Object> tableAndCategoryAndModuleAndGlobalAndExternalProp = mergeLevelProperties(
-            tableAndCategoryAndModuleAndGlobalProp,
-            externalModuleProperties);
+                tableAndCategoryAndModuleAndGlobalProp,
+                externalModuleProperties);
         Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndGlobalAndExternalProp,
-            defaultProperties);
+                defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;
     }

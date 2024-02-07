@@ -43,7 +43,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      *
      * @param clazz Interface to check.
      * @return <code>true</code> if at least one method of interface is method for calculations with variations and
-     *         <code>false</code> otherwise.
+     * <code>false</code> otherwise.
      */
     public static boolean isDecoratedClass(Class<?> clazz) {
         for (Method method : clazz.getMethods()) {
@@ -59,20 +59,20 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      *
      * @param method The method to check.
      * @return <code>true</code> if method has the {@link VariationsPack} as the last parameter and returns
-     *         {@link VariationsResult} and <code>false</code> otherwise.
+     * {@link VariationsResult} and <code>false</code> otherwise.
      */
     public static boolean isDecoratedMethod(Method method) {
         int paramsLength = method.getParameterTypes().length;
         return paramsLength != 0 && method.getParameterTypes()[paramsLength - 1] == VariationsPack.class && method
-            .getReturnType()
-            .equals(VariationsResult.class);
+                .getReturnType()
+                .equals(VariationsResult.class);
     }
 
     /**
      * Undecorates methods signatures of given clazz. Undecoration implies that all methods that was enhanced with
      * variations will be removed from servce class.
      *
-     * @param clazz class to undecorate
+     * @param clazz       class to undecorate
      * @param classLoader The classloader where generated class should be placed.
      * @return new class with undecorated methods signatures
      * @throws Exception
@@ -94,8 +94,8 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     private static Class<?> innerUndecorateInterface(String className,
-            Class<?> original,
-            ClassLoader classLoader) throws Exception {
+                                                     Class<?> original,
+                                                     ClassLoader classLoader) throws Exception {
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original, className);
@@ -115,7 +115,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
      * Decorates methods signatures of given clazz. New decorated class will have both original methods and decorated
      * methods with {@link VariationsPack} as the last parameter and {@link VariationsResult} as the return type.
      *
-     * @param clazz class to decorate
+     * @param clazz       class to decorate
      * @param classLoader The classloader where generated class should be placed.
      * @return new class with decorated methods signatures
      * @throws Exception
@@ -136,8 +136,8 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     private static Class<?> innerDecorateInterface(String className,
-            Class<?> original,
-            ClassLoader classLoader) throws Exception {
+                                                   Class<?> original,
+                                                   ClassLoader classLoader) throws Exception {
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new DecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original, className);
@@ -156,7 +156,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     /**
      * Searches for method that will be executed instead of method in enhanced interface.
      *
-     * @param simpleClass Class without variations injection.
+     * @param simpleClass     Class without variations injection.
      * @param decoratedMethod Method enhanced with variations.
      * @return Corresponding method in original interface for method from enhanced interface.
      * @throws Exception Possible exception from java reflection caused wrong method accessing.
@@ -165,7 +165,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         Class<?>[] parameterTypes = decoratedMethod.getParameterTypes();
         if (VariationInstantiationStrategyEnhancerHelper.isDecoratedMethod(decoratedMethod)) {
             return simpleClass.getMethod(decoratedMethod.getName(),
-                Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
+                    Arrays.copyOf(parameterTypes, parameterTypes.length - 1));
         } else {
             return simpleClass.getMethod(decoratedMethod.getName(), parameterTypes);
         }
@@ -181,20 +181,20 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
         @Override
         public void visit(final int version,
-                final int access,
-                final String name,
-                final String signature,
-                final String superName,
-                final String[] interfaces) {
+                          final int access,
+                          final String name,
+                          final String signature,
+                          final String superName,
+                          final String[] interfaces) {
             super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
         public MethodVisitor visitMethod(final int access,
-                final String name,
-                final String descriptor,
-                final String signature,
-                final String[] exceptions) {
+                                         final String name,
+                                         final String descriptor,
+                                         final String signature,
+                                         final String[] exceptions) {
             super.visitMethod(access, name, addVariationToSignature(descriptor), signature, exceptions);
             return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
@@ -205,6 +205,7 @@ public final class VariationInstantiationStrategyEnhancerHelper {
     }
 
     // FIXME skip decorated methods
+
     /**
      * {@link ClassWriter} for creation undecorated class: all decorated with variations methods will be removed from
      * interface.
@@ -221,20 +222,20 @@ public final class VariationInstantiationStrategyEnhancerHelper {
 
         @Override
         public void visit(final int version,
-                final int access,
-                final String name,
-                final String signature,
-                final String superName,
-                final String[] interfaces) {
+                          final int access,
+                          final String name,
+                          final String signature,
+                          final String superName,
+                          final String[] interfaces) {
             super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
         public MethodVisitor visitMethod(final int access,
-                final String name,
-                final String descriptor,
-                final String signature,
-                final String[] exceptions) {
+                                         final String name,
+                                         final String descriptor,
+                                         final String signature,
+                                         final String[] exceptions) {
             // write only undecorated method
             if (!isDecoratedMethod(descriptor)) {
                 return super.visitMethod(access, name, descriptor, signature, exceptions);

@@ -52,7 +52,7 @@ class ParameterExport extends BaseExport {
             // Finding non empty fields from the test results is very expensive. Find them only once and then reuse
             // everywhere where needed.
             List<List<FieldDescriptor>> nonEmptyFields = getAllNonEmptyFields(test.getTestSuite().getTests(),
-                skipEmptyParameters);
+                    skipEmptyParameters);
 
             // Create header
             final Cursor start = new Cursor(rowNum, colNum);
@@ -80,9 +80,9 @@ class ParameterExport extends BaseExport {
     }
 
     private Cursor writeHeaderForFields(SXSSFSheet sheet,
-            Cursor start,
-            TestUnitsResults test,
-            List<List<FieldDescriptor>> nonEmptyFields) {
+                                        Cursor start,
+                                        TestUnitsResults test,
+                                        List<List<FieldDescriptor>> nonEmptyFields) {
         TreeSet<WriteTask> tasks = new TreeSet<>();
 
         int rowNum = start.getRowNum();
@@ -102,8 +102,8 @@ class ParameterExport extends BaseExport {
                 Map<?, ?> map = (Map<?, ?>) param.getValue();
                 for (Object key : map.keySet()) {
                     tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                        param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
-                        styles.header));
+                            param.getName() + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                            styles.header));
                 }
                 continue;
             }
@@ -130,10 +130,10 @@ class ParameterExport extends BaseExport {
     }
 
     private int addHeaderTasks(TreeSet<WriteTask> tasks,
-            Cursor cursor,
-            List<FieldDescriptor> fields,
-            String prefix,
-            ParameterWithValueDeclaration param) {
+                               Cursor cursor,
+                               List<FieldDescriptor> fields,
+                               String prefix,
+                               ParameterWithValueDeclaration param) {
         int colNum = cursor.getColNum();
         int rowNum = cursor.getRowNum();
 
@@ -147,8 +147,8 @@ class ParameterExport extends BaseExport {
                     Map<?, ?> map = (Map<?, ?>) ExportUtils.fieldValue(param.getValue(), fieldDescriptor.getField());
                     for (Object key : map.keySet()) {
                         tasks.add(new WriteTask(new Cursor(rowNum, colNum++),
-                            prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
-                            styles.header));
+                                prefix + fieldName + "[\"" + key + "\"]:" + map.get(key).getClass().getSimpleName(),
+                                styles.header));
                     }
                     continue;
                 } else {
@@ -156,10 +156,10 @@ class ParameterExport extends BaseExport {
                 }
             } else {
                 addHeaderTasks(tasks,
-                    new Cursor(rowNum, colNum),
-                    fieldDescriptor.getChildren(),
-                    prefix + fieldName + ".",
-                    param);
+                        new Cursor(rowNum, colNum),
+                        fieldDescriptor.getChildren(),
+                        prefix + fieldName + ".",
+                        param);
             }
 
             colNum += width;
@@ -169,9 +169,9 @@ class ParameterExport extends BaseExport {
     }
 
     private int writeValuesForFields(Sheet sheet,
-            Cursor start,
-            TestUnitsResults test,
-            List<List<FieldDescriptor>> nonEmptyFields) {
+                                     Cursor start,
+                                     TestUnitsResults test,
+                                     List<List<FieldDescriptor>> nonEmptyFields) {
         int rowNum = start.getRowNum();
         int colNum = FIRST_COLUMN;
         int lastColNum = getLastColumn(test, nonEmptyFields);
@@ -183,7 +183,7 @@ class ParameterExport extends BaseExport {
             // ID
             int maxHeight = getMaxHeight(description, nonEmptyFields);
             tasks.add(
-                new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
+                    new WriteTask(new Cursor(rowNum, colNum++), description.getId(), styles.parameterValue, maxHeight));
 
             ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
             for (int p = 0; p < executionParams.length; p++) {
@@ -218,9 +218,9 @@ class ParameterExport extends BaseExport {
                         for (int i = 0; i < count; i++) {
                             int height = getRowHeight(Array.get(value, i), fields);
                             tasks.add(new WriteTask(new Cursor(pkRow, colNum),
-                                Array.get(id, i),
-                                styles.parameterValue,
-                                height));
+                                    Array.get(id, i),
+                                    styles.parameterValue,
+                                    height));
                             pkRow += height;
                         }
                     } else {
@@ -244,10 +244,10 @@ class ParameterExport extends BaseExport {
     }
 
     private void addValueTasks(TreeSet<WriteTask> tasks,
-            Cursor cursor,
-            List<FieldDescriptor> fields,
-            Object value,
-            int rowHeight) {
+                               Cursor cursor,
+                               List<FieldDescriptor> fields,
+                               Object value,
+                               int rowHeight) {
         int colNum = cursor.getColNum();
         int rowNum = cursor.getRowNum();
 
@@ -343,7 +343,7 @@ class ParameterExport extends BaseExport {
     }
 
     private List<List<FieldDescriptor>> getAllNonEmptyFields(TestDescription[] descriptions,
-            Boolean skipEmptyParameters) {
+                                                             Boolean skipEmptyParameters) {
         TestDescription description = descriptions[0];
         ParameterWithValueDeclaration[] executionParams = description.getExecutionParams();
 

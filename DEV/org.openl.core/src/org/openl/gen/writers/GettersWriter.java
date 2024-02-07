@@ -19,10 +19,9 @@ import org.openl.util.ClassUtils;
 public class GettersWriter extends DefaultBeanByteCodeWriter {
 
     /**
-     *
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param beanFields fields of generating class.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param beanFields          fields of generating class.
      */
     public GettersWriter(String beanNameWithPackage, Map<String, FieldDescription> beanFields) {
         super(beanNameWithPackage, null, beanFields);

@@ -17,6 +17,7 @@ import org.openl.ie.constrainer.IntExp;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A delta-event about the change(s) in the domain of the constraint integer expression. This event contains an
  * information about current and old (before the change(s)) domains of the expression.

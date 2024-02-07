@@ -21,7 +21,7 @@ public class ResultValue {
             return (T) openCast.convert(value);
         } else {
             throw new ResultValueConvertException(
-                String.format("Cannot convert from '%s' to '%s'.", value.getClass().getTypeName(), to.getTypeName()));
+                    String.format("Cannot convert from '%s' to '%s'.", value.getClass().getTypeName(), to.getTypeName()));
         }
     }
 

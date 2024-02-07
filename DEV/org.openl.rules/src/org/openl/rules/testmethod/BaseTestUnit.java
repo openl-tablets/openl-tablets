@@ -39,7 +39,7 @@ public class BaseTestUnit implements ITestUnit {
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
-                "Ambiguous expectation in the test case. Two expected result has been declared.");
+                    "Ambiguous expectation in the test case. Two expected result has been declared.");
         } else {
             this.actualError = error;
         }
@@ -70,7 +70,7 @@ public class BaseTestUnit implements ITestUnit {
      * Gets the description field value.
      *
      * @return if the description field value presents, return it`s value. In other case return
-     *         {@link ITestUnit#DEFAULT_DESCRIPTION}
+     * {@link ITestUnit#DEFAULT_DESCRIPTION}
      */
     @Override
     public String getDescription() {
@@ -114,15 +114,15 @@ public class BaseTestUnit implements ITestUnit {
                     return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
                 } else {
                     return compareMessageAndGetResult(expectedError,
-                        rootCause.getMessage(),
-                        expectedResult,
-                        rootCause.getMessage());
+                            rootCause.getMessage(),
+                            expectedResult,
+                            rootCause.getMessage());
                 }
             } else {
                 ComparedResult results = new ComparedResult(null,
-                    expectedError == null ? expectedResult : expectedError,
-                    rootCause == null ? actualResult : rootCause.getMessage(),
-                    TR_EXCEPTION);
+                        expectedError == null ? expectedResult : expectedError,
+                        rootCause == null ? actualResult : rootCause.getMessage(),
+                        TR_EXCEPTION);
 
                 addComparisonResult(results);
                 return TR_EXCEPTION;
@@ -165,9 +165,9 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     private TestStatus compareMessageAndGetResult(Object expectedError,
-            Object actualError,
-            Object expectedResult,
-            String actualErrorMessage) {
+                                                  Object actualError,
+                                                  Object expectedResult,
+                                                  String actualErrorMessage) {
         if (expectedResult == null) {
             return compareAndGetResult(expectedError, actualError, test.getErrorFields());
         } else {
@@ -205,9 +205,9 @@ public class BaseTestUnit implements ITestUnit {
 
         TestStatus status = equal ? TR_OK : TR_NEQ;
         ComparedResult fieldComparisonResults = new ComparedResult(field.getName(),
-            expectedFieldValue,
-            actualFieldValue,
-            status);
+                expectedFieldValue,
+                actualFieldValue,
+                status);
         addComparisonResult(fieldComparisonResults);
 
         return equal;

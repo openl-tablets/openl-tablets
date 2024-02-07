@@ -2,7 +2,6 @@ package org.openl.rules.dt.type;
 
 /**
  * @author snshor
- *
  */
 public interface IRangeAdaptor<T, C extends Comparable<?>> {
 
@@ -27,7 +26,7 @@ public interface IRangeAdaptor<T, C extends Comparable<?>> {
      * compare these values.
      *
      * @param value that is going to be compared with values returned by {@link #getMax(Object)} and
-     *            {@link #getMin(Object)} values.
+     *              {@link #getMin(Object)} values.
      * @return value, casted to the type of specific <code>IRangeAdaptor</code> implementation.
      */
     C adaptValueType(Object value);

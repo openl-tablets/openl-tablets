@@ -24,11 +24,11 @@ public class TBasicOperationTraceObject extends SimpleTracerObject {
     }
 
     TBasicOperationTraceObject(String nameForDebug,
-            IGridRegion gridRegion,
-            String operationName,
-            int operationRow,
-            String uri,
-            HashMap<String, Object> fieldValues) {
+                               IGridRegion gridRegion,
+                               String operationName,
+                               int operationRow,
+                               String uri,
+                               HashMap<String, Object> fieldValues) {
         super("tbasicOperation");
         this.nameForDebug = nameForDebug;
         this.gridRegion = gridRegion;

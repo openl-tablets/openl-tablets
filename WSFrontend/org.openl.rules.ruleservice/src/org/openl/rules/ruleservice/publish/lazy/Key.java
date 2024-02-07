@@ -15,7 +15,7 @@ public class Key {
 
     Key(DeploymentDescription deploymentDescription, ResolvedDependency dependency) {
         this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
-            "deploymentDescription cannot be null");
+                "deploymentDescription cannot be null");
         this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
     }
 

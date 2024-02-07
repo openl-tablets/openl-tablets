@@ -50,13 +50,13 @@ public class GroovyMethodWriter extends ChainedGroovyScriptWriter {
                 AnnotationDescription[] argAnnotation = arg.getAnnotations();
                 for (AnnotationDescription annotationDescription : argAnnotation) {
                     scriptText.append(
-                        AnnotationTransformationHelper.transformAnnotation(annotationDescription, null, imports));
+                            AnnotationTransformationHelper.transformAnnotation(annotationDescription, null, imports));
                     scriptText.append(" ");
                 }
                 scriptText.append(changeCanonicalNameIfImported(imports, arg.getCanonicalName()))
-                    .append(" ")
-                    .append(ARG_NAME)
-                    .append(i);
+                        .append(" ")
+                        .append(ARG_NAME)
+                        .append(i);
                 if (i < argsTypes.length - 1) {
                     scriptText.append(", ");
                 }
@@ -70,11 +70,11 @@ public class GroovyMethodWriter extends ChainedGroovyScriptWriter {
             scriptText.append(" ").append("{");
             scriptText.append(LINE_SEPARATOR);
             scriptText.append(TAB)
-                .append(TAB)
-                .append(RETURN)
-                .append(" ")
-                .append(getDefaultValue(description.getReturnType().getTypeName()))
-                .append(";");
+                    .append(TAB)
+                    .append(RETURN)
+                    .append(" ")
+                    .append(getDefaultValue(description.getReturnType().getTypeName()))
+                    .append(";");
             scriptText.append(LINE_SEPARATOR);
             scriptText.append(TAB).append("}");
         }

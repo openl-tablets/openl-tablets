@@ -33,12 +33,12 @@ public class RulesServiceEnhancerTest {
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, false, null);
+                .singletonList(project), null, false, null);
 
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 

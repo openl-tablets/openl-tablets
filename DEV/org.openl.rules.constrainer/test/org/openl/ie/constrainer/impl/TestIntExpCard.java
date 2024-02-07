@@ -1,4 +1,5 @@
 package org.openl.ie.constrainer.impl;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -155,7 +156,7 @@ public class TestIntExpCard {
     @Test
     public void testRemoveIndex() {
         final int cardValue = 5;
-        final int[] indexToBeRemoved = { 0, 1 };
+        final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
@@ -197,7 +198,7 @@ public class TestIntExpCard {
     @Test
     public void testRemoveUnbounds() {
         final int cardValue = 5;
-        final int[] indexToBeRemoved = { 0, 1 };
+        final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {

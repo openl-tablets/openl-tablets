@@ -52,21 +52,21 @@ final class OpenApiProjectValidatorMessagesUtils {
             OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
             for (IOpenMethod m : openMethodDispatcher.getCandidates()) {
                 if (context.getField() != null && m instanceof Spreadsheet && m
-                    .getType() instanceof CustomSpreadsheetResultOpenClass) {
+                        .getType() instanceof CustomSpreadsheetResultOpenClass) {
                     IOpenField openFieldInSpr = SpreadsheetMethodResolver.findSpreadsheetOpenField((Spreadsheet) m,
-                        context.getField());
+                            context.getField());
                     if (openFieldInSpr != null) {
                         if (context.getIsIncompatibleTypesPredicate() != null) {
                             Class<?> instanceClass;
                             if (openFieldInSpr
-                                .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openFieldInSpr
+                                    .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openFieldInSpr
                                     .getType()).getModule() != null) {
                                 instanceClass = ((SpreadsheetResultOpenClass) openFieldInSpr.getType())
-                                    .toCustomSpreadsheetResultOpenClass()
-                                    .getBeanClass();
+                                        .toCustomSpreadsheetResultOpenClass()
+                                        .getBeanClass();
                             } else if (openFieldInSpr.getType() instanceof CustomSpreadsheetResultOpenClass) {
                                 instanceClass = ((CustomSpreadsheetResultOpenClass) openFieldInSpr.getType())
-                                    .getBeanClass();
+                                        .getBeanClass();
                             } else {
                                 instanceClass = openFieldInSpr.getType().getInstanceClass();
                             }
@@ -86,7 +86,7 @@ final class OpenApiProjectValidatorMessagesUtils {
             TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(method);
             if (tableSyntaxNode != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                    tableSyntaxNode);
+                        tableSyntaxNode);
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                     context.getValidatedCompiledOpenClass().addMessage(openLMessage);
@@ -112,7 +112,7 @@ final class OpenApiProjectValidatorMessagesUtils {
             DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) type;
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
-                    datatypeOpenClass.getTableSyntaxNode());
+                        datatypeOpenClass.getTableSyntaxNode());
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                     context.getValidatedCompiledOpenClass().addMessage(openLMessage);
@@ -140,17 +140,18 @@ final class OpenApiProjectValidatorMessagesUtils {
 
         var compiledOpenClass = context.getValidatedCompiledOpenClass();
         compiledOpenClass.getAllMessages()
-            .stream()
-            .filter(x -> x.getSeverity().equals(Severity.WARN))
-            .filter(x -> Objects.equals(x.getSummary(), summary))
-            .findFirst()
-            .ifPresentOrElse(x -> {}, () -> addWarn(summary, compiledOpenClass, context));
+                .stream()
+                .filter(x -> x.getSeverity().equals(Severity.WARN))
+                .filter(x -> Objects.equals(x.getSummary(), summary))
+                .findFirst()
+                .ifPresentOrElse(x -> {
+                }, () -> addWarn(summary, compiledOpenClass, context));
     }
 
     private static void addWarn(String summary, ValidatedCompiledOpenClass compiledOpenClass, Context context) {
         var tsn = extractTableSyntaxNode(context.getOpenMethod());
         var message = tsn == null ? OpenLMessagesUtils.newWarnMessage(summary)
-                                  : OpenLMessagesUtils.newWarnMessage(summary, tsn);
+                : OpenLMessagesUtils.newWarnMessage(summary, tsn);
         compiledOpenClass.addMessage(message);
     }
 }

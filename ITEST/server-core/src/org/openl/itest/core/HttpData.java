@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class HttpData {
     static final ObjectMapper OBJECT_MAPPER;
+
     static {
         OBJECT_MAPPER = new ObjectMapper();
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -97,8 +98,8 @@ class HttpData {
             cookie = null;
         }
         HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
-            httpData.getHttpMethod(),
-            cookie);
+                httpData.getHttpMethod(),
+                cookie);
         write(connection, httpData);
         return readData(connection);
     }
@@ -135,7 +136,7 @@ class HttpData {
 
     void writeBodyTo(String responseFile) throws IOException {
         try (var rf = new RandomAccessFile(responseFile, "rw")) {
-            while (!rf.readLine().isEmpty()); // find the first empty string
+            while (!rf.readLine().isEmpty()) ; // find the first empty string
             rf.setLength(rf.getFilePointer()); // truncate
             rf.write(body); // append new body
         }
@@ -157,7 +158,7 @@ class HttpData {
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
                 // Binary encoding
-                for(String encoding : contentEncoding.split(",")) {
+                for (String encoding : contentEncoding.split(",")) {
                     if ("gzip".equals(encoding) || "x-gzip".equals(encoding)) {
                         // decode gzip bytes
                         decoder = decoder.andThen(HttpData::decodeGzipBytes);

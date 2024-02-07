@@ -24,8 +24,8 @@ import org.openl.vm.IRuntimeEnv;
 // Do not extend this class
 public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this,
-        "IN_PROGRESS",
-        JavaOpenClass.OBJECT);
+            "IN_PROGRESS",
+            JavaOpenClass.OBJECT);
 
     private XlsModuleOpenClass module;
     private final Map<String, IOpenField> strictMatchCache = new HashMap<>();
@@ -70,11 +70,11 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         }
         if (openField == RESOLVING_IN_PROGRESS) {
             IOpenField f = strictMatch ? strictBlankCache.get(fieldName)
-                                       : noStrictBlankCache.get(fieldName.toLowerCase());
+                    : noStrictBlankCache.get(fieldName.toLowerCase());
             if (f == null) {
                 f = new SpreadsheetResultField(this,
-                    strictMatch ? fieldName : fieldName.toLowerCase(),
-                    JavaOpenClass.OBJECT);
+                        strictMatch ? fieldName : fieldName.toLowerCase(),
+                        JavaOpenClass.OBJECT);
                 if (strictMatch) {
                     strictBlankCache.put(fieldName, f);
                 } else {
@@ -97,14 +97,14 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
-                            .isSpreadsheet()) {
+                                .isSpreadsheet()) {
                             try {
                                 if (g) {
                                     SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
                                 }
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
                                 module.getRulesModuleBindingContext()
-                                    .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
+                                        .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
                             } finally {
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
                                 if (g) {
@@ -118,9 +118,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                     mergedField = (CustomSpreadsheetResultField) f;
                                 } else {
                                     mergedField = new CastingCustomSpreadsheetResultField(this,
-                                        fieldName,
-                                        f,
-                                        mergedField);
+                                            fieldName,
+                                            f,
+                                            mergedField);
                                 }
                             }
                         }
@@ -143,7 +143,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 }
             }
             IOpenField f = strictMatch ? strictMatchCache.get(fieldName)
-                                       : noStrictMatchCache.get(fieldName.toLowerCase());
+                    : noStrictMatchCache.get(fieldName.toLowerCase());
             if (f == null || f == RESOLVING_IN_PROGRESS) {
                 if (strictMatch) {
                     strictMatchCache.put(fieldName, openField);
@@ -164,23 +164,23 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     String anySpreadsheetResultName = "AnySpreadsheetResult";
                     int i = 0;
                     boolean nameExists = this.module.getTypes()
-                        .stream()
-                        .anyMatch(t -> t.getName()
-                            .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
+                            .stream()
+                            .anyMatch(t -> t.getName()
+                                    .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
                     while (nameExists) {
                         anySpreadsheetResultName = "AnySpreadsheetResult" + i++;
                         String anySpreadsheetResultName0 = anySpreadsheetResultName;
                         nameExists = this.module.getTypes()
-                            .stream()
-                            .anyMatch(t -> t.getName()
-                                .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
+                                .stream()
+                                .anyMatch(t -> t.getName()
+                                        .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
                     }
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                        anySpreadsheetResultName,
-                        this.module,
-                        null,
-                        true,
-                        false);
+                            anySpreadsheetResultName,
+                            this.module,
+                            null,
+                            true,
+                            false);
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
                             CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;
@@ -255,9 +255,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             @Override
             public IOpenClass getType() {
                 return SpreadsheetResultOpenClass.this.getModule() == null
-                                                                           ? JavaOpenClass
-                                                                               .getOpenClass(SpreadsheetResult.class)
-                                                                           : SpreadsheetResultOpenClass.this;
+                        ? JavaOpenClass
+                        .getOpenClass(SpreadsheetResult.class)
+                        : SpreadsheetResultOpenClass.this;
             }
         };
     }

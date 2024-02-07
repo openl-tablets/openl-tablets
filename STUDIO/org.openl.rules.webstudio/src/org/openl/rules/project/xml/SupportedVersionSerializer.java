@@ -20,7 +20,7 @@ public class SupportedVersionSerializer {
 
     public SupportedVersionSerializer(String defaultVersion) {
         this.defaultVersion = StringUtils.isBlank(defaultVersion) ? SupportedVersion.getLastVersion()
-                                                                  : SupportedVersion.getByVersion(defaultVersion);
+                : SupportedVersion.getByVersion(defaultVersion);
     }
 
     public SupportedVersion getSupportedVersion(File projectFolder) {

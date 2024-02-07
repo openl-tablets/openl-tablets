@@ -8,7 +8,6 @@ import org.openl.types.Invokable;
 /**
  * The <code>RuntimeOperation</code> class describes operation in common. Contains link to source of this operation and
  * can be executed with debug mode.
- *
  */
 public abstract class RuntimeOperation implements Invokable<Object, TBasicContextHolderEnv> {
     private AlgorithmOperationSource sourceCode;
@@ -19,7 +18,7 @@ public abstract class RuntimeOperation implements Invokable<Object, TBasicContex
      * Run operation in specified context.
      *
      * @param environment Environment for execution.
-     * @param param Argument for execution.
+     * @param param       Argument for execution.
      * @return The result of operation
      */
     public abstract Result execute(TBasicContextHolderEnv environment, Object param);

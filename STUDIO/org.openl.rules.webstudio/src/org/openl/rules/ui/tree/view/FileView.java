@@ -10,11 +10,11 @@ import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
 public class FileView implements RulesTreeView {
 
-    private final BaseTableTreeNodeBuilder[] sorters = { new WorkbookTreeNodeBuilder(),
+    private final BaseTableTreeNodeBuilder[] sorters = {new WorkbookTreeNodeBuilder(),
             new WorksheetTreeNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() };
+            new TableVersionTreeNodeBuilder()};
 
     @Override
     public String getName() {

@@ -29,8 +29,8 @@ public class SessionTimeoutFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         if (excludePages != null && excludePages.length > 0) {
             for (String excludePage : excludePages) {

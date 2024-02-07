@@ -82,11 +82,11 @@ public class DoubleRangeRulesParsingTest {
 
     private Object invoke(String methodName, boolean param1, double param2) {
         return TestUtils
-            .invoke(instance, methodName, new Class[] { boolean.class, double.class }, new Object[] { param1, param2 });
+                .invoke(instance, methodName, new Class[]{boolean.class, double.class}, new Object[]{param1, param2});
     }
 
     private Object invoke(String methodName, String param1, double param2) {
         return TestUtils
-            .invoke(instance, methodName, new Class[] { String.class, double.class }, new Object[] { param1, param2 });
+                .invoke(instance, methodName, new Class[]{String.class, double.class}, new Object[]{param1, param2});
     }
 }

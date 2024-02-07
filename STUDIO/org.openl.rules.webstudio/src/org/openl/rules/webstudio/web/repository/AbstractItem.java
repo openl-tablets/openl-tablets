@@ -3,25 +3,33 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.Serializable;
 
 /**
- *
  * @author Aleh Bykhavets
- *
  */
 public abstract class AbstractItem implements Serializable, Comparable<AbstractItem> {
 
-    /** Boolean flag. If this entry is currently 'selected'. */
+    /**
+     * Boolean flag. If this entry is currently 'selected'.
+     */
     private boolean selected;
 
-    /** Item name. */
+    /**
+     * Item name.
+     */
     private String name;
 
-    /** Messages associated with this entry. */
+    /**
+     * Messages associated with this entry.
+     */
     private String messages;
 
-    /** Style of the name */
+    /**
+     * Style of the name
+     */
     private String styleForName;
 
-    /** Style of the message */
+    /**
+     * Style of the message
+     */
     private String styleForMessages;
 
     /**

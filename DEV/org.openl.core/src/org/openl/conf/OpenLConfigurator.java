@@ -28,20 +28,20 @@ public class OpenLConfigurator {
         String[] homes;
         try {
             String altHome = new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
-            homes = new String[] { userHome, altHome };
+            homes = new String[]{userHome, altHome};
         } catch (Exception t) {
-            homes = new String[] { userHome };
+            homes = new String[]{userHome};
         }
 
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), homes);
 
         PropertyFileLoader propertyLoader = new PropertyFileLoader(openlName + "." + OPENL_DEFAULT_PROPERTY_FILE_NAME,
-            openlName + "." + OPENL_PROPERTY_FILE_PROPERTY,
-            cxt,
-            new PropertyFileLoader(OPENL_DEFAULT_PROPERTY_FILE_NAME,
-                "org.openl." + OPENL_PROPERTY_FILE_PROPERTY,
+                openlName + "." + OPENL_PROPERTY_FILE_PROPERTY,
                 cxt,
-                null));
+                new PropertyFileLoader(OPENL_DEFAULT_PROPERTY_FILE_NAME,
+                        "org.openl." + OPENL_PROPERTY_FILE_PROPERTY,
+                        cxt,
+                        null));
 
         var pp = propertyLoader.getProperties();
         cxt.setProperties(pp);
@@ -57,8 +57,8 @@ public class OpenLConfigurator {
     }
 
     private IOpenLBuilder makeBuilder(String openl,
-            IConfigurableResourceContext cxt,
-            IUserContext ucxt) throws Exception {
+                                      IConfigurableResourceContext cxt,
+                                      IUserContext ucxt) throws Exception {
         ClassLoader ucl = ucxt.getUserClassLoader();
         ClassLoader cl = OpenL.class.getClassLoader();
         try {

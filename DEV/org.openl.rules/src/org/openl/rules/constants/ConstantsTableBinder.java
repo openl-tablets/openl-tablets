@@ -20,7 +20,6 @@ import org.openl.util.TableNameChecker;
  * Binder for constants table.
  *
  * @author Marat Kamalov
- *
  */
 public class ConstantsTableBinder extends AXlsTableBinder {
 
@@ -28,9 +27,9 @@ public class ConstantsTableBinder extends AXlsTableBinder {
 
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass module) throws Exception {
+                                    OpenL openl,
+                                    RulesModuleBindingContext bindingContext,
+                                    XlsModuleOpenClass module) throws Exception {
 
         ILogicalTable table = tsn.getTable();
 
@@ -43,7 +42,7 @@ public class ConstantsTableBinder extends AXlsTableBinder {
             if (TableNameChecker.isInvalidJavaIdentifier(constantsTableName)) {
                 String message = String.format(NAME_ERROR_MESSAGE, "Constants table", constantsTableName);
                 bindingContext
-                    .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
+                        .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
             }
         }
         return new ConstantsTableBoundNode(tsn, module, table, openl);

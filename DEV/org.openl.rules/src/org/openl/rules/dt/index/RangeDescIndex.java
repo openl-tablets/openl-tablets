@@ -11,9 +11,9 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class RangeDescIndex extends RangeAscIndex {
 
     public RangeDescIndex(DecisionTableRuleNode nextNode,
-            List<IndexNode> index,
-            IRangeAdaptor<IndexNode, ?> adaptor,
-            int[] emptyRules) {
+                          List<IndexNode> index,
+                          IRangeAdaptor<IndexNode, ?> adaptor,
+                          int[] emptyRules) {
         super(nextNode, index, adaptor, emptyRules);
     }
 

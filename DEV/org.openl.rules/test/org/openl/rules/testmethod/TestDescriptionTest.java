@@ -31,7 +31,7 @@ public class TestDescriptionTest {
 
     @BeforeEach
     public void setUp() {
-        arguments = new SomeArgument[] { new SomeArgument("test") };
+        arguments = new SomeArgument[]{new SomeArgument("test")};
     }
 
     @Test

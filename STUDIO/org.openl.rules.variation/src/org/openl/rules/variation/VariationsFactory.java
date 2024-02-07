@@ -2,7 +2,7 @@ package org.openl.rules.variation;
 
 /**
  * Factory for simple variations creation.
- *
+ * <p>
  * In most cases there will be created {@link JXPathVariation} instead of situations when
  * {@link VariationsFactory.THIS_POINTER} used as the path to field to be modified(in such a case
  * {@link ArgumentReplacementVariation} will be created). As an additional feature there is possibility to use deep
@@ -21,11 +21,11 @@ public abstract class VariationsFactory {
     /**
      * Creates variation using all needed parameters.
      *
-     * @param vairationId Id for variation.
+     * @param vairationId   Id for variation.
      * @param argumentIndex Index of argument to be modified.
-     * @param path Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument
-     *            replacemnt variation.
-     * @param valueToSet Value to set for modified field.
+     * @param path          Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument
+     *                      replacemnt variation.
+     * @param valueToSet    Value to set for modified field.
      * @return Variation that corresponds the specified path.
      */
     public static Variation getVariation(String vairationId, int argumentIndex, String path, Object valueToSet) {
@@ -35,20 +35,20 @@ public abstract class VariationsFactory {
     /**
      * Creates variation using all needed parameters with possibility to use cloning for variations.
      *
-     * @param vairationId Id for variation.
-     * @param argumentIndex Index of argument to be modified.
-     * @param path Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument
-     *            replacemnt variation.
-     * @param valueToSet Value to set for modified field.
+     * @param vairationId    Id for variation.
+     * @param argumentIndex  Index of argument to be modified.
+     * @param path           Path to field that will be modified. Or {@link VariationsFactory.THIS_POINTER} for argument
+     *                       replacemnt variation.
+     * @param valueToSet     Value to set for modified field.
      * @param cloneArguments Flag that determines whether the created variation should be wrapped by
-     *            {@link DeepCloningVariation}.
+     *                       {@link DeepCloningVariation}.
      * @return Variation that corresponds the specified path.
      */
     public static Variation getVariation(String vairationId,
-            int argumentIndex,
-            String path,
-            Object valueToSet,
-            boolean cloneArguments) {
+                                         int argumentIndex,
+                                         String path,
+                                         Object valueToSet,
+                                         boolean cloneArguments) {
         // TODO check null ID
         Variation variation;
         if (path.equals(THIS_POINTER)) {

@@ -25,6 +25,7 @@ public interface Group extends Privilege {
 
     /**
      * Checks the 1st level group dependencies
+     *
      * @param groupName name of group
      * @return true if group contains given group directly
      */

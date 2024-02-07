@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "greetings")
 @RequestMapping("/greetings")
 @ApiResponses({
-    @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDto.class))),
-    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDto.class)))})
+        @ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDto.class))),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorDto.class)))})
 public class HelloController {
 
     @Operation(summary = "Default say hello", description = "Say hello response entity.", operationId = "sayHelloDefault", responses = {
             @ApiResponse(description = "Successful Operation", responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(oneOf = {
                     String.class,
-                    Integer.class }), examples = { @ExampleObject(name = "The String example", value = "Foo-bar"),
-                            @ExampleObject(name = "The Integer example", value = "4221") })) })
+                    Integer.class}), examples = {@ExampleObject(name = "The String example", value = "Foo-bar"),
+                    @ExampleObject(name = "The Integer example", value = "4221")}))})
     @Tag(name = "default")
     @GetMapping(value = "/hello")
     @Deprecated

@@ -14,9 +14,9 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An interface for the undoable integer value.
- *
  */
 public interface UndoableInt extends Undoable {
     /**

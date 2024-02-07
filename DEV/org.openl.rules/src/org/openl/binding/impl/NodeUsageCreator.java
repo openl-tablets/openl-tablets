@@ -22,9 +22,9 @@ interface NodeUsageCreator {
     /**
      * Create {@link NodeUsage} object from given bound node
      *
-     * @param boundNode bound node to convert
+     * @param boundNode    bound node to convert
      * @param sourceString source code
-     * @param startIndex start index
+     * @param startIndex   start index
      * @return converted node usage or empty
      */
     Optional<NodeUsage> create(IBoundNode boundNode, String sourceString, int startIndex);

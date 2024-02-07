@@ -34,11 +34,11 @@ public class TestDescription {
     private List<IOpenField> errorFields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
-            DynamicObject testObject,
-            List<IOpenField> fields,
-            List<IOpenField> errorFields,
-            ITableModel dataModel,
-            IDataBase db) {
+                           DynamicObject testObject,
+                           List<IOpenField> fields,
+                           List<IOpenField> errorFields,
+                           ITableModel dataModel,
+                           IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
         this.fields = fields;
@@ -53,8 +53,8 @@ public class TestDescription {
     }
 
     private static DynamicObject createTestObject(IOpenMethod testedMethod,
-            IRulesRuntimeContext context,
-            Object[] arguments) {
+                                                  IRulesRuntimeContext context,
+                                                  Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
         if (context != null) {
@@ -101,7 +101,7 @@ public class TestDescription {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
                     log.error("Failed to clone an argument '{}'. Original argument will be used.",
-                        executionParams[i].getName());
+                            executionParams[i].getName());
                     args[i] = value;
                 }
             } finally {
@@ -112,11 +112,11 @@ public class TestDescription {
     }
 
     private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod,
-            DynamicObject testObject,
-            IDataBase db,
-            ITableModel dataModel) {
+                                                                       DynamicObject testObject,
+                                                                       IDataBase db,
+                                                                       ITableModel dataModel) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
-            .getNumberOfParameters()];
+                .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
@@ -145,7 +145,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
                 // When all test cases contain empty (null) expected value
                 || testObject.getType() != null && testObject.getType()
-                    .getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+                .getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {
@@ -211,10 +211,10 @@ public class TestDescription {
     }
 
     protected static IOpenField getKeyField(String paramName,
-            IOpenClass type,
-            Object value,
-            IDataBase db,
-            ITableModel dataModel) {
+                                            IOpenClass type,
+                                            Object value,
+                                            IDataBase db,
+                                            ITableModel dataModel) {
         if (value == null) {
             return null;
         }
@@ -259,6 +259,6 @@ public class TestDescription {
      */
     public boolean isEmptyOrNewStyleErrorDescription() {
         return errorFields
-            .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
+                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
     }
 }

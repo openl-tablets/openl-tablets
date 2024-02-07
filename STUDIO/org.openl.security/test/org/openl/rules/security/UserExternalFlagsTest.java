@@ -67,12 +67,12 @@ public class UserExternalFlagsTest {
     @Test
     public void testAllTrue() {
         UserExternalFlags flags = UserExternalFlags.builder()
-            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, true)
-            .applyFeature(Feature.EXTERNAL_LAST_NAME, true)
-            .applyFeature(Feature.EXTERNAL_FIRST_NAME, true)
-            .applyFeature(Feature.EXTERNAL_EMAIL, true)
-            .applyFeature(Feature.EMAIL_VERIFIED, true)
-            .build();
+                .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, true)
+                .applyFeature(Feature.EXTERNAL_LAST_NAME, true)
+                .applyFeature(Feature.EXTERNAL_FIRST_NAME, true)
+                .applyFeature(Feature.EXTERNAL_EMAIL, true)
+                .applyFeature(Feature.EMAIL_VERIFIED, true)
+                .build();
         assertTrue(flags.isFirstNameExternal());
         assertTrue(flags.isLastNameExternal());
         assertTrue(flags.isDisplayNameExternal());

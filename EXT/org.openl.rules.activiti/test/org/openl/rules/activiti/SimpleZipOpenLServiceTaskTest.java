@@ -26,10 +26,10 @@ public class SimpleZipOpenLServiceTaskTest {
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-openl-zip-test.bpmn20.xml")
-            .addClasspathResource("Tutorial 1 - Introduction to Decision Tables-1.zip")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-openl-zip-test.bpmn20.xml")
+                .addClasspathResource("Tutorial 1 - Introduction to Decision Tables-1.zip")
+                .deploy();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class SimpleZipOpenLServiceTaskTest {
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
         Double result = (Double) processEngine.getRuntimeService()
-            .getVariable(task.getExecutionId(), "resultVariable");
+                .getVariable(task.getExecutionId(), "resultVariable");
 
         assertEquals(500.0d, result, 1e-3);
     }

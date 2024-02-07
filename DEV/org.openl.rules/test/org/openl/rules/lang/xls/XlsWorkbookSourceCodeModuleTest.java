@@ -29,7 +29,7 @@ public class XlsWorkbookSourceCodeModuleTest {
     public void testUrlWithWhiteSpaces() throws MalformedURLException {
         File f = new File("test/rules/test xls/Test with spaces.xls");
         XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
-            new URLSourceCodeModule(f.toURI().toURL()));
+                new URLSourceCodeModule(f.toURI().toURL()));
         assertNotNull(module.getSourceFile());
     }
 
@@ -55,7 +55,7 @@ public class XlsWorkbookSourceCodeModuleTest {
 
         try {
             XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(src,
-                new SimpleWorkbookLoader(workbook));
+                    new SimpleWorkbookLoader(workbook));
             module.save();
         } catch (OutOfMemoryError ignored) {
         }

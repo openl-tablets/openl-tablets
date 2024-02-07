@@ -42,7 +42,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     @Override
     public void initialize(ConfigurableApplicationContext appContext) {
         ConfigLog.LOG
-            .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
+                .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
         ConfigurableEnvironment oldEnv = appContext.getEnvironment();
         FirewallEnvironment env = new FirewallEnvironment(oldEnv.getPropertySources());
         appContext.setEnvironment(env);
@@ -59,9 +59,9 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     }
 
     private void loadEnvironment(ConfigurableApplicationContext appContext,
-            FirewallEnvironment env,
-            String appName,
-            ServletContext servletContext) {
+                                 FirewallEnvironment env,
+                                 String appName,
+                                 ServletContext servletContext) {
         FirewallPropertyResolver props = env.getRawPropertyResolver();
         MutablePropertySources propertySources = env.getPropertySources();
 
@@ -91,7 +91,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG.info("Loading application properties...");
         String[] profiles = env.getActiveProfiles();
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
-            new ApplicationPropertySource(props, appName, profiles));
+                new ApplicationPropertySource(props, appName, profiles));
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
         DynamicPropertySource propertySource = new DynamicPropertySource(appName, props);
@@ -110,14 +110,14 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     }
 
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
-            DefaultPropertySource defaultPropertySource,
-            FirewallPropertyResolver props) {
+                                      DefaultPropertySource defaultPropertySource,
+                                      FirewallPropertyResolver props) {
         Map<String, String> propertyMap = new HashMap<>();
         for (String key : defaultPropertySource.getPropertyNames()) {
             propertyMap.put(key, props.getRawProperty(key));
         }
         appContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("PropertyBean",
-            new PropertyBean(defaultPropertySource.getSource(), propertyMap)));
+                new PropertyBean(defaultPropertySource.getSource(), propertyMap)));
     }
 
     private static String normalizeAppName(String appName) {

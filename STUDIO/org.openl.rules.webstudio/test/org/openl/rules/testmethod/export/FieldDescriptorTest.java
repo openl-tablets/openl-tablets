@@ -35,7 +35,7 @@ public class FieldDescriptorTest {
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), asList(1, 2, 3), true));
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int[].class), asList(1, 2, 3), true));
         assertNull(
-            FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3), true));
+                FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3), true));
 
         descriptors = FieldDescriptor.nonEmptyFields(aType, emptyList(), true);
         assertNotNull(descriptors);

@@ -1,4 +1,5 @@
 package org.openl.rules.dt;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +44,7 @@ public class LocalParametersDeclarationTest {
     @BeforeEach
     public void setUp() throws Exception {
         RulesEngineFactory<ILocalParametersDeclarationTest> engineFactory = new RulesEngineFactory<>(SRC,
-            ILocalParametersDeclarationTest.class);
+                ILocalParametersDeclarationTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

@@ -38,16 +38,16 @@ public class DBTestConfiguration {
 
     /**
      * Wraps original datasource with proxy DataSource. This proxy helps to analyze generated SQL queries
-     * 
+     *
      * @param dataSource original bean
      * @return proxied bean
      */
     private DataSource wrapLoggedDataSource(DataSource dataSource) {
         return ProxyDataSourceBuilder.create(dataSource)
-            .name("OpenL-DataSource-Logger")
-            .asJson()
-            .countQuery()
-            .build();
+                .name("OpenL-DataSource-Logger")
+                .asJson()
+                .countQuery()
+                .build();
     }
 
     @Bean
@@ -81,7 +81,7 @@ public class DBTestConfiguration {
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
-        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
         TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {

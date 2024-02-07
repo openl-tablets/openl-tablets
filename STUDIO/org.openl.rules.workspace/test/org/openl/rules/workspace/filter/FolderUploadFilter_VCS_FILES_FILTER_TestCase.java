@@ -14,12 +14,12 @@ public class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
     @BeforeEach
     public void setUp() throws Exception {
         instance = new AndPathFilter(Arrays.asList(new FolderNamePathFilter(Arrays.asList(".svn", "CVS")),
-            new FileNamePathFilter(Collections.singletonList(".cvsignore"))));
+                new FileNamePathFilter(Collections.singletonList(".cvsignore"))));
     }
 
     @Test
     public void testAccepted() {
-        final String[] params = { "f",
+        final String[] params = {"f",
                 "f/",
                 "svn",
                 "svn/",
@@ -49,7 +49,7 @@ public class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
                 "cvsignore/",
                 "cvsignore",
                 ".cvsignore/1.txt",
-                "root/.cvsignore/" };
+                "root/.cvsignore/"};
 
         for (String filename : params) {
             if (!instance.accept(filename)) {
@@ -60,14 +60,14 @@ public class FolderUploadFilter_VCS_FILES_FILTER_TestCase {
 
     @Test
     public void testFailed() {
-        final String[] params = { "CVS/",
+        final String[] params = {"CVS/",
                 ".svn/",
                 "root/CVS/",
                 "root/.svn/",
                 "root/folder1/CVS/base",
                 "root/folder1/.svn/base",
                 ".cvsignore",
-                "root/.cvsignore" };
+                "root/.cvsignore"};
 
         for (String filename : params) {
             if (instance.accept(filename)) {

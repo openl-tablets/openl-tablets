@@ -37,13 +37,13 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     @PostConstruct
     public void setup() {
         supportedInjects = Collections.singleton(
-            new Inject<>(HiveConnection.class, (m, a) -> hiveOperations.getConnection(), IOUtils::closeQuietly));
+                new Inject<>(HiveConnection.class, (m, a) -> hiveOperations.getConnection(), IOUtils::closeQuietly));
     }
 
     @Override
     public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToHive storeLogDataToHive = AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData,
-            StoreLogDataToHive.class);
+                StoreLogDataToHive.class);
         if (storeLogDataToHive != null) {
             return storeLogDataToHive.sync();
         }
@@ -79,29 +79,29 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     private void mapEntities(StoreLogData storeLogData,
-            List<Object> entities,
-            Method serviceMethod) throws StoreLogDataException {
+                             List<Object> entities,
+                             Method serviceMethod) throws StoreLogDataException {
         for (Object entity : entities) {
             try {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
                 if (serviceMethod != null) {
                     throw new StoreLogDataException(
-                        String.format("Failed to populate hive entity '%s' for method '%s'.",
-                            entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod)),
-                        e);
+                            String.format("Failed to populate hive entity '%s' for method '%s'.",
+                                    entity.getClass().getTypeName(),
+                                    MethodUtil.printQualifiedMethodName(serviceMethod)),
+                            e);
                 } else {
                     throw new StoreLogDataException(
-                        String.format("Failed to populate hive entity '%s'.", entity.getClass().getTypeName()),
-                        e);
+                            String.format("Failed to populate hive entity '%s'.", entity.getClass().getTypeName()),
+                            e);
                 }
             }
         }
     }
 
     private List<Object> getEntities(StoreLogData storeLogData,
-            StoreLogDataToHive storeLogDataToHive) throws StoreLogDataException {
+                                     StoreLogDataToHive storeLogDataToHive) throws StoreLogDataException {
         List<Object> entities = new ArrayList<>();
         if (storeLogDataToHive.value().length == 0) {
             if (!storeLogData.isIgnorable(DefaultHiveEntity.class)) {
@@ -117,11 +117,11 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
                             entities.add(entityClass.getDeclaredConstructor().newInstance());
                         } catch (Exception e) {
                             throw new StoreLogDataException(String.format(
-                                "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                                storeLogData.getServiceMethod() != null ? " for method '" + MethodUtil
-                                    .printQualifiedMethodName(storeLogData.getServiceMethod()) + "'"
-                                                                        : StringUtils.EMPTY,
-                                entityClass.getTypeName()), e);
+                                    "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                                    storeLogData.getServiceMethod() != null ? " for method '" + MethodUtil
+                                            .printQualifiedMethodName(storeLogData.getServiceMethod()) + "'"
+                                            : StringUtils.EMPTY,
+                                    entityClass.getTypeName()), e);
                         }
                     }
                 }
@@ -132,7 +132,7 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
     private StoreLogDataToHive getAnnotation(StoreLogData storeLogData) {
         StoreLogDataToHive storeLogDataAnnotation = storeLogData.getServiceClass()
-            .getAnnotation(StoreLogDataToHive.class);
+                .getAnnotation(StoreLogDataToHive.class);
         Method serviceMethod = storeLogData.getServiceMethod();
         if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToHive.class)) {
             storeLogDataAnnotation = serviceMethod.getAnnotation(StoreLogDataToHive.class);

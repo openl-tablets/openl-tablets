@@ -20,7 +20,8 @@ public class WildcardPattern {
 
     // for JAXB serialization
     @SuppressWarnings("unused")
-    private WildcardPattern() {}
+    private WildcardPattern() {
+    }
 
     public String getValue() {
         return value;

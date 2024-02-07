@@ -79,6 +79,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
     private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
     private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet<>();
+
     static {
         TEXT_MEDIA_TYPE_SET.add(Number.class);
         TEXT_MEDIA_TYPE_SET.add(Enum.class);
@@ -103,7 +104,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
         private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
         private static final String INTERNAL_SERVER_ERROR_EXAMPLE = "{\"message\": \"Failed to load lazy method.\", \"type\": \"COMPILATION\"}";
-        private static final Class<?>[] DEFAULT_API_ERROR_TYPES = new Class<?>[] {JAXRSErrorResponse.class };
+        private static final Class<?>[] DEFAULT_API_ERROR_TYPES = new Class<?>[]{JAXRSErrorResponse.class};
 
         private static final String REQUEST_PARAMETER_SUFFIX = "Request";
 
@@ -119,11 +120,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final Map<String, List<Method>> originalClassMethodsByName;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
-                Class<?> originalClass,
-                Object targetService,
-                ClassLoader classLoader,
-                boolean provideRuntimeContext,
-                boolean provideVariations) {
+                                                     Class<?> originalClass,
+                                                     Object targetService,
+                                                     ClassLoader classLoader,
+                                                     boolean provideRuntimeContext,
+                                                     boolean provideVariations) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
@@ -136,11 +137,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         @Override
         public void visit(int version,
-                int access,
-                String name,
-                String signature,
-                String superName,
-                String[] interfaces) {
+                          int access,
+                          String name,
+                          String signature,
+                          String superName,
+                          String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
 
             if (!originalClass.isAnnotationPresent(Path.class)) {
@@ -159,7 +160,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             // Error responses annotation
             if (!originalClass
-                .isAnnotationPresent(ApiResponses.class) && !originalClass
+                    .isAnnotationPresent(ApiResponses.class) && !originalClass
                     .isAnnotationPresent(ApiResponse.class)) {
                 addOpenApiResponsesAnnotation(this);
             }
@@ -201,8 +202,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String changedParameterTypesDescription(String descriptor,
-                Method originalMethod,
-                int suffix) throws Exception {
+                                                        Method originalMethod,
+                                                        int suffix) throws Exception {
             Class<?> parameterWrapperClass = generateWrapperClass(originalMethod, suffix);
             List<Type> types = new ArrayList<>();
             types.add(Type.getType(parameterWrapperClass));
@@ -223,9 +224,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             String nonConflictedRequestParameterName = requestParameterName;
             StringBuilder s = new StringBuilder("0");
             while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
-                .contains(nonConflictedRequestParameterName)) {
+                    .contains(nonConflictedRequestParameterName)) {
                 nonConflictedRequestParameterName = StringUtils
-                    .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
+                        .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
                 s.insert(0, "0");
             }
             usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
@@ -273,10 +274,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         boolean isJAXRSParamAnnotation(Parameter parameter) {
             return parameter.isAnnotationPresent(Multipart.class) || parameter
-                .isAnnotationPresent(PathParam.class) || parameter.isAnnotationPresent(QueryParam.class) || parameter
+                    .isAnnotationPresent(PathParam.class) || parameter.isAnnotationPresent(QueryParam.class) || parameter
                     .isAnnotationPresent(CookieParam.class) || parameter.isAnnotationPresent(
-                        FormParam.class) || parameter.isAnnotationPresent(BeanParam.class) || parameter
-                            .isAnnotationPresent(HeaderParam.class) || parameter.isAnnotationPresent(MatrixParam.class);
+                    FormParam.class) || parameter.isAnnotationPresent(BeanParam.class) || parameter
+                    .isAnnotationPresent(HeaderParam.class) || parameter.isAnnotationPresent(MatrixParam.class);
         }
 
         boolean isJAXRSParamAnnotationUsedInMethod(Method method) {
@@ -290,10 +291,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         @Override
         public MethodVisitor visitMethod(final int access,
-                final String name,
-                String descriptor,
-                final String signature,
-                final String[] exceptions) {
+                                         final String name,
+                                         String descriptor,
+                                         final String signature,
+                                         final String[] exceptions) {
             Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, name, descriptor);
             if (originalMethod == null) {
                 throw new IllegalStateException("Method is not found in the original class");
@@ -303,8 +304,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             Class<?> returnType = extractOriginalType(originalMethod.getReturnType());
             boolean hasResponse = returnType == Response.class;
             descriptor = hasResponse ? descriptor
-                                     : Type.getMethodDescriptor(Type.getType(Response.class),
-                                         Type.getArgumentTypes(descriptor));
+                    : Type.getMethodDescriptor(Type.getType(Response.class),
+                    Type.getArgumentTypes(descriptor));
 
             boolean allParametersIsPrimitive = true;
             Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
@@ -323,7 +324,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 }
             }
             if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && httpAnnotationIsNotPresented(
-                originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
+                    originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
                 StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 String[] parameterNames = resolveParameterNames(originalMethod);
@@ -331,8 +332,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 addGetAnnotation(mv, originalMethod);
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
                     Set<String> usedPathParamValues = getUsedValuesInParamAnnotations(originalMethod,
-                        PathParam.class,
-                        PathParam::value);
+                            PathParam.class,
+                            PathParam::value);
                     int i = 0;
                     for (String paramName : parameterNames) {
                         Parameter parameter = originalMethod.getParameters()[i];
@@ -362,8 +363,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 } else {
                     Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
-                        QueryParam.class,
-                        QueryParam::value);
+                            QueryParam.class,
+                            QueryParam::value);
                     int i = 0;
                     for (String paramName : parameterNames) {
                         boolean jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
@@ -394,10 +395,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (numOfParameters > 1) {
                         if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
                             mv = super.visitMethod(access,
-                                name,
-                                changedParameterTypesDescription(descriptor, originalMethod, c),
-                                signature,
-                                exceptions);
+                                    name,
+                                    changedParameterTypesDescription(descriptor, originalMethod, c),
+                                    signature,
+                                    exceptions);
                             processAnnotationsOnMethodExternalParameters(originalMethod, mv);
                         } else {
                             mv = super.visitMethod(access, name, descriptor, signature, exceptions);
@@ -433,14 +434,14 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private boolean httpAnnotationIsNotPresented(Method originalMethod) {
             return !(originalMethod.isAnnotationPresent(POST.class) || originalMethod
-                .isAnnotationPresent(PATCH.class) || originalMethod.isAnnotationPresent(DELETE.class) || originalMethod
+                    .isAnnotationPresent(PATCH.class) || originalMethod.isAnnotationPresent(DELETE.class) || originalMethod
                     .isAnnotationPresent(PUT.class) || originalMethod
-                        .isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class));
+                    .isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class));
         }
 
         private <T extends Annotation> Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
-                Class<T> annotationClass,
-                Function<T, String> func) {
+                                                                                   Class<T> annotationClass,
+                                                                                   Function<T, String> func) {
             Set<String> usedPathParamValues = new HashSet<>();
             for (Parameter parameter : originalMethod.getParameters()) {
                 T annotation = parameter.getAnnotation(annotationClass);
@@ -454,7 +455,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private String[] resolveParameterNames(Method originalMethod) {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
-                targetService);
+                    targetService);
             return MethodUtils.getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations);
         }
 
@@ -474,11 +475,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addConsumerProducesMethodAnnotations(MethodVisitor mv,
-                Class<?> returnType,
-                Class<?>[] originalParameterTypes,
-                Method originalMethod) {
+                                                          Class<?> returnType,
+                                                          Class<?>[] originalParameterTypes,
+                                                          Method originalMethod) {
             if (returnType != null && isTextMediaType(returnType) && !originalMethod
-                .isAnnotationPresent(Produces.class)) {
+                    .isAnnotationPresent(Produces.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Produces.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, "text/plain;charset=UTF-8"); // All I/O of Strings are serialized as UTF-8
@@ -486,7 +487,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av.visitEnd();
             }
             if (originalParameterTypes.length == 1 && isTextMediaType(originalParameterTypes[0]) && !originalMethod
-                .isAnnotationPresent(Consumes.class)) {
+                    .isAnnotationPresent(Consumes.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Consumes.class), true);
                 AnnotationVisitor av2 = av.visitArray("value");
                 av2.visit(null, MediaType.TEXT_PLAIN);
@@ -501,7 +502,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 if (!isParameterInWrapperClass(parameter)) {
                     for (Annotation annotation : parameter.getAnnotations()) {
                         AnnotationVisitor av = mv
-                            .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
+                                .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, av);
                     }
                     index++;
@@ -514,7 +515,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             for (Annotation[] annotations : originalMethod.getParameterAnnotations()) {
                 for (Annotation annotation : annotations) {
                     AnnotationVisitor av = mv
-                        .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
+                            .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
                     InterfaceTransformer.processAnnotation(annotation, av);
                 }
                 index++;
@@ -555,17 +556,17 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
             if (!originalMethod.isAnnotationPresent(Operation.class)) {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
-                    .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
+                        .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
                 IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
-                    targetService);
+                        targetService);
                 IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
                 String detailedSummary = openMethod != null ? openMethod.getType()
-                    .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
-                                                            : originalMethod.getReturnType()
-                                                                .getTypeName() + " " + MethodUtil.printMethod(
-                                                                    originalMethod.getName(),
-                                                                    originalMethod.getParameterTypes(),
-                                                                    false);
+                        .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
+                        : originalMethod.getReturnType()
+                        .getTypeName() + " " + MethodUtil.printMethod(
+                        originalMethod.getName(),
+                        originalMethod.getParameterTypes(),
+                        false);
                 String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                 av.visit("operationId", nickname);
@@ -619,7 +620,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addOpenApiAcceptLanguageHeader(MethodVisitor mv, Method originalMethod) {
             if (!originalMethod.isAnnotationPresent(Parameters.class) && !originalMethod
-                .isAnnotationPresent(io.swagger.v3.oas.annotations.Parameter.class)) {
+                    .isAnnotationPresent(io.swagger.v3.oas.annotations.Parameter.class)) {
                 // empty response body can be only for void or non-primitive types
                 var acceptLanguage = mv.visitAnnotation("Lio/swagger/v3/oas/annotations/Parameter;", true);
                 acceptLanguage.visit("name", "Accept-Language");
@@ -672,7 +673,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av1.visit("type", "string");
             } else if (Map.class.isAssignableFrom(type)) {
                 av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema
-                                                                         // annotations.
+                // annotations.
             } else {
                 av1.visit("implementation", Type.getType(type));
             }
@@ -712,7 +713,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
             AnnotationVisitor av = cv
-                .visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
+                    .visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
             AnnotationVisitor arrayAv = av.visitArray("value");
 
             List<Class<?>> allUserApiResponses = new ArrayList<>();
@@ -726,33 +727,33 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
 
             addOpenApiResponseAnnotation(arrayAv,
-                UNPROCESSABLE_ENTITY,
-                UNPROCESSABLE_ENTITY_MESSAGE,
-                allUserApiResponses.toArray(new Class<?>[0]),
-                UNPROCESSABLE_ENTITY_EXAMPLE,
-                USER_ERROR_EXAMPLE);
+                    UNPROCESSABLE_ENTITY,
+                    UNPROCESSABLE_ENTITY_MESSAGE,
+                    allUserApiResponses.toArray(new Class<?>[0]),
+                    UNPROCESSABLE_ENTITY_EXAMPLE,
+                    USER_ERROR_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
-                Response.Status.BAD_REQUEST.getStatusCode(),
-                BAD_REQUEST_MESSAGE,
-                DEFAULT_API_ERROR_TYPES,
-                BAD_REQUEST_EXAMPLE);
+                    Response.Status.BAD_REQUEST.getStatusCode(),
+                    BAD_REQUEST_MESSAGE,
+                    DEFAULT_API_ERROR_TYPES,
+                    BAD_REQUEST_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
-                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
-                INTERNAL_SERVER_ERROR_MESSAGE,
-                DEFAULT_API_ERROR_TYPES,
-                INTERNAL_SERVER_ERROR_EXAMPLE);
+                    Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                    INTERNAL_SERVER_ERROR_MESSAGE,
+                    DEFAULT_API_ERROR_TYPES,
+                    INTERNAL_SERVER_ERROR_EXAMPLE);
 
             arrayAv.visitEnd();
             av.visitEnd();
         }
 
         private void addOpenApiResponseAnnotation(AnnotationVisitor av,
-                int code,
-                String message,
-                Class<?>[] responseTypes,
-                String... jsonExamples) {
+                                                  int code,
+                                                  String message,
+                                                  Class<?>[] responseTypes,
+                                                  String... jsonExamples) {
             AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
-                Type.getDescriptor(ApiResponse.class));
+                    Type.getDescriptor(ApiResponse.class));
             apiResponseAv.visit("responseCode", String.valueOf(code));
             apiResponseAv.visit("description", message);
 
@@ -776,7 +777,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             int exampleCnt = 1;
             for (String jsonExample : jsonExamples) {
                 AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null,
-                    Type.getDescriptor(ExampleObject.class));
+                        Type.getDescriptor(ExampleObject.class));
                 exampleObjectAv.visit("value", jsonExample);
                 if (jsonExamples.length > 1) {
                     // if more than one example then add name
@@ -799,7 +800,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     public static Map<Method, Method> buildMethodMap(Class<?> serviceClass,
-            Class<?> enhancedServiceClass) throws Exception {
+                                                     Class<?> enhancedServiceClass) throws Exception {
         Map<Method, Method> methodMap = new HashMap<>();
         for (Method method : enhancedServiceClass.getMethods()) {
             String methodName = method.getName();
@@ -824,10 +825,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     public static Class<?> enhanceInterface(Class<?> originalClass,
-            Object targetService,
-            ClassLoader classLoader,
-            boolean provideRuntimeContext,
-            boolean provideVariations) throws Exception {
+                                            Object targetService,
+                                            ClassLoader classLoader,
+                                            boolean provideRuntimeContext,
+                                            boolean provideVariations) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
@@ -838,16 +839,16 @@ public class JAXRSOpenLServiceEnhancerHelper {
         } catch (ClassNotFoundException e) {
             ClassWriter cw = new ClassWriter(0);
             JAXRSInterfaceAnnotationEnhancerClassVisitor enhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
-                cw,
-                originalClass,
-                targetService,
-                classLoader,
-                provideRuntimeContext,
-                provideVariations
+                    cw,
+                    originalClass,
+                    targetService,
+                    classLoader,
+                    provideRuntimeContext,
+                    provideVariations
             );
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
-                enhancedClassName,
-                InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
+                    enhancedClassName,
+                    InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
             transformer.accept(enhancerClassVisitor);
             cw.visitEnd();
             enhancedClass = ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);

@@ -25,8 +25,8 @@ public class SecurityFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException, ServletException {
         ServletContext sc = servletRequest.getServletContext();
         /*has been moved ahead as there is the case when step3 in wizard has a user mode choosen
           and new filterChainProxy object required but context still have an old one, see comment in the EPBDS-10752*/
@@ -35,7 +35,7 @@ public class SecurityFilter implements Filter {
         readLock.lock();
         try {
             Filter filterChainProxy = SpringInitializer.getApplicationContext(sc)
-                .getBean("filterChainProxy", Filter.class);
+                    .getBean("filterChainProxy", Filter.class);
             filterChainProxy.doFilter(servletRequest, servletResponse, filterChain);
         } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);

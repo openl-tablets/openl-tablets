@@ -23,10 +23,10 @@ class SelectAllIndexNode extends ABoundNode {
     private final IOpenClass type;
 
     SelectAllIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode condition,
-            ILocalVar tempVar,
-            IOpenCast openCast) {
+                       IBoundNode targetNode,
+                       IBoundNode condition,
+                       ILocalVar tempVar,
+                       IOpenCast openCast) {
         super(syntaxNode, targetNode, condition);
         this.tempVar = tempVar;
         this.targetNode = targetNode;

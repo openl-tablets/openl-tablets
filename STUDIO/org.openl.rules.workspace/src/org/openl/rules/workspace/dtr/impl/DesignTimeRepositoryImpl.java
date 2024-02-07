@@ -112,7 +112,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     .collect(Collectors.toList());
 
             if (StringUtils.isNotBlank(propertyResolver.getProperty(PRODUCTION_REPOSITORIES))) {
-                deploymentConfigurationLocation = getBasePath (RepositoryMode.DEPLOY_CONFIG.getId());
+                deploymentConfigurationLocation = getBasePath(RepositoryMode.DEPLOY_CONFIG.getId());
                 String repositoryForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
                 boolean separateDeployConfigRepo = StringUtils.isBlank(repositoryForDeployConfig);
                 if (!separateDeployConfigRepo) {
@@ -259,9 +259,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 return cached;
             } else {
                 Optional<AProject> project = projects.values()
-                    .stream()
-                    .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
-                    .findFirst();
+                        .stream()
+                        .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                        .findFirst();
                 if (project.isPresent()) {
                     return project.get();
                 }
@@ -284,9 +284,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 try {
                     if (repository.supports().mappedFolders()) {
                         Optional<AProject> projectOptional = projects.values()
-                            .stream()
-                            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
-                            .findFirst();
+                                .stream()
+                                .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                                .findFirst();
                         if (projectOptional.isPresent()) {
                             String realPath = projectOptional.get().getRealPath();
                             projectPath = ((MappedRepository) repository).findMappedName(realPath);
@@ -337,8 +337,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         Optional<AProject> project = allProjects.stream()
-            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
-            .findFirst();
+                .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+                .findFirst();
         if (project.isPresent()) {
             Repository repository = project.get().getRepository();
             if (branch != null && repository.supports().branches()) {
@@ -381,11 +381,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             return projects.entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
-                .map(Map.Entry::getValue)
-                .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .map(Map.Entry::getValue)
+                    .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -441,8 +441,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             // Check business name
             return projects.values()
-                .stream()
-                .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
+                    .stream()
+                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
         }
     }
 

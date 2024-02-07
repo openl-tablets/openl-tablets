@@ -5,9 +5,11 @@ package org.openl.ie.constrainer.consistencyChecking;
  * <p>Description: Auxiliary class using to store information about overlapping rules</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
+ *
  * @author unascribed
  * @version 1.0
  */
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

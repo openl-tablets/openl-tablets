@@ -34,7 +34,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     /**
      * Create Project Descriptor Serializer Note: consider using ProjectDescriptorSerializerFactory instead.
-     *
      */
     public XmlProjectDescriptorSerializer() {
         jaxbSerializer = new JAXBSerializer(ProjectDescriptor.class);
@@ -95,7 +94,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
         for (Module module : descriptor.getModules()) {
             if (module.getWebstudioConfiguration() != null && Boolean.FALSE
-                .equals(module.getWebstudioConfiguration().isCompileThisModuleOnly())) {
+                    .equals(module.getWebstudioConfiguration().isCompileThisModuleOnly())) {
                 module.setWebstudioConfiguration(null);
             }
         }

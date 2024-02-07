@@ -11,7 +11,6 @@ import org.openl.types.IParameterDeclaration;
 
 /**
  * @author snshor
- *
  */
 public interface IConditionTransformer {
 
@@ -20,9 +19,9 @@ public interface IConditionTransformer {
     IOpenClass transformParameterType(IParameterDeclaration declaration);
 
     Object transformLocalParameterValue(String name,
-            IBaseCondition condition,
-            Object value,
-            DecisionTableAnalyzer analyzer);
+                                        IBaseCondition condition,
+                                        Object value,
+                                        DecisionTableAnalyzer analyzer);
 
     IOpenClass transformSignatureType(IParameterDeclaration parameterDeclaration);
 

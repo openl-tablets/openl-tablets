@@ -17,13 +17,13 @@ public final class SpreadsheetWrapper extends AbstractSpreadsheetWrapper impleme
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public SpreadsheetWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            Spreadsheet delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                              Spreadsheet delegate,
+                              ContextPropertiesInjector contextPropertiesInjector,
+                              boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

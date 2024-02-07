@@ -141,24 +141,24 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             File[] dependencies = getProjectDependencies();
 
             return new SimpleProjectEngineFactory<>(projectFile,
-                dependencies,
-                classLoader,
-                interfaceClass,
-                externalParameters,
-                provideRuntimeContext,
-                provideVariations,
-                executionMode);
+                    dependencies,
+                    classLoader,
+                    interfaceClass,
+                    externalParameters,
+                    provideRuntimeContext,
+                    provideVariations,
+                    executionMode);
         }
     }
 
     protected SimpleProjectEngineFactory(File project,
-            File[] projectDependencies,
-            ClassLoader classLoader,
-            Class<T> interfaceClass,
-            Map<String, Object> externalParameters,
-            boolean provideRuntimeContext,
-            boolean provideVariations,
-            boolean executionMode) {
+                                         File[] projectDependencies,
+                                         ClassLoader classLoader,
+                                         Class<T> interfaceClass,
+                                         Map<String, Object> externalParameters,
+                                         boolean provideRuntimeContext,
+                                         boolean provideVariations,
+                                         boolean executionMode) {
         this.project = Objects.requireNonNull(project, "project arg cannot be null");
         this.projectDependencies = projectDependencies;
         this.classLoader = classLoader;
@@ -174,23 +174,23 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         if (rulesInstantiationStrategy == null) {
             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                dependencyManager,
-                classLoader,
-                isExecutionMode());
+                    dependencyManager,
+                    classLoader,
+                    isExecutionMode());
         }
         return rulesInstantiationStrategy;
     }
 
     private Set<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
-            Collection<ProjectDescriptor> projectsInWorkspace) {
+                                                        Collection<ProjectDescriptor> projectsInWorkspace) {
         Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
         addDependentProjects(projectDescriptors, project, projectsInWorkspace);
         return projectDescriptors;
     }
 
     private void addDependentProjects(Set<ProjectDescriptor> projectDescriptors,
-            ProjectDescriptor project,
-            Collection<ProjectDescriptor> projectsInWorkspace) {
+                                      ProjectDescriptor project,
+                                      Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
                 boolean found = false;
@@ -204,8 +204,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 }
                 if (!found) {
                     log.warn("Dependency '{}' for project '{}' is not found.",
-                        dependencyDescriptor.getName(),
-                        project.getName());
+                            dependencyDescriptor.getName(),
+                            project.getName());
                 }
             }
         }
@@ -213,9 +213,9 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected IDependencyManager buildDependencyManager() throws ProjectResolvingException {
         return new SimpleDependencyManager(buildProjectDescriptors(),
-            classLoader,
-            isExecutionMode(),
-            getExternalParameters());
+                classLoader,
+                isExecutionMode(),
+                getExternalParameters());
     }
 
     protected Collection<ProjectDescriptor> buildProjectDescriptors() throws ProjectResolvingException {
@@ -301,8 +301,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
             if (pd == null) {
                 throw new ProjectResolvingException(
-                    String.format("Failed to resolve the project. Folder '%s' is not a OpenL project.",
-                        project.getAbsolutePath()));
+                        String.format("Failed to resolve the project. Folder '%s' is not a OpenL project.",
+                                project.getAbsolutePath()));
             }
             this.projectDescriptor = pd;
         }
@@ -310,10 +310,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     }
 
     public final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
-                                                                                         ProjectResolvingException {
+            ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
-                getDependencyManager());
+                    getDependencyManager());
 
             if (isProvideVariations()) {
                 instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
@@ -324,8 +324,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
 
             Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(getExternalParameters(),
-                    getProjectDescriptor().getModules());
+                    .buildExternalParamsWithProjectDependencies(getExternalParameters(),
+                            getProjectDescriptor().getModules());
 
             instantiationStrategy.setExternalParameters(parameters);
             try {

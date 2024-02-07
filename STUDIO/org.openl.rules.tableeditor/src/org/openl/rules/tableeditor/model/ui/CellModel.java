@@ -23,6 +23,7 @@ public class CellModel implements ICellModel {
     private BorderStyle[] borderStyle;
 
     private static final Map<String, Object> DEFAULT_CELL_STYLES = new HashMap<>();
+
     static {
         // tableeditor.all.css
         DEFAULT_CELL_STYLES.put("padding", 1);
@@ -228,9 +229,9 @@ public class CellModel implements ICellModel {
 
         if (indent > 0) {
             sb.append("padding-left:")
-                .append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + indent)
-                .append("em")
-                .append(";");
+                    .append((Integer) DEFAULT_CELL_STYLES.get("padding") * 0.063 + indent)
+                    .append("em")
+                    .append(";");
         }
 
         return sb.toString();
@@ -312,7 +313,7 @@ public class CellModel implements ICellModel {
      * Set border style for a cell
      *
      * @param bStyle border style for given direction
-     * @param dir one of ICellStyle.TOP, ICellStyle.BOTTOM, ICellStyle.LEFT, ICellStyle.RIGHT
+     * @param dir    one of ICellStyle.TOP, ICellStyle.BOTTOM, ICellStyle.LEFT, ICellStyle.RIGHT
      */
     public void setBorderStyle(BorderStyle bStyle, int dir) {
         if (borderStyle == null) {
@@ -437,9 +438,9 @@ public class CellModel implements ICellModel {
         String hex3 = toHex(x[2]);
 
         boolean dig3hex = hex1.charAt(0) == hex1.charAt(1) && hex2.charAt(0) == hex2.charAt(1) && hex3.charAt(0) == hex3
-            .charAt(1);
+                .charAt(1);
 
         return "#" + (dig3hex ? hex1.charAt(0) : hex1) + (dig3hex ? hex2.charAt(0) : hex2) + (dig3hex ? hex3.charAt(0)
-                                                                                                      : hex3);
+                : hex3);
     }
 }

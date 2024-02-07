@@ -24,10 +24,10 @@ public class SpringIntegrationCacheTest {
         assertNotNull(processEngine);
 
         Deployment deployment = processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-spring-integration-cache-test.bpmn20.xml")
-            .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-spring-integration-cache-test.bpmn20.xml")
+                .addClasspathResource("Tutorial1 - Intro to Decision Tables.xlsx")
+                .deploy();
 
         Map<String, Object> variables = new HashMap<>();
 

@@ -19,7 +19,6 @@ import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
- *
  */
 @Deprecated
 public class GridCellSourceCodeModule implements IOpenSourceCodeModule {

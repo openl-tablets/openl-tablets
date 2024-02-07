@@ -33,8 +33,8 @@ public class OpenLOAuth2UserService extends OidcUserService {
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
 
     public OpenLOAuth2UserService(PropertyResolver propertyResolver,
-            Consumer<User> syncUserData,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                  Consumer<User> syncUserData,
+                                  BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -59,20 +59,20 @@ public class OpenLOAuth2UserService extends OidcUserService {
         String email = getAttributeAsString(claims, "security.oauth2.attribute.email");
         String displayName = getAttributeAsString(claims, "security.oauth2.attribute.display-name");
         SimpleUser simpleUser = SimpleUser.builder()
-            .setFirstName(firstName)
-            .setLastName(lastName)
-            .setUsername(username)
-            .setPrivileges(grantedAuthorities)
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .build();
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setUsername(username)
+                .setPrivileges(grantedAuthorities)
+                .setEmail(email)
+                .setDisplayName(displayName)
+                .build();
 
         syncUserData.accept(simpleUser);
         Collection<Privilege> privileges = privilegeMapper.apply(username, grantedAuthorities);
 
         return new DefaultOidcUser(privileges,
-            userRequest.getIdToken(),
-            propertyResolver.getProperty("security.oauth2.attribute.username"));
+                userRequest.getIdToken(),
+                propertyResolver.getProperty("security.oauth2.attribute.username"));
     }
 
     private String getAttributeAsString(Map<String, Object> claims, String key) {

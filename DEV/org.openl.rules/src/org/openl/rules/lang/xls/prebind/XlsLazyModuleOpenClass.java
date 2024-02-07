@@ -21,14 +21,14 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
     private final IPrebindHandler prebindHandler;
 
     public XlsLazyModuleOpenClass(String name,
-            XlsMetaInfo metaInfo,
-            OpenL openl,
-            IDataBase dbase,
-            Set<CompiledDependency> usingModules,
-            ClassLoader classLoader,
-            boolean appliedChangesToClasspath,
-            IBindingContext bindingContext,
-            IPrebindHandler prebindHandler) {
+                                  XlsMetaInfo metaInfo,
+                                  OpenL openl,
+                                  IDataBase dbase,
+                                  Set<CompiledDependency> usingModules,
+                                  ClassLoader classLoader,
+                                  boolean appliedChangesToClasspath,
+                                  IBindingContext bindingContext,
+                                  IPrebindHandler prebindHandler) {
         super(name, metaInfo, openl, dbase, usingModules, classLoader, appliedChangesToClasspath, bindingContext);
         this.prebindHandler = prebindHandler;
     }

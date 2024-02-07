@@ -24,9 +24,9 @@ public class RangeAscIndex implements IRuleIndex {
     private final int rulesTotalSize;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
-            List<IndexNode> index,
-            IRangeAdaptor<IndexNode, ?> adaptor,
-            int[] emptyRules) {
+                         List<IndexNode> index,
+                         IRangeAdaptor<IndexNode, ?> adaptor,
+                         int[] emptyRules) {
         this.index = Collections.unmodifiableList(index);
         this.adaptor = adaptor;
         this.nextNode = nextNode;

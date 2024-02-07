@@ -19,8 +19,8 @@ import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
  */
 @Configuration
 @ComponentScan(basePackages = {"org.openl.rules.spring.openapi.controller",
-    "org.openl.rules.spring.openapi.service",
-    "org.openl.rules.spring.openapi.converter"})
+        "org.openl.rules.spring.openapi.service",
+        "org.openl.rules.spring.openapi.converter"})
 public class SpringMvcOpenApiConfiguration {
 
     @Bean
@@ -30,7 +30,7 @@ public class SpringMvcOpenApiConfiguration {
 
     @Bean
     public OpenApiServiceImpl openApiService(ApplicationContext context,
-            OpenApiSpringMvcReader openApiSpringMvcReader) {
+                                             OpenApiSpringMvcReader openApiSpringMvcReader) {
         OpenAPIConfiguration.configure();
         return new OpenApiServiceImpl(context, openApiSpringMvcReader, Collections.singleton(OpenApiController.class));
     }

@@ -9,7 +9,6 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
  * column with array dimension property.
  *
  * @author DLiauchuk
- *
  */
 public class ArrayParameterColumn extends ADispatcherTableColumn {
 
@@ -42,7 +41,7 @@ public class ArrayParameterColumn extends ADispatcherTableColumn {
             result += codeExpression.toString();
         } else {
             String message = String.format("Cannot create expression for '%s' property validation.",
-                getProperty().getName());
+                    getProperty().getName());
             throw new OpenlNotCheckedException(message);
         }
         return result;

@@ -39,12 +39,11 @@ public final class AlgorithmCompilerTool {
      * @param candidateNodes
      * @param instruction
      * @return The {@link org.openl.rules.tbasic.AlgorithmTreeNode} that suits the given instruction name
-     *
      * @throws SyntaxNodeException
      */
     public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes,
-            String instruction,
-            IBindingContext bindingContext) {
+                                                         String instruction,
+                                                         IBindingContext bindingContext) {
         AlgorithmTreeNode operationNode = null;
 
         // Get the name of the operation: e.g. VAR, IF, WHILE, etc
@@ -59,13 +58,13 @@ public final class AlgorithmCompilerTool {
 
         if (operationNode == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0)
-                .getAlgorithmRow()
-                .getOperation()
-                .asSourceCodeModule();
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
             BindHelper.processError(String
-                .format("Compilation failure. Cannot find %s in operations sequence %s", operationName, candidateNodes),
-                errorSource,
-                bindingContext);
+                            .format("Compilation failure. Cannot find %s in operations sequence %s", operationName, candidateNodes),
+                    errorSource,
+                    bindingContext);
         }
         return operationNode;
     }
@@ -92,8 +91,8 @@ public final class AlgorithmCompilerTool {
      * @throws SyntaxNodeException
      */
     public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes,
-            String instruction,
-            IBindingContext bindingContext) {
+                                             String instruction,
+                                             IBindingContext bindingContext) {
         // Field of the AlgorithmRow.class, that also is the column in the TBasic table
         //
         String fieldName = extractFieldName(instruction);
@@ -102,12 +101,12 @@ public final class AlgorithmCompilerTool {
 
         if (codeField == null) {
             IOpenSourceCodeModule errorSource = candidateNodes.get(0)
-                .getAlgorithmRow()
-                .getOperation()
-                .asSourceCodeModule();
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
             BindHelper.processError(String.format("Compilation failure. Cannot find '%s' field", fieldName),
-                errorSource,
-                bindingContext);
+                    errorSource,
+                    bindingContext);
             return new StringValue("");
         }
 
@@ -119,7 +118,6 @@ public final class AlgorithmCompilerTool {
     }
 
     /**
-     *
      * @param nodes
      * @return
      */
@@ -145,7 +143,7 @@ public final class AlgorithmCompilerTool {
         String currentNodeKeyword = currentNodeToProcess.getSpecificationKeyword();
 
         String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
-            .whatOperationsToGroup(currentNodeKeyword);
+                .whatOperationsToGroup(currentNodeKeyword);
 
         if (operationNamesToGroup != null) {
             List<String> operationsToGroupWithCurrent = Arrays.asList(operationNamesToGroup);
@@ -166,8 +164,8 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
-            String instruction,
-            IBindingContext bindingContext) {
+                                                                     String instruction,
+                                                                     IBindingContext bindingContext) {
 
         AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction, bindingContext);
 
@@ -180,8 +178,8 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
-            String instruction,
-            IBindingContext bindingContext) {
+                                                              String instruction,
+                                                              IBindingContext bindingContext) {
 
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;

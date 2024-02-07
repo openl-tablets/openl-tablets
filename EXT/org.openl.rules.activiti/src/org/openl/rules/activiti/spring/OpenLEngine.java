@@ -20,9 +20,9 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 public class OpenLEngine {
 
     public static Object findAndInvokeMethod(String methodName,
-            Object target,
-            Class<?> interfaceClass,
-            Object... args) throws IllegalAccessException, InvocationTargetException {
+                                             Object target,
+                                             Class<?> interfaceClass,
+                                             Object... args) throws IllegalAccessException, InvocationTargetException {
         Method[] methods = interfaceClass.getMethods();
 
         Method bestMethod = null;
@@ -106,17 +106,17 @@ public class OpenLEngine {
 
     public ResultValue execute(DelegateExecution execution, String resource, String methodName, Object... args)
             throws RulesInstantiationException,
-                    ProjectResolvingException,
-                    ClassNotFoundException,
-                    InvocationTargetException,
-                    IllegalAccessException {
+            ProjectResolvingException,
+            ClassNotFoundException,
+            InvocationTargetException,
+            IllegalAccessException {
         String processDefinitionId = execution.getProcessDefinitionId();
         RepositoryService repositoryService = execution.getEngineServices().getRepositoryService();
         ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
 
         @SuppressWarnings("rawtypes")
         ProjectEngineFactory projectEngineFactory = OpenLRulesHelper.getInstance()
-            .get(processDefinition.getDeploymentId(), resource);
+                .get(processDefinition.getDeploymentId(), resource);
         Object instance = OpenLRulesHelper.getInstance().getInstance(processDefinition.getDeploymentId(), resource);
         Class<?> interfaceClass = projectEngineFactory.getInterfaceClass();
         assert interfaceClass != null; // Always Non-null

@@ -1,6 +1,6 @@
 /*
- * This class has been generated. Do not change it. 
-*/
+ * This class has been generated. Do not change it.
+ */
 
 package org.openl.generated.test.beans;
 
@@ -31,14 +31,14 @@ public class Driver {
     }
 
     public Driver(String name,
-            String gender,
-            int age,
-            String maritalStatus,
-            String state,
-            int numAccidents,
-            int numMovingViolations,
-            int numDUI,
-            boolean hadTraining) {
+                  String gender,
+                  int age,
+                  String maritalStatus,
+                  String state,
+                  int numAccidents,
+                  int numMovingViolations,
+                  int numDUI,
+                  boolean hadTraining) {
         super();
         this.name = name;
         this.gender = gender;

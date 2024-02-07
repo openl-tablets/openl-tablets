@@ -48,9 +48,9 @@ public class TestResultExport extends ResultExport {
             boolean okField = parameter.getStatus() == TestStatus.TR_OK;
 
             Cell cell = createCell(row,
-                colNum++,
-                parameter.getActualValue(),
-                okField ? styles.resultSuccess : styles.resultFailure);
+                    colNum++,
+                    parameter.getActualValue(),
+                    okField ? styles.resultSuccess : styles.resultFailure);
 
             if (!okField) {
                 StringBuilder expected = new StringBuilder("Expected: ");

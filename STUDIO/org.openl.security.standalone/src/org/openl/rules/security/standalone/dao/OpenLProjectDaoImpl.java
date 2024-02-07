@@ -30,7 +30,7 @@ public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implemen
         CriteriaQuery<OpenLProject> criteria = builder.createQuery(OpenLProject.class);
         Root<OpenLProject> root = criteria.from(OpenLProject.class);
         criteria.select(root).where(builder.and(builder.equal(root.get("repositoryId"), repoId),
-            builder.equal(root.get("projectPath"), projectPath)));
+                builder.equal(root.get("projectPath"), projectPath)));
         List<OpenLProject> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
@@ -43,9 +43,9 @@ public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implemen
         final Root<OpenLProject> root = criteria.from(OpenLProject.class);
         Join<OpenLProject, Tag> tags = root.join("tags");
         criteria.select(tags)
-            .where(builder.and(builder.equal(root.get("repositoryId"), repoId),
-                builder.equal(root.get("projectPath"), projectPath)))
-            .orderBy(builder.asc(builder.upper(tags.get("tagType"))), builder.asc(builder.upper(tags.get("name"))));
+                .where(builder.and(builder.equal(root.get("repositoryId"), repoId),
+                        builder.equal(root.get("projectPath"), projectPath)))
+                .orderBy(builder.asc(builder.upper(tags.get("tagType"))), builder.asc(builder.upper(tags.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -53,8 +53,8 @@ public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implemen
     @Override
     public void deleteById(Long id) {
         getSession().createNativeQuery("delete from OpenL_Projects where id = :id")
-            .setParameter("id", id)
-            .executeUpdate();
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     @Override

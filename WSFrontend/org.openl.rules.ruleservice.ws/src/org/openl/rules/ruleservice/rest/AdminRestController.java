@@ -98,7 +98,7 @@ public class AdminRestController {
             return serviceManager.isReady() ? Response.ok("EMPTY", MediaType.TEXT_PLAIN_TYPE).build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         boolean anyFailed = servicesInfo.stream()
-            .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
+                .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
 
         return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok("READY", MediaType.TEXT_PLAIN_TYPE).build();
     }

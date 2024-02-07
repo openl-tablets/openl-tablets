@@ -28,15 +28,15 @@ public final class YamlMapperFactory {
 
     private static YAMLMapper createObjectMapper() {
         var factory = new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-            .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
         return YAMLMapper.builder(factory)
-            .serializationInclusion(JsonInclude.Include.NON_NULL)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .deactivateDefaultTyping()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .build();
+                .serializationInclusion(JsonInclude.Include.NON_NULL)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .deactivateDefaultTyping()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
     }
 
 }

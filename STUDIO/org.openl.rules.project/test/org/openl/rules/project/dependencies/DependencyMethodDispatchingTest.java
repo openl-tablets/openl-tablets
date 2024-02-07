@@ -29,8 +29,8 @@ public class DependencyMethodDispatchingTest {
         // mode based on methods selecting in java code
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/testMethodDispatching")
-            .build();
+                .setProject("test-resources/dependencies/testMethodDispatching")
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Method method = interfaceClass.getMethod("hello1", int.class);
@@ -52,8 +52,8 @@ public class DependencyMethodDispatchingTest {
     public void testMethodDispatching() throws Exception {
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
-            .setProject("test-resources/dependencies/testMethodDispatching1")
-            .build();
+                .setProject("test-resources/dependencies/testMethodDispatching1")
+                .build();
         factory.getCompiledOpenClass();
 
         Class<?> interfaceClass = factory.getInterfaceClass();

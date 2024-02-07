@@ -23,13 +23,13 @@ public class RunMinioDeployAlwaysTest extends AbstractMinioTest {
             }
             verifyS3Repository();
             final var beforeStartProject1 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project1")
-                .build());
+                    .bucket(bucketName)
+                    .object("deploy/multiple-deployment-datasource/project1")
+                    .build());
             final var beforeStartProject2 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project2")
-                .build());
+                    .bucket(bucketName)
+                    .object("deploy/multiple-deployment-datasource/project2")
+                    .build());
 
             config.put("ruleservice.datasource.deploy.classpath.jars", "ALWAYS");
             server = JettyServer.start(config);
@@ -38,16 +38,16 @@ public class RunMinioDeployAlwaysTest extends AbstractMinioTest {
 
             // verify that projects are redeployed
             var actualProject1 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project1")
-                .build());
+                    .bucket(bucketName)
+                    .object("deploy/multiple-deployment-datasource/project1")
+                    .build());
             assertTrue(beforeStartProject1.lastModified().isBefore(actualProject1.lastModified()));
             assertNotEquals(beforeStartProject1.versionId(), actualProject1.versionId());
 
             var actualProject2 = minioClient.statObject(StatObjectArgs.builder()
-                .bucket(bucketName)
-                .object("deploy/multiple-deployment-datasource/project2")
-                .build());
+                    .bucket(bucketName)
+                    .object("deploy/multiple-deployment-datasource/project2")
+                    .build());
             assertTrue(beforeStartProject2.lastModified().isBefore(actualProject2.lastModified()));
             assertNotEquals(beforeStartProject2.versionId(), actualProject2.versionId());
         } finally {

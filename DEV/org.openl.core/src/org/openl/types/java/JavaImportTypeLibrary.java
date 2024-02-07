@@ -23,7 +23,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
- *
  */
 public final class JavaImportTypeLibrary implements ITypeLibrary {
 
@@ -109,7 +108,7 @@ public final class JavaImportTypeLibrary implements ITypeLibrary {
                         // Type is found but cannot be loaded because of absent dependent class.
                         String noClassMessage = e.getCause().getMessage();
                         String message = String
-                            .format("Cannot load type '%s' because of absent type '%s'.", name, noClassMessage);
+                                .format("Cannot load type '%s' because of absent type '%s'.", name, noClassMessage);
                         throw RuntimeExceptionWrapper.wrap(message, e);
                     }
                     // NoClassDefFoundError can also be thrown in these cases:
@@ -127,9 +126,9 @@ public final class JavaImportTypeLibrary implements ITypeLibrary {
                 } catch (UnsupportedClassVersionError e) {
                     // Type is found but it's compiled using newer version of JDK
                     String message = String.format(
-                        "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
-                        name,
-                        System.getProperty("java.version"));
+                            "Cannot load the class '%s' that was compiled using newer version of JDK than current JRE (%s)",
+                            name,
+                            System.getProperty("java.version"));
                     throw RuntimeExceptionWrapper.wrap(message, e);
                 } catch (Exception | LinkageError e) {
                     log.error("Cannot load class: {}", name, e);

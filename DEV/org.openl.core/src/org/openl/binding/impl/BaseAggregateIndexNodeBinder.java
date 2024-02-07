@@ -30,7 +30,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
         if (NullOpenClass.the.equals(containerType)) {
             return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
-                NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
+                    NullOpenClass.the.getName()), targetNode.getSyntaxNode(), bindingContext);
         }
 
         IAggregateInfo info = containerType.getAggregateInfo();
@@ -38,7 +38,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         if (componentType == null) {
             String typeName = containerType.getName();
             return makeErrorNode(String.format("An array or a collection is expected, but type '%s' is found.",
-                typeName), targetNode.getSyntaxNode(), bindingContext);
+                    typeName), targetNode.getSyntaxNode(), bindingContext);
         }
         int numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 2) {
@@ -73,8 +73,8 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                 IOpenCast cast = bindingContext.getCast(componentType, varType);
                 if (cast == null) {
                     return makeErrorNode(String.format("Cannot cast '%s' to '%s'.", componentType, varType),
-                        varNode,
-                        bindingContext);
+                            varNode,
+                            bindingContext);
                 }
             }
         }
@@ -91,13 +91,13 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             IOpenCast openCast = null;
             if (varNode != null) {
                 IOpenClass componentType1 = targetNode.getType()
-                    .getAggregateInfo()
-                    .getComponentType(targetNode.getType());
+                        .getAggregateInfo()
+                        .getComponentType(targetNode.getType());
                 openCast = bindingContext.getCast(componentType1, localVar.getType());
                 if (targetNode.getType().isArray() && openCast == null) {
                     String message = String.format("Cannot convert from '%s' to '%s'.",
-                        targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
-                        localVar.getType().getName());
+                            targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
+                            localVar.getType().getName());
                     return makeErrorNode(message, varNode, bindingContext);
                 }
             }
@@ -109,9 +109,9 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
     }
 
     protected abstract IBoundNode createBoundNode(ISyntaxNode node,
-            IBoundNode targetNode,
-            IBoundNode expressionNode,
-            ILocalVar localVar,
-            IOpenCast openCast,
-            IBindingContext bindingContext);
+                                                  IBoundNode targetNode,
+                                                  IBoundNode expressionNode,
+                                                  ILocalVar localVar,
+                                                  IOpenCast openCast,
+                                                  IBindingContext bindingContext);
 }

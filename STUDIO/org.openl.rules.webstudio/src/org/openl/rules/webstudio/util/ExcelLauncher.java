@@ -44,12 +44,12 @@ public class ExcelLauncher {
 
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            String[] cmdarray = { "wscript",
+            String[] cmdarray = {"wscript",
                     scriptPath,
                     workbookPath,
                     workbookName,
                     worksheetName == null ? "1" : worksheetName,
-                    range, };
+                    range,};
 
             fixEnvironmentForExcel();
             Process process = Runtime.getRuntime().exec(cmdarray);
@@ -69,10 +69,10 @@ public class ExcelLauncher {
     }
 
     public static void launch(String scriptPath,
-            String wbPath,
-            String wbName,
-            String wsName,
-            String range) throws Exception {
+                              String wbPath,
+                              String wbName,
+                              String wsName,
+                              String range) throws Exception {
         new ExcelLauncher(scriptPath, wbPath, wbName, wsName, range).launch();
     }
 

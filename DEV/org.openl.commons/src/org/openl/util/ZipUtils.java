@@ -31,7 +31,7 @@ public final class ZipUtils {
     /**
      * Extract all files from a zip file into a directory.
      *
-     * @param zipFile the input zip file
+     * @param zipFile      the input zip file
      * @param outputFolder the output folder for extracted files
      */
     public static void extractAll(File zipFile, File outputFolder) throws IOException {
@@ -78,13 +78,13 @@ public final class ZipUtils {
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
         if (!sourceDirectory.exists()) {
             throw new FileNotFoundException(
-                String.format("File '%s' is not exist.", sourceDirectory.getAbsolutePath()));
+                    String.format("File '%s' is not exist.", sourceDirectory.getAbsolutePath()));
         }
         if (sourceDirectory.isDirectory()) {
             String[] list = sourceDirectory.list();
             if (list == null || list.length == 0) {
                 throw new FileNotFoundException(
-                    String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
+                        String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
             }
         }
         try (ZipArchiver arch = new ZipArchiver(targetFile.toPath())) {

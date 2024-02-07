@@ -54,9 +54,9 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public void insertProject(String projectName,
-            ProjectVersion version,
-            String hash,
-            RepoType repoType) throws IOException {
+                              ProjectVersion version,
+                              String hash,
+                              RepoType repoType) throws IOException {
         Connection connection = null;
         PreparedStatement insertPreparedStatement = null;
         try {
@@ -67,7 +67,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             insertPreparedStatement.setString(1, projectName);
             insertPreparedStatement.setString(2, version.getVersionName());
             insertPreparedStatement.setTimestamp(3,
-                new Timestamp(version.getVersionInfo().getCreatedAt().getTime()));
+                    new Timestamp(version.getVersionInfo().getCreatedAt().getTime()));
             insertPreparedStatement.setString(4, version.getVersionInfo().getCreatedBy());
             insertPreparedStatement.setString(5, hash);
             insertPreparedStatement.setString(6, repoType.name());

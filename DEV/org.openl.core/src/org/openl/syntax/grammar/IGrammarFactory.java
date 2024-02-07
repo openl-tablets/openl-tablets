@@ -8,7 +8,6 @@ package org.openl.syntax.grammar;
  * Interface that provides contract for all grammar factories implementations.
  *
  * @author snshor
- *
  */
 public interface IGrammarFactory {
 

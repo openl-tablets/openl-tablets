@@ -39,7 +39,7 @@ public class ArrayFormatter implements IFormatter {
      *
      * @param value array of elements that should be represented as <code>{@link String}</code>.
      * @return <code>{@link String}</code> representation of the income array. <code>NULL</code> if the income value is
-     *         <code>NULL</code> or if income value is not an array.
+     * <code>NULL</code> or if income value is not an array.
      */
     @Override
     public String format(Object value) {
@@ -72,8 +72,8 @@ public class ArrayFormatter implements IFormatter {
         if (StringUtils.isNotBlank(value)) {
             String[] values = ArraySplitter.split(value);
             return Arrays.stream(values)
-                .map(elementFormat::parse)
-                .toArray(e -> (Object[]) Array.newInstance(elementType, e));
+                    .map(elementFormat::parse)
+                    .toArray(e -> (Object[]) Array.newInstance(elementType, e));
         }
         return null;
     }

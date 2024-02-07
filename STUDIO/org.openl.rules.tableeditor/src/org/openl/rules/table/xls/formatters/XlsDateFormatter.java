@@ -16,7 +16,7 @@ public class XlsDateFormatter extends DateFormatter {
         xlsFormat = xlsFormat.replace("m", "M");
         if (Pattern.compile("h.MM").matcher(xlsFormat).find()) {
             xlsFormat = xlsFormat.replaceAll("h.MM",
-                xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
+                    xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
         }
         xlsFormat = xlsFormat.replace("Y", "y");
         xlsFormat = xlsFormat.replace("\\-", "-");

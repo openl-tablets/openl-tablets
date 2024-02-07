@@ -7,7 +7,6 @@ import org.openl.OpenL;
 
 /**
  * @author snshor
- *
  */
 public interface IValidator {
 

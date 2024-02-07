@@ -14,9 +14,9 @@ class OpenLCellStyle extends XlsCellStyle {
     private final PaletteRecord palette;
 
     public OpenLCellStyle(int index,
-            ExtendedFormatRecord format,
-            PaletteRecord palette,
-            Map<Integer, FormatRecord> formats) {
+                          ExtendedFormatRecord format,
+                          PaletteRecord palette,
+                          Map<Integer, FormatRecord> formats) {
         super(new PoiCellStyle((short) index, format, formats), null);
         this.palette = palette;
     }

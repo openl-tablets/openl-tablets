@@ -8,7 +8,6 @@ package org.openl.conf;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenFactoryConfiguration extends IConfigurationElement {
 

@@ -27,7 +27,7 @@ public class RepositoryEditor {
     private final PropertiesHolder properties;
 
     public RepositoryEditor(RepositoryFactoryProxy repositoryFactoryProxy,
-            PropertiesHolder properties) {
+                            PropertiesHolder properties) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repoListConfig = repositoryFactoryProxy.getRepoListConfig();
         this.properties = properties;
@@ -74,7 +74,7 @@ public class RepositoryEditor {
 
     private boolean isValidConfig(String configName) {
         return Objects.nonNull(
-            properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory")
+                properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory")
         );
     }
 

@@ -14,10 +14,10 @@ import org.openl.types.IOpenMember;
  * This annotation is designed to inject @{@link IOpenMember} related to invoked rule method to ruleservice
  * interceptors.
  *
- *  @deprecated use @Autowire IOpenMember openMember
+ * @deprecated use @Autowire IOpenMember openMember
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 @Deprecated
 @Autowired
 @Qualifier("openMember")

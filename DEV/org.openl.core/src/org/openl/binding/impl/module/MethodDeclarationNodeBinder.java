@@ -12,7 +12,6 @@ import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * @author snshor
- *
  */
 public class MethodDeclarationNodeBinder extends ANodeBinder {
 
@@ -39,10 +38,10 @@ public class MethodDeclarationNodeBinder extends ANodeBinder {
         MethodParametersNode boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
 
         DeferredMethod dm = new DeferredMethod(methodName,
-            typeNode.getType(),
-            boundParametersNode.getSignature(bindingContext),
-            null,
-            methodBodyNode);
+                typeNode.getType(),
+                boundParametersNode.getSignature(bindingContext),
+                null,
+                methodBodyNode);
 
         return new MethodNode(node, dm);
     }

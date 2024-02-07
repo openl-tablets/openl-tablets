@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
- * 
+ *
  * @author Yury Molchan
  */
 public class HttpClient {
@@ -102,11 +102,11 @@ public class HttpClient {
                 try {
                     send(p + ".req", p + ".resp");
                     long end = System.currentTimeMillis();
-                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end-start) + "ms)");
+                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
                     return false;
                 } catch (Exception | AssertionError ex) {
                     long end = System.currentTimeMillis();
-                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end-start) + "ms)");
+                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
                     ex.printStackTrace();
                     return true;
                 }
@@ -150,7 +150,7 @@ public class HttpClient {
 
     /**
      * DO NOT MAKE THIS METHOD PUBLIC!!!
-     *
+     * <p>
      * Because of further migration effort for tests which do not follow the style naming.
      *
      * <pre>

@@ -100,7 +100,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -195,8 +195,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             public OpenAPIConfiguration customize(OpenAPIConfiguration configuration) {
                 if (configuration.getOpenAPI().getInfo() == null) {
                     configuration.getOpenAPI().info(new Info()
-                        .description("Auto-generated OpenAPI schema from the OpenL rules")
-                        .version("1.0.0")
+                            .description("Auto-generated OpenAPI schema from the OpenL rules")
+                            .version("1.0.0")
                     );
                 }
                 configuration.getOpenAPI().getInfo().setTitle(service.getName());
@@ -224,7 +224,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'.", service.getDeployPath()));
+                    String.format("There is no running service with name '%s'.", service.getDeployPath()));
         }
         try {
             server.destroy();
@@ -233,7 +233,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
             throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
-                t);
+                    t);
         }
     }
 

@@ -31,21 +31,21 @@ public class TableModel {
     }
 
     public static TableModel initializeTableModel(IGridTable table,
-            IGridFilter[] filters,
-            MetaInfoReader metaInfoReader,
-            boolean smartNumbers) {
+                                                  IGridFilter[] filters,
+                                                  MetaInfoReader metaInfoReader,
+                                                  boolean smartNumbers) {
         return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader, smartNumbers, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table,
-            IGridFilter[] filters,
-            int numRows,
-            LinkBuilder linkBuilder,
-            String mode,
-            String view,
-            MetaInfoReader metaInfoReader,
-            boolean smartNumbers,
-            List<ICell> modifiedCells) {
+                                                  IGridFilter[] filters,
+                                                  int numRows,
+                                                  LinkBuilder linkBuilder,
+                                                  String mode,
+                                                  String view,
+                                                  MetaInfoReader metaInfoReader,
+                                                  boolean smartNumbers,
+                                                  List<ICell> modifiedCells) {
         if (table == null) {
             return null;
         }
@@ -73,7 +73,7 @@ public class TableModel {
         IGridRegion displayedRegion = modifiedCells != null ? table.getRegion() : region;
 
         return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader, smartNumbers)
-            .buildModel(table, numRows, modifiedCells, displayedRegion);
+                .buildModel(table, numRows, modifiedCells, displayedRegion);
     }
 
     public boolean isShowHeader() {

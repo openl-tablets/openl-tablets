@@ -66,7 +66,6 @@ import org.openl.util.TableNameChecker;
  * Bound node for datatype table component.
  *
  * @author snshor
- *
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
@@ -92,19 +91,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private Map<String, FieldDescription> fields;
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
-            DatatypeOpenClass datatype,
-            ModuleOpenClass moduleOpenClass,
-            ILogicalTable table,
-            OpenL openl) {
+                                  DatatypeOpenClass datatype,
+                                  ModuleOpenClass moduleOpenClass,
+                                  ILogicalTable table,
+                                  OpenL openl) {
         this(tableSyntaxNode, datatype, moduleOpenClass, table, openl, null);
     }
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
-            DatatypeOpenClass datatype,
-            ModuleOpenClass moduleOpenClass,
-            ILogicalTable table,
-            OpenL openl,
-            IdentifierNode parentClassIdentifier) {
+                                  DatatypeOpenClass datatype,
+                                  ModuleOpenClass moduleOpenClass,
+                                  ILogicalTable table,
+                                  OpenL openl,
+                                  IdentifierNode parentClassIdentifier) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.dataType = datatype;
         this.table = table;
@@ -180,12 +179,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 } catch (ByteCodeGenerationException e1) {
                     LOG.debug("Error occurred: ", e1);
                     String errorMessage = String
-                        .format("Failed to generate a class for datatype '%s'. %s", datatypeClassName, e1.getMessage());
+                            .format("Failed to generate a class for datatype '%s'. %s", datatypeClassName, e1.getMessage());
                     BindHelper.processError(errorMessage, e1, tableSyntaxNode, bindingContext);
                 } catch (Exception e2) {
                     LOG.debug("Error occurred: ", e2);
                     String errorMessage = String.format("Failed to generate a class for datatype '%s'.",
-                        datatypeClassName);
+                            datatypeClassName);
                     BindHelper.processError(errorMessage, e2, tableSyntaxNode, bindingContext);
                 }
             }
@@ -195,13 +194,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private void validateContextPropertyFields(IBindingContext bindingContext) {
         Map<String, Integer> contextPropertiesCounter = new HashMap<>();
         dataType.getFields()
-            .stream()
-            .filter(f -> Objects.nonNull(f.getContextProperty()))
-            .forEach(e -> contextPropertiesCounter.merge(e.getContextProperty(), 1, Integer::sum));
+                .stream()
+                .filter(f -> Objects.nonNull(f.getContextProperty()))
+                .forEach(e -> contextPropertiesCounter.merge(e.getContextProperty(), 1, Integer::sum));
         for (Entry<String, Integer> entry : contextPropertiesCounter.entrySet()) {
             if (entry.getValue() > 1) {
                 String errorMessage = String.format("Multiple fields refer to the same context property '%s'.",
-                    entry.getKey());
+                        entry.getKey());
                 BindHelper.processError(errorMessage, tableSyntaxNode, bindingContext);
             }
         }
@@ -216,8 +215,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
-            LinkedHashMap<String, FieldDescription> parentFields,
-            Set<DatatypeTableBoundNode> used) {
+                                     LinkedHashMap<String, FieldDescription> parentFields,
+                                     Set<DatatypeTableBoundNode> used) {
         if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
             if (used.contains(datatypeTableBoundNode.parentDatatypeTableBoundNode)) {
                 return;
@@ -267,14 +266,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private void validateDatatypeClass(Class<?> datatypeClass,
-            Map<String, FieldDescription> fields,
-            IBindingContext cxt) {
+                                       Map<String, FieldDescription> fields,
+                                       IBindingContext cxt) {
         String datatypeClassName = dataType.getJavaName();
         IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null && !datatypeClass.getSuperclass().getName().equals(superClass.getJavaName())) {
             String errorMessage = String.format(
-                "Invalid parent class in the '%s' class. Update the class so that it is compatible with the datatype.\n",
-                datatypeClassName);
+                    "Invalid parent class in the '%s' class. Update the class so that it is compatible with the datatype.\n",
+                    datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
 
@@ -282,8 +281,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             datatypeClass.getConstructor();
         } catch (NoSuchMethodException e) {
             String errorMessage = String.format(
-                "Default constructor is not found in the '%s' class. \" + \" Update the class so that it is compatible with the datatype.",
-                datatypeClassName);
+                    "Default constructor is not found in the '%s' class. \" + \" Update the class so that it is compatible with the datatype.",
+                    datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
 
@@ -293,8 +292,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         } catch (IllegalAccessException | InstantiationException e) {
             LOG.debug("Error occurred: ", e);
             String errorMessage = String.format(
-                "Default constructor is not found in class '%s' or the class is not instantiatable. " + "Please, update the class to be compatible with the datatype.",
-                datatypeClassName);
+                    "Default constructor is not found in class '%s' or the class is not instantiatable. " + "Please, update the class to be compatible with the datatype.",
+                    datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
 
@@ -304,14 +303,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             try {
                 Field field = datatypeClass.getDeclaredField(fieldName);
                 if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || (fieldDescription
-                    .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) || (!fieldDescription
+                        .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) || (!fieldDescription
                         .isTransient() && field.isAnnotationPresent(XmlTransient.class))) {
                     String errorMessage = String.format("The '%s' field is " + (fieldDescription
-                        .isTransient() ? "not "
-                                       : "") + "transient in the '%s' class. "
+                                    .isTransient() ? "not "
+                                    : "") + "transient in the '%s' class. "
                                     + "Update the class so that it is compatible with the datatype.",
-                        fieldName,
-                        datatypeClassName);
+                            fieldName,
+                            datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 }
             } catch (NoSuchFieldException e) {
@@ -330,20 +329,20 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             try {
                 getterMethod = datatypeClass.getMethod("get" + name);
                 if ((fieldDescription.isTransient() && !getterMethod
-                    .isAnnotationPresent(XmlTransient.class)) || (!fieldDescription.isTransient() && getterMethod
+                        .isAnnotationPresent(XmlTransient.class)) || (!fieldDescription.isTransient() && getterMethod
                         .isAnnotationPresent(XmlTransient.class))) {
                     String errorMessage = String.format("The '%s' field is " + (fieldDescription
-                        .isTransient() ? "not "
-                                       : "") + "transient in the '%s' class. " + "Update the class so that it is compatible with the datatype.",
-                        fieldName,
-                        datatypeClassName);
+                                    .isTransient() ? "not "
+                                    : "") + "transient in the '%s' class. " + "Update the class so that it is compatible with the datatype.",
+                            fieldName,
+                            datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 }
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
-                    "The 'get%s' method is not found in the '%s' class. Update the class so that it is compatible with the datatype.",
-                    name,
-                    datatypeClassName);
+                        "The 'get%s' method is not found in the '%s' class. Update the class so that it is compatible with the datatype.",
+                        name,
+                        datatypeClassName);
                 name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
                 try {
                     getterMethod = datatypeClass.getMethod("get" + name);
@@ -354,15 +353,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (getterMethod != null) {
                 if (!getterMethod.getReturnType().getName().equals(fieldDescription.getTypeName())) {
                     String errorMessage = String.format(
-                        "Unexpected return type for method '%s' in class '%s'. " + "Please, update the class to be compatible with the datatype.",
-                        getterMethod.getName(),
-                        datatypeClassName);
+                            "Unexpected return type for method '%s' in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                            getterMethod.getName(),
+                            datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 } else if (!Modifier.isPublic(getterMethod.getModifiers())) {
                     String errorMessage = String.format(
-                        "Unexpected access modifier on method '%s' in class '%s'. " + "Please, update the class to be compatible with the datatype.",
-                        getterMethod.getName(),
-                        datatypeClassName);
+                            "Unexpected access modifier on method '%s' in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                            getterMethod.getName(),
+                            datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 } else if (instance != null && fieldEntry.getValue().getDefaultValue() != null) {
                     boolean f = false;
@@ -389,12 +388,12 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     }
                     if (f) {
                         String errorMessage = String.format(
-                            "The default value for the '%s' field in the '%s' class "
-                                    + "mismatches the default value used in the '%s' datatype. "
-                                    + "Update the class so that it is compatible with the datatype.",
-                            fieldEntry.getKey(),
-                            datatypeClassName,
-                            dataType.getName());
+                                "The default value for the '%s' field in the '%s' class "
+                                        + "mismatches the default value used in the '%s' datatype. "
+                                        + "Update the class so that it is compatible with the datatype.",
+                                fieldEntry.getKey(),
+                                datatypeClassName,
+                                dataType.getName());
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                     }
                 }
@@ -405,7 +404,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             boolean found = false;
             for (Method method : methods) {
                 if (method.getName()
-                    .equals(setterMethodName) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0]
+                        .equals(setterMethodName) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0]
                         .getName()
                         .equals(fieldDescription.getTypeName())) {
                     found = true;
@@ -414,23 +413,23 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!found) {
                 String errorMessage = String.format(
-                    "The '%s(%s)' method is not found in the '%s' class. "
-                            + "Update the class so that it is compatible with the datatype.",
-                    setterMethodName,
-                    fieldDescription.getTypeName(),
-                    datatypeClassName);
+                        "The '%s(%s)' method is not found in the '%s' class. "
+                                + "Update the class so that it is compatible with the datatype.",
+                        setterMethodName,
+                        fieldDescription.getTypeName(),
+                        datatypeClassName);
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
 
             }
         }
         if (parentDatatypeTableBoundNode != null) {
             if (datatypeClass.getSuperclass() == null || !Objects.equals(
-                parentDatatypeTableBoundNode.getDataType().getJavaName(),
-                datatypeClass.getSuperclass().getName())) {
+                    parentDatatypeTableBoundNode.getDataType().getJavaName(),
+                    datatypeClass.getSuperclass().getName())) {
                 String errorMessage = String.format(
-                    "Invalid parent class '%s' is found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
-                    datatypeClass.getSuperclass() != null ? (" " + datatypeClass.getSuperclass().getTypeName()) : "",
-                    datatypeClassName);
+                        "Invalid parent class '%s' is found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                        datatypeClass.getSuperclass() != null ? (" " + datatypeClass.getSuperclass().getTypeName()) : "",
+                        datatypeClassName);
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
             }
             for (Entry<String, FieldDescription> fieldEntry : parentDatatypeTableBoundNode.getFields().entrySet()) {
@@ -438,10 +437,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     Field f = datatypeClass.getSuperclass().getDeclaredField(fieldEntry.getKey());
                     if (!Modifier.isPublic(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
                         String errorMessage = String.format(
-                            "An invalid access modifier is found for the '%s' field in the '%s' class. "
-                                    + "Update the class so that it is compatible with the datatype.",
-                            fieldEntry.getKey(),
-                            datatypeClass.getSuperclass().getTypeName());
+                                "An invalid access modifier is found for the '%s' field in the '%s' class. "
+                                        + "Update the class so that it is compatible with the datatype.",
+                                fieldEntry.getKey(),
+                                datatypeClass.getSuperclass().getTypeName());
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                     }
                 } catch (NoSuchFieldException e) {
@@ -480,9 +479,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!g) {
                 String errorMessage = String.format(
-                    "A mandatory constructor with parameters is not found in the '%s' class. "
-                            + "Update the class so that it is compatible with the datatype.",
-                    datatypeClass.getSuperclass().getTypeName());
+                        "A mandatory constructor with parameters is not found in the '%s' class. "
+                                + "Update the class so that it is compatible with the datatype.",
+                        datatypeClass.getSuperclass().getTypeName());
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
             }
         }
@@ -495,10 +494,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private void processRow(ILogicalTable row,
-            IBindingContext bindingContext,
-            Map<String, FieldDescription> fields,
-            boolean firstRow,
-            boolean useTransientSuffix) {
+                            IBindingContext bindingContext,
+                            Map<String, FieldDescription> fields,
+                            boolean firstRow,
+                            boolean useTransientSuffix) {
         GridCellSourceCodeModule typeCellSource = getCellSource(row, bindingContext, 0);
         if (ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
             return;
@@ -509,7 +508,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return;
         }
         IOpenClass fieldType = OpenLManager
-            .makeType(bindingContext.getOpenL(), typeCellSource.getCode(), typeCellSource, bindingContext);
+                .makeType(bindingContext.getOpenL(), typeCellSource.getCode(), typeCellSource, bindingContext);
         if (fieldType == NullOpenClass.the) {
             fieldType = JavaOpenClass.OBJECT;
         }
@@ -519,7 +518,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         String[] parts = CONTEXT_SPLITTER.split(code, 2);
         String rawFieldName = parts[0];
         final boolean isTransient = useTransientSuffix ? rawFieldName.endsWith(TRANSIENT_FIELD_SUFFIX)
-                                                       : !rawFieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX);
+                : !rawFieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX);
         String fieldName = extractFieldName(rawFieldName);
         if (TableNameChecker.isInvalidJavaIdentifier(fieldName)) {
             String errorMessage = String.format("Bad field name: '%s'.", fieldName);
@@ -539,7 +538,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 }
             }
             String errorMessage = ContextPropertyBinderUtils
-                .validateContextProperty(contextProperty, fieldType, bindingContext);
+                    .validateContextProperty(contextProperty, fieldType, bindingContext);
             if (errorMessage != null) {
                 contextProperty = null;
                 GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 1);
@@ -555,7 +554,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
             return;
         } else if (fields.containsKey(ClassUtils.decapitalize(fieldName)) || fields
-            .containsKey(ClassUtils.capitalize(fieldName))) {
+                .containsKey(ClassUtils.capitalize(fieldName))) {
             String f = null;
             if (fields.containsKey(ClassUtils.decapitalize(fieldName))) {
                 f = ClassUtils.decapitalize(fieldName);
@@ -567,8 +566,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
         }
         fieldDescriptionBuilder = FieldDescriptionBuilder.create(fieldType.getJavaName())
-            .setTransient(isTransient)
-            .setContextPropertyName(contextProperty);
+                .setTransient(isTransient)
+                .setContextPropertyName(contextProperty);
 
         fieldDescriptionBuilder.setContextPropertyName(contextProperty);
 
@@ -603,7 +602,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
                         if (defaultValue == null && !DefaultValue.DEFAULT.equals(defaultValueCode)) {
                             defaultValue = String2DataConvertorFactory
-                                .parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
+                                    .parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
                         }
                         if (defaultValue != null) {
                             fieldDescriptionBuilder.setDefaultValue(defaultValue);
@@ -652,7 +651,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private static String extractFieldName(String fieldName) {
         return fieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX) || fieldName.endsWith(TRANSIENT_FIELD_SUFFIX) ? fieldName
-            .substring(0, fieldName.length() - 1) : fieldName;
+                .substring(0, fieldName.length() - 1) : fieldName;
     }
 
     @Override
@@ -687,7 +686,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         if (!generated) {
             if (generatingInProcess) {
                 throw new OpenLCompilationException(String
-                    .format("Circular dependency with respect to inheritance '%s' is detected.", parentClassName));
+                        .format("Circular dependency with respect to inheritance '%s' is detected.", parentClassName));
             }
             generatingInProcess = true;
             try {
@@ -703,27 +702,27 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     if (parentOpenClass == null) {
                         byteCodeReadyToLoad = true;
                         throw new OpenLCompilationException(
-                            String.format("Parent class '%s' is not found.", parentClassName));
+                                String.format("Parent class '%s' is not found.", parentClassName));
                     }
 
                     if (parentOpenClass.getInstanceClass() != null) {// parent class has
                         // errors
                         if (Modifier.isFinal(parentOpenClass.getInstanceClass().getModifiers())) {
                             throw new OpenLCompilationException(
-                                String.format("Cannot inherit from final class '%s'.", parentClassName));
+                                    String.format("Cannot inherit from final class '%s'.", parentClassName));
                         }
                         try {
                             parentOpenClass.getInstanceClass().getConstructor();
                         } catch (NoSuchMethodException e) {
                             throw new OpenLCompilationException(
-                                String.format("Cannot inherit from class '%s'. Default constructor is not found.",
-                                    parentClassName));
+                                    String.format("Cannot inherit from class '%s'. Default constructor is not found.",
+                                            parentClassName));
                         }
                     }
 
                     if (parentOpenClass instanceof DomainOpenClass) {
                         throw new OpenLCompilationException(
-                            String.format("Parent class '%s' cannot be a domain type.", parentClassName));
+                                String.format("Parent class '%s' cannot be a domain type.", parentClassName));
                     }
                     dataType.setSuperClass(parentOpenClass);
                 }
@@ -744,13 +743,13 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (fieldInParent != null) {
                     if (Objects.equals(fieldInParent.getType(), field.getType())) {
                         BindHelper.processWarn(String.format("Field '%s' is already declared in parent class '%s'.",
-                            field.getName(),
-                            fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                                field.getName(),
+                                fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                     } else {
                         String errorMessage = String.format(
-                            "Field '%s' is already declared in class '%s' with another type.",
-                            field.getName(),
-                            fieldInParent.getDeclaringClass().getDisplayName(0));
+                                "Field '%s' is already declared in class '%s' with another type.",
+                                field.getName(),
+                                fieldInParent.getDeclaringClass().getDisplayName(0));
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                     }
                 }

@@ -15,10 +15,10 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     private IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
-            IOpenClass declaringClass,
-            String name,
-            SpreadsheetCell cell,
-            SpreadsheetCellRefType refType) {
+                                IOpenClass declaringClass,
+                                String name,
+                                SpreadsheetCell cell,
+                                SpreadsheetCellRefType refType) {
         super(declaringClass, name, cell.getType());
 
         this.cell = cell;
@@ -83,9 +83,9 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     public static class ConstSpreadsheetCellField extends SpreadsheetCellField {
 
         public ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
-                IOpenClass declaringClass,
-                String name,
-                SpreadsheetCell cell) {
+                                         IOpenClass declaringClass,
+                                         String name,
+                                         SpreadsheetCell cell) {
             super(structureBuilderContainer, declaringClass, name, cell, SpreadsheetCellRefType.ROW_AND_COLUMN);
         }
 

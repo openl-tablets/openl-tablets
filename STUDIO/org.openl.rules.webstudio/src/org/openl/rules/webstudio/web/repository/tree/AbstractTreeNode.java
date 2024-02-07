@@ -36,10 +36,8 @@ import org.openl.rules.webstudio.web.ErrorsContainer;
  * &lt;/rich:tree&gt;
  * </pre>
  *
- * @see TreeNode
- *
  * @author Aleh Bykhavets
- *
+ * @see TreeNode
  */
 public abstract class AbstractTreeNode implements TreeNode {
 
@@ -89,7 +87,7 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Creates tree node that can have children.
      *
-     * @param id id to distinguish the node among others
+     * @param id   id to distinguish the node among others
      * @param name display name of the node
      */
     public AbstractTreeNode(String id, String name) {
@@ -99,8 +97,8 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Creates tree node. Can control whether the node is LeafOnly (i.e. cannot have children) or usual one.
      *
-     * @param id id to distinguish the node among others
-     * @param name display name of the node
+     * @param id         id to distinguish the node among others
+     * @param name       display name of the node
      * @param isLeafOnly whether the node is LeafOnly (true) or usual (false)
      */
     public AbstractTreeNode(String id, String name, boolean isLeafOnly) {
@@ -329,11 +327,11 @@ public abstract class AbstractTreeNode implements TreeNode {
                     return false;
                 } else {
                     return project
-                        .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
+                            .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                 }
             } else {
                 AProjectArtefact artefact = getData();
-                return artefact instanceof  AProject && ((AProject) artefact).getLastHistoryVersion() != null;
+                return artefact instanceof AProject && ((AProject) artefact).getLastHistoryVersion() != null;
             }
         } else {
             return false;

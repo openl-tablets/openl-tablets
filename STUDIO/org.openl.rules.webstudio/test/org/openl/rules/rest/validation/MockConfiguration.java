@@ -72,8 +72,8 @@ public class MockConfiguration {
     @Bean
     public ZipCharsetDetector zipCharsetDetector() {
         return new ZipCharsetDetector(
-            new String[] { "IBM866", "IBM437", "IBM850", "windows-1252", "windows-1251", "windows-1250", "ISO-8859-1" },
-            zipFilter());
+                new String[]{"IBM866", "IBM437", "IBM850", "windows-1252", "windows-1251", "windows-1250", "ISO-8859-1"},
+                zipFilter());
     }
 
     @PostConstruct

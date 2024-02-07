@@ -10,7 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/MultipleProjectsInDeploymentTest",
-		"production-repository.factory = repo-file"})
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class MultipleProjectsInDeploymentTest {
 

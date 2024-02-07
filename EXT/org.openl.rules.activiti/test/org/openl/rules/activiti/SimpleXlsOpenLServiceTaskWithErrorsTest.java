@@ -28,10 +28,10 @@ public class SimpleXlsOpenLServiceTaskWithErrorsTest {
     public void deploy() {
         processEngine = processEngineConfiguration.buildProcessEngine();
         processEngine.getRepositoryService()
-            .createDeployment()
-            .addClasspathResource("activiti-definition-errors-test.bpmn20.xml")
-            .addClasspathResource("Tutorial1 - Intro to Decision Tables - errors.xlsx")
-            .deploy();
+                .createDeployment()
+                .addClasspathResource("activiti-definition-errors-test.bpmn20.xml")
+                .addClasspathResource("Tutorial1 - Intro to Decision Tables - errors.xlsx")
+                .deploy();
     }
 
     @Test

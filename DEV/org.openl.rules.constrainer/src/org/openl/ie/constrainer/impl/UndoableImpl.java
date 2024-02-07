@@ -19,6 +19,7 @@ import org.openl.ie.constrainer.Undoable;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A generic implementation of the Undoable interface.
  */

@@ -59,6 +59,7 @@ public class AsyncExecutor {
         asyncExecutor.start();
         return asyncExecutor;
     }
+
     /**
      * Start execution of all tasks
      */
@@ -92,7 +93,7 @@ public class AsyncExecutor {
 
     /**
      * Task wrapper to all running of it until it is interrupted and catches all occurred errors
-     * 
+     *
      * @author Vladyslav Pikus
      */
     private static final class Wrapper implements Runnable {

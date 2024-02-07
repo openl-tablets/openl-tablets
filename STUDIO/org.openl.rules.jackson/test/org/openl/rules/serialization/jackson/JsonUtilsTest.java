@@ -22,35 +22,35 @@ public class JsonUtilsTest {
 
     @Test
     public void defaultJacksonObjectMapperTest() throws NoSuchMethodException,
-                                                 InvocationTargetException,
-                                                 IllegalAccessException {
+            InvocationTargetException,
+            IllegalAccessException {
         Method getDefaultJacksonObjectMapperMethod = JsonUtils.class.getDeclaredMethod("getDefaultJacksonObjectMapper");
         getDefaultJacksonObjectMapperMethod.setAccessible(true);
         assertNotEquals(
-            getDefaultJacksonObjectMapperMethod.invoke(null),
-            getDefaultJacksonObjectMapperMethod.invoke(null),
-            JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
-                .getName() + " must return different instances.");
+                getDefaultJacksonObjectMapperMethod.invoke(null),
+                getDefaultJacksonObjectMapperMethod.invoke(null),
+                JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
+                        .getName() + " must return different instances.");
     }
 
     @Test
     public void spreadsheetResultTest() throws Exception {
 
-        String[] columnNames = new String[] { "Column1", "Column2" };
-        String[] rowNames = new String[] { "Row1", "Row2" };
-        Object[][] results = new Object[][] { new Object[] { "ROW1COLUMN1", "ROW1COLUMN2" },
-                new Object[] { "ROW2COLUMN1", "ROW2COLUMN2" } };
+        String[] columnNames = new String[]{"Column1", "Column2"};
+        String[] rowNames = new String[]{"Row1", "Row2"};
+        Object[][] results = new Object[][]{new Object[]{"ROW1COLUMN1", "ROW1COLUMN2"},
+                new Object[]{"ROW2COLUMN1", "ROW2COLUMN2"}};
 
         SpreadsheetResult spreadsheetResult = new SpreadsheetResult(results, rowNames, columnNames);
 
         String json = JsonUtils.toJSON(spreadsheetResult);
         assertEquals(
-            "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"]}",
-            json);
+                "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"]}",
+                json);
 
         SpreadsheetResult spResult = JsonUtils.fromJSON(
-            "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}",
-            SpreadsheetResult.class);
+                "{\"results\":[[\"ROW1COLUMN1\",\"ROW1COLUMN2\"],[\"ROW2COLUMN1\",\"ROW2COLUMN2\"]],\"columnNames\":[\"Column1\",\"Column2\"],\"rowNames\":[\"Row1\",\"Row2\"],\"columnTitles\":[\"Row1\",\"Row2\"]}",
+                SpreadsheetResult.class);
 
         assertArrayEquals(spreadsheetResult.getColumnNames(), spResult.getColumnNames());
         assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
@@ -68,9 +68,9 @@ public class JsonUtilsTest {
     public void toJSONTest() throws JsonProcessingException {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
         assertEquals("{\"model\":\"BMW\",\"year\":null}",
-            JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class }));
+                JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class}));
         assertEquals("{\"@class\":\"org.openl.rules.serialization.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
-            JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class, Track.class }, true));
+                JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class, Track.class}, true));
     }
 
     @Test
@@ -78,12 +78,12 @@ public class JsonUtilsTest {
         final Car expected = new Car("BMW", null);
         assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class));
         assertEquals(expected,
-            JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class, new Class[] { Car.class }));
+                JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class, new Class[]{Car.class}));
         assertEquals(expected,
-            JsonUtils.fromJSON(
-                "{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
-                Car.class,
-                new Class[] { Car.class }));
+                JsonUtils.fromJSON(
+                        "{\"@class\":\"org.openl.rules.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
+                        Car.class,
+                        new Class[]{Car.class}));
     }
 
     @Test

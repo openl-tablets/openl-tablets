@@ -21,9 +21,9 @@ public class ObjectMapperConfigurationParsingException extends OpenlNotCheckedEx
     }
 
     public ObjectMapperConfigurationParsingException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                                     Throwable cause,
+                                                     ILocation location,
+                                                     IOpenSourceCodeModule sourceModule) {
         super(message, cause, location, sourceModule);
     }
 }

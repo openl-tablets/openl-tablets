@@ -28,7 +28,7 @@ public class DBMigrationBean {
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
-        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
         TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {

@@ -25,7 +25,7 @@ public class ExcelReaderFactoryTest {
         ExcelReaderFactory fullReadFactory = ExcelReaderFactory.fullReadFactory();
 
         try (ExcelReader lightReader = sequentialFactory.create(fileName);
-                ExcelReader fullReader = fullReadFactory.create(fileName)) {
+             ExcelReader fullReader = fullReadFactory.create(fileName)) {
             List<? extends SheetDescriptor> fullReaderSheets = fullReader.getSheets();
             List<? extends SheetDescriptor> lightReaderSheets = lightReader.getSheets();
 
@@ -37,8 +37,8 @@ public class ExcelReaderFactoryTest {
 
                 assertEquals(fullSheet.getName(), lightSheet.getName());
                 assertArrayEquals(fullReader.getCells(fullSheet),
-                    lightReader.getCells(lightSheet),
-                    "Cells are not equal for sheet '" + fullSheet.getName() + "'");
+                        lightReader.getCells(lightSheet),
+                        "Cells are not equal for sheet '" + fullSheet.getName() + "'");
             }
         }
     }

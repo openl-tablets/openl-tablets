@@ -41,31 +41,31 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     private final OpenApiPropertyResolver propertyResolver;
 
     public OpenApiRequestServiceImpl(OpenApiParameterService apiParameterService,
-            OpenApiPropertyResolver propertyResolver) {
+                                     OpenApiPropertyResolver propertyResolver) {
         this.apiParameterService = apiParameterService;
         this.propertyResolver = propertyResolver;
     }
 
     @Override
     public RequestBody generateRequestBody(OpenApiContext apiContext,
-            MethodInfo methodInfo,
-            List<ParameterInfo> formParameters,
-            ParameterInfo requestBodyParam) {
+                                           MethodInfo methodInfo,
+                                           List<ParameterInfo> formParameters,
+                                           ParameterInfo requestBodyParam) {
 
         RequestBody requestBody = null;
         if (methodInfo.getOperationAnnotation() != null) {
             requestBody = parseRequestBody(methodInfo.getOperationAnnotation().requestBody(),
-                methodInfo,
-                apiContext.getComponents());
+                    methodInfo,
+                    apiContext.getComponents());
         }
         if (requestBody == null) {
             var apiRequestBody = ReflectionUtils.getAnnotation(methodInfo.getMethod(),
-                io.swagger.v3.oas.annotations.parameters.RequestBody.class);
+                    io.swagger.v3.oas.annotations.parameters.RequestBody.class);
             requestBody = parseRequestBody(apiRequestBody, methodInfo, apiContext.getComponents());
         }
 
         RequestBody springRequestBody = requestBodyParam != null ? parseSpringRequestBody(requestBodyParam,
-            apiContext.getComponents()) : parseFormRequestBody(formParameters, methodInfo, apiContext.getComponents());
+                apiContext.getComponents()) : parseFormRequestBody(formParameters, methodInfo, apiContext.getComponents());
 
         return merge(requestBody, springRequestBody);
     }
@@ -93,8 +93,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private RequestBody parseFormRequestBody(List<ParameterInfo> formParamInfos,
-            MethodInfo methodInfo,
-            Components components) {
+                                             MethodInfo methodInfo,
+                                             Components components) {
         var objectSchema = new ObjectSchema();
         Map<String, Encoding> encodingMap = new LinkedHashMap<>();
 
@@ -185,7 +185,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     private RequestBody parseSpringRequestBody(ParameterInfo requestBodyParam, Components components) {
         var methodInfo = requestBodyParam.getMethodInfo();
         var requestBodyAnno = requestBodyParam
-            .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
+                .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
         var apiParameter = requestBodyParam.getParameter();
         var requestBody = new RequestBody();
         if (requestBodyAnno != null && requestBodyAnno.required()) {
@@ -213,15 +213,15 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             }
         }
         String[] consumes = resolveConsumes(methodInfo,
-            (Class<?>) (parameterType instanceof ParameterizedType ? ((ParameterizedType) parameterType).getRawType()
-                                                                   : parameterType));
+                (Class<?>) (parameterType instanceof ParameterizedType ? ((ParameterizedType) parameterType).getRawType()
+                        : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
-            parameterType,
-            apiParameter != null ? List.of(apiParameter) : Collections.emptyList(),
-            components,
-            new String[0],
-            consumes,
-            requestBodyParam.getJsonView());
+                parameterType,
+                apiParameter != null ? List.of(apiParameter) : Collections.emptyList(),
+                components,
+                new String[0],
+                consumes,
+                requestBodyParam.getJsonView());
         if (parameter.getContent() != null && !parameter.getContent().isEmpty()) {
             requestBody.setContent(parameter.getContent());
         } else if (parameter.getSchema() != null) {
@@ -248,8 +248,8 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     }
 
     private RequestBody parseRequestBody(io.swagger.v3.oas.annotations.parameters.RequestBody apiRequestBody,
-            MethodInfo methodInfo,
-            Components components) {
+                                         MethodInfo methodInfo,
+                                         Components components) {
         if (apiRequestBody == null) {
             return null;
         }
@@ -281,15 +281,15 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
             return null;
         }
         AnnotationsUtils
-            .getContent(apiRequestBody
-                .content(), new String[0], methodInfo.getConsumes(), null, components, methodInfo.getJsonView())
-            .ifPresent(requestBody::setContent);
+                .getContent(apiRequestBody
+                        .content(), new String[0], methodInfo.getConsumes(), null, components, methodInfo.getJsonView())
+                .ifPresent(requestBody::setContent);
         return requestBody;
     }
 
     /**
      * Merges source RequestBody to target
-     * 
+     *
      * @param target target request body
      * @param source source request body
      */
@@ -317,7 +317,7 @@ public class OpenApiRequestServiceImpl implements OpenApiRequestService {
     @Override
     public boolean isRequestBody(ParameterInfo paramInfo) {
         return paramInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class) || isRequestBodyType(
-            paramInfo.getType());
+                paramInfo.getType());
     }
 
     private boolean isRequestBodyType(Type type) {

@@ -38,13 +38,13 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
     public FileChangesFromFolder(Path walkRoot,
                                  Predicate<Path> filter,
                                  FileAdaptor... fileAdaptors) throws IOException {
-        this(walkRoot, StringUtils.EMPTY, filter,fileAdaptors);
+        this(walkRoot, StringUtils.EMPTY, filter, fileAdaptors);
     }
 
     public FileChangesFromFolder(Path walkRoot,
-            String folderTo,
-            Predicate<Path> filter,
-            FileAdaptor... fileAdaptors) throws IOException {
+                                 String folderTo,
+                                 Predicate<Path> filter,
+                                 FileAdaptor... fileAdaptors) throws IOException {
         this.stream = Files.walk(walkRoot).filter(p -> !walkRoot.equals(p)).filter(Files::isRegularFile).filter(filter);
         this.folderTo = folderTo;
         this.fileAdaptors = Arrays.asList(fileAdaptors);
@@ -66,8 +66,8 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
                     final Path path = it.next();
                     InputStream is = Files.newInputStream(path);
                     Optional<FileAdaptor> fileAdaptor = fileAdaptors.stream()
-                        .filter(adaptor -> adaptor.accept(path))
-                        .findFirst();
+                            .filter(adaptor -> adaptor.accept(path))
+                            .findFirst();
                     if (fileAdaptor.isPresent()) {
                         is = fileAdaptor.get().apply(is);
                     }

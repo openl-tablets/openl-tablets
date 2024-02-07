@@ -11,47 +11,47 @@ import org.junit.jupiter.api.Test;
 
 public class ArrayUtilsTest {
 
-    final C[] array1D = new C[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
-    final A[] resultArray1D = new A[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
+    final C[] array1D = new C[]{new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email")};
+    final A[] resultArray1D = new A[]{new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email")};
 
-    final C[][] array2D = new C[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
-            { new C("c21", "email"), new C("c22", "email"), new C("c23", "email") } };
+    final C[][] array2D = new C[][]{{new C("c11", "email"), new C("c12", "email"), new C("c13", "email")},
+            {new C("c21", "email"), new C("c22", "email"), new C("c23", "email")}};
 
-    final A[][] resultArray2D = new A[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
-            { new C("c21", "email"), new C("c22", "email"), new C("c23", "email") } };
+    final A[][] resultArray2D = new A[][]{{new C("c11", "email"), new C("c12", "email"), new C("c13", "email")},
+            {new C("c21", "email"), new C("c22", "email"), new C("c23", "email")}};
 
-    final C[][][] array3DWithEmptyElements = new C[][][] {
-            { { new C("c111", "email"), new C("c111", "email"), new C("c111", "email") },
-                    { new C("c211", "email"), new C("c211", "email") },
-                    {} },
-            { {} } };
+    final C[][][] array3DWithEmptyElements = new C[][][]{
+            {{new C("c111", "email"), new C("c111", "email"), new C("c111", "email")},
+                    {new C("c211", "email"), new C("c211", "email")},
+                    {}},
+            {{}}};
 
-    final C[][][] array3D = new C[][][] {
-            { { new C("c111", "email"), new C("c121", "email"), new C("c131", "email") },
-                    { new C("c211", "email"), new C("c221", "email") },
-                    { new C("c311", "email"), new C("c321", "email") }, },
-            { { new C("c112", "email"), new C("c122", "email"), new C("c132", "email") },
-                    { new C("c212", "email"), new C("c222", "email") },
-                    { new C("c312", "email"), new C("c322", "email") } } };
+    final C[][][] array3D = new C[][][]{
+            {{new C("c111", "email"), new C("c121", "email"), new C("c131", "email")},
+                    {new C("c211", "email"), new C("c221", "email")},
+                    {new C("c311", "email"), new C("c321", "email")},},
+            {{new C("c112", "email"), new C("c122", "email"), new C("c132", "email")},
+                    {new C("c212", "email"), new C("c222", "email")},
+                    {new C("c312", "email"), new C("c322", "email")}}};
 
-    final C[][][] resultArray3D = new C[][][] {
-            { { new C("c111", "email"), new C("c121", "email"), new C("c131", "email") },
-                    { new C("c211", "email"), new C("c221", "email") },
-                    { new C("c311", "email"), new C("c321", "email") }, },
-            { { new C("c112", "email"), new C("c122", "email"), new C("c132", "email") },
-                    { new C("c212", "email"), new C("c222", "email") },
-                    { new C("c312", "email"), new C("c322", "email") } } };
+    final C[][][] resultArray3D = new C[][][]{
+            {{new C("c111", "email"), new C("c121", "email"), new C("c131", "email")},
+                    {new C("c211", "email"), new C("c221", "email")},
+                    {new C("c311", "email"), new C("c321", "email")},},
+            {{new C("c112", "email"), new C("c122", "email"), new C("c132", "email")},
+                    {new C("c212", "email"), new C("c222", "email")},
+                    {new C("c312", "email"), new C("c322", "email")}}};
 
-    final A[][][] resultArray3DWithEmptyElements = new A[][][] {
-            { { new C("c111", "email"), new C("c111", "email"), new C("c111", "email") },
-                    { new C("c211", "email"), new C("c211", "email") },
-                    {} },
-            { {} } };
+    final A[][][] resultArray3DWithEmptyElements = new A[][][]{
+            {{new C("c111", "email"), new C("c111", "email"), new C("c111", "email")},
+                    {new C("c211", "email"), new C("c211", "email")},
+                    {}},
+            {{}}};
 
-    final C[][][][][] array5D = new C[][][][][] { { array3D, array3D, array3D }, { array3D, }, { {}, {}, {}, {}, {}, {} } };
-    final A[][][][][] resultArray5D = new A[][][][][] { { array3D, array3D, array3D },
-            { array3D, },
-            { {}, {}, {}, {}, {}, {} } };
+    final C[][][][][] array5D = new C[][][][][]{{array3D, array3D, array3D}, {array3D,}, {{}, {}, {}, {}, {}, {}}};
+    final A[][][][][] resultArray5D = new A[][][][][]{{array3D, array3D, array3D},
+            {array3D,},
+            {{}, {}, {}, {}, {}, {}}};
 
     @Test
     public void nonAssignableClass() {

@@ -11,17 +11,17 @@ import org.openl.util.ClassUtils;
 
 /**
  * This class describes OpenL engine context abstraction that used during compilation process.
- *
+ * <p>
  * The class OpenL implements both factory(static) methods for creating OpenL instances and actual OpenL functionality.
  * Each instance of OpenL should be considered as a Language Configuration(LC). You may have as many LCs in your
  * application as you want. Current OpenL architecture allows to have different OpenL configurations in separate class
  * loaders, so they will not interfere with each other. It allows, for example, to have 2 LCs using different SAX or DOM
  * parser implementation.
- *
+ * <p>
  * The actual work is done by class OpenLConfigurator.
  *
- * @see OpenLConfigurator
  * @author snshor
+ * @see OpenLConfigurator
  */
 public class OpenL {
     public static final String OPENL_J_NAME = "org.openl.j";
@@ -68,13 +68,12 @@ public class OpenL {
      * Gets an instance of OpenL. Each instance is cached with name and user context as it's key. To remove cached
      * instance use #remove method
      *
-     * @see #remove
-     * @see IUserContext
-     *
-     * @param name IOpenL name, for example org.openl.java12.v101
+     * @param name        IOpenL name, for example org.openl.java12.v101
      * @param userContext user context
      * @return instance of IOpenL
      * @throws OpenLConfigurationException
+     * @see #remove
+     * @see IUserContext
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext) {
         IOpenLBuilder builder = config.getBuilder(name, userContext);
@@ -84,13 +83,12 @@ public class OpenL {
     /**
      * Gets an instance of OpenL. Each instance is cached with name and user context as it's key.
      *
-     * @see IUserContext
-     *
-     * @param name IOpenL name
+     * @param name        IOpenL name
      * @param userContext user context
-     * @param builder {@link IOpenLBuilder} instance which used to build new instance of OpenL if that does not exist
+     * @param builder     {@link IOpenLBuilder} instance which used to build new instance of OpenL if that does not exist
      * @return instance of IOpenL
      * @throws OpenLConfigurationException
+     * @see IUserContext
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
         OpenL openl = userContext.getOpenL(name);

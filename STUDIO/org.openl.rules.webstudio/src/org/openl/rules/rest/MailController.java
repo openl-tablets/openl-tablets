@@ -54,11 +54,11 @@ public class MailController {
 
     @Autowired
     public MailController(MailSender mailSender,
-            UserManagementService userManagementService,
-            CurrentUserInfo currentUserInfo,
-            UserSettingManagementService userSettingManagementService,
-            PropertyResolver propertyResolver,
-            BeanValidationProvider validationProvider) {
+                          UserManagementService userManagementService,
+                          CurrentUserInfo currentUserInfo,
+                          UserSettingManagementService userSettingManagementService,
+                          PropertyResolver propertyResolver,
+                          BeanValidationProvider validationProvider) {
         this.mailSender = mailSender;
         this.userSettingManagementService = userSettingManagementService;
         this.userManagementService = userManagementService;
@@ -76,12 +76,12 @@ public class MailController {
         String dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
         if (Objects.equals(dbToken, token) && Objects.nonNull(user)) {
             userManagementService.updateUserData(user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                null,
-                user.getEmail(),
-                user.getDisplayName(),
-                true);
+                    user.getFirstName(),
+                    user.getLastName(),
+                    null,
+                    user.getEmail(),
+                    user.getDisplayName(),
+                    true);
             userSettingManagementService.setProperty(username, MAIL_VERIFY_TOKEN, "");
         } else {
             throw new BadRequestException("mail.wrong.token");
@@ -91,7 +91,7 @@ public class MailController {
     @Operation(summary = "mail.send-verification.summary", description = "mail.send-verification.desc")
     @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public NotificationModel sendVerification(HttpServletRequest request,
-            @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
+                                              @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -108,8 +108,8 @@ public class MailController {
     @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     public MailConfigModel getMailConfig() {
         return new MailConfigModel().setUrl(propertyResolver.getProperty(MAIL_URL))
-            .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
-            .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
+                .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
+                .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
     }
 
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")

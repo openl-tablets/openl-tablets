@@ -221,7 +221,7 @@ public class DateTool {
     /**
      * Converts a date to the String value according the dateFormat
      *
-     * @param date a date which should be converted
+     * @param date       a date which should be converted
      * @param dateFormat
      * @return String date format
      */
@@ -230,7 +230,7 @@ public class DateTool {
             return null;
         }
         DateFormat df = dateFormat == null ? DateFormat.getDateInstance(DateFormat.SHORT)
-                                           : new SimpleDateFormat(dateFormat);
+                : new SimpleDateFormat(dateFormat);
         return df.format(date);
     }
 

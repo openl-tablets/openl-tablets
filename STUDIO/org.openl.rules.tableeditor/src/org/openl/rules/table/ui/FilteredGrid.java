@@ -11,7 +11,6 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 
 /**
  * @author snshor
- *
  */
 public class FilteredGrid extends AGrid {
 

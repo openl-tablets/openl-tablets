@@ -52,14 +52,14 @@ public abstract class WebStudioUtils {
             rulesUserSession = new RulesUserSession();
 
             rulesUserSession.setUserName(
-                ((CurrentUserInfo) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-                    .getBean("currentUserInfo")).getUserName());
+                    ((CurrentUserInfo) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
+                            .getBean("currentUserInfo")).getUserName());
             rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
-                .getWebApplicationContext(session.getServletContext())
-                .getBean("workspaceManager"));
+                    .getWebApplicationContext(session.getServletContext())
+                    .getBean("workspaceManager"));
             rulesUserSession.setUserManagementService(
-                (UserManagementService) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
-                    .getBean("userManagementService"));
+                    (UserManagementService) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
+                            .getBean("userManagementService"));
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
         }
         return rulesUserSession;
@@ -181,7 +181,6 @@ public abstract class WebStudioUtils {
      * Returns request parameter from HttpServletRequest object through current FacesContext.
      *
      * @param parameterName parameter name
-     *
      * @return parameter value - if parameter exists, <code>null</code> - otherwise.
      */
     public static String getRequestParameter(String parameterName) {

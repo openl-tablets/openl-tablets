@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 /**
  * @author snshor
- *
  */
 public class GridTable extends AGridTable {
 

@@ -48,10 +48,10 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
     }
 
     private Cursor writeData(Sheet sheet,
-            EnvironmentTableStyleImpl style,
-            Cursor endPosition,
-            Iterator<String> importIterator,
-            String anImport) {
+                             EnvironmentTableStyleImpl style,
+                             Cursor endPosition,
+                             Iterator<String> importIterator,
+                             String anImport) {
         while (importIterator.hasNext()) {
             boolean lastRow = false;
             String dpd = importIterator.next();
@@ -62,14 +62,14 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
             Cell nameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             nameCell.setCellValue(anImport);
             nameCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
 
             next = next.moveRight(1);
 
             Cell valueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             valueCell.setCellValue(dpd);
             valueCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
 
             endPosition = next.moveLeft(1);
         }

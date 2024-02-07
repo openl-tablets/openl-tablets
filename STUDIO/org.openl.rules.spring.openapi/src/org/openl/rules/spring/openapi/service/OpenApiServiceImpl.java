@@ -24,8 +24,8 @@ public class OpenApiServiceImpl implements OpenApiService {
     private volatile OpenAPI calculatedOpenApi;
 
     public OpenApiServiceImpl(ApplicationContext context,
-            OpenApiSpringMvcReader openApiSpringMvcReader,
-            Set<Class<?>> ignoreControllers) {
+                              OpenApiSpringMvcReader openApiSpringMvcReader,
+                              Set<Class<?>> ignoreControllers) {
         this.context = context;
         this.ignoreControllers = ignoreControllers;
         this.openApiSpringMvcReader = openApiSpringMvcReader;
@@ -39,10 +39,10 @@ public class OpenApiServiceImpl implements OpenApiService {
         controllers.putAll(context.getBeansWithAnnotation(ResponseBody.class));
 
         Map<String, Class<?>> filteredControllers = controllers.entrySet()
-            .stream()
-            .filter(e -> AnnotationUtils.findAnnotation(e.getValue().getClass(), Hidden.class) == null)
-            .filter(e -> !ignoreControllers.contains(e.getValue().getClass()))
-            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getClass(), (a1, a2) -> a1));
+                .stream()
+                .filter(e -> AnnotationUtils.findAnnotation(e.getValue().getClass(), Hidden.class) == null)
+                .filter(e -> !ignoreControllers.contains(e.getValue().getClass()))
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getClass(), (a1, a2) -> a1));
 
         openApiSpringMvcReader.read(openApiContext, filteredControllers);
         try {

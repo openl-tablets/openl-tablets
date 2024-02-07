@@ -30,16 +30,16 @@ public class OpenLMessageController {
     public String messageStacktrace(
             @Parameter(description = "msg.param.message-id") @PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
-            .map(WebStudio::getModel)
-            .flatMap(model -> model.getCompilationStatus()
-                .getAllMessage()
-                .stream()
-                .filter(m -> m.getId() == messageId)
-                .findFirst())
-            .filter(OpenLErrorMessage.class::isInstance)
-            .map(OpenLErrorMessage.class::cast)
-            .map(message -> ExceptionUtils.getStackTrace((Throwable) message.getError()))
-            .orElse(null);
+                .map(WebStudio::getModel)
+                .flatMap(model -> model.getCompilationStatus()
+                        .getAllMessage()
+                        .stream()
+                        .filter(m -> m.getId() == messageId)
+                        .findFirst())
+                .filter(OpenLErrorMessage.class::isInstance)
+                .map(OpenLErrorMessage.class::cast)
+                .map(message -> ExceptionUtils.getStackTrace((Throwable) message.getError()))
+                .orElse(null);
     }
 
     @Operation(summary = "msg.get-url.summary", description = "msg.get-url.desc")
@@ -47,23 +47,23 @@ public class OpenLMessageController {
     public String messageUrl(
             @Parameter(description = "msg.param.message-id") @PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
-            .flatMap(webStudio -> webStudio.getModel()
-                .getCompilationStatus()
-                .getAllMessage()
-                .stream()
-                .filter(m -> m.getId() == messageId)
-                .findFirst()
-                .map(message -> {
-                    String sourceUrl = messageHandler.getSourceUrl(message.getSourceLocation(),
-                        message.getSeverity().name(),
-                        messageId,
-                        webStudio.getModel());
-                    if (StringUtils.isBlank(sourceUrl)) {
-                        sourceUrl = webStudio
-                            .url("message?type=" + message.getSeverity().name() + "&summary=" + messageId);
-                    }
-                    return sourceUrl;
-                }))
-            .orElse(null);
+                .flatMap(webStudio -> webStudio.getModel()
+                        .getCompilationStatus()
+                        .getAllMessage()
+                        .stream()
+                        .filter(m -> m.getId() == messageId)
+                        .findFirst()
+                        .map(message -> {
+                            String sourceUrl = messageHandler.getSourceUrl(message.getSourceLocation(),
+                                    message.getSeverity().name(),
+                                    messageId,
+                                    webStudio.getModel());
+                            if (StringUtils.isBlank(sourceUrl)) {
+                                sourceUrl = webStudio
+                                        .url("message?type=" + message.getSeverity().name() + "&summary=" + messageId);
+                            }
+                            return sourceUrl;
+                        }))
+                .orElse(null);
     }
 }

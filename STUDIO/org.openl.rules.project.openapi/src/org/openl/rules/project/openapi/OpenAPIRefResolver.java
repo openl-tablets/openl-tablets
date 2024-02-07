@@ -45,8 +45,8 @@ public class OpenAPIRefResolver {
         Object resolvedByRef = openAPI;
         try {
             for (String expressionPart : Arrays.stream(expressionParts)
-                .map(e -> e.substring(1))
-                .collect(Collectors.toList())) {
+                    .map(e -> e.substring(1))
+                    .collect(Collectors.toList())) {
                 if (resolvedByRef != null) {
                     try {
                         Field field = resolvedByRef.getClass().getDeclaredField(expressionPart);

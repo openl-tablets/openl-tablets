@@ -50,7 +50,7 @@ public class EntityManagerOperationsTest {
         when(session.merge(any())).thenThrow(new PersistenceException());
 
         assertThrows(PersistenceException.class,
-            () -> entityManagerOperations.save(new Class<?>[] { Object.class }, entity));
+                () -> entityManagerOperations.save(new Class<?>[]{Object.class}, entity));
 
         verify(transaction, never()).rollback();
         verify(transaction, never()).commit();
@@ -67,7 +67,7 @@ public class EntityManagerOperationsTest {
         when(transaction.isActive()).thenReturn(Boolean.TRUE);
 
         assertThrows(PersistenceException.class,
-            () -> entityManagerOperations.save(new Class<?>[] { Object.class }, entity));
+                () -> entityManagerOperations.save(new Class<?>[]{Object.class}, entity));
 
         // make sure that tx rolled back before connection is closed
         var inOrder = inOrder(transaction, session);
@@ -83,7 +83,7 @@ public class EntityManagerOperationsTest {
     @Test
     public void testSuccessSave() {
         var entity = new Object();
-        entityManagerOperations.save(new Class<?>[] { Object.class }, entity);
+        entityManagerOperations.save(new Class<?>[]{Object.class}, entity);
 
         verify(transaction, never()).rollback();
         verify(transaction).commit();

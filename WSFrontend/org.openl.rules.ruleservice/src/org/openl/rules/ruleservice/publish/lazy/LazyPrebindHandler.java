@@ -37,9 +37,9 @@ class LazyPrebindHandler implements IPrebindHandler {
     private final DeploymentDescription deployment;
 
     LazyPrebindHandler(Collection<Module> modules,
-            RuleServiceDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            DeploymentDescription deployment) {
+                       RuleServiceDependencyManager dependencyManager,
+                       ClassLoader classLoader,
+                       DeploymentDescription deployment) {
         this.modules = modules;
         this.dependencyManager = dependencyManager;
         this.classLoader = classLoader;
@@ -54,17 +54,17 @@ class LazyPrebindHandler implements IPrebindHandler {
             argTypes[i] = method.getSignature().getParameterType(i).getInstanceClass();
         }
         final Map<String, Object> dimensionProperties = (method instanceof ITableProperties) ? PropertiesHelper
-            .getTableProperties(method)
-            .getAllDimensionalProperties() : null;
+                .getTableProperties(method)
+                .getAllDimensionalProperties() : null;
         final LazyMember<IOpenMethod> lazyMethod = new LazyMember<IOpenMethod>() {
 
             protected IOpenMethod initMember() {
                 IOpenMethod openMethod;
                 try {
                     CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny(method,
-                        module);
+                            module);
                     openMethod = OpenClassHelper
-                        .findRulesMethod(compiledOpenClass.getOpenClass(), method.getName(), argTypes);
+                            .findRulesMethod(compiledOpenClass.getOpenClass(), method.getName(), argTypes);
                     if (openMethod instanceof OpenMethodDispatcher && dimensionProperties != null) {
                         openMethod = findCandidateMethod((OpenMethodDispatcher) openMethod, dimensionProperties);
                     }
@@ -72,7 +72,7 @@ class LazyPrebindHandler implements IPrebindHandler {
                     throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
                 }
                 CompiledOpenClassCache.getInstance()
-                    .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
+                        .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
                 return openMethod;
             }
 
@@ -84,9 +84,9 @@ class LazyPrebindHandler implements IPrebindHandler {
         for (IOpenMethod candidate : openMethod.getCandidates()) {
             if (candidate instanceof ITableProperties) {
                 Map<String, Object> candidateDimensionProperties = PropertiesHelper.getTableProperties(candidate)
-                    .getAllDimensionalProperties();
+                        .getAllDimensionalProperties();
                 if (DimensionPropertiesMethodKey.compareMethodDimensionProperties(dimensionProperties,
-                    candidateDimensionProperties)) {
+                        candidateDimensionProperties)) {
                     return candidate;
                 }
             }
@@ -102,9 +102,9 @@ class LazyPrebindHandler implements IPrebindHandler {
             protected IOpenField initMember() {
                 try {
                     CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny(field,
-                        module);
+                            module);
                     CompiledOpenClassCache.getInstance()
-                        .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
+                            .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
                     return compiledOpenClass.getOpenClass().getField(field.getName());
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
@@ -116,7 +116,7 @@ class LazyPrebindHandler implements IPrebindHandler {
     }
 
     private CompiledOpenClass getCompiledOpenClassWithThrowErrorExceptionsIfAny(IOpenMember sync,
-            Module module) throws Exception {
+                                                                                Module module) throws Exception {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass(sync, module);
         if (compiledOpenClass.hasErrors()) {
             compiledOpenClass.throwErrorExceptionsIfAny();
@@ -142,8 +142,8 @@ class LazyPrebindHandler implements IPrebindHandler {
             }
             try {
                 return MaxThreadsForCompileSemaphore.getInstance()
-                    .run(() -> CompiledOpenClassCache
-                        .compileToCache(dependencyManager, dependency, deployment, module, classLoader));
+                        .run(() -> CompiledOpenClassCache
+                                .compileToCache(dependencyManager, dependency, deployment, module, classLoader));
             } catch (OpenLCompilationException e) {
                 throw e;
             } catch (InterruptedException e) {

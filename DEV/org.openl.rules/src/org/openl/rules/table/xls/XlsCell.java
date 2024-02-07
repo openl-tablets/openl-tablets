@@ -98,9 +98,9 @@ public class XlsCell implements ICell {
             return null;
         }
         Font font = gridModel.getSheetSource()
-            .getSheet()
-            .getWorkbook()
-            .getFontAt(cell.getCellStyle().getFontIndexAsInt());
+                .getSheet()
+                .getWorkbook()
+                .getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
@@ -257,7 +257,7 @@ public class XlsCell implements ICell {
 
     /**
      * @return date value if cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is formatted in excel as date.<br>
-     *         null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
+     * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      */
     @Override
     public Date getNativeDate() {

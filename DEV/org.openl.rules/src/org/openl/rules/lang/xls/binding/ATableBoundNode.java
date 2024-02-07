@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public abstract class ATableBoundNode extends ABoundNode {
 

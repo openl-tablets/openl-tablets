@@ -36,13 +36,13 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
     @PostConstruct
     public void setup() {
         supportedInjects = Collections
-            .singleton(new Inject<>(CassandraSession.class, (m, a) -> cassandraOperations.getCqlSession()));
+                .singleton(new Inject<>(CassandraSession.class, (m, a) -> cassandraOperations.getCqlSession()));
     }
 
     @Override
     public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
-            .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
+                .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
         if (storeLogDataToCassandra != null) {
             return storeLogDataToCassandra.sync();
         }
@@ -57,7 +57,7 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
-            .getAnnotation(StoreLogDataToCassandra.class);
+                .getAnnotation(StoreLogDataToCassandra.class);
 
         Method serviceMethod = storeLogData.getServiceMethod();
         if (serviceMethod != null && serviceMethod.isAnnotationPresent(StoreLogDataToCassandra.class)) {
@@ -82,10 +82,10 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
                             entities.add(entityClass.newInstance());
                         } catch (InstantiationException | IllegalAccessException e) {
                             throw new StoreLogDataException(String.format(
-                                "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                                serviceMethod != null ? (" for method '" + MethodUtil
-                                    .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
-                                entityClass.getTypeName()), e);
+                                    "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                    serviceMethod != null ? (" for method '" + MethodUtil
+                                            .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
+                                    entityClass.getTypeName()), e);
                         }
                     }
                 }
@@ -97,14 +97,14 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
             } catch (Exception e) {
                 if (serviceMethod != null) {
                     throw new StoreLogDataException(
-                        String.format("Failed to populate cassandra entity '%s' for method '%s'.",
-                            entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod)),
-                        e);
+                            String.format("Failed to populate cassandra entity '%s' for method '%s'.",
+                                    entity.getClass().getTypeName(),
+                                    MethodUtil.printQualifiedMethodName(serviceMethod)),
+                            e);
                 } else {
                     throw new StoreLogDataException(
-                        String.format("Failed to populate cassandra entity '%s'.", entity.getClass().getTypeName()),
-                        e);
+                            String.format("Failed to populate cassandra entity '%s'.", entity.getClass().getTypeName()),
+                            e);
                 }
             }
         }

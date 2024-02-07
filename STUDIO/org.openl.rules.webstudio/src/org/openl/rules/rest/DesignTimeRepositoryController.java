@@ -74,12 +74,12 @@ public class DesignTimeRepositoryController {
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
-            PropertyResolver propertyResolver,
-            BeanValidationProvider validationService,
-            CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
-            ZipArchiveValidator zipArchiveValidator,
-            ZipProjectSaveStrategy zipProjectSaveStrategy,
-            @Value("${openl.home.shared}") String homeDirectory) {
+                                          PropertyResolver propertyResolver,
+                                          BeanValidationProvider validationService,
+                                          CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
+                                          ZipArchiveValidator zipArchiveValidator,
+                                          ZipProjectSaveStrategy zipProjectSaveStrategy,
+                                          @Value("${openl.home.shared}") String homeDirectory) {
         this.designTimeRepository = designTimeRepository;
         this.propertyResolver = propertyResolver;
         this.validationProvider = validationService;
@@ -95,9 +95,9 @@ public class DesignTimeRepositoryController {
     public List<RepositoryViewModel> getRepositoryList() {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         return designTimeRepository.getRepositories()
-            .stream()
-            .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
-            .collect(Collectors.toList());
+                .stream()
+                .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{repo-name}/projects")
@@ -106,21 +106,21 @@ public class DesignTimeRepositoryController {
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         return designTimeRepository.getProjects(repository.getId())
-            .stream()
-            .filter(proj -> !proj.isDeleted())
-            .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
-            .map(src -> mapProjectResponse(src, repository.supports()))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(proj -> !proj.isDeleted())
+                .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
+                .map(src -> mapProjectResponse(src, repository.supports()))
+                .collect(Collectors.toList());
     }
 
     private <T extends AProject> ProjectViewModel mapProjectResponse(T src, Features features) {
         var builder = ProjectViewModel.builder().name(src.getBusinessName());
         Optional.of(src.getFileData()).map(FileData::getAuthor).map(UserInfo::getName).ifPresent(builder::modifiedBy);
         Optional.of(src.getFileData())
-            .map(FileData::getModifiedAt)
-            .map(Date::toInstant)
-            .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-            .ifPresent(builder::modifiedAt);
+                .map(FileData::getModifiedAt)
+                .map(Date::toInstant)
+                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+                .ifPresent(builder::modifiedAt);
         Optional.of(src.getFileData()).map(FileData::getVersion).ifPresent(builder::rev);
         if (features.branches()) {
             Optional.of(src.getFileData()).map(FileData::getBranch).ifPresent(builder::branch);
@@ -135,22 +135,22 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.create-project-from-zip.summary", description = "repos.create-project-from-zip.desc")
     @JsonView(GenericView.CreateOrUpdate.class)
     public ProjectViewModel createProjectFromZip(@DesignRepository("repo-name") Repository repository,
-            @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
-            @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
-            @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
-            @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException, JAXBException {
+                                                 @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
+                                                 @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException, JAXBException {
 
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
         allowedToPush(repository);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(),
-            getUserName(),
-            StringUtils.trimToNull(projectName),
-            StringUtils.trimToNull(path),
-            StringUtils.isNotBlank(comment) ? comment
-                                            : createCommentsService(repository.getId()).createProject(projectName),
-            overwrite);
+                getUserName(),
+                StringUtils.trimToNull(projectName),
+                StringUtils.trimToNull(path),
+                StringUtils.isNotBlank(comment) ? comment
+                        : createCommentsService(repository.getId()).createProject(projectName),
+                overwrite);
         validationProvider.validate(model); // perform basic validation
 
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");

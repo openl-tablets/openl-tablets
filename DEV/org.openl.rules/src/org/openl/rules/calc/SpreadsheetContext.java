@@ -23,16 +23,16 @@ public class SpreadsheetContext extends ComponentBindingContext {
     private final XlsModuleOpenClass xlsModuleOpenClass;
 
     public SpreadsheetContext(IBindingContext delegate,
-            SpreadsheetOpenClass type,
-            XlsModuleOpenClass xlsModuleOpenClass) {
+                              SpreadsheetOpenClass type,
+                              XlsModuleOpenClass xlsModuleOpenClass) {
         super(delegate, type);
         this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
 
     @Override
     public IOpenField findRange(String namespace,
-            String rangeStartName,
-            String rangeEndName) throws OpenLCompilationException {
+                                String rangeStartName,
+                                String rangeEndName) throws OpenLCompilationException {
 
         String key = namespace + ":" + rangeStartName + ":" + rangeEndName;
         IOpenField fstart = findVar(namespace, rangeStartName, true);
@@ -80,7 +80,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         if (NullOpenClass.class.isAssignableFrom(rangeType.getClass())) {
             throw new OpenLCompilationException(
-                String.format("Range %s:%s contains only undefined type values.", rangeStartName, rangeEndName));
+                    String.format("Range %s:%s contains only undefined type values.", rangeStartName, rangeEndName));
         }
 
         CastsCollector castsCollector = new CastsCollector(rangeType, w, h);
@@ -88,27 +88,27 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
         if (castsCollector.isImplicitCastNotSupported() || rangeType.getInstanceClass() == null) {
             throw new OpenLCompilationException(String.format("Types in range %s:%s cannot be implicit casted to '%s'.",
-                rangeStartName,
-                rangeEndName,
-                rangeType.getDisplayName(0)));
+                    rangeStartName,
+                    rangeEndName,
+                    rangeType.getDisplayName(0)));
         }
 
         return new SpreadsheetRangeField(key,
-            rangeStartName + ":" + rangeEndName,
-            sx,
-            sy,
-            ex,
-            ey,
-            rangeType,
-            castsCollector.getCasts(),
-            fstart.getDeclaringClass());
+                rangeStartName + ":" + rangeEndName,
+                sx,
+                sy,
+                ex,
+                ey,
+                rangeType,
+                castsCollector.getCasts(),
+                fstart.getDeclaringClass());
     }
 
     private void iterateThroughTheRange(int startColumn,
-            int startRow,
-            int columnsInRange,
-            int rowsInRange,
-            SpreadsheetFieldCollector collector) {
+                                        int startRow,
+                                        int columnsInRange,
+                                        int rowsInRange,
+                                        SpreadsheetFieldCollector collector) {
         ComponentOpenClass componentOpenClass = getComponentOpenClass();
         ComponentBindingContext componentBindingContext = this;
         while (componentOpenClass != null) {
@@ -189,6 +189,6 @@ public class SpreadsheetContext extends ComponentBindingContext {
 
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return RulesModuleBindingContext
-            .isComponentSpecificOpenClass(this, componentOpenClass, xlsModuleOpenClass, cache);
+                .isComponentSpecificOpenClass(this, componentOpenClass, xlsModuleOpenClass, cache);
     }
 }

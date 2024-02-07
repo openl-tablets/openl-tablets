@@ -30,7 +30,7 @@ public class ProjectDescriptorVersionConverter_5_16 implements ObjectVersionConv
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor> dependencies = CollectionUtils.map(oldVersion.getDependencies(),
-            dependencyConverter::fromOldVersion);
+                dependencyConverter::fromOldVersion);
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }

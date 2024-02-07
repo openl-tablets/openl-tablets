@@ -122,7 +122,7 @@ public final class Tokenizer {
     }
 
     public IdentifierNode[] parse(IOpenSourceCodeModule source,
-            ILocation textLocation) throws OpenLCompilationException {
+                                  ILocation textLocation) throws OpenLCompilationException {
         List<IdentifierNode> nodes = new ArrayList<>();
 
         try {
@@ -203,12 +203,12 @@ public final class Tokenizer {
     }
 
     public static IdentifierNode firstToken(IOpenSourceCodeModule source,
-            String delimiter) throws OpenLCompilationException {
+                                            String delimiter) throws OpenLCompilationException {
         return getTokenizer(delimiter).firstToken(source);
     }
 
     public static IdentifierNode[] tokenize(IOpenSourceCodeModule source,
-            String delimiter) throws OpenLCompilationException {
+                                            String delimiter) throws OpenLCompilationException {
         return getTokenizer(delimiter).parse(source, null);
     }
 
@@ -225,8 +225,8 @@ public final class Tokenizer {
     }
 
     public static IdentifierNode[] tokenize(IOpenSourceCodeModule source,
-            String delimiter,
-            ILocation location) throws OpenLCompilationException {
+                                            String delimiter,
+                                            ILocation location) throws OpenLCompilationException {
         return getTokenizer(delimiter).parse(source, location);
     }
 

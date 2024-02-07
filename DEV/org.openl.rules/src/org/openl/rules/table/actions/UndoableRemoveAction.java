@@ -10,7 +10,6 @@ import org.openl.rules.table.IGridTable;
  * Default behaviour for remove action.
  *
  * @author DLiauchuk
- *
  */
 public abstract class UndoableRemoveAction extends UndoableEditTableAction {
 
@@ -68,8 +67,8 @@ public abstract class UndoableRemoveAction extends UndoableEditTableAction {
      * @return action for removing rows or columns.
      */
     protected abstract IUndoableGridTableAction performAction(int numberToRemove,
-            IGridRegion fullTableRegion,
-            IGridTable table);
+                                                              IGridRegion fullTableRegion,
+                                                              IGridTable table);
 
     protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToRemove);
 

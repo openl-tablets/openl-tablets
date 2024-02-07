@@ -82,7 +82,7 @@ public class TypeInfo {
         }
         TypeInfo typeInfo = (TypeInfo) o;
         return type == typeInfo.type && Objects.equals(javaName, typeInfo.javaName) && Objects
-            .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
+                .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
                 .equals(reference, typeInfo.reference);
     }
 

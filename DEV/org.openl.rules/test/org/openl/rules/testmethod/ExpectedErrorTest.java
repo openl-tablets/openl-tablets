@@ -37,11 +37,11 @@ public class ExpectedErrorTest {
         assertEquals(TestStatus.TR_OK, testUnits.get(1).getResultStatus(), "Expected user error 'Incorrect argument'");
         assertEquals(TestStatus.TR_NEQ, testUnits.get(2).getResultStatus(), "Expected user error comparison failure");
         assertEquals(TestStatus.TR_NEQ,
-            testUnits.get(3).getResultStatus(),
-            "Unexpected exception must be thrown. It cannot be compared with user error");
+                testUnits.get(3).getResultStatus(),
+                "Unexpected exception must be thrown. It cannot be compared with user error");
         assertEquals(TestStatus.TR_NEQ,
-            testUnits.get(4).getResultStatus(),
-            "Unexpected exception must be thrown. It cannot be compared with user error");
+                testUnits.get(4).getResultStatus(),
+                "Unexpected exception must be thrown. It cannot be compared with user error");
     }
 
 }

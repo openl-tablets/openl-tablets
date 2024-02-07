@@ -45,15 +45,15 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
     @Override
     public boolean deleteById(Long id) {
         return getSession().createNativeQuery("delete from OpenL_Tag_Types where id = :id")
-            .setParameter("id", id)
-            .executeUpdate() > 0;
+                .setParameter("id", id)
+                .executeUpdate() > 0;
     }
 
     @Transactional
     @Override
     public void deleteByName(String name) {
         getSession().createNativeQuery("delete from OpenL_Tag_Types where name = :name")
-            .setParameter("name", name)
-            .executeUpdate();
+                .setParameter("name", name)
+                .executeUpdate();
     }
 }

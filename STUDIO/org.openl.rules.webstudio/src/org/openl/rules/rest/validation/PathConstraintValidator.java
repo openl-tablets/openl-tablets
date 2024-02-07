@@ -48,7 +48,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             SystemReader.getInstance().checkPath(value);
         } catch (CorruptObjectException e) {
             context.buildConstraintViolationWithTemplate(StringUtils.capitalize(e.getMessage()))
-                .addConstraintViolation();
+                    .addConstraintViolation();
         }
         try {
             // OS specific check

@@ -64,7 +64,7 @@ public class JettyServer {
         }
         try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
 
-            classPath.addAll( stream.map(Path::toString).collect(Collectors.toList()));
+            classPath.addAll(stream.map(Path::toString).collect(Collectors.toList()));
         } catch (IOException ignored) {
             // ignore
         }

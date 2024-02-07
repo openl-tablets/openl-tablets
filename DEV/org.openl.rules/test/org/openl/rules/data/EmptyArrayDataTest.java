@@ -24,8 +24,8 @@ public class EmptyArrayDataTest {
         Method getMyDatasMethod = clazz.getMethod("getMyDatas");
 
         Class<?> policyClazz = engineFactory.getCompiledOpenClass()
-            .getClassLoader()
-            .loadClass("org.openl.generated.beans.MyData");
+                .getClassLoader()
+                .loadClass("org.openl.generated.beans.MyData");
 
         Object[] myDatas = (Object[]) getMyDatasMethod.invoke(instance);
 

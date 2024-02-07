@@ -21,8 +21,8 @@ public class TBasicVMDataContext {
      * @param isMainMethodContext
      */
     public TBasicVMDataContext(List<RuntimeOperation> operations,
-            Map<String, RuntimeOperation> labels,
-            boolean isMainMethod) {
+                               Map<String, RuntimeOperation> labels,
+                               boolean isMainMethod) {
         assert operations != null;
         // assert operations.size() > 0;
         assert labels != null;
@@ -79,7 +79,7 @@ public class TBasicVMDataContext {
             }
         } else {
             throw AlgorithmErrorHelper
-                .createExecutionException("Cannot find the next operation after the specified one", operation);
+                    .createExecutionException("Cannot find the next operation after the specified one", operation);
         }
 
         return nextOperation;

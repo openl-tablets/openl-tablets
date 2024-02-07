@@ -58,7 +58,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -72,7 +72,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -86,7 +86,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -100,7 +100,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -114,7 +114,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -128,7 +128,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -142,7 +142,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -156,7 +156,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -170,7 +170,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -184,7 +184,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -198,7 +198,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -212,7 +212,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -226,7 +226,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -240,7 +240,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -256,7 +256,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -270,7 +270,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -284,7 +284,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -298,7 +298,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -312,7 +312,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -326,7 +326,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -340,7 +340,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -354,7 +354,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -368,7 +368,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -382,7 +382,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -396,7 +396,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -410,7 +410,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -424,7 +424,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -438,7 +438,7 @@ public final class RulesUtils {
      * <i>'position'</i>
      * </p>
      *
-     * @param values an array, must not be null or empty
+     * @param values   an array, must not be null or empty
      * @param position array index whose value we wand to get
      * @return value from array at position <i>'position'</i>
      */
@@ -722,7 +722,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param obj the object to find
+     * @param obj   the object to find
      * @return <code>true</code> if the array contains the object
      */
     public static <T> boolean contains(T[] array, T obj) {
@@ -739,7 +739,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(int[] array, int elem) {
@@ -756,7 +756,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(long[] array, long elem) {
@@ -773,7 +773,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(byte[] array, byte elem) {
@@ -790,7 +790,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(short[] array, short elem) {
@@ -807,7 +807,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      * @since 2.1
      */
@@ -825,7 +825,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(float[] array, float elem) {
@@ -842,7 +842,7 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return <code>true</code> if the array contains the object
      */
     public static boolean contains(double[] array, double elem) {
@@ -1177,9 +1177,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param obj the object to find, may be <code>null</code>
+     * @param obj   the object to find, may be <code>null</code>
      * @return the index of the object within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(Object[] array, Object obj) {
         return ArrayUtils.indexOf(array, obj);
@@ -1195,9 +1195,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(int[] array, int elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1213,9 +1213,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(long[] array, long elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1231,9 +1231,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(byte[] array, byte elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1249,9 +1249,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(short[] array, short elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1267,9 +1267,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      * @since 2.1
      */
     public static int indexOf(char[] array, char elem) {
@@ -1286,9 +1286,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(float[] array, float elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1304,9 +1304,9 @@ public final class RulesUtils {
      * </p>
      *
      * @param array the array to search through for the object, may be <code>null</code>
-     * @param elem the value to find
+     * @param elem  the value to find
      * @return the index of the value within the array, {@link ArrayUtils#INDEX_NOT_FOUND} (<code>-1</code>) if not
-     *         found or <code>null</code> array input
+     * found or <code>null</code> array input
      */
     public static int indexOf(double[] array, double elem) {
         return ArrayUtils.indexOf(array, elem);
@@ -1765,7 +1765,7 @@ public final class RulesUtils {
      * @param y the ordinate coordinate
      * @param x the abscissa coordinate
      * @return the <i>theta</i> component of the point (<i>r</i>,&nbsp;<i>theta</i>) in polar coordinates that
-     *         corresponds to the point (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
+     * corresponds to the point (<i>x</i>,&nbsp;<i>y</i>) in Cartesian coordinates.
      */
     public static double atan2(double y, double x) {
         return Math.atan2(y, x);
@@ -1811,7 +1811,7 @@ public final class RulesUtils {
      *
      * @param a a value.
      * @return the smallest (closest to negative infinity) floating-point value that is greater than or equal to the
-     *         argument and is equal to a mathematical integer.
+     * argument and is equal to a mathematical integer.
      */
     public static double ceil(double a) {
         return Math.ceil(a);
@@ -1824,7 +1824,7 @@ public final class RulesUtils {
      * arguments as positive and other NaN arguments as negative to allow greater performance.
      *
      * @param magnitude the parameter providing the magnitude of the result
-     * @param sign the parameter providing the sign of the result
+     * @param sign      the parameter providing the sign of the result
      * @return a value with the magnitude of {@code magnitude} and the sign of {@code sign}.
      */
     public static double copySign(double magnitude, double sign) {
@@ -1838,7 +1838,7 @@ public final class RulesUtils {
      * arguments as positive and other NaN arguments as negative to allow greater performance.
      *
      * @param magnitude the parameter providing the magnitude of the result
-     * @param sign the parameter providing the sign of the result
+     * @param sign      the parameter providing the sign of the result
      * @return a value with the magnitude of {@code magnitude} and the sign of {@code sign}.
      */
     public static float copySign(float magnitude, float sign) {
@@ -1948,7 +1948,7 @@ public final class RulesUtils {
      *
      * @param a a value.
      * @return the largest (closest to positive infinity) floating-point value that less than or equal to the argument
-     *         and is equal to a mathematical integer.
+     * and is equal to a mathematical integer.
      */
     public static double floor(double a) {
         return Math.floor(a);
@@ -2003,7 +2003,7 @@ public final class RulesUtils {
      *
      * @param x a value
      * @param y a value
-     * @return sqrt(<i>x</i><sup>2</sup>&nbsp;+<i>y</i><sup>2</sup>) without intermediate overflow or underflow
+     * @return sqrt(< i > x < / i > < sup > 2 < / sup > & nbsp ; + < i > y < / i > < sup > 2 < / sup >) without intermediate overflow or underflow
      */
     public static double getExponent(double x, double y) {
         return Math.hypot(x, y);
@@ -2120,7 +2120,7 @@ public final class RulesUtils {
      * the result should have a larger magnitude, an infinity with same sign as {@code start} is returned.
      * </ul>
      *
-     * @param start starting floating-point value
+     * @param start     starting floating-point value
      * @param direction value indicating which of {@code start}'s neighbors or {@code start} should be returned
      * @return The floating-point number adjacent to {@code start} in the direction of {@code direction}.
      */
@@ -2149,7 +2149,7 @@ public final class RulesUtils {
      * result should have a larger magnitude, an infinity with same sign as {@code start} is returned.
      * </ul>
      *
-     * @param start starting floating-point value
+     * @param start     starting floating-point value
      * @param direction value indicating which of {@code start}'s neighbors or {@code start} should be returned
      * @return The floating-point number adjacent to {@code start} in the direction of {@code direction}.
      */
@@ -2400,7 +2400,7 @@ public final class RulesUtils {
      * <li>If the first argument is zero, then a zero of the same sign is returned.
      * </ul>
      *
-     * @param d number to be scaled by a power of two.
+     * @param d           number to be scaled by a power of two.
      * @param scaleFactor power of 2 used to scale {@code d}
      * @return {@code d} &times; 2<sup>{@code scaleFactor}</sup>
      */
@@ -2425,7 +2425,7 @@ public final class RulesUtils {
      * <li>If the first argument is zero, then a zero of the same sign is returned.
      * </ul>
      *
-     * @param f number to be scaled by a power of two.
+     * @param f           number to be scaled by a power of two.
      * @param scaleFactor power of 2 used to scale {@code f}
      * @return {@code f} &times; 2<sup>{@code scaleFactor}</sup>
      */
@@ -2670,8 +2670,8 @@ public final class RulesUtils {
      * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
      *
-     * @param array the array to add the element to, may be <code>null</code>
-     * @param index the position of the new object
+     * @param array   the array to add the element to, may be <code>null</code>
+     * @param index   the position of the new object
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
@@ -2709,7 +2709,7 @@ public final class RulesUtils {
      * ArrayUtils.add(["a", "b"], 3, "c") = ["a", "b", "c"]
      * </pre>
      *
-     * @param array the array to add the element to, may be <code>null</code>
+     * @param array   the array to add the element to, may be <code>null</code>
      * @param element the object to add
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
@@ -2766,7 +2766,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static boolean[] remove(boolean[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2800,7 +2800,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static byte[] remove(byte[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2834,7 +2834,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static char[] remove(char[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2868,7 +2868,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static double[] remove(double[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2902,7 +2902,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static float[] remove(float[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2936,7 +2936,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static int[] remove(int[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -2970,7 +2970,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static long[] remove(long[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -3004,7 +3004,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static <T> T[] remove(T[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -3038,7 +3038,7 @@ public final class RulesUtils {
      * @param index the position of the element to be removed
      * @return A new array containing the existing elements except the element at the specified position.
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index >= array.length), or if the
-     *             array is <code>null</code>.
+     *                                   array is <code>null</code>.
      */
     public static short[] remove(short[] array, int index) {
         return ArrayUtils.remove(array, index);
@@ -3102,10 +3102,10 @@ public final class RulesUtils {
         for (int i = 0; i < data.length; i++) {
             IOpenCast openCast = flattenMethodDetails.getOpenCasts()[i];
             values
-                .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).collect(Collectors.toList()));
+                    .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).collect(Collectors.toList()));
         }
         Object[] result = (Object[]) Array
-            .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);
+                .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);
         return values.toArray(result);
     }
 
@@ -3145,7 +3145,7 @@ public final class RulesUtils {
      *
      * @param arrays the arrays whose elements are added to the new array, may be <code>null</code>
      * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
-     *         same type of the arrays.
+     * same type of the arrays.
      */
     @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
     @IgnoreNonVarargsMatching
@@ -3165,7 +3165,7 @@ public final class RulesUtils {
             }
         }
         Object result = Array.newInstance(addAllMethodDetails.getType().getComponentClass().getInstanceClass(),
-            totalLength);
+                totalLength);
         int p = 0;
         for (int i = 0; i < arrays.length; i++) {
             if (!addAllMethodDetails.getParamsAsElement()[i]) {
@@ -3228,7 +3228,7 @@ public final class RulesUtils {
                 Field[] declaredFields = aClass.getDeclaredFields();
                 for (Field field : declaredFields) {
                     if (field.getName().equals(fieldName) && java.lang.reflect.Modifier
-                        .isPublic(field.getModifiers()) && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                            .isPublic(field.getModifiers()) && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                         return field.get(null);
                     }
                 }

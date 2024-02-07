@@ -23,26 +23,26 @@ public class RuleServiceExceptionMapper implements ExceptionMapper<RuleServiceWr
     @Override
     public Response toResponse(RuleServiceWrapperException wrapperException) {
 
-            int status;
-            Object errorResponse;
-            var type = wrapperException.getType();
-            var dto = wrapperException.getDetails();
-            var message = dto.getMessage();
-            switch (type) {
-                case VALIDATION:
-                    errorResponse = new JAXRSErrorResponse(message, type);
-                    status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
-                    break;
-                case USER_ERROR:
-                    errorResponse = dto.getBody();
-                    status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
-                    break;
-                default:
-                    status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
-                    errorResponse = new JAXRSErrorResponse(message, type);
-                    break;
-            }
-            return Response.status(status).type(MediaType.APPLICATION_JSON).entity(errorResponse).build();
+        int status;
+        Object errorResponse;
+        var type = wrapperException.getType();
+        var dto = wrapperException.getDetails();
+        var message = dto.getMessage();
+        switch (type) {
+            case VALIDATION:
+                errorResponse = new JAXRSErrorResponse(message, type);
+                status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
+                break;
+            case USER_ERROR:
+                errorResponse = dto.getBody();
+                status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
+                break;
+            default:
+                status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+                errorResponse = new JAXRSErrorResponse(message, type);
+                break;
+        }
+        return Response.status(status).type(MediaType.APPLICATION_JSON).entity(errorResponse).build();
     }
 
 }

@@ -24,8 +24,8 @@ public class AppServer {
      * It is called via reflection in the isolated classloader.
      *
      * @param pathDeployment - location of the zipped OpenL projects
-     * @param jars - OpenL classpath
-     * @param workDir - folder location for temporary or working files
+     * @param jars           - OpenL classpath
+     * @param workDir        - folder location for temporary or working files
      * @throws Exception if any errors
      */
     public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {

@@ -74,7 +74,7 @@ public final class ArrayTool {
 
     /**
      * Checks that array is not empty.
-     *
+     * <p>
      * Used the following rules for checking: isEmpty (null) -> true; isEmpty (new Object[] {}) -> true; isEmpty (new
      * Object[] {null, null, ....}) -> true; isEmpty (new Object[] {null, ..., <not null value>, ...}) -> false.
      *
@@ -221,7 +221,6 @@ public final class ArrayTool {
      * of appropriate wrapper types.
      * <li>if object is not array - result is array with one element
      * </ul>
-     *
      *
      * @param object input object
      * @return array of objects

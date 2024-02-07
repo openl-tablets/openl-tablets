@@ -21,7 +21,7 @@ public class StatisticsTest {
         assertNull(max());
         assertNull(max(null));
         assertNull(max(new Integer[0]));
-        assertNull(max(new Integer[] { null }));
+        assertNull(max(new Integer[]{null}));
 
         assertEquals(Integer.valueOf(10), max(1, 10, 9));
         assertEquals(Double.valueOf(9.5), max(9.5));
@@ -34,7 +34,7 @@ public class StatisticsTest {
         assertNull(min());
         assertNull(min(null));
         assertNull(min(new Integer[0]));
-        assertNull(min(new Integer[] { null }));
+        assertNull(min(new Integer[]{null}));
 
         assertEquals(Integer.valueOf(1), min(1, 10, 9));
         assertEquals(Double.valueOf(9.5), min(9.5));
@@ -46,7 +46,7 @@ public class StatisticsTest {
     public void testSum() {
         assertNull(sum((Integer[]) null));
         assertNull(sum(new Integer[0]));
-        assertNull(sum(new Integer[] { null }));
+        assertNull(sum(new Integer[]{null}));
 
         assertEquals(Integer.valueOf(20), sum(1, 10, 9));
         assertEquals(Double.valueOf(9.5), sum(9.5));
@@ -68,7 +68,7 @@ public class StatisticsTest {
     public void testAvg() {
         assertNull(avg((Integer[]) null));
         assertNull(avg(new Integer[0]));
-        assertNull(avg(new Integer[] { null }));
+        assertNull(avg(new Integer[]{null}));
 
         assertEquals(Double.valueOf(20.0 / 3.0), avg(1, 10, 9));
         assertEquals(Double.valueOf(9.5), avg(9.5));
@@ -85,6 +85,6 @@ public class StatisticsTest {
         assertEquals(BigDecimal.valueOf(5), avg(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
         assertEquals(BigDecimal.valueOf(3.5), avg(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
         assertEquals(new BigDecimal("5.333333333333333333333333333333333", MathContext.DECIMAL128),
-            avg(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+                avg(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
     }
 }

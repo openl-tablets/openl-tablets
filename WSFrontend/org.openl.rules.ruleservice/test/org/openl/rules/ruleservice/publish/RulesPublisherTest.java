@@ -25,8 +25,8 @@ import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/RulesPublisherTest",
-    "ruleservice.isProvideRuntimeContext=false",
-    "production-repository.factory = repo-file"})
+        "ruleservice.isProvideRuntimeContext=false",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class RulesPublisherTest {
@@ -88,10 +88,10 @@ public class RulesPublisherTest {
 
     private int getCount(ServiceManager publisher) throws Exception {
         Class<?> counter = publisher.getServiceByDeploy(TUTORIAL4)
-            .getServiceBean()
-            .getClass()
-            .getClassLoader()
-            .loadClass("org.openl.rules.tutorial4.InvocationCounter");
+                .getServiceBean()
+                .getClass()
+                .getClassLoader()
+                .loadClass("org.openl.rules.tutorial4.InvocationCounter");
         return (Integer) counter.getMethod("getCount").invoke(null);
     }
 
@@ -104,16 +104,16 @@ public class RulesPublisherTest {
             RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
             int count = getCount(serviceManager);
             final int executedTimes = 10;
-            for (int i = 0;i < executedTimes;i++) {
+            for (int i = 0; i < executedTimes; i++) {
                 assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
             }
             int c = getCount(serviceManager);
             assertEquals(executedTimes, c - count);
             Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
-                .getServiceClass()
-                .getClassLoader()
-                .loadClass(DRIVER)
-                .getDeclaredConstructor().newInstance();
+                    .getServiceClass()
+                    .getClassLoader()
+                    .loadClass(DRIVER)
+                    .getDeclaredConstructor().newInstance();
             frontend.execute(TUTORIAL4, "driverAgeType", driver);
         });
     }
@@ -125,14 +125,14 @@ public class RulesPublisherTest {
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
-            .getServiceClass()
-            .getClassLoader()
-            .loadClass(DRIVER)
-            .getDeclaredConstructor().newInstance();
+                .getServiceClass()
+                .getClassLoader()
+                .loadClass(DRIVER)
+                .getDeclaredConstructor().newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
         Class<?> returnType = frontend.execute(TUTORIAL4_SERVICE_NAME, "driverAgeType", driver)
-            .getClass();
+                .getClass();
         assertTrue(returnType.isEnum());
         assertEquals("org.openl.rules.tutorial4.DriverAgeType", returnType.getName());
     }

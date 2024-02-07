@@ -16,11 +16,11 @@ public class SelectFirstIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
     protected IBoundNode createBoundNode(ISyntaxNode node,
-            IBoundNode targetNode,
-            IBoundNode expressionNode,
-            ILocalVar localVar,
-            IOpenCast openCast,
-            IBindingContext bindingContext) {
+                                         IBoundNode targetNode,
+                                         IBoundNode expressionNode,
+                                         ILocalVar localVar,
+                                         IOpenCast openCast,
+                                         IBindingContext bindingContext) {
         expressionNode = BindHelper.checkConditionBoundNode(expressionNode, bindingContext);
         return new SelectFirstIndexNode(node, targetNode, expressionNode, localVar, openCast);
     }

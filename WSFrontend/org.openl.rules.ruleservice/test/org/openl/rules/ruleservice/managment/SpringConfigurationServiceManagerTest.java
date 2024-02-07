@@ -19,8 +19,8 @@ import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 
 @TestPropertySource(properties = {
-		"production-repository.factory = repo-zip",
-		"production-repository.uri = test-resources/openl-repository/deploy"})
+        "production-repository.factory = repo-zip",
+        "production-repository.uri = test-resources/openl-repository/deploy"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
@@ -40,7 +40,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
-            "vehicleEligibilityScore",
+                "vehicleEligibilityScore",
                 RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional");
         assertTrue(object instanceof Double);
         assertEquals(50.0, (Double) object, 0.01);
@@ -55,8 +55,8 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
             RulesFrontend frontend = applicationContext.getBean(RulesFrontend.class);
             assertNotNull(frontend);
             frontend.execute("ErrorTest_ErrorTest",
-                "vehicleEligibilityScore",
-                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
+                    "vehicleEligibilityScore",
+                    RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
         });
     }
 }

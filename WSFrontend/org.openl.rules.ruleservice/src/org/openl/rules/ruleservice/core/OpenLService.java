@@ -19,7 +19,6 @@ import org.openl.types.IOpenClass;
  * RuleServiceOpenLServiceInstantiationFactory is designed for build OpenLService instances.
  *
  * @author Marat Kamalov
- *
  */
 public final class OpenLService {
     /**
@@ -59,26 +58,26 @@ public final class OpenLService {
     /**
      * Main constructor.
      *
-     * @param name service name
-     * @param url url
-     * @param serviceClassName class name for service
+     * @param name                  service name
+     * @param url                   url
+     * @param serviceClassName      class name for service
      * @param provideRuntimeContext define is runtime context should be used
-     * @param provideVariations define is variations should be supported
-     * @param modules a list of modules for load
+     * @param provideVariations     define is variations should be supported
+     * @param modules               a list of modules for load
      */
     OpenLService(String name,
-            String url,
-            String deployPath,
-            String serviceClassName,
-            String rmiServiceClassName,
-            String rmiName,
-            boolean provideRuntimeContext,
-            boolean provideVariations,
-            Set<String> publishers,
-            Collection<Module> modules,
-            ClassLoader classLoader,
-            Class<?> serviceClass,
-            DeploymentDescription deployment) {
+                 String url,
+                 String deployPath,
+                 String serviceClassName,
+                 String rmiServiceClassName,
+                 String rmiName,
+                 boolean provideRuntimeContext,
+                 boolean provideVariations,
+                 Set<String> publishers,
+                 Collection<Module> modules,
+                 ClassLoader classLoader,
+                 Class<?> serviceClass,
+                 DeploymentDescription deployment) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
         this.deployPath = deployPath;
@@ -105,18 +104,18 @@ public final class OpenLService {
 
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
         this(builder.name,
-            builder.url,
-            builder.deployPath,
-            builder.serviceClassName,
-            builder.rmiServiceClassName,
-            builder.rmiName,
-            builder.provideRuntimeContext,
-            builder.provideVariations,
-            builder.publishers,
-            builder.modules,
-            builder.classLoader,
-            builder.serviceClass,
-            builder.deployment);
+                builder.url,
+                builder.deployPath,
+                builder.serviceClassName,
+                builder.rmiServiceClassName,
+                builder.rmiName,
+                builder.provideRuntimeContext,
+                builder.provideVariations,
+                builder.publishers,
+                builder.modules,
+                builder.classLoader,
+                builder.serviceClass,
+                builder.deployment);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 
@@ -315,7 +314,9 @@ public final class OpenLService {
         this.serviceContext = serviceContext;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -324,7 +325,9 @@ public final class OpenLService {
         return result;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -351,7 +354,6 @@ public final class OpenLService {
      * OpenLService builder.
      *
      * @author Marat Kamalov
-     *
      */
     public static class OpenLServiceBuilder {
         private String name;

@@ -20,8 +20,8 @@ public class SimpleProjectEngineFactoryTest {
     public void failureWorkspaceTest() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> {
             new SimpleProjectEngineFactoryBuilder<>().setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
-                .build();
+                    .setWorkspace("test-resources/test1/third/third_rules/Third_Hello.xls")
+                    .build();
         });
     }
 
@@ -36,9 +36,9 @@ public class SimpleProjectEngineFactoryTest {
     public void failureProjectTest() throws Exception {
         assertThrows(ProjectResolvingException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/project-engine")
-                .setWorkspace("test-resources/test1")
-                .build();
+                    .setProject("test-resources/project-engine")
+                    .setWorkspace("test-resources/test1")
+                    .build();
             simpleProjectEngineFactory.newInstance();
         });
     }
@@ -46,9 +46,9 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void dynamicInterfaceTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
@@ -59,28 +59,28 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void dynamicInterfaceWithRuntimeContextTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setProvideRuntimeContext(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-            .getMethod("sayHello", IRulesRuntimeContext.class);
+                .getMethod("sayHello", IRulesRuntimeContext.class);
         assertNotNull(sayHelloMethod);
     }
 
     @Test
     public void dynamicInterfaceWithVariationTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setProvideVariations(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setProvideVariations(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-            .getMethod("sayHello", VariationsPack.class);
+                .getMethod("sayHello", VariationsPack.class);
         assertNotNull(sayHelloMethod);
         assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
     }
@@ -88,15 +88,15 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void dynamicInterfaceWithVariationAndRuntimeContextTest() throws Exception {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setProvideVariations(true)
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setProvideVariations(true)
+                .setProvideRuntimeContext(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-            .getMethod("sayHello", IRulesRuntimeContext.class, VariationsPack.class);
+                .getMethod("sayHello", IRulesRuntimeContext.class, VariationsPack.class);
         assertNotNull(sayHelloMethod);
         assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
     }
@@ -124,10 +124,10 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void staticInterfaceTest() throws Exception {
         SimpleProjectEngineFactory<SayHello> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHello>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setInterfaceClass(SayHello.class)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setInterfaceClass(SayHello.class)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
@@ -138,11 +138,11 @@ public class SimpleProjectEngineFactoryTest {
     public void staticInterfaceTestWithRuntimeContextFailureTest() throws Exception {
         assertThrows(RulesInstantiationException.class, () -> {
             SimpleProjectEngineFactory<SayHello> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHello>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setInterfaceClass(SayHello.class)
-                .setProvideRuntimeContext(true)
-                .build();
+                    .setProject("test-resources/test1/third")
+                    .setWorkspace("test-resources/test1")
+                    .setInterfaceClass(SayHello.class)
+                    .setProvideRuntimeContext(true)
+                    .build();
             Object instance = simpleProjectEngineFactory.newInstance();
             assertNotNull(instance);
         });
@@ -151,11 +151,11 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void staticInterfaceTestWithRuntimeContextTest() throws Exception {
         SimpleProjectEngineFactory<SayHelloWithRuntimeContext> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithRuntimeContext>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setInterfaceClass(SayHelloWithRuntimeContext.class)
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setInterfaceClass(SayHelloWithRuntimeContext.class)
+                .setProvideRuntimeContext(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithRuntimeContext.class);
@@ -164,12 +164,12 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void staticInterfaceTestWithRuntimeContextAndVariationTest() throws Exception {
         SimpleProjectEngineFactory<SayHelloWithRuntimeContextAndVariation> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithRuntimeContextAndVariation>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setInterfaceClass(SayHelloWithRuntimeContextAndVariation.class)
-            .setProvideRuntimeContext(true)
-            .setProvideVariations(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setInterfaceClass(SayHelloWithRuntimeContextAndVariation.class)
+                .setProvideRuntimeContext(true)
+                .setProvideVariations(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertEquals(simpleProjectEngineFactory.getInterfaceClass(),
@@ -179,11 +179,11 @@ public class SimpleProjectEngineFactoryTest {
     @Test
     public void staticInterfaceTestWithVariationTest() throws Exception {
         SimpleProjectEngineFactory<SayHelloWithVariation> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithVariation>()
-            .setProject("test-resources/test1/third")
-            .setWorkspace("test-resources/test1")
-            .setInterfaceClass(SayHelloWithVariation.class)
-            .setProvideVariations(true)
-            .build();
+                .setProject("test-resources/test1/third")
+                .setWorkspace("test-resources/test1")
+                .setInterfaceClass(SayHelloWithVariation.class)
+                .setProvideVariations(true)
+                .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithVariation.class);
@@ -206,9 +206,9 @@ public class SimpleProjectEngineFactoryTest {
     public void wrongProjectDependency() throws Exception {
         assertThrows(RulesInstantiationException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/test1/third")
-                .setProjectDependencies("test-resources/test1")
-                .build();
+                    .setProject("test-resources/test1/third")
+                    .setProjectDependencies("test-resources/test1")
+                    .build();
             simpleProjectEngineFactory.newInstance();
         });
     }
@@ -217,9 +217,9 @@ public class SimpleProjectEngineFactoryTest {
     public void wrongProjectDependency2() {
         assertThrows(IllegalArgumentException.class, () -> {
             new SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/test1/third")
-                .setProjectDependencies("test-resources/test1/unknown")
-                .build();
+                    .setProject("test-resources/test1/third")
+                    .setProjectDependencies("test-resources/test1/unknown")
+                    .build();
         });
     }
 

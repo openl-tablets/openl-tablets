@@ -31,8 +31,8 @@ public final class ProjectPackager implements FileVisitor<Path> {
      * Pack provided files in a source directory.
      *
      * @param sourceDir a file or a not empty directory for compressing
-     * @param includes the array of files to pack
-     * @param arch a zip archiver.
+     * @param includes  the array of files to pack
+     * @param arch      a zip archiver.
      */
     public static void addOpenLProject(File sourceDir, String[] includes, ZipArchiver arch) throws IOException {
         Path path = sourceDir.toPath();
@@ -48,7 +48,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
      * Pack all files in a source directory.
      *
      * @param sourceDir a file or a not empty directory for compressing
-     * @param arch a zip archiver.
+     * @param arch      a zip archiver.
      */
     public static void addOpenLProject(File sourceDir, ZipArchiver arch) throws IOException {
         Path path = sourceDir.toPath();
@@ -61,7 +61,7 @@ public final class ProjectPackager implements FileVisitor<Path> {
      * Pack system files in the beginning of the archive
      *
      * @param sourceDir a file or a not empty directory for compressing
-     * @param arch a zip archiver.
+     * @param arch      a zip archiver.
      */
     private static void resolveSystemFiles(Path sourceDir, ZipArchiver arch) throws IOException {
         for (String item : systems) {

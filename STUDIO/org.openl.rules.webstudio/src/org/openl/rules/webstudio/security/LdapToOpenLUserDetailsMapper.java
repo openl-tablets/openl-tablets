@@ -51,9 +51,9 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final String searchFilter;
 
     public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate,
-            Consumer<User> syncUserData,
-            PropertyResolver propertyResolver,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                        Consumer<User> syncUserData,
+                                        PropertyResolver propertyResolver,
+                                        BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.delegate = delegate;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -68,8 +68,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx,
-            String username,
-            Collection<? extends GrantedAuthority> authorities) {
+                                          String username,
+                                          Collection<? extends GrantedAuthority> authorities) {
         UserDetails userDetails = delegate.mapUserFromContext(ctx, username, authorities);
 
         String firstName = ctx.getStringAttribute("givenName");
@@ -81,19 +81,19 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         }
 
         Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
-            username,
-            userDetails.getAuthorities());
+                username,
+                userDetails.getAuthorities());
 
         String fixedUsername = fixCaseMatching(ctx, username);
 
         SimpleUser simpleUser = SimpleUser.builder()
-            .setFirstName(firstName)
-            .setLastName(lastName)
-            .setUsername(fixedUsername)
-            .setPrivileges(userAuthorities.stream().map(GrantedAuthority::getAuthority).map(SimplePrivilege::new).collect(Collectors.toList()))
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .build();
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setUsername(fixedUsername)
+                .setPrivileges(userAuthorities.stream().map(GrantedAuthority::getAuthority).map(SimplePrivilege::new).collect(Collectors.toList()))
+                .setEmail(email)
+                .setDisplayName(displayName)
+                .build();
 
         syncUserData.accept(simpleUser);
 
@@ -128,8 +128,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(DirContextOperations ctx,
-            String username,
-            Collection<? extends GrantedAuthority> fallbackAuthorities) {
+                                                                  String username,
+                                                                  Collection<? extends GrantedAuthority> fallbackAuthorities) {
         Collection<? extends GrantedAuthority> userAuthorities = null;
 
         Authentication authentication = AuthenticationHolder.getAuthentication();
@@ -151,8 +151,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
      * @return Not null list if successful and null if cannot load user authorities because of an error.
      */
     private Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData,
-            String username,
-            String password) {
+                                                                       String username,
+                                                                       String password) {
         try {
             String bindPrincipal = createBindPrincipal(username);
             String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
@@ -168,7 +168,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             // "userData"
             // contains objectSid attribute with String type and is broken.
             NamingEnumeration<SearchResult> userSearch = context
-                .search(searchBaseDn, searchFilter, new Object[] { bindPrincipal, username }, searchControls);
+                    .search(searchBaseDn, searchFilter, new Object[]{bindPrincipal, username}, searchControls);
             if (!userSearch.hasMoreElements()) {
                 log.warn("Cannot find account '{}'. Skip nested groups and primary group search.", username);
                 return null;
@@ -177,9 +177,9 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
             // Find all groups
             NamingEnumeration<SearchResult> groupsSearch = context.search(searchBaseDn,
-                groupFilter,
-                new Object[] { bindPrincipal, username, userData.getDn() },
-                searchControls);
+                    groupFilter,
+                    new Object[]{bindPrincipal, username, userData.getDn()},
+                    searchControls);
 
             // Fill authorities using search result
             ArrayList<GrantedAuthority> authorities = new ArrayList<>();

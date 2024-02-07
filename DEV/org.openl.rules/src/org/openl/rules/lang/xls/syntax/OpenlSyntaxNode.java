@@ -13,7 +13,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public class OpenlSyntaxNode extends TerminalNode {
 

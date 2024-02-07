@@ -23,7 +23,6 @@ import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
- *
  */
 public class NicePrinterAdaptor {
 
@@ -51,7 +50,7 @@ public class NicePrinterAdaptor {
 
     }
 
-    private static final Class<?>[] primitiveClasses = { Integer.class,
+    private static final Class<?>[] primitiveClasses = {Integer.class,
             Double.class,
             Boolean.class,
             Character.class,
@@ -61,7 +60,7 @@ public class NicePrinterAdaptor {
             Short.class,
             String.class,
             Date.class,
-            Locale.class };
+            Locale.class};
 
     private static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
 

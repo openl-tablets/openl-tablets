@@ -11,7 +11,6 @@ import org.openl.rules.tbasic.TBasicSpecificationKey;
 
 /**
  * @author User
- *
  */
 public class LabelManager {
     private static class LabelType {
@@ -164,7 +163,7 @@ public class LabelManager {
         // label should contain 1 or 2 parts, first with label name, second with
         // loop keyword
         if (instructionParts.length < 1 || instructionParts.length > 2 || instructionParts.length == 2 && !loopKeyword
-            .equals(instructionParts[1])) {
+                .equals(instructionParts[1])) {
             // FIXME
             throw new RuntimeException("Bad gen label instruction....");
         }

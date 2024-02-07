@@ -95,8 +95,8 @@ public class LocalGitRepositoryTest {
     @Test
     public void testSaveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
-            new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
-            new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+                new FileItem("rules/project1/new-path/file4", IOUtils.toInputStream("Added")),
+                new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -121,7 +121,7 @@ public class LocalGitRepositoryTest {
         assertFalse(packDirectory.exists());
 
         List<FileItem> changes = Collections
-            .singletonList(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+                .singletonList(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -200,11 +200,11 @@ public class LocalGitRepositoryTest {
 
             // !!! The text must be same as in branch1 for this test scenario. Resolve with choosing "all theirs".
             Iterable<FileItem> resolvedFiles = Collections
-                .singletonList(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
+                    .singletonList(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
 
             repo.merge("branch1",
-                new UserInfo("admin", "admin@email", "Admin"),
-                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new UserInfo("admin", "admin@email", "Admin"),
+                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInBranch1, GitRepositoryTest.readText(repo.read(file)));
@@ -212,7 +212,7 @@ public class LocalGitRepositoryTest {
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();
             assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
-                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
+                    "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
         }
     }
 
@@ -259,11 +259,11 @@ public class LocalGitRepositoryTest {
 
             // !!! The text must be same as in master for this test scenario. Resolve with choosing "all yours".
             Iterable<FileItem> resolvedFiles = Collections
-                .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
+                    .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
 
             repo.merge("branch1",
-                new UserInfo("admin", "admin@email", "Admin"),
-                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new UserInfo("admin", "admin@email", "Admin"),
+                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInMaster, GitRepositoryTest.readText(repo.read(file)));
@@ -271,7 +271,7 @@ public class LocalGitRepositoryTest {
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();
             assertFalse(repo.isCheckoutOldVersion(project1, lastVersion),
-                "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
+                    "Last commit (resolve merge conflict) is treated as old version. Must be last version.");
         }
     }
 
@@ -375,12 +375,12 @@ public class LocalGitRepositoryTest {
         } catch (MergeConflictException e) {
             final String resolveMessage = "Resolve conflict (use theirs)";
             Iterable<FileItem> resolvedFiles = Collections
-                .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
+                    .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
 
             // Resolve conflict with choosing "theirs".
             repo.merge(branch2,
-                new UserInfo("admin", "admin@email", "Admin"),
-                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+                    new UserInfo("admin", "admin@email", "Admin"),
+                    new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
             assertTrue(repo.isMergedInto(branch2, mainBranch));
             // Because it was a conflict, project state in mainBranch differs from the state in branch2
             assertFalse(repo.isMergedInto(mainBranch, branch2));

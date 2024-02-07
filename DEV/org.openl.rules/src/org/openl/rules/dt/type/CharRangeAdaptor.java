@@ -21,7 +21,7 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
 
         Character max = range.getMax();
 
-        if(max != Character.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
+        if (max != Character.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
             max++;
         }
 

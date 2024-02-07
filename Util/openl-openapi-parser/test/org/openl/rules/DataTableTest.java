@@ -37,7 +37,7 @@ public class DataTableTest {
     @Test
     public void testDataTableGenerationEmptyRequest() throws IOException {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
+                .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertFalse(dataModels.isEmpty());
         DataModel petsB = findDataModel(dataModels, "PetsB");
@@ -74,14 +74,14 @@ public class DataTableTest {
     @Test
     public void testRuleWithRuntimeContext() throws IOException {
         ProjectModel pm = converter
-            .extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
+                .extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
     public void testRuleWithoutRuntimeContext() throws IOException {
         ProjectModel pm = converter
-            .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
+                .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
@@ -142,7 +142,7 @@ public class DataTableTest {
     @Test
     public void testGetPathNaming() throws IOException {
         ProjectModel pm = converter
-            .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
+                .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
         Set<DatatypeModel> datatypeModels = pm.getDatatypeModels();

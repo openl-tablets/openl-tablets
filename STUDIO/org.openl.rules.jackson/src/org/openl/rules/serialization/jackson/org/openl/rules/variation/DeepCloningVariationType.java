@@ -13,7 +13,7 @@ import org.openl.rules.variation.Variation;
  */
 public abstract class DeepCloningVariationType {
     public DeepCloningVariationType(@JsonProperty("variationID") String variationID,
-            @JsonProperty("variation") Variation variation) {
+                                    @JsonProperty("variation") Variation variation) {
     }
 
     @JsonIgnore

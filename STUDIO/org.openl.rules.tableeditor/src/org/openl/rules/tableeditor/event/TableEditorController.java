@@ -60,10 +60,10 @@ public class TableEditorController extends BaseTableEditorController {
         FacesContext context = FacesContext.getCurrentInstance();
         ELContext elContext = context.getELContext();
         MethodExpression methodExpression = context.getApplication()
-            .getExpressionFactory()
-            .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
+                .getExpressionFactory()
+                .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
         return methodExpression.invoke(FacesContext.getCurrentInstance().getELContext(),
-            params == null ? new Object[0] : params);
+                params == null ? new Object[0] : params);
     }
 
     public void startEditing() {
@@ -147,7 +147,7 @@ public class TableEditorController extends BaseTableEditorController {
         String value = null;
 
         if (editorType.equals(ICellEditor.CE_NUMERIC) || editorType.equals(ICellEditor.CE_TEXT) || editorType
-            .equals(ICellEditor.CE_MULTILINE) || editorType.equals(ICellEditor.CE_RANGE)) {
+                .equals(ICellEditor.CE_MULTILINE) || editorType.equals(ICellEditor.CE_RANGE)) {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
@@ -338,7 +338,7 @@ public class TableEditorController extends BaseTableEditorController {
                 ITableProperties props = editorModel.getTable().getProperties();
                 InheritanceLevel inheritanceLevel = props.getPropertyLevelDefinedOn(name);
                 if (InheritanceLevel.MODULE.equals(inheritanceLevel) || InheritanceLevel.CATEGORY
-                    .equals(inheritanceLevel)) {
+                        .equals(inheritanceLevel)) {
                     String inheritedValue = props.getPropertyValueAsString(name);
                     response.setInheritedValue(inheritedValue);
                 }
@@ -633,8 +633,8 @@ public class TableEditorController extends BaseTableEditorController {
         String afterSaveAction = editorModel.getAfterSaveAction();
         if (afterSaveAction != null) {
             invokeMethodExpression(afterSaveAction,
-                StringUtils.isNotBlank(newId) ? new String[] { newId } : null,
-                StringUtils.isNotBlank(newId) ? new Class[] { String.class } : null);
+                    StringUtils.isNotBlank(newId) ? new String[]{newId} : null,
+                    StringUtils.isNotBlank(newId) ? new Class[]{String.class} : null);
         }
 
         removeEditorModel();
@@ -751,9 +751,9 @@ public class TableEditorController extends BaseTableEditorController {
         }
 
         public PropertyModificationResponse(String response,
-                String status,
-                TableEditorModel model,
-                String inheritedValue) {
+                                            String status,
+                                            TableEditorModel model,
+                                            String inheritedValue) {
             super(response, status, model);
             this.inheritedValue = inheritedValue;
         }

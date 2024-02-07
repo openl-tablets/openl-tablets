@@ -54,7 +54,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     }
 
     private final AtomicReference<Map<Key, SessionFactory>> entityManagers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
+            Collections.unmodifiableMap(new HashMap<>()));
 
     public void save(Class<?>[] entityClasses, Object entity) {
         if (entity == null) {

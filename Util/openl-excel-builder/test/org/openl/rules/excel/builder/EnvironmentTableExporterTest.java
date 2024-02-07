@@ -36,19 +36,19 @@ public class EnvironmentTableExporterTest {
         environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
-            false,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                false,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
 
         byte[] bytes;
         try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
-                Collections.emptyList(),
-                sos,
-                environmentModel);
+                    Collections.emptyList(),
+                    sos,
+                    environmentModel);
             bytes = sos.toByteArray();
         }
         assertFalse(CollectionUtils.isEmpty(bytes));

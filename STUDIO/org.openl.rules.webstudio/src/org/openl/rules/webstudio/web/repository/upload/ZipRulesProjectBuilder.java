@@ -10,19 +10,18 @@ import org.openl.rules.workspace.uw.UserWorkspace;
  * Project builder for projects uploaded as zip files.
  *
  * @author DLiauchuk
- *
  */
 public class ZipRulesProjectBuilder extends RulesProjectBuilder {
     private final PathFilter filter;
     private final RootFolderExtractor folderExtractor;
 
     ZipRulesProjectBuilder(UserWorkspace workspace,
-        String repositoryId,
-        String projectName,
-        String projectFolder,
-        PathFilter filter,
-        RootFolderExtractor folderExtractor,
-        String comment) {
+                           String repositoryId,
+                           String projectName,
+                           String projectFolder,
+                           PathFilter filter,
+                           RootFolderExtractor folderExtractor,
+                           String comment) {
         super(workspace, repositoryId, projectName, projectFolder, comment);
         this.filter = filter;
         this.folderExtractor = folderExtractor;

@@ -20,7 +20,6 @@ import org.openl.util.StringUtils;
  * Temporary class for holding table properties
  *
  * @author DLiauchuk
- *
  */
 public class TableProperty {
     private String name;
@@ -44,8 +43,8 @@ public class TableProperty {
         this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
         this.type = Objects.requireNonNull(
-            propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
-            "type cannot be null");
+                propDefinition.getType() == null ? String.class : propDefinition.getType().getInstanceClass(),
+                "type cannot be null");
         this.group = propDefinition.getGroup();
         this.format = propDefinition.getFormat();
         this.deprecation = propDefinition.getDeprecation();
@@ -98,7 +97,6 @@ public class TableProperty {
     }
 
     /**
-     *
      * @return <code>TRUE</code> if property value can be overriden on TABLE level.
      */
     public boolean isCanBeOverriddenInTable() {
@@ -340,7 +338,6 @@ public class TableProperty {
      * Builder for TableProperties
      *
      * @author DLiauchuk
-     *
      */
     public static class TablePropertyBuilder {
         // Required parameters

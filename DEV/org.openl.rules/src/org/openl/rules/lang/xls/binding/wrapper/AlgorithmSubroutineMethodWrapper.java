@@ -17,13 +17,13 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            AlgorithmSubroutineMethod delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                                            AlgorithmSubroutineMethod delegate,
+                                            ContextPropertiesInjector contextPropertiesInjector,
+                                            boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

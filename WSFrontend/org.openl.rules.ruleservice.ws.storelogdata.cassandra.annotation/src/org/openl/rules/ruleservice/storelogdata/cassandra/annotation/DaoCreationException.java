@@ -7,9 +7,9 @@ public class DaoCreationException extends Exception {
     }
 
     public DaoCreationException(String message,
-            Throwable cause,
-            boolean enableSuppression,
-            boolean writableStackTrace) {
+                                Throwable cause,
+                                boolean enableSuppression,
+                                boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

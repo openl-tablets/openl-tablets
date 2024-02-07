@@ -22,6 +22,7 @@ import org.openl.ie.constrainer.IntExpConst;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A generic implementation of the IntExp interface.
  */

@@ -53,12 +53,12 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
             RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
-                .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
-                .registrationId("webstudio")
-                .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
-                .entityId(propertyResolver.getProperty("security.saml.entity-id"))
-                .signingX509Credentials(c -> c.add(signing))
-                .decryptionX509Credentials(c -> c.add(decryption));
+                    .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
+                    .registrationId("webstudio")
+                    .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
+                    .entityId(propertyResolver.getProperty("security.saml.entity-id"))
+                    .signingX509Credentials(c -> c.add(signing))
+                    .decryptionX509Credentials(c -> c.add(decryption));
 
             // Override certificate from the Metadata XML to prevent MITM attack.
             String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
@@ -84,6 +84,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     /**
      * Returns the relying party registration identified by the provided.
      * Initializes RelyingPartyRegistration if it has not been created yet.
+     *
      * @param id the registration identifier
      * @return the {@link RelyingPartyRegistration} if found, otherwise {@code null}
      */
@@ -98,6 +99,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     /**
      * Returns an iterator over elements of type {@code T}.
      * Initializes RelyingPartyRegistration if it has not been created yet.
+     *
      * @return an Iterator.
      */
     @Override

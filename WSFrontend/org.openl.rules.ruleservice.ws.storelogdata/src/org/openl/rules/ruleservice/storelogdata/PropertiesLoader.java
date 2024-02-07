@@ -39,11 +39,11 @@ public final class PropertiesLoader {
         Properties props = new Properties();
         MutablePropertySources propSources = ((AbstractEnvironment) env).getPropertySources();
         StreamSupport.stream(propSources.spliterator(), false)
-            .filter(ps -> ps instanceof EnumerablePropertySource)
-            .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
-            .flatMap(Arrays::stream)
-            .filter(propName -> validateProperty(env, propName))
-            .forEach(propName -> props.setProperty(propName, env.getProperty(propName)));
+                .filter(ps -> ps instanceof EnumerablePropertySource)
+                .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
+                .flatMap(Arrays::stream)
+                .filter(propName -> validateProperty(env, propName))
+                .forEach(propName -> props.setProperty(propName, env.getProperty(propName)));
         return props;
     }
 }

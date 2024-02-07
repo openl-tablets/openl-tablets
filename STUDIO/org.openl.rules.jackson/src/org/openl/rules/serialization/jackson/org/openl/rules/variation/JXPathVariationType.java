@@ -10,9 +10,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public abstract class JXPathVariationType {
     public JXPathVariationType(@JsonProperty("variationID") String variationID,
-            @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,
-            @JsonProperty("path") String path,
-            @JsonProperty("valueToSet") Object valueToSet) {
+                               @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,
+                               @JsonProperty("path") String path,
+                               @JsonProperty("valueToSet") Object valueToSet) {
     }
 
 }

@@ -54,6 +54,6 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
     }
 
     protected abstract IBoundNode makeNumber(String literal,
-            int multiplier,
-            ISyntaxNode node) throws SyntaxNodeException;
+                                             int multiplier,
+                                             ISyntaxNode node) throws SyntaxNodeException;
 }

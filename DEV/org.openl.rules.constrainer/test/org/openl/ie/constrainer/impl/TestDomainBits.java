@@ -54,7 +54,7 @@ public class TestDomainBits {
     @Test
     public void testBits() {
         DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
-        boolean[] bits = { false, false, true, false, true, true };
+        boolean[] bits = {false, false, true, false, true, true};
         db.forceBits(bits);
         boolean[] bt = db.bits();
         for (int i = 0; i < bits.length; i++) {
@@ -64,8 +64,8 @@ public class TestDomainBits {
 
     @Test
     public void testContains() {
-        int[] goodArray = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
+        int[] goodArray = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        int[] badArray = {-1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11};
         for (int i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainBits.contains(goodArray[i]));
             assertFalse(_probeDomainBits.contains(badArray[i]));
@@ -75,7 +75,7 @@ public class TestDomainBits {
     @Test
     public void testForceBits() {
         DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
-        boolean[] bits = new boolean[] { false, true, false, true, false, true };
+        boolean[] bits = new boolean[]{false, true, false, true, false, true};
         db.forceBits(bits);
         for (int i = 5; i <= _var.max(); i++) {
             assertEquals(db.contains(i), bits[i - 5], "does not contain " + i);
@@ -85,7 +85,7 @@ public class TestDomainBits {
     @Test
     public void testForceInsert() {
         DomainBits db = new DomainBits(_var, _var.min() + 5, _var.max());
-        boolean[] bits = new boolean[] { false, false, false, false, false, false };
+        boolean[] bits = new boolean[]{false, false, false, false, false, false};
         db.forceBits(bits);
         db.forceInsert(5);
         db.forceInsert(6);
@@ -235,7 +235,7 @@ public class TestDomainBits {
         }
         db.bits();
         db.size();
-        db.forceBits(new boolean[] { true, true, true, true, true, false, false, true, false, true, true });
+        db.forceBits(new boolean[]{true, true, true, true, true, false, false, true, false, true, true});
         try {
             db.setMax(8);
             assertEquals(7, db.max());

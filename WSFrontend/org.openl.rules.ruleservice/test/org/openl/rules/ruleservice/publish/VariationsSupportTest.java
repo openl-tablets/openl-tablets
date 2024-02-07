@@ -20,9 +20,9 @@ import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
 
 @TestPropertySource(properties = {"production-repository.uri=test-resources/VariationsSupportTest",
-    "ruleservice.isProvideRuntimeContext=false",
-    "ruleservice.isSupportVariations=true",
-    "production-repository.factory = repo-file"})
+        "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.isSupportVariations=true",
+        "production-repository.factory = repo-file"})
 @SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class VariationsSupportTest {
     public static final String STANDARD = "Standard Driver";
@@ -41,20 +41,20 @@ public class VariationsSupportTest {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         Object driver = serviceManager.getServiceByDeploy("VariationsSupportTest/org.openl.tablets.tutorial4")
-            .getServiceClass()
-            .getClassLoader()
-            .loadClass("org.openl.generated.beans.publisher.test.Driver")
-            .getDeclaredConstructor().newInstance();
+                .getServiceClass()
+                .getClassLoader()
+                .loadClass("org.openl.generated.beans.publisher.test.Driver")
+                .getDeclaredConstructor().newInstance();
         Method nameSetter = driver.getClass().getMethod("setGender", String.class);
         nameSetter.invoke(driver, "Male");
         Method ageSetter = driver.getClass().getMethod("setAge", int.class);
         ageSetter.invoke(driver, 40);
         VariationsPack variations = new VariationsPack(new JXPathVariation("young", 0, "age", 18),
-            new JXPathVariation("senior", 0, "age", 71));
+                new JXPathVariation("senior", 0, "age", 71));
         VariationsResult<String> resultsDrivers = (VariationsResult<String>) frontend.execute(
-            "org.openl.rules.tutorial4.Tutorial4WithVariations",
-            "driverAgeType",
-            new Object[] { driver, variations });
+                "org.openl.rules.tutorial4.Tutorial4WithVariations",
+                "driverAgeType",
+                new Object[]{driver, variations});
         assertEquals(YOUNG, resultsDrivers.getResultForVariation("young"));
         assertEquals(SENIOR, resultsDrivers.getResultForVariation("senior"));
         assertEquals(STANDARD, resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION));

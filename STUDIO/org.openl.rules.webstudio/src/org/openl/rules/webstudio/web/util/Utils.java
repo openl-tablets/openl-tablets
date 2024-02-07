@@ -27,7 +27,7 @@ public class Utils {
 
     public String toJSText(String str) {
         return str == null ? null
-                           : str.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'").replace("/", "\\/");
+                : str.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "\\'").replace("/", "\\/");
     }
 
     public String toUrl(String path) {
@@ -44,9 +44,9 @@ public class Utils {
 
     public String makeUrl(String... path) {
         return "#" + Stream.of(path)
-            .filter(StringUtils::isNotBlank)
-            .map(StringTool::encodeURL)
-            .collect(Collectors.joining("/"));
+                .filter(StringUtils::isNotBlank)
+                .map(StringTool::encodeURL)
+                .collect(Collectors.joining("/"));
     }
 
     public String encode(String name) {

@@ -12,12 +12,12 @@ abstract class DTHeader {
     final boolean horizontal;
 
     DTHeader(int[] methodParameterIndexes,
-            String statement,
-            int column,
-            int row,
-            int width,
-            int widthForMerge,
-            boolean horizontal) {
+             String statement,
+             int column,
+             int row,
+             int width,
+             int widthForMerge,
+             boolean horizontal) {
         this.methodParameterIndexes = methodParameterIndexes;
         this.statement = statement;
         this.column = column;
@@ -91,7 +91,7 @@ abstract class DTHeader {
     @Override
     public String toString() {
         return "DTHeader [type=" + getTypeString() + " methodParameterIndexes=" + Arrays.toString(
-            methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "] horizontal=" + isHCondition();
+                methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "] horizontal=" + isHCondition();
     }
 
 }

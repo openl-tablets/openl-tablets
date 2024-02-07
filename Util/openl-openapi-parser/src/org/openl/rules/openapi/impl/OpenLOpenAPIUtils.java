@@ -77,9 +77,9 @@ public class OpenLOpenAPIUtils {
 
     public static Set<String> getUnusedSchemaRefs(OpenAPI openAPI, Iterable<String> usedRefs) {
         Set<String> schemaNames = getSchemas(openAPI).keySet()
-            .stream()
-            .map(name -> SCHEMAS_LINK + name)
-            .collect(Collectors.toSet());
+                .stream()
+                .map(name -> SCHEMAS_LINK + name)
+                .collect(Collectors.toSet());
         for (String usedRef : usedRefs) {
             schemaNames.remove(usedRef);
         }
@@ -156,7 +156,7 @@ public class OpenLOpenAPIUtils {
     }
 
     public static Map<String, Map<String, Integer>> collectPathsWithParams(Paths paths,
-            OpenAPIRefResolver openAPIRefResolver) {
+                                                                           OpenAPIRefResolver openAPIRefResolver) {
         Map<String, Map<String, Integer>> resultMap = new HashMap<>();
         Set<String> visitedSchemas = new HashSet<>();
         if (CollectionUtils.isNotEmpty(paths)) {
@@ -185,7 +185,7 @@ public class OpenLOpenAPIUtils {
     }
 
     public static Map<Pair<String, PathItem.HttpMethod>, Set<String>> getAllUsedRefResponses(Paths paths,
-            OpenAPIRefResolver openAPIRefResolver) {
+                                                                                             OpenAPIRefResolver openAPIRefResolver) {
         Map<Pair<String, PathItem.HttpMethod>, Set<String>> allSchemaRefResponses = new HashMap<>();
         if (paths != null) {
             for (Map.Entry<String, PathItem> pathEntry : paths.entrySet()) {
@@ -206,9 +206,9 @@ public class OpenLOpenAPIUtils {
                                         Schema<?> mediaTypeSchema = mediaType.getContent().getSchema();
                                         if (mediaTypeSchema != null) {
                                             Set<String> refs = OpenLOpenAPIUtils
-                                                .visitSchema(openAPIRefResolver, mediaTypeSchema, false, false);
+                                                    .visitSchema(openAPIRefResolver, mediaTypeSchema, false, false);
                                             final Pair<String, PathItem.HttpMethod> pathWithOperation = Pair.of(path,
-                                                httpMethod);
+                                                    httpMethod);
                                             if (allSchemaRefResponses.containsKey(pathWithOperation)) {
                                                 Set<String> existingRefs = allSchemaRefResponses.get(pathWithOperation);
                                                 existingRefs.addAll(refs);
@@ -229,9 +229,9 @@ public class OpenLOpenAPIUtils {
     }
 
     public static Set<String> visitSchema(OpenAPIRefResolver openAPIRefResolver,
-            Schema<?> schema,
-            boolean visitInterfaces,
-            boolean visitProperties) {
+                                          Schema<?> schema,
+                                          boolean visitInterfaces,
+                                          boolean visitProperties) {
         Set<String> result = new HashSet<>();
         Set<String> visitedSchema = new HashSet<>();
         visitSchema(openAPIRefResolver, schema, null, visitedSchema, (Schema<?> x) -> {
@@ -257,9 +257,9 @@ public class OpenLOpenAPIUtils {
     }
 
     private static void visitPathItem(PathItem pathItem,
-            OpenAPIRefResolver openAPIRefResolver,
-            Consumer<Schema<?>> visitor,
-            Set<String> visitedSchemas) {
+                                      OpenAPIRefResolver openAPIRefResolver,
+                                      Consumer<Schema<?>> visitor,
+                                      Set<String> visitedSchemas) {
         List<Operation> allOperations = pathItem.readOperations();
         if (allOperations != null) {
             for (Operation operation : allOperations) {
@@ -283,18 +283,18 @@ public class OpenLOpenAPIUtils {
                                     Header header = resolve(openAPIRefResolver, e.getValue(), Header::get$ref);
                                     if (header.getSchema() != null) {
                                         visitSchema(openAPIRefResolver,
-                                            header.getSchema(),
-                                            e.getKey(),
-                                            visitedSchemas,
-                                            visitor,
-                                            true,
-                                            true);
+                                                header.getSchema(),
+                                                e.getKey(),
+                                                visitedSchemas,
+                                                visitor,
+                                                true,
+                                                true);
                                     }
                                     visitContent(openAPIRefResolver,
-                                        header.getContent(),
-                                        visitor,
-                                        visitedSchemas,
-                                        true);
+                                            header.getContent(),
+                                            visitor,
+                                            visitedSchemas,
+                                            true);
                                 }
                             }
                         }
@@ -318,9 +318,9 @@ public class OpenLOpenAPIUtils {
     }
 
     private static void visitPathItemRequests(PathItem pathItem,
-            OpenAPIRefResolver openAPIRefResolver,
-            Consumer<Schema<?>> visitor,
-            Set<String> visitedSchemas) {
+                                              OpenAPIRefResolver openAPIRefResolver,
+                                              Consumer<Schema<?>> visitor,
+                                              Set<String> visitedSchemas) {
         List<Operation> allOperations = pathItem.readOperations();
         if (allOperations != null) {
             for (Operation operation : allOperations) {
@@ -337,23 +337,23 @@ public class OpenLOpenAPIUtils {
     }
 
     private static void visitParameters(OpenAPIRefResolver openAPIRefResolver,
-            List<Parameter> parameters,
-            Consumer<Schema<?>> visitor,
-            Set<String> visitedSchemas,
-            boolean visitInterfaces,
-            boolean visitProperties) {
+                                        List<Parameter> parameters,
+                                        Consumer<Schema<?>> visitor,
+                                        Set<String> visitedSchemas,
+                                        boolean visitInterfaces,
+                                        boolean visitProperties) {
         if (parameters != null) {
             for (Parameter p : parameters) {
                 Parameter parameter = resolve(openAPIRefResolver, p, Parameter::get$ref);
                 if (parameter != null) {
                     if (parameter.getSchema() != null) {
                         visitSchema(openAPIRefResolver,
-                            parameter.getSchema(),
-                            null,
-                            visitedSchemas,
-                            visitor,
-                            visitInterfaces,
-                            visitProperties);
+                                parameter.getSchema(),
+                                null,
+                                visitedSchemas,
+                                visitor,
+                                visitInterfaces,
+                                visitProperties);
                     }
                     visitContent(openAPIRefResolver, parameter.getContent(), visitor, visitedSchemas, visitInterfaces);
                 } else {
@@ -364,33 +364,33 @@ public class OpenLOpenAPIUtils {
     }
 
     private static void visitContent(OpenAPIRefResolver openAPIRefResolver,
-            Content content,
-            Consumer<Schema<?>> visitor,
-            Set<String> visitedSchemas,
-            boolean visitInterfaces) {
+                                     Content content,
+                                     Consumer<Schema<?>> visitor,
+                                     Set<String> visitedSchemas,
+                                     boolean visitInterfaces) {
         if (content != null) {
             for (Map.Entry<String, MediaType> e : content.entrySet()) {
                 Schema<?> mediaTypeSchema = e.getValue().getSchema();
                 if (mediaTypeSchema != null) {
                     visitSchema(openAPIRefResolver,
-                        mediaTypeSchema,
-                        e.getKey(),
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        true);
+                            mediaTypeSchema,
+                            e.getKey(),
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            true);
                 }
             }
         }
     }
 
     private static void visitSchema(OpenAPIRefResolver openAPIRefResolver,
-            Schema<?> schema,
-            String mimeType,
-            Set<String> visitedSchemas,
-            Consumer<Schema<?>> visitor,
-            boolean visitInterfaces,
-            boolean visitProperties) {
+                                    Schema<?> schema,
+                                    String mimeType,
+                                    Set<String> visitedSchemas,
+                                    Consumer<Schema<?>> visitor,
+                                    boolean visitInterfaces,
+                                    boolean visitProperties) {
         visitor.accept(schema);
         if (schema.get$ref() != null) {
             String ref = schema.get$ref();
@@ -399,12 +399,12 @@ public class OpenLOpenAPIUtils {
                 Schema<?> referencedSchema = resolve(openAPIRefResolver, schema, Schema::get$ref);
                 if (referencedSchema != null) {
                     visitSchema(openAPIRefResolver,
-                        referencedSchema,
-                        mimeType,
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        visitProperties);
+                            referencedSchema,
+                            mimeType,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                 }
             }
         }
@@ -413,24 +413,24 @@ public class OpenLOpenAPIUtils {
             if (oneOf != null) {
                 for (Schema<?> s : oneOf) {
                     visitSchema(openAPIRefResolver,
-                        s,
-                        mimeType,
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        visitProperties);
+                            s,
+                            mimeType,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                 }
             }
             List<Schema> allOf = ((ComposedSchema) schema).getAllOf();
             if (allOf != null) {
                 for (Schema<?> s : allOf) {
                     visitSchema(openAPIRefResolver,
-                        s,
-                        mimeType,
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        visitProperties);
+                            s,
+                            mimeType,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                 }
             }
 
@@ -438,57 +438,57 @@ public class OpenLOpenAPIUtils {
             if (anyOf != null) {
                 for (Schema<?> s : anyOf) {
                     visitSchema(openAPIRefResolver,
-                        s,
-                        mimeType,
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        visitProperties);
+                            s,
+                            mimeType,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                 }
             }
         } else if (schema instanceof ArraySchema) {
             Schema<?> itemsSchema = ((ArraySchema) schema).getItems();
             if (itemsSchema != null) {
                 visitSchema(openAPIRefResolver,
-                    itemsSchema,
-                    mimeType,
-                    visitedSchemas,
-                    visitor,
-                    visitInterfaces,
-                    visitProperties);
+                        itemsSchema,
+                        mimeType,
+                        visitedSchemas,
+                        visitor,
+                        visitInterfaces,
+                        visitProperties);
             }
         } else if (isMapSchema(schema)) {
             Object additionalProperties = schema.getAdditionalProperties();
             if (additionalProperties instanceof Schema) {
                 visitSchema(openAPIRefResolver,
-                    (Schema) additionalProperties,
+                        (Schema) additionalProperties,
+                        mimeType,
+                        visitedSchemas,
+                        visitor,
+                        visitInterfaces,
+                        visitProperties);
+            }
+        }
+        if (schema.getNot() != null) {
+            visitSchema(openAPIRefResolver,
+                    schema.getNot(),
                     mimeType,
                     visitedSchemas,
                     visitor,
                     visitInterfaces,
                     visitProperties);
-            }
-        }
-        if (schema.getNot() != null) {
-            visitSchema(openAPIRefResolver,
-                schema.getNot(),
-                mimeType,
-                visitedSchemas,
-                visitor,
-                visitInterfaces,
-                visitProperties);
         }
         if (visitProperties) {
             Map<String, Schema> properties = schema.getProperties();
             if (properties != null) {
                 for (Schema<?> property : properties.values()) {
                     visitSchema(openAPIRefResolver,
-                        property,
-                        mimeType,
-                        visitedSchemas,
-                        visitor,
-                        visitInterfaces,
-                        visitProperties);
+                            property,
+                            mimeType,
+                            visitedSchemas,
+                            visitor,
+                            visitInterfaces,
+                            visitProperties);
                 }
             }
         }
@@ -512,7 +512,7 @@ public class OpenLOpenAPIUtils {
 
     public static Map<String, Schema> getSchemas(OpenAPI openAPI) {
         if (openAPI != null && openAPI.getComponents() != null && CollectionUtils
-            .isNotEmpty(openAPI.getComponents().getSchemas())) {
+                .isNotEmpty(openAPI.getComponents().getSchemas())) {
             return openAPI.getComponents().getSchemas();
         }
         return Collections.emptyMap();
@@ -569,16 +569,16 @@ public class OpenLOpenAPIUtils {
     }
 
     public static List<InputParameter> extractParameters(OpenAPIRefResolver openAPIRefResolver,
-            Set<String> refsToExpand,
-            PathItem pathItem,
-            Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
+                                                         Set<String> refsToExpand,
+                                                         PathItem pathItem,
+                                                         Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
         return visitPathItemForParametersOfRequest(openAPIRefResolver, pathItem, refsToExpand, operationEntry);
     }
 
     private static List<InputParameter> visitPathItemForParametersOfRequest(OpenAPIRefResolver openAPIRefResolver,
-            PathItem pathItem,
-            Set<String> refsToExpand,
-            Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
+                                                                            PathItem pathItem,
+                                                                            Set<String> refsToExpand,
+                                                                            Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
         boolean pathParametersArePresented = CollectionUtils.isNotEmpty(pathParameters);
@@ -593,21 +593,21 @@ public class OpenLOpenAPIUtils {
             boolean operationsParametersArePresented = CollectionUtils.isNotEmpty(parameters);
             if (operationsParametersArePresented) {
                 parameterModels
-                    .addAll(collectInputParams(openAPIRefResolver, parameters, refsToExpand, allowPrimitiveTypes));
+                        .addAll(collectInputParams(openAPIRefResolver, parameters, refsToExpand, allowPrimitiveTypes));
             }
             RequestBody requestBody = resolve(openAPIRefResolver,
-                satisfyingOperation.getRequestBody(),
-                RequestBody::get$ref);
+                    satisfyingOperation.getRequestBody(),
+                    RequestBody::get$ref);
             if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
                 MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
                 if (mediaType != null) {
                     MediaType content = mediaType.getContent();
                     Schema<?> resSchema = resolve(openAPIRefResolver, content.getSchema(), Schema::get$ref);
                     parameterModels.addAll(collectInputParams(openAPIRefResolver,
-                        refsToExpand,
-                        mediaType,
-                        resSchema,
-                        pathParametersArePresented || operationsParametersArePresented));
+                            refsToExpand,
+                            mediaType,
+                            resSchema,
+                            pathParametersArePresented || operationsParametersArePresented));
                 }
             }
         }
@@ -632,9 +632,9 @@ public class OpenLOpenAPIUtils {
     }
 
     private static List<InputParameter> collectInputParams(OpenAPIRefResolver openAPIRefResolver,
-            Collection<Parameter> params,
-            Set<String> refsToExpand,
-            boolean allowPrimitiveTypes) {
+                                                           Collection<Parameter> params,
+                                                           Set<String> refsToExpand,
+                                                           boolean allowPrimitiveTypes) {
         List<InputParameter> result = new ArrayList<>();
         for (Parameter param : params) {
             Parameter p = resolve(openAPIRefResolver, param, Parameter::get$ref);
@@ -650,13 +650,13 @@ public class OpenLOpenAPIUtils {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
                         ParameterModel parameterModel = new ParameterModel(
-                            OpenAPITypeUtils.extractType(openAPIRefResolver, paramSchema, allowPrimitiveTypes),
-                            normalizeName(p.getName()),
-                            p.getName());
+                                OpenAPITypeUtils.extractType(openAPIRefResolver, paramSchema, allowPrimitiveTypes),
+                                normalizeName(p.getName()),
+                                p.getName());
                         Optional.ofNullable(p.getIn())
-                            .map(String::toUpperCase)
-                            .map(InputParameter.In::valueOf)
-                            .ifPresent(parameterModel::setIn);
+                                .map(String::toUpperCase)
+                                .map(InputParameter.In::valueOf)
+                                .ifPresent(parameterModel::setIn);
                         result.add(parameterModel);
                     }
                 }
@@ -666,9 +666,9 @@ public class OpenLOpenAPIUtils {
     }
 
     private static List<InputParameter> collectParameters(OpenAPIRefResolver openAPIRefResolver,
-            Set<String> refsToExpand,
-            Schema<?> paramSchema,
-            String ref) {
+                                                          Set<String> refsToExpand,
+                                                          Schema<?> paramSchema,
+                                                          String ref) {
         List<InputParameter> result = new ArrayList<>();
         Map<String, Schema> properties;
         if (paramSchema instanceof ComposedSchema) {
@@ -689,24 +689,24 @@ public class OpenLOpenAPIUtils {
                     typeInfo = new TypeInfo(name, name, TypeInfo.Type.DATATYPE);
                 }
                 ParameterModel parameterModel = new ParameterModel(typeInfo,
-                    StringUtils.uncapitalize(normalizeName(name)),
-                    name);
+                        StringUtils.uncapitalize(normalizeName(name)),
+                        name);
                 result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()
-                    .stream()
-                    .map(p -> OpenLOpenAPIUtils.extractParameter(p, openAPIRefResolver))
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(p -> OpenLOpenAPIUtils.extractParameter(p, openAPIRefResolver))
+                        .collect(Collectors.toList());
             }
         }
         return result;
     }
 
     private static List<InputParameter> collectInputParams(OpenAPIRefResolver openAPIRefResolver,
-            Set<String> refsToExpand,
-            MediaTypeInfo mediaType,
-            Schema<?> resSchema,
-            boolean parametersArePresented) {
+                                                           Set<String> refsToExpand,
+                                                           MediaTypeInfo mediaType,
+                                                           Schema<?> resSchema,
+                                                           boolean parametersArePresented) {
         List<InputParameter> result = new ArrayList<>();
         if (resSchema != null) {
             // search for refsToExpandInside
@@ -729,7 +729,7 @@ public class OpenLOpenAPIUtils {
             } else {
                 // non expandable
                 TypeInfo typeInfo = OpenAPITypeUtils
-                    .extractType(openAPIRefResolver, mediaType.getContent().getSchema(), false);
+                        .extractType(openAPIRefResolver, mediaType.getContent().getSchema(), false);
                 String type = typeInfo.getSimpleName();
                 if (StringUtils.isBlank(type)) {
                     result = Collections.emptyList();
@@ -742,7 +742,7 @@ public class OpenLOpenAPIUtils {
                         parameter += "Param";
                     }
                     result = new ArrayList<>(Collections
-                        .singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter))));
+                            .singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter))));
                 }
             }
         }
@@ -750,7 +750,7 @@ public class OpenLOpenAPIUtils {
     }
 
     public static ParameterModel extractParameter(Map.Entry<String, Schema> property,
-            OpenAPIRefResolver openAPIRefResolver) {
+                                                  OpenAPIRefResolver openAPIRefResolver) {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
         TypeInfo typeModel = OpenAPITypeUtils.extractType(openAPIRefResolver, valueSchema, false);

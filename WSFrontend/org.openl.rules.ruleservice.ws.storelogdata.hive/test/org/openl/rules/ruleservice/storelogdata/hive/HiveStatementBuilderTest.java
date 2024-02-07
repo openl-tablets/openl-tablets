@@ -44,7 +44,7 @@ public class HiveStatementBuilderTest {
     @Test
     public void constructorTest_notAnnotated() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new HiveStatementBuilder( NotAnnotatedEntity.class);
+            new HiveStatementBuilder(NotAnnotatedEntity.class);
         });
     }
 

@@ -418,7 +418,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         @Path("/value")
         @Operation(summary = "Download resource file", tags = "Resource",
                 responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
-                             @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
+                        @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
         String someMethod(String arg);
     }
 
@@ -442,15 +442,15 @@ public class JAXRSOpenLServiceEnhancerTest {
         ClassLoader classLoader = new ClassLoader() {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
-            .setName("test")
-            .setDeployPath("testPath")
-            .setDeployment(new DeploymentDescription("testPath", new CommonVersionImpl("0")))
-            .setServiceClass(clazz)
-            .build(new AbstractOpenLServiceInitializer() {
-                @Override
-                protected void init(OpenLService openLService) {
-                }
-            });
+                .setName("test")
+                .setDeployPath("testPath")
+                .setDeployment(new DeploymentDescription("testPath", new CommonVersionImpl("0")))
+                .setServiceClass(clazz)
+                .build(new AbstractOpenLServiceInitializer() {
+                    @Override
+                    protected void init(OpenLService openLService) {
+                    }
+                });
         service.setServiceBean(new Object());
         Object proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service);
         return proxy.getClass().getInterfaces()[0];

@@ -22,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractAlgorithmWrapper extends Algorithm {
     static {
         WrapperValidation.validateWrapperClass(AbstractAlgorithmWrapper.class,
-            AbstractAlgorithmWrapper.class.getSuperclass());
+                AbstractAlgorithmWrapper.class.getSuperclass());
     }
 
     protected final Algorithm delegate;

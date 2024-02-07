@@ -8,9 +8,9 @@ import org.openl.vm.IRuntimeEnv;
 abstract class AbstractContextPropertyInjector implements IContextPropertyInjection {
 
     public IRulesRuntimeContext inject(Object[] params,
-            IRuntimeEnv env,
-            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
-            IRulesRuntimeContext rulesRuntimeContext) {
+                                       IRuntimeEnv env,
+                                       SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
+                                       IRulesRuntimeContext rulesRuntimeContext) {
         if (isProcessable(params)) {
             Object value = getValue(params, env);
             if (value == null && "locale".equals(getContextProperty())) {

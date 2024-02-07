@@ -68,8 +68,8 @@ public class GroupManagementTest {
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
         assertCollectionEquals(privileges.stream().map(Privilege::getName).collect(Collectors.toList()),
-            extGroups,
-            Group::getName);
+                extGroups,
+                Group::getName);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
@@ -84,8 +84,8 @@ public class GroupManagementTest {
         QueryCountHolder.clear();
         List<Group> matchedExtGroups = externalGroupService.findMatchedForUser("jdoe");
         assertCollectionEquals(Stream.of("Analysts", "Deployers").collect(Collectors.toSet()),
-            matchedExtGroups,
-            Group::getName);
+                matchedExtGroups,
+                Group::getName);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(11, queryCount.getSelect());
         assertEquals(11, queryCount.getTotal());
@@ -100,9 +100,9 @@ public class GroupManagementTest {
         QueryCountHolder.clear();
         List<Group> notMatchedExtGroups = externalGroupService.findNotMatchedForUser("jdoe");
         assertCollectionEquals(privileges.stream()
-            .map(Privilege::getName)
-            .filter(p -> !"Analysts".equals(p) && !"Deployers".equals(p))
-            .collect(Collectors.toList()), notMatchedExtGroups, Group::getName);
+                .map(Privilege::getName)
+                .filter(p -> !"Analysts".equals(p) && !"Deployers".equals(p))
+                .collect(Collectors.toList()), notMatchedExtGroups, Group::getName);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
@@ -143,8 +143,8 @@ public class GroupManagementTest {
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
         assertCollectionEquals(privileges.stream().map(Privilege::getName).collect(Collectors.toList()),
-            extGroups,
-            Group::getName);
+                extGroups,
+                Group::getName);
         long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
         assertEquals(privileges.size(), cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
@@ -209,52 +209,52 @@ public class GroupManagementTest {
         List<Group> groups = groupService.getGroups();
         assertEquals(6, groups.size());
         assertCollectionEquals(Stream.of("Administrators", "Analysts", "Deployers", "Developers", "Testers", "Viewers")
-            .collect(Collectors.toList()), groups, Group::getName);
+                .collect(Collectors.toList()), groups, Group::getName);
 
         Map<String, Group> mappedGroups = groups.stream()
-            .collect(Collectors.toMap(Group::getName, Function.identity()));
+                .collect(Collectors.toMap(Group::getName, Function.identity()));
 
         assertCollectionEquals(Stream.of("ADMIN").collect(Collectors.toList()),
-            mappedGroups.get("Administrators").getPrivileges(),
-            Privilege::getName);
+                mappedGroups.get("Administrators").getPrivileges(),
+                Privilege::getName);
 
         assertCollectionEquals(Stream.of("Developers", "Testers").collect(Collectors.toList()),
-            mappedGroups.get("Analysts").getPrivileges(),
-            Privilege::getName);
+                mappedGroups.get("Analysts").getPrivileges(),
+                Privilege::getName);
 
         assertCollectionEquals(
-            Stream
-                .of("Viewers",
-                    "DELETE_DEPLOYMENT",
-                    "ERASE_DEPLOYMENT",
-                    "CREATE_DEPLOYMENT",
-                    "DEPLOY_PROJECTS",
-                    "EDIT_DEPLOYMENT")
-                .collect(Collectors.toList()),
-            mappedGroups.get("Deployers").getPrivileges(),
-            Privilege::getName);
+                Stream
+                        .of("Viewers",
+                                "DELETE_DEPLOYMENT",
+                                "ERASE_DEPLOYMENT",
+                                "CREATE_DEPLOYMENT",
+                                "DEPLOY_PROJECTS",
+                                "EDIT_DEPLOYMENT")
+                        .collect(Collectors.toList()),
+                mappedGroups.get("Deployers").getPrivileges(),
+                Privilege::getName);
 
         assertCollectionEquals(
-            Stream
-                .of("Viewers",
-                    "CREATE_PROJECTS",
-                    "CREATE_TABLES",
-                    "ERASE_PROJECTS",
-                    "REMOVE_TABLES",
-                    "EDIT_PROJECTS",
-                    "EDIT_TABLES",
-                    "DELETE_PROJECTS")
-                .collect(Collectors.toList()),
-            mappedGroups.get("Developers").getPrivileges(),
-            Privilege::getName);
+                Stream
+                        .of("Viewers",
+                                "CREATE_PROJECTS",
+                                "CREATE_TABLES",
+                                "ERASE_PROJECTS",
+                                "REMOVE_TABLES",
+                                "EDIT_PROJECTS",
+                                "EDIT_TABLES",
+                                "DELETE_PROJECTS")
+                        .collect(Collectors.toList()),
+                mappedGroups.get("Developers").getPrivileges(),
+                Privilege::getName);
 
         assertCollectionEquals(Stream.of("TRACE", "BENCHMARK", "RUN", "Viewers").collect(Collectors.toList()),
-            mappedGroups.get("Testers").getPrivileges(),
-            Privilege::getName);
+                mappedGroups.get("Testers").getPrivileges(),
+                Privilege::getName);
 
         assertCollectionEquals(Stream.of("VIEW_PROJECTS").collect(Collectors.toList()),
-            mappedGroups.get("Viewers").getPrivileges(),
-            Privilege::getName);
+                mappedGroups.get("Viewers").getPrivileges(),
+                Privilege::getName);
 
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(13, queryCount.getSelect());
@@ -294,8 +294,8 @@ public class GroupManagementTest {
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllByName("GROUP_1", 10);
         assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10", "GROUP_11", "GROUP_12").collect(Collectors.toList()),
-            extGroups,
-            Group::getName);
+                extGroups,
+                Group::getName);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
@@ -328,21 +328,21 @@ public class GroupManagementTest {
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,
-            Collection<T> actual,
-            Function<T, R> attr) {
+                                                      Collection<T> actual,
+                                                      Function<T, R> attr) {
         List<R> transformedActual = actual.stream().map(attr).collect(Collectors.toList());
         List<R> rest = new ArrayList<>(transformedActual);
         rest.removeAll(expected);
         if (!rest.isEmpty()) {
             fail(String.format("Unexpected items: %s",
-                rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
+                    rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
         }
 
         rest = new ArrayList<>(expected);
         rest.removeAll(transformedActual);
         if (!rest.isEmpty()) {
             fail(String.format("Missed expected items: %s",
-                rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
+                    rest.stream().map(Object::toString).collect(Collectors.joining(" ,"))));
         }
     }
 
@@ -358,7 +358,7 @@ public class GroupManagementTest {
 
     private void initOneUser() {
         userService
-            .addUser("jdoe", "Joe", "Doe", "qwerty", "jdoe@test", "Joe Doe");
+                .addUser("jdoe", "Joe", "Doe", "qwerty", "jdoe@test", "Joe Doe");
         QueryCountHolder.clear();
     }
 

@@ -46,7 +46,7 @@ public class RepositoryProjectRulesDeployConfig {
     private boolean created;
 
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
-        RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+                                              RulesDeploySerializerFactory rulesDeploySerializerFactory) {
         this.repositoryTreeState = repositoryTreeState;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
 
@@ -60,7 +60,7 @@ public class RepositoryProjectRulesDeployConfig {
         }
 
         if (lastProject != project || !Objects.equals(lastBranch, project.getBranch()) || !Objects.equals(version,
-            project.getHistoryVersion())) {
+                project.getHistoryVersion())) {
             rulesDeploy = null;
             lastProject = project;
             lastBranch = project.getBranch();
@@ -108,7 +108,7 @@ public class RepositoryProjectRulesDeployConfig {
             UserWorkspaceProject project = getProject();
 
             InputStream inputStream = IOUtils
-                .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
+                    .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -132,7 +132,7 @@ public class RepositoryProjectRulesDeployConfig {
     private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
         if (project.getRepository() instanceof FileSystemRepository) {
             File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(),
-                project.getFolderPath());
+                    project.getFolderPath());
             return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
         }
         return SupportedVersion.getLastVersion();
@@ -150,7 +150,8 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             try (var content = artefact.getContent()) {
-                var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);;
+                var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);
+                ;
                 return serializer.deserialize(sourceString, getSupportedVersion(project));
             }
         } catch (IOException | ProjectException e) {

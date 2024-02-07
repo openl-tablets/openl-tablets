@@ -16,6 +16,7 @@ public class CharRange extends Range<Character> {
     protected final Character min;
     protected final Character max;
     protected final Type type;
+
     public CharRange(char min, char max) {
         this.min = min;
         this.max = max;

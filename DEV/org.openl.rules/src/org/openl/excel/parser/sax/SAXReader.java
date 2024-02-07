@@ -94,9 +94,9 @@ public class SAXReader implements ExcelReader {
 
             XMLReader parser = XMLHelper.newXMLReader();
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
-                use1904Windowing,
-                styleTable,
-                parserDateUtil);
+                    use1904Windowing,
+                    styleTable,
+                    parserDateUtil);
             parser.setContentHandler(handler);
 
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
@@ -141,10 +141,10 @@ public class SAXReader implements ExcelReader {
             }
 
             return new SAXTableStyles(tableRegion,
-                styleIndexHandler.getCellIndexes(),
-                r.getStylesTable(),
-                getSheetComments(pkg.pck, saxSheet),
-                styleIndexHandler.getFormulas());
+                    styleIndexHandler.getCellIndexes(),
+                    r.getStylesTable(),
+                    getSheetComments(pkg.pck, saxSheet),
+                    styleIndexHandler.getFormulas());
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
         }
@@ -193,7 +193,7 @@ public class SAXReader implements ExcelReader {
         try {
             // Get workbook part
             PackageRelationship workbookRel = pkg.getRelationshipsByType(PackageRelationshipTypes.CORE_DOCUMENT)
-                .getRelationship(0);
+                    .getRelationship(0);
             PackagePart workbookPart = pkg.getPart(workbookRel);
 
             // Find sheet part by relation id
@@ -201,7 +201,7 @@ public class SAXReader implements ExcelReader {
             PackagePart sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
 
             PackageRelationshipCollection commentRelList = sheetPart
-                .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+                    .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
             if (commentRelList.size() > 0) {
                 // Comments have only one relationship
                 PackageRelationship commentRel = commentRelList.getRelationship(0);

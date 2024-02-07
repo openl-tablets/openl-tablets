@@ -18,12 +18,12 @@ public final class EditHelper {
     }
 
     public static boolean updateSystemProperties(IOpenLTable table,
-            TableEditorModel tableEditorModel,
-            String userMode) {
+                                                 TableEditorModel tableEditorModel,
+                                                 String userMode) {
         boolean result = true;
         if (table.isCanContainProperties()) {
             List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils
-                .getSystemProperties();
+                    .getSystemProperties();
             for (TablePropertyDefinition systemProperty : systemPropertiesDefinitions) {
                 result = updateSystemValue(tableEditorModel, systemProperty, userMode);
             }
@@ -32,8 +32,8 @@ public final class EditHelper {
     }
 
     private static boolean updateSystemValue(TableEditorModel editorModel,
-            TablePropertyDefinition systemProperty,
-            String userMode) {
+                                             TablePropertyDefinition systemProperty,
+                                             String userMode) {
         final Logger log = LoggerFactory.getLogger(EditHelper.class);
         boolean result = false;
         String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
@@ -52,8 +52,8 @@ public final class EditHelper {
                     }
                 } catch (Exception e) {
                     String message = String.format("Cannot update system property '%s' with value '%s'",
-                        systemProperty.getName(),
-                        systemValue);
+                            systemProperty.getName(),
+                            systemValue);
                     log.error(message, e);
                     throw new IllegalStateException(message, e);
                 }

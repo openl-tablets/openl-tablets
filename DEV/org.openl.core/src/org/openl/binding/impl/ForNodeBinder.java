@@ -6,7 +6,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author Yury Molchan
- *
  */
 public class ForNodeBinder extends ANodeBinder {
 

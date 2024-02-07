@@ -207,27 +207,27 @@ public class TableProperties {
         }
         if (tableProperties.getEffectiveDate() != null) {
             sb.append("EffectiveDate")
-                .append(" = ")
-                .append(toString(tableProperties.getEffectiveDate()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getEffectiveDate()))
+                    .append("\r\n");
         }
         if (tableProperties.getExpirationDate() != null) {
             sb.append("ExpirationDate")
-                .append(" = ")
-                .append(toString(tableProperties.getExpirationDate()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getExpirationDate()))
+                    .append("\r\n");
         }
         if (tableProperties.getStartRequestDate() != null) {
             sb.append("StartRequestDate")
-                .append(" = ")
-                .append(toString(tableProperties.getStartRequestDate()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getStartRequestDate()))
+                    .append("\r\n");
         }
         if (tableProperties.getEndRequestDate() != null) {
             sb.append("EndRequestDate")
-                .append(" = ")
-                .append(toString(tableProperties.getEndRequestDate()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getEndRequestDate()))
+                    .append("\r\n");
         }
         if (tableProperties.getCaRegions() != null) {
             sb.append("CaRegions").append(" = ").append(toString(tableProperties.getCaRegions())).append("\r\n");
@@ -285,15 +285,15 @@ public class TableProperties {
         }
         if (tableProperties.getDatatypePackage() != null) {
             sb.append("DatatypePackage")
-                .append(" = ")
-                .append(toString(tableProperties.getDatatypePackage()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getDatatypePackage()))
+                    .append("\r\n");
         }
         if (tableProperties.getSpreadsheetResultPackage() != null) {
             sb.append("SpreadsheetResultPackage")
-                .append(" = ")
-                .append(toString(tableProperties.getSpreadsheetResultPackage()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getSpreadsheetResultPackage()))
+                    .append("\r\n");
         }
         if (tableProperties.getCacheable() != null) {
             sb.append("Cacheable").append(" = ").append(toString(tableProperties.getCacheable())).append("\r\n");
@@ -303,27 +303,27 @@ public class TableProperties {
         }
         if (tableProperties.getEmptyResultProcessing() != null) {
             sb.append("EmptyResultProcessing")
-                .append(" = ")
-                .append(toString(tableProperties.getEmptyResultProcessing()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getEmptyResultProcessing()))
+                    .append("\r\n");
         }
         if (tableProperties.getPrecision() != null) {
             sb.append("Precision").append(" = ").append(toString(tableProperties.getPrecision())).append("\r\n");
         }
         if (tableProperties.getTableStructureDetails() != null) {
             sb.append("TableStructureDetails")
-                .append(" = ")
-                .append(toString(tableProperties.getTableStructureDetails()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getTableStructureDetails()))
+                    .append("\r\n");
         }
         if (tableProperties.getAutoType() != null) {
             sb.append("AutoType").append(" = ").append(toString(tableProperties.getAutoType())).append("\r\n");
         }
         if (tableProperties.getCalculateAllCells() != null) {
             sb.append("CalculateAllCells")
-                .append(" = ")
-                .append(toString(tableProperties.getCalculateAllCells()))
-                .append("\r\n");
+                    .append(" = ")
+                    .append(toString(tableProperties.getCalculateAllCells()))
+                    .append("\r\n");
         }
         if (tableProperties.getParallel() != null) {
             sb.append("Parallel").append(" = ").append(toString(tableProperties.getParallel())).append("\r\n");

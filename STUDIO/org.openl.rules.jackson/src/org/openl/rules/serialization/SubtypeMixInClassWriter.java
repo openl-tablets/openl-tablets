@@ -18,11 +18,11 @@ class SubtypeMixInClassWriter extends ClassVisitor {
     private final JsonTypeInfo.Id jsonTypeInfoId;
 
     public SubtypeMixInClassWriter(ClassVisitor delegatedClassVisitor,
-            Class<?> originalMixInClass,
-            Class<?> parentType,
-            Class<?>[] subTypes,
-            JsonTypeInfo.Id jsonTypeInfoId,
-            String typingPropertyName) {
+                                   Class<?> originalMixInClass,
+                                   Class<?> parentType,
+                                   Class<?>[] subTypes,
+                                   JsonTypeInfo.Id jsonTypeInfoId,
+                                   String typingPropertyName) {
         super(Opcodes.ASM5, delegatedClassVisitor);
         this.jsonTypeInfoId = jsonTypeInfoId;
         this.parentType = parentType;

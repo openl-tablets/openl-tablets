@@ -78,7 +78,7 @@ public class InterfaceImplGeneratorTest {
 
     private Class<?> getBeanClass(Class<?> clazzInterface) {
         ClassLoader simpleClassLoader = new OpenLClassLoader(
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleClassLoader);

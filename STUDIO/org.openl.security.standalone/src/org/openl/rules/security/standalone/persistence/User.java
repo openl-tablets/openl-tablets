@@ -45,8 +45,8 @@ public class User implements Serializable {
      * User's groups.
      */
     @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "OpenL_User2Group", joinColumns = { @JoinColumn(name = "loginName") }, inverseJoinColumns = {
-            @JoinColumn(name = "groupID") })
+    @JoinTable(name = "OpenL_User2Group", joinColumns = {@JoinColumn(name = "loginName")}, inverseJoinColumns = {
+            @JoinColumn(name = "groupID")})
     public Set<Group> getGroups() {
         return groups;
     }

@@ -8,7 +8,7 @@ import javax.cache.event.CacheEntryRemovedListener;
 import org.openl.CompiledOpenClass;
 
 public class CleanUpListener
-    implements CacheEntryRemovedListener<Key, CompiledOpenClass>, CacheEntryExpiredListener<Key, CompiledOpenClass> {
+        implements CacheEntryRemovedListener<Key, CompiledOpenClass>, CacheEntryExpiredListener<Key, CompiledOpenClass> {
 
     @Override
     public void onExpired(Iterable<CacheEntryEvent<? extends Key, ? extends CompiledOpenClass>> cacheEntryEvents)

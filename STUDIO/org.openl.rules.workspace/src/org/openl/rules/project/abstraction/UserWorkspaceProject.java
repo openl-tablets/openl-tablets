@@ -55,7 +55,9 @@ public abstract class UserWorkspaceProject extends AProject {
 
     public abstract boolean isOpened();
 
-    /** is opened other version? (not last) */
+    /**
+     * is opened other version? (not last)
+     */
     public boolean isOpenedOtherVersion() {
         return isOpened() && !isLastVersion();
     }

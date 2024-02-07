@@ -13,7 +13,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class AmbiguousTypeException extends OpenlNotCheckedException {
 

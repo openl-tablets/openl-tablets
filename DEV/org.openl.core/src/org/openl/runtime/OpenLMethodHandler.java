@@ -17,8 +17,8 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
     private final IRuntimeEnvBuilder runtimeEnvBuilder;
 
     public OpenLMethodHandler(Object openlInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnvBuilder runtimeEnvBuilder) {
+                              Map<Method, IOpenMember> methodMap,
+                              IRuntimeEnvBuilder runtimeEnvBuilder) {
         this.openlInstance = openlInstance;
         this.methodMap = methodMap;
         this.runtimeEnvBuilder = runtimeEnvBuilder;
@@ -85,7 +85,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
                 IOpenMethod openMethod = (IOpenMethod) member;
                 Object ret = openMethod.invoke(openlInstance, args, getRuntimeEnv());
                 if (method.getReturnType() != void.class && openMethod.getType() == JavaOpenClass.VOID || openMethod
-                    .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
+                        .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
                     return Array.get(Array.newInstance(method.getReturnType(), 1), 0);
                 }
                 return ret;
@@ -93,7 +93,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
                 IOpenField openField = (IOpenField) member;
                 Object ret = openField.get(openlInstance, getRuntimeEnv());
                 if (method.getReturnType() != void.class && openField.getType() == JavaOpenClass.VOID || openField
-                    .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
+                        .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
                     return Array.get(Array.newInstance(method.getReturnType(), 1), 0);
                 }
                 return ret;

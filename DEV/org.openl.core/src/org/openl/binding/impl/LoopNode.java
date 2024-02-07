@@ -23,10 +23,10 @@ public class LoopNode extends ABoundNode {
     }
 
     LoopNode(ISyntaxNode syntaxNode,
-            IBoundNode initNode,
-            IBoundNode conditionNode,
-            IBoundNode blockCodeNode,
-            IBoundNode afterNode) {
+             IBoundNode initNode,
+             IBoundNode conditionNode,
+             IBoundNode blockCodeNode,
+             IBoundNode afterNode) {
         super(syntaxNode, initNode, conditionNode, blockCodeNode, afterNode);
         this.initNode = initNode;
         this.conditionNode = conditionNode;

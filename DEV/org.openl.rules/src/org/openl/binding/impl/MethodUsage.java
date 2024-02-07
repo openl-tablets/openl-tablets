@@ -59,7 +59,7 @@ public class MethodUsage implements NodeUsage {
                     return matchingOpenMethodDispatcher.getDispatcherTable().getUri();
                 }
             } else if (method instanceof DatatypeOpenConstructor && method
-                .getDeclaringClass() instanceof DatatypeOpenClass) {
+                    .getDeclaringClass() instanceof DatatypeOpenClass) {
                 IMetaInfo metaInfo = method.getDeclaringClass().getMetaInfo();
                 return metaInfo == null ? null : metaInfo.getSourceUrl();
             } else if (method.getInfo() != null) {
@@ -73,9 +73,8 @@ public class MethodUsage implements NodeUsage {
     }
 
     /**
-     *
      * @return uri of the table representing used method or <code>null</code> if this method is not represented by
-     *         some OpenL component.
+     * some OpenL component.
      */
     @Override
     public String getUri() {

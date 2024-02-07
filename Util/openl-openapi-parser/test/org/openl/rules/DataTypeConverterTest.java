@@ -41,18 +41,18 @@ public class DataTypeConverterTest {
     @Test
     public void testMissedDataTypes() throws IOException {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/datatype/EPBDS-10229_missed_types.json");
+                .extractProjectModel("test.converter/datatype/EPBDS-10229_missed_types.json");
         assertEquals(3, projectModel.getDatatypeModels().size());
         Optional<DatatypeModel> driverRisk = projectModel.getDatatypeModels()
-            .stream()
-            .filter(x -> x.getName().equals("DriverRisk"))
-            .findFirst();
+                .stream()
+                .filter(x -> x.getName().equals("DriverRisk"))
+                .findFirst();
         assertTrue(driverRisk.isPresent());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiBla = spreadsheetResultModels.stream()
-            .filter(x -> x.getName().equals("apiBla"))
-            .findFirst();
+                .filter(x -> x.getName().equals("apiBla"))
+                .findFirst();
         assertTrue(apiBla.isPresent());
         SpreadsheetModel model = apiBla.get();
         List<StepModel> steps = model.getSteps();
@@ -88,8 +88,8 @@ public class DataTypeConverterTest {
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
         List<FieldModel> fields = datatypeModels.stream()
-            .flatMap(x -> x.getFields().stream())
-            .collect(Collectors.toList());
+                .flatMap(x -> x.getFields().stream())
+                .collect(Collectors.toList());
         assertFalse(fields.isEmpty());
         assertEquals(4, fields.size());
         DatatypeModel datatypeModel = findDataTypeModel(datatypeModels, "Animal");
@@ -99,12 +99,12 @@ public class DataTypeConverterTest {
     @Test
     public void testMultipleDataTypeNesting() throws IOException {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
+                .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(6, datatypeModels.size());
         List<FieldModel> fieldModels = datatypeModels.stream()
-            .flatMap(x -> x.getFields().stream())
-            .collect(Collectors.toList());
+                .flatMap(x -> x.getFields().stream())
+                .collect(Collectors.toList());
         assertFalse(fieldModels.isEmpty());
         assertEquals(8, fieldModels.size());
         Optional<FieldModel> birthDate = fieldModels.stream().filter(x -> x.getName().equals("birthDate")).findFirst();
@@ -114,8 +114,8 @@ public class DataTypeConverterTest {
         assertEquals("Date", birthTimeField.getType());
         assertTrue(birthTimeField.getDefaultValue() instanceof OffsetDateTime);
         Optional<DatatypeModel> crucian = datatypeModels.stream()
-            .filter(x -> x.getName().equals("Crucian"))
-            .findFirst();
+                .filter(x -> x.getName().equals("Crucian"))
+                .findFirst();
         boolean crucianModelPresented = crucian.isPresent();
         assertTrue(crucianModelPresented);
 
@@ -147,14 +147,14 @@ public class DataTypeConverterTest {
     public void dataTypeInExpandableRequestBody() throws IOException {
         // project model with expandable request
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body.json");
+                .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(3, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
         Optional<SpreadsheetModel> helloKittyOptional = spreadsheetModels.stream()
-            .filter(x -> x.getName().equals("HelloKitty"))
-            .findFirst();
+                .filter(x -> x.getName().equals("HelloKitty"))
+                .findFirst();
         assertTrue(helloKittyOptional.isPresent());
         SpreadsheetModel spreadsheetModel = helloKittyOptional.get();
         List<InputParameter> parameters = spreadsheetModel.getParameters();
@@ -164,20 +164,20 @@ public class DataTypeConverterTest {
 
         // project model with expandable request, but one more datatype has a link to this datatype
         ProjectModel pm = converter
-            .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body_in_field.json");
+                .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body_in_field.json");
         assertEquals(4, pm.getDatatypeModels().size());
     }
 
     @Test
     public void dataTypeWithMoreThanLimitFields() throws IOException {
         ProjectModel projectModel = converter.extractProjectModel(
-            "test.converter/datatype/EPBDS-10285_datatype_with_exceeding_limit_fields_number.json");
+                "test.converter/datatype/EPBDS-10285_datatype_with_exceeding_limit_fields_number.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, datatypeModels.size());
         Optional<SpreadsheetModel> apiTodo = spreadsheetModels.stream()
-            .filter(x -> x.getName().equals("apiTodo"))
-            .findFirst();
+                .filter(x -> x.getName().equals("apiTodo"))
+                .findFirst();
         assertTrue(apiTodo.isPresent());
         assertEquals(12, apiTodo.get().getParameters().size());
     }
@@ -185,7 +185,7 @@ public class DataTypeConverterTest {
     @Test
     public void dataTypeNumberValuesTest() throws IOException {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
+                .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         DatatypeModel datatypeModel = findDataTypeModel(datatypeModels, "Dynamo");
         List<FieldModel> fields = datatypeModel.getFields();
@@ -216,23 +216,23 @@ public class DataTypeConverterTest {
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()
-            .filter(x -> x.getName().equals("apiTodo"))
-            .findFirst();
+                .filter(x -> x.getName().equals("apiTodo"))
+                .findFirst();
         assertTrue(apiTodo.isPresent());
         SpreadsheetModel sm = apiTodo.get();
         Optional<StepModel> cdTcodeValidationResultStep = sm.getSteps()
-            .stream()
-            .filter(x -> x.getName().equals("CDTcodeValidationResult"))
-            .findFirst();
+                .stream()
+                .filter(x -> x.getName().equals("CDTcodeValidationResult"))
+                .findFirst();
         assertTrue(cdTcodeValidationResultStep.isPresent());
         StepModel stepModel = cdTcodeValidationResultStep.get();
         assertEquals("Integer", stepModel.getType());
         assertEquals("= 0", stepModel.getValue());
 
         Optional<StepModel> cdTCodeToBeProcessedStep = sm.getSteps()
-            .stream()
-            .filter(x -> x.getName().equals("CDTCodeToBeProcessed"))
-            .findFirst();
+                .stream()
+                .filter(x -> x.getName().equals("CDTCodeToBeProcessed"))
+                .findFirst();
         assertTrue(cdTCodeToBeProcessedStep.isPresent());
         StepModel cdTCodeToBeProcessedStepModel = cdTCodeToBeProcessedStep.get();
         assertEquals("Double", cdTCodeToBeProcessedStepModel.getType());
@@ -242,7 +242,7 @@ public class DataTypeConverterTest {
     @Test
     public void testLostDatatype() throws IOException {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
+                .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(5, datatypeModels.size());
         assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals("NewNewDatatype")));

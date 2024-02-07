@@ -27,7 +27,6 @@ public class TablePartProcessor {
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
     /**
-     *
      * @return a list of TableParts with tables merged
      */
     public List<TablePart> mergeAllNodes() {
@@ -86,20 +85,20 @@ public class TablePartProcessor {
             } else {
                 if (myVert != vertical) {
                     String message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ?
-                                                                                                 "row" :
-                                                                                                 "column");
+                            "row" :
+                            "column");
                     throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                 }
 
                 if (myDim != dimension) {
                     String message = "TablePart number " + tablePart.getPart() + " has " + (vertical ?
-                                                                                            "width" :
-                                                                                            "height") + " = " + myDim + " instead of " + dimension;
+                            "width" :
+                            "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {
                         throw new OpenLCompilationException(message,
-                            null,
-                            null,
-                            makeSourceModule(tablePart.getTable()));
+                                null,
+                                null,
+                                makeSourceModule(tablePart.getTable()));
                     } else {
                         messages.add(OpenLMessagesUtils.newErrorMessage(message));
                     }
@@ -135,7 +134,7 @@ public class TablePartProcessor {
     }
 
     private static final Pattern PATTERN = Pattern
-        .compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
+            .compile("\\w+\\s+(\\w+)\\s+(column|row)\\s+(\\d+)\\s+of\\s+(\\d+)\\s*($)");
 
     private void parseHeader(TablePart tablePart) throws OpenLCompilationException {
 

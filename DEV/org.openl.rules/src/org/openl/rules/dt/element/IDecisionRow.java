@@ -13,7 +13,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public interface IDecisionRow extends IBaseDecisionRow {
 
@@ -41,13 +40,13 @@ public interface IDecisionRow extends IBaseDecisionRow {
     void prepareParams(OpenL openl, IBindingContext bindingContext);
 
     void prepare(DecisionTable decisionTable,
-            IOpenClass methodType,
-            IMethodSignature signature,
-            OpenL openl,
-            IBindingContext bindingContext,
-            RuleRow ruleRow,
-            IOpenClass ruleExecutionType,
-            TableSyntaxNode tableSyntaxNode) throws Exception;
+                 IOpenClass methodType,
+                 IMethodSignature signature,
+                 OpenL openl,
+                 IBindingContext bindingContext,
+                 RuleRow ruleRow,
+                 IOpenClass ruleExecutionType,
+                 TableSyntaxNode tableSyntaxNode) throws Exception;
 
     void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);
 

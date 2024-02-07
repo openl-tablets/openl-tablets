@@ -62,7 +62,6 @@ public class ModulePageBean {
     }
 
     /**
-     *
      * @return List of all imoirts
      */
     public List<String> getImports() {
@@ -74,7 +73,6 @@ public class ModulePageBean {
     }
 
     /**
-     *
      * @return List of all includes
      */
     public List<String> getIncludes() {

@@ -57,11 +57,11 @@ public class UserManagementService {
     }
 
     public void addUser(String user,
-            String firstName,
-            String lastName,
-            String password,
-            String email,
-            String displayName) {
+                        String firstName,
+                        String lastName,
+                        String password,
+                        String email,
+                        String displayName) {
         User persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
@@ -77,10 +77,10 @@ public class UserManagementService {
      * Update user info in Db by external data from the 3rd party identity providers (AD, SAML, CAS, OAuth2 etc.)
      */
     public void syncUserData(String user,
-            String firstName,
-            String lastName,
-            String email,
-            String displayName) {
+                             String firstName,
+                             String lastName,
+                             String email,
+                             String displayName) {
 
         // Get
         User persistUser = userDao.getUserByName(user);
@@ -128,12 +128,12 @@ public class UserManagementService {
     }
 
     public void updateUserData(String user,
-            String firstName,
-            String lastName,
-            String password,
-            String email,
-            String displayName,
-            boolean emailVerified) {
+                               String firstName,
+                               String lastName,
+                               String password,
+                               String email,
+                               String displayName,
+                               boolean emailVerified) {
         User persistUser = userDao.getUserByName(user);
         final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
         persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
@@ -141,8 +141,8 @@ public class UserManagementService {
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
         persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
         persistUser.setFlags(UserExternalFlags.builder(persistUser.getFlags())
-            .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
-            .getRawFeatures());
+                .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
+                .getRawFeatures());
         if (StringUtils.isNotBlank(password)) {
             persistUser.setPasswordHash(passwordEncoder.encode(password));
         }
@@ -198,23 +198,23 @@ public class UserManagementService {
      */
     public boolean isUserOnline(String username) {
         return sessionRegistry.getAllPrincipals().stream().map(principal -> {
-            if (principal instanceof UserDetails) {
-                UserDetails userDetails = (UserDetails) principal;
-                if (Objects.equals(username, userDetails.getUsername())) {
-                    return principal;
-                }
-            } else if (principal instanceof AuthenticatedPrincipal) {
-                AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
-                if (Objects.equals(username, authPrincipal.getName())) {
-                    return principal;
-                }
-            }
-            return null;
-        })
-            .filter(Objects::nonNull)
-            .findFirst()
-            .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
-            .orElse(Boolean.FALSE);
+                    if (principal instanceof UserDetails) {
+                        UserDetails userDetails = (UserDetails) principal;
+                        if (Objects.equals(username, userDetails.getUsername())) {
+                            return principal;
+                        }
+                    } else if (principal instanceof AuthenticatedPrincipal) {
+                        AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
+                        if (Objects.equals(username, authPrincipal.getName())) {
+                            return principal;
+                        }
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
+                .orElse(Boolean.FALSE);
     }
 
     private org.openl.rules.security.User createSecurityUser(User user) {

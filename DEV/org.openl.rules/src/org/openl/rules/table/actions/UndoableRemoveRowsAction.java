@@ -45,8 +45,8 @@ public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToRemove,
-            IGridRegion fullTableRegion,
-            IGridTable table) {
+                                                     IGridRegion fullTableRegion,
+                                                     IGridTable table) {
         return GridTool.removeRows(numberToRemove, startRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Pavel Tarasevich
- *
  */
 
 public class PassCoderTest {

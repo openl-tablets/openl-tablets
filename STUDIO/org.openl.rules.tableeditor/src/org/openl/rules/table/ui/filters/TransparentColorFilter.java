@@ -6,7 +6,6 @@ package org.openl.rules.table.ui.filters;
 
 /**
  * @author snshor
- *
  */
 public class TransparentColorFilter implements IColorFilter {
 

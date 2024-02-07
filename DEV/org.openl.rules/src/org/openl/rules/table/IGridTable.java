@@ -6,7 +6,6 @@ import org.openl.rules.table.xls.XlsUrlParser;
  * Table based on Grid coordinates.
  *
  * @author snshor
- *
  */
 public interface IGridTable extends ITable<IGridTable> {
 

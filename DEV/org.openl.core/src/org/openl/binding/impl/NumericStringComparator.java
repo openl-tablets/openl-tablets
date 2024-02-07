@@ -4,7 +4,7 @@ import java.util.Comparator;
 
 /**
  * Compares Strings with numbers in the math order of numbers.
- * 
+ *
  * <pre>
  *     "01"
  *     "2"

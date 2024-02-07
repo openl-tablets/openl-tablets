@@ -10,7 +10,6 @@ import org.openl.rules.vm.SimpleRulesVM;
 
 /**
  * @author snshor
- *
  */
 public class XlsVM extends SimpleRulesVM {
 

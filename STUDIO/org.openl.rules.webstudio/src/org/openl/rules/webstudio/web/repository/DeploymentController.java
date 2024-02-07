@@ -117,22 +117,22 @@ public class DeploymentController {
             String businessName = projectToAdd.getBusinessName();
             String path = projectToAdd.getRealPath();
 
-                ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
-                        repositoryId,
-                        businessName,
-                        path,
-                        projectBranch,
-                        new CommonVersionImpl(version)
-                );
-                List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
-                synchronized (project) {
-                    items = null;
-                    project.setProjectDescriptors(newDescriptors);
-                }
-            } catch (ProjectException e) {
-                LOG.error("Failed to add project descriptor.", e);
-                WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                    repositoryId,
+                    businessName,
+                    path,
+                    projectBranch,
+                    new CommonVersionImpl(version)
+            );
+            List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
+            synchronized (project) {
+                items = null;
+                project.setProjectDescriptors(newDescriptors);
             }
+        } catch (ProjectException e) {
+            LOG.error("Failed to add project descriptor.", e);
+            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+        }
 
         return null;
     }
@@ -219,12 +219,12 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
-            if (project.getProjectDescriptors().isEmpty()){
+            if (project.getProjectDescriptors().isEmpty()) {
                 WebStudioUtils.addErrorMessage(
-                    String.format(
-                            "Configuration '%s' should contain at least one project to be deployed",
-                            project.getName()
-                    )
+                        String.format(
+                                "Configuration '%s' should contain at least one project to be deployed",
+                                project.getName()
+                        )
                 );
                 return null;
             }
@@ -233,16 +233,16 @@ public class DeploymentController {
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
                 String message = String.format(
-                    "Configuration '%s' is successfully deployed with id '%s' to repository '%s'",
-                    project.getName(),
-                    id.getName(),
-                    repo.getName());
+                        "Configuration '%s' is successfully deployed with id '%s' to repository '%s'",
+                        project.getName(),
+                        id.getName(),
+                        repo.getName());
                 WebStudioUtils.addInfoMessage(message);
 
                 productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
                 String msg = String
-                    .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
+                        .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
                 LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -311,9 +311,9 @@ public class DeploymentController {
         // Because of JSF this method can be invoked up to 24 times during 1 HTTP request.
         // That's why we must not refresh projects list every time, instead get cached projects only.
         Collection<RulesProject> workspaceProjects = workspace.getProjects(false)
-            .stream()
-            .filter(p -> repositoryId.equals(p.getRepository().getId()))
-            .collect(Collectors.toCollection(ArrayList::new));
+                .stream()
+                .filter(p -> repositoryId.equals(p.getRepository().getId()))
+                .collect(Collectors.toCollection(ArrayList::new));
         List<SelectItem> selectItems = new ArrayList<>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -395,11 +395,11 @@ public class DeploymentController {
                         project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState
-                        .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(), treeNodeId));
+                            .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(), treeNodeId));
                 } catch (Exception e) {
                     LOG.error("Failed to open project '{}'.", item.getName(), e);
                     WebStudioUtils.addErrorMessage(
-                        String.format("Failed to open project '%s': %s", item.getName(), e.getMessage()));
+                            String.format("Failed to open project '%s': %s", item.getName(), e.getMessage()));
                 }
             }
             item.setSelected(false);
@@ -409,7 +409,7 @@ public class DeploymentController {
     }
 
     private RulesProject getRulesProject(UserWorkspace workspace,
-            DeploymentDescriptorItem deployment) throws ProjectException {
+                                         DeploymentDescriptorItem deployment) throws ProjectException {
         try {
             return workspace.getProject(deployment.getRepositoryId(), deployment.getName(), false);
         } catch (ProjectException e) {
@@ -432,8 +432,8 @@ public class DeploymentController {
     }
 
     private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project,
-            String projectName,
-            ProjectDescriptorImpl newItem) {
+                                                      String projectName,
+                                                      ProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {

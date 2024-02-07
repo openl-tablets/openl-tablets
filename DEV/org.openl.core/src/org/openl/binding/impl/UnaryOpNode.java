@@ -12,7 +12,6 @@ import org.openl.types.IMethodCaller;
 
 /**
  * @author snshor
- *
  */
 public class UnaryOpNode extends MethodBoundNode {
     /**

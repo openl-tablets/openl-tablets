@@ -105,8 +105,8 @@ public final class SourceCodeURLTool {
      * </p>
      *
      * @param location source location
-     * @param src source code
-     * @param pw writer
+     * @param src      source code
+     * @param pw       writer
      */
     public static void printCodeAndError(ILocation location, String src, PrintWriter pw) {
 

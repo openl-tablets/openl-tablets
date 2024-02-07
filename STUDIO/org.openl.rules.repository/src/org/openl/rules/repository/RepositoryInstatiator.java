@@ -29,14 +29,14 @@ public class RepositoryInstatiator {
 
     public static Repository newRepository(String prefix, Function<String, String> props) {
         ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
-            RepositoryFactory.class.getClassLoader());
+                RepositoryFactory.class.getClassLoader());
         String factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
             throw new IllegalArgumentException(
-                String.format(
-                    "Invalid configuration for repository %s",
-                    prefix.substring(prefix.indexOf(".") + 1)
-                )
+                    String.format(
+                            "Invalid configuration for repository %s",
+                            prefix.substring(prefix.indexOf(".") + 1)
+                    )
             );
         }
         ArrayList<String> repos = new ArrayList<>();
@@ -54,14 +54,14 @@ public class RepositoryInstatiator {
             }
         }
         throw new IllegalArgumentException(String.format(
-            "Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
-            factoryId,
-            prefix, String.join(", ", repos)));
+                "Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
+                factoryId,
+                prefix, String.join(", ", repos)));
     }
 
     public static String getRefID(String factoryId) {
         ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
-            RepositoryFactory.class.getClassLoader());
+                RepositoryFactory.class.getClassLoader());
         if (factoryId == null) {
             return null;
         }
@@ -77,27 +77,27 @@ public class RepositoryInstatiator {
         Class<?> clazz = instance.getClass();
         try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
             stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))
-                .forEach(method -> {
-                    String fieldName = method.getName().substring(3);
-                    String propertyName = StringUtils.camelToKebab(fieldName);
-                    String propertyValue = props.apply(propertyName);
-                    boolean propertyExists = StringUtils.isNotBlank(propertyValue);
-                    if (propertyExists) {
-                        Class<?> type = method.getParameterTypes()[0];
-                        Object value = ObjectUtils.convert(propertyValue, type);
-                        try {
-                            method.invoke(instance, value);
-                        } catch (Exception e) {
-                            throw new IllegalStateException(
-                                String.format("Failed to invoke method '%s.%s(%s)' with value '%s'.",
-                                    clazz.getTypeName(),
-                                    method.getName(),
-                                    type.getSimpleName(),
-                                    value),
-                                e);
+                    .forEach(method -> {
+                        String fieldName = method.getName().substring(3);
+                        String propertyName = StringUtils.camelToKebab(fieldName);
+                        String propertyValue = props.apply(propertyName);
+                        boolean propertyExists = StringUtils.isNotBlank(propertyValue);
+                        if (propertyExists) {
+                            Class<?> type = method.getParameterTypes()[0];
+                            Object value = ObjectUtils.convert(propertyValue, type);
+                            try {
+                                method.invoke(instance, value);
+                            } catch (Exception e) {
+                                throw new IllegalStateException(
+                                        String.format("Failed to invoke method '%s.%s(%s)' with value '%s'.",
+                                                clazz.getTypeName(),
+                                                method.getName(),
+                                                type.getSimpleName(),
+                                                value),
+                                        e);
+                            }
                         }
-                    }
-                });
+                    });
         }
     }
 }

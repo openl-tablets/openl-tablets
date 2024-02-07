@@ -24,9 +24,9 @@ public class ValidationExceptionMapper implements ExceptionMapper<RuleServiceWra
 
         if (exception.getType() != ExceptionType.USER_ERROR) {
             return Response.status(422)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(Map.of("code", exception.getType().name(), "message", exception.getDetails().getMessage()))
-                .build();
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(Map.of("code", exception.getType().name(), "message", exception.getDetails().getMessage()))
+                    .build();
         }
         return parent.toResponse(exception);
     }

@@ -2,6 +2,7 @@
  * Created Nov 9, 2006
  */
 package org.openl.module;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,7 +32,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class ModuleTest {
     private final Logger log = LoggerFactory.getLogger(ModuleTest.class);
@@ -185,7 +185,7 @@ public class ModuleTest {
      * pefrix from expressions
      *
      * @param context context obj
-     * @param expr expression string
+     * @param expr    expression string
      * @param retType OpenL return type of expression
      * @return
      */
@@ -204,7 +204,7 @@ public class ModuleTest {
 
         IRuntimeEnv env = op.getVm().getRuntimeEnv();
 
-        return method.invoke(null, new Object[] { context }, env);
+        return method.invoke(null, new Object[]{context}, env);
     }
 
     /**
@@ -226,10 +226,9 @@ public class ModuleTest {
      * has to be unique in the context, otherwise, the chain syntax still is required)
      *
      * @see http://openl-tablets.sourceforge.net/bex505.shtml
-     *
-     *      3) Once method is created it can be used multiple times(the instance of IRuntimeEnv need to be created each
-     *      time or once per thread, but it does not have significant performance overhead)
-     *
+     * <p>
+     * 3) Once method is created it can be used multiple times(the instance of IRuntimeEnv need to be created each
+     * time or once per thread, but it does not have significant performance overhead)
      */
 
     private Object executeOpenLOGNLExprression(Object context, String expr) throws SyntaxNodeException {
@@ -247,7 +246,7 @@ public class ModuleTest {
 
         IRuntimeEnv env = op.getVm().getRuntimeEnv();
 
-        return method.invoke(null, new Object[] { context }, env);
+        return method.invoke(null, new Object[]{context}, env);
     }
 
     private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) throws SyntaxNodeException {
@@ -319,7 +318,7 @@ public class ModuleTest {
 
             field.set(instance, data.address, env);
 
-            res = m1.invoke(instance, new Object[] {}, env);
+            res = m1.invoke(instance, new Object[]{}, env);
         }
 
         long end = System.currentTimeMillis();

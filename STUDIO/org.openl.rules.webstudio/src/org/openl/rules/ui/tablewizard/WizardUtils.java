@@ -39,6 +39,7 @@ public final class WizardUtils {
     }
 
     private static final List<String> predefinedTypes;
+
     static {
         ArrayList<String> types = new ArrayList<>();
 
@@ -79,28 +80,28 @@ public final class WizardUtils {
 
     static List<String> declaredDatatypes() {
         return getProjectOpenClass().getTypes()
-            .stream()
-            .filter(t -> t instanceof DatatypeOpenClass)
-            .map(IOpenClass::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .filter(t -> t instanceof DatatypeOpenClass)
+                .map(IOpenClass::getName)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     static List<String> declaredAliases() {
         return getProjectOpenClass().getTypes()
-            .stream()
-            .filter(t -> t instanceof DomainOpenClass)
-            .map(IOpenClass::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .filter(t -> t instanceof DomainOpenClass)
+                .map(IOpenClass::getName)
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     static List<String> importedClasses() {
         return getImportedClasses().stream()
-            .filter(t -> t instanceof JavaOpenClass)
-            .map(v -> v.getDisplayName(INamedThing.SHORT))
-            .sorted()
-            .collect(Collectors.toList());
+                .filter(t -> t instanceof JavaOpenClass)
+                .map(v -> v.getDisplayName(INamedThing.SHORT))
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     public static IOpenClass getProjectOpenClass() {
@@ -118,7 +119,7 @@ public final class WizardUtils {
      */
     public static Collection<IOpenClass> getImportedClasses() {
         Set<IOpenClass> classes = new TreeSet<>(
-            (o1, o2) -> o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT)));
+                (o1, o2) -> o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT)));
 
         for (String packageName : WebStudioUtils.getProjectModel().getXlsModuleNode().getImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {

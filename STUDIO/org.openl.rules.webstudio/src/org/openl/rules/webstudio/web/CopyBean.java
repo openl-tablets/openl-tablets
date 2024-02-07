@@ -69,7 +69,7 @@ public class CopyBean {
     private final ProjectTagsBean projectTagsBean;
 
     private final ApplicationContext applicationContext = FacesContextUtils
-        .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
+            .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
 
     private String repositoryId;
     private String toRepositoryId;
@@ -88,8 +88,8 @@ public class CopyBean {
     private Comments designRepoComments;
 
     public CopyBean(PropertyResolver propertyResolver,
-            RepositoryTreeState repositoryTreeState,
-            ProjectTagsBean projectTagsBean) {
+                    RepositoryTreeState repositoryTreeState,
+                    ProjectTagsBean projectTagsBean) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
@@ -248,7 +248,7 @@ public class CopyBean {
                         FileData fileData = new FileData();
                         fileData.setName(designPath);
                         fileData.setAuthor(
-                            new UserInfo(createdBy, version.getVersionInfo().getEmailCreatedBy(), createdBy));
+                                new UserInfo(createdBy, version.getVersionInfo().getEmailCreatedBy(), createdBy));
                         fileData.setComment(version.getVersionComment());
                         if (designRepository.supports().mappedFolders()) {
                             fileData.addAdditionalData(mappingData);
@@ -268,11 +268,11 @@ public class CopyBean {
                 designProject.setResourceTransformer(null);
 
                 RulesProject copiedProject = new RulesProject(user,
-                    userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
-                    null,
-                    designRepository,
-                    designProject.getFileData(),
-                    userWorkspace.getProjectsLockEngine());
+                        userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
+                        null,
+                        designRepository,
+                        designProject.getFileData(),
+                        userWorkspace.getProjectsLockEngine());
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
@@ -302,7 +302,7 @@ public class CopyBean {
                 return;
             }
             TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getRepository().getId(),
-                selectedProject.getName());
+                    selectedProject.getName());
             selectedProject = repositoryTreeState.getProject(node);
             if (selectedProject == null) {
                 return;
@@ -336,8 +336,8 @@ public class CopyBean {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
         String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
-            .getSubmittedValue()
-            .toString();
+                .getSubmittedValue()
+                .toString();
         boolean projectExist = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
         WebStudioUtils.validate(!projectExist, "Project with such name already exists.");
     }
@@ -351,20 +351,20 @@ public class CopyBean {
         RepositorySettingsValidators.validateBranchName(newBranchName);
 
         String customRegex = propertyResolver
-            .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");
+                .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");
         String customRegexError = propertyResolver
-            .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex-error");
+                .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex-error");
         if (StringUtils.isNotBlank(customRegex)) {
             try {
                 Pattern customRegexPattern = Pattern.compile(customRegex);
                 customRegexError = StringUtils.isNotBlank(
-                    customRegexError) ? customRegexError
-                                      : "The branch name does not match the following pattern: " + customRegex;
+                        customRegexError) ? customRegexError
+                        : "The branch name does not match the following pattern: " + customRegex;
                 WebStudioUtils.validate(customRegexPattern.matcher(newBranchName).matches(), customRegexError);
             } catch (PatternSyntaxException patternSyntaxException) {
                 LOG.debug(patternSyntaxException.getMessage(), patternSyntaxException);
                 WebStudioUtils.throwValidationError(
-                    String.format("Branch name pattern '%s' is not valid regular expression.", customRegex));
+                        String.format("Branch name pattern '%s' is not valid regular expression.", customRegex));
             }
         }
 
@@ -374,9 +374,9 @@ public class CopyBean {
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
             WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
-                "Invalid branch name. It should not contain reserved words or symbols.");
+                    "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
-                "Branch " + newBranchName + " already exists.");
+                    "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
                 String message = "Cannot create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " + "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you cannot create a branch 'foo/bar/baz' because you cannot create the folder 'foo/bar': " + "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
@@ -402,24 +402,24 @@ public class CopyBean {
     public void projectPathValidator(FacesContext context, UIComponent toValidate, Object value) {
         final String projPath = prepareProjectFolder((String) value);
         final String projName = StringUtils
-            .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
+                .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
         FolderStructureValidators.validatePathInRepository(projPath);
         final Path currentPath = Paths.get(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
         UserWorkspace userWorkspace = getUserWorkspace();
         if (userWorkspace.getDesignTimeRepository()
-            .getProjects()
-            .stream()
-            .filter(proj -> proj.getRepository().getId().equals(repositoryId))
-            .map(AProjectFolder::getRealPath)
-            .map(Paths::get)
-            .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+                .getProjects()
+                .stream()
+                .filter(proj -> proj.getRepository().getId().equals(repositoryId))
+                .map(AProjectFolder::getRealPath)
+                .map(Paths::get)
+                .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
             WebStudioUtils.throwValidationError("Path conflicts with an existed project.");
         }
     }
 
     private static Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
-            .getValue();
+                .getValue();
     }
 
     public void setRepositoryId(String repositoryId) {
@@ -475,10 +475,10 @@ public class CopyBean {
     public List<Repository> getAllowedRepositories() {
         DesignTimeRepository designRepo = getUserWorkspace().getDesignTimeRepository();
         return designRepo.getRepositories()
-            .stream()
-            .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
-                .isBranchProtected(((BranchRepository) repo).getBranch()))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
+                        .isBranchProtected(((BranchRepository) repo).getBranch()))
+                .collect(Collectors.toList());
     }
 
     public String getDestRepositoryType() {

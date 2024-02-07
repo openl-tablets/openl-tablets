@@ -56,14 +56,14 @@ final class Comparators {
     static void xml(String message, Object expected, Object actual) {
         DifferenceEvaluator evaluator = DifferenceEvaluators.chain(DifferenceEvaluators.Default, matchByPattern());
         Iterator<Difference> differences = DiffBuilder.compare(expected)
-            .withTest(actual)
-            .ignoreWhitespace()
-            .checkForSimilar()
-            .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
-            .withDifferenceEvaluator(evaluator)
-            .build()
-            .getDifferences()
-            .iterator();
+                .withTest(actual)
+                .ignoreWhitespace()
+                .checkForSimilar()
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
+                .withDifferenceEvaluator(evaluator)
+                .build()
+                .getDifferences()
+                .iterator();
         if (differences.hasNext()) {
             fail(message + "\n" + differences.next());
         }
@@ -98,9 +98,9 @@ final class Comparators {
 
     private static String getRegExp(String text) {
         return trimExtraSpaces(text).replaceAll("\\\\", "\\\\\\\\")
-            .replaceAll("#+", "\\\\d+")
-            .replaceAll("@+", "[@\\\\w]+")
-            .replaceAll("\\*+", "[^\uFFFF]*");
+                .replaceAll("#+", "\\\\d+")
+                .replaceAll("@+", "[@\\\\w]+")
+                .replaceAll("\\*+", "[^\uFFFF]*");
     }
 
     static void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
@@ -112,11 +112,11 @@ final class Comparators {
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
             String regExp = expectedJson.asText()
-                .replaceAll("\\[", "\\\\[")
-                .replaceAll("]", "\\\\]")
-                .replaceAll("#+", "[#\\\\d]+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*");
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("]", "\\\\]")
+                    .replaceAll("#+", "[#\\\\d]+")
+                    .replaceAll("@+", "[@\\\\w]+")
+                    .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
             if (!Pattern.compile(regExp).matcher(actualText).matches()) {
                 failDiff(expectedJson, actualJson, path);
@@ -151,8 +151,8 @@ final class Comparators {
             final Map.Entry<String, byte[]> actualEntry = actual.next();
             if (expectedZipEntries.containsKey(actualEntry.getKey())) {
                 assertArrayEquals(expectedZipEntries.remove(actualEntry.getKey()),
-                    actualEntry.getValue(),
-                    String.format("Zip entry [%s]: ", actualEntry.getKey()));
+                        actualEntry.getValue(),
+                        String.format("Zip entry [%s]: ", actualEntry.getKey()));
                 actual.remove();
             }
         }
@@ -163,8 +163,8 @@ final class Comparators {
         if (!actualZipEntries.isEmpty()) {
             failed = true;
             errorMessage.append("UNEXPECTED entries:")
-                .append(CRLF)
-                .append(actualZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
+                    .append(CRLF)
+                    .append(actualZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
         }
         if (!expectedZipEntries.isEmpty()) {
             if (failed) {
@@ -173,8 +173,8 @@ final class Comparators {
                 failed = true;
             }
             errorMessage.append("MISSED entries:")
-                .append(CRLF)
-                .append(expectedZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
+                    .append(CRLF)
+                    .append(expectedZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
         }
         if (failed) {
             fail(errorMessage.toString());

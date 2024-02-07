@@ -25,7 +25,7 @@ public abstract class AGrid implements IGrid {
                 return getUri() + "&cell=" + cell.getUri();
             } else {
                 String range = getCell(region.getLeft(), region.getTop())
-                    .getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
+                        .getUri() + RANGE_SEPARATOR + getCell(region.getRight(), region.getBottom()).getUri();
                 return getUri() + "&range=" + range;
             }
         }
@@ -69,6 +69,6 @@ public abstract class AGrid implements IGrid {
     public boolean isInOneMergedRegion(int firstCellColumn, int firstCellRow, int secondCellColumn, int secondCellRow) {
         IGridRegion region = getRegionContaining(firstCellColumn, firstCellRow);
         return region != null && IGridRegion.Tool
-            .contains(region, secondCellColumn, secondCellRow);
+                .contains(region, secondCellColumn, secondCellRow);
     }
 }

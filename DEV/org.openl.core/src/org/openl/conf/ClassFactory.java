@@ -18,7 +18,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
- *
  */
 public class ClassFactory extends AConfigurationElement {
     private static final Logger LOG = LoggerFactory.getLogger(ClassFactory.class);
@@ -40,9 +39,9 @@ public class ClassFactory extends AConfigurationElement {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
             LOG.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",
-                name,
-                System.getProperty("java.version"),
-                e);
+                    name,
+                    System.getProperty("java.version"),
+                    e);
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Exception | LinkageError t) {
             LOG.error("Failed to load class '{}'.", name, t);
@@ -55,8 +54,8 @@ public class ClassFactory extends AConfigurationElement {
             return cc.getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", cc.getTypeName()),
-                uri,
-                t);
+                    uri,
+                    t);
         }
     }
 
@@ -65,8 +64,8 @@ public class ClassFactory extends AConfigurationElement {
             return cxt.getClassLoader().loadClass(classname).getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", classname),
-                uri,
-                t);
+                    uri,
+                    t);
         }
     }
 
@@ -80,8 +79,8 @@ public class ClassFactory extends AConfigurationElement {
 
         if (!Modifier.isPublic(c.getModifiers())) {
             throw new OpenLConfigurationException(String.format("Class '%s' must be a public.", c.getTypeName()),
-                uri,
-                null);
+                    uri,
+                    null);
         }
 
         return c;
@@ -95,7 +94,7 @@ public class ClassFactory extends AConfigurationElement {
         } catch (Exception | LinkageError t) {
             String methodString = MethodUtil.printMethod(methodName, params);
             throw new OpenLConfigurationException(String
-                .format("Method '%s' is not found in class '%s'.", methodString, clazz.getTypeName()), uri, t);
+                    .format("Method '%s' is not found in class '%s'.", methodString, clazz.getTypeName()), uri, t);
         }
 
         if (!Modifier.isPublic(m.getModifiers())) {
@@ -107,21 +106,21 @@ public class ClassFactory extends AConfigurationElement {
     public static void validateHaveNewInstance(Class<?> clazz, String uri) {
         if (Modifier.isAbstract(clazz.getModifiers())) {
             throw new OpenLConfigurationException(String.format("Expected non abstract class '%s'.",
-                clazz.getTypeName()), uri, null);
+                    clazz.getTypeName()), uri, null);
         }
 
         try {
             Constructor<?> constr = clazz.getConstructor(NO_PARAMS);
             if (!Modifier.isPublic(constr.getModifiers())) {
                 throw new OpenLConfigurationException(String.format("Default constructor is not public in class '%s'.",
-                    clazz.getTypeName()), uri, null);
+                        clazz.getTypeName()), uri, null);
             }
         } catch (OpenLConfigurationException ex) {
             throw ex;
         } catch (Exception | LinkageError t) {
             LOG.debug("Error occurred: ", t);
             throw new OpenLConfigurationException(String.format("Default constructor is not found in class '%s'.",
-                clazz.getTypeName()), uri, null);
+                    clazz.getTypeName()), uri, null);
         }
     }
 
@@ -129,9 +128,9 @@ public class ClassFactory extends AConfigurationElement {
         if (!superClazz.isAssignableFrom(clazz)) {
             String verb = superClazz.isInterface() ? "implement" : "extend";
             throw new OpenLConfigurationException(
-                String.format("Class '%s' does not %s '%s'.", clazz.getTypeName(), verb, superClazz.getTypeName()),
-                uri,
-                null);
+                    String.format("Class '%s' does not %s '%s'.", clazz.getTypeName(), verb, superClazz.getTypeName()),
+                    uri,
+                    null);
         }
 
     }
@@ -165,8 +164,8 @@ public class ClassFactory extends AConfigurationElement {
             return cxt.getClassLoader().loadClass(className).getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", className),
-                getUri(),
-                t);
+                    getUri(),
+                    t);
         }
     }
 

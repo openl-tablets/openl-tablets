@@ -58,9 +58,9 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M9", ClassWithGenerics.class, "method5", byte[].class, byte[].class, byte[].class);
 
         Object t = new Object();
-        assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[] { Object.class }, new Object[] { t });
-        Double[] d = new Double[] {};
-        assertInvoke(d, ClassWithGenerics.class, "copy", new Class<?>[] { Double[].class }, new Object[] { d });
+        assertInvoke(t, ClassWithGenerics.class, "copy", new Class<?>[]{Object.class}, new Object[]{t});
+        Double[] d = new Double[]{};
+        assertInvoke(d, ClassWithGenerics.class, "copy", new Class<?>[]{Double[].class}, new Object[]{d});
 
         assertInvoke("M10", ClassWithGenerics.class, "ne", byte[].class, byte.class);
         assertInvoke("M10", ClassWithGenerics.class, "ne", byte.class, byte[].class);
@@ -73,7 +73,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
     @Test
     public void testMethodChoosingWithNulls() throws AmbiguousMethodException {
-        assertInvoke("M9", ForthClassWithMethods.class, "method1", new Class[] { null, null });
+        assertInvoke("M9", ForthClassWithMethods.class, "method1", new Class[]{null, null});
         assertInvoke("M8", ForthClassWithMethods.class, "method1", int.class, null);
         assertInvoke("M9", ForthClassWithMethods.class, "method1", String.class, null);
         assertAmbiguous(ForthClassWithMethods.class, "method2", null, null);
@@ -86,14 +86,14 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M13", ForthClassWithMethods.class, "method4", Integer.class);
         assertNotFound(ForthClassWithMethods.class, "method5");
         assertInvoke("M15-null", ForthClassWithMethods.class, "method6");
-        assertInvoke("M15-null", ForthClassWithMethods.class, "method6", new Class<?>[] { null });
-        assertInvoke("M15-2", ForthClassWithMethods.class, "method6", new Class<?>[] { null, null });
+        assertInvoke("M15-null", ForthClassWithMethods.class, "method6", new Class<?>[]{null});
+        assertInvoke("M15-2", ForthClassWithMethods.class, "method6", new Class<?>[]{null, null});
         assertInvoke("M15-1", ForthClassWithMethods.class, "method6", String.class);
         assertInvoke("M15-2", ForthClassWithMethods.class, "method6", String.class, String.class);
         assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class);
         assertInvoke("M17-null", ForthClassWithMethods.class, "method8");
-        assertInvoke("M17-null", ForthClassWithMethods.class, "method8", new Class<?>[] { null });
-        assertInvoke("M17-2", ForthClassWithMethods.class, "method8", new Class<?>[] { null, null });
+        assertInvoke("M17-null", ForthClassWithMethods.class, "method8", new Class<?>[]{null});
+        assertInvoke("M17-2", ForthClassWithMethods.class, "method8", new Class<?>[]{null, null});
         assertInvoke("M17-1", ForthClassWithMethods.class, "method8", String.class);
         assertInvoke("M17-2", ForthClassWithMethods.class, "method8", String.class, String.class);
 
@@ -113,7 +113,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M16", ForthClassWithMethods.class, "method7", Integer.class, String.class, String.class);
         assertInvoke("M23", ForthClassWithMethods.class, "method9", String[].class, null);
         assertInvoke("M25", ForthClassWithMethods.class, "method10", Double.class);
-        assertInvoke("M26", ForthClassWithMethods.class, "method11", new Class<?>[] { null, null });
+        assertInvoke("M26", ForthClassWithMethods.class, "method11", new Class<?>[]{null, null});
         assertInvoke("M27", ForthClassWithMethods.class, "method12", Integer[].class, Integer[].class);
         assertInvoke("M28", ForthClassWithMethods.class, "method12", Integer[].class, String[].class);
         assertNotFound(ForthClassWithMethods.class, "method6", Object.class);

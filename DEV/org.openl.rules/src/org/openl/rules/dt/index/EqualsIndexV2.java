@@ -35,9 +35,9 @@ public class EqualsIndexV2 implements IRuleIndex {
     private final ConditionCasts conditionCasts;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
-            Map<Object, int[]> index,
-            int[] emptyRules,
-            ConditionCasts conditionCasts) {
+                         Map<Object, int[]> index,
+                         int[] emptyRules,
+                         ConditionCasts conditionCasts) {
         this.index = Collections.unmodifiableMap(index);
         this.emptyRules = emptyRules;
         this.nextNode = nextNode;

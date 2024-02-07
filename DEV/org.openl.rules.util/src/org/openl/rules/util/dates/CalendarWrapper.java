@@ -61,7 +61,7 @@ final class CalendarWrapper {
         int estDiff = (int) ((getTimeInMillis() - start.getTimeInMillis()) / MILLS_IN_DAY);
         Calendar startCalendar = start.getCalendar();
         startCalendar.add(Calendar.DAY_OF_MONTH, estDiff - 2);
-        for (int i = estDiff - 1;; i++) {
+        for (int i = estDiff - 1; ; i++) {
             startCalendar.add(Calendar.DAY_OF_MONTH, 1);
             if (startCalendar.after(calendar)) {
                 return i - 1;
@@ -99,7 +99,7 @@ final class CalendarWrapper {
 
     /**
      * Calculate difference in full days between two dates regarding last month. This method skips years and months.
-     *
+     * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "MD")
      *
      * @param start start date
@@ -136,7 +136,7 @@ final class CalendarWrapper {
 
     /**
      * Calculate difference in full days between two dates regarding last year. This method skips years.
-     *
+     * <p>
      * Note: this is an analog for Excel native function DATEDIF(start, end, "YD")
      *
      * @param start start date

@@ -6,7 +6,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Detects whether specified folder is OpenL project or not.
- *
+ * <p>
  * Implementations are loaded using Java SPI.
  *
  * @author PUdalau

@@ -59,8 +59,8 @@ public class OpenLProject implements Serializable {
     }
 
     @ManyToMany(targetEntity = Tag.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Project_Tags", joinColumns = { @JoinColumn(name = "project_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "tag_id") })
+    @JoinTable(name = "OpenL_Project_Tags", joinColumns = {@JoinColumn(name = "project_id")}, inverseJoinColumns = {
+            @JoinColumn(name = "tag_id")})
     public List<Tag> getTags() {
         return tags;
     }

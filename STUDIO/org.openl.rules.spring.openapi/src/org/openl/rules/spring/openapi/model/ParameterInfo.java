@@ -29,7 +29,7 @@ public class ParameterInfo {
         this.index = index;
         this.parameter = AnnotatedElementUtils.findMergedAnnotation(methodParameter.getParameter(), Parameter.class);
         this.jsonView = Optional.ofNullable(methodParameter.getParameterAnnotation(JsonView.class))
-            .orElseGet(methodInfo::getJsonView);
+                .orElseGet(methodInfo::getJsonView);
         this.type = OpenApiUtils.getType(methodParameter);
     }
 

@@ -20,7 +20,7 @@ public class StreamUtils {
      * To use with Java Streams to collect in in a map preserving the order of elements.
      */
     public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedMap(Function<? super T, ? extends K> keyMapper,
-            Function<? super T, ? extends U> valueMapper) {
+                                                                   Function<? super T, ? extends U> valueMapper) {
         return Collectors.toMap(keyMapper, valueMapper, (u, v) -> {
             throw new IllegalStateException(String.format("Duplicate key %s", u));
         }, LinkedHashMap::new);

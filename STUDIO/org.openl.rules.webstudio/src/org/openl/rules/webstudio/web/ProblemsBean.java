@@ -44,7 +44,7 @@ public class ProblemsBean {
             Collection<OpenLMessage> messages = model.getModuleMessages();
 
             Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
-                Severity.ERROR);
+                    Severity.ERROR);
 
             if (!errorMessages.isEmpty()) {
                 TreeNode errorsRoot = createMessagesRoot(ERRORS_ROOT_NAME, errorMessages.size());
@@ -53,7 +53,7 @@ public class ProblemsBean {
             }
 
             Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
-                Severity.WARN);
+                    Severity.WARN);
             if (!warnMessages.isEmpty()) {
                 TreeNode warningsRoot = createMessagesRoot(WARNINGS_ROOT_NAME, warnMessages.size());
                 addMessageNodes(warningsRoot, WARNING_NODE_NAME, warnMessages, model);
@@ -75,32 +75,32 @@ public class ProblemsBean {
     }
 
     private void addMessageNodes(TreeNode parent,
-            String nodeName,
-            Collection<OpenLMessage> messages,
-            ProjectModel model) {
+                                 String nodeName,
+                                 Collection<OpenLMessage> messages,
+                                 ProjectModel model) {
         int nodeCount = 1;
 
         for (OpenLMessage message : messages) {
             String url = getNodeUrl(message, model);
             TreeNode messageNode = new TreeNode(true,
-                message.getSummary(),
-                "",
-                url,
-                0,
-                0,
-                nodeName.toLowerCase(),
-                true);
+                    message.getSummary(),
+                    "",
+                    url,
+                    0,
+                    0,
+                    nodeName.toLowerCase(),
+                    true);
             parent.addChild(nodeCount++, messageNode);
             if (nodeCount > MAX_PROBLEMS) {
                 parent.addChild(nodeCount,
-                    new TreeNode(true,
-                        "Only first " + MAX_PROBLEMS + " " + nodeName + "s are shown. Fix them first.",
-                        "",
-                        url,
-                        0,
-                        0,
-                        nodeName.toLowerCase(),
-                        true));
+                        new TreeNode(true,
+                                "Only first " + MAX_PROBLEMS + " " + nodeName + "s are shown. Fix them first.",
+                                "",
+                                url,
+                                0,
+                                0,
+                                nodeName.toLowerCase(),
+                                true));
                 break;
             }
         }

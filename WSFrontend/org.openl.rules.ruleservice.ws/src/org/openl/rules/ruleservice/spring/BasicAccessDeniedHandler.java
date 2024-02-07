@@ -30,7 +30,7 @@ public class BasicAccessDeniedHandler implements AccessDeniedHandler {
         if (credentials == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.addHeader("WWW-Authenticate", "Basic");
-        } else        {
+        } else {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }

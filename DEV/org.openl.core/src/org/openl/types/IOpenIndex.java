@@ -8,8 +8,8 @@ package org.openl.types;
 
 /**
  * @author snshor
- *
- *         This class supports index operator (x[i]) by providing element access
+ * <p>
+ * This class supports index operator (x[i]) by providing element access
  */
 public interface IOpenIndex {
     IOpenClass getElementType();

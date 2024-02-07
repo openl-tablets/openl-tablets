@@ -17,13 +17,13 @@ public final class AlgorithmWrapper extends AbstractAlgorithmWrapper implements 
     private final IOpenClass type;
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public AlgorithmWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            Algorithm delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                            Algorithm delegate,
+                            ContextPropertiesInjector contextPropertiesInjector,
+                            boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

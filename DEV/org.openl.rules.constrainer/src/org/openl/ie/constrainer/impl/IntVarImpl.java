@@ -14,6 +14,7 @@ import org.openl.ie.tools.ReusableFactory;
 //
 //: IntVarImpl.java
 //
+
 /**
  * A generic implementation of the IntVar interface.
  */

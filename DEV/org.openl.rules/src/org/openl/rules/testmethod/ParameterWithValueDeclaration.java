@@ -20,9 +20,9 @@ public class ParameterWithValueDeclaration extends ParameterDeclaration implemen
     private IOpenField keyField;
 
     public ParameterWithValueDeclaration(String paramName,
-            Object value,
-            IOpenClass parameterType,
-            IOpenField keyField) {
+                                         Object value,
+                                         IOpenClass parameterType,
+                                         IOpenField keyField) {
         super(parameterType, paramName);
         this.value = value;
         this.keyField = keyField;

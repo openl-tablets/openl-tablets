@@ -20,7 +20,6 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  * Represents OpenL project in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeProject extends TreeFolder {
 
@@ -80,9 +79,9 @@ public class TreeProject extends TreeFolder {
     }
 
     public TreeProject(String id,
-            String name,
-            IFilter<AProjectArtefact> filter,
-            ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+                       String name,
+                       IFilter<AProjectArtefact> filter,
+                       ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         super(id, name, filter);
         this.projectDescriptorResolver = projectDescriptorResolver;
     }

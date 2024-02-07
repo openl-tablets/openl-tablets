@@ -8,9 +8,9 @@ import org.openl.vm.IRuntimeEnv;
 
 public interface IRulesMethodWrapper extends IOpenMethodWrapper {
     default Object invokeDelegateWithContextPropertiesInjector(Object target,
-            Object[] params,
-            IRuntimeEnv env,
-            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+                                                               Object[] params,
+                                                               IRuntimeEnv env,
+                                                               SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
         boolean isNewRuntimeContext = getContextPropertiesInjector().push(params, env, simpleRulesRuntimeEnv);
         IRulesMethodWrapper rulesMethodWrapper = simpleRulesRuntimeEnv.getMethodWrapper();
         try {

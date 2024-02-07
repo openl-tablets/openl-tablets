@@ -22,6 +22,7 @@ public class MultiNestedSpreadsheetResultTest {
     private static final String CODE_COLUMN = "Code";
 
     public static final NestedSpreadsheetConfiguration<CodeStep, CompoundStep> conf;
+
     static {
         ColumnToExtract c1 = new ColumnToExtract(CODE_COLUMN, String.class);
         ColumnToExtract c2 = new ColumnToExtract(RES_COLUMN);
@@ -110,33 +111,33 @@ public class MultiNestedSpreadsheetResultTest {
     public void testArraySpr() {
         SpreadsheetResult upperSpr = getMockArraySpreadsheetResult();
         NestedSpreadsheetResultConverter<CodeStep, CompoundStep> converter = new NestedSpreadsheetResultConverter<>(1,
-            conf);
+                conf);
         List<CalculationStep> result = converter.process(upperSpr);
 
         assertNotNull(result);
         assertEquals("firstNested", ((CodeStep) result.get(0)).getCode());
         assertEquals(2, ((CompoundStep) result.get(1)).getSteps().size());
         assertEquals("nestedColumn2_1",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps().get(0))
-                .getCode());
+                ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(0)).getSteps().get(0))
+                        .getCode());
         assertEquals("nestedColumn2_2",
-            ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps().get(0))
-                .getCode());
+                ((SimpleStep) ((CompoundStep) ((CompoundStep) result.get(1)).getSteps().get(1)).getSteps().get(0))
+                        .getCode());
     }
 
     private SpreadsheetResult getMockSpreadsheetResult() {
         // create upper level spreadsheet
         //
-        SpreadsheetResult upperSpr = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN, RES1_COLUMN }, 4, 5);
+        SpreadsheetResult upperSpr = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN, RES1_COLUMN}, 4, 5);
 
         // create first nested spreadsheet
         //
-        SpreadsheetResult nested = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
+        SpreadsheetResult nested = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN}, 1, 1);
         Mockito.when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
 
         // create second nested spreadsheet
         //
-        SpreadsheetResult nested1 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
+        SpreadsheetResult nested1 = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN}, 1, 1);
         Mockito.when(nested1.getValue(0, 0)).thenReturn("nestedColumn2");
 
         // put the first nested to the 2nd column in the first row
@@ -154,17 +155,17 @@ public class MultiNestedSpreadsheetResultTest {
     private SpreadsheetResult getMockArraySpreadsheetResult() {
         // create upper level spreadsheet
         //
-        SpreadsheetResult upperSpr = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN, RES1_COLUMN }, 4, 5);
+        SpreadsheetResult upperSpr = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN, RES1_COLUMN}, 4, 5);
 
         // create first nested spreadsheet
         //
-        SpreadsheetResult nested = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
+        SpreadsheetResult nested = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN}, 1, 1);
         Mockito.when(nested.getValue(0, 0)).thenReturn("nestedColumn1");
 
-        SpreadsheetResult nested2 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
+        SpreadsheetResult nested2 = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN}, 1, 1);
         Mockito.when(nested2.getValue(0, 0)).thenReturn("nestedColumn2_1");
 
-        SpreadsheetResult nested2_1 = getSpreadsheet(new String[] { CODE_COLUMN, RES_COLUMN }, 1, 1);
+        SpreadsheetResult nested2_1 = getSpreadsheet(new String[]{CODE_COLUMN, RES_COLUMN}, 1, 1);
         Mockito.when(nested2_1.getValue(0, 0)).thenReturn("nestedColumn2_2");
 
         // init spreadsheet array result

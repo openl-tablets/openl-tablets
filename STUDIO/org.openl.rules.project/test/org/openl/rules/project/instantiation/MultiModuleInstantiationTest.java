@@ -35,11 +35,11 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
-            dependencyManager,
-            true);
+                dependencyManager,
+                true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
@@ -73,9 +73,9 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
 
         Class<?> serviceClass = strategy.getInstanceClass();
         Object instance = strategy.instantiate();
@@ -109,9 +109,9 @@ public class MultiModuleInstantiationTest {
         List<ProjectDescriptor> projects = listProjectsInFolder(root);
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
         strategy.setServiceClass(MultiModuleInterface.class);
         Object instantiate = strategy.instantiate();
         assertNotNull(instantiate);
@@ -128,12 +128,12 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

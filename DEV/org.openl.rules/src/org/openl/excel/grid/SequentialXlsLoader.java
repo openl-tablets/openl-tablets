@@ -70,7 +70,7 @@ public class SequentialXlsLoader {
     }
 
     private WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
-            XlsWorkbookSourceCodeModule workbookSourceModule) {
+                                                       XlsWorkbookSourceCodeModule workbookSourceModule) {
         IOpenSourceCodeModule source = workbookSourceModule.getSource();
 
         if (VirtualSourceCodeModule.SOURCE_URI.equals(source.getUri())) {
@@ -109,7 +109,7 @@ public class SequentialXlsLoader {
             for (int i = 0; i < nSheets; i++) {
                 final SheetDescriptor sheet = sheets.get(i);
                 XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
-                    sheet);
+                        sheet);
                 Object[][] cells = excelReader.getCells(sheet);
                 IGridTable[] tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
@@ -129,9 +129,9 @@ public class SequentialXlsLoader {
 
         WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
-            source,
-            openl,
-            Collections.unmodifiableCollection(imports));
+                source,
+                openl,
+                Collections.unmodifiableCollection(imports));
 
         SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
 
@@ -182,9 +182,9 @@ public class SequentialXlsLoader {
                 dependency = dependency.trim();
 
                 IdentifierNode node = new IdentifierNode(IXlsTableNames.DEPENDENCY,
-                    LocationUtils.createTextInterval(dependency),
-                    dependency,
-                    new GridCellSourceCodeModule(gridTable, 1, i, null));
+                        LocationUtils.createTextInterval(dependency),
+                        dependency,
+                        new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
                 Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
@@ -245,8 +245,8 @@ public class SequentialXlsLoader {
     }
 
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-            IGridTable table,
-            XlsSheetSourceCodeModule sheetSource) {
+                                        IGridTable table,
+                                        XlsSheetSourceCodeModule sheetSource) {
 
         int height = table.getHeight();
 
@@ -274,7 +274,7 @@ public class SequentialXlsLoader {
                 } else {
                     try {
                         String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
-                            StringTool.encodeURL(include));
+                                StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
@@ -292,14 +292,14 @@ public class SequentialXlsLoader {
     }
 
     private void registerIncludeError(TableSyntaxNode tableSyntaxNode,
-            IGridTable table,
-            int i,
-            String include,
-            Exception t) {
+                                      IGridTable table,
+                                      int i,
+                                      String include,
+                                      Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found.",
-            t,
-            LocationUtils.createTextInterval(include),
-            new GridCellSourceCodeModule(table, 1, i, null));
+                t,
+                LocationUtils.createTextInterval(include),
+                new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
     }
 
@@ -312,8 +312,8 @@ public class SequentialXlsLoader {
     }
 
     private TableSyntaxNode preprocessTable(IGridTable table,
-            XlsSheetSourceCodeModule source,
-            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
+                                            XlsSheetSourceCodeModule source,
+                                            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
 
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
 
@@ -325,7 +325,7 @@ public class SequentialXlsLoader {
                 tablePartProcessor.register(table, source);
             } catch (Exception | LinkageError t) {
                 tsn = new TableSyntaxNode(XlsNodeTypes.XLS_OTHER
-                    .toString(), tsn.getGridLocation(), source, table, tsn.getHeader());
+                        .toString(), tsn.getGridLocation(), source, table, tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
                 addError(sne);
             }
@@ -353,8 +353,8 @@ public class SequentialXlsLoader {
     }
 
     private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,
-            XlsWorkbookSourceCodeModule workbookSourceModule,
-            WorksheetSyntaxNode[] sheetNodes) {
+                                                  XlsWorkbookSourceCodeModule workbookSourceModule,
+                                                  WorksheetSyntaxNode[] sheetNodes) {
         TableSyntaxNode[] mergedNodes = {};
         try {
             List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
@@ -362,8 +362,8 @@ public class SequentialXlsLoader {
             mergedNodes = new TableSyntaxNode[n];
             for (int i = 0; i < n; i++) {
                 mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
-                    tableParts.get(i).getSource(),
-                    tablePartProcessor);
+                        tableParts.get(i).getSource(),
+                        tablePartProcessor);
             }
         } catch (OpenLCompilationException e) {
             messages.add(OpenLMessagesUtils.newErrorMessage(e));
@@ -373,8 +373,8 @@ public class SequentialXlsLoader {
     }
 
     private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,
-            XlsSheetSourceCodeModule sheetSource,
-            IGridTable[] tables) {
+                                                          XlsSheetSourceCodeModule sheetSource,
+                                                          IGridTable[] tables) {
         List<TableSyntaxNode> tableNodes = new ArrayList<>();
 
         for (IGridTable table : tables) {
@@ -399,7 +399,7 @@ public class SequentialXlsLoader {
         } else {
             if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils
-                    .createError("Only one openl statement is allowed", null, openl);
+                        .createError("Only one openl statement is allowed", null, openl);
                 addError(error);
             }
         }

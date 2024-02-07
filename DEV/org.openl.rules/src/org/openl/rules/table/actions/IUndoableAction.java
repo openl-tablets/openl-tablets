@@ -5,7 +5,6 @@ package org.openl.rules.table.actions;
 
 /**
  * @author snshor
- *
  */
 public interface IUndoableAction {
 

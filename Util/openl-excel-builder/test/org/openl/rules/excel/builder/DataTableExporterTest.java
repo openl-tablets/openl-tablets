@@ -54,11 +54,11 @@ public class DataTableExporterTest {
         FieldModel customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
         PathInfo info = new PathInfo("/getTest",
-            "/getTest",
-            PathInfo.Operation.GET,
-            new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
-            "application/json",
-            "application/json");
+                "/getTest",
+                PathInfo.Operation.GET,
+                new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
+                "application/json",
+                "application/json");
         DataModel dm = new DataModel("getTest", "Test", info, dt);
 
         DatatypeModel secondModel = new DatatypeModel("MyModel");
@@ -68,11 +68,11 @@ public class DataTableExporterTest {
         FieldModel isOkField = new FieldModel("isOk", "Boolean", false);
         secondModel.setFields(Arrays.asList(integerField, sumField, isOkField));
         PathInfo infoForNotOk = new PathInfo("/getMyModel",
-            "/my/model",
-            PathInfo.Operation.POST,
-            new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
-            "text/plain",
-            "text/html");
+                "/my/model",
+                PathInfo.Operation.POST,
+                new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
+                "text/plain",
+                "text/html");
         DataModel myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);
 
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -83,7 +83,7 @@ public class DataTableExporterTest {
         }
 
         try (XSSFWorkbook wb = new XSSFWorkbook(
-            new FileInputStream("../openl-excel-builder/" + DATA_TEST_PROJECT_NAME))) {
+                new FileInputStream("../openl-excel-builder/" + DATA_TEST_PROJECT_NAME))) {
             XSSFSheet dtsSheet = wb.getSheet(DATA_SHEET);
             assertNotNull(dtsSheet);
 

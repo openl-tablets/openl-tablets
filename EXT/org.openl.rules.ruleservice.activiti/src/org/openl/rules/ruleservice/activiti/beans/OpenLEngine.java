@@ -33,7 +33,7 @@ public class OpenLEngine {
             Object serviceBean = openLService.getServiceBean();
             Class<?> serviceClass = openLService.getServiceClass();
             Object result = org.openl.rules.activiti.spring.OpenLEngine
-                .findAndInvokeMethod(methodName, serviceBean, serviceClass, args);
+                    .findAndInvokeMethod(methodName, serviceBean, serviceClass, args);
             return new ResultValue(result);
         }
     }

@@ -18,8 +18,8 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     private SubTextSourceCodeModule nameOfAlgorithm;
 
     private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
-            IOpenSourceCodeModule src,
-            int headerTokenLength) throws SyntaxNodeException {
+                                                              IOpenSourceCodeModule src,
+                                                              int headerTokenLength) throws SyntaxNodeException {
         String s = src.getCode();
 
         // parse '<ALGORITHM>' if it exists
@@ -46,7 +46,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
 
     @Override
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+                                                    IBindingContext bindingContext) throws SyntaxNodeException {
         IGridTable table = tableSyntaxNode.getGridTable();
 
         IOpenSourceCodeModule src = new GridCellSourceCodeModule(table, bindingContext);
@@ -66,9 +66,9 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
 
     @Override
     protected IMemberBoundNode createNode(TableSyntaxNode tsn,
-            OpenL openl,
-            OpenMethodHeader header,
-            XlsModuleOpenClass module) {
+                                          OpenL openl,
+                                          OpenMethodHeader header,
+                                          XlsModuleOpenClass module) {
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 }

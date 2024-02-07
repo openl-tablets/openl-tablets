@@ -107,8 +107,8 @@ public class ExecutableRulesMethodTest {
                 } else {
                     try {
                         runtimeEnv = (IRuntimeEnv) instance.getClass()
-                            .getMethod("getRuntimeEnvironment")
-                            .invoke(instance);
+                                .getMethod("getRuntimeEnvironment")
+                                .invoke(instance);
                     } catch (Exception e) {
                         throw new OpenlNotCheckedException(e);
                     }
@@ -116,7 +116,7 @@ public class ExecutableRulesMethodTest {
                 return runtimeEnv;
             }
             throw new OpenlNotCheckedException(
-                String.format("Expected an Instance of interface '%s'.", IEngineWrapper.class.getTypeName()));
+                    String.format("Expected an Instance of interface '%s'.", IEngineWrapper.class.getTypeName()));
         }
 
         public static boolean isMethodArgumentsCacheEnable(Object instance) {

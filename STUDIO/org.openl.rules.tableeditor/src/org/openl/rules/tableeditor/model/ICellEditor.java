@@ -3,11 +3,9 @@ package org.openl.rules.tableeditor.model;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
 
 /**
- *
  * @author snshor
- *
- *         This interface is base interface for all cell editors that are created by Table Editor.
- *
+ * <p>
+ * This interface is base interface for all cell editors that are created by Table Editor.
  */
 
 public interface ICellEditor {
@@ -26,7 +24,6 @@ public interface ICellEditor {
     String CE_DOUBLE = "double";
 
     /**
-     *
      * @return bean containing information that will be processed on the client to initialize JS editor
      */
     EditorTypeResponse getEditorTypeAndMetadata();

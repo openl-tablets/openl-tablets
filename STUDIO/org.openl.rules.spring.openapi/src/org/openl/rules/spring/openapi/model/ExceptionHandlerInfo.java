@@ -81,10 +81,10 @@ public class ExceptionHandlerInfo {
             this.controllerAdviceBeanType = controllerAdviceBeanType;
             this.method = method;
             this.statusCode = Optional.ofNullable(AnnotationUtils.findAnnotation(method, ResponseStatus.class))
-                .map(ResponseStatus::value)
-                .map(HttpStatus::value)
-                .map(String::valueOf)
-                .orElse(null);
+                    .map(ResponseStatus::value)
+                    .map(HttpStatus::value)
+                    .map(String::valueOf)
+                    .orElse(null);
             this.returnType = OpenApiUtils.getReturnType(method);
             if (returnType instanceof ParameterizedType) {
                 var rawType = ((ParameterizedType) returnType).getRawType();
@@ -94,8 +94,8 @@ public class ExceptionHandlerInfo {
                 }
             }
             this.handledExceptions = Objects
-                .requireNonNull(AnnotationUtils.findAnnotation(method, ExceptionHandler.class))
-                .value();
+                    .requireNonNull(AnnotationUtils.findAnnotation(method, ExceptionHandler.class))
+                    .value();
         }
 
         public Type getReturnType() {

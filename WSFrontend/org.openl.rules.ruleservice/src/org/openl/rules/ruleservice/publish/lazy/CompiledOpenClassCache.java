@@ -77,10 +77,10 @@ public final class CompiledOpenClassCache {
     }
 
     static CompiledOpenClass compileToCache(RuleServiceDependencyManager dependencyManager,
-            ResolvedDependency dependency,
-            DeploymentDescription deployment,
-            Module module,
-            ClassLoader classLoader) throws OpenLCompilationException {
+                                            ResolvedDependency dependency,
+                                            DeploymentDescription deployment,
+                                            Module module,
+                                            ClassLoader classLoader) throws OpenLCompilationException {
         Objects.requireNonNull(deployment, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependency, "dependency cannot be null");
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
@@ -88,13 +88,13 @@ public final class CompiledOpenClassCache {
         try {
             LazyBinderMethodHandler.removePrebindHandler();
             RulesInstantiationStrategy rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
-                dependencyManager,
-                classLoader,
-                true);
+                    dependencyManager,
+                    classLoader,
+                    true);
             rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
             Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
-                    Collections.singleton(module));
+                    .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                            Collections.singleton(module));
             rulesInstantiationStrategy.setExternalParameters(parameters);
             compiledOpenClass = rulesInstantiationStrategy.compile();
 
@@ -102,9 +102,9 @@ public final class CompiledOpenClassCache {
             Cache<Key, CompiledOpenClass> cache = getInstance().getModulesCache();
             cache.put(key, compiledOpenClass);
             LOG.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
-                deployment.getName(),
-                deployment.getVersion().getVersionName(),
-                dependency);
+                    deployment.getName(),
+                    deployment.getVersion().getVersionName(),
+                    dependency);
             return compiledOpenClass;
         } catch (Exception ex) {
             throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
@@ -136,15 +136,15 @@ public final class CompiledOpenClassCache {
             Key key = entry.getKey();
             DeploymentDescription deployment = key.getDeploymentDescription();
             if (deploymentDescription.getName().equals(deployment.getName()) && deploymentDescription.getVersion()
-                .equals(deployment.getVersion())) {
+                    .equals(deployment.getVersion())) {
                 cache.remove(key);
             }
         }
         synchronized (eventsMap) {
             eventsMap.entrySet()
-                .removeIf(entry -> deploymentDescription.getName()
-                    .equals(entry.getKey().getDeploymentDescription().getName()) && deploymentDescription.getVersion()
-                        .equals(entry.getKey().getDeploymentDescription().getVersion()));
+                    .removeIf(entry -> deploymentDescription.getName()
+                            .equals(entry.getKey().getDeploymentDescription().getName()) && deploymentDescription.getVersion()
+                            .equals(entry.getKey().getDeploymentDescription().getVersion()));
         }
     }
 
@@ -170,13 +170,13 @@ public final class CompiledOpenClassCache {
                     modulesCache = cacheManager.getCache(CACHE_NAME, Key.class, CompiledOpenClass.class);
                     if (modulesCache == null) {
                         modulesCache = cacheManager.createCache(CACHE_NAME,
-                            new MutableConfiguration<Key, CompiledOpenClass>()
-                                .setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ONE_DAY))
-                                .setStoreByValue(false)
-                                .setTypes(Key.class, CompiledOpenClass.class));
+                                new MutableConfiguration<Key, CompiledOpenClass>()
+                                        .setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ONE_DAY))
+                                        .setStoreByValue(false)
+                                        .setTypes(Key.class, CompiledOpenClass.class));
                     }
                     modulesCache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder
-                        .factoryOf(CleanUpListener.class), null, false, true));
+                            .factoryOf(CleanUpListener.class), null, false, true));
                 }
             }
         }

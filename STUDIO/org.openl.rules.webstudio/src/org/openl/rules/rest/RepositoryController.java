@@ -110,8 +110,8 @@ public class RepositoryController {
 
     @Autowired
     public RepositoryController(MultiUserWorkspaceManager workspaceManager,
-            PropertyResolver propertyResolver,
-            UserManagementService userManagementService) {
+                                PropertyResolver propertyResolver,
+                                UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
         this.designRepoComments = new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
         this.userManagementService = userManagementService;
@@ -126,8 +126,8 @@ public class RepositoryController {
     public ResponseEntity<?> getProjects() {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Does not have VIEW privilege");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Does not have VIEW privilege");
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
@@ -166,7 +166,7 @@ public class RepositoryController {
     /**
      * Returns a zipped project.
      *
-     * @param name a project name
+     * @param name    a project name
      * @param version a project version
      * @return a zipped project
      */
@@ -206,9 +206,9 @@ public class RepositoryController {
             String zipFileName = String.format("%s-%s.zip", name, version);
 
             return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("application/zip"))
-                .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
-                .body(new InputStreamResource(entity));
+                    .contentType(MediaType.valueOf("application/zip"))
+                    .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
+                    .body(new InputStreamResource(entity));
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_PLAIN).body(ex.getMessage());
         }
@@ -218,7 +218,7 @@ public class RepositoryController {
      * Uploads a zipped project to a design repository. The upload will be performed if the project in the design
      * repository is not locked by other user.
      *
-     * @param name a project name to update
+     * @param name    a project name to update
      * @param zipFile a zipped project
      * @param comment a revision comment
      */
@@ -226,9 +226,9 @@ public class RepositoryController {
     @PostMapping(value = "project/{name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "201", description = "Created")
     public ResponseEntity<?> addProject(HttpServletRequest request,
-            @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name,
-            @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam(value = "file") MultipartFile zipFile,
-            @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment) {
+                                        @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name,
+                                        @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam(value = "file") MultipartFile zipFile,
+                                        @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment) {
         File modifiedZip = null;
         FileInputStream modifiedZipStream = null;
         File originalZipFolder = null;
@@ -256,11 +256,11 @@ public class RepositoryController {
             modifiedZipStream = new FileInputStream(modifiedZip);
 
             return addProject(request.getRequestURL()
-                .toString(), name, modifiedZipStream, modifiedZip.length(), comment);
+                    .toString(), name, modifiedZipStream, modifiedZip.length(), comment);
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(ex.getMessage());
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(ex.getMessage());
         } finally {
             FileUtils.deleteQuietly(originalZipFolder);
             IOUtils.closeQuietly(modifiedZipStream);
@@ -279,14 +279,14 @@ public class RepositoryController {
     @PostMapping(value = "project", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponse(responseCode = "201", description = "Created")
     public ResponseEntity<?> addProject(HttpServletRequest request,
-            @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam(value = "file") MultipartFile zipFile,
-            @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment) {
+                                        @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam(value = "file") MultipartFile zipFile,
+                                        @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment) {
         try {
             return addProject(request, zipFile.getInputStream(), zipFile.getSize(), comment);
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(ex.getMessage());
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(ex.getMessage());
         }
     }
 
@@ -308,18 +308,18 @@ public class RepositoryController {
             }
             if (StringUtils.isBlank(name)) {
                 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body("The uploaded file does not contain Project Name in the rules.xml ");
+                        .body("The uploaded file does not contain Project Name in the rules.xml ");
             }
 
             return addProject(request.getRequestURL().toString() + "/" + StringTool.encodeURL(name),
-                name,
-                new ByteArrayInputStream(cachedStream.toByteArray()),
-                size,
-                comment);
+                    name,
+                    new ByteArrayInputStream(cachedStream.toByteArray()),
+                    size,
+                    comment);
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(ex.getMessage());
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(ex.getMessage());
         } finally {
             /* Clean up */
             FileUtils.deleteQuietly(zipFolder);
@@ -340,14 +340,14 @@ public class RepositoryController {
             var payload = zipFile.getBody();
             if (payload == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("Request body is empty!");
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body("Request body is empty!");
             }
             return addProject(request, payload.getInputStream(), payload.contentLength(), null);
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(ex.getMessage());
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(ex.getMessage());
         }
     }
 
@@ -364,25 +364,25 @@ public class RepositoryController {
             if (userWorkspace.hasProject(repositoryId, name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body("Does not have EDIT PROJECTS privilege");
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .body("Does not have EDIT PROJECTS privilege");
                 }
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
                     String lockedBy = project.getLockInfo().getLockedBy();
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body("Already locked by '" + lockedBy + "'");
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .body("Already locked by '" + lockedBy + "'");
                 }
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body("Does not have CREATE PROJECTS privilege");
+                            .contentType(MediaType.TEXT_PLAIN)
+                            .body("Does not have CREATE PROJECTS privilege");
                 }
                 if (getRepository().supports().mappedFolders()) {
                     throw new UnsupportedOperationException(
-                        "Cannot create a project for repository with non-flat folder structure");
+                            "Cannot create a project for repository with non-flat folder structure");
                 }
             }
 
@@ -418,8 +418,8 @@ public class RepositoryController {
             return ResponseEntity.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException | URISyntaxException | RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body(ex.getMessage());
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(ex.getMessage());
         } catch (ProjectException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_PLAIN).body(ex.getMessage());
         } finally {
@@ -456,15 +456,15 @@ public class RepositoryController {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Does not have EDIT PROJECTS privilege");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Does not have EDIT PROJECTS privilege");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.tryLock()) {
             String lockedBy = project.getLockInfo().getLockedBy();
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Already locked by '" + lockedBy + "'");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Already locked by '" + lockedBy + "'");
         }
         return ResponseEntity.ok().build();
     }
@@ -484,19 +484,19 @@ public class RepositoryController {
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Does not have EDIT PROJECTS privilege");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Does not have EDIT PROJECTS privilege");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("The project is not locked.");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The project is not locked.");
         } else if (!project.isLockedByMe()) {
             String lockedBy = project.getLockInfo().getLockedBy();
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("Locked by '" + lockedBy + "'");
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Locked by '" + lockedBy + "'");
         }
         project.unlock();
         return ResponseEntity.ok().build();
@@ -537,9 +537,9 @@ public class RepositoryController {
 
     private WorkspaceUserImpl getUser() {
         return new WorkspaceUserImpl(getUserName(),
-            (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                .orElse(null));
+                (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                        .orElse(null));
     }
 
     private String getUserName() {

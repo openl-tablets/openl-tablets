@@ -44,19 +44,19 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-01-15", "2011-02-15", 120.0 },
-                { "2011-02-15", "2011-01-15", 120.0 },
-                { "2011-01-15", "2020-01-15", 120.0 },
-                { "2020-01-15", "2011-01-15", 120.0 },
-                { "2011-03-15", "2011-03-15", 120.0 },
-                { "2011-04-15", "2011-03-15", 100.0 },
-                { "2020-04-15", "2011-03-15", 100.0 },
-                { "2011-04-15", "2020-03-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 },
-                { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 },
-                { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-08-15", 150.0 } };
+        Object[][] testData = {{"2011-01-15", "2011-02-15", 120.0},
+                {"2011-02-15", "2011-01-15", 120.0},
+                {"2011-01-15", "2020-01-15", 120.0},
+                {"2020-01-15", "2011-01-15", 120.0},
+                {"2011-03-15", "2011-03-15", 120.0},
+                {"2011-04-15", "2011-03-15", 100.0},
+                {"2020-04-15", "2011-03-15", 100.0},
+                {"2011-04-15", "2020-03-15", 100.0},
+                {"2011-07-15", "2011-07-15", 100.0},
+                {"2020-07-15", "2011-07-15", 100.0},
+                {"2011-07-15", "2011-07-15", 100.0},
+                {"2020-07-15", "2011-07-15", 100.0},
+                {"2011-07-15", "2011-08-15", 150.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -76,7 +76,7 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-08-15", "2012-01-01", 4.0 }, { "2011-08-15", "2009-01-01", 2.0 } };
+        Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -96,7 +96,7 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-08-15", "lobb", 4.0 }, { "2011-08-15", "lobb2", 7.0 } };
+        Object[][] testData = {{"2011-08-15", "lobb", 4.0}, {"2011-08-15", "lobb2", 7.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 

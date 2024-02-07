@@ -17,7 +17,6 @@ import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class DoubleNodeBinder extends ANodeBinder {
 

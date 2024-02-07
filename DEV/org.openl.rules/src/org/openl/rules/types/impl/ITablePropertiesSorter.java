@@ -9,7 +9,7 @@ import org.openl.types.IOpenMethod;
 /**
  * Sorts tables candidates in dispatcher to determine the most suitable table to invoke. It is related with
  * DecisionTable concept that defines: The first rule that satisfies conditions will be fired.
- *
+ * <p>
  * So if we have several tables that corresponds current context dispatcher will select the first(sequence defined by
  * the sorter).
  *

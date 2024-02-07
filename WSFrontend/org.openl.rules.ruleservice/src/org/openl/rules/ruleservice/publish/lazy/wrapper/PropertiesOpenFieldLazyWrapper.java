@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 public final class PropertiesOpenFieldLazyWrapper extends PropertiesOpenField {
     static {
         WrapperValidation.validateWrapperClass(PropertiesOpenFieldLazyWrapper.class,
-            PropertiesOpenFieldLazyWrapper.class.getSuperclass());
+                PropertiesOpenFieldLazyWrapper.class.getSuperclass());
     }
 
     private final PropertiesOpenField delegate;

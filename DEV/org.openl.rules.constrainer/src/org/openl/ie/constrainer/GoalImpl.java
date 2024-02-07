@@ -17,6 +17,7 @@ package org.openl.ie.constrainer;
 //
 //: GoalImpl.java
 //
+
 /**
  * A generic abstract implementation of the {@link Goal} interface.
  * <p>

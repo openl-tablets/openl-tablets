@@ -52,9 +52,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
     private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator.comparing(AProject::getBusinessName,
-        String.CASE_INSENSITIVE_ORDER)
-        .thenComparing(o -> o.getRepository().getId())
-        .thenComparing(AProject::getRealPath, String.CASE_INSENSITIVE_ORDER);
+                    String.CASE_INSENSITIVE_ORDER)
+            .thenComparing(o -> o.getRepository().getId())
+            .thenComparing(AProject::getRealPath, String.CASE_INSENSITIVE_ORDER);
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
@@ -210,11 +210,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
         synchronized (userRulesProjects) {
             return userRulesProjects.entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
-                .map(Map.Entry::getValue)
-                .sorted(PROJECTS_COMPARATOR)
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .map(Map.Entry::getValue)
+                    .sorted(PROJECTS_COMPARATOR)
+                    .collect(Collectors.toList());
         }
     }
 
@@ -237,9 +237,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
         return getProjects(false).stream()
-            .filter(p -> !p.isLocalOnly() && repositoryId.equals(p.getDesignRepository()
-                .getId()) && ((realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/")))
-            .findFirst();
+                .filter(p -> !p.isLocalOnly() && repositoryId.equals(p.getDesignRepository()
+                        .getId()) && ((realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/")))
+                .findFirst();
     }
 
     @Override
@@ -328,8 +328,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         }
                     } catch (Exception e) {
                         log.warn("Could not rename the project '{}' because of error: {}",
-                            rPr.getName(),
-                            e.getMessage(), e);
+                                rPr.getName(),
+                                e.getMessage(), e);
                     }
                 }
             }
@@ -496,20 +496,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                         designFileData = fileData;
                                     } else {
                                         log.info("Project '{}' does not exist in the branch '{}' anymore",
-                                            name,
-                                            branch);
+                                                name,
+                                                branch);
                                         if (local != null) {
                                             // We should either close the project or make it local if we don't want to lose the changes.
                                             final RulesProject tmp = new RulesProject(getUser(),
-                                                localRepository,
-                                                local,
-                                                repo,
-                                                designFileData,
-                                                projectsLockEngine);
+                                                    localRepository,
+                                                    local,
+                                                    repo,
+                                                    designFileData,
+                                                    projectsLockEngine);
                                             if (tmp.isModified()) {
                                                 log.info(
-                                                    "Project '{}' is modified. Convert it to local project instead of closing to prevent losing user changes. ",
-                                                    tmp.getName());
+                                                        "Project '{}' is modified. Convert it to local project instead of closing to prevent losing user changes. ",
+                                                        tmp.getName());
                                                 if (tmp.isLockedByMe()) {
                                                     tmp.unlock();
                                                 }
@@ -518,7 +518,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                                 // 1) Local project with changes in the branch with deleted project
                                                 ProjectState state = localRepository.getProjectState(lp.getFolderPath());
                                                 if (state != null && !LocalWorkspaceImpl.LOCAL_ID
-                                                    .equals(state.getRepositoryId())) {
+                                                        .equals(state.getRepositoryId())) {
                                                     state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
                                                 }
                                                 // 2) Closed project in design repository in main branch
@@ -527,9 +527,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                             } else {
                                                 // Close the project and stay in the main branch.
                                                 log.info(
-                                                    "Close the project '{}' because it does not exist in the branch '{}'",
-                                                    name,
-                                                    branch);
+                                                        "Close the project '{}' because it does not exist in the branch '{}'",
+                                                        name,
+                                                        branch);
                                                 closeProject = true;
                                             }
                                         }

@@ -37,16 +37,16 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class<?>[] { IEngineWrapper.class, IRulesRuntimeContextProvider.class };
+        return new Class<?>[]{IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
 
     @Override
     protected final IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
+                                                             Map<Method, IOpenMember> methodMap,
+                                                             IRuntimeEnv runtimeEnv) {
         OpenLRulesMethodHandler openLRulesMethodHandler = new OpenLRulesMethodHandler(openClassInstance,
-            methodMap,
-            getRuntimeEnvBuilder());
+                methodMap,
+                getRuntimeEnvBuilder());
         if (runtimeEnv != null) {
             openLRulesMethodHandler.setRuntimeEnv(runtimeEnv);
         }

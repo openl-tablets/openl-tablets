@@ -29,7 +29,7 @@ import org.openl.util.StringUtils;
 public class SearchBean {
 
     // TODO Move table names to Rules Core
-    private static final SelectItem[] tableTypeItems = new SelectItem[] {
+    private static final SelectItem[] tableTypeItems = new SelectItem[]{
             new SelectItem(XlsNodeTypes.XLS_DT.toString(), "Decision"),
             new SelectItem(XlsNodeTypes.XLS_SPREADSHEET.toString(), "Spreadsheet"),
             new SelectItem(XlsNodeTypes.XLS_TBASIC.toString(), "TBasic"),
@@ -45,12 +45,12 @@ public class SearchBean {
             new SelectItem(XlsNodeTypes.XLS_RETURNS.toString(), "Returns"),
             new SelectItem(XlsNodeTypes.XLS_ENVIRONMENT.toString(), "Environment"),
             new SelectItem(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties"),
-            new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other") };
+            new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other")};
 
-    private static final SelectItem[] searchScopeItems = new SelectItem[] {
+    private static final SelectItem[] searchScopeItems = new SelectItem[]{
             new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()),
             new SelectItem(SearchScope.CURRENT_PROJECT, SearchScope.CURRENT_PROJECT.getLabel()),
-            new SelectItem(SearchScope.ALL, SearchScope.ALL.getLabel()) };
+            new SelectItem(SearchScope.ALL, SearchScope.ALL.getLabel())};
 
     private String query;
     private String[] tableTypes;
@@ -154,7 +154,7 @@ public class SearchBean {
     private void search() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query != null? UriEncoder.decode(query): null);
+        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query != null ? UriEncoder.decode(query) : null);
 
         if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));

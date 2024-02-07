@@ -33,7 +33,6 @@ import org.openl.util.text.TextInfo;
 
 /**
  * @author snshor
- *
  */
 public class ParserTest {
 
@@ -143,10 +142,10 @@ public class ParserTest {
     }
 
     public void _testLiteralParseAndBind(INodeBinder binder,
-            String src,
-            Object res,
-            Class<?> clazz,
-            final String type) throws Exception {
+                                         String src,
+                                         Object res,
+                                         Class<?> clazz,
+                                         final String type) throws Exception {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         ISyntaxNode ln = search(pc.getTopNode(), type);
@@ -282,46 +281,46 @@ public class ParserTest {
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(),
-            "10000000000000000000",
-            new BigInteger("10000000000000000000"),
-            BigInteger.class,
-            "literal.integer");
+                "10000000000000000000",
+                new BigInteger("10000000000000000000"),
+                BigInteger.class,
+                "literal.integer");
 
         _testLiteralParseAndBind(new DoubleNodeBinder(),
-            "1e+308",
-            Double.valueOf("1e+308"),
-            double.class,
-            "literal.real");
+                "1e+308",
+                Double.valueOf("1e+308"),
+                double.class,
+                "literal.real");
         _testLiteralParseAndBind(new DoubleNodeBinder(),
-            "2e+308",
-            new BigDecimal("2e+308"),
-            BigDecimal.class,
-            "literal.real");
+                "2e+308",
+                new BigDecimal("2e+308"),
+                BigDecimal.class,
+                "literal.real");
     }
 
     @Test
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     public void testStringParseAndBind() throws Exception {
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u00A0"),
-            "\u00A0",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u00A0"),
+                "\u00A0",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\uAAAA"),
-            "\uAAAA",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\uAAAA"),
+                "\uAAAA",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u222b"),
-            "\u222b",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u222b"),
+                "\u222b",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u00BD"),
-            "\u00BD",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u00BD"),
+                "\u00BD",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\123bla"), "\123bla", String.class, "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\1230bla"), "\1230bla", String.class, "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\128bla"), "\128bla", String.class, "literal.string");
@@ -330,10 +329,10 @@ public class ParserTest {
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\7"), "\7", String.class, "literal.string");
 
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("H\\u00e5ll\\u00F8, W\\u00f8\\u00AEl\\u2202\\u00a1"),
-            "H\u00e5ll\u00F8, W\u00f8\u00AEl\u2202\u00a1",
-            String.class,
-            "literal.string");
+                wrapStrLit("H\\u00e5ll\\u00F8, W\\u00f8\\u00AEl\\u2202\\u00a1"),
+                "H\u00e5ll\u00F8, W\u00f8\u00AEl\u2202\u00a1",
+                String.class,
+                "literal.string");
     }
 
     @Test

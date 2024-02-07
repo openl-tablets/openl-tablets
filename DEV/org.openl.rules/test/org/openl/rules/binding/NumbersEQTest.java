@@ -1,6 +1,7 @@
 package org.openl.rules.binding;
 
 //import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +14,6 @@ import org.openl.rules.TestUtils;
  * DoubleValue(-5); a==b; - will be true
  *
  * @author DLiauchuk
- *
  */
 public class NumbersEQTest {
     private static final String SRC = "test/rules/binding/NumbersEQTest.xls";

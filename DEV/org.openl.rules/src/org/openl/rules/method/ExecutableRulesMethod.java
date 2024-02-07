@@ -59,7 +59,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                     }
                     if (param.getInstanceClass() != null) {
                         aliasDatatypeCasts[i] = castFactory
-                            .getCast(JavaOpenClass.getOpenClass(param.getInstanceClass()), param);
+                                .getCast(JavaOpenClass.getOpenClass(param.getInstanceClass()), param);
                     }
                 }
                 i++;
@@ -111,7 +111,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                         isSimilarStep = simpleRulesRuntimeEnv.getArgumentCachingStorage().makeForwardStep(this);
                         if (isSimilarStep && RecalculateEnum.NEVER.equals(getRecalculateType())) {
                             return simpleRulesRuntimeEnv.getArgumentCachingStorage()
-                                .getValueFromOriginalCalculation(this);
+                                    .getValueFromOriginalCalculation(this);
                         }
                     }
                 } else {
@@ -137,7 +137,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                 if (!RecalculateEnum.ALWAYS.equals(getRecalculateType())) {
                     if (simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         simpleRulesRuntimeEnv.getArgumentCachingStorage()
-                            .makeBackwardStepForOriginalCalculation(this, result);
+                                .makeBackwardStepForOriginalCalculation(this, result);
                     }
                     if (isSimilarStep && !simpleRulesRuntimeEnv.isOriginalCalculation()) {
                         simpleRulesRuntimeEnv.getArgumentCachingStorage().makeBackwardStep(this);

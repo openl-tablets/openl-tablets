@@ -41,7 +41,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
-            "interfaceClassGenerator cannot be null");
+                "interfaceClassGenerator cannot be null");
     }
 
     public InterfaceClassGenerator getInterfaceClassGenerator() {
@@ -103,9 +103,9 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
     }
 
     public RulesEngineFactory(String openlName,
-            String userHome,
-            IOpenSourceCodeModule sourceCode,
-            Class<T> interfaceClass) {
+                              String userHome,
+                              IOpenSourceCodeModule sourceCode,
+                              Class<T> interfaceClass) {
         super(openlName, sourceCode, userHome);
         super.setInterfaceClass(interfaceClass);
     }
@@ -158,7 +158,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                 } catch (ClassNotFoundException e) {
                     @SuppressWarnings("unchecked")
                     Class<T> interfaceClass = (Class<T>) interfaceClassGenerator
-                        .generateInterface(className, openClass, classLoader);
+                            .generateInterface(className, openClass, classLoader);
                     setInterfaceClass(interfaceClass);
                     return interfaceClass;
                 }
@@ -172,7 +172,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[] { getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class };
+        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
 
     private IRuntimeEnvBuilder runtimeEnvBuilder = null;
@@ -187,11 +187,11 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-            Map<Method, IOpenMember> methodMap,
-            IRuntimeEnv runtimeEnv) {
+                                                       Map<Method, IOpenMember> methodMap,
+                                                       IRuntimeEnv runtimeEnv) {
         OpenLRulesMethodHandler openLRulesMethodHandler = new OpenLRulesMethodHandler(openClassInstance,
-            methodMap,
-            getRuntimeEnvBuilder());
+                methodMap,
+                getRuntimeEnvBuilder());
         if (runtimeEnv != null) {
             openLRulesMethodHandler.setRuntimeEnv(runtimeEnv);
         }
@@ -215,9 +215,9 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                 IBindingContext bindingContext = getOpenL().getBinder().makeBindingContext();
                 bindingContext.setExecutionMode(isExecutionMode());
                 ValidationManager
-                    .validate(new RulesCompileContext(), compiledOpenClass.getOpenClassWithErrors(), bindingContext);
+                        .validate(new RulesCompileContext(), compiledOpenClass.getOpenClassWithErrors(), bindingContext);
                 ValidatedCompiledOpenClass validatedCompiledOpenClass = ValidatedCompiledOpenClass
-                    .instanceOf(compiledOpenClass);
+                        .instanceOf(compiledOpenClass);
                 if (bindingContext.getMessages() != null) {
                     bindingContext.getMessages().forEach(validatedCompiledOpenClass::addMessage);
                 }

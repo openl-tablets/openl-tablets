@@ -32,7 +32,7 @@ public class KafkaTracingProviderImpl implements KafkaTracingProvider {
 
     /**
      * This method injects the tracing headers from consumer to the producer for span context propagation.
-     * 
+     *
      * @param consumerHeaders
      * @param producerHeaders
      */
@@ -48,7 +48,7 @@ public class KafkaTracingProviderImpl implements KafkaTracingProvider {
 
     /**
      * Start span as a child of context which comes with consumer headers.
-     * 
+     *
      * @return active span
      */
     @Override
@@ -82,7 +82,6 @@ public class KafkaTracingProviderImpl implements KafkaTracingProvider {
 
     /**
      * Finish the current active span
-     *
      */
     @Override
     public void finish(Object span) {

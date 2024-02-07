@@ -30,7 +30,7 @@ class ExpectedResultFilter extends AGridFilter {
             boolean isOk = result.getStatus() == TestStatus.TR_OK;
             if (isOk) {
                 formattedValue.append("<i class=\"case-success\"></i> ")
-                    .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo(), false));
+                        .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo(), false));
             } else {
                 Object expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration) {
@@ -42,10 +42,10 @@ class ExpectedResultFilter extends AGridFilter {
                     formattedExpectedValue = "<span class=\"case-empty\">Empty</span>";
                 }
                 formattedValue.append("<i class=\"case-error\"></i> ")
-                    .append(cell.getFormattedValue())
-                    .append(' ')
-                    .append("<span class=\"case-expected\">Expected: </span>")
-                    .append(formattedExpectedValue);
+                        .append(cell.getFormattedValue())
+                        .append(' ')
+                        .append("<span class=\"case-expected\">Expected: </span>")
+                        .append(formattedExpectedValue);
             }
             cell.setFormattedValue(formattedValue.toString());
         }

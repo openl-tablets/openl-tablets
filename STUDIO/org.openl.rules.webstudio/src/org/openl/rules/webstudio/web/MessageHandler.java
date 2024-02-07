@@ -26,7 +26,7 @@ public class MessageHandler {
      */
     public String getUrlForEmptySource(OpenLMessage message) {
         return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
-            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
+                .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
     protected String getUrl(ProjectModel model, String sourceLocation, String severity, long id) {
@@ -38,7 +38,7 @@ public class MessageHandler {
                 return getUrlToDependentModule(sourceLocation, model.getMessageNodeId(sourceLocation));
             } else {
                 return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
-                    .url("message?type=" + severity + "&summary=" + id);
+                        .url("message?type=" + severity + "&summary=" + id);
             }
         }
     }
@@ -49,7 +49,7 @@ public class MessageHandler {
         XlsWorkbookSourceCodeModule currentModuleWorkbook = model.getCurrentModuleWorkbook();
 
         return referencedModule != null && currentModuleWorkbook != null && currentModuleWorkbook.getSource()
-            .equals(referencedModule.getModule());
+                .equals(referencedModule.getModule());
     }
 
     private ISyntaxNode getModuleNode(TableSyntaxNode node) {

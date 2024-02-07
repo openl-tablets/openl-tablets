@@ -9,10 +9,10 @@ public class ExpectedLogValues {
     private boolean responseProvided;
 
     public ExpectedLogValues(String request,
-            String response,
-            String methodName,
-            String serviceName,
-            String publisherType) {
+                             String response,
+                             String methodName,
+                             String serviceName,
+                             String publisherType) {
         this.request = request;
         this.response = response;
         this.methodName = methodName;

@@ -22,14 +22,12 @@ public interface IOpenLTable {
     String getName();
 
     /**
-     *
      * @return true if table is executable at OpenL rules runtime. Also it indicates that tests can be created for this
-     *         table.
+     * table.
      */
     boolean isExecutable();
 
     /**
-     *
      * @return true if table supports operations over versions
      */
     boolean isVersionable();

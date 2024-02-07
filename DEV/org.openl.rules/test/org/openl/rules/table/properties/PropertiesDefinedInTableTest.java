@@ -23,8 +23,8 @@ public class PropertiesDefinedInTableTest extends BaseOpenlBuilderHelper {
         assertNotNull(tsn);
         assertTrue(tsn.hasPropertiesDefinedInTable(), "There are properties in table");
         assertEquals(0,
-            tsn.getTableProperties().getTableProperties().size(),
-            "No any values of the properties defined in table");
+                tsn.getTableProperties().getTableProperties().size(),
+                "No any values of the properties defined in table");
     }
 
     @Test

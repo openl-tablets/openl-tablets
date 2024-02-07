@@ -13,7 +13,7 @@ public interface IPriorityRule extends Comparator<ITableProperties> {
 
     /**
      * @return a negative integer, zero, or a positive integer as the first argument is more prior than, has the same
-     *         priority to, or is less prior.
+     * priority to, or is less prior.
      */
     @Override
     int compare(ITableProperties properties1, ITableProperties properties2);

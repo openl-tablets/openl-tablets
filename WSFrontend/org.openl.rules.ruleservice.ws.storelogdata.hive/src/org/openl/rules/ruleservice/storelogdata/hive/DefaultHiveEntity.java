@@ -24,7 +24,7 @@ public class DefaultHiveEntity {
     private ZonedDateTime incomingTime;
 
     @OutcomingTime
-    private ZonedDateTime  outcomingTime;
+    private ZonedDateTime outcomingTime;
 
     @Request
     private String request;

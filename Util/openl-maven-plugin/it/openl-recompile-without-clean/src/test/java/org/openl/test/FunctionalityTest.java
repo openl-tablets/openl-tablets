@@ -24,7 +24,7 @@ public class FunctionalityTest {
                 .setProvideVariations(true)
                 .setExecutionMode(false)
                 .setProject("src/main/openl").build();
-        
+
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final CompiledOpenClass compiledOpenClass = factory.getCompiledOpenClass();
 
