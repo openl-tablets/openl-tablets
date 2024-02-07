@@ -1,4 +1,9 @@
-# EOL for bash scripts
+
+
+# Windows files
+**/*.cmd eol=crlf
+
+# Unix files
 **/*.sh eol=lf
 **/start eol=lf
 **/stop eol=lf
