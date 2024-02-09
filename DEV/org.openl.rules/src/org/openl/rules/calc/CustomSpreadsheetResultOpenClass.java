@@ -772,6 +772,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 null,
                                 null,
                                 xmlName,
+                                null,
+                                null,
+                                null,
+                                false,
                                 false,
                                 fieldVisitorWriters,
                                 null);
@@ -796,6 +800,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 null,
                                 null,
                                 newXmlName,
+                                null,
+                                null,
+                                null,
+                                false,
                                 false,
                                 fieldVisitorWriters,
                                 null);

@@ -1,12 +1,22 @@
 
 package org.openl.rules.datatype.binding;
 
+import static org.openl.rules.datatype.binding.DatatypeHelper.COLUMN_TITLES;
+import static org.openl.rules.datatype.binding.DatatypeHelper.DEFAULT_COLUMN_TITLE;
+import static org.openl.rules.datatype.binding.DatatypeHelper.DESCRIPTION_COLUMN_TITLE;
+import static org.openl.rules.datatype.binding.DatatypeHelper.EXAMPLE_COLUMN_TITLE;
+import static org.openl.rules.datatype.binding.DatatypeHelper.MANDATORY_COLUMN_TITLE;
+import static org.openl.rules.datatype.binding.DatatypeHelper.NAME_COLUMN_TITLE;
+import static org.openl.rules.datatype.binding.DatatypeHelper.TYPE_COLUMN_TITLE;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.slf4j.Logger;
@@ -69,6 +80,16 @@ import org.openl.util.TableNameChecker;
  */
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
+    private static final String COMMA_SEPARATED_COLUMN_TITLES = COLUMN_TITLES.stream()
+            .map(e -> "'" + e + "'")
+            .collect(Collectors.joining(", "));
+
+    private static final Map<String, Integer> DEFAULT_COLUMN_TITLES_ORDER = Map.of(
+            TYPE_COLUMN_TITLE, 0,
+            NAME_COLUMN_TITLE, 1,
+            DEFAULT_COLUMN_TITLE, 2
+    );
+
     private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
     public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
     public static final String TRANSIENT_FIELD_SUFFIX = "~";
@@ -89,6 +110,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private final OpenL openl;
 
     private Map<String, FieldDescription> fields;
+
+    private Map<String, Integer> columnTitlesOrder;
 
     public DatatypeTableBoundNode(TableSyntaxNode tableSyntaxNode,
                                   DatatypeOpenClass datatype,
@@ -119,6 +142,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     public String getParentClassName() {
         return parentClassName;
+    }
+
+    public Map<String, Integer> getColumnTitlesOrder() {
+        return columnTitlesOrder;
     }
 
     /**
@@ -152,8 +179,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         bindingContext.pushErrors();
         List<SyntaxNodeException> errors;
         try {
-            for (int i = 0; i < tableHeight; i++) {
-                processRow(dataTable.getRow(i), bindingContext, fields, i == 0, useTransientSuffix);
+            this.columnTitlesOrder = getDatatypeColumnOrder(dataTable, tableHeight, bindingContext);
+            int firstRow = columnTitlesOrder == DEFAULT_COLUMN_TITLES_ORDER ? 0 : 1;
+            for (int i = firstRow; i < tableHeight; i++) {
+                processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, i == 0, useTransientSuffix);
             }
             validateInheritedFieldsDuplication(bindingContext);
             validateContextPropertyFields(bindingContext);
@@ -189,6 +218,37 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 }
             }
         }
+    }
+
+    private Map<String, Integer> getDatatypeColumnOrder(ILogicalTable dataTable, int tableHeight, IBindingContext cxt) {
+        if (tableHeight > 0 && dataTable.getWidth() > 3) {
+            Map<String, Integer> columnTitlesOrder = new HashMap<>();
+            Set<String> usedColumnTitles = new HashSet<>();
+            for (int i = 0; i < dataTable.getWidth(); i++) {
+                GridCellSourceCodeModule cellSource = getCellSource(dataTable.getRow(0), cxt, i);
+                String title = cellSource.getCode();
+                if (StringUtils.isNotBlank(title)) {
+                    if (usedColumnTitles.contains(title.toLowerCase())) {
+                        BindHelper.processError("Column title '" + title + "' is duplicated.", cellSource, cxt);
+                    } else {
+                        boolean found = false;
+                        for (String columnTitle : COLUMN_TITLES) {
+                            if (columnTitle.equalsIgnoreCase(title)) {
+                                columnTitlesOrder.put(columnTitle, i);
+                                usedColumnTitles.add(title.toLowerCase());
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            BindHelper.processError(String.format("Column title '%s' is not allowed. The title must be one of: %s", title, COMMA_SEPARATED_COLUMN_TITLES), cellSource, cxt);
+                        }
+                    }
+                }
+            }
+            return columnTitlesOrder;
+        }
+        return DEFAULT_COLUMN_TITLES_ORDER;
     }
 
     private void validateContextPropertyFields(IBindingContext bindingContext) {
@@ -493,26 +553,39 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return rawFieldName.matches("^[^\\s]+\\*(\\s*:\\s*context.*)?$");
     }
 
-    private void processRow(ILogicalTable row,
+    private void handleExampleValueError(String fieldName, IOpenClass fieldType, GridCellSourceCodeModule exampleValueCellSource, IBindingContext bindingContext) {
+        String errorMessage = String.format("The provided example value '%s' is not supported for the field '%s' of type '%s'. Please provide an example value that matches the field type.", exampleValueCellSource.getCode().trim(), fieldName, fieldType.getName());
+        BindHelper.processError(errorMessage, exampleValueCellSource, bindingContext);
+    }
+
+    private void handleDefaultValueError(String fieldName, IOpenClass fieldType, GridCellSourceCodeModule defaultValueCellSource, IBindingContext bindingContext) {
+        String errorMessage = String.format("The provided default value '%s' is not supported for the field '%s' of type '%s'. Please provide an default value that matches the field type.", defaultValueCellSource.getCode().trim(), fieldName, fieldType.getName());
+        BindHelper.processError(errorMessage, defaultValueCellSource, bindingContext);
+    }
+
+    private void processRow(ILogicalTable dataTable,
+                            ILogicalTable row,
                             IBindingContext bindingContext,
                             Map<String, FieldDescription> fields,
+                            Map<String, Integer> columnTitlesOrder,
                             boolean firstRow,
                             boolean useTransientSuffix) {
-        GridCellSourceCodeModule typeCellSource = getCellSource(row, bindingContext, 0);
-        if (ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
+        GridCellSourceCodeModule firstCellSource = getCellSource(row, bindingContext, 0);
+        if (dataTable.getWidth() > 3 && ParserUtils.isCommented(firstCellSource.getCode()) || dataTable.getWidth() <= 3 && ParserUtils.isBlankOrCommented(firstCellSource.getCode())) {
             return;
         }
         if (row.getWidth() < 2) {
             String errorMessage = "Bad table structure: expected {header} / {type | name}.";
-            BindHelper.processError(errorMessage, typeCellSource, bindingContext);
+            BindHelper.processError(errorMessage, firstCellSource, bindingContext);
             return;
         }
+        GridCellSourceCodeModule typeCellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(TYPE_COLUMN_TITLE, 0));
         IOpenClass fieldType = OpenLManager
                 .makeType(bindingContext.getOpenL(), typeCellSource.getCode(), typeCellSource, bindingContext);
         if (fieldType == NullOpenClass.the) {
             fieldType = JavaOpenClass.OBJECT;
         }
-        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
+        GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1));
         final String code = nameCellSource.getCode();
         String contextProperty;
         String[] parts = CONTEXT_SPLITTER.split(code, 2);
@@ -541,7 +614,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     .validateContextProperty(contextProperty, fieldType, bindingContext);
             if (errorMessage != null) {
                 contextProperty = null;
-                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 1);
+                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, columnTitlesOrder.getOrDefault(NAME_COLUMN_TITLE, 1));
                 BindHelper.processError(errorMessage, cellSource, bindingContext);
             }
         } else {
@@ -571,12 +644,22 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         fieldDescriptionBuilder.setContextPropertyName(contextProperty);
 
+        if (fieldType.getDomain() != null) {
+            Iterator<?> itr = fieldType.getDomain().iterator();
+            List<String> allowableValues = new ArrayList<>();
+            while (itr.hasNext()) {
+                allowableValues.add(itr.next().toString());
+            }
+            fieldDescriptionBuilder.setAllowableValues(allowableValues.toArray(new String[0]));
+        }
+
         FieldDescription fieldDescription;
         Object defaultValue = null;
         GridCellSourceCodeModule defaultValueCellSource = null;
         String defaultValueCode = null;
         if (row.getWidth() > 2) {
-            defaultValueCellSource = getCellSource(row, bindingContext, 2);
+            int defaultColumnIndex = columnTitlesOrder.getOrDefault(DEFAULT_COLUMN_TITLE, 2);
+            defaultValueCellSource = getCellSource(row, bindingContext, defaultColumnIndex);
             defaultValueCode = defaultValueCellSource.getCode();
             if (ParserUtils.isBlankOrCommented(defaultValueCode)) {
                 defaultValueCode = null;
@@ -597,12 +680,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             } else {
                 fieldDescriptionBuilder.setDefaultValueAsString(defaultValueCode);
                 if (String.class != fieldType.getInstanceClass()) {
-                    ICell theCellValue = row.getColumn(2).getCell(0, 0);
+                    ICell theCellValue = row.getColumn(defaultColumnIndex).getCell(0, 0);
                     if (theCellValue.hasNativeType()) {
                         defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
                         if (defaultValue == null && !DefaultValue.DEFAULT.equals(defaultValueCode)) {
-                            defaultValue = String2DataConvertorFactory
-                                    .parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
+                            if (fieldType.getInstanceClass() != null) {
+                                try {
+                                    defaultValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
+                                } catch (Exception e) {
+                                    handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
+                                }
+                            } else if (StringUtils.isNotBlank(defaultValueCode)) {
+                                handleDefaultValueError(fieldName, fieldType, defaultValueCellSource, bindingContext);
+                            }
                         }
                         if (defaultValue != null) {
                             fieldDescriptionBuilder.setDefaultValue(defaultValue);
@@ -610,7 +700,50 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     }
                 }
             }
-
+            if (columnTitlesOrder.containsKey(DESCRIPTION_COLUMN_TITLE)) {
+                int descriptionColumnIndex = columnTitlesOrder.get(DESCRIPTION_COLUMN_TITLE);
+                GridCellSourceCodeModule descriptionValueCellSource = getCellSource(row, bindingContext, descriptionColumnIndex);
+                if (StringUtils.isNotBlank(descriptionValueCellSource.getCode())) {
+                    fieldDescriptionBuilder.setDescriptionValue(descriptionValueCellSource.getCode().trim());
+                }
+            }
+            if (columnTitlesOrder.containsKey(EXAMPLE_COLUMN_TITLE)) {
+                int examplesColumnIndex = columnTitlesOrder.get(EXAMPLE_COLUMN_TITLE);
+                GridCellSourceCodeModule examplesValueCellSource = getCellSource(row, bindingContext, examplesColumnIndex);
+                String examplesValueCellSourceValue = examplesValueCellSource.getCode();
+                if (StringUtils.isNotBlank(examplesValueCellSourceValue)) {
+                    if (fieldType.getInstanceClass() != null) {
+                        try {
+                            Object exampleValue = String2DataConvertorFactory.parse(fieldType.getInstanceClass(), examplesValueCellSourceValue.trim(), bindingContext);
+                            try {
+                                RuleRowHelper.validateValue(exampleValue, fieldType);
+                                fieldDescriptionBuilder.setExampleValue(examplesValueCellSourceValue.trim());
+                            } catch (Exception e) {
+                                BindHelper.processError(e, defaultValueCellSource, bindingContext);
+                            }
+                        } catch (Exception e) {
+                            handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
+                        }
+                    } else {
+                        handleExampleValueError(fieldName, fieldType, examplesValueCellSource, bindingContext);
+                    }
+                }
+            }
+            if (columnTitlesOrder.containsKey(MANDATORY_COLUMN_TITLE)) {
+                int mandatoryColumnIndex = columnTitlesOrder.get(MANDATORY_COLUMN_TITLE);
+                GridCellSourceCodeModule mandatoryValueCellSource = getCellSource(row, bindingContext, mandatoryColumnIndex);
+                if (StringUtils.isNotBlank(mandatoryValueCellSource.getCode())) {
+                    try {
+                        Boolean mandatoryValue = String2DataConvertorFactory.parse(Boolean.class, mandatoryValueCellSource.getCode(), bindingContext);
+                        if (mandatoryValue != null) {
+                            fieldDescriptionBuilder.setMandatoryValue(mandatoryValue);
+                        }
+                    } catch (Exception e) {
+                        String errorMessage = String.format("The provided value '%s' is not valid for the mandatory column. Please provide a valid value.", mandatoryValueCellSource.getCode().trim());
+                        BindHelper.processError(errorMessage, mandatoryValueCellSource, bindingContext);
+                    }
+                }
+            }
         }
 
         try {
@@ -625,9 +758,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 }
             }
             fields.put(fieldName, fieldDescription);
-        } catch (RuntimeException e) {
-            String errorMessage = String.format("Cannot parse cell value '%s'.", defaultValueCode);
-            BindHelper.processError(errorMessage, e, defaultValueCellSource, bindingContext);
+        } catch (Exception e) {
+            // If we have an exception here, it means that default value is wrong, we have already processed it.
         }
 
         IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType, contextProperty, isTransient);

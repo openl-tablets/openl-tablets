@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.types.meta;
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
+import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -63,50 +65,45 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             r = c;
             c = temp;
         }
-        if (c > 0) {
-            if (c == 2) {
-                // Default Values
+
+        if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.DEFAULT_COLUMN_TITLE), c) || Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.EXAMPLE_COLUMN_TITLE), c)) {
+            // Default Values
+            try {
+                ILogicalTable logicalRow = logicalTable.getRow(r);
+                IOpenField field = getField(logicalRow);
+                if (field == null) {
+                    return null;
+                }
+                IOpenClass type = field.getType();
+                boolean multiValue = false;
+                if (type.getAggregateInfo().isAggregate(type)) {
+                    type = type.getAggregateInfo().getComponentType(type);
+                    multiValue = true;
+                }
+
+                return new CellMetaInfo(type, multiValue);
+            } catch (OpenLCompilationException e) {
+                LOG.error(e.getMessage(), e);
+                return null;
+            }
+        } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
+            ILogicalTable logicalRow = logicalTable.getRow(r);
+            GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
+            if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
                 try {
-                    ILogicalTable logicalRow = logicalTable.getRow(r);
                     IOpenField field = getField(logicalRow);
                     if (field == null) {
                         return null;
                     }
-                    IOpenClass type = field.getType();
-                    boolean multiValue = false;
-                    if (type.getAggregateInfo().isAggregate(type)) {
-                        type = type.getAggregateInfo().getComponentType(type);
-                        multiValue = true;
-                    }
-
-                    return new CellMetaInfo(type, multiValue);
+                    IMetaInfo fieldMetaInfo = field.getType().getMetaInfo();
+                    IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
+                    return createMetaInfo(idn[0], fieldMetaInfo);
                 } catch (OpenLCompilationException e) {
                     LOG.error(e.getMessage(), e);
                     return null;
                 }
             }
-
-            // Field names
-            return null;
         }
-
-        ILogicalTable logicalRow = logicalTable.getRow(r);
-        GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, 0);
-        if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
-            try {
-                IOpenField field = getField(logicalRow);
-                if (field == null) {
-                    return null;
-                }
-                IMetaInfo fieldMetaInfo = field.getType().getMetaInfo();
-                IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
-                return createMetaInfo(idn[0], fieldMetaInfo);
-            } catch (OpenLCompilationException e) {
-                LOG.error(e.getMessage(), e);
-                return null;
-            }
-        }
-
         return null;
     }
 
