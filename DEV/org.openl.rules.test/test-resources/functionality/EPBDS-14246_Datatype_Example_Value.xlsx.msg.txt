@@ -1,0 +1,5 @@
+ERROR: The value '123' is outside of valid domain 'MyNum'. Valid values: [1, 2, 3, 4]
+ERROR: The provided example value 'abc' is not supported for the field 'myParameter' of type 'java.lang.Integer'. Please provide an example value that matches the field type.
+ERROR: The provided value '123' is not valid for the mandatory column. Please provide a valid value.
+ERROR: Type 'MyType' is defined with errors.
+ERROR: Type 'MyType' is defined with errors.

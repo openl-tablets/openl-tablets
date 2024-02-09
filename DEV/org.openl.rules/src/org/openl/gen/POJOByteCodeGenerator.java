@@ -30,6 +30,7 @@ import org.openl.gen.writers.SettersWriter;
 import org.openl.gen.writers.ToStringWriter;
 import org.openl.rules.annotations.ContextProperty;
 import org.openl.util.JAXBUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Generates byte code for simple java bean.
@@ -215,6 +216,8 @@ public class POJOByteCodeGenerator {
                 visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }
 
+            visitOpenAPIAnnotation(fieldVisitor, field.getValue());
+
             if (field.getValue().getFieldVisitorWriters() != null) {
                 for (Consumer<FieldVisitor> fieldVisitorConsumer : field.getValue().getFieldVisitorWriters()) {
                     fieldVisitorConsumer.accept(fieldVisitor);
@@ -224,6 +227,40 @@ public class POJOByteCodeGenerator {
             visitJAXBAnnotationsOnField(fieldVisitor, field.getKey(), field.getValue(), fieldTypeName);
             visitFieldVisitor(fieldVisitor, field.getKey(), field.getValue(), fieldTypeName, i);
             i++;
+        }
+    }
+
+    private AnnotationVisitor createSchemaIfMissed(FieldVisitor fieldVisitor, AnnotationVisitor annotationVisitor) {
+        if (annotationVisitor == null) {
+            return fieldVisitor.visitAnnotation("Lio/swagger/v3/oas/annotations/media/Schema;",
+                    true);
+        }
+        return annotationVisitor;
+    }
+
+    private void visitOpenAPIAnnotation(FieldVisitor fieldVisitor, FieldDescription fieldDescription) {
+        AnnotationVisitor annotationVisitor = null;
+        if (StringUtils.isNotBlank(fieldDescription.getDescription())) {
+            annotationVisitor = createSchemaIfMissed(fieldVisitor, annotationVisitor);
+            annotationVisitor.visit("description", fieldDescription.getDescription());
+        }
+        if (fieldDescription.getAllowableValues() != null && fieldDescription.getAllowableValues().length > 0) {
+            annotationVisitor = createSchemaIfMissed(fieldVisitor, annotationVisitor);
+            AnnotationVisitor av1 = annotationVisitor.visitArray("allowableValues");
+            for (String value : fieldDescription.getAllowableValues()) {
+                av1.visit(null, value);
+            }
+            av1.visitEnd();
+        }
+        if (fieldDescription.isMandatory()) {
+            fieldVisitor.visitAnnotation("Ljakarta/validation/constraints/NotNull;", true).visitEnd();
+        }
+        if (StringUtils.isNotBlank(fieldDescription.getExample())) {
+            annotationVisitor = createSchemaIfMissed(fieldVisitor, annotationVisitor);
+            annotationVisitor.visit("example", fieldDescription.getExample());
+        }
+        if (annotationVisitor != null) {
+            annotationVisitor.visitEnd();
         }
     }
 
