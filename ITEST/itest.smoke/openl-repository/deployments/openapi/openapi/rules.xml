@@ -1,0 +1,13 @@
+<project>
+    <name>Example 1 - Bank Rating</name>
+    <modules>
+        <module>
+            <name>Bank Rating</name>
+            <rules-root path="Bank Rating.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+</project>

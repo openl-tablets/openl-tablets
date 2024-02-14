@@ -26,6 +26,10 @@
             <artifactId>swagger-annotations-jakarta</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
@@ -33,7 +37,6 @@
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-jaxrs2-jakarta</artifactId>
         </dependency>
-
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>

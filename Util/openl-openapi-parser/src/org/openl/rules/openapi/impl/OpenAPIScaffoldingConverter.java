@@ -55,7 +55,7 @@ import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
-import org.openl.rules.project.openapi.OpenAPIRefResolver;
+import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 

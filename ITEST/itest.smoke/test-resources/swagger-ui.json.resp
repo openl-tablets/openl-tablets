@@ -10,6 +10,9 @@ Content-Type: application/json
       "name": "no-xlsx_service",
       "url": "no-xlsx/openapi.json"
     }, {
+      "name": "openapi_openapi",
+      "url": "openapi/openapi/openapi.json"
+    }, {
       "name": "simple_simple",
       "url": "simple/openapi.json"
     }, {
