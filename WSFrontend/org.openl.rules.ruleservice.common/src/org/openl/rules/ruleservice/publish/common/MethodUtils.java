@@ -15,13 +15,18 @@ import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
 
 public final class MethodUtils {
+    private static final JavaOpenClass JAVA_OPEN_CLASS_RUNTIME_CONTEXT = JavaOpenClass.getOpenClass(IRulesRuntimeContext.class);
+    private static final JavaOpenClass JAVA_OPEN_CLASS_VARIATIONS_PACK = JavaOpenClass.getOpenClass(VariationsPack.class);
+
     private MethodUtils() {
     }
 
@@ -40,6 +45,44 @@ public final class MethodUtils {
                 parameterNames[i] = "arg" + j;
             }
         }
+    }
+
+    public static IOpenClass[] getParameterTypes(IOpenMember openMember,
+                                                 Method method,
+                                                 boolean provideRuntimeContext,
+                                                 boolean provideVariations) {
+        IOpenClass[] parameterTypes = new IOpenClass[method.getParameterCount()];
+        if (openMember instanceof IOpenMethod) {
+            int i = 0;
+            int j = 0;
+            IOpenMethod openMethod = (IOpenMethod) openMember;
+            IMethodSignature methodSignature = openMethod.getSignature();
+            for (Parameter parameter : method.getParameters()) {
+                if (i == 0 && provideRuntimeContext && method
+                        .getParameterTypes().length > 0 && IRulesRuntimeContext.class
+                        .isAssignableFrom(method.getParameterTypes()[0])) {
+                    parameterTypes[i] = JAVA_OPEN_CLASS_RUNTIME_CONTEXT;
+                } else if (i == method.getParameterCount() - 1 && provideVariations && VariationsPack.class
+                        .isAssignableFrom(method.getParameters()[method.getParameters().length - 1].getType())) {
+                    parameterTypes[i] = JAVA_OPEN_CLASS_VARIATIONS_PACK;
+                } else if (!parameter.isAnnotationPresent(ExternalParam.class)) {
+                    parameterTypes[i] = methodSignature.getParameterType(j++);
+                }
+                i++;
+            }
+        } else if (openMember instanceof IOpenField) {
+            IOpenField openField = (IOpenField) openMember;
+            if (ClassUtils.getter(openField.getName()).equals(method.getName())) {
+                if (provideRuntimeContext && method.getParameterTypes().length > 0 && IRulesRuntimeContext.class
+                        .isAssignableFrom(method.getParameterTypes()[0])) {
+                    parameterTypes[0] = JAVA_OPEN_CLASS_RUNTIME_CONTEXT;
+                }
+                if (provideVariations && VariationsPack.class
+                        .isAssignableFrom(method.getParameters()[method.getParameters().length - 1].getType()))
+                    parameterTypes[1] = JAVA_OPEN_CLASS_VARIATIONS_PACK;
+            }
+        }
+        return parameterTypes;
     }
 
     public static String[] getParameterNames(IOpenMember openMember,

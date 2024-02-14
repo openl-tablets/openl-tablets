@@ -116,15 +116,14 @@ public class OpenApiProjectValidator {
     private OpenAPI loadOpenAPI(Context context,
                                 ProjectDescriptor projectDescriptor,
                                 ValidatedCompiledOpenClass validatedCompiledOpenClass) {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(validatedCompiledOpenClass);
+        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, validatedCompiledOpenClass);
         String openApiFile;
         ProjectResource projectResource;
         if (projectDescriptor.getOpenapi() != null && StringUtils
                 .isNotBlank(projectDescriptor.getOpenapi().getPath())) {
             openApiFile = projectDescriptor.getOpenapi().getPath();
             projectResource = loadProjectResource(projectResourceLoader,
-                    projectDescriptor,
-                    projectDescriptor.getOpenapi().getPath());
+                    projectDescriptor.getOpenapi().getPath(), false);
             if (projectResource == null) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                         .newErrorMessage(String.format(OPEN_API_VALIDATION_MSG_PREFIX + "File '%s' is not found.",
@@ -132,14 +131,14 @@ public class OpenApiProjectValidator {
             }
         } else {
             openApiFile = OPENAPI_JSON;
-            projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_JSON);
+            projectResource = loadProjectResource(projectResourceLoader, OPENAPI_JSON, false);
             if (projectResource == null) {
                 openApiFile = OPENAPI_YAML;
-                projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YAML);
+                projectResource = loadProjectResource(projectResourceLoader, OPENAPI_YAML, false);
             }
             if (projectResource == null) {
                 openApiFile = OPENAPI_YML;
-                projectResource = loadProjectResource(projectResourceLoader, projectDescriptor, OPENAPI_YML);
+                projectResource = loadProjectResource(projectResourceLoader, OPENAPI_YML, false);
             }
         }
         if (projectResource != null) {
@@ -286,6 +285,7 @@ public class OpenApiProjectValidator {
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 context.getTargetService(),
                 classLoader,
+                null,
                 context.isProvideRuntimeContext(),
                 context.isProvideVariations());
     }
@@ -451,7 +451,7 @@ public class OpenApiProjectValidator {
         while (!Objects.equals(s, s.replaceAll("//", "/"))) {
             s = s.replaceAll("//", "/");
         }
-        if (s.length() == 0 || !s.startsWith("/")) {
+        if (!s.startsWith("/")) {
             s = "/" + s;
         }
         if (s.endsWith("/")) {
@@ -911,7 +911,7 @@ public class OpenApiProjectValidator {
         }
         String prefix = StringUtils.EMPTY;
         if (dim > 0) {
-            prefix = String.format("array%s of ", arraySuffix.toString());
+            prefix = String.format("array%s of ", arraySuffix);
         }
         String type = resolveType(schema);
         String format = schema.getFormat();
@@ -1234,20 +1234,17 @@ public class OpenApiProjectValidator {
     }
 
     protected ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader,
-                                                  ProjectDescriptor projectDescriptor,
-                                                  String name) {
-        ProjectResource[] projectResources = projectResourceLoader.loadResource(name);
+                                                  String name, boolean includeDependencies) {
+        ProjectResource[] projectResources = projectResourceLoader.loadResource(name, includeDependencies);
         return Arrays.stream(projectResources)
-                .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
                 .findFirst()
                 .orElse(null);
     }
 
     protected RulesDeploy loadRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(compiledOpenClass);
+        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
         ProjectResource projectResource = loadProjectResource(projectResourceLoader,
-                projectDescriptor,
-                RULES_DEPLOY_XML);
+                RULES_DEPLOY_XML, false);
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));

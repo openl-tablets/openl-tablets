@@ -14,12 +14,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.CookieParam;
@@ -49,6 +52,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
@@ -62,9 +68,13 @@ import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.ASMUtils;
+import org.openl.rules.method.ITablePropertiesMethod;
+import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.annotations.ApiErrors;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
+import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
@@ -95,8 +105,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
-        private static final String DEFAULT_VERSION = "1.0.0";
-
         private static final String UNPROCESSABLE_ENTITY_MESSAGE = "Custom user errors in rules or validation errors in input parameters";
         private static final String UNPROCESSABLE_ENTITY_EXAMPLE = "{\"message\": \"Some message\", \"type\": \"USER_ERROR\"}";
         private static final String USER_ERROR_EXAMPLE = "{\"message\": \"Some message\", \"code\": \"code.example\", \"type\": \"USER_ERROR\"}";
@@ -116,6 +124,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean provideVariations;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
         private final Object targetService;
+        private final OpenAPI openApi;
+        private OpenAPIRefResolver openAPIRefResolver;
 
         private final Map<String, List<Method>> originalClassMethodsByName;
 
@@ -123,6 +133,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                      Class<?> originalClass,
                                                      Object targetService,
                                                      ClassLoader classLoader,
+                                                     OpenAPI openApi,
                                                      boolean provideRuntimeContext,
                                                      boolean provideVariations) {
             super(Opcodes.ASM5, arg0);
@@ -131,7 +142,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
             this.targetService = targetService;
-
+            this.openApi = openApi;
+            if (openApi != null) {
+                this.openAPIRefResolver = new OpenAPIRefResolver(openApi);
+            }
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
@@ -202,9 +216,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String changedParameterTypesDescription(String descriptor,
+                                                        IOpenMember openMember,
                                                         Method originalMethod,
-                                                        int suffix) throws Exception {
-            Class<?> parameterWrapperClass = generateWrapperClass(originalMethod, suffix);
+                                                        int suffix,
+                                                        io.swagger.v3.oas.models.Operation operation) throws Exception {
+            Class<?> parameterWrapperClass = generateWrapperClass(openMember, originalMethod, suffix, operation);
             List<Type> types = new ArrayList<>();
             types.add(Type.getType(parameterWrapperClass));
             for (Parameter parameter : originalMethod.getParameters()) {
@@ -215,8 +231,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return Type.getMethodDescriptor(Type.getReturnType(descriptor), types.toArray(new Type[0]));
         }
 
-        private Class<?> generateWrapperClass(Method originalMethod, int suffix) throws Exception {
-            String[] parameterNames = resolveParameterNames(originalMethod);
+        private Class<?> generateWrapperClass(IOpenMember openMember, Method originalMethod, int suffix, io.swagger.v3.oas.models.Operation operation) throws Exception {
+            String[] parameterNames = resolveParameterNames(openMember, originalMethod);
+            IOpenClass[] parameterTypes = resolveParameterTypes(openMember, originalMethod);
+
             String requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
             if (suffix > 0) {
                 requestParameterName = requestParameterName + suffix;
@@ -232,12 +250,50 @@ public class JAXRSOpenLServiceEnhancerHelper {
             usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
             String beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
 
+            Map<String, io.swagger.v3.oas.models.media.Schema> openApiRequestBodyProperties = new HashMap<>();
+            if (operation != null) {
+                RequestBody requestBody = this.openAPIRefResolver.resolve(operation.getRequestBody(), RequestBody::get$ref);
+                if (requestBody != null && requestBody.getContent() != null && requestBody.getContent().containsKey(MediaType.APPLICATION_JSON)) {
+                    io.swagger.v3.oas.models.media.MediaType mediaType = requestBody.getContent().get(MediaType.APPLICATION_JSON);
+                    io.swagger.v3.oas.models.media.Schema<?> schema = this.openAPIRefResolver.resolve(mediaType.getSchema(), io.swagger.v3.oas.models.media.Schema::get$ref);
+                    openApiRequestBodyProperties.putAll(this.openAPIRefResolver.resolveAllProperties(schema, new IdentityHashMap<>()));
+                }
+            }
+
             int i = 0;
             WrapperBeanClassBuilder beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
             LinkedHashMap<String, FieldDescription> originalMethodTypeFields = new LinkedHashMap<>();
             for (Parameter parameter : originalMethod.getParameters()) {
                 if (isParameterInWrapperClass(parameter)) {
-                    beanClassBuilder.addField(parameterNames[i], parameter.getType().getName());
+                    String description = null;
+                    if (openApiRequestBodyProperties.containsKey(parameterNames[i])) {
+                        io.swagger.v3.oas.models.media.Schema<?> schema = openApiRequestBodyProperties.get(parameterNames[i]);
+                        schema = this.openAPIRefResolver.resolve(schema, io.swagger.v3.oas.models.media.Schema::get$ref);
+                        description = schema.getDescription();
+                    }
+
+                    // Generate enum description for vocabulary types in OpenAPI schema
+                    List<String> allowableValues = new ArrayList<>();
+                    if (parameterTypes[i] != null && parameterTypes[i].getDomain() != null) {
+                        Iterator<?> itr = parameterTypes[i].getDomain().iterator();
+                        while (itr.hasNext()) {
+                            allowableValues.add(itr.next().toString());
+                        }
+                    }
+
+                    FieldDescription fieldDescription = new FieldDescription(parameter.getType().getName(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            StringUtils.isNotBlank(description) ? description : null,
+                            allowableValues.isEmpty() ? null : allowableValues.toArray(new String[0]),
+                            null,
+                            false,
+                            false,
+                            null,
+                            null);
+                    beanClassBuilder.addField(parameterNames[i], fieldDescription);
                 }
                 originalMethodTypeFields.put(parameterNames[i], new FieldDescription(parameter.getType().getName()));
                 i++;
@@ -262,14 +318,22 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return usedPaths;
         }
 
-        String normalizePath(String path) {
-            while (path.charAt(0) == '/') {
-                path = path.substring(1);
+        private String normalizePath(String path) {
+            String s = path;
+            if (s == null) {
+                s = "/";
             }
-            while (path.endsWith("/")) {
-                path = path.substring(0, path.length() - 1);
+            s = s.replaceAll("\\{[^}]*}", "{}");
+            while (!Objects.equals(s, s.replaceAll("//", "/"))) {
+                s = s.replaceAll("//", "/");
             }
-            return path.replaceAll("\\{[^}]*}", "{}");
+            while (!s.startsWith("/")) {
+                s = "/" + s;
+            }
+            while (s.endsWith("/")) {
+                s = s.substring(0, s.length() - 1);
+            }
+            return s;
         }
 
         boolean isJAXRSParamAnnotation(Parameter parameter) {
@@ -323,15 +387,24 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 }
             }
-            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && httpAnnotationIsNotPresented(
-                    originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
+
+            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
+                    targetService);
+
+            Set<String> usedParamNames = null;
+
+            PathItem pathItem = null;
+            io.swagger.v3.oas.models.Operation operation = null;
+
+            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !isHttpMethodTypeAnnotationPresented(originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
                 StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-                String[] parameterNames = resolveParameterNames(originalMethod);
+                String[] parameterNames = resolveParameterNames(openMember, originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
                 addGetAnnotation(mv, originalMethod);
+
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
-                    Set<String> usedPathParamValues = getUsedValuesInParamAnnotations(originalMethod,
+                    usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
                             PathParam.class,
                             PathParam::value);
                     int i = 0;
@@ -341,12 +414,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         if (pathParam == null) {
                             String p = paramName;
                             int j = 1;
-                            while (usedPathParamValues.contains(p)) {
+                            while (usedParamNames.contains(p)) {
                                 p = paramName + j;
                             }
                             sb.append("/{").append(p).append(": .*}");
                             addPathParamAnnotation(mv, i, p);
-                            usedPathParamValues.add(p);
+                            usedParamNames.add(p);
                         } else {
                             sb.append("/{").append(pathParam.value()).append(": .*}");
                         }
@@ -359,10 +432,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                             path = "/" + originalMethod.getName() + (c++) + sb;
                         }
                         getUsedPaths().add(normalizePath(path));
-                        addPathAnnotation(mv, originalMethod, path);
+                        path = addPathAnnotation(mv, originalMethod, path);
+                        pathItem = findPathItem(path);
                     }
                 } else {
-                    Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
+                    usedParamNames = getUsedValuesInParamAnnotations(originalMethod,
                             QueryParam.class,
                             QueryParam::value);
                     int i = 0;
@@ -371,14 +445,18 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         if (!jaxrsAnnotationPresented) {
                             String p = paramName;
                             int j = 1;
-                            while (usedQueryParamValues.contains(p)) {
+                            while (usedParamNames.contains(p)) {
                                 p = paramName + j;
                             }
                             addQueryParamAnnotation(mv, i, p);
-                            usedQueryParamValues.add(p);
+                            usedParamNames.add(p);
                         }
                         i++;
                     }
+                    pathItem = findPathItem(originalMethod.getAnnotation(Path.class).value());
+                }
+                if (pathItem != null) {
+                    operation = pathItem.getGet();
                 }
             } else {
                 try {
@@ -392,11 +470,36 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         }
                         getUsedPaths().add(normalizePath(path));
                     }
+                    if (originalMethod.isAnnotationPresent(Path.class)) {
+                        path = originalMethod.getAnnotation(Path.class).value();
+                    }
+                    pathItem = findPathItem(path);
+                    if (pathItem != null) {
+                        if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
+                            operation = pathItem.getPost();
+                        } else {
+                            if (originalMethod.isAnnotationPresent(GET.class)) {
+                                operation = pathItem.getGet();
+                            } else if (originalMethod.isAnnotationPresent(POST.class)) {
+                                operation = pathItem.getPost();
+                            } else if (originalMethod.isAnnotationPresent(PUT.class)) {
+                                operation = pathItem.getPut();
+                            } else if (originalMethod.isAnnotationPresent(DELETE.class)) {
+                                operation = pathItem.getDelete();
+                            } else if (originalMethod.isAnnotationPresent(PATCH.class)) {
+                                operation = pathItem.getPatch();
+                            } else if (originalMethod.isAnnotationPresent(OPTIONS.class)) {
+                                operation = pathItem.getOptions();
+                            } else if (originalMethod.isAnnotationPresent(HEAD.class)) {
+                                operation = pathItem.getHead();
+                            }
+                        }
+                    }
                     if (numOfParameters > 1) {
                         if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
                             mv = super.visitMethod(access,
                                     name,
-                                    changedParameterTypesDescription(descriptor, originalMethod, c),
+                                    changedParameterTypesDescription(descriptor, openMember, originalMethod, c, operation),
                                     signature,
                                     exceptions);
                             processAnnotationsOnMethodExternalParameters(originalMethod, mv);
@@ -411,10 +514,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (!hasResponse) {
                         annotateReturnElementClass(mv, returnType);
                     }
-                    if (httpAnnotationIsNotPresented(originalMethod)) {
+                    addPathAnnotation(mv, originalMethod, path);
+                    if (!isHttpMethodTypeAnnotationPresented(originalMethod)) {
                         addPostAnnotation(mv, originalMethod);
                     }
-                    addPathAnnotation(mv, originalMethod, path);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
                 }
@@ -426,17 +529,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 nickname = originalMethod.getName() + "_" + c++;
             }
             nicknames.add(nickname);
-            addSwaggerMethodAnnotation(mv, originalMethod, nickname);
+            addSwaggerMethodAnnotation(mv, openMember, originalMethod, nickname, pathItem, operation, usedParamNames);
             addOpenApiResponsesMethodAnnotation(mv, originalMethod);
             addOpenApiAcceptLanguageHeader(mv, originalMethod);
             return mv;
         }
 
-        private boolean httpAnnotationIsNotPresented(Method originalMethod) {
-            return !(originalMethod.isAnnotationPresent(POST.class) || originalMethod
-                    .isAnnotationPresent(PATCH.class) || originalMethod.isAnnotationPresent(DELETE.class) || originalMethod
-                    .isAnnotationPresent(PUT.class) || originalMethod
-                    .isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class));
+        private boolean isHttpMethodTypeAnnotationPresented(Method originalMethod) {
+            return originalMethod.isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(PATCH.class) || originalMethod.isAnnotationPresent(DELETE.class) || originalMethod.isAnnotationPresent(PUT.class)
+                    || originalMethod.isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class);
         }
 
         private <T extends Annotation> Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
@@ -453,10 +554,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return usedPathParamValues;
         }
 
-        private String[] resolveParameterNames(Method originalMethod) {
-            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
-                    targetService);
+        private String[] resolveParameterNames(IOpenMember openMember, Method originalMethod) {
             return MethodUtils.getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations);
+        }
+
+        private IOpenClass[] resolveParameterTypes(IOpenMember openMember, Method originalMethod) {
+            return MethodUtils.getParameterTypes(openMember, originalMethod, provideRuntimeContext, provideVariations);
         }
 
         private boolean isTextMediaType(Class<?> type) {
@@ -545,20 +648,22 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private void addPathAnnotation(MethodVisitor mv, Method originalMethod, String path) {
+        private String addPathAnnotation(MethodVisitor mv, Method originalMethod, String path) {
             if (!originalMethod.isAnnotationPresent(Path.class)) {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Path.class), true);
                 av.visit("value", path);
                 av.visitEnd();
+                return path;
+            } else {
+                return originalMethod.getAnnotation(Path.class).value();
             }
         }
 
-        private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
+        private void addSwaggerMethodAnnotation(MethodVisitor mv, IOpenMember openMember, Method originalMethod, String nickname, PathItem
+                pathItem, io.swagger.v3.oas.models.Operation operation, Set<String> usedParamNames) {
             if (!originalMethod.isAnnotationPresent(Operation.class)) {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                         .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
-                IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
-                        targetService);
                 IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
                 String detailedSummary = openMethod != null ? openMethod.getType()
                         .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
@@ -571,9 +676,88 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                 av.visit("operationId", nickname);
                 av.visit("summary", truncatedSummary);
-                av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
+                MethodDescription methodDescription = extractDescription(openMethod, pathItem, operation);
+                String description = methodDescription.getDescription();
+                if (StringUtils.isBlank(description)) {
+                    description = (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary;
+                }
+                av.visit("description", description);
+                Map<String, String> parameterDescriptions = methodDescription.getParameterDescriptions();
+                Set<Map.Entry<String, String>> paramList = parameterDescriptions.entrySet().stream()
+                        .filter(entry -> usedParamNames != null && usedParamNames.contains(entry.getKey()) && StringUtils.isNotBlank(entry.getValue())).collect(Collectors.toSet());
+                if (!paramList.isEmpty()) {
+                    AnnotationVisitor av1 = av.visitArray("parameters");
+                    paramList.forEach(entry -> {
+                        AnnotationVisitor av2 = av1.visitAnnotation(null, Type.getDescriptor(io.swagger.v3.oas.annotations.Parameter.class));
+                        av2.visit("name", entry.getKey());
+                        av2.visit("description", entry.getValue());
+                        av2.visitEnd();
+                    });
+                    av1.visitEnd();
+                }
                 av.visitEnd();
             }
+        }
+
+        private PathItem findPathItem(String path) {
+            if (this.openApi != null && this.openApi.getPaths() != null) {
+                path = path.replaceAll("\\{[^}]*}", "{}");
+                for (Map.Entry<String, PathItem> entry : this.openApi.getPaths().entrySet()) {
+                    String k = entry.getKey();
+                    k = k.replaceAll("\\{[^}]*}", "{}");
+                    if (Objects.equals(path, k)) {
+                        return entry.getValue();
+                    }
+                }
+            }
+            return null;
+        }
+
+        private String extractDescription(IOpenMethod openMethod) {
+            if (openMethod instanceof OpenMethodDispatcher) {
+                for (IOpenMethod method : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+                    String description = extractDescription(method);
+                    // Return first non-empty description from candidates
+                    if (StringUtils.isNotBlank(description)) {
+                        return description;
+                    }
+                }
+            }
+            if (openMethod instanceof ITablePropertiesMethod) {
+                ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) openMethod;
+                return tablePropertiesMethod.getMethodProperties().getDescription();
+            }
+            return null;
+        }
+
+        private MethodDescription extractDescription(IOpenMethod openMethod, PathItem
+                pathItem, io.swagger.v3.oas.models.Operation operation) {
+            String description = null;
+            Map<String, String> parameterDescriptions = new HashMap<>();
+            if (pathItem != null) {
+                if (operation != null) {
+                    if (StringUtils.isNotBlank(operation.getDescription())) {
+                        description = operation.getDescription();
+                    }
+                    if (operation.getParameters() != null) {
+                        for (io.swagger.v3.oas.models.parameters.Parameter parameter : operation.getParameters()) {
+                            String parameterName = parameter.getName();
+                            String parameterDescription = parameter.getDescription();
+                            if (StringUtils.isNotBlank(parameterDescription)) {
+                                parameterDescriptions.put(parameterName, parameterDescription);
+                            }
+                        }
+                    }
+                }
+                if (StringUtils.isBlank(description) && StringUtils.isNotBlank(pathItem.getDescription())) {
+                    description = pathItem.getDescription();
+                }
+            }
+
+            if (StringUtils.isBlank(description)) {
+                description = extractDescription(openMethod);
+            }
+            return new MethodDescription(description, parameterDescriptions);
         }
 
         private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, Method originalMethod) {
@@ -827,6 +1011,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
     public static Class<?> enhanceInterface(Class<?> originalClass,
                                             Object targetService,
                                             ClassLoader classLoader,
+                                            OpenAPI openApi,
                                             boolean provideRuntimeContext,
                                             boolean provideVariations) throws Exception {
         if (!originalClass.isInterface()) {
@@ -843,6 +1028,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     originalClass,
                     targetService,
                     classLoader,
+                    openApi,
                     provideRuntimeContext,
                     provideVariations
             );

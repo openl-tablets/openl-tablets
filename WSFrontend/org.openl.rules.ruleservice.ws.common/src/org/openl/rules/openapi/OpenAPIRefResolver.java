@@ -1,7 +1,8 @@
-package org.openl.rules.project.openapi;
+package org.openl.rules.openapi;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -9,6 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Schema;
 
 public class OpenAPIRefResolver {
     private final Map<String, Object> resolvedByRefCache = new HashMap<>();
@@ -76,4 +79,35 @@ public class OpenAPIRefResolver {
         }
     }
 
+    public Map<String, Schema> resolveAllProperties(Schema<?> schema, Map<Schema, Map<String, Schema>> allPropertiesCache) {
+        Map<String, Schema> allSchemaProperties = allPropertiesCache.get(schema);
+        if (allSchemaProperties != null) {
+            return allSchemaProperties;
+        }
+        Schema<?> resolvedSchema = resolve(schema, Schema::get$ref);
+        if (resolvedSchema != null) {
+            allSchemaProperties = new HashMap<>();
+            if (resolvedSchema instanceof ComposedSchema) {
+                ComposedSchema composedSchema = (ComposedSchema) resolvedSchema;
+                if (composedSchema.getAllOf() != null && !composedSchema.getAllOf().isEmpty()) {
+                    for (Schema<?> embeddedSchema : composedSchema.getAllOf()) {
+                        Map<String, Schema> embeddedSchemaProperties = resolveAllProperties(embeddedSchema, allPropertiesCache);
+                        if (embeddedSchemaProperties != null) {
+                            allSchemaProperties.putAll(embeddedSchemaProperties);
+                        }
+                    }
+                }
+            }
+            if (resolvedSchema.getProperties() != null) {
+                allSchemaProperties.putAll(resolvedSchema.getProperties());
+            }
+            if (resolvedSchema != schema) {
+                allPropertiesCache.put(resolvedSchema, allSchemaProperties);
+            }
+        } else {
+            allSchemaProperties = schema.getProperties() != null ? schema.getProperties() : Collections.emptyMap();
+        }
+        allPropertiesCache.put(schema, allSchemaProperties);
+        return allSchemaProperties;
+    }
 }
