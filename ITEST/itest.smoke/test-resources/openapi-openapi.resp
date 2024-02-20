@@ -1,0 +1,522 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "Auto-generated OpenAPI schema from the OpenL rules",
+    "title" : "*",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "*"
+  } ],
+  "paths" : {
+    "/spr" : {
+      "post" : {
+        "description" : "CUSTOM-DESC1",
+        "operationId" : "spr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SprRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Spr"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "Spr spr(IRulesRuntimeContext, Bank)"
+      }
+    },
+    "/spr2" : {
+      "post" : {
+        "description" : "CUSTOM-DESC2",
+        "operationId" : "spr2",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Spr2Request"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Spr2"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "Spr2 spr2(IRulesRuntimeContext, String, Integer)"
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Bank" : {
+        "type" : "object",
+        "properties" : {
+          "arr" : {
+            "type" : "array",
+            "example" : [ 3.1023, 2.0, -1.0303003 ],
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
+          },
+          "bankFullName" : {
+            "type" : "string"
+          },
+          "bankID" : {
+            "type" : "string"
+          },
+          "bankRatings" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Rating"
+            }
+          },
+          "countryCode" : {
+            "type" : "string",
+            "default" : "DE",
+            "description" : "Country Code",
+            "enum" : [ "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB", "RU", "IE" ],
+            "example" : "DE"
+          },
+          "currentFinancialData" : {
+            "$ref" : "#/components/schemas/FinancialData"
+          },
+          "previousFinancialData" : {
+            "$ref" : "#/components/schemas/FinancialData"
+          },
+          "qualityIndicators" : {
+            "$ref" : "#/components/schemas/QualityIndicators"
+          }
+        },
+        "required" : [ "countryCode" ]
+      },
+      "DefaultRulesRuntimeContext" : {
+        "type" : "object",
+        "properties" : {
+          "caProvince" : {
+            "type" : "string",
+            "enum" : [ "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT" ]
+          },
+          "caRegion" : {
+            "type" : "string",
+            "enum" : [ "QC", "HQ" ]
+          },
+          "country" : {
+            "type" : "string",
+            "enum" : [ "AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN", "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU", "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT", "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW", "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA" ]
+          },
+          "currency" : {
+            "type" : "string",
+            "enum" : [ "ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "THB", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER" ]
+          },
+          "currentDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "lang" : {
+            "type" : "string",
+            "enum" : [ "ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE" ]
+          },
+          "lob" : {
+            "type" : "string"
+          },
+          "locale" : {
+            "type" : "string"
+          },
+          "nature" : {
+            "type" : "string"
+          },
+          "region" : {
+            "type" : "string",
+            "enum" : [ "NCSA", "EU", "EMEA", "APJ" ]
+          },
+          "requestDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "usRegion" : {
+            "type" : "string",
+            "enum" : [ "MW", "NE", "SE", "SW", "W" ]
+          },
+          "usState" : {
+            "type" : "string",
+            "enum" : [ "AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY" ]
+          }
+        }
+      },
+      "FinancialData" : {
+        "type" : "object",
+        "properties" : {
+          "capital" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "claimsOnBanks" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "claimsOnCustomers" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "claimsOnDemand" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "claimsSecuredByPropertyCharges" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "claimsUpTo3Months" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "consolidatedProfit" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "equity" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "liabilities" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "liabilitiesOnDemand" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "liabilitiesToBanks" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "liabilitiesToCustomers" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          },
+          "liabilitiesToCustomersOnDemand" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "loanLossProvisionsForClaimsOnCustomers" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "otherAssets" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
+          },
+          "reportDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "totalAssets" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.00010
+          }
+        }
+      },
+      "JAXRSErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
+          }
+        }
+      },
+      "JAXRSUserErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "QualityIndicators" : {
+        "type" : "object",
+        "properties" : {
+          "downgradesOfBankRating" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "isAdequateCoreCapitalRatio" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "isAdequateLiquidityRatio" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "isAdequateMaxCreditRisk" : {
+            "type" : "boolean",
+            "default" : true
+          },
+          "lossesInThisYear" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "negativeHistoryRelations" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "negativeInfoShareHoldersOrManagement" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "negativeMassMedia" : {
+            "type" : "boolean",
+            "default" : false
+          },
+          "reportDate" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "Rating" : {
+        "type" : "object",
+        "properties" : {
+          "rating" : {
+            "type" : "string"
+          },
+          "ratingAgency" : {
+            "type" : "string",
+            "enum" : [ "Moody's Investors Service", "Fitch", "Standard & Poor's" ]
+          }
+        }
+      },
+      "Spr" : {
+        "type" : "object",
+        "properties" : {
+          "Calc1" : {
+            "$ref" : "#/components/schemas/Bank"
+          }
+        }
+      },
+      "Spr2" : {
+        "type" : "object",
+        "properties" : {
+          "Calc1" : {
+            "$ref" : "#/components/schemas/Bank"
+          }
+        }
+      },
+      "Spr2Request" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "Spr2Request-name-DESC",
+            "enum" : [ "Moody's Investors Service", "Fitch", "Standard & Poor's" ]
+          },
+          "runtimeContext" : {
+            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "x" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Spr2Request-x-DESC"
+          }
+        }
+      },
+      "SprRequest" : {
+        "type" : "object",
+        "properties" : {
+          "bank" : {
+            "$ref" : "#/components/schemas/Bank"
+          },
+          "runtimeContext" : {
+            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
+          }
+        }
+      }
+    }
+  }
+}
