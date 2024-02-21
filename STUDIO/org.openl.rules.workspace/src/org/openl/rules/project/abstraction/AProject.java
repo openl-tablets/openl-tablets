@@ -66,7 +66,7 @@ public class AProject extends AProjectFolder implements IProject {
             // Unwrap delegate repository to get real repository, because delegate repository can be secured.
             // Get file data can't be secured, because it's used in security check to build identity.
             while (repository instanceof RepositoryDelegate) {
-                repository = ((RepositoryDelegate) repository).getDelegate();
+                repository = ((RepositoryDelegate) repository).getOriginal();
             }
             if (isRepositoryVersionable()) {
                 fileData = getFileDataForVersionableRepo(repository);
