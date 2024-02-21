@@ -30,7 +30,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     }
 
     @Override
-    public Repository getDelegate() {
+    public Repository getOriginal() {
         return repository;
     }
 
