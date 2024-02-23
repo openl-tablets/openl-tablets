@@ -5,17 +5,17 @@ Content-Type: application/json
   "openapi" : "3.0.1",
   "info" : {
     "description" : "Auto-generated OpenAPI schema from the OpenL rules",
-    "title" : "*",
+    "title" : "EPBDS-14277_EPBDS-14277",
     "version" : "1.0.0"
   },
   "servers" : [ {
     "url" : "*"
   } ],
   "paths" : {
-    "/myCalc" : {
-      "post" : {
-        "description" : "Rules method: SpreadsheetResultmyCalc myCalc(java.lang.Integer a)",
-        "operationId" : "myCalc",
+    "/MyRulesArr/{a}" : {
+      "get" : {
+        "description" : "Rules method: SpreadsheetResultMyRulesArr[] MyRulesArr(int a)",
+        "operationId" : "MyRulesArr",
         "parameters" : [ {
           "example" : "en-GB",
           "in" : "header",
@@ -23,23 +23,24 @@ Content-Type: application/json
           "schema" : {
             "type" : "string"
           }
-        } ],
-        "requestBody" : {
-          "content" : {
-            "text/plain" : {
-              "schema" : {
-                "type" : "integer",
-                "format" : "int32"
-              }
-            }
+        }, {
+          "in" : "path",
+          "name" : "a",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
           }
-        },
+        } ],
         "responses" : {
           "200" : {
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MyCalc"
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MyRulesArr"
+                  }
                 }
               }
             },
@@ -108,13 +109,110 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc myCalc(Integer)"
+        "summary" : "MyRulesArr[] MyRulesArr(int)"
       }
     },
-    "/spr" : {
+    "/MyRulesCombo/{a}" : {
+      "get" : {
+        "description" : "Rules method: SRtheSpr & SRtheSpr1 MyRulesCombo(int a)",
+        "operationId" : "MyRulesCombo",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "a",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TheSprTheSpr1"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "TheSprTheSpr1 MyRulesCombo(int)"
+      }
+    },
+    "/theSpr" : {
       "post" : {
-        "description" : "CUSTOM-DESC1",
-        "operationId" : "spr",
+        "description" : "Rules method: SpreadsheetResulttheSpr theSpr(java.lang.Integer intA, java.lang.String strB, org.openl.generated.beans.MyDatatype obj)",
+        "operationId" : "theSpr",
         "parameters" : [ {
           "example" : "en-GB",
           "in" : "header",
@@ -127,7 +225,7 @@ Content-Type: application/json
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Bank"
+                "$ref" : "#/components/schemas/TheSprRequest"
               }
             }
           }
@@ -137,7 +235,7 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Spr"
+                  "$ref" : "#/components/schemas/TheSpr"
                 }
               }
             },
@@ -206,13 +304,13 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Spr spr(Bank)"
+        "summary" : "TheSpr theSpr(Integer, String, MyDatatype)"
       }
     },
-    "/spr2" : {
+    "/theSpr1" : {
       "post" : {
-        "description" : "CUSTOM-DESC2",
-        "operationId" : "spr2",
+        "description" : "Rules method: SpreadsheetResulttheSpr1 theSpr1(java.lang.Integer intA, java.lang.String strB, org.openl.generated.beans.MyDatatype obj)",
+        "operationId" : "theSpr1",
         "parameters" : [ {
           "example" : "en-GB",
           "in" : "header",
@@ -225,7 +323,7 @@ Content-Type: application/json
           "content" : {
             "application/json" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Spr2Request"
+                "$ref" : "#/components/schemas/TheSpr1Request"
               }
             }
           }
@@ -235,7 +333,7 @@ Content-Type: application/json
             "content" : {
               "application/json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Spr2"
+                  "$ref" : "#/components/schemas/TheSpr1"
                 }
               }
             },
@@ -304,143 +402,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Spr2 spr2(String, Integer)"
+        "summary" : "TheSpr1 theSpr1(Integer, String, MyDatatype)"
       }
     }
   },
   "components" : {
     "schemas" : {
-      "Bank" : {
-        "type" : "object",
-        "properties" : {
-          "arr" : {
-            "type" : "array",
-            "example" : [ 3.1023, 2.0, -1.0303003 ],
-            "items" : {
-              "type" : "number",
-              "format" : "double"
-            }
-          },
-          "bankFullName" : {
-            "type" : "string"
-          },
-          "bankID" : {
-            "type" : "string"
-          },
-          "bankRatings" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/Rating"
-            }
-          },
-          "countryCode" : {
-            "type" : "string",
-            "default" : "DE",
-            "description" : "Country Code",
-            "enum" : [ "DE", "BE", "NL", "AT", "CH", "DK", "US", "FR", "IT", "CZ", "SE", "FI", "UA", "KZ", "PL", "GB", "RU", "IE" ],
-            "example" : "DE"
-          },
-          "currentFinancialData" : {
-            "$ref" : "#/components/schemas/FinancialData"
-          },
-          "previousFinancialData" : {
-            "$ref" : "#/components/schemas/FinancialData"
-          },
-          "qualityIndicators" : {
-            "$ref" : "#/components/schemas/QualityIndicators"
-          }
-        },
-        "required" : [ "countryCode" ]
-      },
-      "FinancialData" : {
-        "type" : "object",
-        "properties" : {
-          "capital" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "claimsOnBanks" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "claimsOnCustomers" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "claimsOnDemand" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "claimsSecuredByPropertyCharges" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "claimsUpTo3Months" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "consolidatedProfit" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "equity" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "liabilities" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "liabilitiesOnDemand" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "liabilitiesToBanks" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "liabilitiesToCustomers" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          },
-          "liabilitiesToCustomersOnDemand" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "loanLossProvisionsForClaimsOnCustomers" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "otherAssets" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
-          },
-          "reportDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "totalAssets" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.00010
-          }
-        }
-      },
       "JAXRSErrorResponse" : {
         "type" : "object",
         "properties" : {
@@ -464,124 +431,98 @@ Content-Type: application/json
           }
         }
       },
-      "MyCalc" : {
+      "MyDatatype" : {
         "type" : "object",
         "properties" : {
-          "Values1_RETURN1" : {
+          "intValue" : {
             "type" : "integer",
-            "format" : "int32",
-            "description" : "AComment1"
+            "format" : "int32"
           },
-          "Values1_RETURN2" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "BComment1"
-          },
-          "Values1_RETURN3" : {
-            "type" : "integer",
-            "format" : "int32",
-            "description" : "BComment1"
-          },
-          "Values2_RETURN1" : {
-            "type" : "number",
-            "format" : "double",
-            "description" : "AComment1"
-          },
-          "Values2_RETURN2" : {
-            "type" : "number",
-            "format" : "double",
-            "description" : "BComment1"
-          },
-          "Values2_RETURN3" : {
-            "type" : "number",
-            "format" : "double",
-            "description" : "BComment1"
-          }
-        }
-      },
-      "QualityIndicators" : {
-        "type" : "object",
-        "properties" : {
-          "downgradesOfBankRating" : {
-            "type" : "boolean",
-            "default" : false
-          },
-          "isAdequateCoreCapitalRatio" : {
-            "type" : "boolean",
-            "default" : true
-          },
-          "isAdequateLiquidityRatio" : {
-            "type" : "boolean",
-            "default" : true
-          },
-          "isAdequateMaxCreditRisk" : {
-            "type" : "boolean",
-            "default" : true
-          },
-          "lossesInThisYear" : {
-            "type" : "boolean",
-            "default" : false
-          },
-          "negativeHistoryRelations" : {
-            "type" : "boolean",
-            "default" : false
-          },
-          "negativeInfoShareHoldersOrManagement" : {
-            "type" : "boolean",
-            "default" : false
-          },
-          "negativeMassMedia" : {
-            "type" : "boolean",
-            "default" : false
-          },
-          "reportDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          }
-        }
-      },
-      "Rating" : {
-        "type" : "object",
-        "properties" : {
-          "rating" : {
+          "strValues" : {
             "type" : "string"
-          },
-          "ratingAgency" : {
-            "type" : "string",
-            "enum" : [ "Moody's Investors Service", "Fitch", "Standard & Poor's" ]
           }
         }
       },
-      "Spr" : {
+      "MyRulesArr" : {
         "type" : "object",
         "properties" : {
-          "Calc1" : {
-            "$ref" : "#/components/schemas/Bank"
-          }
-        }
-      },
-      "Spr2" : {
-        "type" : "object",
-        "properties" : {
-          "Calc1" : {
-            "$ref" : "#/components/schemas/Bank"
-          }
-        }
-      },
-      "Spr2Request" : {
-        "type" : "object",
-        "properties" : {
-          "name" : {
-            "type" : "string",
-            "description" : "Spr2Request-name-DESC",
-            "enum" : [ "Moody's Investors Service", "Fitch", "Standard & Poor's" ]
-          },
-          "x" : {
+          "spomeCalc2" : {
             "type" : "integer",
             "format" : "int32",
-            "description" : "Spr2Request-x-DESC"
+            "description" : "The Only Table"
           }
         }
+      },
+      "TheSpr" : {
+        "type" : "object",
+        "properties" : {
+          "spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "The Only Table"
+          }
+        }
+      },
+      "TheSpr1" : {
+        "type" : "object",
+        "properties" : {
+          "My_Result_1_spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "When discussing tables in a broad sense, we can delve into various aspects ranging from their historical development and cultural significance to their practical applications and design variations. This comprehensive exploration will touch on the historical evolution of tables, their role in different cultures, the myriad of designs and materials used in their construction, and their multifaceted purposes in contemporary settings."
+          },
+          "你好世界_2__spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ddd"
+          },
+          "你好世界_2__ternaryOpp" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ternary Operator 世界  !@#$%^&*("
+          }
+        }
+      },
+      "TheSpr1Request" : {
+        "type" : "object",
+        "properties" : {
+          "intA" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "obj" : {
+            "$ref" : "#/components/schemas/MyDatatype"
+          },
+          "strB" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TheSprRequest" : {
+        "type" : "object",
+        "properties" : {
+          "intA" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "obj" : {
+            "$ref" : "#/components/schemas/MyDatatype"
+          },
+          "strB" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TheSprTheSpr1": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TheSpr"
+          },
+          {
+            "$ref": "#/components/schemas/TheSpr1"
+          }
+        ],
+        "type": "object"
       }
     }
   }

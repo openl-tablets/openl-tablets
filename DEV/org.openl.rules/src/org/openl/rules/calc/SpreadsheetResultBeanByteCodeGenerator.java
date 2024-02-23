@@ -203,6 +203,12 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av.visit("namespace", propertyNameSpace);
         av.visitEnd();
 
+        if (fieldDescription.description != null) {
+            av = mg.visitAnnotation("Lio/swagger/v3/oas/annotations/media/Schema;", true);
+            av.visit("description", fieldDescription.description);
+            av.visitEnd();
+        }
+
         mg.endMethod();
     }
 
@@ -333,10 +339,11 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final String row;
         final String column;
         final String cell;
+        final String description;
         String fieldName;
         String xmlName;
 
-        FieldDescription(String canonicalClassName, String row, String column) {
+        FieldDescription(String canonicalClassName, String row, String column, String description) {
             this.className = canonicalClassName;
             this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
@@ -360,6 +367,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
                 xmlName = fieldName;
             }
             this.fieldName = ClassUtils.decapitalize(fieldName);
+            this.description = description;
         }
     }
 }

@@ -16,6 +16,8 @@ import org.openl.gen.ByteCodeUtils;
 
 final class SwaggerSchemaSprBeanByteCodeDecorator {
 
+    private static final String SCHEMA_TYPE = "Lio/swagger/v3/oas/annotations/media/Schema;";
+
     private final boolean allOf;
     private final Set<CustomSpreadsheetResultOpenClass> targetClasses;
 
@@ -32,7 +34,7 @@ final class SwaggerSchemaSprBeanByteCodeDecorator {
         ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM5, classWriter) {
             @Override
             public void visitEnd() {
-                AnnotationVisitor av = cv.visitAnnotation("Lio/swagger/v3/oas/annotations/media/Schema;", true);
+                AnnotationVisitor av = cv.visitAnnotation(SCHEMA_TYPE, true);
 
                 AnnotationVisitor allOfVisitor = av.visitArray(allOf ? "allOf" : "oneOf");
                 for (var combinedOpenClass : targetClasses) {
@@ -54,20 +56,30 @@ final class SwaggerSchemaSprBeanByteCodeDecorator {
                 boolean isGetter = (name.startsWith("get") || name.startsWith("is"))
                         && descriptor.startsWith("()") // no parameters
                         && !Type.getReturnType(descriptor).equals(Type.VOID_TYPE);
-                if (isPublic && isGetter) {
-                    return new MethodVisitor(Opcodes.ASM5, mv) {
-
-                        @Override
-                        public void visitCode() {
-                            var av = mv.visitAnnotation("Lio/swagger/v3/oas/annotations/media/Schema;", true);
-                            av.visit("hidden", true);
-                            av.visitEnd();
-                            super.visitCode();
-                        }
-                    };
+                if (!isPublic || !isGetter) {
+                    return mv;
                 }
 
-                return mv;
+                return new MethodVisitor(Opcodes.ASM5, mv) {
+
+                    @Override
+                    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                        if (SCHEMA_TYPE.equals(desc)) {
+                            // swallow existing to replace
+                            return new AnnotationVisitor(api) { };
+                        }
+                        return super.visitAnnotation(desc, visible);
+                    }
+
+                    @Override
+                    public void visitEnd() {
+                        // Add (or rewrite) single @Schema(hidden = true)
+                        AnnotationVisitor av = super.visitAnnotation(SCHEMA_TYPE, true);
+                        av.visit("hidden", true);
+                        av.visitEnd();
+                        super.visitEnd();
+                    }
+                };
             }
         };
 

@@ -2,6 +2,9 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -30,11 +33,14 @@ public class Spreadsheet extends ExecutableRulesMethod {
      * table body
      */
     private String[] rowNames;
-
+    private BidiMap<Integer, Integer> rowOffsets;
+    private BidiMap<Integer, Integer> rowDescriptions;
     /**
      * Top left cell is not included. So the column names starts from [0, 1] in the Spreadsheet table body
      */
     private String[] columnNames;
+    private BidiMap<Integer, Integer> columnOffsets;
+    private BidiMap<Integer, Integer> columnDescriptions;
 
     private String[] rowNamesForResultModel;
 
@@ -106,7 +112,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public int getHeight() {
-        return cells.length;
+        return getRowNames().length;
     }
 
     public void setCells(SpreadsheetCell[][] cells) {
@@ -117,12 +123,20 @@ public class Spreadsheet extends ExecutableRulesMethod {
         this.columnNames = colNames;
     }
 
+    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
+        this.columnOffsets = columnOffsets;
+    }
+
     public void setResultBuilder(IResultBuilder resultBuilder) {
         this.resultBuilder = resultBuilder;
     }
 
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
+    }
+
+    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
+        this.rowOffsets = rowOffsets;
     }
 
     public String[] getRowNamesForResultModel() {
@@ -146,15 +160,39 @@ public class Spreadsheet extends ExecutableRulesMethod {
     }
 
     public int getWidth() {
-        return cells.length == 0 ? 0 : cells[0].length;
+        return getColumnNames().length;
     }
 
     public String[] getRowNames() {
         return rowNames;
     }
 
+    public BidiMap<Integer, Integer> getRowOffsets() {
+        return rowOffsets;
+    }
+
     public String[] getColumnNames() {
         return columnNames;
+    }
+
+    public BidiMap<Integer, Integer> getColumnOffsets() {
+        return columnOffsets;
+    }
+
+    public BidiMap<Integer, Integer> getColumnDescriptions() {
+        return columnDescriptions;
+    }
+
+    public void setColumnDescriptions(Map<Integer, Integer> columnDescriptions) {
+        this.columnDescriptions = new DualLinkedHashBidiMap<>(columnDescriptions);
+    }
+
+    public BidiMap<Integer, Integer> getRowDescriptions() {
+        return rowDescriptions;
+    }
+
+    public void setRowDescriptions(Map<Integer, Integer> rowDescriptions) {
+        this.rowDescriptions = new DualLinkedHashBidiMap<>(rowDescriptions);
     }
 
     @Override

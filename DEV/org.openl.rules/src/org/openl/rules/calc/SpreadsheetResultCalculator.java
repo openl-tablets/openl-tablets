@@ -2,6 +2,8 @@ package org.openl.rules.calc;
 
 import java.util.Map;
 
+import org.apache.commons.collections4.BidiMap;
+
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetCellType;
@@ -14,6 +16,7 @@ import org.openl.vm.Tracer;
 public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object METHOD_VALUE = new Object();
     public static final Object EMPTY_CELL = new Object();
+    public static final Object DESCRIPTION_CELL = new Object();
 
     private final Spreadsheet spreadsheet;
     /**
@@ -98,7 +101,14 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         if (result == EMPTY_CELL) {
             return null;
         }
-        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
+        if (result == DESCRIPTION_CELL) {
+            return null;
+        }
+
+        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
+        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
+
+        SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[rowOffsets.get(row)][columnOffsets.get(column)];
         if (result != METHOD_VALUE) {
             boolean resolved = false;
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
