@@ -12,6 +12,104 @@ Content-Type: application/json
     "url" : "*"
   } ],
   "paths" : {
+    "/myCalc" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResultmyCalc myCalc(java.lang.Integer a)",
+        "operationId" : "myCalc",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MyCalcRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MyCalc"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "MyCalc myCalc(IRulesRuntimeContext, Integer)"
+      }
+    },
     "/spr" : {
       "post" : {
         "description" : "CUSTOM-DESC1",
@@ -416,6 +514,53 @@ Content-Type: application/json
           },
           "message" : {
             "type" : "string"
+          }
+        }
+      },
+      "MyCalc" : {
+        "type" : "object",
+        "properties" : {
+          "Values1_RETURN1" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "AComment1"
+          },
+          "Values1_RETURN2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "BComment1"
+          },
+          "Values1_RETURN3" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "BComment1"
+          },
+          "Values2_RETURN1" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "AComment1"
+          },
+          "Values2_RETURN2" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "BComment1"
+          },
+          "Values2_RETURN3" : {
+            "type" : "number",
+            "format" : "double",
+            "description" : "BComment1"
+          }
+        }
+      },
+      "MyCalcRequest" : {
+        "type" : "object",
+        "properties" : {
+          "a" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "runtimeContext" : {
+            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
           }
         }
       },

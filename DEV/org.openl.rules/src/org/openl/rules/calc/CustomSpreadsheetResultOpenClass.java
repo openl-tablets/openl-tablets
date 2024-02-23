@@ -56,6 +56,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public static final String TABLE_DETAILS_FIELD_NAME = "tableDetails";
     private final Logger log = LoggerFactory.getLogger(CustomSpreadsheetResultOpenClass.class);
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
+    private static final String[][] EMPTY_DESCRIPTIONS_ARRAY = new String[][]{};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
         // We do not expect empty fields names, so the length of strings always be greater than zero.
         char c1 = Character.toUpperCase(o1.charAt(0));
@@ -104,6 +105,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
 
+    private String[][] descriptions;
     private final boolean generateBeanClass;
     private final boolean spreadsheet;
 
@@ -112,6 +114,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                             String[] columnNames,
                                             String[] rowNamesForResultModel,
                                             String[] columnNamesForResultModel,
+                                            String[][] descriptions,
                                             XlsModuleOpenClass module,
                                             boolean tableStructureDetails,
                                             boolean generateBeanClass,
@@ -138,6 +141,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.tableStructureDetails = tableStructureDetails;
         this.generateBeanClass = generateBeanClass;
         this.spreadsheet = spreadsheet;
+        this.descriptions = descriptions;
     }
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -150,6 +154,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 EMPTY_STRING_ARRAY,
                 EMPTY_STRING_ARRAY,
                 EMPTY_STRING_ARRAY,
+                EMPTY_DESCRIPTIONS_ARRAY,
                 module,
                 false,
                 generateBeanClass,
@@ -235,10 +240,28 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return module;
     }
 
+    private String chooseBestDescription(String description1, String description2) {
+        // Choose the longest description, if length is equal choose the alphabetically first.
+        if (description1 == null) {
+            return description2;
+        }
+        if (description2 == null) {
+            return description1;
+        }
+        if (description1.length() > description2.length()) {
+            return description1;
+        }
+        if (description1.length() < description2.length()) {
+            return description2;
+        }
+        return description1.compareTo(description2) < 0 ? description1 : description2;
+    }
+
     private void extendSpreadsheetResult(String[] rowNames,
                                          String[] columnNames,
                                          String[] rowNamesForResultModel,
                                          String[] columnNamesForResultModel,
+                                         String[][] descriptions,
                                          Collection<IOpenField> fields,
                                          boolean simpleRefByRow,
                                          boolean simpleRefByColumn,
@@ -281,6 +304,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 rowColumnsForResultModelNeedUpdate = true;
             }
         }
+
+        String[][] newDescriptions = new String[nRowNames.size()][nColumnNames.size()];
+        List<String> rowNames1 = Arrays.stream(rowNames).collect(toList());
+        List<String> colNames1 = Arrays.stream(columnNames).collect(toList());
+        for (int i = 0; i < nRowNames.size(); i++) {
+            for (int j = 0; j < nColumnNames.size(); j++) {
+                if (i < this.descriptions.length && j < this.descriptions[i].length) {
+                    newDescriptions[i][j] = this.descriptions[i][j];
+                }
+                int i0 = rowNames1.indexOf(nRowNames.get(i));
+                int j0 = colNames1.indexOf(nColumnNames.get(j));
+                if (i0 >= 0 && j0 >= 0) {
+                    newDescriptions[i][j] = chooseBestDescription(newDescriptions[i][j], descriptions[i0][j0]);
+                }
+            }
+        }
+        this.descriptions = newDescriptions;
 
         if (rowColumnsForResultModelNeedUpdate) {
             this.simpleRefByRow = simpleRefByRow && this.simpleRefByRow;
@@ -346,6 +386,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 customSpreadsheetResultOpenClass.columnNames,
                 customSpreadsheetResultOpenClass.rowNamesForResultModel,
                 customSpreadsheetResultOpenClass.columnNamesForResultModel,
+                customSpreadsheetResultOpenClass.descriptions,
                 customSpreadsheetResultOpenClass.getFields(),
                 customSpreadsheetResultOpenClass.simpleRefByRow,
                 customSpreadsheetResultOpenClass.simpleRefByColumn,
@@ -411,6 +452,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     columnNames,
                     rowNamesForResultModel,
                     columnNamesForResultModel,
+                    descriptions,
                     (XlsModuleOpenClass) module,
                     tableStructureDetails,
                     generateBeanClass,
@@ -772,7 +814,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 null,
                                 null,
                                 xmlName,
-                                null,
+                                descriptions[row][column],
                                 null,
                                 null,
                                 false,
@@ -800,7 +842,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 null,
                                 null,
                                 newXmlName,
-                                null,
+                                descriptions[row][column],
                                 null,
                                 null,
                                 false,

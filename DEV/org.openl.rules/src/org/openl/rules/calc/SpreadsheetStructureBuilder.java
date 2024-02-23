@@ -12,6 +12,11 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Predicate;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
+import org.apache.commons.collections4.map.LinkedMap;
+
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
@@ -24,6 +29,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
@@ -75,6 +81,8 @@ import org.openl.util.text.TextInterval;
 
 public class SpreadsheetStructureBuilder {
 
+    private static final SpreadsheetHeaderDefinition[] EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY = new SpreadsheetHeaderDefinition[0];
+
     public static final String DOLLAR_SIGN = "$";
 
     private IBindingContext spreadsheetBindingContext;
@@ -106,8 +114,10 @@ public class SpreadsheetStructureBuilder {
         this.bindingContext = bindingContext;
         this.spreadsheetHeader = spreadsheetHeader;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
-        this.rowHeaders = new SpreadsheetHeaderDefinition[tableBody.getHeight() - 1];
-        this.columnHeaders = new SpreadsheetHeaderDefinition[tableBody.getWidth() - 1];
+        this.rowHeaders = new LinkedMap<>();
+        this.columnHeaders = new LinkedMap<>();
+        this.rowDescriptions = new DualHashBidiMap<>();
+        this.columnDescriptions = new DualHashBidiMap<>();
         addHeaders();
     }
 
@@ -119,8 +129,11 @@ public class SpreadsheetStructureBuilder {
     private final Map<Integer, SpreadsheetOpenClass> colComponentOpenClasses = new HashMap<>();
     private final Map<Integer, Map<Integer, SpreadsheetContext>> spreadsheetResultContexts = new HashMap<>();
 
-    private final SpreadsheetHeaderDefinition[] rowHeaders;
-    private final SpreadsheetHeaderDefinition[] columnHeaders;
+    private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders;
+    private final Map<Integer, SpreadsheetHeaderDefinition> columnHeaders;
+
+    private final BidiMap<Integer, Integer> rowDescriptions;
+    private final BidiMap<Integer, Integer> columnDescriptions;
 
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
@@ -140,6 +153,7 @@ public class SpreadsheetStructureBuilder {
                 if (!cellsExtracted) {
                     try {
                         extractCellValues();
+                        extractCellDescriptions();
                     } finally {
                         cellsExtracted = true;
                     }
@@ -156,17 +170,14 @@ public class SpreadsheetStructureBuilder {
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
 
-        int rowsCount = this.getHeight();
-        int columnsCount = this.getWidth();
-
         // create cells according to the size of the spreadsheet
-        cells = new SpreadsheetCell[rowsCount][columnsCount];
+        cells = new SpreadsheetCell[this.tableBody.getHeight() - 1][this.tableBody.getWidth() - 1];
 
         // create the binding context for the spreadsheet level
         spreadsheetBindingContext = new SpreadsheetContext(bindingContext, spreadsheetType, xlsModuleOpenClass);
 
-        for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
-            for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
+        for (Integer rowIndex : this.rowHeaders.keySet()) {
+            for (Integer columnIndex : this.columnHeaders.keySet()) {
                 // build spreadsheet cell
                 SpreadsheetCell spreadsheetCell = buildCell(rowIndex, columnIndex, autoType);
 
@@ -180,13 +191,10 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void extractCellValues() {
-        int rowsCount = this.getHeight();
-        int columnsCount = this.getWidth();
-
-        for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
+        for (Integer rowIndex : this.rowHeaders.keySet()) {
             IBindingContext rowBindingContext = getRowContext(rowIndex);
 
-            for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
+            for (Integer columnIndex : this.columnHeaders.keySet()) {
                 boolean found = false;
                 for (SpreadsheetCell cell : extractedCellValues) {
                     int row = cell.getRowIndex();
@@ -198,6 +206,18 @@ public class SpreadsheetStructureBuilder {
                 }
                 if (!found) {
                     extractCellValue(rowBindingContext, rowIndex, columnIndex);
+                }
+            }
+        }
+    }
+
+    private void extractCellDescriptions() {
+        for (int i = 0; i < cells.length; i++) {
+            for (int j = 0; j < cells[0].length; j++) {
+                // cells[i][j] can be null if the cell is empty, meta info is not working in this case
+                if (cells[i][j] == null) {
+                    ICell sourceCell = tableBody.getCell(j + 1, i + 1);
+                    cells[i][j] = new SpreadsheetCell(i, j, sourceCell, SpreadsheetCellType.DESCRIPTION);
                 }
             }
         }
@@ -244,7 +264,7 @@ public class SpreadsheetStructureBuilder {
     private void extractCellValue(IBindingContext rowBindingContext, int rowIndex, int columnIndex) {
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
 
-        if (columnHeaders[columnIndex] == null || rowHeaders[rowIndex] == null) {
+        if (!columnHeaders.containsKey(columnIndex) || !rowHeaders.containsKey(rowIndex)) {
             spreadsheetCell.setValue(null);
             return;
         }
@@ -253,8 +273,8 @@ public class SpreadsheetStructureBuilder {
         var source = new CellSourceCodeModule(cell, tableBody);
         var code = source.getCode();
 
-        String name = getSpreadsheetCellFieldName(columnHeaders[columnIndex].getDefinitionName(),
-                rowHeaders[rowIndex].getDefinitionName());
+        String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getDefinitionName(),
+                rowHeaders.get(rowIndex).getDefinitionName());
 
         IOpenClass type = spreadsheetCell.getType();
 
@@ -343,15 +363,15 @@ public class SpreadsheetStructureBuilder {
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType, int rowIndex, int columnIndex) {
-        SpreadsheetHeaderDefinition columnHeader = this.columnHeaders[columnIndex];
-        SpreadsheetHeaderDefinition rowHeader = this.rowHeaders[rowIndex];
+        SpreadsheetHeaderDefinition columnHeader = this.columnHeaders.get(columnIndex);
+        SpreadsheetHeaderDefinition rowHeader = this.rowHeaders.get(rowIndex);
 
         if (columnHeader == null || rowHeader == null) {
             return;
         }
 
-        boolean oneColumnSpreadsheet = Arrays.stream(columnHeaders).filter(Objects::nonNull).limit(2).count() == 1;
-        boolean oneRowSpreadsheet = Arrays.stream(rowHeaders).filter(Objects::nonNull).limit(2).count() == 1;
+        boolean oneColumnSpreadsheet = columnHeaders.values().stream().filter(Objects::nonNull).limit(2).count() == 1;
+        boolean oneRowSpreadsheet = rowHeaders.values().stream().filter(Objects::nonNull).limit(2).count() == 1;
 
         SymbolicTypeDefinition columnDefinition = columnHeader.getDefinition();
         SymbolicTypeDefinition rowDefinition = rowHeader.getDefinition();
@@ -416,8 +436,8 @@ public class SpreadsheetStructureBuilder {
 
         IOpenField openField = null;
 
-        SpreadsheetHeaderDefinition columnHeader = columnHeaders[columnIndex];
-        SpreadsheetHeaderDefinition rowHeader = rowHeaders[rowIndex];
+        SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
+        SpreadsheetHeaderDefinition rowHeader = rowHeaders.get(rowIndex);
         SpreadsheetCellType spreadsheetCellType;
         if (cellCode == null || cellCode.isEmpty() || columnHeader == null || rowHeader == null) {
             spreadsheetCellType = SpreadsheetCellType.EMPTY;
@@ -491,7 +511,8 @@ public class SpreadsheetStructureBuilder {
         return rowContext;
     }
 
-    private SpreadsheetContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
+    private SpreadsheetContext getColumnContext(int columnIndex, int rowIndex, IBindingContext
+            rowBindingContext) {
         Map<Integer, SpreadsheetContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
                 e -> new HashMap<>());
         return contexts.computeIfAbsent(rowIndex, e -> makeSpreadsheetResultContext(columnIndex, rowBindingContext));
@@ -511,7 +532,7 @@ public class SpreadsheetStructureBuilder {
 
         for (int rowIndex = 0; rowIndex < cells.length; rowIndex++) {
 
-            SpreadsheetHeaderDefinition headerDefinition = rowHeaders[rowIndex];
+            SpreadsheetHeaderDefinition headerDefinition = rowHeaders.get(rowIndex);
 
             proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
         }
@@ -532,7 +553,7 @@ public class SpreadsheetStructureBuilder {
         // create for each column in row its field
         for (int columnIndex = 0; columnIndex < width; columnIndex++) {
 
-            SpreadsheetHeaderDefinition columnHeader = columnHeaders[columnIndex];
+            SpreadsheetHeaderDefinition columnHeader = columnHeaders.get(columnIndex);
 
             proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
         }
@@ -582,7 +603,7 @@ public class SpreadsheetStructureBuilder {
             return null;
         }
         s = s.trim();
-        if (s.length() > 0) {
+        if (!s.isEmpty()) {
             s = s.replaceAll("\\s+", "_"); // Replace whitespaces
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < s.length(); i++) {
@@ -591,7 +612,7 @@ public class SpreadsheetStructureBuilder {
                 }
             }
             s = sb.toString();
-            if (JavaKeywordUtils.isJavaKeyword(s) || s.length() > 0 && !Character.isJavaIdentifierStart(s.charAt(0))) {
+            if (JavaKeywordUtils.isJavaKeyword(s) || !s.isEmpty() && !Character.isJavaIdentifierStart(s.charAt(0))) {
                 s = "_" + s;
             }
         }
@@ -606,16 +627,16 @@ public class SpreadsheetStructureBuilder {
         return getNamesForResultModel(columnHeaders);
     }
 
-    private String[] getNamesForResultModel(SpreadsheetHeaderDefinition[] headers) {
-        final long rowsWithAsteriskCount = Arrays.stream(headers)
+    private String[] getNamesForResultModel(Map<Integer, SpreadsheetHeaderDefinition> headers) {
+        final long rowsWithAsteriskCount = headers.values().stream()
                 .filter(Objects::nonNull)
                 .filter(e -> e.getDefinition().isAsteriskPresented())
                 .count();
         String[] ret;
         if (rowsWithAsteriskCount > 0) {
-            ret = buildArrayForHeaders(headers, e -> e.getDefinition().isAsteriskPresented());
+            ret = buildArrayForHeaders(headers.values().toArray(EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY), e -> e.getDefinition().isAsteriskPresented());
         } else {
-            ret = buildArrayForHeaders(headers, e -> !e.getDefinition().isTildePresented());
+            ret = buildArrayForHeaders(headers.values().toArray(EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY), e -> !e.getDefinition().isTildePresented());
         }
         for (int i = 0; i < ret.length; i++) {
             ret[i] = removeWrongSymbols(ret[i]);
@@ -624,11 +645,15 @@ public class SpreadsheetStructureBuilder {
     }
 
     public String[] getRowNames() {
-        return buildArrayForHeaders(rowHeaders, e -> true);
+        return buildArrayForHeaders(rowHeaders.values().toArray(EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY), e -> true);
     }
 
     public String[] getColumnNames() {
-        return buildArrayForHeaders(columnHeaders, e -> true);
+        return buildArrayForHeaders(columnHeaders.values().toArray(EMPTY_SPREADSHEET_HEADER_DEFINITION_ARRAY), e -> true);
+    }
+
+    public ILogicalTable getTableBody() {
+        return tableBody;
     }
 
     private String[] buildArrayForHeaders(SpreadsheetHeaderDefinition[] headers,
@@ -645,36 +670,58 @@ public class SpreadsheetStructureBuilder {
     }
 
     private void addHeaders() {
-        int height = getHeight();
-        int width = getWidth();
-        HashSet<String> registered = new HashSet<>(height + width, 1);
+        int height = tableBody.getHeight() - 1;
+        int width = tableBody.getWidth() - 1;
+        Set<String> registered = new HashSet<>();
+        List<Integer> descriptionRows = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             ICell cell = tableBody.getCell(0, row + 1);
             var value = cell.getStringValue();
-            if (value != null) {
-                parseHeader(cell, row, true, registered);
+            if (StringUtils.isNotBlank(value)) {
+                if (value.trim().startsWith("//")) {
+                    descriptionRows.add(row);
+                } else {
+                    parseHeader(cell, row, true, registered);
+                }
             }
         }
+        // First we parse headers and then descriptions, because descriptions need to be validated by headers
+        Map<String, Integer> rowNames = new HashMap<>();
+        rowHeaders.values().forEach(e -> rowNames.put(e.getDefinitionName(), e.getRow()));
+        Set<String> rowNamesForDescription = new HashSet<>();
+        descriptionRows.forEach(e -> parseDescription(e, true, rowNames, rowNamesForDescription));
+
+        List<Integer> descriptionColumns = new ArrayList<>();
         for (int col = 0; col < width; col++) {
             ICell cell = tableBody.getCell(col + 1, 0);
             var value = cell.getStringValue();
-            if (value != null) {
-                parseHeader(cell, col, false, registered);
+            if (StringUtils.isNotBlank(value)) {
+                if (!value.trim().startsWith("//")) {
+                    parseHeader(cell, col, false, registered);
+                } else {
+                    descriptionColumns.add(col);
+                }
             }
         }
+        // First we parse headers and then descriptions, because descriptions need to be validated by headers
+        Map<String, Integer> columnNames = new HashMap<>();
+        columnHeaders.values().forEach(e -> columnNames.put(e.getDefinitionName(), e.getColumn()));
+        Set<String> columnNamesForDescription = new HashSet<>();
+        descriptionColumns.forEach(e -> parseDescription(e, false, columnNames, columnNamesForDescription));
 
         IOpenClass spreadsheetHeaderType = spreadsheetHeader.getType();
 
         if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
                 .equals(spreadsheetHeaderType) && returnHeaderDefinition == null) {
-
             // No RETURN and SpreadsheetResult is in the return
             return;
         }
 
         if (returnHeaderDefinition == null) {
             // No RETURN, get the last row
-            returnHeaderDefinition = rowHeaders[height - 1];
+            // Get value with max key
+            // The last row is the row with the max key in the
+            rowHeaders.keySet().stream().max(Integer::compareTo).ifPresent(e -> returnHeaderDefinition = rowHeaders.get(e));
         }
 
         if (Boolean.FALSE
@@ -688,6 +735,33 @@ public class SpreadsheetStructureBuilder {
             // No Java array in the return method signature
             if (hasOnlyOneEmptyCell(returnHeaderDefinition)) {
                 returnHeaderDefinition.setType(spreadsheetHeaderType);
+            }
+        }
+    }
+
+    private void parseDescription(int index, boolean row, Map<String, Integer> names, Set<String> used) {
+        ICell cell;
+        Map<Integer, Integer> descriptions;
+        if (row) {
+            cell = tableBody.getCell(0, index + 1);
+            descriptions = rowDescriptions;
+        } else {
+            cell = tableBody.getCell(index + 1, 0);
+            descriptions = columnDescriptions;
+        }
+        var value = cell.getStringValue();
+        if (value != null && value.trim().startsWith("//")) {
+            value = value.trim().substring(2).trim();
+            Integer mappedRowIndex = names.get(value);
+            if (mappedRowIndex != null) {
+                if (used.contains(value)) {
+                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format("The description column '%s' is already defined.", value), tableSyntaxNode));
+                } else {
+                    used.add(value);
+                    descriptions.put(index, mappedRowIndex);
+                }
+            } else {
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format("The description column '%s' does not correspond to any existing %s in the table.", cell.getStringValue(), row ? "row" : "column"), tableSyntaxNode));
             }
         }
     }
@@ -735,9 +809,11 @@ public class SpreadsheetStructureBuilder {
 
         SpreadsheetHeaderDefinition header;
         if (row) {
-            header = rowHeaders[index] = new SpreadsheetHeaderDefinition(parsed, index, -1);
+            header = new SpreadsheetHeaderDefinition(parsed, index, -1);
+            rowHeaders.put(index, header);
         } else {
-            header = columnHeaders[index] = new SpreadsheetHeaderDefinition(parsed, -1, index);
+            header = new SpreadsheetHeaderDefinition(parsed, -1, index);
+            columnHeaders.put(index, header);
         }
 
         if (typeIdentifierNode != null) {
@@ -826,10 +902,10 @@ public class SpreadsheetStructureBuilder {
 
     private boolean hasOnlyOneEmptyCell(SpreadsheetHeaderDefinition headerDefinition) {
         int fromRow = 0;
-        int toRow = getHeight();
+        int toRow = tableBody.getHeight();
 
         int fromColumn = 0;
-        int toColumn = getWidth();
+        int toColumn = tableBody.getWidth();
 
         if (headerDefinition.isRow()) {
             fromRow = headerDefinition.getRow();
@@ -843,13 +919,14 @@ public class SpreadsheetStructureBuilder {
 
         for (int columnIndex = fromColumn; columnIndex < toColumn; columnIndex++) {
             for (int rowIndex = fromRow; rowIndex < toRow; rowIndex++) {
-                var value = tableBody.getCell(columnIndex + 1, rowIndex + 1).getStringValue();
-
-                boolean isFormula = SpreadsheetExpressionMarker.isFormula(value);
-                if (StringUtils.isNotBlank(value) && !isFormula) {
-                    nonEmptyCellsCount += 1;
-                    if (nonEmptyCellsCount > 1) {
-                        return false;
+                if (headerDefinition.isRow() && columnHeaders.containsKey(columnIndex) || !headerDefinition.isRow() && rowHeaders.containsKey(rowIndex)) {
+                    var value = tableBody.getCell(columnIndex + 1, rowIndex + 1).getStringValue();
+                    boolean isFormula = SpreadsheetExpressionMarker.isFormula(value);
+                    if (StringUtils.isNotBlank(value) && !isFormula) {
+                        nonEmptyCellsCount += 1;
+                        if (nonEmptyCellsCount > 1) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -900,7 +977,7 @@ public class SpreadsheetStructureBuilder {
 
             List<SpreadsheetCell> nonEmptySpreadsheetCells = new ArrayList<>();
             for (SpreadsheetCell cell : sprCells) {
-                if (!cell.isEmpty()) {
+                if (cell != null && !cell.isEmpty()) {
                     nonEmptySpreadsheetCells.add(cell);
                     if (cell.getType() != null) {
                         IOpenCast cast = bindingContext.getCast(cell.getType(), type);
@@ -994,12 +1071,32 @@ public class SpreadsheetStructureBuilder {
         return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
     }
 
-    private int getWidth() {
-        return columnHeaders.length;
+    public BidiMap<Integer, Integer> getRowOffsets() {
+        var rowOffsets = new DualHashBidiMap<Integer, Integer>();
+        int index = 0;
+        for (Integer rowIndex : rowHeaders.keySet()) {
+            rowOffsets.put(index, rowIndex);
+            index++;
+        }
+        return rowOffsets;
     }
 
-    private int getHeight() {
-        return rowHeaders.length;
+    public BidiMap<Integer, Integer> getColumnOffsets() {
+        var columnOffsets = new DualHashBidiMap<Integer, Integer>();
+        int index = 0;
+        for (Integer rowIndex : columnHeaders.keySet()) {
+            columnOffsets.put(index, rowIndex);
+            index++;
+        }
+        return columnOffsets;
+    }
+
+    public BidiMap<Integer, Integer> getRowDescriptions() {
+        return UnmodifiableBidiMap.unmodifiableBidiMap(rowDescriptions);
+    }
+
+    public BidiMap<Integer, Integer> getColumnDescriptions() {
+        return UnmodifiableBidiMap.unmodifiableBidiMap(columnDescriptions);
     }
 
     private static class CellSourceCodeModule extends StringSourceCodeModule {
