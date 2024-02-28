@@ -34,7 +34,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     private static final Predicate<AProject> ALL_PROJECTS = project -> true;
 
-    private static final String PROJECT_ID_SEPARATOR = ":";
+    protected static final String PROJECT_ID_SEPARATOR = ":";
 
     protected final RepositoryAclService designRepositoryAclService;
     private final OpenLProjectService projectService;
@@ -77,7 +77,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
-                .id(buildProjectId(repository.getId(), src.getName()))
+                .id(buildProjectId(repository.getId(), resolveProjectName(src)))
                 .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
@@ -101,7 +101,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             }
         }
 
-        if (designRepository.supports().mappedFolders()) {
+        if (designRepository != null && designRepository.supports().mappedFolders()) {
             var path = src.getRealPath().replace('\\', '/');
             builder.path(path);
         }
@@ -117,6 +117,10 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     private String buildProjectId(String repositoryId, String projectName) {
         var rawProjectId = repositoryId + PROJECT_ID_SEPARATOR + projectName;
         return Base64.getEncoder().encodeToString(rawProjectId.getBytes(StandardCharsets.UTF_8));
+    }
+
+    protected String resolveProjectName(T src) {
+        return src.getName();
     }
 
 }
