@@ -3,5 +3,5 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-  "status": "CLOSED"
+  "status": "OPENED"
 }

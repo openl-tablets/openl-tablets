@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.AProject;
@@ -71,11 +72,12 @@ import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
+import org.openl.util.FileUtils;
 
 /**
  * Implementation of project service for workspace projects.
@@ -422,7 +424,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         if (query.getName().isPresent()) {
             var name = query.getName().get();
-            selectors = selectors.and(tsn -> StringUtils.containsIgnoreCase(tsn.getDisplayName(), name));
+            selectors = selectors.and(tsn -> {
+                var type = XlsNodeTypes.getEnumByValue(tsn.getType());
+                var header = tsn.getHeader();
+                var displayName = TableSyntaxNodeUtils.str2name(header.getSourceString(), type);
+                return displayName.equals(name);
+            });
         }
 
         if (CollectionUtils.isNotEmpty(query.getProperties())) {
@@ -551,5 +558,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         } else if (writer instanceof SmartRulesWriter) {
             ((SmartRulesWriter) writer).append((SmartRulesAppend) tableView);
         }
+    }
+
+    @Override
+    protected String resolveProjectName(RulesProject src) {
+        var designRepo = src.getDesignRepository();
+        if (designRepo != null && designRepo.supports().mappedFolders()) {
+            // if project repository supports mapped folders, then project id should be based on design folder name
+            // it's required to align project id when current project is opened or closed
+            // if project is opened its name is different from the name in design repository
+            var mappingData = src.getFileData().getAdditionalData(FileMappingData.class);
+            if (mappingData != null) {
+                return FileUtils.getName(mappingData.getExternalPath());
+            }
+        }
+        return super.resolveProjectName(src);
     }
 }

@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.beans.factory.annotation.Lookup;
@@ -15,6 +16,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -68,7 +70,26 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
         if (parts == -1) {
             throw new IllegalArgumentException("Invalid projectId: " + id);
         }
-        return getUserWorkspace().getProject(decoded.substring(0, parts), decoded.substring(parts + 1));
+        var repoId = decoded.substring(0, parts);
+        var projectName = decoded.substring(parts + 1);
+        var workspace = getUserWorkspace();
+        try {
+            return workspace.getProject(repoId, projectName);
+        } catch (ProjectException e) {
+            var repository = workspace.getDesignTimeRepository().getRepository(repoId);
+            if (repository != null && repository.supports().mappedFolders()) {
+                var mappedRepository = (FolderMapper) repository;
+                var businessName = mappedRepository.getBusinessName(projectName);
+                if (!Objects.equals(businessName, projectName)) {
+                    try {
+                        return workspace.getProject(repoId, businessName);
+                    } catch (ProjectException e1) {
+                        e.addSuppressed(e1);
+                    }
+                }
+            }
+            throw e;
+        }
     }
 
 }
