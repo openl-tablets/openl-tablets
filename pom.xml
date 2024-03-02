@@ -155,14 +155,14 @@
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.10.1</junit.version>
+        <junit.version>5.10.2</junit.version>
+        <junit-pioneer.version>2.2.0</junit-pioneer.version>
         <awaitility.version>4.2.0</awaitility.version>
         <mockito.version>5.10.0</mockito.version>
         <datasource-proxy.version>1.10</datasource-proxy.version>
         <xmlunit.version>2.9.1</xmlunit.version>
         <testcontainers.version>1.19.4</testcontainers.version>
         <minio.version>8.5.7</minio.version>
-        <system-lambda.version>1.2.1</system-lambda.version>
         <jmh.version>1.37</jmh.version>
 
         <!-- javax & Jakarta APIs -->
@@ -706,6 +706,12 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>org.junit-pioneer</groupId>
+                <artifactId>junit-pioneer</artifactId>
+                <version>${junit-pioneer.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito.version}</version>
@@ -758,12 +764,6 @@
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${jmh.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.stefanbirkner</groupId>
-                <artifactId>system-lambda</artifactId>
-                <scope>test</scope>
-                <version>${system-lambda.version}</version>
             </dependency>
             <!-- Mock objects library for java -->
             <dependency>
@@ -2168,6 +2168,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit-pioneer</groupId>
+            <artifactId>junit-pioneer</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Mock objects library for java -->

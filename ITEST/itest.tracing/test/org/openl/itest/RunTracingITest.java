@@ -1,6 +1,5 @@
 package org.openl.itest;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.tapSystemErrAndOut;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +34,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.StdErr;
+import org.junitpioneer.jupiter.StdIo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -74,26 +75,28 @@ public class RunTracingITest {
     }
 
     @Test
-    public void testKafkaServiceSpan() throws Exception {
-        var log = tapSystemErrAndOut(() -> {
-            try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
-                consumer.subscribe(Collections.singletonList("hello-out-topic"));
-                producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
+    @StdIo
+    public void testKafkaServiceSpan(StdErr stdOut) throws Exception {
+        try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
+            consumer.subscribe(Collections.singletonList("hello-out-topic"));
+            producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
 
-                checkKafkaResponse(consumer, (response) -> {
-                    assertEquals("Good Morning", response.value());
-                });
-                consumer.unsubscribe();
-            }
-        });
+            checkKafkaResponse(consumer, (response) -> {
+                assertEquals("Good Morning", response.value());
+            });
+            consumer.unsubscribe();
+        }
+        var log = stdOut.capturedString();
 
         checkOpenLMethodsSpans(log, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
     }
 
     @Test
-    public void testRESTServiceSpans() throws Exception {
-        var log = tapSystemErrAndOut(() -> client.send("simple1.tracing.rest.post"));
+    @StdIo
+    public void testRESTServiceSpans(StdErr stdOut) throws Exception {
+        client.send("simple1.tracing.rest.post");
 
+        var log = stdOut.capturedString();
         checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.http-url-connection");
     }
 
