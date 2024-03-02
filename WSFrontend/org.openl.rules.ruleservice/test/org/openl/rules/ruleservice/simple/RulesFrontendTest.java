@@ -45,12 +45,19 @@ public class RulesFrontendTest {
 
     @Test
     public void testProxyServices() throws MethodInvocationException {
-        Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
-        assertEquals("World, Good Morning!", result);
+        assertEquals("World, Good Morning!", frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10));
+        assertThrows(MethodInvocationException.class, () -> {
+            frontend.execute("RulesFrontendTest_multimodule", "worldHello", (Object) null);
+        });
+
+        assertEquals("i: 5 s: World", frontend.execute("RulesFrontendTest_multimodule", "worldHello", 5, "World"));
+        assertEquals("i: null s: World", frontend.execute("RulesFrontendTest_multimodule", "worldHello", null, "World"));
+        assertEquals("i: 5 s: null", frontend.execute("RulesFrontendTest_multimodule", "worldHello", 5, null));
+        assertEquals("i: null s: null", frontend.execute("RulesFrontendTest_multimodule", "worldHello", new Object[]{null, null}));
     }
 
     @Test
-    public void testProxyServicesNotExistedMethod() throws MethodInvocationException {
+    public void testProxyServicesNotExistedMethod() {
         assertThrows(MethodInvocationException.class, () -> {
             frontend.execute("RulesFrontendTest_multimodule", "notExistedMethod", 10);
         });

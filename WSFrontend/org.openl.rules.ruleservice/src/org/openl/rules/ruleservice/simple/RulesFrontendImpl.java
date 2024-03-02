@@ -93,7 +93,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                         } else {
                             f = false;
                         }
-                        sb.append(param.getTypeName());
+                        sb.append(param != null ? param.getTypeName() : "null-class");
                     }
                     throw new MethodInvocationException(String
                             .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb, serviceName));
@@ -139,11 +139,7 @@ public class RulesFrontendImpl implements RulesFrontend {
 
         Class<?>[] paramTypes = new Class<?>[params.length];
         for (int i = 0; i < params.length; i++) {
-            if (params[i] == null) {
-                throw new MethodInvocationException(
-                        "One parameter is null. Please, use 'execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)' method! This method does not supports null params.");
-            }
-            paramTypes[i] = params[i].getClass();
+            paramTypes[i] = params[i] != null ? params[i].getClass() : null;
         }
         return execute(serviceName, ruleName, paramTypes, params);
     }
