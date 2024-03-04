@@ -369,17 +369,29 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         } else {
             publishers.addAll(supportedPublishers);
         }
-        RuleServiceDeployException e1 = null;
+        Exception e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
-        for (RuleServicePublisher publisher : publishers) {
+        if (!publishers.isEmpty()) {
+            for (RuleServicePublisher publisher : publishers) {
+                try {
+                    publisher.deploy(service);
+                    deployedPublishers.add(publisher);
+                } catch (RuleServiceDeployException e) {
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    service.setException(rootCause);
+                    e1 = e;
+                    break;
+                }
+            }
+        } else {
+            // if no publishers are found, service must be initialized anyway
+            // otherwise, it may be failed on /readiness check if another deployment is in progress
             try {
-                publisher.deploy(service);
-                deployedPublishers.add(publisher);
-            } catch (RuleServiceDeployException e) {
+                service.getClassLoader();
+            } catch (Exception e) {
+                e1 = e;
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
                 service.setException(rootCause);
-                e1 = e;
-                break;
             }
         }
         services2.put(servicePath, service);
