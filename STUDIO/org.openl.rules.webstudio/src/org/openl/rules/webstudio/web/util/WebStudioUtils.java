@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.util;
 
+import java.util.Optional;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -51,6 +52,9 @@ public abstract class WebStudioUtils {
             ApplicationContext appContext = SpringInitializer.getApplicationContext(session.getServletContext());
             rulesUserSession = appContext.getBean(RulesUserSession.class);
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
+            // immediately add WebStudio to the session to be able to use it in RichFaces UI
+            // it can be removed after removing RichFaces
+            session.setAttribute(STUDIO_ATTR, rulesUserSession.getWebStudio());
         }
         return rulesUserSession;
     }
@@ -82,12 +86,8 @@ public abstract class WebStudioUtils {
 
     public static WebStudio getWebStudio(boolean create) {
         HttpSession session = (HttpSession) getExternalContext().getSession(true);
-        WebStudio studio = getWebStudio(session);
-        if (studio == null) {
-            studio = getRulesUserSession(session, true).getWebStudio();
-            session.setAttribute(STUDIO_ATTR, studio);
-        }
-        return studio;
+        return Optional.ofNullable(getWebStudio(session))
+                .orElseGet(() -> getRulesUserSession(session, true).getWebStudio());
     }
 
     public static boolean isStudioReady() {
