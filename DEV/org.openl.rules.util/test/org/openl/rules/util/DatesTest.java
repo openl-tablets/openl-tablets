@@ -75,6 +75,7 @@ public class DatesTest {
         assertEquals(new Date(138, 6, 12), Dates.toDate("7/12/38"));
         assertEquals(new Date(-1820, 6, 12), Dates.toDate("7/12/080"));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980"));
+        assertEquals(new Date(80, 6, 12), Dates.toDate("1980-07-12"));
 
         assertNull(Dates.toDate(null, null));
         assertNull(Dates.toDate("", ""));
