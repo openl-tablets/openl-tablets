@@ -92,7 +92,8 @@ public final class Dates {
      * Converts a string to a date using a default pattern. The default pattern is system and setting dependent.
      */
     public static Date toDate(String str) {
-        return toDate(str, "MM/dd/yy");
+        var isoDate = toDate(str, "yyyy-MM-dd");
+        return isoDate != null ? isoDate : toDate(str, "MM/dd/yy");
     }
 
     /**
