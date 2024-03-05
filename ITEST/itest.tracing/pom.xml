@@ -78,6 +78,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!-- requires for testcontainers due absent transitive dependency -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-log4j-appender</artifactId>
             <exclusions>
