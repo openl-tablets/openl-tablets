@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- This file is for releasing OpenL version wIth maven-release-plugin -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.26.14-SNAPSHOT</version>
+    <version>5.26.14</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -70,7 +69,7 @@
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
         <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
         <url>https://github.com/openl-tablets/openl-tablets</url>
-        <tag>HEAD</tag>
+        <tag>5.26.14</tag>
     </scm>
     <repositories>
         <repository>
@@ -328,7 +327,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.config.location/>
+                            <openl.config.location />
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -539,7 +538,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine/>
+                <jacoco.argLine />
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -551,7 +550,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar/>
+                <sonar />
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
