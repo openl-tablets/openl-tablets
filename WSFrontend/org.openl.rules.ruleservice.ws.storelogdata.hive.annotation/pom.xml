@@ -3,7 +3,7 @@
     <parent>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
         <groupId>org.openl.rules</groupId>
-        <version>5.27.5</version>
+        <version>5.27.6-SNAPSHOT</version>
     </parent>
     <name>OpenL - RuleService - Storage Hive Annotation</name>
     <modelVersion>4.0.0</modelVersion>
