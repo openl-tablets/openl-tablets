@@ -5,7 +5,6 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
-import org.openl.runtime.EngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -23,7 +22,7 @@ public abstract class BaseOpenlBuilderHelper {
     private final CompiledOpenClass compiledOpenClass;
 
     public BaseOpenlBuilderHelper(String src) {
-        EngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);
+        RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);
         compiledOpenClass = engineFactory.getCompiledOpenClass();
     }
 

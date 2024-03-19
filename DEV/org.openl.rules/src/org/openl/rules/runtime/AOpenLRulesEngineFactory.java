@@ -3,7 +3,6 @@ package org.openl.rules.runtime;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.openl.conf.IUserContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.AEngineFactory;
@@ -14,14 +13,6 @@ import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AOpenLRulesEngineFactory extends AEngineFactory {
-
-    public AOpenLRulesEngineFactory(String openlName, IUserContext userContext) {
-        super(openlName, userContext);
-    }
-
-    public AOpenLRulesEngineFactory(String openlName, String userHome) {
-        super(openlName, userHome);
-    }
 
     public AOpenLRulesEngineFactory(String openlName) {
         super(openlName);
