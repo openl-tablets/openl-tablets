@@ -28,6 +28,7 @@ import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AOpenLEngineFactory;
+import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
@@ -117,7 +118,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
+        return new Class[]{IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
 
     @Override
@@ -130,10 +131,18 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                     .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
-            return prepareProxyInstance(openClassInstance,
-                    methodMap,
-                    runtimeEnv,
-                    getCompiledOpenClass().getClassLoader());
+            ClassLoader classLoader = getInterfaceClass().getClassLoader();
+
+            Class<?> instanceClass = getInterfaceClass();
+            Class<?>[] interfaces = prepareInstanceInterfaces();
+
+            var proxyInterfaces = new Class[interfaces.length + 1];
+            proxyInterfaces[0] = instanceClass;
+            System.arraycopy(interfaces, 0, proxyInterfaces, 1, interfaces.length);
+
+            return ASMProxyFactory.newProxyInstance(classLoader,
+                    prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+                    proxyInterfaces);
         } catch (Exception ex) {
             String errorMessage = "Failed to instantiate engine instance.";
             throw new OpenlNotCheckedException(errorMessage, ex);

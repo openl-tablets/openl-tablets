@@ -76,11 +76,6 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     }
 
     @Override
-    protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class<?>[]{IEngineWrapper.class};
-    }
-
-    @Override
     protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
                                                        Map<Method, IOpenMember> methodMap,
                                                        IRuntimeEnv runtimeEnv) {
