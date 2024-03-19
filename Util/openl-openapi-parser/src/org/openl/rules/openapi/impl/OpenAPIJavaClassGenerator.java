@@ -77,7 +77,7 @@ public class OpenAPIJavaClassGenerator {
                 .filter(p -> p.getIn() == InputParameter.In.PATH)
                 .map(InputParameter::getFormattedName)
                 .forEach(name -> sb.append("/{").append(name).append('}'));
-        if (!pathInfo.getOriginalPath().equals(sb.toString())) {
+        if (!pathInfo.getOriginalPath().contentEquals(sb)) {
             // if method name doesn't match expected path
             return true;
         }
@@ -183,7 +183,8 @@ public class OpenAPIJavaClassGenerator {
     }
 
     public OpenAPIGeneratedClasses generate() {
-        InterfaceByteCodeBuilder interfaceBuilder = InterfaceByteCodeBuilder.create(DEFAULT_OPEN_API_PATH, "Service");
+        String interfaceName = DEFAULT_OPEN_API_PATH + ".Service";
+        InterfaceByteCodeBuilder interfaceBuilder = InterfaceByteCodeBuilder.create(interfaceName);
 
         Stream.concat(projectModel.getSpreadsheetResultModels().stream(), projectModel.getDataModels().stream())
                 .filter(this::generateDecision)
@@ -205,7 +206,7 @@ public class OpenAPIJavaClassGenerator {
         }
 
         if (!interfaceBuilder.isEmpty()) {
-            builder.setGroovyScriptFile(new GroovyScriptFile(interfaceBuilder.getNameWithPackage(),
+            builder.setGroovyScriptFile(new GroovyScriptFile(interfaceName,
                     interfaceBuilder.buildGroovy().generatedText()));
         }
         return builder.build();

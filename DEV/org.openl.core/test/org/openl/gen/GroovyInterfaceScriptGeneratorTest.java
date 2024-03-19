@@ -28,7 +28,7 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateEmpty() {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
+        final String expectedName = "org.openl.generated.test.ServiceEmpty";
         GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
                 Collections.emptyList());
         Class<?> interfaceClass = defineClass(generator.generatedText());
@@ -37,7 +37,7 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethods() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
                 Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
@@ -57,7 +57,7 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotations() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
                 Collections.singletonList(new MethodDescription("doSomething",
@@ -100,10 +100,10 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder2() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(
                                 AnnotationDescriptionBuilder.create(MyAnnotation4.class).withProperty("value", "foo", true).build())
@@ -134,10 +134,10 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder3() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
                                 .withProperty("value", new TypeDescription(Integer[].class.getName()))
@@ -168,10 +168,10 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
                         .addAnnotation(

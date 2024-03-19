@@ -15,8 +15,6 @@ import org.openl.gen.writers.ChainedBeanByteCodeWriter;
  */
 public class JavaInterfaceByteCodeGenerator {
 
-    static final String DEFAULT_PACKAGE = "org.openl.generated.";
-
     private final String nameWithPackage;
     private final ChainedBeanByteCodeWriter writerChain;
 
@@ -49,7 +47,7 @@ public class JavaInterfaceByteCodeGenerator {
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE,
                 nameWithPackage,
                 null,
-                Object.class.getName().replace('.', '/'),
+                "java/lang/Object",
                 null);
     }
 
