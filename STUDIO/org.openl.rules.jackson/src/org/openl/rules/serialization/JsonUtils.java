@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -45,6 +44,7 @@ public final class JsonUtils {
     static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
+        jacksonObjectMapperFactoryBean.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException ignored) {
