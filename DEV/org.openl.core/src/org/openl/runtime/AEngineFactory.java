@@ -26,18 +26,6 @@ public abstract class AEngineFactory {
         return prepareInstance(null, ignoreCompilationErrors);
     }
 
-    protected final Object prepareProxyInstance(Object openClassInstance,
-                                                Map<Method, IOpenMember> methodMap,
-                                                IRuntimeEnv runtimeEnv,
-                                                ClassLoader classLoader) {
-
-        Class<?>[] proxyInterfaces = prepareInstanceInterfaces();
-
-        return ASMProxyFactory.newProxyInstance(classLoader,
-                prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
-                proxyInterfaces);
-    }
-
     public final Object newInstance(IRuntimeEnv runtimeEnv) {
         return newInstance(runtimeEnv, false);
     }
@@ -47,8 +35,6 @@ public abstract class AEngineFactory {
     }
 
     protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors);
-
-    protected abstract Class<?>[] prepareInstanceInterfaces();
 
     protected abstract IRuntimeEnvBuilder getRuntimeEnvBuilder();
 

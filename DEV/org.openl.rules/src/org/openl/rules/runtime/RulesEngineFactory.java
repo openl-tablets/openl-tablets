@@ -172,7 +172,7 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
 
     @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[]{getInterfaceClass(), IEngineWrapper.class, IRulesRuntimeContextProvider.class};
+        return new Class[]{IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
 
     private IRuntimeEnvBuilder runtimeEnvBuilder = null;

@@ -35,7 +35,6 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
         return runtimeEnvBuilder;
     }
 
-    @Override
     protected Class<?>[] prepareInstanceInterfaces() {
         return new Class<?>[]{IEngineWrapper.class, IRulesRuntimeContextProvider.class};
     }
