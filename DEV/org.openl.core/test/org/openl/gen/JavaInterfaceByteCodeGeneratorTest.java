@@ -29,7 +29,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
 
     @Test
     public void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
+        final String expectedName = "org.openl.generated.test.ServiceEmpty";
         JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
                 Collections.emptyList());
         Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
@@ -41,7 +41,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
                 Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
@@ -64,7 +64,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
                 Collections.singletonList(new MethodDescription("doSomething",
@@ -110,10 +110,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(
                                 AnnotationDescriptionBuilder.create(MyAnnotation4.class).withProperty("value", "foo", true).build())
@@ -147,10 +147,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
                                 .withProperty("value", new TypeDescription(Integer[].class.getName()))
@@ -184,10 +184,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
             InvocationTargetException,
             ClassNotFoundException,
             NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
-                .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .create(expectedName)
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
                         .addAnnotation(

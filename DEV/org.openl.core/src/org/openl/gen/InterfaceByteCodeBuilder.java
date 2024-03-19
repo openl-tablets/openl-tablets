@@ -45,10 +45,6 @@ public class InterfaceByteCodeBuilder {
         return this;
     }
 
-    public String getNameWithPackage() {
-        return nameWithPackage;
-    }
-
     /**
      * Check if methods were added
      *
@@ -59,19 +55,14 @@ public class InterfaceByteCodeBuilder {
     }
 
     /**
-     * Create Java Interface Builder with custom class name. Package name will be added by default
+     * Create Java Interface Builder with custom class name.
      *
-     * @param interfaceName java interface name without package
+     * @param interfaceName java interface name with package
      * @return Java Interface Builder
      */
-    public static InterfaceByteCodeBuilder createWithDefaultPackage(String interfaceName) {
+    public static InterfaceByteCodeBuilder create(String interfaceName) {
         interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
-        return new InterfaceByteCodeBuilder(JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + interfaceName);
-    }
-
-    public static InterfaceByteCodeBuilder create(String packagePath, String interfaceName) {
-        interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
-        return new InterfaceByteCodeBuilder(packagePath + "." + interfaceName);
+        return new InterfaceByteCodeBuilder(interfaceName);
     }
 
     static String requireNonBlank(String str, String message) {
