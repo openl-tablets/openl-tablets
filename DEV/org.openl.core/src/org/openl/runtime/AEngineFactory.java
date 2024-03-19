@@ -38,10 +38,6 @@ public abstract class AEngineFactory {
         this(openlName, userHome, null);
     }
 
-    public AEngineFactory(String openlName, IUserContext userContext) {
-        this(openlName, DEFAULT_USER_HOME, userContext);
-    }
-
     private AEngineFactory(String openlName, String userHome, IUserContext userContext) {
         this.openlName = openlName;
         this.userHome = userHome;
