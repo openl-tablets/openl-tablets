@@ -101,7 +101,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     }
 
     public T newEngineInstance(IRuntimeEnv runtimeEnv) {
-        return (T) newEngineInstance(runtimeEnv, false);
+        return newEngineInstance(runtimeEnv, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,9 +118,8 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         compiledOpenClass = null;
     }
 
-    @Override
     protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[]{getInterfaceClass(), IEngineWrapper.class};
+        return new Class[]{IEngineWrapper.class};
     }
 
     @Override
@@ -129,16 +128,28 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
                     : compiledOpenClass.getOpenClass();
-            Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
+            Class<T> interfaceClass = getInterfaceClass();
+            Map<Method, IOpenMember> methodMap = prepareMethodMap(interfaceClass, openClass);
             Object openClassInstance = openClass
                     .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
-            return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getInterfaceClass().getClassLoader());
+            ClassLoader classLoader = interfaceClass.getClassLoader();
+
+            Class<?>[] interfaces = prepareInstanceInterfaces();
+
+            var proxyInterfaces = new Class[interfaces.length + 1];
+            proxyInterfaces[0] = interfaceClass;
+            System.arraycopy(interfaces, 0, proxyInterfaces, 1, interfaces.length);
+
+            return ASMProxyFactory.newProxyInstance(classLoader,
+                    prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
+                    proxyInterfaces);
         } catch (OpenlNotCheckedException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new OpenlNotCheckedException("Failed to instantiate engine instance.", ex);
         }
     }
+
 
     @Override
     public CompiledOpenClass getCompiledOpenClass() {
