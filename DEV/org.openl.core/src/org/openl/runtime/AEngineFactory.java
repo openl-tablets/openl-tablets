@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.OpenL;
+import org.openl.conf.IUserContext;
+import org.openl.conf.UserContext;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -13,10 +16,59 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.OpenClassHelper;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.vm.SimpleVM;
 
 public abstract class AEngineFactory {
 
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
+
+    public static final String DEFAULT_USER_HOME = ".";
+    private final String userHome;
+    protected IRuntimeEnvBuilder runtimeEnvBuilder;
+    // Volatile is required for correct double locking checking pattern
+    private volatile OpenL openl;
+    private volatile IUserContext userContext;
+    private String openlName;
+
+    public AEngineFactory(String openlName) {
+        this(openlName, DEFAULT_USER_HOME, null);
+    }
+
+    public AEngineFactory(String openlName, String userHome) {
+        this(openlName, userHome, null);
+    }
+
+    public AEngineFactory(String openlName, IUserContext userContext) {
+        this(openlName, DEFAULT_USER_HOME, userContext);
+    }
+
+    private AEngineFactory(String openlName, String userHome, IUserContext userContext) {
+        this.openlName = openlName;
+        this.userHome = userHome;
+        this.userContext = userContext;
+    }
+
+    public OpenL getOpenL() {
+        if (openl == null) {
+            synchronized (this) {
+                if (openl == null) {
+                    openl = OpenL.getInstance(openlName, getUserContext());
+                }
+            }
+        }
+        return openl;
+    }
+
+    public IUserContext getUserContext() {
+        if (userContext == null) {
+            synchronized (this) {
+                if (userContext == null) {
+                    userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()), userHome);
+                }
+            }
+        }
+        return userContext;
+    }
 
     public final Object newInstance() {
         return newInstance(false);
@@ -35,12 +87,6 @@ public abstract class AEngineFactory {
     }
 
     protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors);
-
-    protected abstract IRuntimeEnvBuilder getRuntimeEnvBuilder();
-
-    protected abstract IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
-                                                                Map<Method, IOpenMember> methodMap,
-                                                                IRuntimeEnv runtimeEnv);
 
     public abstract CompiledOpenClass getCompiledOpenClass();
 
@@ -125,4 +171,38 @@ public abstract class AEngineFactory {
         }
     }
 
+
+    public String getOpenlName() {
+        return openlName;
+    }
+
+    protected void setOpenlName(String openlName) {
+        if (this.openl != null) {
+            throw new IllegalStateException("'OpenL' instance is initialized already. Cannot change OpenL name");
+        }
+        this.openlName = openlName;
+    }
+
+    public String getUserHome() {
+        return userHome;
+    }
+
+    protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
+        if (runtimeEnvBuilder == null) {
+            runtimeEnvBuilder = () -> new SimpleVM().getRuntimeEnv();
+        }
+        return runtimeEnvBuilder;
+    }
+
+    protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
+                                                       Map<Method, IOpenMember> methodMap,
+                                                       IRuntimeEnv runtimeEnv) {
+        OpenLMethodHandler openLMethodHandler = new OpenLMethodHandler(openClassInstance,
+                methodMap,
+                getRuntimeEnvBuilder());
+        if (runtimeEnv != null) {
+            openLMethodHandler.setRuntimeEnv(runtimeEnv);
+        }
+        return openLMethodHandler;
+    }
 }
