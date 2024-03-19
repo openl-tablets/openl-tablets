@@ -44,6 +44,7 @@ public final class JsonUtils {
     static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
+        jacksonObjectMapperFactoryBean.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException ignored) {
