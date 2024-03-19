@@ -192,10 +192,6 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         }
     }
 
-    protected Class<?>[] prepareInstanceInterfaces() {
-        return new Class[]{IEngineWrapper.class, IRulesRuntimeContextProvider.class};
-    }
-
     private IRuntimeEnvBuilder runtimeEnvBuilder = null;
 
     @Override
@@ -310,11 +306,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
                     .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             ClassLoader classLoader = interfaceClass.getClassLoader();
 
-            Class<?>[] interfaces = prepareInstanceInterfaces();
-
-            var proxyInterfaces = new Class[interfaces.length + 1];
-            proxyInterfaces[0] = interfaceClass;
-            System.arraycopy(interfaces, 0, proxyInterfaces, 1, interfaces.length);
+            Class<?>[] proxyInterfaces = new Class[]{interfaceClass, IEngineWrapper.class, IRulesRuntimeContextProvider.class};
 
             return ASMProxyFactory.newProxyInstance(classLoader,
                     prepareMethodHandler(openClassInstance, methodMap, runtimeEnv),
