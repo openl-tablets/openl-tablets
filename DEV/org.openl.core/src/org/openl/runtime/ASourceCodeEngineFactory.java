@@ -11,7 +11,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
 //TODO make builder instead of number of constructors.
-public abstract class ASourceCodeEngineFactory extends AOpenLEngineFactory {
+public abstract class ASourceCodeEngineFactory extends AEngineFactory {
 
     private IOpenSourceCodeModule sourceCode;
     private boolean executionMode;
