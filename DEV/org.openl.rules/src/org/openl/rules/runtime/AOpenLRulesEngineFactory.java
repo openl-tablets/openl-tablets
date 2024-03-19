@@ -6,14 +6,14 @@ import java.util.Map;
 import org.openl.conf.IUserContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.runtime.AOpenLEngineFactory;
+import org.openl.runtime.AEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IOpenLMethodHandler;
 import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 
-public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
+public abstract class AOpenLRulesEngineFactory extends AEngineFactory {
 
     public AOpenLRulesEngineFactory(String openlName, IUserContext userContext) {
         super(openlName, userContext);

@@ -27,7 +27,7 @@ import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
-import org.openl.runtime.AOpenLEngineFactory;
+import org.openl.runtime.AEngineFactory;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
@@ -158,7 +158,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,
-                    AOpenLEngineFactory.DEFAULT_USER_HOME,
+                    AEngineFactory.DEFAULT_USER_HOME,
                     getOpenlName());// FIXME
             engineFactory.setDependencyManager(dependencyManager);
             engineFactory.setExecutionMode(true);
