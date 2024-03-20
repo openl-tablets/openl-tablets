@@ -6,7 +6,7 @@ import java.util.HashSet;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
 
 /**
@@ -92,7 +92,7 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
                 String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
-                engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));
+                engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes));
             }
             engineFactory.setDependencyManager(getDependencyManager());
         }
