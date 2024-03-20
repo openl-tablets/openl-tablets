@@ -7,7 +7,7 @@ This class is located in the following Maven dependency:
 <dependency>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.ruleservice</artifactId>
-    <version>5.26.14</version>
+    <version>5.27.6</version>
 </dependency>
 ```
 
@@ -69,7 +69,7 @@ To package an OpenL project into a JAR file, you can use the `openl-maven-plugin
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>5.26.14</version>
+                <version>5.27.6</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -77,9 +77,12 @@ To package an OpenL project into a JAR file, you can use the `openl-maven-plugin
 </project>
 ```
 
+An example of how it looks for AWS Lambda:
+
 ```java
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import org.openl.rules.ruleservice.OpenLService;
 
 public class HandlerOpenLService implements RequestHandler<String, String> {
 
@@ -98,6 +101,30 @@ public class HandlerOpenLService implements RequestHandler<String, String> {
             return (String) OpenLService.call("my-project", "sayHello", "World");
         } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+}
+```
+
+An example of how to create a UDF for Apache Spark to call any OpenL rules:
+
+```java
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.api.java.UDF3;
+import org.openl.rules.ruleservice.OpenLService;
+
+public class OpenLInvoker implements UDF3<String, String, String, Row> {
+
+    /**
+     * Returns a result in the first column or error in the second column.
+     */
+    @Override
+    public Row call(String serviceName, String ruleName, String json) {
+        try {
+            return RowFactory.create(OpenLService.callJSON(serviceName, ruleName, json), null);
+        } catch (Exception e) {
+            return RowFactory.create(null, e.getMessage());
         }
     }
 }
