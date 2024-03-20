@@ -1,5 +1,6 @@
 package org.openl.runtime;
 
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -52,9 +53,8 @@ public final class ASMProxyFactory {
             Type interfaceType = Type.getType(proxyInterface);
             for (java.lang.reflect.Method method : proxyInterface.getMethods()) {
                 Method m = Method.getMethod(method);
-                if (!methods.contains(m)) {
-                    methods.add(m);
-                    writeMethods(cw, m, proxyType, interfaceType);
+                if (methods.add(m)) {
+                    writeMethods(cw, m, method, proxyType, interfaceType);
                 }
             }
         }
@@ -84,12 +84,15 @@ public final class ASMProxyFactory {
         mv.endMethod();
     }
 
-    private static void writeMethods(ClassWriter cw, Method method, Type name, Type proxyInterface) {
+    private static void writeMethods(ClassWriter cw, Method method, java.lang.reflect.Method m, Type name, Type proxyInterface) {
         GeneratorAdapter mv = new GeneratorAdapter(Opcodes.ACC_PUBLIC,
                 method,
                 null,
                 new Type[]{Type.getType(Exception.class)},
                 cw);
+        for (Parameter p : m.getParameters()) {
+            mv.visitParameter(p.getName(), Opcodes.ACC_FINAL);
+        }
         mv.visitCode();
         mv.loadThis();
         mv.getField(name, HANDLER, HANDLER_TYPE);

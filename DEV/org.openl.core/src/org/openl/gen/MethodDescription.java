@@ -5,6 +5,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.openl.util.StringUtils;
+
 /**
  * Method description.
  *
@@ -19,6 +21,8 @@ public class MethodDescription {
     private final TypeDescription[] argsTypes;
     private final AnnotationDescription[] annotations;
 
+    private final String[] argsNames;
+
     /**
      * Initialize method description with given parameters
      *
@@ -27,8 +31,8 @@ public class MethodDescription {
      * @param argsTypes  method parameters
      * @throws NullPointerException if method name or return type is null
      */
-    public MethodDescription(String name, Class<?> returnType, Class<?>[] argsTypes) {
-        this(name, returnType, argsTypes, AnnotationDescription.EMPTY_ANNOTATIONS);
+    public MethodDescription(String name, Class<?> returnType, Class<?>[] argsTypes, String[] argsNames) {
+        this(name, returnType, argsTypes, AnnotationDescription.EMPTY_ANNOTATIONS, argsNames);
     }
 
     /**
@@ -43,11 +47,12 @@ public class MethodDescription {
     public MethodDescription(String name,
                              Class<?> returnType,
                              Class<?>[] argsTypes,
-                             AnnotationDescription[] annotations) {
+                             AnnotationDescription[] annotations,
+                             String[] argsNames) {
         this(name,
                 returnType.getName(),
                 Stream.of(argsTypes).map(argType -> new TypeDescription(argType.getName())).toArray(TypeDescription[]::new),
-                annotations);
+                annotations, argsNames);
     }
 
     /**
@@ -62,12 +67,14 @@ public class MethodDescription {
     public MethodDescription(String name,
                              String returnType,
                              TypeDescription[] argsTypes,
-                             AnnotationDescription[] annotations) {
+                             AnnotationDescription[] annotations,
+                             String[] argsNames) {
         Objects.requireNonNull(returnType, "Method return type is null.");
         this.name = Objects.requireNonNull(name, "Method name is null.");
         this.returnType = new TypeDescription(returnType);
         this.argsTypes = Optional.ofNullable(argsTypes).orElse(NO_ARGS);
         this.annotations = Optional.ofNullable(annotations).orElse(AnnotationDescription.EMPTY_ANNOTATIONS);
+        this.argsNames = Optional.ofNullable(argsNames).orElse(StringUtils.EMPTY_STRING_ARRAY);
     }
 
     /**
@@ -86,6 +93,13 @@ public class MethodDescription {
      */
     public TypeDescription[] getArgsTypes() {
         return argsTypes;
+    }
+
+    /**
+     * Get method parameter names
+     */
+    public String[] getArgsNames() {
+        return argsNames;
     }
 
     /**
