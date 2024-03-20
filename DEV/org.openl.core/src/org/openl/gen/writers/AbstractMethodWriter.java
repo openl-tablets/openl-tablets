@@ -20,7 +20,7 @@ import org.openl.gen.TypeDescription;
  *
  * @author Vladyslav Pikus
  */
-public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
+public class AbstractMethodWriter implements BeanByteCodeWriter {
 
     private final MethodDescription description;
 
@@ -28,10 +28,8 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
      * Initialize method writter with given parameters
      *
      * @param description method description
-     * @param next        link to the next writter
      */
-    public AbstractMethodWriter(MethodDescription description, ChainedBeanByteCodeWriter next) {
-        super(next);
+    public AbstractMethodWriter(MethodDescription description) {
         this.description = Objects.requireNonNull(description, "Method description is null.");
     }
 
@@ -95,11 +93,9 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
 
     /**
      * Writes abstract method
-     *
-     * @param cw
      */
     @Override
-    protected void writeInternal(ClassWriter cw) {
+    public void write(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_ABSTRACT,
                 description.getName(),
                 buildMethodDescriptor(),
