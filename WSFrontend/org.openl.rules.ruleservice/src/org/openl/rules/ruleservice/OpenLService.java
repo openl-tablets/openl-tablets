@@ -59,7 +59,8 @@ public class OpenLService {
         var mapper = JsonUtils.getCachedObjectMapper(caller, EMPTY_CLASSES);
         if (json != null) {
             if (caller.getParameterCount() == 1) {
-                args[0] = mapper.readValue(json, caller.getParameterTypes()[0]);
+                Class<?> type = caller.getParameterTypes()[0];
+                args[0] = type.isAssignableFrom(String.class) ? json : mapper.readValue(json, type);
             } else {
                 var tree = mapper.readTree(json);
                 for (int i = 0; i < caller.getParameterCount(); i++) {

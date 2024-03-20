@@ -107,6 +107,13 @@ class OpenLServiceTest {
         assertEquals("i: null s: null", OpenLService.callJSON("RulesFrontendTest_multimodule", "twoArgs", "{}"));
         assertEquals("i: 80 s: Mike", OpenLService.callJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"Mike\",\"i\":80}"));
 
+        assertNull(OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", null));
+        assertEquals("", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", ""));
+        assertEquals("\"acd\"", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "\"acd\""));
+        assertEquals("'\"\"'", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "'\"\"'"));
+        assertEquals("{\"data\":\"text\"}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
+        assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
+
         assertNotNull(OpenLService.rulesFrontend);
         OpenLService.reset();
         System.setProperty("production-repository.uri", "no repo");
