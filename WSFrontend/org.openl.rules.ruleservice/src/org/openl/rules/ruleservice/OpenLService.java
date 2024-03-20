@@ -33,6 +33,15 @@ public class OpenLService {
         return getRulesFrontend().execute(serviceName, ruleName, params);
     }
 
+    /**
+     * Invokes an OpenL method of a deployed service with parameters are presented as a JSON string. If the method has
+     * only one argument, then the JSON will be parsed as is into this argument. If there
+     *
+     * @param serviceName Name of deployed service.
+     * @param ruleName    Method name to execute, a-ka rule name.
+     * @param json        Parameters for method execution in a JSON object, where first level keys are argument names.
+     * @return Result of execution
+     */
     public static String callJSON(String serviceName, String ruleName, String json) throws Exception {
         var instance = get(serviceName);
         if (instance == null) {
