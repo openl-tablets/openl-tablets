@@ -114,6 +114,8 @@ class OpenLServiceTest {
         assertEquals("{\"data\":\"text\"}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
         assertEquals("{\"s\":\"Mike\",\"i\":80}", OpenLService.callJSON("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
 
+        assertEquals("org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.callJSON("RulesFrontendTest_multimodule", "toString", null).substring(0, 50));
+
         assertNotNull(OpenLService.rulesFrontend);
         OpenLService.reset();
         System.setProperty("production-repository.uri", "no repo");
