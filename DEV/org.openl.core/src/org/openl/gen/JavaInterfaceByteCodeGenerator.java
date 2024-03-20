@@ -6,7 +6,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 
 import org.openl.gen.writers.AbstractMethodWriter;
-import org.openl.gen.writers.ChainedBeanByteCodeWriter;
 
 /**
  * Generates Java Interface
@@ -16,7 +15,8 @@ import org.openl.gen.writers.ChainedBeanByteCodeWriter;
 public class JavaInterfaceByteCodeGenerator {
 
     private final String nameWithPackage;
-    private final ChainedBeanByteCodeWriter writerChain;
+
+    private final List<MethodDescription> methods;
 
     /**
      * Initialize java interface generator with given parameters
@@ -26,15 +26,7 @@ public class JavaInterfaceByteCodeGenerator {
      */
     JavaInterfaceByteCodeGenerator(String nameWithPackage, List<MethodDescription> methods) {
         this.nameWithPackage = nameWithPackage.replace('.', '/');
-        if (methods != null) {
-            ChainedBeanByteCodeWriter writerChain = null;
-            for (MethodDescription description : methods) {
-                writerChain = new AbstractMethodWriter(description, writerChain);
-            }
-            this.writerChain = writerChain;
-        } else {
-            this.writerChain = null;
-        }
+        this.methods = methods;
     }
 
     /**
@@ -59,8 +51,10 @@ public class JavaInterfaceByteCodeGenerator {
     private ClassWriter writeInterface() {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitInterfaceDescription(cw);
-        if (writerChain != null) {
-            writerChain.write(cw);
+        if (methods != null) {
+            for (MethodDescription method : methods) {
+                new AbstractMethodWriter(method).write(cw);
+            }
         }
         return cw;
     }
