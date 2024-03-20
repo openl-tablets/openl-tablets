@@ -1529,7 +1529,7 @@
                 <groupId>org.openl</groupId>
                 <artifactId>flyway-core</artifactId>
                 <!-- Version is frozen due license was changed -->
-                <version>4.2.0.1</version>
+                <version>4.2.0.2</version>
             </dependency>
             <!-- Hibernate -->
             <dependency>
