@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import org.openl.gen.AnnotationDescription;
@@ -91,6 +92,12 @@ public class AbstractMethodWriter implements BeanByteCodeWriter {
         }
     }
 
+    private void visitMethodParameters(MethodVisitor mv) {
+        for (String param : description.getArgsNames()) {
+            mv.visitParameter(param, Opcodes.ACC_FINAL);
+        }
+    }
+
     /**
      * Writes abstract method
      */
@@ -103,6 +110,7 @@ public class AbstractMethodWriter implements BeanByteCodeWriter {
                 null);
         visitMethodAnnotations(mv);
         visitMethodParametersAnnotations(mv);
+        visitMethodParameters(mv);
         mv.visitEnd();
     }
 

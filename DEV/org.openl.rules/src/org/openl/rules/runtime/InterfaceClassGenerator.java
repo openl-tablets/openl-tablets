@@ -1,7 +1,6 @@
 package org.openl.rules.runtime;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,17 +58,19 @@ public class InterfaceClassGenerator {
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
             if (!isIgnoredMember(method, validationMap)) {
-                IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
+                var signature = method.getSignature();
                 String name = method.getName();
                 Class<?> returnType = method.getType().getInstanceClass();
-                boolean isMember = isMember(name, returnType, parameterTypes);
+                boolean isMember = isMember(name, returnType, signature.getParameterTypes());
                 if (isMember) {
                     var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
-                    Arrays.stream(parameterTypes)
-                            .map(IOpenClass::getInstanceClass)
-                            .map(Class::getName)
-                            .map(TypeDescription::new)
-                            .forEach(methodBuilder::addParameter);
+                    var pNum = signature.getNumberOfParameters();
+                    for (int i = 0; i < pNum; i++) {
+                        var paramName = signature.getParameterName(i);
+                        var paramType = signature.getParameterType(i).getInstanceClass().getName();
+                        methodBuilder.addParameterName(paramName);
+                        methodBuilder.addParameter(new TypeDescription(paramType));
+                    }
                     classBuilder.addAbstractMethod(methodBuilder.build());
                     methodsInClass.add(new MethodKey(method));
                 }

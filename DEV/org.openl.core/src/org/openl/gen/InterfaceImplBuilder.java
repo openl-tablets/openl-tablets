@@ -77,7 +77,7 @@ public class InterfaceImplBuilder {
                 Method methodRef = method.getMethod();
                 MethodDescription methodDescription = new MethodDescription(method.getName(),
                         methodRef.getReturnType(),
-                        methodRef.getParameterTypes());
+                        methodRef.getParameterTypes(), null);
 
                 if (!beanStubMethods.contains(methodDescription)) {
                     beanStubMethods.add(methodDescription);
