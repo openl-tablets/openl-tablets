@@ -24,7 +24,6 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
-import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.runtime.AEngineFactory;
@@ -64,7 +63,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         return deployment;
     }
 
-    private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
+    private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
 
     void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,

@@ -42,7 +42,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
     private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private final IOpenSourceCodeModule sourceCode;
 
-    private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGeneratorImpl();
+    private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
     private Class<T> interfaceClass;
     private CompiledOpenClass compiledOpenClass;
     private boolean executionMode;

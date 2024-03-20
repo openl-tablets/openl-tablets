@@ -11,7 +11,7 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
-import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.InterfaceClassGenerator;
 
 /**
  * Prebinds openclass and creates LazyMethod and LazyField that will compile neccessary modules on demand.
@@ -121,7 +121,7 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
                 String[] excludes = new String[]{};
                 includes = allIncludes.toArray(includes);
                 excludes = allExcludes.toArray(excludes);
-                engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));
+                engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes));
             }
         }
 

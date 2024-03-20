@@ -3,7 +3,7 @@ package org.openl.rules.project.instantiation;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
+import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.CollectionUtils;
@@ -83,7 +83,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
                 String[] excludes = new String[]{};
                 includes = methodFilter.getIncludes().toArray(includes);
                 excludes = methodFilter.getExcludes().toArray(excludes);
-                engineFactory.setInterfaceClassGenerator(new InterfaceClassGeneratorImpl(includes, excludes));
+                engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes));
             }
 
             engineFactory.setExecutionMode(isExecutionMode());
