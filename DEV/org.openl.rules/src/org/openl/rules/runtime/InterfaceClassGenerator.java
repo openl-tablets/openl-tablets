@@ -1,7 +1,6 @@
 package org.openl.rules.runtime;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +37,64 @@ public class InterfaceClassGenerator {
     public InterfaceClassGenerator(String[] includes, String[] excludes) {
         this.includes = Objects.requireNonNull(includes, "includes cannot be null");
         this.excludes = Objects.requireNonNull(excludes, "excludes cannot be null");
+    }
+
+    public Class<?> generateInterface(String className,
+                                      IOpenClass openClass,
+                                      ClassLoader classLoader) throws Exception {
+        if (!className.contains(".")) {
+            className = "org.openl.generated.interfaces." + className;
+        }
+
+        var classBuilder = InterfaceByteCodeBuilder.create(className);
+        if (openClass == null) {
+            return generateAndLoad(className, classLoader, classBuilder);
+        }
+
+        Set<MethodKey> methodsInClass = new HashSet<>();
+
+        Map<IOpenClass, Boolean> validationMap = new HashMap<>();
+
+        final Collection<IOpenMethod> methods = openClass.getMethods();
+        for (IOpenMethod method : methods) {
+            if (!isIgnoredMember(method, validationMap)) {
+                var signature = method.getSignature();
+                String name = method.getName();
+                Class<?> returnType = method.getType().getInstanceClass();
+                boolean isMember = isMember(name, returnType, signature.getParameterTypes());
+                if (isMember) {
+                    var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+                    var pNum = signature.getNumberOfParameters();
+                    for (int i = 0; i < pNum; i++) {
+                        var paramName = signature.getParameterName(i);
+                        var paramType = signature.getParameterType(i).getInstanceClass().getName();
+                        methodBuilder.addParameterName(paramName);
+                        methodBuilder.addParameter(new TypeDescription(paramType));
+                    }
+                    classBuilder.addAbstractMethod(methodBuilder.build());
+                    methodsInClass.add(new MethodKey(method));
+                }
+            }
+        }
+
+        for (IOpenField field : openClass.getFields()) {
+            if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
+                String name = ClassUtils.getter(field.getName());
+                Class<?> returnType = field.getType().getInstanceClass();
+                boolean isMember = isMember(name, returnType, IOpenClass.EMPTY);
+                if (isMember) {
+                    MethodKey key = new MethodKey(name, IOpenClass.EMPTY);
+                    // Skip getter for field if method is defined with the same signature.
+                    if (!methodsInClass.contains(key)) {
+                        var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
+                        classBuilder.addAbstractMethod(methodBuilder.build());
+                        methodsInClass.add(key);
+                    }
+                }
+            }
+        }
+
+        return generateAndLoad(className, classLoader, classBuilder);
     }
 
     private static Class<?> generateAndLoad(String className, ClassLoader classLoader, InterfaceByteCodeBuilder builder) throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
@@ -109,62 +166,6 @@ public class InterfaceClassGenerator {
             return true;
         }
         return false;
-    }
-
-    public Class<?> generateInterface(String className,
-                                      IOpenClass openClass,
-                                      ClassLoader classLoader) throws Exception {
-        if (!className.contains(".")) {
-            className = "org.openl.generated.interfaces." + className;
-        }
-
-        var classBuilder = InterfaceByteCodeBuilder.create(className);
-        if (openClass == null) {
-            return generateAndLoad(className, classLoader, classBuilder);
-        }
-
-        Set<MethodKey> methodsInClass = new HashSet<>();
-
-        Map<IOpenClass, Boolean> validationMap = new HashMap<>();
-
-        final Collection<IOpenMethod> methods = openClass.getMethods();
-        for (IOpenMethod method : methods) {
-            if (!isIgnoredMember(method, validationMap)) {
-                IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
-                String name = method.getName();
-                Class<?> returnType = method.getType().getInstanceClass();
-                boolean isMember = isMember(name, returnType, parameterTypes);
-                if (isMember) {
-                    var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
-                    Arrays.stream(parameterTypes)
-                            .map(IOpenClass::getInstanceClass)
-                            .map(Class::getName)
-                            .map(TypeDescription::new)
-                            .forEach(methodBuilder::addParameter);
-                    classBuilder.addAbstractMethod(methodBuilder.build());
-                    methodsInClass.add(new MethodKey(method));
-                }
-            }
-        }
-
-        for (IOpenField field : openClass.getFields()) {
-            if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
-                String name = ClassUtils.getter(field.getName());
-                Class<?> returnType = field.getType().getInstanceClass();
-                boolean isMember = isMember(name, returnType, IOpenClass.EMPTY);
-                if (isMember) {
-                    MethodKey key = new MethodKey(name, IOpenClass.EMPTY);
-                    // Skip getter for field if method is defined with the same signature.
-                    if (!methodsInClass.contains(key)) {
-                        var methodBuilder = MethodDescriptionBuilder.create(name, returnType);
-                        classBuilder.addAbstractMethod(methodBuilder.build());
-                        methodsInClass.add(key);
-                    }
-                }
-            }
-        }
-
-        return generateAndLoad(className, classLoader, classBuilder);
     }
 
     private boolean isMember(String name, Class<?> returnType, IOpenClass[] parameterTypes) {

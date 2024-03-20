@@ -40,9 +40,9 @@ public class GroovyInterfaceScriptGeneratorTest {
         final String expectedName = "org.openl.generated.test.ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
-                Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
-                        new MethodDescription("doSomething2", int.class, args2),
-                        new MethodDescription("doSomething3", void.class, NO_ARGS)));
+                Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS, null),
+                        new MethodDescription("doSomething2", int.class, args2, null),
+                        new MethodDescription("doSomething3", void.class, NO_ARGS, null)));
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -70,7 +70,7 @@ public class GroovyInterfaceScriptGeneratorTest {
                         toArray(new AnnotationDescription(MyAnnotation.class, null),
                                 new AnnotationDescription(MyAnnotation2.class, toArray(new AnnotationProperty("value", "foo"))),
                                 new AnnotationDescription(MyAnnotation3.class,
-                                        toArray(new AnnotationProperty("value", "foo"), new AnnotationProperty("field", "bar")))))));
+                                        toArray(new AnnotationProperty("value", "foo"), new AnnotationProperty("field", "bar")))), null)));
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
