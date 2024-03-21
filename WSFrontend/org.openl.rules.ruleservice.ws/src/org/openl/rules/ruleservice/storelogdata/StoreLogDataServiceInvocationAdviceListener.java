@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
@@ -163,7 +164,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     result,
                     lastOccurredException,
                     postProcessAdvice,
-                    e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    e -> e.before() && e.bindToServiceMethodAdvice().equals(ClassUtils.getUserClass(serviceMethodAdvice.getClass())));
         }
     }
 
@@ -180,7 +181,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     result,
                     lastOccurredException,
                     postProcessAdvice,
-                    e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    e -> !e.before() && e.bindToServiceMethodAdvice().equals(ClassUtils.getUserClass(serviceMethodAdvice.getClass())));
         }
     }
 
