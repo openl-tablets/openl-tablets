@@ -6,7 +6,7 @@ To run OpenL Tablets Rule Services with enabled OpenTelemetry, use the following
 
 ```bash
 docker run --rm -p 8080:8080 \
-    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4317 \
+    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318 \
     openltablets/ws
 ```
 
@@ -20,7 +20,7 @@ In this case, it is reasonable to disable tracing of OpenL rules execution by de
 
 ```bash
 docker run --rm -p 8080:8080 \
-    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://172.17.0.1:4317 \
+    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://172.17.0.1:4318 \
     -e OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false \
     openltablets/ws
 ```
