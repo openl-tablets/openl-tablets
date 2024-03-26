@@ -98,7 +98,7 @@ public class HandlerOpenLService implements RequestHandler<String, String> {
     @Override
     public String handleRequest(String event, Context context) {
         try {
-            return (String) OpenLService.call("my-project", "sayHello", "World");
+            return (String) OpenLService.call("my-project", "sayHello", event);
         } catch (Exception e) {
             return e.getMessage();
         }
@@ -123,6 +123,30 @@ public class OpenLInvoker implements UDF3<String, String, String, Row> {
     public Row call(String serviceName, String ruleName, String json) {
         try {
             return RowFactory.create(OpenLService.callJSON(serviceName, ruleName, json), null);
+        } catch (Exception e) {
+            return RowFactory.create(null, e.getMessage());
+        }
+    }
+}
+```
+
+An example of how to create a UDF for Apache Spark to call any OpenL rules with two arguments:
+
+```java
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
+import org.apache.spark.sql.api.java.UDF4;
+import org.openl.rules.ruleservice.OpenLService;
+
+public class OpenLInvoker2 implements UDF4<String, String, String, String, Row> {
+
+    /**
+     * Returns a result in the first column or error in the second column.
+     */
+    @Override
+    public Row call(String serviceName, String ruleName, String arg1, String arg2) {
+        try {
+            return RowFactory.create(OpenLService.callJSONArgs(serviceName, ruleName, arg1, arg2), null);
         } catch (Exception e) {
             return RowFactory.create(null, e.getMessage());
         }

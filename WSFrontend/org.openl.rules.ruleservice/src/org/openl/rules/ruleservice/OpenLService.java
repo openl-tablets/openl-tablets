@@ -2,9 +2,12 @@ package org.openl.rules.ruleservice;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.runtime.ASMProxyFactory;
@@ -18,7 +21,7 @@ import org.openl.spring.env.PropertySourcesLoader;
 public class OpenLService {
 
     private static final Class<?>[] EMPTY_CLASSES = new Class[0];
-    static RulesFrontend rulesFrontend; // non-private opened for testing purposes
+    static volatile RulesFrontend rulesFrontend; // non-private opened for testing purposes
     private static ClassPathXmlApplicationContext context;
 
     /**
@@ -30,12 +33,16 @@ public class OpenLService {
      * @return Result of execution
      */
     public static Object call(String serviceName, String ruleName, Object... params) throws Exception {
-        return getRulesFrontend().execute(serviceName, ruleName, params);
+        if (params == null) {
+            params = new Object[0];
+        }
+        var types = Arrays.stream(params).map(x -> x != null ? x.getClass() : null).toArray(Class[]::new);
+        return execute(serviceName, ruleName, types, params);
     }
 
     /**
      * Invokes an OpenL method of a deployed service with parameters are presented as a JSON string. If the method has
-     * only one argument, then the JSON will be parsed as is into this argument. If there
+     * only one argument, then the JSON will be parsed as is into this argument.
      *
      * @param serviceName Name of deployed service.
      * @param ruleName    Method name to execute, a-ka rule name.
@@ -87,14 +94,46 @@ public class OpenLService {
     }
 
     /**
-     * Returns the object instance of the OpenL rules.
+     * Invokes an OpenL method of a deployed service with parameters are presented as an array of JSON strings. It
+     * finds the method by the count of the arguments, so the names of arguments does not have matter.
      *
      * @param serviceName Name of deployed service.
-     * @return the OpenL rules object instance
+     * @param ruleName    Method name to execute, a-ka rule name.
+     * @param json        Parameters for method execution as JSON elements.
+     * @return Result of execution
      */
-    public static <T> T get(String serviceName) throws Exception {
-        var service = getRulesFrontend().findServiceByName(serviceName);
-        return service != null ? (T) service.getServiceBean() : null;
+    public static String callJSONArgs(String serviceName, String ruleName, String... json) throws Exception {
+        var instance = get(serviceName);
+        if (instance == null) {
+            throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
+        }
+        int argsCount = json == null ? 0 : json.length;
+        ArrayList<Method> methods = new ArrayList<>(2);
+        for (Method method : instance.getClass().getMethods()) {
+            if (method.getName().equals(ruleName) && method.getParameterCount() == argsCount) {
+                methods.add(method);
+            }
+        }
+        if (methods.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Method '%s' with %d input arguments is not found in service '%s'.", ruleName, argsCount, serviceName));
+        }
+
+        if (methods.size() > 1) {
+            throw new IllegalArgumentException(String.format("Non-unique '%s' method name with %d input arguments in service '%s'. There are %d methods with the same name and count of arguments.", ruleName, argsCount, serviceName, methods.size()));
+        }
+
+        var caller = methods.get(0);
+
+        var args = new Object[argsCount];
+
+        var mapper = JsonUtils.getCachedObjectMapper(caller, EMPTY_CLASSES);
+        for (int i = 0; i < argsCount; i++) {
+            Class<?> type = caller.getParameterTypes()[i];
+            args[i] = json[i] == null || String.class.isAssignableFrom(type) ? json[i] : mapper.readValue(json[i], type);
+        }
+        var result = caller.invoke(instance, args);
+        return result == null || result instanceof String ? (String) result : mapper.writeValueAsString(result);
+
     }
 
     /**
@@ -106,9 +145,32 @@ public class OpenLService {
     public static <T> T proxy(String serviceName, Class<T> proxyInterface) throws Exception {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return ASMProxyFactory.newProxyInstance(cl,
-                (method, args) -> getRulesFrontend().execute(serviceName, method.getName(), method.getParameterTypes(), args),
+                (method, args) -> execute(serviceName, method.getName(), method.getParameterTypes(), args),
                 proxyInterface
         );
+    }
+
+    /**
+     * Returns the object instance of the OpenL rules.
+     *
+     * @param serviceName Name of deployed service.
+     * @return the OpenL rules object instance
+     */
+    public static <T> T get(String serviceName) throws Exception {
+        if (rulesFrontend == null) {
+            synchronized (OpenLService.class) {
+                if (rulesFrontend == null) {
+                    var springContext = new ClassPathXmlApplicationContext();
+                    springContext.setConfigLocations("classpath:openl-ruleservice-beans.xml");
+                    new PropertySourcesLoader().initialize(springContext);
+                    springContext.refresh();
+                    context = springContext;
+                    rulesFrontend = springContext.getBean(RulesFrontend.class);
+                }
+            }
+        }
+        var service = rulesFrontend.findServiceByName(serviceName);
+        return service != null ? (T) service.getServiceBean() : null;
     }
 
     /**
@@ -126,22 +188,21 @@ public class OpenLService {
         }
     }
 
-    /**
-     * Lazy initialization of the Rules Frontend instance.
-     */
-    private static RulesFrontend getRulesFrontend() {
-        if (rulesFrontend == null) {
-            synchronized (OpenLService.class) {
-                if (rulesFrontend == null) {
-                    var springContext = new ClassPathXmlApplicationContext();
-                    springContext.setConfigLocations("classpath:openl-ruleservice-beans.xml");
-                    new PropertySourcesLoader().initialize(springContext);
-                    springContext.refresh();
-                    context = springContext;
-                    rulesFrontend = springContext.getBean(RulesFrontend.class);
-                }
-            }
+
+    private static Object execute(String serviceName,
+                                  String ruleName,
+                                  Class<?>[] inputParamsTypes,
+                                  Object[] params) throws Exception{
+        var instance = get(serviceName);
+        if (instance == null) {
+            throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
         }
-        return rulesFrontend;
+        var method = MethodUtil.getMatchingAccessibleMethod(instance.getClass(), ruleName, inputParamsTypes);
+        if (method == null) {
+            var types = Arrays.stream(inputParamsTypes).map(x -> x == null ? "null-class" : x.getTypeName()).collect(Collectors.joining(", "));
+            throw new IllegalArgumentException(String.format("Method '%s(%s)' is not found in service '%s'.", ruleName, types, serviceName));
+        }
+        return method.invoke(instance, params);
     }
+
 }
