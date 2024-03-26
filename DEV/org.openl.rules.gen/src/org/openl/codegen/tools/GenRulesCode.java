@@ -217,7 +217,7 @@ public final class GenRulesCode {
         for (String line : lines) {
 
             if (line.contains("<<< INSERT")) {
-                sb.append(line).append("\r\n");
+                sb.append(line).append("\n");
 
                 StringWriter writer = new StringWriter();
                 SourceGenerator.generate(templateName, variables, writer);
@@ -229,12 +229,12 @@ public final class GenRulesCode {
 
             if (skipTillEnd) {
                 if (line.contains("<<< END INSERT")) {
-                    sb.append(line).append("\r\n");
+                    sb.append(line).append("\n");
                     skipTillEnd = false;
                 }
                 continue;
             }
-            sb.append(line).append("\r\n");
+            sb.append(line).append("\n");
 
         }
 
