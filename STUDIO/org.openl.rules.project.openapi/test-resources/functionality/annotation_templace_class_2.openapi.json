@@ -362,6 +362,10 @@
       },
       "DefaultRulesRuntimeContext": {
         "properties": {
+          "origin" : {
+            "type" : "string",
+            "enum" : [ "Base", "Custom" ]
+          },
           "caProvince": {
             "enum": [
               "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT"
@@ -440,6 +444,10 @@
               "VA", "WA", "WV", "WI", "WY"
             ],
             "type": "string"
+          },
+          "origin" : {
+            "type" : "string",
+            "enum" : [ "Base", "Custom" ]
           }
         },
         "type": "object"

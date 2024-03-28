@@ -199,6 +199,10 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
             setCaRegion((org.openl.rules.enumeration.CaRegionsEnum) value);
             return;
         }
+        if ("origin".equals(name)) {
+            setOrigin((org.openl.rules.enumeration.OriginsEnum) value);
+            return;
+        }
         if ("locale".equals(name)) {
             setLocale((java.util.Locale) value);
             return;
@@ -373,6 +377,20 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         cache = null;
     }
 
+    private org.openl.rules.enumeration.OriginsEnum origin = null;
+
+    @Override
+    public org.openl.rules.enumeration.OriginsEnum getOrigin() {
+        return origin;
+    }
+
+    @Override
+    public void setOrigin(org.openl.rules.enumeration.OriginsEnum origin) {
+        this.origin = origin;
+        internalMap.put("origin", origin);
+        cache = null;
+    }
+
     private java.util.Locale locale = null;
 
     @Override
@@ -403,6 +421,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         contextFields.put("region", org.openl.rules.enumeration.RegionsEnum.class);
         contextFields.put("caProvince", org.openl.rules.enumeration.CaProvincesEnum.class);
         contextFields.put("caRegion", org.openl.rules.enumeration.CaRegionsEnum.class);
+        contextFields.put("origin", org.openl.rules.enumeration.OriginsEnum.class);
         contextFields.put("locale", java.util.Locale.class);
         CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields);
     }

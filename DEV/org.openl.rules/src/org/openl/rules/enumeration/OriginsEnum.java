@@ -3,7 +3,7 @@ package org.openl.rules.enumeration;
 public enum OriginsEnum {
 
     Base("Base"),
-    Deviation("Deviation");
+    Custom("Custom");
 
     private final String displayName;
 

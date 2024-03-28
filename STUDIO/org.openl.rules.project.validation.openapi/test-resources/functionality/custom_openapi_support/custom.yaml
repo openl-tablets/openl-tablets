@@ -1766,6 +1766,11 @@ components:
     DefaultRulesRuntimeContext:
       type: object
       properties:
+        origin:
+          type: string
+          enum:
+            - Base
+            - Custom
         currentDate:
           type: string
           format: date-time
