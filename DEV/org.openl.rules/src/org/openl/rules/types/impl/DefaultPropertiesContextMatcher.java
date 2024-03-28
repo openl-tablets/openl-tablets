@@ -229,6 +229,24 @@ public class DefaultPropertiesContextMatcher implements IPropertiesContextMatche
             }
 
         });
+        constraints.put("origin", new MatchingConstraint<org.openl.rules.enumeration.OriginsEnum, org.openl.rules.enumeration.OriginsEnum>() {
+
+            @Override
+            protected org.openl.rules.enumeration.OriginsEnum getContextValue(IRulesRuntimeContext context) {
+                return context.getOrigin();
+            }
+
+            @Override
+            protected org.openl.rules.enumeration.OriginsEnum getPropertyValue(ITableProperties properties) {
+                return properties.getOrigin();
+            }
+
+            @Override
+            protected boolean matchNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue, org.openl.rules.enumeration.OriginsEnum contextValue) {
+                return EQ(propertyValue, contextValue);
+            }
+
+        });
         constraints.put("usregion", new MatchingConstraint<org.openl.rules.enumeration.UsRegionsEnum[], org.openl.rules.enumeration.UsRegionsEnum>() {
 
             @Override

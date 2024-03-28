@@ -116,6 +116,10 @@ Content-Type: application/json
       "DefaultRulesRuntimeContext" : {
         "type" : "object",
         "properties" : {
+          "origin" : {
+            "type" : "string",
+            "enum" : [ "Base", "Custom" ]
+          },
           "caProvince" : {
             "type" : "string",
             "enum" : [ "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT" ]
