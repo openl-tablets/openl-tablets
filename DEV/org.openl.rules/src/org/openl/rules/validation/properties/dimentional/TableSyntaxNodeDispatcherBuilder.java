@@ -399,7 +399,7 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private boolean isSuitable(String dimensionPropertyName, List<ITableProperties> methodsProperties) {
-        return isPropertyPresented(dimensionPropertyName, methodsProperties) && !"origin".equals(dimensionPropertyName);
+        return isPropertyPresented(dimensionPropertyName, methodsProperties);
     }
 
     private static class InternalMethodDelegator extends MethodDelegator {
