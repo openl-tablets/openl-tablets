@@ -2834,6 +2834,11 @@ components:
             - HQ
         locale:
           type: string
+        origin:
+          type: string
+          enum:
+            - Base
+            - Custom
     FinancialData:
       type: object
       properties:

@@ -357,6 +357,10 @@
             },
             "DefaultRulesRuntimeContext": {
                 "properties": {
+                    "origin" : {
+                        "type" : "string",
+                        "enum" : [ "Base", "Custom" ]
+                    },
                     "caProvince": {
                         "enum": [
                             "AB",

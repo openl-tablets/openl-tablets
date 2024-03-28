@@ -69,6 +69,10 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 
     void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion);
 
+    org.openl.rules.enumeration.OriginsEnum getOrigin();
+
+    void setOrigin(org.openl.rules.enumeration.OriginsEnum origin);
+
     java.util.Locale getLocale();
 
     void setLocale(java.util.Locale locale);
