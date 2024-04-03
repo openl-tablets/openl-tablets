@@ -15,6 +15,8 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 
@@ -24,7 +26,7 @@ import org.openl.rules.repository.api.UserInfo;
  *
  * @author Yury Molchan
  */
-public class PathCheckedRepository implements BranchRepository {
+public class PathCheckedRepository implements BranchRepository, RepositorySettingsAware {
 
     private final Repository delegate;
 
@@ -239,6 +241,13 @@ public class PathCheckedRepository implements BranchRepository {
     private void validateBranch(String branch) {
         if (!((BranchRepository) delegate).isValidBranchName(branch)) {
             throw new IllegalArgumentException("Invalide branch name");
+        }
+    }
+
+    @Override
+    public void setRepositorySettings(RepositorySettings settings) {
+        if (delegate instanceof RepositorySettingsAware) {
+            ((RepositorySettingsAware) delegate).setRepositorySettings(settings);
         }
     }
 }

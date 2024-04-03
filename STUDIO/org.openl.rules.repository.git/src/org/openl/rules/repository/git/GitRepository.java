@@ -131,6 +131,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
@@ -144,7 +145,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
-public class GitRepository implements BranchRepository, Closeable {
+public class GitRepository implements BranchRepository, RepositorySettingsAware, Closeable {
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
@@ -1049,6 +1050,7 @@ public class GitRepository implements BranchRepository, Closeable {
         this.commitMessageParserOld = new CommitMessageParser(commentTemplateOld);
     }
 
+    @Override
     public void setRepositorySettings(RepositorySettings repositorySettings) {
         this.repositorySettings = repositorySettings;
     }

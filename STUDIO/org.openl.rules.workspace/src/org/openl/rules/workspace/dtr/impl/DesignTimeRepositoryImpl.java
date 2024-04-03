@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,6 +34,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
@@ -68,16 +68,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
-    private PropertyResolver propertyResolver;
-    private RepositorySettings repositorySettings;
+    private final PropertyResolver propertyResolver;
+    private final RepositorySettings repositorySettings;
 
     private final List<String> exceptions = new ArrayList<>();
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
+    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver, RepositorySettings repositorySettings) {
         this.propertyResolver = propertyResolver;
-    }
-
-    public void setRepositorySettings(RepositorySettings repositorySettings) {
         this.repositorySettings = repositorySettings;
     }
 
@@ -154,14 +151,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
-            if (repositorySettings != null) {
-                String setter = "setRepositorySettings";
-                try {
-                    Method setMethod = repo.getClass().getMethod(setter, RepositorySettings.class);
-                    setMethod.invoke(repo, repositorySettings);
-                } catch (NoSuchMethodException e) {
-                    LOG.debug(e.getMessage(), e);
-                }
+            if (repo instanceof RepositorySettingsAware) {
+                ((RepositorySettingsAware) repo).setRepositorySettings(repositorySettings);
             }
 
             String flatValue = propertyResolver.getProperty(repoPrefix + ".folder-structure.flat");

@@ -26,8 +26,8 @@
         <property name="designTimeRepository">
             <bean class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init"
                   destroy-method="destroy">
-                <property name="propertyResolver" ref="environment"/>
-                <property name="repositorySettings" ref="repositorySettings"/>
+                <constructor-arg name="propertyResolver" ref="environment"/>
+                <constructor-arg name="repositorySettings" ref="repositorySettings"/>
             </bean>
         </property>
         <property name="designRepositoryAclService" ref="designRepositoryAclService"/>
