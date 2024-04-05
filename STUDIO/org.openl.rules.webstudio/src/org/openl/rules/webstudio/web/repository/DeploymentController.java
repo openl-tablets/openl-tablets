@@ -608,16 +608,15 @@ public class DeploymentController {
 
     public List<String> getProjectBranches() {
         try {
-            UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+            var dtRepo = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession()).getDesignTimeRepository();
 
-            Repository repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+            Repository repository = dtRepo.getRepository(repositoryId);
             if (!repository.supports().branches()) {
                 return Collections.emptyList();
             }
 
-            String rulesPath = workspace.getDesignTimeRepository().getRulesLocation();
-            List<String> branches = new ArrayList<>(
-                    ((BranchRepository) repository).getBranches(rulesPath + projectName));
+            var project = dtRepo.getProject(repositoryId, projectName);
+            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(project.getFolderPath()));
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
                 branches.sort(String.CASE_INSENSITIVE_ORDER);
