@@ -105,7 +105,7 @@ public class TestDownloadController {
         if (testSuite != null) {
             final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
             StreamingResponseBody streamingOutput = output -> new RulesResultExport()
-                    .export(output, -1, skipEmptyParameters, results);
+                    .export(output, -1, skipEmptyParameters, true, results);
             return prepareResponse(request, response, cookieName, streamingOutput);
         }
 

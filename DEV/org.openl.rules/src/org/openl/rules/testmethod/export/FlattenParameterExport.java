@@ -28,17 +28,19 @@ public class FlattenParameterExport extends BaseParameterExport {
         int rowNum = createAndWriteRowIds(sheet, start, descriptions);
         var params = test.getTestSuite().getTest(0).getExecutionParams();
         for (int pNum = 0; pNum < params.length; pNum++) {
-            var fields = nonEmptyFields.get(pNum);
-            if (CollectionUtils.isEmpty(fields)) {
-                continue;
-            }
             final var paramN = pNum;
             rowNum = createAndWriteRowValues(sheet,
                     new Cursor(rowNum, start.getColNum()),
                     params[paramN].getName(),
-                    fields,
+                    nonEmptyFields.get(pNum),
                     descriptions,
-                    description -> ((TestDescription) description).getExecutionParams()[paramN].getValue());
+                    description -> {
+                        var execParams = ((TestDescription) description).getExecutionParams();
+                        if (execParams == null || paramN >= execParams.length) {
+                            return null;
+                        }
+                        return execParams[paramN].getValue();
+                    });
         }
         for (int col = 1; col < descriptions.length + 2; col++) {
             sheet.autoSizeColumn(col);
