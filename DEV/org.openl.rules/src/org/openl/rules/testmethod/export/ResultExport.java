@@ -62,7 +62,7 @@ public abstract class ResultExport extends BaseExport {
 
                 // Tracking all columns for auto sizing is expensive
                 // sheet.trackAllColumnsForAutoSizing();
-                parameterExport.write(sheet, resultsList, skipEmptyParameters);
+                parameterExport.write(sheet, resultsList, skipEmptyParameters, true);
                 // autoSizeColumns(sheet);
 
                 // EPBDS-7848 Previously we added regions without validation, so it's better to validate in the end.
