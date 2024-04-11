@@ -3,6 +3,7 @@ package org.openl.rules.testmethod.export;
 import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Function;
 
@@ -34,13 +35,9 @@ public class FlattenParameterExport extends BaseParameterExport {
                     params[paramN].getName(),
                     nonEmptyFields.get(pNum),
                     descriptions,
-                    description -> {
-                        var execParams = ((TestDescription) description).getExecutionParams();
-                        if (execParams == null || paramN >= execParams.length) {
-                            return null;
-                        }
-                        return execParams[paramN].getValue();
-                    });
+                    description -> Optional.ofNullable(((TestDescription) description).getExecutionParams())
+                            .filter(execParams -> paramN < execParams.length)
+                            .map(execParams -> execParams[paramN].getValue()));
         }
         for (int col = 1; col < descriptions.length + 2; col++) {
             sheet.autoSizeColumn(col);
@@ -65,7 +62,7 @@ public class FlattenParameterExport extends BaseParameterExport {
                                         String namePrefix,
                                         List<FieldDescriptor> fields,
                                         TestDescription[] descriptions,
-                                        Function<Object, Object> getFieldValueChain) {
+                                        Function<Object, Optional<Object>> getFieldValueChain) {
 
         var rowNum = start.getRowNum();
         if (CollectionUtils.isEmpty(fields)) {
@@ -73,7 +70,7 @@ public class FlattenParameterExport extends BaseParameterExport {
             var colNum = start.getColNum();
             tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
             for (var description : descriptions) {
-                var fieldValue = getFieldValueChain.apply(description);
+                var fieldValue = getFieldValueChain.apply(description).orElse(null);
                 tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), fieldValue, styles.parameterValue));
             }
             performWrite(sheet, start, tasks, colNum - 1);
@@ -83,13 +80,14 @@ public class FlattenParameterExport extends BaseParameterExport {
         fields.sort(FIELD_ORDER);
         for (var field : fields) {
             var fieldChainName = namePrefix + "." + field.getField().getName();
-            var nextValueChain = getFieldValueChain.andThen(value -> ExportUtils.fieldValue(value, field.getField()));
+            Function<Object, Optional<Object>> nextValueChain = getFieldValueChain.andThen(opt -> opt.map(obj -> ExportUtils.fieldValue(obj, field.getField())));
             var children = field.getChildren();
             if (field.isArray()) {
                 int maxSize = 0;
                 for (var description : descriptions) {
-                    var array = nextValueChain.apply(description);
-                    int size = array == null ? 0 : Array.getLength(array);
+                    int size = nextValueChain.apply(description)
+                            .map(Array::getLength)
+                            .orElse(0);
                     maxSize = Math.max(maxSize, size);
                 }
                 for (int i = 0; i < maxSize; i++) {
@@ -99,12 +97,8 @@ public class FlattenParameterExport extends BaseParameterExport {
                             fieldChainName + "[" + i + "]",
                             children,
                             descriptions,
-                            nextValueChain.andThen(value -> {
-                                if (value == null || idx >= Array.getLength(value)) {
-                                    return null;
-                                }
-                                return Array.get(value, idx);
-                            }));
+                            nextValueChain.andThen(opt -> opt.filter(arr -> idx < Array.getLength(arr))
+                                    .map(arr -> Array.get(arr, idx))));
                 }
             } else {
                 rowNum = createAndWriteRowValues(sheet,
