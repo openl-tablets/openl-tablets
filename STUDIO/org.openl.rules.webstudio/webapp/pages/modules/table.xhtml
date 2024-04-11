@@ -521,6 +521,11 @@
                                             <input id="skipEmptyParametersInputArgs" name="skipEmptyParameters" type="checkbox"
                                                    value="true" style="vertical-align:-2px;margin:-4px"/>
                                         </div>
+                                        <div style="margin: 10px" title="Flat Parameter Layout">
+                                            <span style="margin-right: 10px">Flat Parameter Layout</span>
+                                            <input id="flattenParametersInputArgs" name="flattenParameters" type="checkbox"
+                                                   value="true" checked="checked" style="vertical-align:-2px;margin:-4px"/>
+                                        </div>
                                     </h:panelGroup>
                                     <h:panelGroup id="inputTestCasePanelWrapper">
                                         <h:selectOneRadio id="inputTestCaseType"
@@ -1115,7 +1120,10 @@
         function downloadManualTest() {
             var currentOpenedModule = $j("#inputArgsMenu").find('input[id=runTestModuleOnlyInputArgs]')[0].checked;
             var includeEmptyParamters = $j("#inputArgsMenu").find('input[id=skipEmptyParametersInputArgs]')[0].checked;
-            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule + "&skipEmptyParameters=" + includeEmptyParamters);
+            var flattenParameters = $j("#inputArgsMenu").find('input[id=flattenParametersInputArgs]')[0].checked;
+            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule
+                + "&skipEmptyParameters=" + includeEmptyParamters
+                + "&flattenParameters=" + flattenParameters);
         }
 
         function runManualTest() {
