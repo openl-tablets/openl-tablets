@@ -15,6 +15,8 @@
         <property name="jdbcUrl" value="${db.url}"/>
         <property name="username" value="${db.user}"/>
         <property name="password" value="${db.password}"/>
+        <property name="leakDetectionThreshold" value="60000"/>
+        <property name="maximumPoolSize" value="100"/>
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
@@ -27,7 +29,6 @@
                 <prop key="hibernate.format_sql">false</prop>
                 <prop key="hibernate.use_sql_comments">false</prop>
                 <prop key="hibernate.id.new_generator_mappings">false</prop>
-                <prop key="hibernate.connection.pool_size">100</prop>
                 <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
                 <prop key="hibernate.bytecode.use_reflection_optimizer">false</prop>
 
@@ -46,6 +47,17 @@
 
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"
           p:sessionFactory-ref="openlSessionFactory"/>
+
+    <bean id="jdbcLockRegistry" class="org.springframework.integration.jdbc.lock.JdbcLockRegistry">
+        <constructor-arg>
+            <bean class="org.springframework.integration.jdbc.lock.DefaultLockRepository">
+                <constructor-arg name="dataSource" ref="openlDataSource"/>
+                <property name="prefix" value="OPENL_"/>
+                <property name="region" value="studio"/>
+            </bean>
+        </constructor-arg>
+        <property name="cacheCapacity" value="100"/>
+    </bean>
 
     <context:component-scan base-package="org.openl.rules.security.standalone.dao"/>
 

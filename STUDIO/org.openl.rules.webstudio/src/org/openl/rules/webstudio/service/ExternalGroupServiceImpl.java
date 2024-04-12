@@ -4,10 +4,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.SimpleGroup;
@@ -21,10 +27,18 @@ import org.openl.rules.security.standalone.persistence.ExternalGroup;
  */
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
-    private final ExternalGroupDao externalGroupDao;
+    private static final Logger LOG = LoggerFactory.getLogger(ExternalGroupServiceImpl.class);
 
-    public ExternalGroupServiceImpl(ExternalGroupDao externalGroupDao) {
+    private final ExternalGroupDao externalGroupDao;
+    private final LockRegistry lockRegistry;
+    private final TransactionTemplate txTemplate;
+
+    public ExternalGroupServiceImpl(ExternalGroupDao externalGroupDao,
+                                    LockRegistry lockRegistry,
+                                    TransactionTemplate txTemplate) {
         this.externalGroupDao = externalGroupDao;
+        this.lockRegistry = lockRegistry;
+        this.txTemplate = txTemplate;
     }
 
     @Override
@@ -34,10 +48,28 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     }
 
     @Override
-    @Transactional
     public void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
-        externalGroupDao.deleteAllForUser(loginName);
-        externalGroupDao.save(new BatchCreateExternalGroupCursor(loginName, externalGroups));
+        var lock = lockRegistry.obtain("externalGroupMergeLock_" + loginName);
+        boolean lockAcquired = false;
+        try {
+            lockAcquired = lock.tryLock(30, TimeUnit.SECONDS);
+            if (!lockAcquired) {
+                throw new DataAccessResourceFailureException("Cannot acquire lock for user: " + loginName);
+            }
+            // transaction must be started after lock is acquired
+            txTemplate.execute(status -> {
+                externalGroupDao.deleteAllForUser(loginName);
+                externalGroupDao.save(new BatchCreateExternalGroupCursor(loginName, externalGroups));
+                return null;
+            });
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.debug("Thread interrupted", e);
+        } finally {
+            if (lockAcquired) {
+                lock.unlock();
+            }
+        }
     }
 
     @Override

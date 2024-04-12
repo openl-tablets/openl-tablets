@@ -83,6 +83,7 @@
         <!-- Spring -->
         <spring.framework.version>5.3.33</spring.framework.version>
         <spring.boot.version>2.7.18</spring.boot.version>
+        <spring.integration.version>5.5.20</spring.integration.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
@@ -1002,6 +1003,12 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-saml2-service-provider</artifactId>
                 <version>${spring.security.version}</version>
+            </dependency>
+            <!-- Spring Integration -->
+            <dependency>
+                <groupId>org.springframework.integration</groupId>
+                <artifactId>spring-integration-jdbc</artifactId>
+                <version>${spring.integration.version}</version>
             </dependency>
             <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
             <dependency>

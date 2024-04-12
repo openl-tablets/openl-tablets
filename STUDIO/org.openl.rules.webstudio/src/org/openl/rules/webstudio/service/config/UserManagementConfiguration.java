@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -35,8 +38,10 @@ public class UserManagementConfiguration {
     }
 
     @Bean("externalGroupService")
-    public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao) {
-        return new ExternalGroupServiceImpl(externalGroupDao);
+    public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao,
+                                                     LockRegistry lockRegistry,
+                                                     PlatformTransactionManager txManager) {
+        return new ExternalGroupServiceImpl(externalGroupDao, lockRegistry, new TransactionTemplate(txManager));
     }
 
     @Bean("groupManagementService")
