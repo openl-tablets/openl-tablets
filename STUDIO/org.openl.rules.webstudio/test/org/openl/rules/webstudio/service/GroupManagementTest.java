@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,9 +68,9 @@ public class GroupManagementTest {
         Set<Privilege> privileges = generatePrivilege(51, "Analysts", "Deployers");
         externalGroupService.mergeAllForUser("jdoe", privileges);
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(2, queryCount.getInsert());
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(3, queryCount.getTotal());
+        assertEquals(3, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(6, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
@@ -140,9 +143,9 @@ public class GroupManagementTest {
         Set<Privilege> privileges = generatePrivilege(10, "Analysts", "Deployers");
         externalGroupService.mergeAllForUser("jdoe", privileges);
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getInsert());
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(2, queryCount.getTotal());
+        assertEquals(2, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(5, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
@@ -172,9 +175,9 @@ public class GroupManagementTest {
         Set<Privilege> privileges = generatePrivilege(10, "Analysts", "Deployers");
         externalGroupService.mergeAllForUser("jdoe", privileges);
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getInsert());
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(2, queryCount.getTotal());
+        assertEquals(2, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(5, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
@@ -192,9 +195,9 @@ public class GroupManagementTest {
         privileges = generatePrivilege(9);
         externalGroupService.mergeAllForUser("jdoe", privileges);
         queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getInsert());
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(2, queryCount.getTotal());
+        assertEquals(2, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(5, queryCount.getTotal());
 
         QueryCountHolder.clear();
         extGroups = externalGroupService.findAllForUser("jdoe");
@@ -206,6 +209,36 @@ public class GroupManagementTest {
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
         assertEquals(2, queryCount.getTotal());
+    }
+
+    @Test
+    public void testMerge_async() throws InterruptedException {
+        initOneUser();
+        Set<Privilege> privileges = generatePrivilege(10);
+        AtomicInteger successCnt = new AtomicInteger(0);
+
+        final int workersCnt = 10;
+        var threadExecutor = Executors.newFixedThreadPool(workersCnt);
+        for (int i = 0; i < workersCnt; i++) {
+            threadExecutor.execute(() -> {
+                try {
+                    externalGroupService.mergeAllForUser("jdoe", privileges);
+                    successCnt.incrementAndGet();
+                } catch (Throwable e) {
+                    e.printStackTrace(); // For debug purposes
+                }
+            });
+        }
+        threadExecutor.shutdown();
+
+        if (!threadExecutor.awaitTermination(1, TimeUnit.MINUTES)) {
+            threadExecutor.shutdownNow();
+            if (!threadExecutor.awaitTermination(1, TimeUnit.MINUTES)) {
+                fail("Thread execution was interrupted");
+            }
+        }
+
+        assertEquals(workersCnt, successCnt.get(), "All workers must be executed successfully!");
     }
 
     @Test
@@ -273,9 +306,9 @@ public class GroupManagementTest {
         externalGroupService.mergeAllForUser("jdoe", privileges);
         externalGroupService.mergeAllForUser("jsmith", generatePrivilege(13));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(2, queryCount.getInsert());
-        assertEquals(2, queryCount.getDelete());
-        assertEquals(4, queryCount.getTotal());
+        assertEquals(4, queryCount.getInsert());
+        assertEquals(4, queryCount.getDelete());
+        assertEquals(10, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllByName("GROUP_1", 10);
@@ -301,9 +334,9 @@ public class GroupManagementTest {
         initOneUser();
         externalGroupService.mergeAllForUser("jdoe", Collections.singleton(new SimplePrivilege("foo-bar".repeat(9))));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(1, queryCount.getInsert());
-        assertEquals(1, queryCount.getDelete());
-        assertEquals(2, queryCount.getTotal());
+        assertEquals(2, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(5, queryCount.getTotal());
 
         QueryCountHolder.clear();
         groupService.addGroup("foo-bar".repeat(9), "Long Group Name");
