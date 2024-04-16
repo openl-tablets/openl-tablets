@@ -4,6 +4,7 @@ import static io.swagger.v3.core.util.RefUtils.constructRef;
 
 import java.lang.annotation.Annotation;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
 
@@ -58,13 +59,13 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
     // timezone instead of hardcoded UTC timezone.
     private static Object processDates(Object o) {
         if (o instanceof Date) {
-            return ((Date) o).toInstant().atOffset(OffsetDateTime.now().getOffset());
+            return ((Date) o).toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
         } else if (o instanceof Date[]) {
             Date[] t = (Date[]) o;
             var arr = new OffsetDateTime[t.length];
             for (int i = 0; i < t.length; i++) {
                 if (t[i] != null) {
-                    arr[i] = t[i].toInstant().atOffset(OffsetDateTime.now().getOffset());
+                    arr[i] = t[i].toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
                 }
             }
             return arr;
