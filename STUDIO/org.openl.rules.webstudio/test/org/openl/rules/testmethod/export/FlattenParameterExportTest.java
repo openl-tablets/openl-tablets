@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -12,6 +13,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import org.openl.rules.testmethod.TestUnitsResults;
 
 public class FlattenParameterExportTest extends AbstractParameterExportTest {
 
@@ -76,6 +79,29 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
 
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "p1.name", "name1", "name2");
+    }
+
+    @Test
+    public void arrayOfObjects() throws IOException {
+        List<TestUnitsResults> result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
+                params((Object) null),
+                params((Object) new A[]{new A("name3")}),
+                params());
+        export.write(sheet, result, true);
+
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        int rowNum = BaseExport.FIRST_ROW + 2;
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+
+        assertRowEquals(row, "ID", "#1", "#2", "#3", "#4");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[0].name", "name1", "", "name3", "");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[1].name", "name2", "", "", "");
+
+        assertNull(sheetToCheck.getRow(++rowNum));
     }
 
     @Test
@@ -182,6 +208,42 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
 
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "p2", "str1", "str2");
+
+        assertNull(sheetToCheck.getRow(++rowNum));
+    }
+
+    @Test
+    public void twoParametersWithArray() throws IOException {
+        export.write(sheet,
+                mockResults(params(new Class[]{A[].class, String.class}, null, "str1"),
+                        params(new A[]{}, "str2"),
+                        params(new A[]{new A("name3", 5, 6)}, "str3"),
+                        params(new A[]{new A("name4.1"), new A("name4.2", 7)}, "str4")),
+                true);
+
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        int rowNum = BaseExport.FIRST_ROW + 2;
+
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+        assertRowEquals(row, "ID", "#1", "#2", "#3", "#4");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[0].name", "", "", "name3", "name4.1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[0].values[0]", "", "", "5", "");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[0].values[1]", "", "", "6", "");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[1].name", "", "", "", "name4.2");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1[1].values[0]", "", "", "", "7");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p2", "str1", "str2", "str3", "str4");
 
         assertNull(sheetToCheck.getRow(++rowNum));
     }

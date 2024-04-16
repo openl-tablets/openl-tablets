@@ -3,9 +3,11 @@ package org.openl.rules.testmethod.export;
 import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -30,14 +32,31 @@ public class FlattenParameterExport extends BaseParameterExport {
         var params = test.getTestSuite().getTest(0).getExecutionParams();
         for (int pNum = 0; pNum < params.length; pNum++) {
             final var paramN = pNum;
-            rowNum = createAndWriteRowValues(sheet,
-                    new Cursor(rowNum, start.getColNum()),
-                    params[paramN].getName(),
-                    nonEmptyFields.get(pNum),
-                    descriptions,
-                    description -> Optional.ofNullable(((TestDescription) description).getExecutionParams())
-                            .filter(execParams -> paramN < execParams.length)
-                            .map(execParams -> execParams[paramN].getValue()));
+            Function<Object, Optional<Object>> getFieldValueChain = description -> Optional.ofNullable(((TestDescription) description).getExecutionParams())
+                    .filter(execParams -> paramN < execParams.length)
+                    .map(execParams -> execParams[paramN].getValue());
+            var maxArraySize = getMaxArraySize(descriptions, getFieldValueChain);
+            var fields = nonEmptyFields.get(pNum);
+            if (maxArraySize > 0) {
+                // parameter is most likely an array
+                for (int i = 0; i < maxArraySize; i++) {
+                    final int idx = i;
+                    rowNum = createAndWriteRowValues(sheet,
+                            new Cursor(rowNum, start.getColNum()),
+                            params[paramN].getName() + "[" + i + "]",
+                            fields,
+                            descriptions,
+                            getFieldValueChain.andThen(opt -> opt.filter(arr -> idx < Array.getLength(arr))
+                                    .map(arr -> Array.get(arr, idx))));
+                }
+            } else {
+                rowNum = createAndWriteRowValues(sheet,
+                        new Cursor(rowNum, start.getColNum()),
+                        params[paramN].getName(),
+                        fields,
+                        descriptions,
+                        getFieldValueChain);
+            }
         }
         for (int col = 1; col < descriptions.length + 2; col++) {
             sheet.autoSizeColumn(col);
@@ -83,13 +102,7 @@ public class FlattenParameterExport extends BaseParameterExport {
             Function<Object, Optional<Object>> nextValueChain = getFieldValueChain.andThen(opt -> opt.map(obj -> ExportUtils.fieldValue(obj, field.getField())));
             var children = field.getChildren();
             if (field.isArray()) {
-                int maxSize = 0;
-                for (var description : descriptions) {
-                    int size = nextValueChain.apply(description)
-                            .map(Array::getLength)
-                            .orElse(0);
-                    maxSize = Math.max(maxSize, size);
-                }
+                int maxSize = getMaxArraySize(descriptions, nextValueChain);
                 for (int i = 0; i < maxSize; i++) {
                     final int idx = i;
                     rowNum = createAndWriteRowValues(sheet,
@@ -110,5 +123,15 @@ public class FlattenParameterExport extends BaseParameterExport {
             }
         }
         return rowNum;
+    }
+
+    private static int getMaxArraySize(TestDescription[] descriptions, Function<Object, Optional<Object>> getFieldValueChain) {
+        return Stream.of(descriptions)
+                .map(desc -> getFieldValueChain.apply(desc).orElse(null))
+                .filter(Objects::nonNull)
+                .filter(o -> o.getClass().isArray())
+                .map(Array::getLength)
+                .max(Comparator.naturalOrder())
+                .orElse(0);
     }
 }
