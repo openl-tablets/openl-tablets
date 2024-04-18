@@ -26,7 +26,7 @@ mkdir openl-demo
 chmod o=u openl-demo
 EOT
 
-FROM ubuntu:focal
+FROM ubuntu:20.04
 
 LABEL org.opencontainers.image.title="OpenL Tablets DEMO"
 LABEL org.opencontainers.image.description="Demo with preconfigured OpenL WebStudio, OpenL RuleServices and simple web client"
