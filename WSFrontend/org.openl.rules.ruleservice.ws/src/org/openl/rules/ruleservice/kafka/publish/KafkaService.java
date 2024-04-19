@@ -36,10 +36,9 @@ import org.slf4j.MDC;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
+import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
@@ -421,12 +420,9 @@ public final class KafkaService implements Runnable {
         if (exception != null) {
             dltRecord.headers()
                     .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
-            ExceptionDetails details = ServiceInvocationAdvice
-                    .getExceptionDetailAndType(exception, sprBeanPropertyNamingStrategy)
-                    .getRight();
             dltRecord.headers()
                     .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
-                            Optional.ofNullable(details.getMessage())
+                            Optional.ofNullable(RuleServiceWrapperException.create(exception, sprBeanPropertyNamingStrategy).getMessage())
                                     .map(s -> s.getBytes(StandardCharsets.UTF_8))
                                     .orElse(null));
             dltRecord.headers()
