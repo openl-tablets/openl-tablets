@@ -17,7 +17,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
-import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.publish.lazy.wrapper.LazyWrapperLogic;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.rules.table.properties.ITableProperties;
@@ -69,7 +68,7 @@ class LazyPrebindHandler implements IPrebindHandler {
                         openMethod = findCandidateMethod((OpenMethodDispatcher) openMethod, dimensionProperties);
                     }
                 } catch (Exception e) {
-                    throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
+                    throw new IllegalStateException(new OpenLCompilationException("Failed to load lazy method.", e));
                 }
                 CompiledOpenClassCache.getInstance()
                         .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
@@ -107,7 +106,7 @@ class LazyPrebindHandler implements IPrebindHandler {
                             .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
                     return compiledOpenClass.getOpenClass().getField(field.getName());
                 } catch (Exception e) {
-                    throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
+                    throw new IllegalStateException(new OpenLCompilationException("Failed to load a lazy field.", e));
                 }
             }
 
@@ -116,7 +115,7 @@ class LazyPrebindHandler implements IPrebindHandler {
     }
 
     private CompiledOpenClass getCompiledOpenClassWithThrowErrorExceptionsIfAny(IOpenMember sync,
-                                                                                Module module) throws Exception {
+                                                                                Module module) throws OpenLCompilationException {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass(sync, module);
         if (compiledOpenClass.hasErrors()) {
             compiledOpenClass.throwErrorExceptionsIfAny();
@@ -124,7 +123,7 @@ class LazyPrebindHandler implements IPrebindHandler {
         return compiledOpenClass;
     }
 
-    private CompiledOpenClass getCompiledOpenClass(IOpenMember sync, Module module) throws Exception {
+    private CompiledOpenClass getCompiledOpenClass(IOpenMember sync, Module module) throws OpenLCompilationException {
         DeploymentDescription deployment = this.deployment;
         RuleServiceDependencyManager dependencyManager = this.dependencyManager;
         ClassLoader classLoader = getClassLoader();
