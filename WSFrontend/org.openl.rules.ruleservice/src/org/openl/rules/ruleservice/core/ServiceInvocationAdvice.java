@@ -555,7 +555,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             } else if (t instanceof OpenLRuntimeException) {
                 type = ExceptionType.RULES_RUNTIME;
                 exceptionDetails = new ExceptionDetails(((OpenLRuntimeException) t).getOriginalMessage());
-            } else if (t instanceof OpenLCompilationException || t instanceof RuleServiceOpenLCompilationException) {
+            } else if (t instanceof OpenLCompilationException) {
                 type = ExceptionType.COMPILATION;
                 exceptionDetails = new ExceptionDetails(t.getMessage());
             }
