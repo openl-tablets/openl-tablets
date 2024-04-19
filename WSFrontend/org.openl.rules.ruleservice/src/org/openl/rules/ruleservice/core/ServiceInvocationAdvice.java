@@ -73,6 +73,7 @@ import org.openl.util.ArrayUtils;
  */
 public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Method, Method> implements Ordered, LoggingCapability {
 
+    public static final String OBJECT_MAPPER_ID = "serviceObjectMapper";
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
     private static final String MSG_SEPARATOR = "; ";
@@ -149,6 +150,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             serviceContext.getBeanFactory().registerSingleton("rulesDeploy", rulesDeploy);
         }
         serviceContext.getBeanFactory().registerSingleton("serviceClassLoader", serviceClassLoader);
+        serviceContext.getBeanFactory().registerSingleton(OBJECT_MAPPER_ID, mapper);
         serviceContext.getBeanFactory()
                 .registerResolvableDependency(IOpenMember.class, (ObjectFactory<IOpenMember>) iOpenMethodHolder::get);
         try {
