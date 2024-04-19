@@ -29,7 +29,6 @@ import org.springframework.core.Ordered;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
@@ -75,8 +74,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     public static final String OBJECT_MAPPER_ID = "serviceObjectMapper";
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
-
-    private static final String MSG_SEPARATOR = "; ";
 
     private final Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
     private final Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
@@ -490,8 +487,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             if (p.getLeft().isServerError()) {
                 log.error(p.getRight().getMessage(), t);
             }
-            var msg = getExceptionMessage(calledMethod, t, args);
-            throw new RuleServiceWrapperException(p.getRight(), p.getLeft(), msg, t);
+            throw new RuleServiceWrapperException(p.getRight(), p.getLeft(), p.getRight().getMessage(), t);
         } finally {
             // Memory leaks fix.
             if (serviceTarget instanceof IEngineWrapper) {
@@ -568,66 +564,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             }
         }
         return new ImmutablePair<>(type, exceptionDetails);
-    }
-
-    private String getExceptionMessage(Method method, Throwable ex, Object... args) {
-        StringBuilder argsTypes = new StringBuilder();
-        boolean f = false;
-        for (Class<?> clazz : method.getParameterTypes()) {
-            if (f) {
-                argsTypes.append(", ");
-            } else {
-                f = true;
-            }
-            argsTypes.append(clazz.getName());
-        }
-        StringBuilder argsValues = new StringBuilder();
-        f = false;
-        for (Object arg : args) {
-            if (f) {
-                argsValues.append(", ");
-            } else {
-                f = true;
-            }
-            if (arg == null) {
-                argsValues.append("null");
-            } else {
-                argsValues.append(arg);
-
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("During OpenL rule execution exception was occurred. Method name is '".toUpperCase());
-        sb.append(method.getName());
-        sb.append("'. Arguments types are: ");
-        sb.append(argsTypes);
-        sb.append(". Arguments values are: ");
-        sb.append(argsValues.toString().replace("\r", "").replace("\n", ""));
-        sb.append(". Exception class is: ");
-        sb.append(ex.getClass().toString());
-        sb.append(".");
-        if (ex.getMessage() != null) {
-            sb.append(" Exception message is: ");
-            sb.append(ex.getMessage());
-        }
-        sb.append(" OpenL clause messages are: ");
-        Throwable t = ex.getCause();
-        boolean isNotFirst = false;
-        while (t != null && t.getCause() != t) {
-            if ((t instanceof OpenLException) && t.getMessage() != null) {
-                if (isNotFirst) {
-                    sb.append(MSG_SEPARATOR);
-                }
-                isNotFirst = true;
-                if (t instanceof OpenLRuntimeException) {
-                    sb.append(((OpenLRuntimeException) t).getOriginalMessage());
-                } else {
-                    sb.append(t.getMessage());
-                }
-            }
-            t = t.getCause();
-        }
-        return sb.toString();
     }
 
     @Override
