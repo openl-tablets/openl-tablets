@@ -15,8 +15,6 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -27,10 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 import org.openl.binding.MethodUtil;
-import org.openl.binding.impl.cast.OutsideOfValidDomainException;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -124,7 +119,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             try {
                 Object object;
                 if (x instanceof Throwable) {
-                    ExceptionDetails exc = getExceptionDetailAndType((Throwable) x, sprBeanPropertyNamingStrategy).getValue();
+                    var exc = RuleServiceWrapperException.create((Throwable) x, sprBeanPropertyNamingStrategy);
                     object = exc.getBody() != null ? exc.getBody() : exc.getMessage();
                 } else {
                     object = SpreadsheetResult.convertSpreadsheetResult(x, sprBeanPropertyNamingStrategy);
@@ -421,7 +416,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 var msg = String.format(
                         "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
                         MethodUtil.printMethod(methodName, parameterTypes));
-                throw new RuleServiceWrapperException(new ExceptionDetails(msg), ExceptionType.SYSTEM, msg, null);
+                throw new RuleServiceWrapperException(msg, ExceptionType.SYSTEM);
             }
         }
         try {
@@ -483,11 +478,11 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         } catch (Throwable t) {
-            Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t, sprBeanPropertyNamingStrategy);
-            if (p.getLeft().isServerError()) {
-                log.error(p.getRight().getMessage(), t);
+            var error = RuleServiceWrapperException.create(t, sprBeanPropertyNamingStrategy);
+            if (error.getType().isServerError()) {
+                log.error(error.getMessage(), t);
             }
-            throw new RuleServiceWrapperException(p.getRight(), p.getLeft(), p.getRight().getMessage(), t);
+            throw error;
         } finally {
             // Memory leaks fix.
             if (serviceTarget instanceof IEngineWrapper) {
@@ -531,39 +526,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.beforeMethodInvocation(interfaceMethod, args, null, null, new Inst(interfaceMethod));
         }
-    }
-
-    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Throwable ex,
-                                                                                  SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
-        Throwable t = ex;
-
-        ExceptionType type = ExceptionType.SYSTEM;
-        ExceptionDetails exceptionDetails = new ExceptionDetails(ex.getMessage());
-
-        boolean f = true;
-        while (f) {
-            if (t instanceof OpenLUserRuntimeException) {
-                type = ExceptionType.USER_ERROR;
-                var body = ((OpenLUserRuntimeException) t).getBody();
-                var convertedBody = SpreadsheetResult.convertSpreadsheetResult(body, sprBeanPropertyNamingStrategy);
-                exceptionDetails = new ExceptionDetails(convertedBody);
-            } else if (t instanceof OutsideOfValidDomainException) {
-                type = ExceptionType.VALIDATION;
-                exceptionDetails = new ExceptionDetails(((OutsideOfValidDomainException) t).getOriginalMessage());
-            } else if (t instanceof OpenLRuntimeException) {
-                type = ExceptionType.RULES_RUNTIME;
-                exceptionDetails = new ExceptionDetails(((OpenLRuntimeException) t).getOriginalMessage());
-            } else if (t instanceof OpenLCompilationException) {
-                type = ExceptionType.COMPILATION;
-                exceptionDetails = new ExceptionDetails(t.getMessage());
-            }
-            if (t.getCause() == null) {
-                f = false;
-            } else {
-                t = t.getCause();
-            }
-        }
-        return new ImmutablePair<>(type, exceptionDetails);
     }
 
     @Override
