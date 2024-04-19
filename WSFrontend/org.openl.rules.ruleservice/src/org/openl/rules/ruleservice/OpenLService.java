@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.openl.rules.serialization.JsonUtils;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.spring.env.PropertySourcesLoader;
 
@@ -20,7 +21,6 @@ import org.openl.spring.env.PropertySourcesLoader;
  */
 public class OpenLService {
 
-    private static final Class<?>[] EMPTY_CLASSES = new Class[0];
     static volatile RulesFrontend rulesFrontend; // non-private opened for testing purposes
     private static ClassPathXmlApplicationContext context;
 
@@ -50,10 +50,12 @@ public class OpenLService {
      * @return Result of execution
      */
     public static String callJSON(String serviceName, String ruleName, String json) throws Exception {
-        var instance = get(serviceName);
-        if (instance == null) {
+        var service = getService(serviceName);
+        if (service == null) {
             throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
         }
+        var instance = service.getServiceBean();
+
         ArrayList<Method> methods = new ArrayList<>(2);
         for (Method method : instance.getClass().getMethods()) {
             if (method.getName().equals(ruleName)) {
@@ -72,7 +74,7 @@ public class OpenLService {
 
         var args = new Object[caller.getParameterCount()];
 
-        var mapper = JsonUtils.getCachedObjectMapper(caller, EMPTY_CLASSES);
+        var mapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
         if (json != null) {
             if (caller.getParameterCount() == 1) {
                 Class<?> type = caller.getParameterTypes()[0];
@@ -103,10 +105,12 @@ public class OpenLService {
      * @return Result of execution
      */
     public static String callJSONArgs(String serviceName, String ruleName, String... json) throws Exception {
-        var instance = get(serviceName);
-        if (instance == null) {
+        var service = getService(serviceName);
+        if (service == null) {
             throw new IllegalArgumentException(String.format("Service '%s' is not found.", serviceName));
         }
+        var instance = service.getServiceBean();
+
         int argsCount = json == null ? 0 : json.length;
         ArrayList<Method> methods = new ArrayList<>(2);
         for (Method method : instance.getClass().getMethods()) {
@@ -126,7 +130,7 @@ public class OpenLService {
 
         var args = new Object[argsCount];
 
-        var mapper = JsonUtils.getCachedObjectMapper(caller, EMPTY_CLASSES);
+        var mapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
         for (int i = 0; i < argsCount; i++) {
             Class<?> type = caller.getParameterTypes()[i];
             args[i] = json[i] == null || String.class.isAssignableFrom(type) ? json[i] : mapper.readValue(json[i], type);
@@ -157,6 +161,11 @@ public class OpenLService {
      * @return the OpenL rules object instance
      */
     public static <T> T get(String serviceName) throws Exception {
+        var service = getService(serviceName);
+        return service != null ? (T) service.getServiceBean() : null;
+    }
+
+    private static org.openl.rules.ruleservice.core.OpenLService getService(String serviceName) {
         if (rulesFrontend == null) {
             synchronized (OpenLService.class) {
                 if (rulesFrontend == null) {
@@ -169,8 +178,7 @@ public class OpenLService {
                 }
             }
         }
-        var service = rulesFrontend.findServiceByName(serviceName);
-        return service != null ? (T) service.getServiceBean() : null;
+        return rulesFrontend.findServiceByName(serviceName);
     }
 
     /**
