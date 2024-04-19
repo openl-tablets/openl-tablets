@@ -487,7 +487,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             }
         } catch (Throwable t) {
             Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t, sprBeanPropertyNamingStrategy);
-            if (ExceptionType.isServerError(p.getLeft())) {
+            if (p.getLeft().isServerError()) {
                 log.error(p.getRight().getMessage(), t);
             }
             var msg = getExceptionMessage(calledMethod, t, args);
