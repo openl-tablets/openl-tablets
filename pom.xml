@@ -199,7 +199,7 @@
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <activiti.version>5.18.0</activiti.version>
+        <activiti.version>5.23.0</activiti.version>
         <picocli.version>4.7.5</picocli.version>
         <progressbar.version>0.10.1</progressbar.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
@@ -211,7 +211,7 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
-        <surefire.argLine.opts /> <!-- Extra settings per a maven module for the surefire plugin -->
+        <surefire.argLine.opts/> <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
@@ -322,7 +322,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.config.location />
+                            <openl.config.location/>
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -538,7 +538,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -550,7 +550,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
