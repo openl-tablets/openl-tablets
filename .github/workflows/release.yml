@@ -35,7 +35,7 @@ jobs:
           git config --global core.autocrlf false
 
       - name: Checkout ${{ github.event.inputs.branch }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.branch }}
           path: release
