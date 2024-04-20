@@ -7,7 +7,7 @@ This class is located in the following Maven dependency:
 <dependency>
     <groupId>org.openl.rules</groupId>
     <artifactId>org.openl.rules.ruleservice</artifactId>
-    <version>5.27.6</version>
+    <version>5.27.7</version>
 </dependency>
 ```
 
@@ -69,7 +69,7 @@ To package an OpenL project into a JAR file, you can use the `openl-maven-plugin
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>5.27.6</version>
+                <version>5.27.7</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -152,4 +152,30 @@ public class OpenLInvoker2 implements UDF4<String, String, String, String, Row> 
         }
     }
 }
+```
+
+An example of how to call any OpenL rules from the pyspark:
+
+```python
+from pyspark.sql import SparkSession
+from pyspark import SparkConf
+import pyspark.sql.functions as sf
+
+conf = SparkConf()
+conf.set("spark.jars.packages", "org.openl.rules:org.openl.rules.ruleservice:5.27.6")
+spark = SparkSession.builder.config(conf=conf).getOrCreate()
+df = spark.read.json("requests.json")
+
+result = df.withColumn('output', sf.reflect(
+    sf.lit("org.openl.rules.ruleservice.OpenLService"),
+    sf.lit("tryJSON"),
+    sf.lit("my-project"),
+    sf.lit("sayHello"),
+    df.input
+))
+# Returns a JSON with two fields:
+# if null:        { "result":null, "error":null }
+# if succesfull:  { "result":"OK", "error":null }
+# if error:       { "result":null, "error":{"message":"error"} }
+
 ```
