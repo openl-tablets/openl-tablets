@@ -87,8 +87,8 @@
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
-        <spring.security.version>5.8.11</spring.security.version>
-        <opensaml.version>4.3.0</opensaml.version>
+        <spring.security.version>5.8.12</spring.security.version>
+        <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
@@ -116,7 +116,7 @@
         <zookeeper.version>3.9.2</zookeeper.version>
         <thrift.version>0.20.0</thrift.version>
         <ant.version>1.10.14</ant.version>
-        <netty.version>4.1.108.Final</netty.version>
+        <netty.version>4.1.109.Final</netty.version>
         <reactor-netty-http.version>1.1.18</reactor-netty-http.version>
 
         <!-- REST -->
@@ -129,7 +129,7 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.21</swagger.core.version>
-        <swagger.parser.version>2.1.21</swagger.parser.version>
+        <swagger.parser.version>2.1.22</swagger.parser.version>
 
         <!-- Logging -->
         <log4j.version>2.23.1</log4j.version>
@@ -144,7 +144,7 @@
         <jetty.version>10.0.20</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.25.31</amazonaws.version>
+        <amazonaws.version>2.25.34</amazonaws.version>
         <azure.version>12.25.3</azure.version>
         <jgit.version>6.8.0.202311291450-openl</jgit.version>
 
@@ -172,7 +172,7 @@
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <jakarta.xml.ws-api.version>2.3.3</jakarta.xml.ws-api.version>
         <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
-        <jaxb-runtime.version>2.3.8</jaxb-runtime.version>
+        <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.websocket-api.version>1.1</javax.websocket-api.version>
 
@@ -193,10 +193,10 @@
         <commons.lang3.version>3.14.0</commons.lang3.version>
 
         <!-- protocols -->
-        <hessian.version>4.0.38</hessian.version>
+        <hessian.version>4.0.66</hessian.version>
         <gson.version>2.10.1</gson.version>
 
-        <bouncycastle.version>1.78</bouncycastle.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
         <groovy.version>4.0.21</groovy.version>
         <poi.version>5.2.5</poi.version>
         <aspectj.version>1.9.22</aspectj.version>
@@ -206,7 +206,7 @@
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <activiti.version>5.18.0</activiti.version>
+        <activiti.version>5.23.0</activiti.version>
         <picocli.version>4.7.5</picocli.version>
         <progressbar.version>0.10.1</progressbar.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
