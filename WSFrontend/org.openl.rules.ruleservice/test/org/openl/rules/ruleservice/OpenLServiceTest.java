@@ -139,6 +139,53 @@ class OpenLServiceTest {
     @SetSystemProperty(key = "production-repository.uri", value = "test-resources/RulesFrontendTest")
     @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
     @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
+    void tryJsonService() {
+        assertNull(OpenLService.rulesFrontend);
+
+        assertEquals("{\"result\":\"Good Morning\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "baseHello", "10"));
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Non-unique 'worldHello' method name in service 'RulesFrontendTest_multimodule'. There are 2 methods with the same name.\",\"type\":\"SYSTEM\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "worldHello", "10"));
+
+        assertEquals("{\"result\":null,\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "oneArg", null));
+        assertEquals("{\"result\":{\"name\":\"Nick\",\"age\":25},\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "oneArg", "{}"));
+        assertEquals("{\"result\":{\"name\":\"Mike\",\"age\":80},\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "oneArg", "{\"name\":\"Mike\",\"age\":80}"));
+
+        assertEquals("{\"result\":\"i: null s: null\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", null));
+        assertEquals("{\"result\":\"i: null s: null\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{}"));
+        assertEquals("{\"result\":\"i: 80 s: Mike\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"Mike\",\"i\":80}"));
+
+        assertEquals("{\"result\":null,\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", null));
+        assertEquals("{\"result\":\"\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", ""));
+        assertEquals("{\"result\":\"\\\"acd\\\"\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "\"acd\""));
+        assertEquals("{\"result\":\"'\\\"\\\"'\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "'\"\"'"));
+        assertEquals("{\"result\":\"{\\\"data\\\":\\\"text\\\"}\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "{\"data\":\"text\"}"));
+        assertEquals("{\"result\":\"{\\\"s\\\":\\\"Mike\\\",\\\"i\\\":80}\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "str2str", "{\"s\":\"Mike\",\"i\":80}"));
+
+        assertEquals("{\"result\":\"org.openl.generated.interfaces.VirtualModule$proxy", OpenLService.tryJSON("RulesFrontendTest_multimodule", "toString", null).substring(0, 61));
+
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"CA is not allowed\",\"type\":\"USER_ERROR\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "CA"));
+        assertEquals("{\"result\":\"OK\",\"error\":null}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "NY"));
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Failure\",\"code\":\"CD1\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "MI"));
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Object 'WW' is outside of valid domain 'State'. Valid values: [NY, CA, MI]\",\"type\":\"VALIDATION\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", "WW"));
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Object '' is outside of valid domain 'State'. Valid values: [NY, CA, MI]\",\"type\":\"VALIDATION\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", ""));
+        assertEquals("{\"result\":null,\"error\":{\"name\":\"Yura\",\"age\":1000}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "validate", null));
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Unexpected character ('M' (code 77)): was expecting comma to separate Object entries\n" +
+                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 8]\",\"type\":\"BAD_REQUEST\"}}", OpenLService.tryJSON("RulesFrontendTest_multimodule", "twoArgs", "{\"s\":\"\"Mike\",\"i\":80}"));
+
+        assertNotNull(OpenLService.rulesFrontend);
+        OpenLService.reset();
+        System.setProperty("production-repository.uri", "no repo");
+
+        assertEquals("{\"result\":null,\"error\":{\"message\":\"Service 'RulesFrontendTest_multimodule' is not found.\",\"type\":\"SYSTEM\"}}",OpenLService.tryJSON("RulesFrontendTest_multimodule", "worldHello", "10"));
+
+        // Free resources
+        OpenLService.reset();
+        assertNull(OpenLService.rulesFrontend);
+    }
+
+    @Test
+    @SetSystemProperty(key = "production-repository.uri", value = "test-resources/RulesFrontendTest")
+    @SetSystemProperty(key = "production-repository.factory", value = "repo-file")
+    @SetSystemProperty(key = "ruleservice.isProvideRuntimeContext", value = "false")
     void callJsonArrayService() throws Exception {
         assertNull(OpenLService.rulesFrontend);
 
