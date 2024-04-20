@@ -18,13 +18,13 @@
             <!-- Test dependency containing Spring and Spring boot dependencies -->
             <groupId>io.camunda</groupId>
             <artifactId>zeebe-util</artifactId>
-            <version>8.1.6</version>
+            <version>8.1.27</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <!-- This version should differ from current OpenL version -->
-            <version>3.5.0</version>
+            <version>4.0.4</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
