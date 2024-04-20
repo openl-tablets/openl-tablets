@@ -88,13 +88,13 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>5.3.33</spring.framework.version>
+        <spring.framework.version>5.3.34</spring.framework.version>
         <spring.boot.version>2.7.18</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
-        <spring.security.version>5.8.11</spring.security.version>
-        <opensaml.version>4.3.0</opensaml.version>
+        <spring.security.version>5.8.12</spring.security.version>
+        <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
@@ -117,8 +117,8 @@
         <zookeeper.version>3.9.2</zookeeper.version>
         <thrift.version>0.20.0</thrift.version>
         <ant.version>1.10.14</ant.version>
-        <netty.version>4.1.108.Final</netty.version>
-        <reactor-netty-http.version>1.1.17</reactor-netty-http.version>
+        <netty.version>4.1.109.Final</netty.version>
+        <reactor-netty-http.version>1.1.18</reactor-netty-http.version>
         <kotlin.stdlib.version>1.9.23</kotlin.stdlib.version>
 
         <!-- REST -->
@@ -128,17 +128,17 @@
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.21</swagger.core.version>
-        <swagger.parser.version>2.1.21</swagger.parser.version>
-        <swagger-ui.version>5.12.0</swagger-ui.version>
+        <swagger.parser.version>2.1.22</swagger.parser.version>
+        <swagger-ui.version>5.15.2-1</swagger-ui.version>
 
         <!-- Logging -->
         <log4j.version>2.23.1</log4j.version>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
         <maven.api.version>3.9.6</maven.api.version>
-        <maven.plugin.version>3.11.0</maven.plugin.version>
-        <plexus-utils.version>4.0.0</plexus-utils.version>
+        <maven.plugin.version>3.12.0</maven.plugin.version>
+        <plexus-utils.version>4.0.1</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
         <jetty.version>10.0.20</jetty.version>
@@ -152,7 +152,7 @@
         <okio.version>3.9.0</okio.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.25.16</amazonaws.version>
+        <amazonaws.version>2.25.34</amazonaws.version>
         <azure.version>12.25.3</azure.version>
         <jgit.version>6.8.0.202311291450-openl</jgit.version>
 
@@ -180,7 +180,7 @@
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <jakarta.xml.ws-api.version>2.3.3</jakarta.xml.ws-api.version>
         <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
-        <jaxb-runtime.version>2.3.8</jaxb-runtime.version>
+        <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <javax.websocket-api.version>1.1</javax.websocket-api.version>
 
@@ -196,16 +196,16 @@
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.compress.version>1.26.1</commons.compress.version>
         <commons.collections4.version>4.4</commons.collections4.version>
-        <commons.io.version>2.15.1</commons.io.version>
+        <commons.io.version>2.16.1</commons.io.version>
         <commons.jxpath.version>1.3</commons.jxpath.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
 
         <!-- protocols -->
-        <hessian.version>4.0.38</hessian.version>
+        <hessian.version>4.0.66</hessian.version>
         <gson.version>2.10.1</gson.version>
 
-        <bouncycastle.version>1.77</bouncycastle.version>
-        <groovy.version>4.0.20</groovy.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
+        <groovy.version>4.0.21</groovy.version>
         <poi.version>5.2.5</poi.version>
         <aspectj.version>1.9.22</aspectj.version>
         <velocity.version>2.3</velocity.version>
@@ -214,7 +214,7 @@
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <activiti.version>5.18.0</activiti.version>
+        <activiti.version>5.23.0</activiti.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
         <!-- It needs to detect memory leaks. -->
@@ -558,7 +558,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.8</version>
+                        <version>0.8.11</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
                             <includes>
