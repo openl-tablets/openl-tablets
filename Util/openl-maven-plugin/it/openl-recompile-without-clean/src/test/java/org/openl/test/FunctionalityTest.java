@@ -1,9 +1,9 @@
 package org.openl.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -37,7 +37,7 @@ public class FunctionalityTest {
             if (method instanceof TestSuiteMethod) {
                 TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
                 final int numberOfFailures = res.getNumberOfFailures();
-                assertEquals("Failed test: " + res.getName(), 0, numberOfFailures);
+                assertEquals(0, numberOfFailures, "Failed test: " + res.getName());
             }
         }
     }
