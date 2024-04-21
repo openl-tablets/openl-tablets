@@ -101,7 +101,6 @@
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7</asm.version>
-        <cglib.version>3.3.0</cglib.version>
         <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.3</objenesis.version>
 
@@ -1174,12 +1173,6 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-util</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <!-- Code generation library with shaded ASM dependecies -->
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib</artifactId>
-                <version>${cglib.version}</version>
             </dependency>
             <!-- Java source code generation library -->
             <dependency>
