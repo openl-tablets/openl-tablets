@@ -8,9 +8,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.vm.CacheMode;
-import org.openl.rules.vm.ResultNotFoundException;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
@@ -68,18 +65,6 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
 
     private Boolean cacheble = null;
 
-    protected boolean isMethodCacheable() {
-        if (cacheble == null) {
-            if (getMethodProperties() == null) {
-                cacheble = Boolean.FALSE;
-            } else {
-                Boolean cacheable = getMethodProperties().getCacheable();
-                cacheble = Boolean.TRUE.equals(cacheable);
-            }
-        }
-        return cacheble;
-    }
-
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return Tracer.invoke(invoke2, target, params, env, this);
@@ -96,26 +81,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                 }
             }
         }
-        if (env instanceof SimpleRulesRuntimeEnv) {
-            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
-            Object result;
-            boolean isSimilarStep = false;
-            if (simpleRulesRuntimeEnv.isMethodArgumentsCacheEnable() && isMethodCacheable()) {
-                try {
-                    result = simpleRulesRuntimeEnv.getArgumentCachingStorage().findInCache(this, params);
-                } catch (ResultNotFoundException e) {
-                    result = innerInvoke(target, params, env);
-                    if (CacheMode.READ_WRITE.equals(simpleRulesRuntimeEnv.getCacheMode())) {
-                        simpleRulesRuntimeEnv.getArgumentCachingStorage().putToCache(this, params, result);
-                    }
-                }
-            } else {
-                result = innerInvoke(target, params, env);
-            }
-            return result;
-        } else {
-            return innerInvoke(target, params, env);
-        }
+        return innerInvoke(target, params, env);
     }
 
     protected abstract Object innerInvoke(Object target, Object[] params, IRuntimeEnv env);
