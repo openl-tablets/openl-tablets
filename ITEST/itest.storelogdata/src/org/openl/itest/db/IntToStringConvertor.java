@@ -1,4 +1,4 @@
-package org.openl.itest.cassandra;
+package org.openl.itest.db;
 
 import org.openl.rules.ruleservice.storelogdata.Converter;
 
