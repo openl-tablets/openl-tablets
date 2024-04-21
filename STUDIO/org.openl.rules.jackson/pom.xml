@@ -56,12 +56,5 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.jackson.configuration</artifactId>
         </dependency>
-
-        <!-- Just for tests -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.calculation.result</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
