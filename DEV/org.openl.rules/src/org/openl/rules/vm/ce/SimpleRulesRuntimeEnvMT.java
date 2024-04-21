@@ -51,24 +51,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
     }
 
     @Override
-    public boolean isIgnoreRecalculation() {
-        return true;
-    }
-
-    @Override
-    public void setIgnoreRecalculate(boolean ignoreRecalculate) {
-    }
-
-    @Override
-    public boolean isOriginalCalculation() {
-        return true;
-    }
-
-    @Override
-    public void setOriginalCalculation(boolean originalCalculation) {
-    }
-
-    @Override
     public ArgumentCachingStorage getArgumentCachingStorage() {
         throw new UnsupportedOperationException();
     }
