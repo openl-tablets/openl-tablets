@@ -102,9 +102,6 @@
         <opentelemetry.version>2.15.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
-        <!-- Casandra -->
-        <cassandra.driver.version>4.17.0</cassandra.driver.version>
-
         <!-- Hive -->
         <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
@@ -217,7 +214,6 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
-        <module>EXT</module>
         <module>DEMO</module>
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
@@ -730,18 +726,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>cassandra</artifactId>
-                <version>${testcontainers.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.datastax.cassandra</groupId>
-                        <artifactId>cassandra-driver-core</artifactId>
-                    </exclusion>
-                </exclusions>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.github.dasniko</groupId>
                 <artifactId>testcontainers-keycloak</artifactId>
                 <version>${testcontainers.keycloak.version}</version>
@@ -1147,22 +1131,6 @@
                 <groupId>jakarta.xml.ws</groupId>
                 <artifactId>jakarta.xml.ws-api</artifactId>
                 <version>${jakarta.xml.ws-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-core-shaded</artifactId>
-                <version>${cassandra.driver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-mapper-processor</artifactId>
-                <version>${cassandra.driver.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.datastax.oss</groupId>
-                        <artifactId>java-driver-core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.icegreen</groupId>
@@ -1802,16 +1770,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
