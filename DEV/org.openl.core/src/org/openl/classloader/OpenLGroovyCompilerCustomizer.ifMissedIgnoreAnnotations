@@ -14,7 +14,3 @@ org.openl.rules.ruleservice.storelogdata.annotation.Url
 org.openl.rules.ruleservice.storelogdata.annotation.Value
 org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB
 org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManager
-org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive
-org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition
-org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection
-org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity
