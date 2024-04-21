@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>staticRmiHandlerTest</serviceName>
     <publishers>
         <publisher>RMI</publisher>

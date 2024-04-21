@@ -45,9 +45,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallArou
 import org.openl.rules.ruleservice.core.interceptors.annotations.TypeResolver;
 import org.openl.rules.ruleservice.core.interceptors.annotations.UseOpenMethodReturnType;
 import org.openl.rules.ruleservice.core.interceptors.converters.SPRToPlainConverterAdvice;
-import org.openl.rules.ruleservice.core.interceptors.converters.VariationResultSPRToPlainConverterAdvice;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.variation.VariationsResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -134,9 +132,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                     .visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class), true);
                             AnnotationVisitor av1 = av.visitArray("value");
                             av1.visit("value",
-                                    Type.getType(VariationsResult.class
-                                            .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
-                                            : SPRToPlainConverterAdvice.class));
+                                    Type.getType(SPRToPlainConverterAdvice.class));
                             av1.visitEnd();
                             av.visitEnd();
                         }
@@ -170,30 +166,26 @@ public final class RuleServiceInstantiationFactoryHelper {
     public static Class<?> buildInterfaceForInstantiationStrategy(Class<?> serviceClass,
                                                                   ClassLoader classLoader,
                                                                   Object serviceTarget,
-                                                                  boolean provideRuntimeContext,
-                                                                  boolean provideVariations) {
+                                                                  boolean provideRuntimeContext) {
         return processInterface(null,
                 serviceClass,
                 false,
                 classLoader,
                 serviceTarget,
-                provideRuntimeContext,
-                provideVariations);
+                provideRuntimeContext);
     }
 
     public static Class<?> buildInterfaceForService(IOpenClass openClass,
                                                     Class<?> serviceClass,
                                                     ClassLoader classLoader,
                                                     Object serviceTarget,
-                                                    boolean provideRuntimeContext,
-                                                    boolean provideVariations) {
+                                                    boolean provideRuntimeContext) {
         return processInterface(openClass,
                 serviceClass,
                 true,
                 classLoader,
                 serviceTarget,
-                provideRuntimeContext,
-                provideVariations);
+                provideRuntimeContext);
     }
 
     private static Class<?> processInterface(IOpenClass openClass,
@@ -201,8 +193,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                              boolean toServiceClass,
                                              ClassLoader classLoader,
                                              Object serviceTarget,
-                                             boolean provideRuntimeContext,
-                                             boolean provideVariations) {
+                                             boolean provideRuntimeContext) {
         Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
 
         Map<Method, MethodSignatureChanges> methodsWithSignatureNeedsChange = new HashMap<>();
@@ -212,7 +203,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     || (!toServiceClass && method.isAnnotationPresent(ServiceExtraMethod.class))) {
                 methodsToRemove.add(method);
             } else {
-                var changes = getMethodSignatureChanges(method, openClass, classLoader, toServiceClass, serviceTarget, provideRuntimeContext, provideVariations);
+                var changes = getMethodSignatureChanges(method, openClass, classLoader, toServiceClass, serviceTarget, provideRuntimeContext);
                 if (changes != null) {
                     methodsWithSignatureNeedsChange.put(method, changes);
                 }
@@ -261,8 +252,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                                        Method method,
                                                        IOpenMember openMember,
                                                        ClassLoader classLoader,
-                                                       boolean toServiceClass,
-                                                       boolean provideVariations) {
+                                                       boolean toServiceClass) {
         if (toServiceClass && method.isAnnotationPresent(RulesType.class)) {
             RulesType rulesType = method.getAnnotation(RulesType.class);
             Class<?> originType = method.getReturnType();
@@ -270,8 +260,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
                 .getAnnotation(ServiceCallAfterInterceptor.class);
-        if (serviceCallAfterInterceptor != null && (!provideVariations || !method.getReturnType()
-                .equals(VariationsResult.class))) {
+        if (serviceCallAfterInterceptor != null) {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                     serviceCallAfterInterceptor);
             if (lastServiceMethodAfterAdvice != null) {
@@ -280,8 +269,7 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
         ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
                 .getAnnotation(ServiceCallAroundInterceptor.class);
-        if (serviceCallAroundInterceptor != null && (!provideVariations || !method.getReturnType()
-                .equals(VariationsResult.class))) {
+        if (serviceCallAroundInterceptor != null) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                     .value();
             return extractReturnTypeForMethod(openMember, toServiceClass, serviceMethodAroundAdvice);
@@ -443,8 +431,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                                                     ClassLoader classLoader,
                                                                     boolean toServiceClass,
                                                                     Object serviceTarget,
-                                                                    boolean provideRuntimeContext,
-                                                                    boolean provideVariations) {
+                                                                    boolean provideRuntimeContext) {
         MethodSignatureChanges changes;
         IOpenMember openMember = null;
         if (toServiceClass && !method.isAnnotationPresent(ServiceExtraMethod.class)) {
@@ -478,8 +465,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 method,
                 openMember,
                 classLoader,
-                toServiceClass,
-                provideVariations);
+                toServiceClass);
         if (newReturnType != null) {
             changes = new MethodSignatureChanges(newParamTypes, newReturnType, false);
         } else if (openMember != null && !isTypeChangingAnnotationPresent(method)) {
@@ -489,9 +475,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 type = type.getComponentClass();
                 dim++;
             }
-            if (provideVariations && method.getReturnType().equals(VariationsResult.class)) {
-                changes = new MethodSignatureChanges(newParamTypes, VariationsResult.class, true);
-            } else if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
+            if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
                 Class<?> t;
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
                     t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
