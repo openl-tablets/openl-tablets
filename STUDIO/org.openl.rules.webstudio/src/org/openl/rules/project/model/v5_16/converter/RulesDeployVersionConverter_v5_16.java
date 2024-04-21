@@ -27,7 +27,6 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(oldVersion.isProvideVariations());
 
         if (oldVersion.getPublishers() != null) {
             List<RulesDeploy.PublisherType> publishers = CollectionUtils.map(Arrays.asList(oldVersion.getPublishers()),
@@ -75,7 +74,6 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
         }
 
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
             List<RulesDeploy_v5_16.PublisherType> publishers = CollectionUtils

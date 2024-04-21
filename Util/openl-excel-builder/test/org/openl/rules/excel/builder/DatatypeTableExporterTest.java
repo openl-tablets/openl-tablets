@@ -81,7 +81,6 @@ public class DatatypeTableExporterTest {
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
                 false,
-                false,
                 asSet(dt, oneMoreModel),
                 Collections.emptyList(),
                 Collections.emptyList(),

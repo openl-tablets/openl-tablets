@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>org.openl.rules.tutorial4.Tutorial4Interface</serviceName>
     <serviceClass>org.openl.rules.tutorial4.Tutorial4Interface</serviceClass>
     <url></url>

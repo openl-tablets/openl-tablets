@@ -39,7 +39,6 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                     interfaceClass,
                     externalParameters,
                     provideRuntimeContext,
-                    provideVariations,
                     executionMode);
         }
     }
@@ -51,7 +50,6 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                                                                    Class<T> interfaceClass,
                                                                    Map<String, Object> externalParameters,
                                                                    boolean provideRuntimeContext,
-                                                                   boolean provideVariations,
                                                                    boolean executionMode) {
             super(project,
                     projectDependencies,
@@ -59,7 +57,6 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                     interfaceClass,
                     externalParameters,
                     provideRuntimeContext,
-                    provideVariations,
                     executionMode);
         }
 
