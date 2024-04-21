@@ -1,10 +1,6 @@
 package org.openl.rules.vm;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
@@ -19,13 +15,6 @@ import org.openl.rules.cloner.Cloner;
 
 public class ArgumentCachingStorage {
     private static final Logger LOG = LoggerFactory.getLogger(ArgumentCachingStorage.class);
-
-    private List<CalculationStep> originalCalculationSteps;
-    private Iterator<CalculationStep> step;
-
-    public void resetMethodArgumentsCache() {
-        storage.clear();
-    }
 
     private final Storage storage = new Storage();
 
@@ -54,120 +43,6 @@ public class ArgumentCachingStorage {
             }
             data.add(new InvocationData(clonedParams, result));
             LOG.debug("Error occurred: ", e);
-        }
-    }
-
-    public void resetOriginalCalculationSteps() {
-        this.originalCalculationSteps = null;
-        initCurrentStep();
-    }
-
-    private abstract static class CalculationStep {
-        private final Object member;
-
-        public CalculationStep(Object member) {
-            this.member = Objects.requireNonNull(member, "member cannot be null");
-        }
-
-        public Object getMember() {
-            return member;
-        }
-    }
-
-    private static class ForwardCalculationStep extends CalculationStep {
-        public ForwardCalculationStep(Object member) {
-            super(member);
-        }
-    }
-
-    private static class BackwardCalculationStep extends CalculationStep {
-        private final Object result;
-
-        public BackwardCalculationStep(Object member, Object result) {
-            super(member);
-            this.result = result;
-        }
-
-        public Object getResult() {
-            return result;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void initCurrentStep() {
-        if (originalCalculationSteps != null) {
-            this.step = originalCalculationSteps.iterator();
-        } else {
-            this.step = Collections.EMPTY_LIST.iterator();
-        }
-    }
-
-    public Object getValueFromOriginalCalculation(Object member) {
-        boolean flag = true;
-        int level = 0;
-        while (flag) {
-            flag = step.hasNext();
-            if (flag) {
-                CalculationStep calculationStep = step.next();
-                if (calculationStep.getMember() == member) {
-                    if (calculationStep instanceof ForwardCalculationStep) {
-                        level++;
-                    } else {
-                        if (level == 0) {
-                            BackwardCalculationStep backwardCalculationStep = (BackwardCalculationStep) calculationStep;
-                            return backwardCalculationStep.getResult();
-                        } else {
-                            level--;
-                        }
-                    }
-                }
-            }
-        }
-        throw new IllegalStateException("Cannot find a result. This should not happen.");
-    }
-
-    public void makeForwardStepForOriginalCalculation(Object member) {
-        if (this.originalCalculationSteps == null) {
-            this.originalCalculationSteps = new LinkedList<>();
-        }
-        this.originalCalculationSteps.add(new ForwardCalculationStep(member));
-    }
-
-    public boolean makeForwardStep(Object member) {
-        if (step.hasNext()) {
-            CalculationStep calculationStep = step.next();
-            return calculationStep.member == member && calculationStep instanceof ForwardCalculationStep;
-        } else {
-            return false;
-        }
-    }
-
-    public void makeBackwardStepForOriginalCalculation(Object member, Object result) {
-        if (this.originalCalculationSteps == null) {
-            this.originalCalculationSteps = new LinkedList<>();
-        }
-        this.originalCalculationSteps.add(new BackwardCalculationStep(member, result));
-    }
-
-    public void makeBackwardStep(Object member) {
-        boolean flag = true;
-        int level = 0;
-        while (flag) {
-            flag = step.hasNext();
-            if (flag) {
-                CalculationStep calculationStep = step.next();
-                if (calculationStep.getMember() == member) {
-                    if (calculationStep instanceof ForwardCalculationStep) {
-                        level++;
-                    } else {
-                        if (level == 0) {
-                            return;
-                        } else {
-                            level--;
-                        }
-                    }
-                }
-            }
         }
     }
 
