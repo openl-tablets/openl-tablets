@@ -18,7 +18,7 @@
             <!-- Test dependency containing Spring and Spring boot dependencies -->
             <groupId>io.camunda</groupId>
             <artifactId>zeebe-util</artifactId>
-            <version>8.1.27</version>
+            <version>8.4.5</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
