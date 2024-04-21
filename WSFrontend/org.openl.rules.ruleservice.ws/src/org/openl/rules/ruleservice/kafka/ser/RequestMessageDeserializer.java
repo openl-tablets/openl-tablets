@@ -63,8 +63,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
 
     private Entry generateWrapperClass(Method m) throws Exception {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
-        String[] parameterNames = MethodUtils
-                .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
+        String[] parameterNames = MethodUtils.getParameterNames(openMember, m, service.isProvideRuntimeContext());
         return new Entry(m, parameterNames);
     }
 

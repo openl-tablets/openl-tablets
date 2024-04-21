@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.rules.variation.VariationsResult;
 
 public class SimpleProjectEngineFactoryTest {
 
@@ -70,55 +68,12 @@ public class SimpleProjectEngineFactoryTest {
         assertNotNull(sayHelloMethod);
     }
 
-    @Test
-    public void dynamicInterfaceWithVariationTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setProvideVariations(true)
-                .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
-        assertNotNull(instance);
-        Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-                .getMethod("sayHello", VariationsPack.class);
-        assertNotNull(sayHelloMethod);
-        assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
-    }
-
-    @Test
-    public void dynamicInterfaceWithVariationAndRuntimeContextTest() throws Exception {
-        SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setProvideVariations(true)
-                .setProvideRuntimeContext(true)
-                .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
-        assertNotNull(instance);
-        Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-                .getMethod("sayHello", IRulesRuntimeContext.class, VariationsPack.class);
-        assertNotNull(sayHelloMethod);
-        assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
-    }
-
     public interface SayHello {
         String sayHello();
     }
 
     public interface SayHelloWithRuntimeContext {
         String sayHello(IRulesRuntimeContext context);
-    }
-
-    public interface SayHelloWithRuntimeContextAndVariation {
-        String sayHello(IRulesRuntimeContext context);
-
-        VariationsResult<String> sayHello(IRulesRuntimeContext context, VariationsPack variationsPack);
-    }
-
-    public interface SayHelloWithVariation {
-        String sayHello();
-
-        VariationsResult<String> sayHello(VariationsPack variationsPack);
     }
 
     @Test
@@ -159,34 +114,6 @@ public class SimpleProjectEngineFactoryTest {
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithRuntimeContext.class);
-    }
-
-    @Test
-    public void staticInterfaceTestWithRuntimeContextAndVariationTest() throws Exception {
-        SimpleProjectEngineFactory<SayHelloWithRuntimeContextAndVariation> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithRuntimeContextAndVariation>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setInterfaceClass(SayHelloWithRuntimeContextAndVariation.class)
-                .setProvideRuntimeContext(true)
-                .setProvideVariations(true)
-                .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
-        assertNotNull(instance);
-        assertEquals(simpleProjectEngineFactory.getInterfaceClass(),
-                SayHelloWithRuntimeContextAndVariation.class);
-    }
-
-    @Test
-    public void staticInterfaceTestWithVariationTest() throws Exception {
-        SimpleProjectEngineFactory<SayHelloWithVariation> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithVariation>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setInterfaceClass(SayHelloWithVariation.class)
-                .setProvideVariations(true)
-                .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
-        assertNotNull(instance);
-        assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithVariation.class);
     }
 
     @Test

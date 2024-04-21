@@ -30,15 +30,6 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setProvideRuntimeContext(provideRuntimeContext);
     }
 
-    public boolean isProvideVariations() {
-        Boolean provideVariations = rulesDeploy.isProvideVariations();
-        return provideVariations != null ? provideVariations : false;
-    }
-
-    public void setProvideVariations(boolean provideRuntimeContext) {
-        rulesDeploy.setProvideVariations(provideRuntimeContext);
-    }
-
     public String getServiceName() {
         return rulesDeploy.getServiceName();
     }

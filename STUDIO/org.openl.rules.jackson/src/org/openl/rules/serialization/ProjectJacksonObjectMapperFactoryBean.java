@@ -95,11 +95,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void applyProjectConfiguration() {
-        if (rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideVariations())
-                || environment != null && Boolean.TRUE.equals(environment.getProperty(SUPPORT_VARIATIONS, Boolean.class))) {
-            delegate.setSupportVariations(true);
-        }
-
         processJacksonPropertiesSettingBoolean(getProperty(JACKSON_CASE_INSENSITIVE_PROPERTIES),
                 JACKSON_CASE_INSENSITIVE_PROPERTIES,
                 delegate::setCaseInsensitiveProperties);

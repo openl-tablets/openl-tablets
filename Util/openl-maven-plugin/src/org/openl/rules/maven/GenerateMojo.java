@@ -112,14 +112,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideRuntimeContext;
 
     /**
-     * Parameter that adds additional methods to the generated interface to support variations.
-     *
-     * @since 5.19.1
-     */
-    @Parameter
-    private boolean isProvideVariations;
-
-    /**
      * Parameter for generating custom spreadsheet result bean classes.
      *
      * @since 5.23.0
@@ -152,7 +144,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                     .setClassLoader(classLoader)
                     .setProvideRuntimeContext(isProvideRuntimeContext)
-                    .setProvideVariations(isProvideVariations)
                     .setExecutionMode(true)
                     .setExternalParameters(externalParameters)
                     .build();
@@ -335,7 +326,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, service);
 
             String[] argNames = MethodUtils
-                    .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
+                    .getParameterNames(openMember, method, isProvideRuntimeContext);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];
