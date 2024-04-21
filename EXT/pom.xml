@@ -14,8 +14,6 @@
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <modules>
-        <module>org.openl.rules.activiti</module>
-        <module>org.openl.rules.ruleservice.activiti</module>
         <module>org.openl.rules.ext.cassandra</module>
     </modules>
 </project>
