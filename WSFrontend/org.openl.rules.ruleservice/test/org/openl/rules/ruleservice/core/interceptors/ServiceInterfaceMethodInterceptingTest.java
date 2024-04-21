@@ -305,7 +305,6 @@ public class ServiceInterfaceMethodInterceptingTest {
                 .setName("service")
                 .setUrl("/")
                 .setProvideRuntimeContext(true)
-                .setProvideVariations(false)
                 .setDeployment(deploymentDescription)
                 .setModules(modules)
                 .setServicePath("service")
@@ -441,8 +440,7 @@ public class ServiceInterfaceMethodInterceptingTest {
                 .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
                         Thread.currentThread().getContextClassLoader(),
                         null,
-                        serviceDescription.isProvideRuntimeContext(),
-                        serviceDescription.isProvideVariations());
+                        serviceDescription.isProvideRuntimeContext());
         assertEquals(3, interfaceForInstantiationStrategy.getMethods().length);
         assertEquals(String.class, interfaceForInstantiationStrategy.getMethod("convert", IRulesRuntimeContext.class, String.class).getReturnType());
         assertEquals(Object.class, interfaceForInstantiationStrategy.getMethod("driverRiskScoreOverloadTest", IRulesRuntimeContext.class, String.class).getReturnType());

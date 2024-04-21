@@ -43,10 +43,6 @@
         <h:selectBooleanCheckbox id="#{prefix}provideRuntimeContext" value="#{rulesDeploy.provideRuntimeContext}"
                                  disabled="#{!canEditRulesDeployConfig}"/>
 
-      <h:outputLabel for="#{prefix}provideVariations" value="Provide variations:"/>
-        <h:selectBooleanCheckbox id="#{prefix}provideVariations" value="#{rulesDeploy.provideVariations}"
-                                 disabled="#{!canEditRulesDeployConfig}"/>
-
       <h:outputLabel for="#{prefix}publishers" value="Create services:" rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}">
           <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}"

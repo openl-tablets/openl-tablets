@@ -12,7 +12,6 @@ public class BaseRulesDeploySerializerTest {
         RulesDeploy rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
-        rulesDeploy.setProvideVariations(true);
         rulesDeploy.setLazyModulesForCompilationPatterns(
                 new WildcardPattern[]{new WildcardPattern("some1*"),
                         new WildcardPattern("some2*")});
