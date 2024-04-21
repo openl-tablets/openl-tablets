@@ -71,7 +71,6 @@ import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
@@ -106,7 +105,6 @@ public class OpenApiProjectValidator {
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private boolean provideRuntimeContext = true;
-    private boolean provideVariations;
     private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
 
@@ -179,14 +177,9 @@ public class OpenApiProjectValidator {
 
         final boolean provideRuntimeContext = (rulesDeploy == null && isProvideRuntimeContext()) || (rulesDeploy != null && Boolean.TRUE
                 .equals(rulesDeploy.isProvideRuntimeContext()));
-        final boolean provideVariations = (rulesDeploy == null && isProvideVariations()) || (rulesDeploy != null && Boolean.TRUE
-                .equals(rulesDeploy.isProvideVariations()));
         context.setProvideRuntimeContext(provideRuntimeContext);
-        context.setProvideVariations(provideVariations);
 
-        rulesInstantiationStrategy = enhanceRulesInstantiationStrategy(rulesInstantiationStrategy,
-                provideRuntimeContext,
-                provideVariations);
+        rulesInstantiationStrategy = enhanceRulesInstantiationStrategy(rulesInstantiationStrategy, provideRuntimeContext);
 
         context.setTargetService(rulesInstantiationStrategy.instantiate(true));
 
@@ -201,8 +194,7 @@ public class OpenApiProjectValidator {
                 serviceClass = resolveInterface(rulesDeploy,
                         rulesInstantiationStrategy,
                         validatedCompiledOpenClass,
-                        provideRuntimeContext,
-                        provideVariations);
+                        provideRuntimeContext);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
                         OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
@@ -264,8 +256,7 @@ public class OpenApiProjectValidator {
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 context.getTargetService(),
                 classLoader,
-                context.isProvideRuntimeContext(),
-                context.isProvideVariations());
+                context.isProvideRuntimeContext());
     }
 
     private Pair<String, PathItem> findPathItem(Paths paths, String path) {
@@ -1259,11 +1250,7 @@ public class OpenApiProjectValidator {
 
     protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
             RulesInstantiationStrategy rulesInstantiationStrategy,
-            boolean provideRuntimeContext,
-            boolean provideVariations) {
-        if (provideVariations) {
-            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
+            boolean provideRuntimeContext) {
         if (provideRuntimeContext) {
             rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
         }
@@ -1273,8 +1260,7 @@ public class OpenApiProjectValidator {
     protected Class<?> resolveInterface(RulesDeploy rulesDeploy,
                                         RulesInstantiationStrategy rulesInstantiationStrategy,
                                         ValidatedCompiledOpenClass validatedCompiledOpenClass,
-                                        boolean provideRuntimeContext,
-                                        boolean provideVariations) throws RulesInstantiationException {
+                                        boolean provideRuntimeContext) throws RulesInstantiationException {
         if (rulesDeploy != null && rulesDeploy.getServiceClass() != null) {
             final String serviceClassName = rulesDeploy.getServiceClass().trim();
             if (!org.apache.commons.lang3.StringUtils.isEmpty(serviceClassName)) {
@@ -1337,8 +1323,7 @@ public class OpenApiProjectValidator {
                 serviceClass,
                 resolveServiceClassLoader,
                 rulesInstantiationStrategy.instantiate(true),
-                provideRuntimeContext,
-                provideVariations);
+                provideRuntimeContext);
     }
 
     public boolean isProvideRuntimeContext() {
@@ -1347,14 +1332,6 @@ public class OpenApiProjectValidator {
 
     public void setProvideRuntimeContext(boolean provideRuntimeContext) {
         this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public boolean isProvideVariations() {
-        return provideVariations;
-    }
-
-    public void setProvideVariations(boolean provideVariations) {
-        this.provideVariations = provideVariations;
     }
 
     private static class KeyBySchemasRef {

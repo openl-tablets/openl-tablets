@@ -51,7 +51,6 @@ public class SpreadsheetTableExporterTest {
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
                 false,
-                false,
                 Collections.emptySet(),
                 Collections.emptyList(),
                 Collections.singletonList(resultModel),

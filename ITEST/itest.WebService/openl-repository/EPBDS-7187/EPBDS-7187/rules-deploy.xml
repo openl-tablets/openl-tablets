@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>upcase</serviceName>
     <url>upcs</url>
     <publishers>

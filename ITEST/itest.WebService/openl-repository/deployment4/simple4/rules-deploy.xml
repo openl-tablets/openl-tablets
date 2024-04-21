@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>simple4</serviceName>
 
     <configuration>
