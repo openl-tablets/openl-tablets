@@ -12,10 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 
-import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
-
-import org.openl.itest.cassandra.IntToStringConvertor;
-import org.openl.itest.cassandra.NoConvertorString;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.KafkaMessageHeader;
@@ -49,7 +45,6 @@ public class HelloEntity1 {
     @Lob
     private String response;
 
-    @ClusteringColumn(1)
     @ServiceName(converter = NoConvertorString.class)
     private String serviceName;
 
@@ -58,7 +53,6 @@ public class HelloEntity1 {
 
     private String methodName;
 
-    @ClusteringColumn(0)
     private String publisherType;
 
     @Column(name = HOUR)
