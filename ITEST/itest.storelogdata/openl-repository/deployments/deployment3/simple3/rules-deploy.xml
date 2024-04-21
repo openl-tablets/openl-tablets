@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
-    <isProvideVariations>true</isProvideVariations>
     <serviceName>simple3</serviceName>
     <annotationTemplateClassName>org.openl.itest.serviceclass.Simple3ServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
