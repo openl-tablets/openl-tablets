@@ -1536,11 +1536,6 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.calculation.result</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.constrainer</artifactId>
                 <version>${project.version}</version>
             </dependency>
