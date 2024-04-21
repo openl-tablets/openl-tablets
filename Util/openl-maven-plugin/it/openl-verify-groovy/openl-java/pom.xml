@@ -24,21 +24,6 @@
                         <artifactId>org.openl.rules.ruleservice.ws.storelogdata</artifactId>
                         <version>${org.openl.version}</version>
                     </dependency>
-                    <dependency>
-                        <groupId>org.openl.rules</groupId>
-                        <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
-                        <version>${org.openl.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.datastax.oss</groupId>
-                        <artifactId>java-driver-mapper-runtime</artifactId>
-                        <version>${datastax.oss.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.ow2.asm</groupId>
-                        <artifactId>asm-commons</artifactId>
-                        <version>${asm.version}</version>
-                    </dependency>
                 </dependencies>
             </plugin>
         </plugins>

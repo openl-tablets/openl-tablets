@@ -71,11 +71,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project.validation.openapi</artifactId>
         </dependency>
         <dependency>
