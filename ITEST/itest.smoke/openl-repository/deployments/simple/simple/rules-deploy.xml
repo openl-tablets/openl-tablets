@@ -5,7 +5,4 @@
     <publishers>
         <publisher>RESTFUL</publisher>
     </publishers>
-    <loggingStorages>
-        <storage>CASSANDRA</storage>
-    </loggingStorages>
 </rules-deploy>
