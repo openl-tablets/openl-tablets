@@ -23,11 +23,6 @@
             <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
             <version>${org.openl.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.calculation.result</artifactId>
-            <version>${org.openl.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
