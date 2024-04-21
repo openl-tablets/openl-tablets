@@ -103,9 +103,6 @@
         <opentelemetry.version>2.7.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
-        <!-- Hive -->
-        <hive.jdbc.version>4.0.0</hive.jdbc.version>
-
         <!-- REST -->
         <jackson.version>2.17.2</jackson.version>
         <cxf.version>3.6.4</cxf.version>
@@ -1708,7 +1705,7 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus-utils.version}</version>
             </dependency>
-            <!-- hive & azure -->
+            <!-- azure -->
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
@@ -1721,7 +1718,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- //hive -->
+            <!-- //azure -->
             <!-- OpenL modules -->
             <!-- DEV -->
             <dependency>
@@ -1982,16 +1979,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
