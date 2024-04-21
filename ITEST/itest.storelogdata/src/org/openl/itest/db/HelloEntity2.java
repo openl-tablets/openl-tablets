@@ -12,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 
-import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
-
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
@@ -45,7 +43,6 @@ public class HelloEntity2 {
     @Lob
     private String response;
 
-    @ClusteringColumn(1)
     @ServiceName
     private String serviceName;
 
@@ -55,7 +52,6 @@ public class HelloEntity2 {
     @MethodName
     private String methodName;
 
-    @ClusteringColumn(0)
     @Publisher
     private String publisherType;
 
