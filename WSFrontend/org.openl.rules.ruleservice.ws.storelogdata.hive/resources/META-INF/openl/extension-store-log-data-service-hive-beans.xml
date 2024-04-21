@@ -6,10 +6,7 @@
 
     <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.hive"/>
 
-    <bean id="hiveDriverRegister" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDriverRegister"
-          init-method="init" lazy-init="true"/>
-
-    <bean id="hiveHikariConfig" class="com.zaxxer.hikari.HikariConfig" depends-on="hiveDriverRegister" lazy-init="true">
+    <bean id="hiveHikariConfig" class="com.zaxxer.hikari.HikariConfig" lazy-init="true">
         <property name="jdbcUrl" value="${hive.connection.url}"/>
         <property name="username" value="${hive.connection.username}"/>
         <property name="password" value="${hive.connection.password}"/>
