@@ -11,72 +11,23 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calculation.result.convertor2.CompoundStep;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
 
 public class JacksonObjectMapperFactoryBeanTest {
 
     @Test
-    public void testVariations() throws ClassNotFoundException, IOException {
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
-        bean.setSupportVariations(true);
-        Set<String> overrideTypes = new HashSet<>();
-        overrideTypes.add(CompoundStep.class.getName());
-        bean.setOverrideTypes(overrideTypes);
-        ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-
-        ArgumentReplacementVariation v = new ArgumentReplacementVariation("variationID", 1, 123.0);
-
-        ComplexVariation complexVariation = new ComplexVariation("complexVariationId", v);
-
-        String text = objectMapper.writerFor(Variation.class).writeValueAsString(complexVariation);
-
-        Variation v1 = objectMapper.readValue(text, Variation.class);
-        assertTrue(v1 instanceof ComplexVariation);
-        assertEquals("complexVariationId", v1.getVariationID());
-
-        text = objectMapper.writerFor(Variation.class).writeValueAsString(new DeepCloningVariation("deepCloningID", complexVariation));
-        v1 = objectMapper.readValue(text, Variation.class);
-        assertTrue(v1 instanceof DeepCloningVariation);
-        assertEquals("deepCloningID", v1.getVariationID());
-
-        text = objectMapper.writerFor(Variation.class).writeValueAsString(new JXPathVariation("jaxPathID", 1, "invalidPath", "value"));
-        v1 = objectMapper.readValue(text, Variation.class);
-        assertTrue(v1 instanceof JXPathVariation);
-        assertEquals("jaxPathID", v1.getVariationID());
-
-        VariationsResult<CompoundStep> variationsResult = new VariationsResult<>();
-        variationsResult.registerFailure("variationErrorID", "errorMessage");
-        variationsResult.registerResult("variationID", new CompoundStep());
-        text = objectMapper.writeValueAsString(variationsResult);
-        variationsResult = objectMapper.readValue(text, new TypeReference<VariationsResult<CompoundStep>>() {
-        });
-        assertNotNull(variationsResult);
-        assertEquals("errorMessage", variationsResult.getFailureErrorForVariation("variationErrorID"));
-    }
-
-    @Test
     public void testSpreadsheetResult() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         SpreadsheetResult value = new SpreadsheetResult();
         value.setResults(new Object[3][3]);
@@ -90,7 +41,6 @@ public class JacksonObjectMapperFactoryBeanTest {
     @Test
     public void testRange() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper
                 .writeValueAsString(new DoubleRange("(0; 1)"));
@@ -112,7 +62,6 @@ public class JacksonObjectMapperFactoryBeanTest {
         context.setLob("LOB");
         context.setLocale(Locale.FRANCE);
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper.writeValueAsString(context);
 
@@ -145,7 +94,6 @@ public class JacksonObjectMapperFactoryBeanTest {
     public void testOverrideTypesSmart() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
-        bean.setSupportVariations(true);
         bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Animal.class.getName());
@@ -173,7 +121,6 @@ public class JacksonObjectMapperFactoryBeanTest {
     public void testOverrideTypesEnable() throws ClassNotFoundException, IOException {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setDefaultTypingMode(DefaultTypingMode.OBJECT_AND_NON_CONCRETE);
-        bean.setSupportVariations(true);
         bean.setPolymorphicTypeValidation(true);
         Set<String> overrideTypes = new HashSet<>();
         overrideTypes.add(Wrapper.class.getName());
@@ -203,7 +150,6 @@ public class JacksonObjectMapperFactoryBeanTest {
         assertThrows(InvalidTypeIdException.class, () -> {
             JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
             bean.setDefaultTypingMode(DefaultTypingMode.NON_FINAL);
-            bean.setSupportVariations(true);
             bean.setPolymorphicTypeValidation(true);
             Set<String> overrideTypes = new HashSet<>();
             overrideTypes.add(Animal.class.getName());

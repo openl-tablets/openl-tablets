@@ -3,7 +3,6 @@ package org.openl.rules.serialization;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,19 +43,6 @@ import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigur
 import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
 import org.openl.rules.ruleservice.databinding.annotation.MixInClassFor;
 import org.openl.rules.serialization.jackson.SubtypeMixin;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ArgumentReplacementVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.ComplexVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.DeepCloningVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.JXPathVariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationType;
-import org.openl.rules.serialization.jackson.org.openl.rules.variation.VariationsResultType;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsResult;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -64,19 +50,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private static final AtomicLong incrementer = new AtomicLong();
 
-    private static final Class<?>[] VARIATION_CLASSES = new Class[]{Variation.class,
-            NoVariation.class,
-            ArgumentReplacementVariation.class,
-            ComplexVariation.class,
-            DeepCloningVariation.class,
-            JXPathVariation.class,
-            VariationsResult.class};
-
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
     private final Logger log = LoggerFactory.getLogger(JacksonObjectMapperFactoryBean.class);
-
-    private boolean supportVariations = false;
 
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
@@ -243,30 +219,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         mapper.addMixIn(GroovyObject.class, org.openl.rules.serialization.jackson.groovy.lang.GroovyObject.class);
 
-        if (isSupportVariations()) {
-            addMixIn(mapper, Variation.class, VariationType.class);
-            addMixIn(mapper, ArgumentReplacementVariation.class, ArgumentReplacementVariationType.class);
-            addMixIn(mapper, ComplexVariation.class, ComplexVariationType.class);
-            addMixIn(mapper, DeepCloningVariation.class, DeepCloningVariationType.class);
-            addMixIn(mapper, JXPathVariation.class, JXPathVariationType.class);
-            addMixIn(mapper, VariationsResult.class, VariationsResultType.class);
-            Collections.addAll(overrideClasses, VARIATION_CLASSES);
-            if (polymorphicTypeValidation) {
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(Variation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ArgumentReplacementVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(ComplexVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(DeepCloningVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(JXPathVariation.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfBaseType(VariationsResult.class);
-                basicPolymorphicTypeValidatorBuilder.allowIfSubType(VariationsResult.class);
-            }
-        }
-
         for (Class<?> clazz : overrideClasses) {
             Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
                     mapper.findMixInClassFor(clazz),
@@ -303,11 +255,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
         if (getOverrideClasses() != null) {
             for (Class<?> clazz : getOverrideClasses()) {
-                registerOverrideClass(basicPolymorphicTypeValidatorBuilder, polymorphicTypeValidation, classes, clazz);
-            }
-        }
-        if (isSupportVariations()) {
-            for (Class<?> clazz : VARIATION_CLASSES) {
                 registerOverrideClass(basicPolymorphicTypeValidatorBuilder, polymorphicTypeValidation, classes, clazz);
             }
         }
@@ -366,14 +313,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
         return getClassLoader().loadClass(className);
-    }
-
-    public boolean isSupportVariations() {
-        return supportVariations;
-    }
-
-    public void setSupportVariations(boolean supportVariations) {
-        this.supportVariations = supportVariations;
     }
 
     public DefaultTypingMode getDefaultTypingMode() {

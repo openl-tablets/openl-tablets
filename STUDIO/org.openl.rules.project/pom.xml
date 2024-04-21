@@ -52,9 +52,5 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.variation</artifactId>
-        </dependency>
     </dependencies>
 </project>

@@ -756,8 +756,4 @@ public class OpenLOpenAPIUtils {
         TypeInfo typeModel = OpenAPITypeUtils.extractType(openAPIRefResolver, valueSchema, false);
         return new ParameterModel(typeModel, normalizeName(propertyName), propertyName);
     }
-
-    public static boolean checkVariations(OpenAPI openAPI, Set<String> variationsSchemasName) {
-        return getSchemas(openAPI).keySet().containsAll(variationsSchemasName);
-    }
 }
