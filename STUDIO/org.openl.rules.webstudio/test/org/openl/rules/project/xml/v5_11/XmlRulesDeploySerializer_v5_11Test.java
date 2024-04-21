@@ -27,7 +27,6 @@ public class XmlRulesDeploySerializer_v5_11Test {
 
         assertNotNull(rulesDeploy);
         assertEquals(Boolean.FALSE, rulesDeploy.isProvideRuntimeContext());
-        assertEquals(Boolean.TRUE, rulesDeploy.isProvideVariations());
         assertEquals("rulesDeployName", rulesDeploy.getServiceName());
         assertNull(rulesDeploy.getPublishers());
         assertEquals(String.class.getName(), rulesDeploy.getInterceptingTemplateClassName());
@@ -55,7 +54,6 @@ public class XmlRulesDeploySerializer_v5_11Test {
 
     private static final String EXPECTED_VALUE = "<rules-deploy>\n" +
             "    <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" +
-            "    <isProvideVariations>true</isProvideVariations>\n" +
             "    <serviceName>rulesDeployName</serviceName>\n" +
             "    <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>\n" +
             "    <serviceClass>java.lang.String</serviceClass>\n" +

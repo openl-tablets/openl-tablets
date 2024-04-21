@@ -27,7 +27,6 @@ class Context {
     private ClassLoader serviceClassLoader;
     private Map<Method, Method> methodMap;
     private boolean provideRuntimeContext;
-    private boolean provideVariations;
 
     private String actualPath;
     private String expectedPath;
@@ -103,14 +102,6 @@ class Context {
 
     public void setProvideRuntimeContext(boolean provideRuntimeContext) {
         this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public boolean isProvideVariations() {
-        return provideVariations;
-    }
-
-    public void setProvideVariations(boolean provideVariations) {
-        this.provideVariations = provideVariations;
     }
 
     public String getActualPath() {

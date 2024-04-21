@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>EPBDS-10393_2</serviceName>
     <url>EPBDS-10393_2</url>
     <configuration>

@@ -25,7 +25,6 @@
         <module>org.openl.rules.workspace</module>
         <module>org.openl.rules.jackson.configuration</module>
         <module>org.openl.rules.jackson</module>
-        <module>org.openl.rules.variation</module>
         <module>org.openl.rules.project</module>
         <module>org.openl.rules.project.openapi</module>
         <module>org.openl.rules.project.validation.openapi</module>

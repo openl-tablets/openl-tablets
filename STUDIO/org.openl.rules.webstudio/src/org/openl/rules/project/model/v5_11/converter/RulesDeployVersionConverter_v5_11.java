@@ -13,7 +13,6 @@ public class RulesDeployVersionConverter_v5_11 implements ObjectVersionConverter
         rulesDeploy.setInterceptingTemplateClassName(oldVersion.getInterceptingTemplateClassName());
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(oldVersion.isProvideVariations());
 
         rulesDeploy.setServiceClass(oldVersion.getServiceClass());
         rulesDeploy.setServiceName(oldVersion.getServiceName());
@@ -29,7 +28,6 @@ public class RulesDeployVersionConverter_v5_11 implements ObjectVersionConverter
         rulesDeploy.setConfiguration(currentVersion.getConfiguration());
         rulesDeploy.setInterceptingTemplateClassName(currentVersion.getInterceptingTemplateClassName());
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());
         rulesDeploy.setServiceName(currentVersion.getServiceName());
         rulesDeploy.setUrl(currentVersion.getUrl());

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -29,7 +28,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     protected final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
     protected final Map<String, Object> externalParameters;
     protected final boolean provideRuntimeContext;
-    protected final boolean provideVariations;
     protected final boolean executionMode;
     protected final ClassLoader classLoader;
     protected final File[] projectDependencies;
@@ -44,7 +42,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         protected String workspace;
         protected ClassLoader classLoader;
         protected boolean provideRuntimeContext = false;
-        protected boolean provideVariations = false;
         protected Class<T> interfaceClass = null;
         protected Map<String, Object> externalParameters = Collections.emptyMap();
         protected boolean executionMode = true;
@@ -75,11 +72,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setProvideRuntimeContext(boolean provideRuntimeContext) {
             this.provideRuntimeContext = provideRuntimeContext;
-            return this;
-        }
-
-        public SimpleProjectEngineFactoryBuilder<T> setProvideVariations(boolean provideVariations) {
-            this.provideVariations = provideVariations;
             return this;
         }
 
@@ -146,7 +138,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                     interfaceClass,
                     externalParameters,
                     provideRuntimeContext,
-                    provideVariations,
                     executionMode);
         }
     }
@@ -157,7 +148,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                                          Class<T> interfaceClass,
                                          Map<String, Object> externalParameters,
                                          boolean provideRuntimeContext,
-                                         boolean provideVariations,
                                          boolean executionMode) {
         this.project = Objects.requireNonNull(project, "project arg cannot be null");
         this.projectDependencies = projectDependencies;
@@ -165,7 +155,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         this.interfaceClass = interfaceClass;
         this.externalParameters = externalParameters;
         this.provideRuntimeContext = provideRuntimeContext;
-        this.provideVariations = provideVariations;
         this.executionMode = executionMode;
     }
 
@@ -251,10 +240,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return provideRuntimeContext;
     }
 
-    public boolean isProvideVariations() {
-        return provideVariations;
-    }
-
     @Override
     public Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException {
         if (interfaceClass != null) {
@@ -307,10 +292,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
                     getDependencyManager());
-
-            if (isProvideVariations()) {
-                instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
-            }
 
             if (isProvideRuntimeContext()) {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);

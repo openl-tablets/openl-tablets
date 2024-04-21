@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <serviceName>excluded-project</serviceName>
     <url>excluded-project</url>
     <publishers>

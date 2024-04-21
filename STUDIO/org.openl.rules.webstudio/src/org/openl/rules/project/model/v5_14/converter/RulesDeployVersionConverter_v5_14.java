@@ -18,7 +18,6 @@ public class RulesDeployVersionConverter_v5_14 implements ObjectVersionConverter
         rulesDeploy.setInterceptingTemplateClassName(oldVersion.getInterceptingTemplateClassName());
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(oldVersion.isProvideVariations());
 
         if (oldVersion.getPublishers() != null) {
             List<RulesDeploy.PublisherType> publishers = CollectionUtils.map(Arrays.asList(oldVersion.getPublishers()),
@@ -53,7 +52,6 @@ public class RulesDeployVersionConverter_v5_14 implements ObjectVersionConverter
         rulesDeploy.setConfiguration(currentVersion.getConfiguration());
         rulesDeploy.setInterceptingTemplateClassName(currentVersion.getInterceptingTemplateClassName());
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
-        rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
             List<PublisherType_v5_14> publishers = CollectionUtils

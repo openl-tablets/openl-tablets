@@ -1,7 +1,6 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <isProvideVariations>true</isProvideVariations>
-    <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
     <serviceName>rulesDeployName</serviceName>
     <serviceClass>java.lang.String</serviceClass>
     <rmiServiceClass>java.lang.String</rmiServiceClass>
