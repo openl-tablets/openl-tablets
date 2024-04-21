@@ -19,17 +19,6 @@
                 <exclude>org.slf4j:slf4j-api</exclude>
             </excludes>
         </dependencySet>
-        <dependencySet>
-            <useTransitiveDependencies>true</useTransitiveDependencies>
-            <useTransitiveFiltering>true</useTransitiveFiltering>
-            <outputDirectory></outputDirectory>
-            <includes>
-                <include>com.datastax.oss:*</include>
-            </includes>
-            <excludes>
-                <exclude>org.slf4j:slf4j-api</exclude>
-            </excludes>
-        </dependencySet>
     </dependencySets>
 
 </assembly>
