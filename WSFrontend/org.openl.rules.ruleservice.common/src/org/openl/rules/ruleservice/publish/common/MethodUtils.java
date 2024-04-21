@@ -13,7 +13,6 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.Name;
-import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -44,8 +43,7 @@ public final class MethodUtils {
 
     public static String[] getParameterNames(IOpenMember openMember,
                                              Method method,
-                                             boolean provideRuntimeContext,
-                                             boolean provideVariations) {
+                                             boolean provideRuntimeContext) {
         String[] parameterNames = new String[method.getParameterCount()];
         if (openMember instanceof IOpenMethod) {
             int i = 0;
@@ -57,9 +55,6 @@ public final class MethodUtils {
                         .getParameterTypes().length > 0 && IRulesRuntimeContext.class
                         .isAssignableFrom(method.getParameterTypes()[0])) {
                     parameterNames[i] = "runtimeContext";
-                } else if (i == method.getParameterCount() - 1 && provideVariations && VariationsPack.class
-                        .isAssignableFrom(method.getParameters()[method.getParameters().length - 1].getType())) {
-                    parameterNames[i] = "variationPack";
                 } else if (!parameter.isAnnotationPresent(ExternalParam.class)) {
                     parameterNames[i] = methodSignature.getParameterName(j++);
                 }
@@ -72,9 +67,6 @@ public final class MethodUtils {
                         .isAssignableFrom(method.getParameterTypes()[0])) {
                     parameterNames[0] = "runtimeContext";
                 }
-                if (provideVariations && VariationsPack.class
-                        .isAssignableFrom(method.getParameters()[method.getParameters().length - 1].getType()))
-                    parameterNames[1] = "variationPack";
             }
         }
         int j = 0;
