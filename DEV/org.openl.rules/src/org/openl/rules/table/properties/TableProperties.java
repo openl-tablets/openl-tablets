@@ -428,17 +428,6 @@ public class TableProperties implements ITableProperties {
     }
 
     @Override
-    public java.lang.Boolean getCacheable() {
-        return (java.lang.Boolean) getPropertyValue("cacheable");
-    }
-
-    @Override
-    public void setCacheable(java.lang.Boolean cacheable) {
-        setFieldValue("cacheable", cacheable);
-        reset();
-    }
-
-    @Override
     public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
         return (org.openl.rules.enumeration.DTEmptyResultProcessingEnum) getPropertyValue("emptyResultProcessing");
     }

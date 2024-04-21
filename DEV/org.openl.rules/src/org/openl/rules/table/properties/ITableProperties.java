@@ -261,10 +261,6 @@ public interface ITableProperties {
 
     void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage);
 
-    java.lang.Boolean getCacheable();
-
-    void setCacheable(java.lang.Boolean cacheable);
-
     org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing();
 
     void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing);
