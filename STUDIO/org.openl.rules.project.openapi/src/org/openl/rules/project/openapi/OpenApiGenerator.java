@@ -24,7 +24,6 @@ import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
-import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
@@ -55,7 +54,6 @@ public class OpenApiGenerator {
     private final CompiledOpenClass compiledOpenClass;
     private final IOpenClass openClass;
     private final boolean provideRuntimeContext;
-    private final boolean provideVariations;
 
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
@@ -64,14 +62,12 @@ public class OpenApiGenerator {
 
     private OpenApiGenerator(ProjectDescriptor projectDescriptor,
                              RulesInstantiationStrategy instantiationStrategy,
-                             boolean provideRuntimeContext,
-                             boolean provideVariations) throws RulesInstantiationException {
+                             boolean provideRuntimeContext) throws RulesInstantiationException {
         this.projectDescriptor = projectDescriptor;
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
         this.openClass = compiledOpenClass.getOpenClass();
         this.provideRuntimeContext = provideRuntimeContext;
-        this.provideVariations = provideVariations;
     }
 
     /**
@@ -87,8 +83,7 @@ public class OpenApiGenerator {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             RulesInstantiationStrategy enhancedInstantiationStrategy = enhanceRulesInstantiationStrategy(
                     instantiationStrategy,
-                    isProvidedRuntimeContext(),
-                    isProvideVariations());
+                    isProvidedRuntimeContext());
             Class<?> serviceClass = resolveInterface(enhancedInstantiationStrategy);
             ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
             Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
@@ -150,11 +145,7 @@ public class OpenApiGenerator {
 
     protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
             RulesInstantiationStrategy rulesInstantiationStrategy,
-            boolean provideRuntimeContext,
-            boolean provideVariations) {
-        if (provideVariations) {
-            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
+            boolean provideRuntimeContext) {
         if (provideRuntimeContext) {
             rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
         }
@@ -222,18 +213,13 @@ public class OpenApiGenerator {
                 serviceClass,
                 resolveServiceClassLoader,
                 instantiationStrategy.instantiate(true),
-                isProvidedRuntimeContext(),
-                isProvideVariations());
+                isProvidedRuntimeContext());
     }
 
     private boolean isProvidedRuntimeContext() {
         return Optional.ofNullable(getRulesDeploy())
                 .map(RulesDeploy::isProvideRuntimeContext)
                 .orElse(provideRuntimeContext);
-    }
-
-    private boolean isProvideVariations() {
-        return Optional.ofNullable(getRulesDeploy()).map(RulesDeploy::isProvideVariations).orElse(provideVariations);
     }
 
     private ObjectMapper createObjectMapper(ClassLoader serviceClassLoader) {
@@ -258,8 +244,7 @@ public class OpenApiGenerator {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                     targetService,
                     classLoader,
-                    isProvidedRuntimeContext(),
-                    isProvideVariations()
+                    isProvidedRuntimeContext()
             );
         } catch (Exception e) {
             throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
@@ -281,7 +266,6 @@ public class OpenApiGenerator {
         private final RulesInstantiationStrategy instantiationStrategy;
 
         private boolean provideRuntimeContext = true;
-        private boolean provideVariations;
 
         private Builder(ProjectDescriptor projectDescriptor, RulesInstantiationStrategy instantiationStrategy) {
             this.projectDescriptor = projectDescriptor;
@@ -301,18 +285,6 @@ public class OpenApiGenerator {
         }
 
         /**
-         * If variations endpoints must be included to OpenAPI schema or not by default. Takes effect only if
-         * {@code isProvideVariations} is not provided in rules-deploy.xml
-         *
-         * @param provideVariations include variations endpoints to OpenAPI or not
-         * @return current builder instance
-         */
-        public Builder withDefaultProvideVariations(boolean provideVariations) {
-            this.provideVariations = provideVariations;
-            return this;
-        }
-
-        /**
          * Creates new instance of {@link OpenApiGenerator}
          *
          * @return new instance of {@link OpenApiGenerator}
@@ -321,8 +293,7 @@ public class OpenApiGenerator {
         public OpenApiGenerator generator() throws RulesInstantiationException {
             return new OpenApiGenerator(projectDescriptor,
                     instantiationStrategy,
-                    provideRuntimeContext,
-                    provideVariations);
+                    provideRuntimeContext);
         }
     }
 
