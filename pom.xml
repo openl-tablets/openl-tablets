@@ -198,7 +198,6 @@
         <xmlsec.version>2.3.5</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <activiti.version>5.23.0</activiti.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
         <!-- It needs to detect memory leaks. -->
@@ -1483,24 +1482,6 @@
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
-            <!--Activity -->
-            <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-engine</artifactId>
-                <version>${activiti.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-spring</artifactId>
-                <version>${activiti.version}</version>
-            </dependency>
-            <!--//Activity -->
             <!-- Kafka -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>

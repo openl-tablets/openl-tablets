@@ -1,3 +1,0 @@
-#foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-        populate(context, execution, "$contextPropertyDefinition.Name", ${tool.getTypeName($contextPropertyDefinition.Type.InstanceClass)}.class);
-#end
