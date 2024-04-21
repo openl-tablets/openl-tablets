@@ -265,10 +265,6 @@ public interface ITableProperties {
 
     void setCacheable(java.lang.Boolean cacheable);
 
-    org.openl.rules.enumeration.RecalculateEnum getRecalculate();
-
-    void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
-
     org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing();
 
     void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing);
