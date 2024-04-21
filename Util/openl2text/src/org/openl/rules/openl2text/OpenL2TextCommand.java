@@ -131,7 +131,6 @@ public class OpenL2TextCommand {
                         .setProject(dir.toFile().getPath())
                         .setWorkspace(workspace.toFile().getPath())
                         .setExecutionMode(false)
-                        .setProvideVariations(false)
                         .setProvideRuntimeContext(false)
                         .build();
                 CompiledOpenClass compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();

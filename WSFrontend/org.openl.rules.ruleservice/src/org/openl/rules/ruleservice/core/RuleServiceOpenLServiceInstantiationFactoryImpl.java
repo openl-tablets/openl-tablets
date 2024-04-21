@@ -25,7 +25,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
-import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
@@ -70,9 +69,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
                 .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
-        if (service.isProvideVariations()) {
-            instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
-        }
         if (service.isProvideRuntimeContext()) {
             instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
         }
@@ -160,8 +156,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         .buildInterfaceForInstantiationStrategy(serviceClass,
                                 instantiationStrategy.getClassLoader(),
                                 instantiationStrategy.instantiate(),
-                                serviceDescription.isProvideRuntimeContext(),
-                                serviceDescription.isProvideVariations());
+                                serviceDescription.isProvideRuntimeContext());
                 instantiationStrategy.setServiceClass(serviceTargetClass);
                 service.setServiceClass(serviceClass);
                 serviceTarget = instantiationStrategy.instantiate();
@@ -180,8 +175,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     annotatedClass,
                     serviceClassLoader,
                     serviceTarget,
-                    serviceDescription.isProvideRuntimeContext(),
-                    serviceDescription.isProvideVariations());
+                    serviceDescription.isProvideRuntimeContext());
             service.setServiceClass(serviceClass);
         }
         var methodMap = RuleServiceInstantiationFactoryHelper.getMethodMap(serviceClass, serviceTargetClass, serviceTarget, serviceClassLoader, service.getOpenClass());
@@ -257,7 +251,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
                 .setRmiName(serviceDescription.getRmiName())
                 .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
-                .setProvideVariations(serviceDescription.isProvideVariations())
                 .addModules(modules)
                 .setDeployment(serviceDescription.getDeployment());
 
