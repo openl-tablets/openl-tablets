@@ -1,7 +1,5 @@
 package org.openl.rules.vm.ce;
 
-import org.openl.rules.vm.ArgumentCachingStorage;
-import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -34,29 +32,6 @@ public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
 
     @Override
     public void setTopClass(IOpenClass topClass) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isMethodArgumentsCacheEnable() {
-        return false;
-    }
-
-    @Override
-    public void changeMethodArgumentsCacheMode(CacheMode mode) {
-    }
-
-    @Override
-    public CacheMode getCacheMode() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void setMethodArgumentsCacheEnable(boolean enable) {
-    }
-
-    @Override
-    public ArgumentCachingStorage getArgumentCachingStorage() {
         throw new UnsupportedOperationException();
     }
 }
