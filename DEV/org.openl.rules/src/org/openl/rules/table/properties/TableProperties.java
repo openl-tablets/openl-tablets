@@ -439,17 +439,6 @@ public class TableProperties implements ITableProperties {
     }
 
     @Override
-    public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
-        return (org.openl.rules.enumeration.RecalculateEnum) getPropertyValue("recalculate");
-    }
-
-    @Override
-    public void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate) {
-        setFieldValue("recalculate", recalculate);
-        reset();
-    }
-
-    @Override
     public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
         return (org.openl.rules.enumeration.DTEmptyResultProcessingEnum) getPropertyValue("emptyResultProcessing");
     }
