@@ -28,7 +28,10 @@ public abstract class ARuleIndex implements IRuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+    public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
+        if (staticDecision != null) {
+            throw new UnsupportedOperationException("Static decision is not supported for CombinedRangeIndex");
+        }
         if (value == null) {
             return emptyOrFormulaNodes;
         }

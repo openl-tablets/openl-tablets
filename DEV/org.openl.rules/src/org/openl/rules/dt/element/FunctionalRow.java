@@ -129,6 +129,10 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
+        return getSourceCodeModule(method);
+    }
+
+    protected IOpenSourceCodeModule getSourceCodeModule(CompositeMethod method) {
         return Optional.ofNullable(method)
                 .map(CompositeMethod::getMethodBodyBoundNode)
                 .map(IBoundNode::getSyntaxNode)
@@ -237,10 +241,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         prepareParamValues(table, openlAdaptor, ruleRow, bindingContext);
 
-        IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
-        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
-        RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
-        this.method = OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
+        this.method = compileExpressionSource(source, methodType, signature, openl, bindingContext);
 
         this.expr = new Expr(method.getMethodBodyBoundNode());
 
@@ -251,6 +252,17 @@ public abstract class FunctionalRow implements IDecisionRow {
             infoTable = null;
             presentationTable = null;
         }
+    }
+
+    protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
+                                           IOpenClass methodType,
+                                           IMethodSignature signature,
+                                           OpenL openl,
+                                           IBindingContext bindingContext) {
+        IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
+        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
+        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
     }
 
     @Override

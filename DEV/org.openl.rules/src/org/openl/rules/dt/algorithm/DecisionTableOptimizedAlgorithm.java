@@ -291,7 +291,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     .findConditionCasts(conditionParamType, conditionMethodType, bindingContext);
 
             if (conditionCasts.isCastToInputTypeExists()) {
-                return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null ? new EqualsIndexedEvaluatorV2(conditionCasts)
                         : new EqualsIndexedEvaluator(conditionCasts);
             }
 
@@ -302,8 +302,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                         .getComponentType(conditionParamType), conditionMethodType, bindingContext);
                 if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
                         .isCastToInputTypeExists() && !conditionMethodType.isArray()) {
-                    return condition.getNumberOfEmptyRules(0) > 1 ? new ContainsInArrayIndexedEvaluatorV2(
-                            aggregateConditionCasts) : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
+                    return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
+                            ? new ContainsInArrayIndexedEvaluatorV2(aggregateConditionCasts)
+                            : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
                 }
             }
 
@@ -318,7 +319,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             }
 
             if (conditionCasts.isCastToConditionTypeExists()) {
-                return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
+                return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
+                        ? new EqualsIndexedEvaluatorV2(conditionCasts)
                         : new EqualsIndexedEvaluator(conditionCasts);
             }
 
@@ -383,7 +385,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                     ContainsInArrayIndexedEvaluatorV2 containsInArrayIndexedEvaluatorV2 = (ContainsInArrayIndexedEvaluatorV2) eval;
                     final int maxArrayLength = containsInArrayIndexedEvaluatorV2.getMaxArrayLength(condition,
                             info.makeRuleIterator());
-                    if (maxArrayLength > 1) {
+                    if (maxArrayLength > 1 && condition.getStaticMethod() == null) {
                         // Replace with more fast evaluator
                         eval = containsInArrayIndexedEvaluatorV2.toV1();
                     }
@@ -501,10 +503,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             DecisionTableRuleNode node = null;
             while (conditionNumber < evaluators.length) {
                 ICondition condition = evaluators[conditionNumber].getCondition();
+                Boolean staticResult = null;
+                if (condition.getStaticMethod() != null) {
+                    var result = condition.getStaticMethod().invoke(target, params, env);
+                    staticResult = Boolean.TRUE.equals(result);
+                }
                 index = Tracer.wrap(this, index, condition);
                 Object testValue = evaluateTestValue(condition, target, params, env);
 
-                node = index.findNode(testValue, node);
+                node = index.findNode(testValue, staticResult, node);
                 Tracer.put(this, "index", condition, node, true);
 
                 if (!node.hasIndex()) {
