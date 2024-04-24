@@ -24,7 +24,12 @@ class ParameterExport extends BaseParameterExport {
     }
 
     @Override
-    int doWrite(SXSSFSheet sheet, Cursor start, TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields) {
+    int doWrite(SXSSFSheet sheet,
+                Cursor start,
+                TestUnitsResults test,
+                List<List<FieldDescriptor>> nonEmptyFields,
+                Boolean skipEmptyParameters) {
+
         var rowNum = start.getRowNum();
         Cursor lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
         rowNum = lowestRight.getRowNum() + 1;

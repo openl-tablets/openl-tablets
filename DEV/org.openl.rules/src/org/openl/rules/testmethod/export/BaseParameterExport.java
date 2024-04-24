@@ -52,12 +52,16 @@ abstract class BaseParameterExport extends BaseExport {
                     skipEmptyParameters);
 
             final Cursor start = new Cursor(rowNum, colNum);
-            rowNum = doWrite(sheet, start, test, nonEmptyFields);
+            rowNum = doWrite(sheet, start, test, nonEmptyFields, skipEmptyParameters);
             rowNum += SPACE_BETWEEN_RESULTS;
         }
     }
 
-    abstract int doWrite(SXSSFSheet sheet, Cursor start, TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields);
+    abstract int doWrite(SXSSFSheet sheet,
+                         Cursor start,
+                         TestUnitsResults test,
+                         List<List<FieldDescriptor>> nonEmptyFields,
+                         Boolean skipEmptyParameters);
 
     private String getTestName(TestUnitsResults test) {
         TestSuite testSuite = test.getTestSuite();
