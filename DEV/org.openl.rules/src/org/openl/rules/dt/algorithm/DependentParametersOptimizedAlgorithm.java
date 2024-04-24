@@ -27,6 +27,7 @@ import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.SingleRangeIndexEvaluator;
+import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
@@ -129,7 +130,7 @@ class DependentParametersOptimizedAlgorithm {
                 ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(componentType, expressionType, bindingContext);
                 if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
                         .isCastToInputTypeExists() && !expressionType.isArray()) {
-                    return condition.getNumberOfEmptyRules(0) > 1
+                    return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
                             ? new OneParameterContainsInArrayIndexedEvaluatorV2(
                             (OneParameterContainsInFactory) evaluatorFactory,
                             aggregateConditionCasts)
@@ -157,7 +158,7 @@ class DependentParametersOptimizedAlgorithm {
 
         if (evaluatorFactory instanceof OneParameterEqualsFactory) {
             if (!conditionParamType.isArray() && !expressionType.isArray()) {
-                return condition.getNumberOfEmptyRules(0) > 1
+                return condition.getNumberOfEmptyRules(0) > 1 || condition.getStaticMethod() != null
                         ? new OneParameterEqualsIndexedEvaluatorV2(
                         (OneParameterEqualsFactory) evaluatorFactory,
                         conditionCasts)
@@ -345,8 +346,8 @@ class DependentParametersOptimizedAlgorithm {
 
     private static Triple<String, RelationType, String> oneParameterExpressionParse(ICondition condition,
                                                                                     IBindingContext bindingContext) {
-        if (condition.getMethod() instanceof CompositeMethod) {
-            IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
+        if (condition.getIndexMethod() != null) {
+            IBoundNode boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
                 BlockNode blockNode = (BlockNode) boundNode;
                 IBoundNode[] children = blockNode.getChildren();
@@ -372,8 +373,8 @@ class DependentParametersOptimizedAlgorithm {
     private static Pair<Triple<String, RelationType, String>, Triple<String, RelationType, String>> twoParameterExpressionParse(
             ICondition condition,
             IBindingContext bindingContext) {
-        if (condition.getMethod() instanceof CompositeMethod) {
-            IBoundNode boundNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
+        if (condition.getIndexMethod() != null) {
+            IBoundNode boundNode = condition.getIndexMethod().getMethodBodyBoundNode();
             if (boundNode instanceof BlockNode) {
                 BlockNode blockNode = (BlockNode) boundNode;
                 IBoundNode[] children = blockNode.getChildren();
@@ -412,7 +413,7 @@ class DependentParametersOptimizedAlgorithm {
                                                                         IBindingContext bindingContext) {
         IParameterDeclaration[] params = condition.getParams();
 
-        String code = condition.getSourceCodeModule().getCode();
+        String code = condition.getIndexSourceCodeModule().getCode();
         if (code == null) {
             return null;
         }
@@ -779,7 +780,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
+            return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
         }
     }
 
@@ -800,7 +801,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
+            return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
         }
     }
 
@@ -821,7 +822,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
+            return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
         }
     }
 
@@ -842,7 +843,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @Override
         public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
+            return condition instanceof ICondition ? ((Condition) condition).getIndexSourceCodeModule() : condition.getSourceCodeModule();
         }
     }
 
