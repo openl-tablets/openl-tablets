@@ -185,6 +185,59 @@ public class FlattenParameterExportTest extends AbstractParameterExportTest {
     }
 
     @Test
+    public void nestedComplexFieldsWithTheSameDataAndType() throws IOException {
+        B B1 = new B(null, new A("name1", 1),  new A(null, 2),  new A("name3", 3));
+
+        export.write(sheet, mockResults(params(B1)), true);
+
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        assertEquals(BaseExport.FIRST_ROW + 7, sheetToCheck.getLastRowNum());
+        int rowNum = BaseExport.FIRST_ROW + 2;
+
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+        assertRowEquals(row, "ID", "#1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.aValues[0].name", "name1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.aValues[0].values[0]", "1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.aValues[1].values[0]", "2");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.aValues[2].name", "name3");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.aValues[2].values[0]", "3");
+
+        assertNull(sheetToCheck.getRow(++rowNum));
+    }
+
+    @Test
+    public void nestedArrayWithComplex_Case1() throws IOException {
+        C C1 = new C(new A("name1"), new A("name1"));
+
+        export.write(sheet, mockResults(params(C1)), true);
+
+        XSSFSheet sheetToCheck = saveAndReadSheet();
+        assertEquals(BaseExport.FIRST_ROW + 4, sheetToCheck.getLastRowNum());
+        int rowNum = BaseExport.FIRST_ROW + 2;
+
+        XSSFRow row = sheetToCheck.getRow(rowNum);
+        assertRowEquals(row, "ID", "#1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.filed1.name", "name1");
+
+        row = sheetToCheck.getRow(++rowNum);
+        assertRowEquals(row, "p1.filed2.name", "name1");
+
+        assertNull(sheetToCheck.getRow(++rowNum));
+    }
+
+    @Test
     public void twoParameters() throws IOException {
         export.write(sheet,
                 mockResults(params(new Class[]{A.class, String.class}, null, "str1"),

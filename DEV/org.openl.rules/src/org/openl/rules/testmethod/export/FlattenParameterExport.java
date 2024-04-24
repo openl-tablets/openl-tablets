@@ -25,7 +25,11 @@ public class FlattenParameterExport extends BaseParameterExport {
     }
 
     @Override
-    int doWrite(SXSSFSheet sheet, Cursor start, TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields) {
+    int doWrite(SXSSFSheet sheet,
+                Cursor start,
+                TestUnitsResults test,
+                List<List<FieldDescriptor>> nonEmptyFields,
+                Boolean skipEmptyParameters) {
         var descriptions = test.getTestSuite().getTests();
         sheet.trackAllColumnsForAutoSizing();
         int rowNum = createAndWriteRowIds(sheet, start, descriptions);
@@ -47,7 +51,8 @@ public class FlattenParameterExport extends BaseParameterExport {
                             fields,
                             descriptions,
                             getFieldValueChain.andThen(opt -> opt.filter(arr -> idx < Array.getLength(arr))
-                                    .map(arr -> Array.get(arr, idx))));
+                                    .map(arr -> Array.get(arr, idx))),
+                            skipEmptyParameters);
                 }
             } else {
                 rowNum = createAndWriteRowValues(sheet,
@@ -55,7 +60,8 @@ public class FlattenParameterExport extends BaseParameterExport {
                         params[paramN].getName(),
                         fields,
                         descriptions,
-                        getFieldValueChain);
+                        getFieldValueChain,
+                        skipEmptyParameters);
             }
         }
         for (int col = 1; col < descriptions.length + 2; col++) {
@@ -81,16 +87,24 @@ public class FlattenParameterExport extends BaseParameterExport {
                                         String namePrefix,
                                         List<FieldDescriptor> fields,
                                         TestDescription[] descriptions,
-                                        Function<Object, Optional<Object>> getFieldValueChain) {
+                                        Function<Object, Optional<Object>> getFieldValueChain,
+                                        Boolean skipEmptyParameters) {
 
         var rowNum = start.getRowNum();
         if (CollectionUtils.isEmpty(fields)) {
             var tasks = new TreeSet<WriteTask>();
             var colNum = start.getColNum();
             tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), namePrefix, styles.header));
+            boolean emptyRow = true;
             for (var description : descriptions) {
                 var fieldValue = getFieldValueChain.apply(description).orElse(null);
+                if (fieldValue != null && !(fieldValue.getClass().isArray() && Array.getLength(fieldValue) == 0)) {
+                    emptyRow = false;
+                }
                 tasks.add(new WriteTask(new Cursor(start.getRowNum(), colNum++), fieldValue, styles.parameterValue));
+            }
+            if (skipEmptyParameters && emptyRow) {
+                return rowNum;
             }
             performWrite(sheet, start, tasks, colNum - 1);
             return ++rowNum;
@@ -111,7 +125,8 @@ public class FlattenParameterExport extends BaseParameterExport {
                             children,
                             descriptions,
                             nextValueChain.andThen(opt -> opt.filter(arr -> idx < Array.getLength(arr))
-                                    .map(arr -> Array.get(arr, idx))));
+                                    .map(arr -> Array.get(arr, idx))),
+                            skipEmptyParameters);
                 }
             } else {
                 rowNum = createAndWriteRowValues(sheet,
@@ -119,7 +134,8 @@ public class FlattenParameterExport extends BaseParameterExport {
                         fieldChainName,
                         children,
                         descriptions,
-                        nextValueChain);
+                        nextValueChain,
+                        skipEmptyParameters);
             }
         }
         return rowNum;
