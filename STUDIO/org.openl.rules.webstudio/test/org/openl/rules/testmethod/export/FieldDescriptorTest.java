@@ -24,8 +24,11 @@ public class FieldDescriptorTest {
     private static final B B2 = new B("id2", A3);
     private static final B B3 = new B("id3", A1, A2, A3);
 
+    private static final C C1 = new C(new A("name1"), new A("name1"));
+
     private final JavaOpenClass aType = JavaOpenClass.getOpenClass(A.class);
     private final JavaOpenClass bType = JavaOpenClass.getOpenClass(B.class);
+    private final JavaOpenClass cType = JavaOpenClass.getOpenClass(C.class);
 
     @Test
     public void commonCases() {
@@ -68,6 +71,22 @@ public class FieldDescriptorTest {
         assertNull(children.get(0).getChildren());
         assertEquals("values", children.get(1).getField().getName());
         assertNull(children.get(1).getChildren());
+
+        descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
+        assertNotNull(descriptors);
+        assertEquals(2, descriptors.size());
+        assertEquals("filed1", descriptors.get(0).getField().getName());
+        children = descriptors.get(0).getChildren();
+        assertNotNull(children);
+        assertEquals(1, children.size());
+        assertEquals("name", children.get(0).getField().getName());
+        assertNull(children.get(0).getChildren());
+        assertEquals("filed2", descriptors.get(1).getField().getName());
+        children = descriptors.get(1).getChildren();
+        assertNotNull(children);
+        assertEquals(1, children.size());
+        assertEquals("name", children.get(0).getField().getName());
+        assertNull(children.get(0).getChildren());
     }
 
     @Test
