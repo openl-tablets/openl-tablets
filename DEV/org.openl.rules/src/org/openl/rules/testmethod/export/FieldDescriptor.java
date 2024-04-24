@@ -35,13 +35,14 @@ class FieldDescriptor {
      */
     static List<FieldDescriptor> nonEmptyFields(IOpenClass type, List<?> values, Boolean skipEmptyParameters) {
         Set<String> coveredFields = new HashSet<>();
-        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields);
+        return nonEmptyFieldsForFlatten(type, ExportUtils.flatten(values), skipEmptyParameters, coveredFields, "");
     }
 
     private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type,
                                                                   List<?> values,
                                                                   Boolean skipEmptyParameters,
-                                                                  Set<String> coveredFields) {
+                                                                  Set<String> coveredFields,
+                                                                  String path) {
         type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
@@ -56,10 +57,11 @@ class FieldDescriptor {
             }
             IOpenClass fieldType = field.getType();
             List<Object> childFieldValues = ExportUtils.flatten(ExportUtils.fieldValues(values, field));
+            String newPath = path.isEmpty() ? field.getName() : path + "." + field.getName();
 
             for (Object value : values) {
                 Object fieldValue = value == null ? null : field.get(value, null);
-                String fieldName = field.getDeclaringClass().toString() + field.getName() + fieldValue;
+                String fieldName = newPath + (fieldValue != null ? fieldValue.toString() : "null");
                 if (!coveredFields.contains(fieldName)) {
                     coveredFields.add(fieldName);
                     if (!skipEmptyParameters || SKIP_EMPTY_PARAMETER_FILTER.test(fieldType, fieldValue)) {
@@ -69,7 +71,8 @@ class FieldDescriptor {
                         List<FieldDescriptor> children = nonEmptyFieldsForFlatten(fieldType,
                                 childFieldValues,
                                 skipEmptyParameters,
-                                coveredFields);
+                                coveredFields,
+                                newPath);
                         result.add(new FieldDescriptor(field, children));
 
                         break;
