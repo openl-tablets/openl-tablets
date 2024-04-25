@@ -105,7 +105,7 @@
             $j('#copyFileForm\\:newFileFolder').off().on('keyup change', newFilePathChangeListener);
             $j('#copyFileForm\\:newFileName').off().on('keyup change', newFilePathChangeListener);
 
-            $j("#copyFileForm\\:currentRevision").attr('checked', true);
+            $j("#copyFileForm\\:currentRevision").prop('checked', true);
             showFileRevision(false);
             RichFaces.$('modalCopyFile').show();
             focusElement('copyFileForm:newFileName');

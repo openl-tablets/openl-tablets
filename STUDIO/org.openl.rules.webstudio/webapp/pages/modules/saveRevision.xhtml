@@ -69,7 +69,7 @@
         withCommitInfoRequired('#{studio.currentUsername}', isSaveRevisionGitRepository, () => $j('#saveForm\\:saveRevisionButton').click());
       }
 
-      let saveRevisionRepositoryType = undefined;
+      var saveRevisionRepositoryType = undefined;
       function isSaveRevisionGitRepository (){
         return  saveRevisionRepositoryType === 'repo-git';
       }

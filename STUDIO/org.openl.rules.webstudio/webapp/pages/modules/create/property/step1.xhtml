@@ -65,7 +65,7 @@
 
       function updateCategoryNameControls() {
           var selectorCheckedValue = $j("input[name='categoryNameSelector']:checked").val();
-          $j('#categoryNamesList').attr("disabled", selectorCheckedValue != 'specific');
+          $j('#categoryNamesList').prop("disabled", selectorCheckedValue != 'specific');
       }
 
       updateCategoryNameModule();
