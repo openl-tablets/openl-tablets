@@ -3193,7 +3193,7 @@ debugData( test, pane );
 		,	oldH	= sC.innerHeight
 		;
 		// cannot size layout when 'container' is hidden or collapsed
-		if (!$N.is(":visible:") ) return;
+		if (!$N.is(":visible") ) return;
 		$.extend( state.container, elDims( $N ) ); // UPDATE container dimensions
 		if (!sC.outerHeight) return;
 
@@ -3860,6 +3860,7 @@ debugData( test, pane );
 		if (!s.isSliding && !s.isResizing)
 			$P.css("zIndex", _c.zIndex.pane_normal);
 
+		// reset Overflow - if necessary
 		// reset Overflow - if necessary
 		$P.css( CSS );
 

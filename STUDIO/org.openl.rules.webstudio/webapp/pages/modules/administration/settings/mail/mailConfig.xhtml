@@ -50,12 +50,12 @@
                 onSuccess: (data) => {
                     let verification = data.url && data.username && data.password && true || false;
                     $j("#mail-config-verification-section").toggle(verification);
-                    $j("#mail-config-verification").attr("checked", verification);
+                    $j("#mail-config-verification").prop("checked", verification);
                 }
             });
 
             $j("#mail-config-verification").change(function () {
-                const verificationChecked = $j(this).attr("checked") === 'checked';
+                const verificationChecked = $j(this).prop("checked") === 'checked';
                 $j("#mail-config-verification-section").toggle(verificationChecked);
             });
 

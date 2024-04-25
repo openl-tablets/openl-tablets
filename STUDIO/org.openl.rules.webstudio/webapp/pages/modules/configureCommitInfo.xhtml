@@ -71,12 +71,12 @@
 
   <script>//<![CDATA[
 
-    let afterConfigureCommitInfo = () => {};
+    var afterConfigureCommitInfo = () => {};
 
-    let commitUserIsEmailExternal;
-    let commitUserIsFirstNameExternal;
-    let commitUserIsLastNameExternal;
-    let commitUserIsDisplayNameExternal;
+    var commitUserIsEmailExternal;
+    var commitUserIsFirstNameExternal;
+    var commitUserIsLastNameExternal;
+    var commitUserIsDisplayNameExternal;
 
     function withCommitInfoRequired(username, predicate, afterAction) {
       if (predicate()) {
@@ -135,9 +135,9 @@
 
     function processRequiredCommitInfoFields() {
       if ($j("#commit-user-display-name").val().trim() === "" || $j("#commit-user-email").val().trim() === "") {
-        $j("#save-commit-info").attr("disabled", true);
+        $j("#save-commit-info").prop("disabled", true);
       } else {
-        $j("#save-commit-info").attr("disabled", false);
+        $j("#save-commit-info").prop("disabled", false);
       }
     }
 
@@ -172,7 +172,7 @@
     function closeConfigureCommitInfoForm() {
         $j("#commit-user-firstname, #commit-user-display-name, #commit-user-lastname, #commit-user-email").val("");
         $j("#commit-user-display-name-span, #commit-user-display-name-error, #commit-user-email-error, #commit-user-email-span, #commit-user-firstname-error, #commit-user-firstname-span, #commit-user-lastname-error, #commit-user-lastname-span").text("");
-        $j("#save-commit-info").attr("disabled", true);
+        $j("#save-commit-info").prop("disabled", true);
         RichFaces.$('modalConfigureCommitInfo').hide();
     }
 
