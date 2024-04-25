@@ -8,8 +8,10 @@ import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTableRuntimePool;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -34,9 +36,12 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
+import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
@@ -48,6 +53,8 @@ public class Condition extends FunctionalRow implements ICondition {
     private boolean ruleIdOrRuleNameUsed;
     private boolean dependentOnOtherColumnsParams;
     private IOpenCast comparisonCast;
+    private CompositeMethod staticMethod;
+    private CompositeMethod indexMethod;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -350,5 +357,63 @@ public class Condition extends FunctionalRow implements ICondition {
 
     public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
         this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
+    }
+
+    @Override
+    protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
+                                           IOpenClass methodType,
+                                           IMethodSignature signature,
+                                           OpenL openl,
+                                           IBindingContext bindingContext) {
+        var code = source.getCode();
+        if (StringUtils.isNotBlank(code) && code.contains(" or ")) {
+            var parts = code.split(" or ");
+
+            boolean hasErrors = false;
+            try {
+                bindingContext.pushErrors();
+                bindingContext.pushMessages();
+                OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, null);
+                RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
+                this.staticMethod = OpenLManager.makeMethod(openl, new StringSourceCodeModule(parts[0], source.getUri()), methodHeader, bindingContext);
+            } finally {
+                var errors = bindingContext.popErrors();
+                bindingContext.popMessages();
+                if (!errors.isEmpty()) {
+                    hasErrors = true;
+                    this.staticMethod = null;
+                }
+            }
+
+            if (!hasErrors) {
+                try {
+                    bindingContext.pushErrors();
+                    bindingContext.pushMessages();
+                    this.indexMethod = super.compileExpressionSource(new StringSourceCodeModule(parts[1], source.getUri()), methodType, signature, openl, bindingContext);
+                } finally {
+                    var errors = bindingContext.popErrors();
+                    bindingContext.popMessages();
+                    if (!errors.isEmpty()) {
+                        this.indexMethod = null;
+                    }
+                }
+            }
+        }
+        return super.compileExpressionSource(source, methodType, signature, openl, bindingContext);
+    }
+
+    @Override
+    public CompositeMethod getStaticMethod() {
+        return staticMethod;
+    }
+
+    @Override
+    public IOpenSourceCodeModule getIndexSourceCodeModule() {
+        return indexMethod == null ? getSourceCodeModule() : getSourceCodeModule(indexMethod);
+    }
+
+    @Override
+    public CompositeMethod getIndexMethod() {
+        return indexMethod == null ? getMethod() : indexMethod;
     }
 }
