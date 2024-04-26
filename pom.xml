@@ -146,8 +146,8 @@
         <okio.version>3.9.0</okio.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.25.34</amazonaws.version>
-        <azure.version>12.25.3</azure.version>
+        <amazonaws.version>2.25.38</amazonaws.version>
+        <azure.version>12.25.4</azure.version>
         <netty.version>4.1.109.Final</netty.version>
         <reactor-netty-http.version>1.1.18</reactor-netty-http.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
