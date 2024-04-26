@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.Filter;
@@ -32,6 +33,10 @@ public class WebResourceFilter implements Filter {
     private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("^(.+?);jsessionid=\\w+$",
             Pattern.CASE_INSENSITIVE);
 
+    private static final Map<String, String> RICHFACES_RESOURCES_OVERRIDE = Map.of(
+            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/jquery.js", "/webresource/javascript/vendor/jquery-3.7.1.min.js"
+    );
+
     private FilterConfig filterConfig;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -45,6 +50,13 @@ public class WebResourceFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getRequestURI();
+
+        for (Map.Entry<String, String> entry : RICHFACES_RESOURCES_OVERRIDE.entrySet()) {
+            if (pathMatcher.match(entry.getKey(), path)) {
+                path = entry.getValue();
+                break;
+            }
+        }
 
         if (pathMatcher.match(WEBRESOURCE_PATTERN, path)) {
             Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
