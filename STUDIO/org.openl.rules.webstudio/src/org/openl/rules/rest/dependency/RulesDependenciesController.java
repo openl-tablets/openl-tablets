@@ -33,7 +33,9 @@ public class RulesDependenciesController {
         }
         List<Table> tables = new ArrayList<>();
         DependencyRulesGraph graph = webStudio.getModel().getDependencyGraph();
-
+        if(graph == null) {
+            return Collections.emptyList();
+        }
         var levelIterator = new TopologicalOrderIterator<>(graph);
         while (levelIterator.hasNext()) {
             ExecutableMethod rulesMethod = levelIterator.next();

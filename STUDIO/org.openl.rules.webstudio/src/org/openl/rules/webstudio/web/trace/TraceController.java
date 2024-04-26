@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.trace;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +37,9 @@ public class TraceController {
             HttpServletRequest request) {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper(request.getSession());
         ITracerObject element = traceHelper.getTableTracer(id == null ? 0 : id);
+        if(element == null) {
+            return Collections.emptyList();
+        }
         return createNodes(element.getChildren(), traceHelper, showRealNumbers != null && showRealNumbers);
     }
 

@@ -1447,7 +1447,7 @@ public class ProjectModel {
     }
 
     public synchronized DependencyRulesGraph getDependencyGraph() {
-        if (dependencyGraph == null) {
+        if (dependencyGraph == null && compiledOpenClass != null) {
             Collection<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
             dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
         }

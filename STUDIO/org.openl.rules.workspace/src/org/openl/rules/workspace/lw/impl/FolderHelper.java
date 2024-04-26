@@ -106,7 +106,7 @@ public final class FolderHelper {
     }
 
     public static String resolveHistoryFolder(RulesProject project, Module module) {
-        return project != null ? normalizePath(Paths.get(project.getFolderPath(), resolveHistoryFolder(module))): null;
+        return normalizePath(Paths.get(project.getFolderPath(), resolveHistoryFolder(module)));
     }
 
     public static String resolveHistoryFolder(Module module) {

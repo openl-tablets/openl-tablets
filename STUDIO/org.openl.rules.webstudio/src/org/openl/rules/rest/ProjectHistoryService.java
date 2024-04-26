@@ -43,6 +43,9 @@ public class ProjectHistoryService {
 
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
+        if(model.getProject() == null || model.getModuleInfo() == null) {
+            return Collections.emptyList();
+        }
         String projectHistoryPath = Paths
                 .get(webStudio.getWorkspacePath(),
                         FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
