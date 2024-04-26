@@ -445,6 +445,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var webstudio = getWebStudio();
 
         var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
+        if (projectDescriptor == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
         var module = projectDescriptor.getModules().stream().findFirst().orElse(null);
         return getProjectModel(project, module);
     }
