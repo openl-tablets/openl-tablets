@@ -605,6 +605,9 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     private static IParameterDeclaration getParameter(String pname, IMethodSignature signature) {
+        if (pname == null) {
+            return null;
+        }
         String parameterName = pname;
         int dotIndex = parameterName.indexOf('.');
         if (dotIndex > 0) {
