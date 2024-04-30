@@ -98,6 +98,7 @@
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="projectVersionCacheManager" ref="projectVersionCacheManager"/>
         <property name="designRepository" ref="designTimeRepository"/>
+        <property name="enabled" value="${repository.cache.monitor.enabled}"/>
     </bean>
 
 </beans>
