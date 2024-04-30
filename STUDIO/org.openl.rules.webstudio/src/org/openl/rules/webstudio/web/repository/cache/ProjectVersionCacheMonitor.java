@@ -33,6 +33,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
+    private boolean enabled;
 
     private final Authentication relevantSystemWideGrantedAuthority;
 
@@ -49,6 +50,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     @Override
     public void run() {
+        if (!enabled) {
+            return;
+        }
         Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
             SecurityContextHolder.getContext().setAuthentication(relevantSystemWideGrantedAuthority);
@@ -172,5 +176,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             Thread.currentThread().interrupt();
         }
         scheduledPool = null;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
