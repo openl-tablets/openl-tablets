@@ -149,7 +149,7 @@
         <awaitility.version>4.2.1</awaitility.version>
         <mockito.version>5.11.0</mockito.version>
         <datasource-proxy.version>1.10</datasource-proxy.version>
-        <xmlunit.version>2.9.1</xmlunit.version>
+        <xmlunit.version>2.10.0</xmlunit.version>
         <testcontainers.version>1.19.7</testcontainers.version>
         <minio.version>8.5.9</minio.version>
         <jmh.version>1.37</jmh.version>
@@ -206,7 +206,7 @@
         <surefire.argLine.noPerf>-Xms8m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.noPerf>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k -XX:MaxMetaspaceSize=160m</surefire.argLine.perf>
-        <surefire.argLine.opts /> <!-- Extra settings per a maven module for the surefire plugin -->
+        <surefire.argLine.opts/> <!-- Extra settings per a maven module for the surefire plugin -->
         <surefire.argLine>${surefire.argLine.noPerf}</surefire.argLine>
         <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
@@ -317,7 +317,7 @@
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
-                            <openl.config.location />
+                            <openl.config.location/>
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -535,7 +535,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -547,7 +547,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
