@@ -1,5 +1,6 @@
 package org.openl.rules.rest.common;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
@@ -81,6 +82,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             LOG.error(e.getMessage(), e);
             return _handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
         }
+    }
+
+    /**
+     * Handle security exceptions which can be thrown by ACL
+     */
+    @ExceptionHandler({AccessDeniedException.class, SecurityException.class})
+    public ResponseEntity<Object> handleSecurityErrors(Exception e, WebRequest request) {
+        LOG.debug(e.getMessage(), e);
+        var code = HttpStatus.FORBIDDEN;
+        return handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
     }
 
     @ExceptionHandler({Exception.class, RuntimeException.class})

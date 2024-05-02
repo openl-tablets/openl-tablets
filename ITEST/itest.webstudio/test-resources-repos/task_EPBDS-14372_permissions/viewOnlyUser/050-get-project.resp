@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "name": "Project",
+  "modifiedBy": "Admin",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "path": "Project",
+  "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+  "status": "OPENED",
+  "comment": "EPBDS-10682 Create project via rest",
+  "repository": "design-non-flat"
+}
