@@ -48,6 +48,9 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
     @Override
     public RulesProject convert(String projectId) {
         var project = resolveProjectIdentity(projectId);
+        if (project == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }

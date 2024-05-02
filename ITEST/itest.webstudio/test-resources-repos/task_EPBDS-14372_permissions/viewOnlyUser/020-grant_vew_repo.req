@@ -1,0 +1,6 @@
+POST /rest/acl/repo/runScript HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: text/plain
+Content-Length: 33
+
+add:design::user:EPBDS_14372:VIEW

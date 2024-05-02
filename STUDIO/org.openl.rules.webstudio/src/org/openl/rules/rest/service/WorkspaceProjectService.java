@@ -492,6 +492,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+            throw new SecurityException();
+        }
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
@@ -544,6 +547,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void appendTableLines(RulesProject project,
                                  String tableId,
                                  AppendTableView tableView) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+            throw new SecurityException();
+        }
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
         getWebStudio().getCurrentProject().tryLockOrThrow();
