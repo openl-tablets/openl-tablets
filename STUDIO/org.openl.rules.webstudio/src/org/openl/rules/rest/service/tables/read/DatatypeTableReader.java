@@ -29,6 +29,7 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        var metaInfoReader = tsn.getMetaInfoReader();
         var table = tsn.getTableBody();
         if (table != null) {
             List<DatatypeFieldView> fields = new ArrayList<>();
@@ -39,7 +40,7 @@ public class DatatypeTableReader extends EditableTableReader<DatatypeView, Datat
                         .name(row.getCell(DatatypeTableWriter.NAME_COLUMN, 0).getStringValue());
                 if (row.getWidth() > 2) {
                     var defaultValueCell = row.getCell(DatatypeTableWriter.DEFAULT_VALUE_COLUMN, 0);
-                    fieldBuilder.defaultValue(defaultValueCell.getObjectValue());
+                    fieldBuilder.defaultValue(getCellValue(defaultValueCell, metaInfoReader));
                 }
                 fields.add(fieldBuilder.build());
             }

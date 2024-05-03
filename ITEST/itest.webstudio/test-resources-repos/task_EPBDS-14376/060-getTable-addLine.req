@@ -1,0 +1,14 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY=/tables/5cff64b989fa6f416c2ba143cc959320/lines HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "rules": [
+    {
+      "Fica": "GG_WP",
+      "Start Date": "3/3/2012",
+      "Rate, %": 11.3
+    }
+  ]
+}
