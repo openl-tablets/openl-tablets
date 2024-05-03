@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -120,7 +121,11 @@ final class Comparators {
                     .replaceAll("@+", "[@\\\\w]+")
                     .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
-            if (!Pattern.compile(regExp).matcher(actualText).matches()) {
+            try {
+                if (!Pattern.compile(regExp).matcher(actualText).matches()) {
+                    failDiff(expectedJson, actualJson, path);
+                }
+            } catch (PatternSyntaxException e) {
                 failDiff(expectedJson, actualJson, path);
             }
         } else if (expectedJson.isArray() && actualJson.isArray()) {

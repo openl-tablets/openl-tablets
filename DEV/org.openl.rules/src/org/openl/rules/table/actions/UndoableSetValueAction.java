@@ -35,7 +35,7 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         setPrevFormula(cell.getFormula());
         setPrevMetaInfo(metaInfoWriter.getMetaInfo(getRow(), getCol()));
 
-        Object convertedValue = convertToCellType(newValue, cell);
+        Object convertedValue = convertToCellType(newValue);
         grid.setCellValue(getCol(), getRow(), convertedValue);
         CellMetaInfo newMetaInfo = getNewMetaInfo(convertedValue);
         if (newMetaInfo != null) {
@@ -43,14 +43,15 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         }
     }
 
-    private Object convertToCellType(Object value, ICell cell) {
+    private Object convertToCellType(Object value) {
         if (!(value instanceof String)) {
             return value;
         }
-        Object oldValue = cell.getObjectValue();
-        if (oldValue != null && !(oldValue instanceof String)) {
+        var metaInfo = metaInfoWriter.getMetaInfo(getRow(), getCol());
+        if (metaInfo != null && metaInfo.getDataType() != null) {
+            var targetType = metaInfo.getDataType().getInstanceClass();
             try {
-                return String2DataConvertorFactory.getConvertor(oldValue.getClass()).parse((String) value, null);
+                return String2DataConvertorFactory.getConvertor(targetType).parse((String) value, null);
             } catch (Exception ignored) {
                 return value;
             }

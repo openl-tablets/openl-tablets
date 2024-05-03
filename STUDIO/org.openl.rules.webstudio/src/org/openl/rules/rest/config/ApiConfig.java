@@ -31,6 +31,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import org.openl.rules.serialization.ExtendedStdDateFormat;
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 /**
@@ -83,6 +84,7 @@ public class ApiConfig implements WebMvcConfigurer {
         mapper.registerModule(new JavaTimeModule())
                 .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         return mapper;
     }
 
