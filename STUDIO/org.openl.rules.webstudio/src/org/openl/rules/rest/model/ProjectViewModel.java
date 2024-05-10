@@ -28,6 +28,10 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final ZonedDateTime modifiedAt;
 
+    @Parameter(description = "Lock info")
+    @JsonView(GenericView.Full.class)
+    public final ProjectLockInfo lockInfo;
+
     @Parameter(description = "Branch Name. Can be absent if current repository doesn't support branches")
     @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final String branch;
@@ -78,6 +82,7 @@ public class ProjectViewModel {
         this.tags = new TreeMap<>(from.tags);
         this.comment = from.comment;
         this.repository = from.repository;
+        this.lockInfo = from.lockInfo;
     }
 
     public static Builder builder() {
@@ -96,6 +101,7 @@ public class ProjectViewModel {
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
         private String repository;
+        private ProjectLockInfo lockInfo;
 
         public Builder name(String name) {
             this.name = name;
@@ -104,6 +110,11 @@ public class ProjectViewModel {
 
         public Builder modifiedBy(String modifiedBy) {
             this.modifiedBy = modifiedBy;
+            return this;
+        }
+
+        public Builder lockInfo(ProjectLockInfo lockInfo) {
+            this.lockInfo = lockInfo;
             return this;
         }
 

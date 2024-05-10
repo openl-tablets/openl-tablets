@@ -390,6 +390,9 @@ Content-Type: application/json
             "type": "string",
             "description": "Project Name"
           },
+          "lockInfo" : {
+            "$ref" : "#/components/schemas/ProjectLockInfo"
+          },
           "modifiedBy": {
             "type": "string",
             "description": "Author of latest update"
@@ -595,6 +598,21 @@ Content-Type: application/json
           }
         },
         "type": "object"
+      },
+      "ProjectLockInfo" : {
+        "type" : "object",
+        "required" : [ "lockedAt", "lockedBy"],
+        "properties" : {
+          "lockedAt" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Locked date and time"
+          },
+          "lockedBy" : {
+            "type" : "string",
+            "description" : "Locked by user"
+          }
+        }
       },
       "TagTypeDTO": {
         "properties": {
