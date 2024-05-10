@@ -4,6 +4,21 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "ProjectLockInfo" : {
+        "type" : "object",
+        "required" : [ "lockedAt", "lockedBy"],
+        "properties" : {
+          "lockedAt" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Locked date and time"
+          },
+          "lockedBy" : {
+            "type" : "string",
+            "description" : "Locked by user"
+          }
+        }
+      },
       "BaseError": {
         "properties": {
           "code": {
@@ -389,6 +404,9 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "Project Name"
+          },
+          "lockInfo" : {
+            "$ref" : "#/components/schemas/ProjectLockInfo"
           },
           "modifiedBy": {
             "type": "string",

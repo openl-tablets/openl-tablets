@@ -18,6 +18,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.model.ProjectLockInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.security.acl.permission.AclPermission;
@@ -88,6 +89,13 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
                     .ifPresent(builder::modifiedAt);
             Optional.ofNullable(fileData.getVersion()).ifPresent(builder::revision);
             Optional.ofNullable(fileData.getComment()).ifPresent(builder::comment);
+        }
+        if (!src.isOpenedForEditing() && src.isLocked()) {
+            var lockInfo = src.getLockInfo();
+            builder.lockInfo(ProjectLockInfo.builder()
+                    .lockedBy(lockInfo.getLockedBy())
+                    .lockedAt(ZonedDateTime.ofInstant(lockInfo.getLockedAt(), ZoneId.systemDefault()))
+                    .build());
         }
         var designRepository = repository;
         if (src instanceof UserWorkspaceProject) {
