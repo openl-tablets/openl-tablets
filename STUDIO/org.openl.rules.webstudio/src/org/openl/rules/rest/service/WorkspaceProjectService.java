@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
@@ -444,21 +446,25 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
         var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
         var module = projectDescriptor.getModules().stream().findFirst().orElse(null);
-        if (module != null) {
-            webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
-            var moduleModel = webstudio.getModel();
-            while (!moduleModel.isProjectCompilationCompleted()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new IllegalStateException("Project compilation interrupted", e);
-                }
-            }
-            return moduleModel;
-        } else {
+        return getProjectModel(project, module);
+    }
+
+    private ProjectModel getProjectModel(RulesProject project, @Nullable Module module) {
+        if (module == null) {
             throw new NotFoundException("project.identifier.message");
         }
+        var webstudio = getWebStudio();
+        webstudio.init(project.getRepository().getId(), project.getBranch(), project.getName(), module.getName());
+        var moduleModel = webstudio.getModel();
+        while (!moduleModel.isProjectCompilationCompleted()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Project compilation interrupted", e);
+            }
+        }
+        return moduleModel;
     }
 
     /**
@@ -479,6 +485,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var table = moduleModel.getTableById(tableId);
         if (table == null) {
             throw new NotFoundException("table.message");
+        }
+        var tableUri = table.getUri();
+        var module = moduleModel.getModuleInfo();
+        if (!module.containsTable(tableUri)) {
+            // if table is not in the current module, then need to find it and inititialize module.
+            // otherwise, all required listeners and hooks will not function properly
+            var pd = getWebStudio().getProjectByName(project.getRepository().getId(), project.getName());
+            module = CollectionUtils.findFirst(pd.getModules(), module1 -> module1.containsTable(tableUri));
+            // initialize module
+            moduleModel = getProjectModel(project, module);
+            table = moduleModel.getTableById(tableId);
+            if (table == null) {
+                throw new NotFoundException("table.message");
+            }
         }
         return table;
     }
