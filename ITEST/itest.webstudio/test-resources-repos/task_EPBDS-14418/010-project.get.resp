@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-14418",
+  "modifiedBy": "admin",
+  "modifiedAt": "*",
+  "revision": "*",
+  "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
+  "status": "CLOSED",
+  "comment": "Project EPBDS-14418 is created.",
+  "repository": "design"
+}

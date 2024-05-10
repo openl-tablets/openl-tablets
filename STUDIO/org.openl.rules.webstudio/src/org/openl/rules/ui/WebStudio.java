@@ -1238,13 +1238,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             // Get a module
-            Module module = CollectionUtils.findFirst(project.getModules(), module1 -> {
-                if (module1.getRulesRootPath() == null) {
-                    // Eclipse project
-                    return false;
-                }
-                return tableURI.startsWith(module1.getRelativeUri());
-            });
+            Module module = CollectionUtils.findFirst(project.getModules(), module1 -> module1.containsTable(tableURI));
             repositoryId = projects.entrySet()
                     .stream()
                     .filter(

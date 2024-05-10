@@ -111,6 +111,14 @@ public class Module {
                 .toString();
     }
 
+    public boolean containsTable(String tableUri) {
+        if (tableUri == null || getRulesRootPath() == null) {
+            // Eclipse project
+            return false;
+        }
+        return tableUri.startsWith(getRelativeUri());
+    }
+
     @Override
     public String toString() {
         return name;
