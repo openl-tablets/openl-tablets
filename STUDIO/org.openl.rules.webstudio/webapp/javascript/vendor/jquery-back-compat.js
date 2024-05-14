@@ -86,4 +86,37 @@
     // Ensure that the modified init function carries over the original jQuery prototype
     $.fn.init.prototype = $.fn;
 
+    // original position function does not work properly, so replace it with this one
+    // it's taken from jQuery 1.7.2
+    var rroot = /^(?:body|html)$/i;
+    $.fn.position = function () {
+        if ( !this[0] ) {
+            return null;
+        }
+
+        var elem = this[0],
+            // Get *real* offsetParent
+            offsetParent = this.offsetParent(),
+
+            // Get correct offsets
+            offset       = this.offset(),
+            parentOffset = rroot.test(offsetParent[0].nodeName) ? { top: 0, left: 0 } : offsetParent.offset();
+
+        // Subtract element margins
+        // note: when an element has margin: auto the offsetLeft and marginLeft
+        // are the same in Safari causing offset.left to incorrectly be 0
+        offset.top  -= parseFloat( jQuery.css(elem, "marginTop") ) || 0;
+        offset.left -= parseFloat( jQuery.css(elem, "marginLeft") ) || 0;
+
+        // Add offsetParent borders
+        parentOffset.top  += parseFloat( jQuery.css(offsetParent[0], "borderTopWidth") ) || 0;
+        parentOffset.left += parseFloat( jQuery.css(offsetParent[0], "borderLeftWidth") ) || 0;
+
+        // Subtract the two offsets
+        return {
+            top:  offset.top  - parentOffset.top,
+            left: offset.left - parentOffset.left
+        };
+    };
+
 })(jQuery);
