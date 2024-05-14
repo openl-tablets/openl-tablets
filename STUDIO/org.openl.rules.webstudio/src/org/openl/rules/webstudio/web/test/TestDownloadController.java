@@ -95,7 +95,7 @@ public class TestDownloadController {
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
                                     @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
                                     @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
-                                    @RequestParam(defaultValue = "false") boolean flattenParameters,
+                                    @RequestParam(name="flattenParameters", defaultValue = "false") boolean flattenParameters,
                                     HttpServletRequest request,
                                     HttpServletResponse response) {
         HttpSession session = request.getSession();

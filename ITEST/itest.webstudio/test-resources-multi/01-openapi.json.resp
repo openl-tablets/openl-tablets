@@ -7907,6 +7907,14 @@ Content-Type: application/json
            "schema": {
              "type": "boolean"
            }
+          },
+          {
+            "in" : "query",
+            "name" : "flattenParameters",
+            "schema" : {
+              "type" : "boolean",
+              "default" : false
+            }
           }
         ],
         "responses": {
