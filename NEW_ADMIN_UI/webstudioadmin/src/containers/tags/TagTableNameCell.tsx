@@ -8,8 +8,8 @@ interface TagTableNameCellProps {
 
 export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) => {
     const inputRef = useRef<InputRef>(null)
-    const [ editing, setEditing ] = useState(false)
-    const [ value, setValue ] = useState(() => name)
+    const [editing, setEditing] = useState(false)
+    const [value, setValue] = useState(() => name)
 
     const toggleEdit = () => {
         setEditing(!editing)
@@ -19,7 +19,7 @@ export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) 
         if (editing) {
             inputRef.current!.focus()
         }
-    }, [ editing ])
+    }, [editing])
 
     const handleChangeName = async (nextName: string) => {
         const result = await onChange(nextName)
@@ -49,7 +49,7 @@ export const TagTableNameCell: FC<TagTableNameCellProps> = ({ name, onChange }) 
             />
         </div>
     ) : (
-        <div className="editable-cell-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
+        <div className="editable-cell-wrap" onClick={toggleEdit} style={{ paddingRight: 24 }}>
             {value}
         </div>
     )

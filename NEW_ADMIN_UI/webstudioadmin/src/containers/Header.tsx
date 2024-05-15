@@ -1,13 +1,16 @@
 import React, { useState, CSSProperties, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Layout, Row, Col, Menu } from 'antd'
+import { Layout, Row, Col, Menu, MenuProps } from 'antd'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
+import { loadRemote } from '@module-federation/runtime'
 
 const { Header: AntHeader } = Layout
+
+const EDITOR = 'EDITOR'
 
 const titleStyle: CSSProperties = {
     fontSize: 20,
@@ -15,10 +18,20 @@ const titleStyle: CSSProperties = {
     color: '#384f81',
 }
 
+const basePath = process.env.BASE_PATH || ''
+
+const claimMenu = await loadRemote('claimEditorPlugin/menu').then((a: any) => {
+    return a.default || []
+}).catch((e) => {
+    console.error('Failed to load claimEditorPlugin/menu', e)
+    return []
+})
+
 export const Header = () => {
     const { t } = useTranslation()
-    const navigate = useNavigate()
-    const [ isUserMenuOpen, setIsUserMenuOpen ] = useState(false)
+    // const router = plugins.getRouter()
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+    const [activeKey, setActiveKey] = useState(window.location.pathname)
 
     const onOpenUserMenu = useCallback(() => {
         setIsUserMenuOpen(true)
@@ -28,10 +41,44 @@ export const Header = () => {
         setIsUserMenuOpen(false)
     }, [])
 
+    const editorMenuItems = claimMenu.map((item: any) => {
+        if (item.parent === EDITOR) {
+            return {
+                key: basePath + item.path,
+                label: t(item.label),
+            }
+        }
+    })
+
+    const menuItems = () => {
+        const defaultMenuItems: MenuProps['items'] = [
+            {
+                key: basePath + '/',
+                label: t('common:menu.advanced_editor'),
+            },
+            {
+                key: basePath + '/faces/pages/modules/repository/index.xhtml',
+                label: t('common:menu.repository'),
+            }
+        ]
+
+        const additionalMenuItems = editorMenuItems.length ? [{
+            label: t('common:menu.editor'),
+            children: [...editorMenuItems]
+        }] : []
+
+        console.log('additionalMenuItems', additionalMenuItems)
+
+        return [
+            ...defaultMenuItems,
+            ...additionalMenuItems
+        ]
+    }
+
     return (
         <AntHeader>
             <Row justify="space-between" style={{ width: '100%' }}>
-                <Col span={12}>
+                <Col span={6}>
                     <Row align="middle">
                         <Col>
                             <div className="header__logo">
@@ -45,20 +92,19 @@ export const Header = () => {
                         </Col>
                     </Row>
                 </Col>
-                <Col span={6}>
+                <Col span={10}>
                     <Menu
+                        activeKey={activeKey}
+                        items={menuItems()}
                         mode="horizontal"
                         onClick={({ key }) => {
-                            navigate(key)
+                            window.location = key
                         }}
                         style={{
                             flex: 1,
                             minWidth: 0,
                         }}
-                    >
-                        <Menu.Item key="/redirect/editor">{t('common:menu.editor')}</Menu.Item>
-                        <Menu.Item key="/faces/pages/modules/repository/index.xhtml">{t('common:menu.repository')}</Menu.Item>
-                    </Menu>
+                    />
                 </Col>
                 <Col>
                     <UserLogo onClick={onOpenUserMenu} />

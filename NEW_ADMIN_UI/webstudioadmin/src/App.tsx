@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react'
-import RootRoutes from './routes'
+import React, { Suspense, useEffect } from 'react'
+import { router } from './routes'
 import { App as AntApp } from 'antd'
-import { fetchUserProfile } from './containers/user/userSlice'
+import { fetchUserDetails, fetchUserProfile} from './containers/user/userSlice'
 import { RootState, useAppDispatch, useAppSelector } from 'store'
 import { fetchNotification } from './containers/notification/notificationSlice'
+import { RouterProvider } from 'react-router-dom'
 
 function App() {
     const dispatch = useAppDispatch()
 
     const userStatus = useAppSelector((state: RootState) => state.user.status)
     const isUserLoggedIn = useAppSelector((state: RootState) => state.user.isLoggedIn)
+    const username = useAppSelector((state: RootState) => state.user.profile.username)
 
     useEffect(() => {
         dispatch(fetchNotification())
@@ -20,19 +22,27 @@ function App() {
             // clean up
             clearInterval(intervalCall)
         }
-    }, [ dispatch ])
+    }, [dispatch])
 
     useEffect(() => {
         if (userStatus === 'idle') {
             dispatch(fetchUserProfile())
         }
-    }, [ userStatus, dispatch ])
+    }, [userStatus, dispatch])
 
-    return isUserLoggedIn
+    useEffect(() => {
+        if (isUserLoggedIn && username) {
+            dispatch(fetchUserDetails(username))
+        }
+    }, [username, dispatch])
+
+    return isUserLoggedIn // && isAllPluginsLoaded
         ? (
-            <AntApp>
-                <RootRoutes />
-            </AntApp>
+            <Suspense fallback={<div>Loading...</div>}>
+                <AntApp>
+                    <RouterProvider router={router} />
+                </AntApp>
+            </Suspense>
         )
         : null
 }

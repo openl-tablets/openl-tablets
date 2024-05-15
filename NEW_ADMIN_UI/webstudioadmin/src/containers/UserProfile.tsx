@@ -11,7 +11,7 @@ import { updateUserProfile } from './user/userSlice'
 export const UserProfile: React.FC = () => {
     const { t } = useTranslation()
     const dispatch = useAppDispatch()
-    const [ isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled ] = useState<boolean>(true)
+    const [isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled] = useState<boolean>(true)
 
     const profile = useAppSelector((state: RootState ) => state.user.profile)
 
@@ -43,7 +43,7 @@ export const UserProfile: React.FC = () => {
                 label: t('users:other'),
             },
         ]
-    ), [ t ])
+    ), [t])
 
     const displayNameSetter = (values: any, form: FormApi) => {
         if (values.displayNameSelect === DISPLAY_USER_NAME_OTHER) {

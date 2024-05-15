@@ -94,7 +94,7 @@ export const System: React.FC = () => {
             </Typography.Title>
             <p>
                 <WarningFilled style={{ color: 'red' }} />
-                <Trans components={[ <b style={{ color: 'red' }} /> ]} i18nKey="system:restore_defaults_warning" />
+                <Trans components={[<b style={{ color: 'red' }} />]} i18nKey="system:restore_defaults_warning" />
             </p>
             <Row justify="end">
                 <Button danger style={{ marginTop: 15 }}>

@@ -9,8 +9,8 @@ import { TypeGitDeployment } from 'containers/repoDeployment/TypeGitDeployment'
 import { RepositoryPage } from './RepositoryPage'
 
 export const RepoDeployConfPage: React.FC = () => {
-    const [ active, setActive ] = useState(true)
-    const [ type, setType ] = useState('')
+    const [active, setActive] = useState(true)
+    const [type, setType] = useState('')
 
     const items = [
         {

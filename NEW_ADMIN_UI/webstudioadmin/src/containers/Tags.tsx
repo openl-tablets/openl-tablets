@@ -8,9 +8,9 @@ import { Tag, TagTable, TagType } from './tags/TagTable'
 
 export const Tags: React.FC = () => {
     const { t } = useTranslation()
-    const [ tagTypes, setTagTypes ] = useState<TagType[]>([])
-    const [ isLoading, setIsLoading ] = useState(false)
-    const [ newTagTypeName, setNewTagTypeName ] = useState('')
+    const [tagTypes, setTagTypes] = useState<TagType[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [newTagTypeName, setNewTagTypeName] = useState('')
 
     const fetchTagTypes = async () => {
         setIsLoading(true)
@@ -128,19 +128,19 @@ export const Tags: React.FC = () => {
                 {t('tags:tag_types_and_values')}
             </Typography.Title>
             <Trans
-                components={[ <b />, <p /> ]}
+                components={[<b />, <p />]}
                 i18nKey="tags:tag_type_description"
             />
             <ul>
                 <li>
                     <Trans
-                        components={[ <b /> ]}
+                        components={[<b />]}
                         i18nKey="tags:tag_type_instruction_p1"
                     />
                 </li>
                 <li>
                     <Trans
-                        components={[ <b /> ]}
+                        components={[<b />]}
                         i18nKey="tags:tag_type_instruction_p2"
                     />
                 </li>
@@ -151,11 +151,11 @@ export const Tags: React.FC = () => {
             <TagTable
                 createTag={onCreateTag}
                 deleteTag={onDeleteTag}
+                deleteTagType={onDeleteTagType}
                 isLoading={isLoading}
                 tagTypes={tagTypes}
                 updateTag={onUpdateTag}
                 updateTagType={onUpdateTagType}
-                deleteTagType={onDeleteTagType}
             />
             <Row justify="end" style={{ marginTop: 20 }}>
                 <Input
@@ -192,7 +192,7 @@ export const Tags: React.FC = () => {
             </p>
             <p>
                 <Trans
-                    components={[ <b /> ]}
+                    components={[<b />]}
                     i18nKey="tags:example_template"
                 />
             </p>

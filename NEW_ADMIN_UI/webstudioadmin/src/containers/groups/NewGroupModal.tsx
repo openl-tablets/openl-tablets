@@ -18,13 +18,13 @@ interface Privilege {
 }
 
 export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGroups }) => {
-    const [ isModalOpen, setIsModalOpen ] = useState(false)
-    const [ name, setName ] = useState('')
-    const [ description, setDescription ] = useState('')
-    const [ privileges, setPrivileges ] = useState<CheckboxValueType[]>([])
-    const [ selectedColumns, setSelectedColumns ] = useState<string[]>([])
-    const [ allPrivileges, setAllPrivileges ] = useState<Privilege>({})
-    const [ groupData, setGroupData ] = useState<Group[]>([])
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [name, setName] = useState('')
+    const [description, setDescription] = useState('')
+    const [privileges, setPrivileges] = useState<CheckboxValueType[]>([])
+    const [selectedColumns, setSelectedColumns] = useState<string[]>([])
+    const [allPrivileges, setAllPrivileges] = useState<Privilege>({})
+    const [groupData, setGroupData] = useState<Group[]>([])
 
     const showModal = () => {
         setIsModalOpen(true)
@@ -124,7 +124,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
             title: allPrivileges[key],
             ...groupData,
         }))
-    }, [ allPrivileges, groupData ])
+    }, [allPrivileges, groupData])
 
     const columns = useMemo(() => {
         if (!allPrivileges || !groupData) {
@@ -152,7 +152,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                 },
             })),
         ]
-    }, [ allPrivileges, groupData ])
+    }, [allPrivileges, groupData])
 
     return (
         <div>
@@ -171,7 +171,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                     </Button>,
                     <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: 'green', borderColor: 'green' }}>
                         Create
-                    </Button> ]}
+                    </Button>]}
             >
                 <div>
                     <Form layout="vertical" style={{ width: 800 }}>
