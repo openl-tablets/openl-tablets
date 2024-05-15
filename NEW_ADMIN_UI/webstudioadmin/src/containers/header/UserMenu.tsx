@@ -17,7 +17,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
 
-    const { username, email } = useSelector((state: RootState) => state.user.profile)
+    const { username, email } = useSelector((state: RootState) => state.user.profile || {})
 
     const Title = (
         <Row align="middle">

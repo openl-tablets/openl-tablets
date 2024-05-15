@@ -19,18 +19,18 @@ const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const navigate = useNavigate()
     const location = useLocation()
-    const [ selectedKeys, setSelectedKeys ] = useState<string[]>([])
+    const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
     useEffect(() => {
-        setSelectedKeys([ location.pathname ])
-    }, [ location.pathname ])
+        setSelectedKeys([location.pathname])
+    }, [location.pathname])
 
     return (
         <div id="main-menu">
             <Menu
                 selectedKeys={selectedKeys}
                 onClick={({ key }) => {
-                    setSelectedKeys([ key ])
+                    setSelectedKeys([key])
                     navigate(key)
                 }}
             >

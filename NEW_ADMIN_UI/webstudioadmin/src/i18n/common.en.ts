@@ -6,6 +6,7 @@ i18next.addResourceBundle('en', 'common', {
     report_a_problem: 'Report a problem',
     menu: {
         editor: 'Editor',
+        advanced_editor: 'Advanced Editor',
         repository: 'Repository',
         my_profile: 'My Profile',
         my_settings: 'My Settings',
@@ -28,5 +29,9 @@ i18next.addResourceBundle('en', 'common', {
         save: 'Save',
         cancel: 'Cancel',
         apply: 'Apply',
+    },
+    plugin: {
+        loading_plugin: 'Loading Plugin',
+        no_plugin_specified: 'No plugin specified',
     }
 })

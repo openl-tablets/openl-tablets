@@ -16,9 +16,9 @@ interface Group {
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
-    const [ isModalOpen, setIsModalOpen ] = useState(false)
-    const [ groupData, setGroupData ] = useState<Group[]>([])
-    const [ selectedGroup, setSelectedGroup ] = useState<any>({})
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [groupData, setGroupData] = useState<Group[]>([])
+    const [selectedGroup, setSelectedGroup] = useState<any>({})
 
     const showEditGroupModal = () => {
         setIsModalOpen(true)
@@ -30,7 +30,7 @@ export const Groups: React.FC = () => {
 
     const fetchGroups = async () => {
         const response = await apiCall('/admin/management/groups')
-        const groups = Object.entries(response).map(([ groupName, group ]: [string, unknown]) => ({
+        const groups = Object.entries(response).map(([groupName, group]: [string, unknown]) => ({
             groupName,
             ...(group as Group),
             privileges: (group as Group).privileges || [],
@@ -91,9 +91,9 @@ export const Groups: React.FC = () => {
                         && data.roles.length > 0
                         && data.roles.map((role: string) => {
                             let color = 'default'
-                            if ([ 'Administrators' ].includes(role)) {
+                            if (['Administrators'].includes(role)) {
                                 color = 'red'
-                            } else if ([ 'Developers', 'Testers', 'Viewers', 'Deployers', 'Analysts' ].includes(role)) {
+                            } else if (['Developers', 'Testers', 'Viewers', 'Deployers', 'Analysts'].includes(role)) {
                                 color = 'blue'
                             }
                             return (
@@ -106,7 +106,7 @@ export const Groups: React.FC = () => {
                         && data.privileges.length > 0
                         && data.privileges.map((privilege: string) => {
                             let color = ''
-                            if ([ 'ADMIN', 'Administrate' ].includes(privilege)) {
+                            if (['ADMIN', 'Administrate'].includes(privilege)) {
                                 color = 'red'
                             } else {
                                 color = 'default'

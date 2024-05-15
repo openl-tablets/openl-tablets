@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Form, Input, Checkbox } from 'antd'
 
 export function TypeDatabaseJDBC() {
-    const [ open, setOpen ] = useState(true)
+    const [open, setOpen] = useState(true)
 
     return (
         <div>
