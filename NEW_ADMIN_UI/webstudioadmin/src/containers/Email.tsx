@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 export const Email: React.FC = () => {
     const { t } = useTranslation()
-    const [ active, setActive ] = useState(true)
+    const [active, setActive] = useState(true)
 
     return (
         <>

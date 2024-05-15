@@ -1,14 +1,14 @@
 import { notification } from 'antd'
 
-const baseURL = process.env.REACT_APP_API_URL || ''
-const authorisationHeader = process.env.REACT_APP_AUTHORIZATION_HEADER
+const baseURL = process.env.API_URL || ''
+const authorisationHeader = null // process.env.AUTHORIZATION_HEADER
 
 const fetchInitialConfig = {
     method: 'GET',
     headers: new Headers(),
 }
 
-const apiCall = async (url: string, params?: RequestInit) => {
+const apiCall = async (url: string, params?: RequestInit, throwError = false) => {
     const responseParams = {
         ...fetchInitialConfig,
         ...params,
@@ -35,8 +35,10 @@ const apiCall = async (url: string, params?: RequestInit) => {
                     return response.json()
                 }
                 return response.text()
-            } if (status > 200 && status < 300) {
+            } else if (status > 200 && status < 300) {
                 return true
+            } else if (status === 404) {
+                throw new Error('Page not found!')
             } else {
                 await response.json().then((data: any) => {
                     throw new Error(data.message)
@@ -45,7 +47,11 @@ const apiCall = async (url: string, params?: RequestInit) => {
             }
         })
         .catch(error => {
-            notification.error({ message: error.toString() })
+            if (throwError) {
+                throw error
+            } else {
+                notification.error({ message: error.toString() })
+            }
         })
         .finally((result: any = false) => {
             return result

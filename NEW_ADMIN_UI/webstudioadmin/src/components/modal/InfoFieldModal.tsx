@@ -7,7 +7,7 @@ interface InfoFieldModalProps {
 }
 
 export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
-    const [ isModalOpen, setIsModalOpen ] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
 
     const showModal = () => {
         setIsModalOpen(true)
@@ -21,7 +21,7 @@ export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
         <>
             <InfoCircleOutlined onClick={showModal} />
             <Modal
-                footer={[ <Button onClick={handleClose}>OK</Button> ]}
+                footer={[<Button onClick={handleClose}>OK</Button>]}
                 open={isModalOpen}
                 title="Details"
             >

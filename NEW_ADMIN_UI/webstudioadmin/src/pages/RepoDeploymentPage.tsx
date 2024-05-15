@@ -11,7 +11,7 @@ import { CloseCircleOutlined } from '@ant-design/icons'
 import { RepositoryPage } from './RepositoryPage'
 
 export const RepoDeploymentPage: React.FC = () => {
-    const [ type, setType ] = useState('')
+    const [type, setType] = useState('')
 
     return (
         <>

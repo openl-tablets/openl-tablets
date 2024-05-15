@@ -10,8 +10,8 @@ export const Notification: React.FC = () => {
     const inputRef = React.useRef<InputRef>(null)
     const { t } = useTranslation()
     const dispatch = useAppDispatch()
-    const [ text, setText ] = useState('')
-    const [ focused, setFocused ] = React.useState(false)
+    const [text, setText] = useState('')
+    const [focused, setFocused] = React.useState(false)
 
     const onFocus = () => setFocused(true)
     const onBlur = () => setFocused(false)
@@ -22,7 +22,7 @@ export const Notification: React.FC = () => {
         if (!focused && inputRef.current) {
             setText(notificationMessage || '')
         }
-    }, [ notificationMessage ])
+    }, [notificationMessage])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value)
