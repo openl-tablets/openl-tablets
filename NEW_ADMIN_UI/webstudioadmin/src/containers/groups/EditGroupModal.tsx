@@ -21,10 +21,10 @@ interface EditGroupProps {
 }
 
 export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, onSave }) => {
-    const [ name, setName ] = useState('')
-    const [ description, setDescription ] = useState('')
-    const [ selectedGroupPrivileges, setSelectedGroupPrivileges ] = useState<string[]>([])
-    const [ privileges, setPrivileges ] = useState<CheckboxValueType[]>(selectedGroupPrivileges)
+    const [name, setName] = useState('')
+    const [description, setDescription] = useState('')
+    const [selectedGroupPrivileges, setSelectedGroupPrivileges] = useState<string[]>([])
+    const [privileges, setPrivileges] = useState<CheckboxValueType[]>(selectedGroupPrivileges)
 
   interface DataType {
     key: React.Key;
@@ -43,7 +43,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
       setDescription(group.description)
       setPrivileges(group.privileges)
       setSelectedGroupPrivileges(group.privileges)
-  }, [ group ])
+  }, [group])
 
   const handleNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setName(e.target.value)

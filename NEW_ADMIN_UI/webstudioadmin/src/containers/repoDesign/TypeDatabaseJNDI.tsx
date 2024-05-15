@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Form, Input, Checkbox } from 'antd'
 
 export function TypeDatabaseJNDI() {
-    const [ open, setOpen ] = useState(true)
+    const [open, setOpen] = useState(true)
 
     return (
         <div>

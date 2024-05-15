@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:a4j="http://richfaces.org/a4j">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
+    <c:set var="artefact" value="#{node.data}" />
+
+    <h:head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <link rel="icon" href="#{contextPath}/icons/favicon.ico?v=studio" sizes="48x48" />
+        <link rel="icon" href="#{contextPath}/favicon.svg?v=studio" sizes="any" type="image/svg+xml"/>
+        <link rel="apple-touch-icon" href="#{contextPath}/icons/apple-touch-icon.png?v=studio"/>
+        <link rel="manifest" href="#{contextPath}/icons/site.webmanifest?v=studio" />
+
+        <script>
+            // var pluginsConfiguration = [
+            //     {
+            //         name: 'claimEditorPlugin',
+            //         routeRoot: '/faces/pages/ui.xhtml',
+            //         library: 'http://localhost:3101/claim_editor_plugin.js',
+            //     },
+            //     {
+            //         name: 'claimEditorPlugin',
+            //         routeRoot: '/claim',
+            //         library: 'http://localhost:3101/claim_editor_plugin.js',
+            //     },
+            // ]
+        </script>
+
+        <h:outputScript name="jsf.js" library="javax.faces" />
+
+        <title>OpenL Studio</title>
+    </h:head>
+
+    <h:body>
+        <div id="appRoot" style="height: 48.5px"></div>
+
+        <script src="http://localhost:3100/main.js"></script>
+    </h:body>
+</html>

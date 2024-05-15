@@ -13,7 +13,7 @@ const footerStyle: React.CSSProperties = {
 
 export const Footer = () => {
     const { t } = useTranslation()
-    const [ info, setInfo ] = React.useState({} as any)
+    const [info, setInfo] = React.useState({} as any)
 
     const loadInfo = async () => {
         const response = await apiCall('/public/info/openl.json')
@@ -27,15 +27,15 @@ export const Footer = () => {
     const year = useMemo(() => {
         const y = info && info['openl.build.date']
         return y ? y.split('-')[0] : new Date().getFullYear()
-    }, [ info ])
+    }, [info])
 
     const site = useMemo(() => {
         return (info && info['openl.site']) || '/'
-    }, [ info ])
+    }, [info])
 
     const version = useMemo(() => {
         return (info && info['openl.version']) || ''
-    }, [ info ])
+    }, [info])
 
     return (
         <AntFooter style={footerStyle}>

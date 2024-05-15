@@ -5,11 +5,11 @@ import { Button, Menu, Row } from 'antd'
 export const RepositoryPage: React.FC = () => {
     const location = useLocation()
     const navigate = useNavigate()
-    const [ selectedKeys, setSelectedKeys ] = useState<string[]>([])
+    const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
     useEffect(() => {
-        setSelectedKeys([ location.pathname ])
-    }, [ location.pathname ])
+        setSelectedKeys([location.pathname])
+    }, [location.pathname])
 
     return (
         <div>
@@ -18,7 +18,7 @@ export const RepositoryPage: React.FC = () => {
                     mode="horizontal"
                     selectedKeys={selectedKeys}
                     onClick={({ key }) => {
-                        setSelectedKeys([ key ])
+                        setSelectedKeys([key])
                         navigate(key)
                     }}
                 >

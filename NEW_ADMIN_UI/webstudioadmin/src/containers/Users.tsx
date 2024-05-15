@@ -21,11 +21,11 @@ interface EditUserRequest {
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
-    const [ isModalOpen, setIsModalOpen ] = useState(false)
-    const [ selectedUser, setSelectedUser ] = useState<any>({})
-    const [ userData, setUserData ] = useState<any[]>([])
-    const [ isNewUser, setIsNewUser ] = useState(false)
-    const [ isLoading, setIsLoading ] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [selectedUser, setSelectedUser] = useState<any>({})
+    const [userData, setUserData] = useState<any[]>([])
+    const [isNewUser, setIsNewUser] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const showAddAndEditUserModal = () => {
         setIsModalOpen(true)
@@ -166,7 +166,7 @@ export const Users: React.FC = () => {
 
     const modalTitle = useMemo(() => {
         return isNewUser ? t('users:add_user') : t('users:edit_user')
-    }, [ isNewUser, t ])
+    }, [isNewUser, t])
 
     return (
         <>

@@ -1,6 +1,6 @@
 header.ant-layout-header {
   background-color: #fff;
-  border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+  border-bottom: 1px solid rgb(5 5 5 / 6%);
   display: flex;
   align-items: center;
   padding: 0 15px;
@@ -19,6 +19,6 @@ header.ant-layout-header {
   .header__title {
     font-size: 20px;
     font-family: Georgia, Verdana, Helvetica, Arial, serif;
-    color: rgb(56, 79, 129);
+    color: rgb(56 79 129);
   }
 }

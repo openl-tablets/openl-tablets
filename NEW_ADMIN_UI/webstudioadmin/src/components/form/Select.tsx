@@ -12,6 +12,7 @@ type SelectProps = {
     disabled?: boolean,
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties
+    defaultValue?: string
 };
 
 const Select: FC<SelectProps> = ({
@@ -22,9 +23,14 @@ const Select: FC<SelectProps> = ({
     style,
     formItemStyle,
 }) => (
-    <Field name={name}>
-        {({ input }) => (
-            <Form.Item label={label} style={formItemStyle}>
+    <Field name={name} >
+        {({ input, meta }) => (
+            <Form.Item
+                help={meta.error && meta.touched && meta.error}
+                label={label}
+                style={formItemStyle}
+                validateStatus={meta.error && meta.touched && 'error'}
+            >
                 <AntdSelect
                     disabled={disabled}
                     options={options}

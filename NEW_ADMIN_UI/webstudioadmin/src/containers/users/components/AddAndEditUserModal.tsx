@@ -45,8 +45,8 @@ interface EditUserProps {
 
 export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubmit, user, onCancel }) => {
     const { t } = useTranslation()
-    const [ groupNames, setGroupNames ] = useState<string[]>([])
-    const [ isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled ] = useState<boolean>(true)
+    const [groupNames, setGroupNames] = useState<string[]>([])
+    const [isDisplayNameFieldDisabled, setIsDisplayNameFieldDisabled] = useState<boolean>(true)
 
     const displayNameOptions = useMemo(() => (
         [
@@ -63,7 +63,7 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
                 label: t('users:other'),
             },
         ]
-    ), [ t ])
+    ), [t])
 
     const initialValues = useMemo(() => {
         const displayNameSelectInitialValue = () => {
@@ -86,7 +86,7 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
             displayNameSelect: displayNameSelectInitialValue(),
             groups: user.userGroups?.map((group) => group.name) || [],
         }
-    }, [ user ])
+    }, [user])
 
     const fetchGroupData = async () => {
         const response = await apiCall('/admin/management/groups')
@@ -120,7 +120,7 @@ export const AddAndEditUserModal: React.FC<EditUserProps> = ({ isNewUser, onSubm
 
     const updateButtonText = useMemo(() => {
         return isNewUser ? t('users:edit_modal.create') : t('users:edit_modal.update')
-    }, [ isNewUser, t ])
+    }, [isNewUser, t])
 
     return (
         <div>
