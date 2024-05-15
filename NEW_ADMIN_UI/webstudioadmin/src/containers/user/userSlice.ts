@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { apiCall } from '../../services'
-import { createAppAsyncThunk } from '../../store/store'
 
 interface UserState {
     profile: {
@@ -38,12 +37,14 @@ interface UserState {
             confirmPassword: string
         }
     }
+    details: any
     status: 'idle' | 'loading' | 'succeeded' | 'failed'
     isLoggedIn: boolean
 }
 
 const initialState: UserState = {
     profile: {},
+    details: {},
     status: 'idle',
     isLoggedIn: false,
 }
@@ -81,6 +82,16 @@ export const userSlice = createSlice({
             .addCase(updateUserProfile.rejected, (state, action) => {
                 state.status = 'failed'
             })
+            .addCase(fetchUserDetails.pending, (state, action) => {
+                state.status = 'loading'
+            })
+            .addCase(fetchUserDetails.fulfilled, (state, action) => {
+                state.status = 'succeeded'
+                state.details = action.payload
+            })
+            .addCase(fetchUserDetails.rejected, (state, action) => {
+                state.status = 'failed'
+            })
     }
 })
 
@@ -98,6 +109,10 @@ export const updateUserProfile = createAsyncThunk('user/updateUserProfile', asyn
     })
 
     return data
+})
+
+export const fetchUserDetails = createAsyncThunk('user/fetchUserDetails', async (username) => {
+    return await apiCall(`/users/${username}`) as UserState['details']
 })
 
 export default userSlice.reducer

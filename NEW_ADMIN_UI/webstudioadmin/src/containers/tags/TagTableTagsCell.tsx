@@ -22,10 +22,10 @@ interface TagListProps extends TagActions {
 
 export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, createTag, updateTag, deleteTag }) => {
     const { t } = useTranslation()
-    const [ inputVisible, setInputVisible ] = useState(false)
-    const [ inputValue, setInputValue ] = useState('')
-    const [ editInputIndex, setEditInputIndex ] = useState(-1)
-    const [ editInputValue, setEditInputValue ] = useState('')
+    const [inputVisible, setInputVisible] = useState(false)
+    const [inputValue, setInputValue] = useState('')
+    const [editInputIndex, setEditInputIndex] = useState(-1)
+    const [editInputValue, setEditInputValue] = useState('')
     const inputRef = useRef<InputRef>(null)
     const editInputRef = useRef<InputRef>(null)
 
@@ -33,11 +33,11 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
         if (inputVisible) {
             inputRef.current?.focus()
         }
-    }, [ inputVisible ])
+    }, [inputVisible])
 
     useEffect(() => {
         editInputRef.current?.focus()
-    }, [ editInputValue ])
+    }, [editInputValue])
 
     const handleClose = (removedTagId: number) => {
         const tag = tags.find((tag) => tag.id === removedTagId)
@@ -56,7 +56,6 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
 
     const handleInputConfirm = () => {
         if (inputValue) {
-            // setTags([ ...tags, inputValue ])
             createTag(inputValue, tagTypeId)
         }
         setInputVisible(false)
@@ -88,7 +87,7 @@ export const TagTableTagsCell: React.FC<TagListProps> = ({ tags, tagTypeId, crea
     }
 
     return (
-        <Space wrap size={[ 0, 8 ]}>
+        <Space wrap size={[0, 8]}>
             {tags.map((tag, index) => {
                 if (editInputIndex === index) {
                     return (

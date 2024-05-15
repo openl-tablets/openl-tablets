@@ -3,7 +3,7 @@ import { Form, Input, Checkbox } from 'antd'
 import InfoFieldModal from 'components/modal/InfoFieldModal'
 
 export function TypeGitDeployment() {
-    const [ open, setOpen ] = useState(true)
+    const [open, setOpen] = useState(true)
 
     const LocalPathModal = (
         <InfoFieldModal

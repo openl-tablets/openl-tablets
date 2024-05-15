@@ -144,9 +144,37 @@
         <url-pattern>/reconfigure</url-pattern>
     </filter-mapping>
 
-    <listener>
+  <filter>
+    <filter-name>RedirectToClaimsUI</filter-name>
+    <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
+    <init-param>
+      <param-name>redirectPage</param-name>
+      <param-value>/faces/pages/claims.xhtml</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>RedirectToClaimsUI</filter-name>
+    <url-pattern>/claim</url-pattern>
+  </filter-mapping>
+
+  <filter>
+    <filter-name>RedirectToAdminUI</filter-name>
+    <filter-class>org.openl.rules.webstudio.filter.RedirectFilter</filter-class>
+    <init-param>
+      <param-name>redirectPage</param-name>
+      <param-value>/faces/pages/admin.xhtml</param-value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>RedirectToAdminUI</filter-name>
+    <url-pattern>/administration/*</url-pattern>
+  </filter-mapping>
+
+  <listener>
         <listener-class>org.openl.rules.webstudio.web.servlet.SpringInitializer</listener-class>
-    </listener>
+  </listener>
 
     <listener>
         <listener-class>org.openl.rules.webstudio.web.servlet.SessionListener</listener-class>
@@ -198,9 +226,11 @@
         <url-pattern>/action/prop_values</url-pattern>
     </servlet-mapping>
 
-    <welcome-file-list>
-        <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
-    </welcome-file-list>
+  <welcome-file-list>
+    <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
+    <welcome-file>index.xhtml</welcome-file>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
 
     <error-page>
         <error-code>403</error-code>

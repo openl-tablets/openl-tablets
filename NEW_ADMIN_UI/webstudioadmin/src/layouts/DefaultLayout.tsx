@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react'
-import MainMenu from 'components/MainMenu'
 import { Alert, Layout } from 'antd'
 import { Header } from 'containers/Header'
-import { Footer } from '../containers/Footer'
 import { Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
@@ -11,7 +9,6 @@ const { Content: AntContent } = Layout
 
 const layoutStyle: React.CSSProperties = {
     backgroundColor: '#fff',
-    minHeight: '100vh',
 }
 
 export const DefaultLayout = () => {
@@ -29,7 +26,7 @@ export const DefaultLayout = () => {
             />)
         }
         return null
-    }, [ notificationMessage ])
+    }, [notificationMessage])
 
     return (
         <Layout style={layoutStyle}>
@@ -38,7 +35,7 @@ export const DefaultLayout = () => {
                 {Notify}
                 <Outlet />
             </AntContent>
-            <Footer />
+            {/*<Footer />*/}
         </Layout>
     )
 }

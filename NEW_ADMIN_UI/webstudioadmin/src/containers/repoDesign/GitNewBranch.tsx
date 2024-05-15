@@ -6,7 +6,7 @@ import InfoFieldModal from 'components/modal/InfoFieldModal'
 import { Comments } from './Comments'
 
 export function GitNewBranch() {
-    const [ hide, setHide ] = useState(true)
+    const [hide, setHide] = useState(true)
 
     const DefaultBranchModal = (
         <InfoFieldModal
