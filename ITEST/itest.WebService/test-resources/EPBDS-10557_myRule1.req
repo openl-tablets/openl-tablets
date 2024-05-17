@@ -9,7 +9,7 @@ Content-Type: application/json
   "variationPack": {
     "variations": [
       {
-        "@class": "org.openl.rules.variation.JXPathVariation",
+        "@class": "JXPathVariation",
         "updatedArgumentIndex": 0,
         "valueToSet": 2,
         "path": "param2",
