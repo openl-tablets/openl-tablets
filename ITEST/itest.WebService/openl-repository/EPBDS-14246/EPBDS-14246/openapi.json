@@ -1,0 +1,369 @@
+{
+  "openapi" : "3.0.1",
+  "paths" : {
+    "/theCalc" : {
+      "get" : {
+        "description" : "Rules method: SpreadsheetResulttheCalc theCalc()",
+        "operationId" : "theCalc",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TheCalc"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "TheCalc theCalc()"
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "JAXRSErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
+          }
+        }
+      },
+      "JAXRSUserErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MainDatatype" : {
+        "type" : "object",
+        "properties" : {
+          "mainID3" : {
+            "type" : "string",
+            "default" : "44",
+            "description" : "100",
+            "example" : "222"
+          },
+          "myArr" : {
+            "type" : "array",
+            "description" : "Hello Kitty",
+            "items" : {
+              "$ref" : "#/components/schemas/MyTypeSpecific"
+            }
+          }
+        }
+      },
+      "MyType" : {
+        "type" : "object",
+        "discriminator" : {
+          "propertyName" : "@class"
+        },
+        "properties" : {
+          "@class" : {
+            "type" : "string"
+          },
+          "MyField" : {
+            "type" : "integer",
+            "format" : "int32",
+            "enum" : [ 1, 2, 3, 4 ]
+          },
+          "MyNum" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 2,
+            "description" : "3",
+            "enum" : [ 1, 2, 3, 4 ],
+            "example" : 2
+          },
+          "Name" : {
+            "type" : "string",
+            "default" : "test234",
+            "description" : "\\u0000",
+            "example" : "werw"
+          },
+          "bInteger" : {
+            "type" : "integer",
+            "description" : "Very long test 2"
+          },
+          "bolFeild" : {
+            "type" : "boolean",
+            "default" : false,
+            "example" : false
+          },
+          "someSpr123" : {
+            "$ref" : "#/components/schemas/SpreadsheetResult"
+          },
+          "theList" : {
+            "type" : "array",
+            "description" : "My List 2",
+            "items" : {
+              "type" : "object",
+              "description" : "My List 2"
+            }
+          },
+          "theMapArr" : {
+            "type" : "array",
+            "description" : "the Map arr 2",
+            "items" : {
+              "type" : "object",
+              "additionalProperties" : {
+                "type" : "object",
+                "description" : "the Map arr 2"
+              },
+              "description" : "the Map arr 2"
+            }
+          },
+          "vBoolean" : {
+            "type" : "boolean",
+            "default" : true,
+            "description" : "null",
+            "example" : true
+          },
+          "vByte" : {
+            "type" : "string",
+            "format" : "byte",
+            "default" : "LTEyNw==",
+            "description" : "ï¿¿",
+            "example" : "LTEx"
+          },
+          "vCharacter" : {
+            "type" : "string",
+            "default" : "?",
+            "description" : "𱍊",
+            "example" : "0"
+          },
+          "vDoubleValueArr" : {
+            "type" : "array",
+            "default" : [ 1.7976931348623157E308 ],
+            "example" : [ 4.9E-324, 123.0 ],
+            "items" : {
+              "type" : "number",
+              "format" : "double",
+              "default" : 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            }
+          },
+          "vFloat" : {
+            "type" : "number",
+            "format" : "float",
+            "default" : 340282350000000000000000000000000000000,
+            "example" : 0.0000000000000000000000000000000000000000000014
+          },
+          "vInteger" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : -2147483648,
+            "example" : 2147483647
+          },
+          "vLong" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : 9223372036854775807,
+            "example" : -9223372036854775808
+          },
+          "vShort" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : -32768,
+            "description" : "𱍊",
+            "example" : 32767
+          },
+          "vString" : {
+            "type" : "string",
+            "default" : "ï¿¿",
+            "example" : "Som  Text"
+          },
+          "vbyte" : {
+            "type" : "string",
+            "format" : "byte",
+            "default" : "MTI3",
+            "example" : "LTEx"
+          },
+          "vchar" : {
+            "type" : "string",
+            "default" : "0",
+            "description" : "test/test2",
+            "example" : "?"
+          },
+          "vdouble" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000049,
+            "description" : "test\r\nsend line 2",
+            "example" : 179769313486231570000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+          },
+          "vfloat" : {
+            "type" : "number",
+            "format" : "float",
+            "default" : 0.0000000000000000000000000000000000000000000014,
+            "description" : "$%#@!*& 2",
+            "example" : 340282350000000000000000000000000000000
+          },
+          "vint" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : -2147483648,
+            "description" : "; DROP TABLE users; -- 2",
+            "example" : 2147483647
+          },
+          "vlong" : {
+            "type" : "integer",
+            "format" : "int64",
+            "default" : -9223372036854775808,
+            "description" : "你好，世界 2",
+            "example" : 9223372036854775807
+          },
+          "vshort" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : -32768,
+            "description" : "http://www.example.com 2",
+            "example" : 32767
+          }
+        },
+        "required" : [ "@class", "Name", "bolFeild", "vbyte", "vlong" ]
+      },
+      "MyTypeSpecific" : {
+        "type" : "object",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/MyType"
+        }, {
+          "type" : "object",
+          "properties" : {
+            "spr" : {
+              "$ref" : "#/components/schemas/SpreadsheetResult"
+            },
+            "theText" : {
+              "type" : "string",
+              "default" : "test1",
+              "description" : "added some description",
+              "example" : "test2"
+            }
+          }
+        } ],
+        "required" : [ "Name", "bolFeild", "spr", "vbyte", "vlong" ]
+      },
+      "SpreadsheetResult" : {
+        "type" : "object",
+        "description" : "Spreadsheet feild",
+        "properties" : {
+          "columnNames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "results" : {
+            "type" : "array",
+            "items" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object"
+              }
+            }
+          },
+          "rowNames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "TheCalc" : {
+        "type" : "object",
+        "properties" : {
+          "Step1" : {
+            "$ref" : "#/components/schemas/MyType"
+          },
+          "Step3" : {
+            "$ref" : "#/components/schemas/MainDatatype"
+          },
+          "sStep2" : {
+            "$ref" : "#/components/schemas/MyTypeSpecific"
+          }
+        }
+      }
+    }
+  }
+}
