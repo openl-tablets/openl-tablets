@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-14277_SpreadsheetDescription</name>
+    <modules>
+        <module>
+            <name>EPBDS-14277_SpreadsheetDescription</name>
+            <rules-root path="EPBDS-14277_SpreadsheetDescription.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+</project>
