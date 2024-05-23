@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { Layout, Row, Col, Menu, MenuProps } from 'antd'
 import './Header.scss'
 import { UserMenu } from './header/UserMenu'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
-import { loadRemote } from '@module-federation/runtime'
+import { claimMenu } from '../plugins'
 
 const { Header: AntHeader } = Layout
 
@@ -19,13 +19,6 @@ const titleStyle: CSSProperties = {
 }
 
 const basePath = process.env.BASE_PATH || ''
-
-const claimMenu = await loadRemote('claimEditorPlugin/menu').then((a: any) => {
-    return a.default || []
-}).catch((e) => {
-    console.error('Failed to load claimEditorPlugin/menu', e)
-    return []
-})
 
 export const Header = () => {
     const { t } = useTranslation()
