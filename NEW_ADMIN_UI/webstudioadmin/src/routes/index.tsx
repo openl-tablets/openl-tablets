@@ -16,24 +16,9 @@ import { DefaultLayout } from '../layouts/DefaultLayout'
 import { AdministrationLayout } from '../layouts/AdministrationLayout'
 import { RedirectToDefaultPage } from './RedirectToDefaultPage'
 import { HeaderLayout } from '../layouts/HeaderLayout'
-import { PluginLoader } from '../services/PluginLoader'
-import { loadRemote } from '@module-federation/runtime'
+import { claimsRoutes } from '../plugins'
 
 const basePath = process.env.BASE_PATH || ''
-
-const claimsRoutes = await loadRemote('claimEditorPlugin/routes').then((a: any) => {
-    return a.default
-}).catch((e) => {
-    return []
-})
-
-const additionalRoutes = window.pluginsConfiguration?.map((plugin: any) => {
-    return {
-        path: plugin.routeRoot,
-        element: <PluginLoader request="claimEditorPlugin/App" />,
-    }
-})
-
 
 const router = createBrowserRouter([
     {
