@@ -11,6 +11,9 @@ on:
         required: false
         default: 'latest'
 
+run-name: Publishing docker images for
+  ${{ inputs.version || 'latest' }}
+
 jobs:
   publish:
 
