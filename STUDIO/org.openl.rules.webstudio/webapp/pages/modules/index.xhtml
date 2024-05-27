@@ -180,7 +180,7 @@
                     get: function(urls, done, error) {
                         if (typeof urls === "string") {
                             // One page
-                            $.get(urls, function() {
+                            jQuery.get(urls, function() {
                                 done(arguments);
                             }).fail(function (response) {
                                 if (error) {
