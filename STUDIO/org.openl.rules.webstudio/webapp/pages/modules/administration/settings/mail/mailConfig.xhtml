@@ -55,7 +55,7 @@
             });
 
             $j("#mail-config-verification").change(function () {
-                const verificationChecked = $j(this).prop("checked") === 'checked';
+                const verificationChecked = $j(this).prop("checked");
                 $j("#mail-config-verification-section").toggle(verificationChecked);
             });
 
