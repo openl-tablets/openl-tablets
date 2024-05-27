@@ -182,8 +182,10 @@
                             // One page
                             $.get(urls, function() {
                                 done(arguments);
-                            }).error(function (response) {
-                                error && error(response);
+                            }).fail(function (response) {
+                                if (error) {
+                                    error(response);
+                                }
                             });
                         } else {
                             // Few pages
