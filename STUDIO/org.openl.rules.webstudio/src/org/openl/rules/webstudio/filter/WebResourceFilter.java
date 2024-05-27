@@ -34,7 +34,8 @@ public class WebResourceFilter implements Filter {
             Pattern.CASE_INSENSITIVE);
 
     private static final Map<String, String> RICHFACES_RESOURCES_OVERRIDE = Map.of(
-            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/jquery.js", "/webresource/javascript/vendor/jquery-3.7.1.min.js"
+            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/jquery.js", "/webresource/javascript/vendor/jquery-3.7.1.min.js",
+            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/fileupload.js", "/webresource/javascript/fileupload.js"
     );
 
     private FilterConfig filterConfig;
