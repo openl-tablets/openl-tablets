@@ -61,9 +61,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
 
-    private static final String[] CLEAN_UP_PROPERTIES = {"jackson.defaultTypingMode",
-            "rootClassNamesBinding"};
-
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private KafkaDeploy defaultKafkaDeploy;
@@ -279,15 +276,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         return config;
     }
 
-    protected Properties cleanupConfigs(Properties config) {
-        Properties props = new Properties();
-        props.putAll(config);
-        for (String propertyName : CLEAN_UP_PROPERTIES) {
-            props.remove(propertyName);
-        }
-        return props;
-    }
-
     private <T> T getConfiguredValueDeserializer(OpenLService service,
                                                  ObjectMapper objectMapper,
                                                  Method method,
@@ -395,7 +383,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
                 consumerObjectMapper,
                 method,
-                cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));
+                mergedKafkaConfig.getConsumerConfigs());
         kafkaConsumers.add(consumer);
 
         // Build Method Kafka Producer or reuse shared
@@ -411,7 +399,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             objectSerializer = new JacksonObjectSerializer(producerObjectMapper);
             producer = buildProducer(service,
                     producerObjectMapper,
-                    cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
+                    mergedKafkaConfig.getProducerConfigs());
             if (possibleToReuseShared) {
                 context.setProducerAndObjectSerializer(producer, objectSerializer);
             }
@@ -424,7 +412,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             dltProducer = context.getDltProducer();
         }
         if (dltProducer == null) {
-            dltProducer = buildDltProducer(cleanupConfigs(mergedKafkaConfig.getDltProducerConfigs()));
+            dltProducer = buildDltProducer(mergedKafkaConfig.getDltProducerConfigs());
             if (possibleToReuseShared) {
                 context.setDltProducer(dltProducer);
             }
