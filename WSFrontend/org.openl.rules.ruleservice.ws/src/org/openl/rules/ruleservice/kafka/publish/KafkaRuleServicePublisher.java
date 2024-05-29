@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -32,10 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -57,7 +53,7 @@ import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
 
-public class KafkaRuleServicePublisher implements RuleServicePublisher, ResourceLoaderAware {
+public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
@@ -69,8 +65,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             "rootClassNamesBinding"};
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
-
-    private ResourceLoader resourceLoader;
 
     private KafkaDeploy defaultKafkaDeploy;
     private KafkaDeploy immutableKafkaDeploy;
@@ -134,24 +128,16 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
-            Resource resource = resourceLoader.getResource("classpath:default-kafka-deploy.yaml");
-            if (!resource.exists()) {
-                throw new FileNotFoundException("File 'default-kafka-deploy.yaml' is not found.");
-            }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            defaultKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
+            defaultKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-default.yaml"), KafkaDeploy.class);
         }
         return defaultKafkaDeploy;
     }
 
     private KafkaDeploy getImmutableKafkaDeploy() throws IOException {
         if (immutableKafkaDeploy == null) {
-            Resource resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yaml");
-            if (!resource.exists()) {
-                throw new FileNotFoundException("File 'immutable-kafka-deploy.yaml' is not found.");
-            }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            immutableKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
+            immutableKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-override.yaml"), KafkaDeploy.class);
         }
         return immutableKafkaDeploy;
     }
@@ -671,11 +657,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     @Override
     public String getUrl(OpenLService service) {
         return null;
-    }
-
-    @Override
-    public void setResourceLoader(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
     }
 
     public String getDefaultGroupId() {
