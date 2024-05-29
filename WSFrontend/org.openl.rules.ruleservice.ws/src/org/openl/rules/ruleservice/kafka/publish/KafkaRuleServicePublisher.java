@@ -45,7 +45,6 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
-import org.openl.rules.ruleservice.kafka.conf.ClientIDGenerator;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
@@ -62,14 +61,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
-    private static final String CLIENT_ID_GENERATOR = "client.id.generator";
     private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
 
     private static final String[] CLEAN_UP_PROPERTIES = {"jackson.defaultTypingMode",
-            "rootClassNamesBinding",
-            CLIENT_ID_GENERATOR};
+            "rootClassNamesBinding"};
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
@@ -206,7 +203,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (getImmutableKafkaDeploy().getProducerConfigs() != null) {
             configs.putAll(getImmutableKafkaDeploy().getProducerConfigs());
         }
-        useClientIdGeneratorIfPropertyIsNotSet(configs, service, baseKafkaDeploy);
+        defineClientIdIfAbsent(configs, service);
         setBootstrapServers(service, baseKafkaDeploy, "Producer", configs);
         return configs;
     }
@@ -227,7 +224,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (getImmutableKafkaDeploy().getDltProducerConfigs() != null) {
             configs.putAll(getImmutableKafkaDeploy().getDltProducerConfigs());
         }
-        useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
+        defineClientIdIfAbsent(configs, service);
         setBootstrapServers(service, kafkaConfig, "DLT producer", configs);
         return configs;
     }
@@ -248,7 +245,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (getImmutableKafkaDeploy().getConsumerConfigs() != null) {
             configs.putAll(getImmutableKafkaDeploy().getConsumerConfigs());
         }
-        useClientIdGeneratorIfPropertyIsNotSet(configs, service, kafkaConfig);
+        defineClientIdIfAbsent(configs, service);
         setBootstrapServers(service, kafkaConfig, "Consumer", configs);
 
         if (!configs.containsKey(GROUP_ID)) {
@@ -257,21 +254,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         return configs;
     }
 
-    private void useClientIdGeneratorIfPropertyIsNotSet(Properties configs,
-                                                        OpenLService service,
-                                                        BaseKafkaConfig kafkaConfig) {
-        if (configs.getProperty(CLIENT_ID) == null && configs.getProperty(CLIENT_ID_GENERATOR) != null) {
-            String clientIDGeneratorClassName = configs.getProperty(CLIENT_ID_GENERATOR);
-            try {
-                Class<?> clientIDGeneratorClass = Thread.currentThread()
-                        .getContextClassLoader()
-                        .loadClass(clientIDGeneratorClassName);
-                ClientIDGenerator clientIDGenerator = (ClientIDGenerator) clientIDGeneratorClass.getDeclaredConstructor().newInstance();
-                configs.put(CLIENT_ID, clientIDGenerator.generate(service, kafkaConfig));
-            } catch (Exception e) {
-                log.error("Failed to generate 'client.id' property for kafka consumer/producer.", e);
-            }
-        }
+    private void defineClientIdIfAbsent(Properties configs, OpenLService service) {
+        configs.computeIfAbsent(CLIENT_ID, (k) -> service.getName() + "#" + Integer.toString(service.hashCode(), 16));
     }
 
     private boolean requiredFieldIsMissed(Object value) {
