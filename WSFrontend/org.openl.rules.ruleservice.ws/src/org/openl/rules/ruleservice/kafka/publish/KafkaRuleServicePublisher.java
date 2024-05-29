@@ -136,11 +136,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (defaultKafkaDeploy == null) {
             Resource resource = resourceLoader.getResource("classpath:default-kafka-deploy.yaml");
             if (!resource.exists()) {
-                resource = resourceLoader.getResource("classpath:default-kafka-deploy.yml");
-                if (!resource.exists()) {
-                    throw new FileNotFoundException(
-                            "File 'default-kafka-deploy.yaml' or 'default-kafka-deploy.yml' is not found.");
-                }
+                throw new FileNotFoundException("File 'default-kafka-deploy.yaml' is not found.");
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
             defaultKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
@@ -152,11 +148,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         if (immutableKafkaDeploy == null) {
             Resource resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yaml");
             if (!resource.exists()) {
-                resource = resourceLoader.getResource("classpath:immutable-kafka-deploy.yml");
-                if (!resource.exists()) {
-                    throw new FileNotFoundException(
-                            "File 'immutable-kafka-deploy.yaml' or 'immutable-kafka-deploy.yml' is not found.");
-                }
+                throw new FileNotFoundException("File 'immutable-kafka-deploy.yaml' is not found.");
             }
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
             immutableKafkaDeploy = mapper.readValue(resource.getInputStream(), KafkaDeploy.class);
