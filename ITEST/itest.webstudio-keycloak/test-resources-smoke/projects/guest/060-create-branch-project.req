@@ -1,0 +1,7 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdA==/branches HTTP/1.1
+Authorization: Bearer ${GUEST_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "branch": "guest/feature-1"
+}

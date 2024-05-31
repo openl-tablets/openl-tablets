@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class HttpData {
     static final ObjectMapper OBJECT_MAPPER;
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.*?)}");
 
     static {
         OBJECT_MAPPER = new ObjectMapper();
@@ -115,14 +116,14 @@ class HttpData {
         return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
     }
 
-    static HttpData send(URL baseURL, HttpData httpData, String cookie) throws IOException {
+    static HttpData send(URL baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws IOException {
         if (httpData.headers.containsKey("Cookie")) {
             cookie = null;
         }
         HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
                 httpData.getHttpMethod(),
                 cookie);
-        write(connection, httpData);
+        write(connection, httpData, localEnv);
         return readData(connection);
     }
 
@@ -144,16 +145,30 @@ class HttpData {
         return (HttpURLConnection) connection;
     }
 
-    private static void write(HttpURLConnection connection, HttpData httpData) throws IOException {
+    private static void write(HttpURLConnection connection, HttpData httpData, Map<String, String> localEnv) throws IOException {
         httpData.headers.putIfAbsent("Content-Length", String.valueOf(httpData.body.length));
         httpData.headers.putIfAbsent("Host", "example.com");
-        httpData.headers.forEach(connection::addRequestProperty);
+        httpData.headers.forEach((key, value) -> connection.addRequestProperty(key, replacePlaceholders(value, localEnv)));
         connection.connect();
         if (httpData.body.length != 0) {
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(httpData.body);
             }
         }
+    }
+
+    private static String replacePlaceholders(String text, Map<String, String> env) {
+        var matcher = PLACEHOLDER_PATTERN.matcher(text);
+
+        var result = new StringBuilder();
+        while (matcher.find()) {
+            String placeholder = matcher.group(1);
+            String replacement = env.get(placeholder);
+            matcher.appendReplacement(result, replacement);
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
 
     void writeBodyTo(String responseFile) throws IOException {

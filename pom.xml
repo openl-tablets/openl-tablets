@@ -151,6 +151,7 @@
         <datasource-proxy.version>1.10</datasource-proxy.version>
         <xmlunit.version>2.10.0</xmlunit.version>
         <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.10</minio.version>
         <jmh.version>1.37</jmh.version>
 
@@ -730,6 +731,12 @@
                         <artifactId>cassandra-driver-core</artifactId>
                     </exclusion>
                 </exclusions>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.dasniko</groupId>
+                <artifactId>testcontainers-keycloak</artifactId>
+                <version>${testcontainers.keycloak.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

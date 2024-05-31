@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIx HTTP/1.1
+Authorization: Bearer ${USER1_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "branch": "user1/feature-1"
+}
