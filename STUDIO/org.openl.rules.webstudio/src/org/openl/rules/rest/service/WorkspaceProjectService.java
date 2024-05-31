@@ -35,6 +35,7 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateBranchModel;
 import org.openl.rules.rest.model.ProjectStatusUpdateModel;
@@ -216,7 +217,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void close(RulesProject project) throws ProjectException {
         var webStudio = getWebStudio();
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
-            throw new SecurityException();
+            throw new ForbiddenException("default.message");
         }
         if (project.isDeleted()) {
             throw new ConflictException("project.close.deleted.message", project.getBusinessName());
@@ -255,7 +256,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                       boolean openDependencies,
                       ProjectStatusUpdateModel model) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
-            throw new SecurityException();
+            throw new ForbiddenException("default.message");
         }
         var workspace = getUserWorkspace();
         if (project.isDeleted()) {
@@ -349,6 +350,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var workspace = getUserWorkspace();
                 if (workspace.isOpenedOtherProject(project)) {
                     throw new ConflictException("open.duplicated.project");
+                } else {
+                    project.open();
                 }
             }
         }
@@ -372,7 +375,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.branch.unsupported.message");
         }
         if (!hasCreateBranchPermissions(project)) {
-            throw new SecurityException();
+            throw new ForbiddenException("default.message");
         }
         var repository = (BranchRepository) project.getDesignRepository();
         try {
@@ -476,7 +479,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public TableView getTable(RulesProject project, String tableId) {
         var table = getOpenLTable(project, tableId);
-        var reader = readers.stream().filter(r -> r.supports(table)).findFirst().orElseThrow();
+        var reader = readers.stream()
+                .filter(r -> r.supports(table))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("unsupported.table.type.message"));
         return reader.read(table);
     }
 
@@ -513,7 +519,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-            throw new SecurityException();
+            throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
@@ -568,7 +574,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                  String tableId,
                                  AppendTableView tableView) throws ProjectException {
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-            throw new SecurityException();
+            throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
         var writer = getTableWriter(table, tableView.getTableType());
