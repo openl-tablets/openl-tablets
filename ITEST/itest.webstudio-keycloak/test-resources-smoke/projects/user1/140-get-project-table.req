@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIx/tables/39abced710a1a6bc6b4d31fc8a3cd1fd HTTP/1.1
+Authorization: Bearer ${USER1_ACCESS_TOKEN}
+

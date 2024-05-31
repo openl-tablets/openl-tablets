@@ -39,6 +39,7 @@
         <module>itest.tracing</module>
         <module>itest.storelogdata</module>
         <module>itest.minio</module>
+        <module>itest.webstudio-keycloak</module>
     </modules>
 
     <dependencyManagement>

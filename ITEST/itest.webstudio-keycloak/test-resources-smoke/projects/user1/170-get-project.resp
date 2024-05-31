@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "ProjectUser1",
+  "modifiedBy": "User User1",
+  "modifiedAt": "*",
+  "branch": "user1/feature-1",
+  "revision": "*",
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIx",
+  "status": "OPENED",
+  "comment": "User1 saved the project",
+  "repository": "design-flat"
+}

@@ -1,0 +1,12 @@
+POST /rest/projects/ZGVzaWduLWZsYXQ6UHJvamVjdA==/tables/a9b205cbc833c511accabda0c39a87c8/lines HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "rules": [{
+      "Rule": "ERR",
+      "Greeting": "= error (\"Invalid input\")"
+    }
+  ]
+}

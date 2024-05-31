@@ -13,6 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -32,6 +34,7 @@ public class HttpClient {
     private final URL baseURL;
     private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
+    public final Map<String, String> localEnv = new HashMap<>();
 
     private final int retryTimeout;
 
@@ -177,7 +180,7 @@ public class HttpClient {
                 if (error != null) {
                     TimeUnit.MILLISECONDS.sleep(100);
                 }
-                response = HttpData.send(baseURL, request, cookie.get());
+                response = HttpData.send(baseURL, request, cookie.get(), localEnv);
 
                 var c = response.getCookie();
                 if (c != null && !c.isBlank()) {
