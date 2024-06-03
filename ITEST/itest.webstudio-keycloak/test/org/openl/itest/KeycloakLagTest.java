@@ -14,13 +14,12 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.JettyServer;
 
-public class KeycloakTest {
+public class KeycloakLagTest {
 
     private static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:24.0")
             .withRealmImportFile("/keycloak/openlstudio-realm.json");
@@ -31,16 +30,9 @@ public class KeycloakTest {
 
     @BeforeAll
     public static void initialize() {
-        KEYCLOAK_CONTAINER.start();
         config = new HashMap<>();
-        config.put("security.oauth2.issuer-uri", KEYCLOAK_CONTAINER.getAuthServerUrl() + "realms/openlstudio");
         config.put("security.oauth2.client-id", CLIENT_ID);
         config.put("security.oauth2.client-secret", CLIENT_SECRET);
-    }
-
-    @AfterAll
-    public static void destroy() {
-        KEYCLOAK_CONTAINER.stop();
     }
 
     private final HttpClient client = HttpClient.newHttpClient();
@@ -50,16 +42,22 @@ public class KeycloakTest {
     public void smoke() throws Exception {
         JettyServer server = null;
         try {
+            KEYCLOAK_CONTAINER.start();
+            config.put("security.oauth2.issuer-uri", KEYCLOAK_CONTAINER.getAuthServerUrl() + "realms/openlstudio");
+            var adminAccessToken = getAccessTokenForUser("admin", "admin");
             server = JettyServer.start("oauth2", config);
+            KEYCLOAK_CONTAINER.stop(); // stop Keycloak to simulate the lag
             var httpClient = server.client();
-            httpClient.localEnv.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser("admin", "admin"));
-            httpClient.localEnv.put("USER1_ACCESS_TOKEN", getAccessTokenForUser("user1", "user1"));
-            httpClient.localEnv.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser("guest", "guest"));
-            httpClient.localEnv.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-            httpClient.test("test-resources-smoke");
+            httpClient.localEnv.put("ADMIN_ACCESS_TOKEN", adminAccessToken);
+            httpClient.test("test-resources-negative");
         } finally {
-            if (server != null) {
-                server.stop();
+            try {
+                if (server != null) {
+                    server.stop();
+                }
+            } finally {
+                // just make sure that the container is stopped
+                KEYCLOAK_CONTAINER.stop();
             }
         }
     }
