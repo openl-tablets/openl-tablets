@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
@@ -21,6 +22,7 @@ public class RestBasicAuthenticationEntryPoint extends BasicAuthenticationEntryP
                          AuthenticationException authException) throws IOException {
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + getRealmName() + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(MediaType.TEXT_HTML_VALUE);
         Writer writer = response.getWriter();
         writer.write("Unauthorized: ");
         writer.write(authException.getMessage());
