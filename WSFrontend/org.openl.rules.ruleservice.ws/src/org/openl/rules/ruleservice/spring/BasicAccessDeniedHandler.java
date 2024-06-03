@@ -1,7 +1,5 @@
 package org.openl.rules.ruleservice.spring;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,7 +22,7 @@ public class BasicAccessDeniedHandler implements AccessDeniedHandler {
     private final Logger log = LoggerFactory.getLogger(BasicAccessDeniedHandler.class);
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response) {
         log.info("Access denied: {} {};", request.getMethod(), request.getRequestURL());
         var credentials = request.getHeader("Authorization");
         if (credentials == null) {

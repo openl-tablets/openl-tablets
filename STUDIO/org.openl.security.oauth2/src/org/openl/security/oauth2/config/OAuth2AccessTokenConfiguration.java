@@ -3,15 +3,20 @@ package org.openl.security.oauth2.config;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
@@ -31,10 +36,36 @@ public class OAuth2AccessTokenConfiguration {
     public static final String AUTH_PROVIDER_BEAN_NAME = "oauth2AccessTokenAuthenticationProvider";
 
     @Bean
-    public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(
-            AuthenticationManager authenticationManager) {
+    public BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter(AuthenticationManager authenticationManager,
+                                                                           BearerTokenAuthenticationEntryPoint authenticationEntryPoint) {
 
-        return new BearerTokenAuthenticationFilter(authenticationManager);
+        var authFilter = new BearerTokenAuthenticationFilter(authenticationManager);
+        authFilter.setAuthenticationEntryPoint(authenticationEntryPoint);
+        authFilter.setAuthenticationFailureHandler((request, response, exception) -> {
+            if (exception instanceof AuthenticationServiceException) {
+                // If the exception is an instance of AuthenticationServiceException, it means that the issue on the
+                // server side. In this case, we should return 500 status code.
+                // CAUTION: do not re-thrown the exception, because it will be redirected to HTML error page which is not accepted for REST API
+                var log = LoggerFactory.getLogger(BearerTokenAuthenticationFilter.class);
+                log.error(exception.getMessage(), exception);
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            } else {
+                authenticationEntryPoint.commence(request, response, exception);
+            }
+        });
+        return authFilter;
+    }
+
+    @Bean
+    public BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
+        var entrypoint = new BearerTokenAuthenticationEntryPoint();
+        entrypoint.setRealmName("WebStudio Realm");
+        return entrypoint;
+    }
+
+    @Bean
+    public ExceptionTranslationFilter bearerExceptionTranslationFilter(BearerTokenAuthenticationEntryPoint authenticationEntryPoint) {
+        return new ExceptionTranslationFilter(authenticationEntryPoint);
     }
 
     @Bean
