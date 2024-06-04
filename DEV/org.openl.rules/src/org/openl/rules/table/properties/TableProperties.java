@@ -455,8 +455,7 @@ public class TableProperties implements ITableProperties {
     }
 
     @Override
-    public void setEmptyResultProcessing(
-            org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
+    public void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
         setFieldValue("emptyResultProcessing", emptyResultProcessing);
         reset();
     }

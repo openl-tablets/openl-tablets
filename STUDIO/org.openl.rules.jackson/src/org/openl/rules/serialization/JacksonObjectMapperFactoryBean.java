@@ -242,6 +242,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         mapper.addMixIn(GroovyObject.class, org.openl.rules.serialization.jackson.groovy.lang.GroovyObject.class);
+        mapper.addMixIn(IRulesRuntimeContext.class, org.openl.rules.serialization.jackson.org.openl.rules.context.IRulesRuntimeContext.class);
 
         if (isSupportVariations()) {
             addMixIn(mapper, Variation.class, VariationType.class);

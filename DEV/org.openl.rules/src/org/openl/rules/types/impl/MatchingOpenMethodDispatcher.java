@@ -326,6 +326,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         if (context.getLob() != null) {
             propNames.add("lob");
         }
+        if (context.getOrigin() != null) {
+            propNames.add("origin");
+        }
         if (context.getUsRegion() != null) {
             propNames.add("usregion");
         }

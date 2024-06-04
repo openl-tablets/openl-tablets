@@ -25,7 +25,13 @@ public class TracedObjectFactory {
                                                      Object[] params,
                                                      IRuntimeEnv env) {
         if (source instanceof OpenMethodDispatcher) {
-            return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
+            var methodDispatcher = (OpenMethodDispatcher) source;
+            if (methodDispatcher.getCandidates().size() == 1) {
+                // if there is only one candidate, we can omit it
+                return null;
+            } else {
+                return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
+            }
         } else if (source instanceof WeightAlgorithmExecutor) {
             return new WScoreTraceObject((ColumnMatch) target, params, env.getContext());
         } else if (source instanceof ColumnMatch) {
@@ -89,8 +95,14 @@ public class TracedObjectFactory {
             tr.setResult(args[0]);
             trObj = tr;
         } else if (source instanceof OpenMethodDispatcher) {
-            trObj = new DTRuleTracerLeaf(
-                    new int[]{((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])});
+            var methodDispatcher = (OpenMethodDispatcher) source;
+            if (methodDispatcher.getCandidates().size() == 1) {
+                // if there is only one candidate, we can omit it
+                return null;
+            } else {
+                trObj = new DTRuleTracerLeaf(
+                        new int[]{((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])});
+            }
         } else {
             trObj = null;
         }
