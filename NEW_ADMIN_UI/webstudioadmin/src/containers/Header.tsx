@@ -60,8 +60,6 @@ export const Header = () => {
             children: [...editorMenuItems]
         }] : []
 
-        console.log('additionalMenuItems', additionalMenuItems)
-
         return [
             ...defaultMenuItems,
             ...additionalMenuItems
