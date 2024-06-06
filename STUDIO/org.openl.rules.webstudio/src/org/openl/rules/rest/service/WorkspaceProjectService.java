@@ -445,6 +445,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private ProjectModel getProjectModel(RulesProject project) {
+        if (!project.isOpened()) {
+            throw new ConflictException("project.not.opened.message");
+        }
         var webstudio = getWebStudio();
 
         var projectDescriptor = webstudio.getProjectByName(project.getRepository().getId(), project.getName());
