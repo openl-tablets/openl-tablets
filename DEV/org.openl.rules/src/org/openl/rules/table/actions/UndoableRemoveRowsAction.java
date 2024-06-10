@@ -11,15 +11,13 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  */
 public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
-    private final int nRows;
-    private final int startRow;
-    private final int col;
+    final int nRows;
+    final int startRow;
     private final MetaInfoWriter metaInfoWriter;
 
-    public UndoableRemoveRowsAction(int nRows, int startRow, int col, MetaInfoWriter metaInfoWriter) {
+    public UndoableRemoveRowsAction(int nRows, int startRow, MetaInfoWriter metaInfoWriter) {
         this.nRows = nRows;
         this.startRow = startRow;
-        this.col = col;
         this.metaInfoWriter = metaInfoWriter;
     }
 
@@ -35,12 +33,7 @@ public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
     @Override
     protected int getNumberToRemove(IGridTable table) {
-        int cellHeight = getOriginalTable(table).getCell(col, startRow).getHeight();
-        int numberToRemove = nRows;
-        if (cellHeight > 1) { // merged cell
-            numberToRemove += cellHeight - 1;
-        }
-        return numberToRemove;
+        return nRows;
     }
 
     @Override

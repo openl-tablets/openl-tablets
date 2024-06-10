@@ -8,7 +8,7 @@ Content-Type: application/json
     "kind": "Rules",
     "name": "FicaDetails",
     "returnType": "Double",
-    "signature": "FicaDetails(String fica, Date startDate)",
+    "signature": "FicaDetails (String  fica, Date startDate)",
     "file": "EPBDS-14376/DateBug.xlsx",
     "pos": "C5:E9"
   }

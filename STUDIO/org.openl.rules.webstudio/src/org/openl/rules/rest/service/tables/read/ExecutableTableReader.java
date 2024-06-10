@@ -87,7 +87,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return Collections.unmodifiableList(args);
     }
 
-    private static int rollIdentifier(String s, int pos) {
+    static int rollIdentifier(String s, int pos) {
         while (pos < s.length() && isIdentifierPart(s.charAt(pos))) {
             pos++;
         }
@@ -98,7 +98,7 @@ public abstract class ExecutableTableReader<T extends ExecutableView, R extends 
         return Character.isJavaIdentifierPart(cp) || "[].<>:".indexOf(cp) > -1;
     }
 
-    private static int rollWhitespaces(String s, int pos) {
+    static int rollWhitespaces(String s, int pos) {
         while (pos < s.length() && Character.isWhitespace(s.charAt(pos))) {
             pos++;
         }

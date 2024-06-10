@@ -159,14 +159,14 @@ public abstract class TableWriter<T extends TableView> {
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
         int startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
-        var action = new UndoableRemoveRowsAction(nRows, startRow0, 0, getMetaInfoWriter());
+        var action = new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter());
         action.doAction(gridTable);
         actionsQueue.addNewAction(action);
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
         int startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
-        var action = new UndoableRemoveColumnsAction(nCols, startCol0, 0, getMetaInfoWriter());
+        var action = new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter());
         action.doAction(gridTable);
         actionsQueue.addNewAction(action);
     }
