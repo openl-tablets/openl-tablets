@@ -1,9 +1,5 @@
 # syntax=docker/dockerfile:1
 
-ARG JDK=11-jre-focal
-
-FROM eclipse-temurin:${JDK} as jdk
-
 FROM alpine as otel
 
 ENV OTEL_VER 2.12.0
@@ -26,7 +22,7 @@ gpg --batch --verify opentelemetry-javaagent.jar.asc opentelemetry-javaagent.jar
 apk del wget gnupg
 EOT
 
-FROM ubuntu:focal
+FROM eclipse-temurin:21-jre-alpine as openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"
@@ -34,10 +30,6 @@ LABEL org.opencontainers.image.vendor="OpenL Tablets"
 ENV LC_ALL C.UTF-8
 
 ARG APP=STUDIO/org.openl.rules.webstudio/target/webapp
-
-# Copy Java
-ENV JAVA_HOME /opt/java/openjdk
-COPY --from=jdk $JAVA_HOME $JAVA_HOME
 
 ENV OPENL_DIR /opt/openl
 ENV OPENL_HOME $OPENL_DIR/local
@@ -52,11 +44,11 @@ ENV OTEL_SERVICE_NAME OpenL
 RUN mkdir -p $OTEL_DIR
 COPY --from=otel opentelemetry-javaagent.jar $OTEL_DIR
 
-COPY --from=jetty:10-jre11 /usr/local/jetty $OPENL_APP
+COPY --from=jetty:12-jre21 /usr/local/jetty $OPENL_APP
 
 # Create start file for Jetty with configuration options
 RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 if [ -r "$OPENL_DIR/setenv.sh" ]; then
     . "$OPENL_DIR/setenv.sh"
@@ -73,7 +65,7 @@ if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '^OTEL_EXPORTER_')"
     export OTEL_JAVAAGENT_ENABLED=false
 fi
 
-if [ -z "$OTEL_JAVAAGENT_EXTENSIONS" ] && [ "${OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED,,}" != "false"  ]; then
+if [ -z "$OTEL_JAVAAGENT_EXTENSIONS" ] && [ "$(echo "$OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED" | tr '[:upper:]' '[:lower:]')" != "false" ]; then
     echo "INFO: OpenL rules agent extension for the OpenTelemetry has been defined"
     export OTEL_JAVAAGENT_EXTENSIONS="$OTEL_DIR/openl-rules-opentelemetry.jar"
 fi
@@ -82,7 +74,7 @@ JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
 
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -javaagent:"$OTEL_DIR/opentelemetry-javaagent.jar" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"
+-jar "$OPENL_APP/start.jar" --module=http,ee8-jsp,ext,ee8-deploy --lib="$OPENL_LIB/*.jar" "$@"
 EOT
 
 # Create setenv.sh file for configuration customization purpose
@@ -97,11 +89,6 @@ EOT
 
 RUN <<EOT
 set -euxv
-
-# Install fonts required for Apache POI (export into Excel with autowidth of columns)
-apt-get update
-apt-get install -y --no-install-recommends fontconfig
-rm -rf /var/lib/apt/lists/*
 
 # Permission for rootless mode (for running as non-root)
 mkdir $OPENL_DIR/logs
@@ -119,13 +106,13 @@ ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 # Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
 # WARN spamming in the log.
 # UID=1000 as a de-facto standard in k8s examples.
-RUN useradd -r -m -U -s /usr/sbin/nologin openl -u 1000
+RUN adduser -S -D -s /usr/sbin/nologin -u 1000 openl
 
 # Writable folder for 'openl' user where application files are stored.
 # It should be mounted on an external volume to persist application data between redeploying if it is required.
 # Do not confuse this with home directory of 'openl' user.
-RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
-RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
+RUN mkdir -p "$OPENL_HOME" && chown openl "$OPENL_HOME"
+RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl "$OPENL_HOME_SHARED"
 # Running a container under a non-root user
 USER openl
 
