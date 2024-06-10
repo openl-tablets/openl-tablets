@@ -37,8 +37,8 @@ import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
-import org.openl.rules.table.actions.UndoableRemoveColumnsAction;
-import org.openl.rules.table.actions.UndoableRemoveRowsAction;
+import org.openl.rules.table.actions.UndoableRemoveMergedColumnsAction;
+import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
@@ -166,7 +166,7 @@ public class TableEditorModel {
     }
 
     public synchronized void removeRows(int nRows, int startRow, int col) {
-        IUndoableGridTableAction removeRowsAction = new UndoableRemoveRowsAction(nRows,
+        IUndoableGridTableAction removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
                 startRow,
                 col,
                 getMetaInfoWriter());
@@ -175,7 +175,7 @@ public class TableEditorModel {
     }
 
     public synchronized void removeColumns(int nCols, int startCol, int row) {
-        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveColumnsAction(nCols,
+        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveMergedColumnsAction(nCols,
                 startCol,
                 row,
                 getMetaInfoWriter());

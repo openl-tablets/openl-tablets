@@ -6,8 +6,6 @@ import java.nio.file.Path;
 
 import org.springframework.stereotype.Component;
 
-import org.openl.base.INamedThing;
-import org.openl.binding.MethodUtil;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
 import org.openl.rules.rest.model.tables.SmartRulesView;
@@ -49,9 +47,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var tsn = table.getSyntaxNode();
         var member = tsn.getMember();
         if (member instanceof AMethod) {
-            var methodHeader = ((AMethod) member).getHeader();
-            builder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
-                    .returnType(MethodUtil.printType(methodHeader.getType()));
+            initializeMethodSignature(builder, table.getSyntaxNode().getHeader().getSourceString());
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {
@@ -65,5 +61,24 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         } else {
             builder.tableType(OpenLTableUtils.getTableTypeItems().get(table.getType()));
         }
+    }
+
+    private void initializeMethodSignature(SummaryTableView.Builder builder, String headerSource) {
+        int pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
+        int start = pos;
+        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+        if (start < pos) {
+            // it is probably table type
+            builder.tableType(headerSource.substring(start, pos));
+        }
+        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        start = pos;
+        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+        if (start < pos) {
+            // it is probably table return type
+            builder.returnType(headerSource.substring(start, pos));
+        }
+        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        builder.signature(headerSource.substring(pos));
     }
 }

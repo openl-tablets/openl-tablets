@@ -8,7 +8,7 @@ Content-Type: application/json
     "kind": "Rules",
     "name": "Hello",
     "returnType": "String",
-    "signature": "Hello(Integer hour)",
+    "signature": "Hello (Integer hour)",
     "file": "ProjectUser1/Main.xlsx",
     "pos": "B3:D8"
   }

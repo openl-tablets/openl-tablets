@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "30507d65bb546d53797e0ab23f25a719",
+    "tableType": "SmartRules",
+    "kind": "Rules",
+    "name": "FicaTaxRates",
+    "returnType": "PaymentToolsFicaDetails",
+    "signature": "FicaTaxRates (Integer year, String ficaType, Double rate, Integer threshold)",
+    "file": "EPBDS-14434/EPBDS-14434.xlsx",
+    "pos": "B2:E18"
+  }
+]
