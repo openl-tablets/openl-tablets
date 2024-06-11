@@ -1,18 +1,13 @@
 package org.openl.rules.ruleservice.kafka.databinding;
 
-import java.io.IOException;
-
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.databinding.ServiceConfigurationException;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
-import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
-import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
 public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonObjectMapperFactoryBean {
 
     private Type type;
-    private KafkaDeploy kafkaDeploy;
     private BaseKafkaConfig kafkaConfig;
 
     private ServiceDescription serviceDescription;
@@ -23,17 +18,6 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
 
     public void setServiceDescription(ServiceDescription serviceDescription) {
         this.serviceDescription = serviceDescription;
-    }
-
-    private KafkaDeploy getKafkaDeploy() {
-        if (kafkaDeploy == null) {
-            try {
-                kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescription());
-            } catch (IOException e) {
-                throw new ServiceConfigurationException("Failed to load configuration for Kafka publisher.", e);
-            }
-        }
-        return kafkaDeploy;
     }
 
     private BaseKafkaConfig getKafkaConfig() {
@@ -78,11 +62,6 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
             value = null;
         }
         if (value == null) {
-            if (Type.PRODUCER.equals(getType())) {
-                value = getKafkaDeploy().getProducerConfigs().getProperty(configurationProperty);
-            } else if (Type.CONSUMER.equals(getType())) {
-                value = getKafkaDeploy().getConsumerConfigs().getProperty(configurationProperty);
-            }
             if (value == null && getServiceDescription().getConfiguration() != null) {
                 value = getServiceDescription().getConfiguration().get(configurationProperty);
             }

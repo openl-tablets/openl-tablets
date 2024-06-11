@@ -62,8 +62,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
-    private KafkaDeploy defaultKafkaDeploy;
-    private KafkaDeploy immutableKafkaDeploy;
+    private BaseKafkaConfig defaultKafkaDeploy;
+    private BaseKafkaConfig immutableKafkaDeploy;
 
     private String defaultBootstrapServers;
     private String defaultGroupId;
@@ -122,18 +122,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
     }
 
-    private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
+    private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            defaultKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-default.yaml"), KafkaDeploy.class);
+            defaultKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-default.yaml"), BaseKafkaConfig.class);
         }
         return defaultKafkaDeploy;
     }
 
-    private KafkaDeploy getImmutableKafkaDeploy() throws IOException {
+    private BaseKafkaConfig getImmutableKafkaDeploy() throws IOException {
         if (immutableKafkaDeploy == null) {
             ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            immutableKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-override.yaml"), KafkaDeploy.class);
+            immutableKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-override.yaml"), BaseKafkaConfig.class);
         }
         return immutableKafkaDeploy;
     }
@@ -162,14 +162,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private Properties getProducerConfigs(OpenLService service,
-                                          BaseKafkaConfig baseKafkaDeploy,
-                                          KafkaDeploy kafkaDeploy) throws IOException {
+                                          BaseKafkaConfig baseKafkaDeploy) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getProducerConfigs());
-        }
-        if (kafkaDeploy.getProducerConfigs() != null) {
-            configs.putAll(kafkaDeploy.getProducerConfigs());
         }
         if (baseKafkaDeploy.getProducerConfigs() != null) {
             configs.putAll(baseKafkaDeploy.getProducerConfigs());
@@ -183,14 +179,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private Properties getDltProducerConfigs(OpenLService service,
-                                             BaseKafkaConfig kafkaConfig,
-                                             KafkaDeploy kafkaDeploy) throws IOException {
+                                             BaseKafkaConfig kafkaConfig) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getDltProducerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getDltProducerConfigs());
-        }
-        if (kafkaDeploy.getDltProducerConfigs() != null) {
-            configs.putAll(kafkaDeploy.getDltProducerConfigs());
         }
         if (kafkaConfig.getDltProducerConfigs() != null) {
             configs.putAll(kafkaConfig.getDltProducerConfigs());
@@ -204,14 +196,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private Properties getConsumerConfigs(OpenLService service,
-                                          BaseKafkaConfig kafkaConfig,
-                                          KafkaDeploy kafkaDeploy) throws IOException {
+                                          BaseKafkaConfig kafkaConfig) throws IOException {
         Properties configs = new Properties();
         if (getDefaultKafkaDeploy().getConsumerConfigs() != null) {
             configs.putAll(getDefaultKafkaDeploy().getConsumerConfigs());
-        }
-        if (kafkaDeploy.getConsumerConfigs() != null) {
-            configs.putAll(kafkaDeploy.getConsumerConfigs());
         }
         if (kafkaConfig.getConsumerConfigs() != null) {
             configs.putAll(kafkaConfig.getConsumerConfigs());
@@ -266,12 +254,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private <T extends BaseKafkaConfig> T makeMergedKafkaConfig(OpenLService service,
-                                                                T kafkaConfig,
-                                                                KafkaDeploy kafkaDeploy) throws IOException {
+                                                                T kafkaConfig) throws IOException {
         T config = cloner.deepClone(kafkaConfig);
-        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig, kafkaDeploy));
-        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig, kafkaDeploy));
-        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig, kafkaDeploy));
+        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig));
+        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig));
+        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig));
         return config;
     }
 
@@ -368,7 +355,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         return new KafkaConsumer<>(configs, keyDeserializer, valueDeserializer);
     }
 
-    private <T extends BaseKafkaConfig> void createKafkaService(OpenLService service,
+    private <T extends KafkaServiceConfig> void createKafkaService(OpenLService service,
                                                                 Collection<KafkaService> kafkaServices,
                                                                 Collection<KafkaConsumer<?, ?>> kafkaConsumers,
                                                                 Collection<KafkaProducer<?, ?>> kafkaProducers,
@@ -458,7 +445,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             Map<KafkaMethodConfig, KafkaMethodConfig> kafkaMethodConfigsMap = new HashMap<>();
             Map<KafkaMethodConfig, Method> methodsMap = new HashMap<>();
             for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
-                KafkaMethodConfig kafkaMethodConfig = makeMergedKafkaConfig(service, kmc, kafkaDeploy);
+                KafkaMethodConfig kafkaMethodConfig = makeMergedKafkaConfig(service, kmc);
                 validate(kafkaMethodConfig);
                 kafkaMethodConfigsMap.put(kmc, kafkaMethodConfig);
                 final Method method = KafkaHelpers.findMethodInService(service,
@@ -470,9 +457,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             try {
                 ServiceDeployContext sharedProducersContext = new ServiceDeployContext();
                 if (kafkaDeploy.getServiceConfig() != null) {
-                    KafkaServiceConfig kafkaServiceConfig = makeMergedKafkaConfig(service,
-                            kafkaDeploy.getServiceConfig(),
-                            kafkaDeploy);
+                    var kafkaServiceConfig = makeMergedKafkaConfig(service, kafkaDeploy.getServiceConfig());
                     createKafkaService(service,
                             kafkaServices,
                             kafkaConsumers,
