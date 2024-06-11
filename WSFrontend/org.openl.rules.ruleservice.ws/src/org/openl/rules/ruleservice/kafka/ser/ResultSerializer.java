@@ -38,8 +38,4 @@ public class ResultSerializer implements Serializer<Object> {
             throw new SerializationException("Failed to write a result.", e);
         }
     }
-
-    @Override
-    public void close() {
-    }
 }
