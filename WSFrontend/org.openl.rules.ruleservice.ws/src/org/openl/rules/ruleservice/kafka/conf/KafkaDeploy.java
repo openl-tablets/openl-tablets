@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.kafka.conf;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,7 +20,7 @@ public final class KafkaDeploy {
     private KafkaServiceConfig serviceConfig;
 
     @JsonProperty(value = "methods")
-    private List<KafkaMethodConfig> methodConfigs;
+    private List<KafkaMethodConfig> methodConfigs = new ArrayList<>();
 
     public KafkaServiceConfig getServiceConfig() {
         return serviceConfig;

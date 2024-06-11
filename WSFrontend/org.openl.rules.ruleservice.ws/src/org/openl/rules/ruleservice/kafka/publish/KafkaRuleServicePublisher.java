@@ -7,7 +7,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -447,8 +446,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             var serviceDescription = getServiceDescriptionObjectFactory().getObject();
             KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(serviceDescription);
-            List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
-                    .emptyList() : kafkaDeploy.getMethodConfigs();
+            List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
             Collection<KafkaProducer<?, ?>> kafkaProducers = new HashSet<>();
             Collection<KafkaConsumer<?, ?>> kafkaConsumers = new HashSet<>();
