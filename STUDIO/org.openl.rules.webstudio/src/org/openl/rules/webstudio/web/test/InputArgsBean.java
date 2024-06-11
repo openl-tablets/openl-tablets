@@ -31,6 +31,8 @@ import org.richfaces.component.UITree;
 import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import org.openl.base.INamedThing;
@@ -68,6 +70,9 @@ import org.openl.vm.SimpleVM;
 @ViewScope
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
+
+    @Autowired
+    private Environment environment;
 
     private String uri;
     private UITree currentTreeNode;
@@ -111,6 +116,10 @@ public class InputArgsBean {
         predefinedTypes.add(DOUBLE);
         predefinedTypes.add(BOOLEAN);
         predefinedTypes.add(CHAR);
+    }
+
+    public InputArgsBean(Environment environment) {
+        this.environment = environment;
     }
 
     enum InputTestCaseType {
@@ -176,17 +185,12 @@ public class InputArgsBean {
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
             ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setRulesDeploy(rulesDeploy);
+            objectMapperFactory.setEnvironment(environment);
             objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) WebStudioUtils.getWebStudio()
                     .getModel()
                     .getCompiledOpenClass()
                     .getOpenClassWithErrors());
             objectMapperFactory.setClassLoader(classLoader);
-            // Default values from webservices. TODO this should be configurable
-            objectMapperFactory.setPolymorphicTypeValidation(true);
-            objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
-            objectMapperFactory.setCaseInsensitiveProperties(false);
-            objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
-            objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
 
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {

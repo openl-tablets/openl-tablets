@@ -1,6 +1,5 @@
 package org.openl.rules.serialization;
 
-import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,6 +18,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.springframework.core.env.Environment;
 
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -35,7 +35,9 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private static final AtomicLong incrementer = new AtomicLong();
 
-    public static final String ROOT_CLASS_NAMES_BINDING = "rootClassNamesBinding";
+    public static final String ROOT_CLASS_NAMES_BINDING_OLD = "rootClassNamesBinding";
+    public static final String SUPPORT_VARIATIONS = "ruleservice.isSupportVariations";
+    public static final String ROOT_CLASS_NAMES_BINDING = "databinding.rootClassNames";
     public static final String JACKSON_CASE_INSENSITIVE_PROPERTIES = "jackson.caseInsensitiveProperties";
     public static final String JACKSON_DEFAULT_DATE_FORMAT = "jackson.defaultDateFormat";
     public static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
@@ -52,6 +54,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private XlsModuleOpenClass xlsModuleOpenClass;
 
     private RulesDeploy rulesDeploy;
+    private Environment environment;
 
     public RulesDeploy getRulesDeploy() {
         return rulesDeploy;
@@ -61,8 +64,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         this.rulesDeploy = rulesDeploy;
     }
 
-    public XlsModuleOpenClass getXlsModuleOpenClass() {
-        return xlsModuleOpenClass;
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public void setXlsModuleOpenClass(XlsModuleOpenClass xlsModuleOpenClass) {
@@ -90,7 +93,8 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void applyProjectConfiguration() {
-        if (rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideVariations())) {
+        if (rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideVariations())
+                || environment != null && Boolean.TRUE.equals(environment.getProperty(SUPPORT_VARIATIONS, Boolean.class))) {
             delegate.setSupportVariations(true);
         }
 
@@ -119,11 +123,17 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected Object getProperty(String name) {
+        Object result = null;
         if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
-            return rulesDeploy.getConfiguration().get(name);
-        } else {
-            return null;
+            result = rulesDeploy.getConfiguration().get(name);
+            if (result == null && name.equals(ROOT_CLASS_NAMES_BINDING)) {
+                result = rulesDeploy.getConfiguration().get(ROOT_CLASS_NAMES_BINDING_OLD);
+            }
         }
+        if (result == null && environment != null) {
+            return environment.getProperty("ruleservice." + name);
+        }
+        return result;
     }
 
     private void processXlsModuleOpenClassRelatedSettings() {
@@ -504,133 +514,14 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void applyAfterProjectConfiguration() {
+        delegate.setPolymorphicTypeValidation(true);
     }
 
-    public boolean isSupportVariations() {
-        return delegate.isSupportVariations();
-    }
-
-    public void setSupportVariations(boolean supportVariations) {
-        delegate.setSupportVariations(supportVariations);
-    }
-
-    public DefaultTypingMode getDefaultTypingMode() {
-        return delegate.getDefaultTypingMode();
-    }
-
-    public void setDefaultTypingMode(DefaultTypingMode defaultTypingMode) {
-        delegate.setDefaultTypingMode(defaultTypingMode);
-    }
-
-    public void setFailOnUnknownProperties(boolean failOnUnknownProperties) {
-        delegate.setFailOnUnknownProperties(failOnUnknownProperties);
-    }
-
-    public boolean isFailOnUnknownProperties() {
-        return delegate.isFailOnUnknownProperties();
-    }
-
-    public Set<String> getOverrideTypes() {
-        return delegate.getOverrideTypes();
-    }
-
-    public void setOverrideTypesAsString(String overrideTypes) {
-        delegate.setOverrideTypes(RulesDeployHelper.splitRootClassNamesBindingClasses(overrideTypes));
-    }
-
-    public void setOverrideTypes(Set<String> overrideTypes) {
-        delegate.setOverrideTypes(overrideTypes);
-    }
-
-    public DateFormat getDefaultDateFormat() {
-        return delegate.getDefaultDateFormat();
-    }
-
-    public void setDefaultDateFormatAsString(String defaultDateFormat) {
-        delegate.setDefaultDateFormat(new ExtendedStdDateFormat(defaultDateFormat));
-    }
-
-    public void setDefaultDateFormat(DateFormat defaultDateFormat) {
-        delegate.setDefaultDateFormat(defaultDateFormat);
-    }
-
-    public JsonInclude.Include getSerializationInclusion() {
-        return delegate.getSerializationInclusion();
-    }
-
-    public void setSerializationInclusion(JsonInclude.Include serializationInclusion) {
-        delegate.setSerializationInclusion(serializationInclusion);
-    }
-
-    public boolean isPolymorphicTypeValidation() {
-        return delegate.isPolymorphicTypeValidation();
-    }
-
-    public void setPolymorphicTypeValidation(boolean polymorphicTypeValidation) {
-        delegate.setPolymorphicTypeValidation(polymorphicTypeValidation);
-    }
-
-    public ClassLoader getClassLoader() {
+    private ClassLoader getClassLoader() {
         return delegate.getClassLoader();
     }
 
     public void setClassLoader(ClassLoader classLoader) {
         delegate.setClassLoader(classLoader);
-    }
-
-    public Set<Class<?>> getOverrideClasses() {
-        return delegate.getOverrideClasses();
-    }
-
-    public void setOverrideClasses(Set<Class<?>> overrideClasses) {
-        delegate.setOverrideClasses(overrideClasses);
-    }
-
-    public boolean isCaseInsensitiveProperties() {
-        return delegate.isCaseInsensitiveProperties();
-    }
-
-    public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
-        delegate.setCaseInsensitiveProperties(caseInsensitiveProperties);
-    }
-
-    public ObjectMapperFactory getObjectMapperFactory() {
-        return delegate.getObjectMapperFactory();
-    }
-
-    public void setObjectMapperFactory(ObjectMapperFactory objectMapperFactory) {
-        delegate.setObjectMapperFactory(objectMapperFactory);
-    }
-
-    public Boolean isSimpleClassNameAsTypingPropertyValue() {
-        return delegate.isSimpleClassNameAsTypingPropertyValue();
-    }
-
-    public void setSimpleClassNameAsTypingPropertyValue(Boolean simpleClassNameAsTypingPropertyValue) {
-        delegate.setSimpleClassNameAsTypingPropertyValue(simpleClassNameAsTypingPropertyValue);
-    }
-
-    public void setFailOnEmptyBeans(boolean failOnEmptyBeans) {
-        delegate.setFailOnEmptyBeans(failOnEmptyBeans);
-    }
-
-    public boolean isFailOnEmptyBeans() {
-        return delegate.isFailOnEmptyBeans();
-    }
-
-    public String getTypingPropertyName() {
-        return delegate.getTypingPropertyName();
-    }
-
-    public void setTypingPropertyName(String typingPropertyName) {
-        delegate.setTypingPropertyName(typingPropertyName);
-    }
-
-    public JsonTypeInfo.Id getJsonTypeInfoId() {
-        return delegate.getJsonTypeInfoId();
-    }
-
-    public void setJsonTypeInfoId(JsonTypeInfo.Id jsonTypeInfoId) {
-        delegate.setJsonTypeInfoId(jsonTypeInfoId);
     }
 }
