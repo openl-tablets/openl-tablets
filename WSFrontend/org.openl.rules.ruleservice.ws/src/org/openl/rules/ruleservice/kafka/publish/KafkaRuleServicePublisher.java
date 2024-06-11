@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -41,7 +42,6 @@ import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
-import org.openl.rules.ruleservice.kafka.conf.KafkaDeployUtils;
 import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
@@ -431,8 +431,16 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
+
             var serviceDescription = getServiceDescriptionObjectFactory().getObject();
-            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(serviceDescription);
+            var resourceLoader = serviceDescription.getResourceLoader();
+            var resource = resourceLoader.getResource("kafka-deploy.yaml");
+            if (!resource.exists()) {
+                throw new FileNotFoundException("File 'kafka-deploy.yaml' is not found.");
+            }
+            var mapper = YamlObjectMapperBuilder.newInstance();
+            var kafkaDeploy = mapper.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
+
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
             Collection<KafkaProducer<?, ?>> kafkaProducers = new HashSet<>();
