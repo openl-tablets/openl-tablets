@@ -2,11 +2,18 @@ consumer.configs:
   max.poll.records: 128
   key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
   value.deserializer: org.openl.rules.ruleservice.kafka.ser.RequestMessageDeserializer
+  bootstrap.servers: ${ruleservice.kafka.bootstrap.servers}
+  group.id: ${ruleservice.kafka.group.id}
+  client.id: ${random.uuid}
 producer.configs:
   acks: all
   key.serializer: org.apache.kafka.common.serialization.StringSerializer
   value.serializer: org.openl.rules.ruleservice.kafka.ser.ResultSerializer
+  bootstrap.servers: ${ruleservice.kafka.bootstrap.servers}
+  client.id: ${random.uuid}
 dlt.producer.configs:
   acks: all
   key.serializer: org.apache.kafka.common.serialization.StringSerializer
   value.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+  bootstrap.servers: ${ruleservice.kafka.bootstrap.servers}
+  client.id: ${random.uuid}
