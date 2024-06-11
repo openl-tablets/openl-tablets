@@ -109,10 +109,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             try {
                 return buildRequestMessage(methodParametersWrapperClassInfo, rawData);
             } catch (Exception e) {
-                return new RequestMessage(methodParametersWrapperClassInfo.getMethod(),
-                        new RequestMessageFormatException("Invalid message format.", e),
-                        rawData,
-                        encoding);
+                return new RequestMessage(methodParametersWrapperClassInfo.getMethod(), e, rawData, encoding);
             }
         } else {
             Method m = null;
@@ -129,10 +126,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
                 }
                 return buildRequestMessage(entry, rawData);
             } catch (Exception e) {
-                return new RequestMessage(m,
-                        new RequestMessageFormatException("Invalid message format.", e),
-                        rawData,
-                        encoding);
+                return new RequestMessage(m, e, rawData, encoding);
             }
         }
     }
