@@ -1,11 +1,11 @@
 package org.openl.rules.ruleservice.kafka.databinding;
 
-import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
+import java.util.function.Function;
 
 public final class KafkaConfigHolder {
     private static final KafkaConfigHolder INSTANCE = new KafkaConfigHolder();
 
-    private final ThreadLocal<BaseKafkaConfig> kafkaConfigHolder = new ThreadLocal<>();
+    private final ThreadLocal<Function<String, String>> kafkaConfigHolder = new ThreadLocal<>();
 
     private KafkaConfigHolder() {
     }
@@ -14,11 +14,11 @@ public final class KafkaConfigHolder {
         return INSTANCE;
     }
 
-    public BaseKafkaConfig getKafkaConfig() {
+    public Function<String, String> getKafkaConfig() {
         return kafkaConfigHolder.get();
     }
 
-    public void setKafkaConfig(BaseKafkaConfig kafkaMethodConfig) {
+    public void setKafkaConfig(Function<String, String> kafkaMethodConfig) {
         kafkaConfigHolder.set(kafkaMethodConfig);
     }
 

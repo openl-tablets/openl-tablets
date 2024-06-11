@@ -3,9 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="kafkaJacksonObjectMapperFactoryBeanParent"
+    <bean id="kafkaServiceObjectMapper"
           class="org.openl.rules.ruleservice.kafka.databinding.KafkaProjectJacksonObjectMapperFactoryBean"
-          abstract="true">
+          scope="prototype">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="caseInsensitiveProperties" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
         <property name="defaultDateFormatAsString" value="${ruleservice.jackson.defaultDateFormat}"/>
@@ -21,17 +21,6 @@
         <property name="polymorphicTypeValidation" value="true"/>
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
-        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
-    </bean>
-
-    <bean id="kafkaServiceProducerJacksonObjectMapperFactoryBean" parent="kafkaJacksonObjectMapperFactoryBeanParent"
-          scope="prototype">
-        <property name="type" value="PRODUCER"/>
-    </bean>
-
-    <bean id="kafkaServiceConsumerJacksonObjectMapperFactoryBean" parent="kafkaJacksonObjectMapperFactoryBeanParent"
-          scope="prototype">
-        <property name="type" value="CONSUMER"/>
     </bean>
 
     <!-- Initializes OpenL Engine instances according to Rule Services configuration

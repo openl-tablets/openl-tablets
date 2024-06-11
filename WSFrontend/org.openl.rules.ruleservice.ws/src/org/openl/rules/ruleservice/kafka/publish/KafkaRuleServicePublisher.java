@@ -81,30 +81,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     @Autowired
-    @Qualifier("kafkaServiceProducerJacksonObjectMapperFactoryBean")
-    private ObjectFactory<JacksonObjectMapperFactory> kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
-
-    @Autowired
-    @Qualifier("kafkaServiceConsumerJacksonObjectMapperFactoryBean")
-    private ObjectFactory<JacksonObjectMapperFactory> kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
-
-    public ObjectFactory<JacksonObjectMapperFactory> getKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory() {
-        return kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
-    }
-
-    public void setKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory(
-            ObjectFactory<JacksonObjectMapperFactory> kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory) {
-        this.kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory = kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
-    }
-
-    public ObjectFactory<JacksonObjectMapperFactory> getKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory() {
-        return kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
-    }
-
-    public void setKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory(
-            ObjectFactory<JacksonObjectMapperFactory> kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory) {
-        this.kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory = kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
-    }
+    @Qualifier("kafkaServiceObjectMapper")
+    private ObjectFactory<JacksonObjectMapperFactory> kafkaJacksonObjectMapperFactoryBean;
 
     public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
         return serviceDescriptionObjectFactory;
@@ -297,7 +275,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                                                                 Method method,
                                                                 RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
-        final ObjectMapper consumerObjectMapper = createConsumerJacksonObjectMapper(mergedKafkaConfig);
+        final ObjectMapper consumerObjectMapper = createJacksonObjectMapper(mergedKafkaConfig.getConsumerConfigs());
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer( service,
                 consumerObjectMapper,
                 method,
@@ -313,7 +291,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             objectSerializer = context.getObjectSerializer();
         }
         if (producer == null) {
-            ObjectMapper producerObjectMapper = createProducerJacksonObjectMapper(mergedKafkaConfig);
+            ObjectMapper producerObjectMapper = createJacksonObjectMapper(mergedKafkaConfig.getProducerConfigs());
             objectSerializer = new JacksonObjectSerializer(producerObjectMapper);
             producer = buildProducer(service,
                     producerObjectMapper,
@@ -443,26 +421,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    private ObjectMapper createConsumerJacksonObjectMapper(BaseKafkaConfig config) throws KafkaServiceException {
+    private ObjectMapper createJacksonObjectMapper(Properties config) throws KafkaServiceException {
         try {
-            KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory()
-                    .getObject();
-            try {
-                return jacksonObjectMapperFactory.createJacksonObjectMapper();
-            } catch (Exception e) {
-                throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
-            }
-        } finally {
-            KafkaConfigHolder.getInstance().remove();
-        }
-    }
-
-    private ObjectMapper createProducerJacksonObjectMapper(BaseKafkaConfig config) throws KafkaServiceException {
-        try {
-            KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory()
-                    .getObject();
+            KafkaConfigHolder.getInstance().setKafkaConfig(config::getProperty);
+            var jacksonObjectMapperFactory = kafkaJacksonObjectMapperFactoryBean.getObject();
             try {
                 return jacksonObjectMapperFactory.createJacksonObjectMapper();
             } catch (Exception e) {
