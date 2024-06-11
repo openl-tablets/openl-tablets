@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.kafka.conf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class KafkaMethodConfig extends BaseKafkaConfig {
+public class KafkaMethodConfig extends KafkaServiceConfig {
     @JsonProperty(value = "method.name", required = true)
     private String methodName;
 
