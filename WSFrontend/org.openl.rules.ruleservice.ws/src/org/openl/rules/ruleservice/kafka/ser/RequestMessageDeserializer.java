@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,13 +31,12 @@ import org.openl.util.ClassUtils;
 
 public class RequestMessageDeserializer implements Deserializer<RequestMessage> {
 
-    private static final String UTF8 = "UTF8";
     private final ObjectMapper objectMapper;
     private final OpenLService service;
     private final Map<String, Map<String, Entry>> methodMap;
     private final Entry methodParametersWrapperClassInfo;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private String encoding = UTF8;
+    private Charset encoding = StandardCharsets.UTF_8;
 
     public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
         this.service = Objects.requireNonNull(service, "service cannot be null");
@@ -61,7 +61,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             encodingValue = configs.get("deserializer.encoding");
         }
         if (encodingValue instanceof String) {
-            encoding = (String) encodingValue;
+            encoding = Charset.forName((String) encodingValue);
         }
     }
 
