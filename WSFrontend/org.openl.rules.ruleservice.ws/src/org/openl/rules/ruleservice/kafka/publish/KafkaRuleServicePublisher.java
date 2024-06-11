@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rits.cloning.Cloner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -67,8 +66,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private String defaultBootstrapServers;
     private String defaultGroupId;
-
-    private final Cloner cloner = new Cloner();
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
@@ -253,9 +250,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    private <T extends BaseKafkaConfig> T makeMergedKafkaConfig(OpenLService service,
-                                                                T kafkaConfig) throws IOException {
-        T config = cloner.deepClone(kafkaConfig);
+    private KafkaServiceConfig makeMergedKafkaConfig(OpenLService service, KafkaServiceConfig kafkaConfig) throws IOException {
+        var config = new KafkaServiceConfig();
+        config.setDltTopic(kafkaConfig.getDltTopic());
+        config.setInTopic(kafkaConfig.getInTopic());
+        config.setOutTopic(kafkaConfig.getOutTopic());
         config.setProducerConfigs(getProducerConfigs(service, kafkaConfig));
         config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig));
         config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig));
@@ -355,18 +354,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         return new KafkaConsumer<>(configs, keyDeserializer, valueDeserializer);
     }
 
-    private <T extends KafkaServiceConfig> void createKafkaService(OpenLService service,
+    private void createKafkaService(OpenLService service,
                                                                 Collection<KafkaService> kafkaServices,
                                                                 Collection<KafkaConsumer<?, ?>> kafkaConsumers,
                                                                 Collection<KafkaProducer<?, ?>> kafkaProducers,
                                                                 ServiceDeployContext context,
-                                                                T mergedKafkaConfig,
-                                                                T config,
+                                                                KafkaServiceConfig mergedKafkaConfig,
+                                                                KafkaServiceConfig config,
                                                                 Method method,
                                                                 RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
         final ObjectMapper consumerObjectMapper = createConsumerJacksonObjectMapper(mergedKafkaConfig);
-        final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
+        final KafkaConsumer<String, RequestMessage> consumer = buildConsumer( service,
                 consumerObjectMapper,
                 method,
                 mergedKafkaConfig.getConsumerConfigs());
@@ -450,15 +449,15 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             }
             validateConfiguration(service, kafkaMethodConfigs);
 
-            Map<KafkaMethodConfig, KafkaMethodConfig> kafkaMethodConfigsMap = new HashMap<>();
+            Map<KafkaMethodConfig, KafkaServiceConfig> kafkaMethodConfigsMap = new HashMap<>();
             Map<KafkaMethodConfig, Method> methodsMap = new HashMap<>();
             for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
-                KafkaMethodConfig kafkaMethodConfig = makeMergedKafkaConfig(service, kmc);
+                var kafkaMethodConfig = makeMergedKafkaConfig(service, kmc);
                 validate(kafkaMethodConfig);
                 kafkaMethodConfigsMap.put(kmc, kafkaMethodConfig);
                 final Method method = KafkaHelpers.findMethodInService(service,
-                        kafkaMethodConfig.getMethodName(),
-                        kafkaMethodConfig.getMethodParameters());
+                        kmc.getMethodName(),
+                        kmc.getMethodParameters());
                 methodsMap.put(kmc, method);
             }
 
@@ -478,7 +477,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 }
                 for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
                     final Method method = methodsMap.get(kmc);
-                    final KafkaMethodConfig kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
+                    final var kafkaMethodConfig = kafkaMethodConfigsMap.get(kmc);
                     createKafkaService(service,
                             kafkaServices,
                             kafkaConsumers,
