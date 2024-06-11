@@ -90,41 +90,40 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     protected void applyProjectConfiguration() {
-        if (rulesDeploy != null) {
-            if (Boolean.TRUE.equals(rulesDeploy.isProvideVariations())) {
-                delegate.setSupportVariations(true);
-            }
-            Map<String, Object> configuration = rulesDeploy.getConfiguration();
-            if (configuration != null) {
-                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES),
-                        JACKSON_CASE_INSENSITIVE_PROPERTIES,
-                        delegate::setCaseInsensitiveProperties);
-                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES),
-                        JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
-                        delegate::setFailOnUnknownProperties);
-                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_FAIL_ON_EMPTY_BEANS),
-                        JACKSON_FAIL_ON_EMPTY_BEANS,
-                        delegate::setFailOnEmptyBeans);
-
-                processJacksonDefaultDateFormatSetting(configuration.get(JACKSON_DEFAULT_DATE_FORMAT));
-                processJacksonDefaultTypingModeSetting(configuration.get(JACKSON_DEFAULT_TYPING_MODE));
-                processJacksonSerializationInclusionSetting(configuration.get(JACKSON_SERIALIZATION_INCLUSION));
-                processJacksonTypingPropertyNameSetting(configuration.get(JACKSON_TYPING_PROPERTY_NAME));
-                processJacksonSimpleClassNameAsTypingPropertyValueSetting(
-                        configuration.get(JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
-                processJacksonJsonTypeInfoIdSetting(configuration.get(JACKSON_JSON_TYPE_INFO_ID));
-            }
+        if (rulesDeploy != null && Boolean.TRUE.equals(rulesDeploy.isProvideVariations())) {
+            delegate.setSupportVariations(true);
         }
-        processRootClassNamesBindingSetting(
-                rulesDeploy != null && rulesDeploy.getConfiguration() != null
-                        ? rulesDeploy.getConfiguration()
-                        .get(ROOT_CLASS_NAMES_BINDING)
-                        : null);
+
+        processJacksonPropertiesSettingBoolean(getProperty(JACKSON_CASE_INSENSITIVE_PROPERTIES),
+                JACKSON_CASE_INSENSITIVE_PROPERTIES,
+                delegate::setCaseInsensitiveProperties);
+        processJacksonPropertiesSettingBoolean(getProperty(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES),
+                JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
+                delegate::setFailOnUnknownProperties);
+        processJacksonPropertiesSettingBoolean(getProperty(JACKSON_FAIL_ON_EMPTY_BEANS),
+                JACKSON_FAIL_ON_EMPTY_BEANS,
+                delegate::setFailOnEmptyBeans);
+
+        processJacksonDefaultDateFormatSetting(getProperty(JACKSON_DEFAULT_DATE_FORMAT));
+        processJacksonDefaultTypingModeSetting(getProperty(JACKSON_DEFAULT_TYPING_MODE));
+        processJacksonSerializationInclusionSetting(getProperty(JACKSON_SERIALIZATION_INCLUSION));
+        processJacksonTypingPropertyNameSetting(getProperty(JACKSON_TYPING_PROPERTY_NAME));
+        processJacksonSimpleClassNameAsTypingPropertyValueSetting(getProperty(JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
+        processJacksonJsonTypeInfoIdSetting(getProperty(JACKSON_JSON_TYPE_INFO_ID));
+        processRootClassNamesBindingSetting(getProperty(ROOT_CLASS_NAMES_BINDING));
         processXlsModuleOpenClassRelatedSettings();
     }
 
     protected JacksonObjectMapperFactoryBean getDelegate() {
         return delegate;
+    }
+
+    protected Object getProperty(String name) {
+        if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
+            return rulesDeploy.getConfiguration().get(name);
+        } else {
+            return null;
+        }
     }
 
     private void processXlsModuleOpenClassRelatedSettings() {
