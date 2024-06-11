@@ -4,6 +4,7 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_
 import static org.awaitility.Awaitility.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.ruleservice.kafka.KafkaHeaders.CORRELATION_ID;
 
@@ -195,10 +196,9 @@ public class RunKafkaSmokeITest {
                 assertEquals("Hello", getHeaderValue(response, KafkaHeaders.METHOD_NAME));
                 assertEquals(replyTopic, getHeaderValue(response, KafkaHeaders.REPLY_TOPIC));
                 assertEquals("891", getHeaderValue(response, KafkaHeaders.REPLY_PARTITION));
-                assertEquals("org.openl.rules.ruleservice.kafka.ser.RequestMessageFormatException",
+                assertEquals("com.fasterxml.jackson.databind.exc.MismatchedInputException",
                         getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
-                assertEquals("Invalid message format.",
-                        getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
+                assertTrue(getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE).startsWith("Cannot construct instance of `org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer"));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
