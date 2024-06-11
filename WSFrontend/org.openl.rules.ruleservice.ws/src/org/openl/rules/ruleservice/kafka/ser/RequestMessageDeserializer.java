@@ -206,8 +206,4 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             return wrapperClassFields;
         }
     }
-
-    @Override
-    public void close() {
-    }
 }
