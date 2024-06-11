@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -43,7 +44,6 @@ import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
-import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
@@ -58,6 +58,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
+
+    private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
@@ -121,16 +123,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private BaseKafkaConfig getDefaultKafkaDeploy() throws IOException {
         if (defaultKafkaDeploy == null) {
-            ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            defaultKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-default.yaml"), BaseKafkaConfig.class);
+            defaultKafkaDeploy = YAML.readValue(getClass().getResource("/kafka-deploy-default.yaml"), BaseKafkaConfig.class);
         }
         return defaultKafkaDeploy;
     }
 
     private BaseKafkaConfig getImmutableKafkaDeploy() throws IOException {
         if (immutableKafkaDeploy == null) {
-            ObjectMapper mapper = YamlObjectMapperBuilder.newInstance();
-            immutableKafkaDeploy = mapper.readValue(getClass().getResource("/kafka-deploy-override.yaml"), BaseKafkaConfig.class);
+            immutableKafkaDeploy = YAML.readValue(getClass().getResource("/kafka-deploy-override.yaml"), BaseKafkaConfig.class);
         }
         return immutableKafkaDeploy;
     }
@@ -437,8 +437,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             if (!resource.exists()) {
                 throw new FileNotFoundException("File 'kafka-deploy.yaml' is not found.");
             }
-            var mapper = YamlObjectMapperBuilder.newInstance();
-            var kafkaDeploy = mapper.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
+            var kafkaDeploy = YAML.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
 
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
