@@ -114,7 +114,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             this.sprBeanPropertyNamingStrategy = null;
         }
 
-        final ObjectMapper mapper = configureObjectMapper(rulesDeploy, serviceClassLoader, (XlsModuleOpenClass) openClass);
+        final ObjectMapper mapper = configureObjectMapper(applicationContext, rulesDeploy, serviceClassLoader, (XlsModuleOpenClass) openClass);
         serializer = (Object x) -> {
             try {
                 Object object;
@@ -171,19 +171,15 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private ObjectMapper configureObjectMapper(RulesDeploy rulesDeploy,
+    private ObjectMapper configureObjectMapper(ApplicationContext context,
+                                               RulesDeploy rulesDeploy,
                                                ClassLoader classLoader,
                                                XlsModuleOpenClass openClass) {
         ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactory.setRulesDeploy(rulesDeploy);
+        objectMapperFactory.setEnvironment(context.getEnvironment());
         objectMapperFactory.setXlsModuleOpenClass(openClass);
         objectMapperFactory.setClassLoader(classLoader);
-        // Default values from webservices. TODO this should be configurable
-        objectMapperFactory.setPolymorphicTypeValidation(true);
-        objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        objectMapperFactory.setCaseInsensitiveProperties(false);
-        objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
-        objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
 
         try {
             return objectMapperFactory.createJacksonObjectMapper();

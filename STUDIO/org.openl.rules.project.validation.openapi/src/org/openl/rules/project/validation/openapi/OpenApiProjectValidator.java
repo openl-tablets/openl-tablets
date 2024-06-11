@@ -85,7 +85,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -273,7 +272,6 @@ public class OpenApiProjectValidator {
         objectMapperFactoryBean.setClassLoader(classLoader);
         objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
-        objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
         objectMapperFactoryBean.setClassLoader(context.getServiceClassLoader());
         try {
             return objectMapperFactoryBean.createJacksonObjectMapper();

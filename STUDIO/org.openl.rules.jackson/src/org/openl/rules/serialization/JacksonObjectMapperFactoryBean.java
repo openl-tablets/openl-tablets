@@ -380,7 +380,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
      * @return
      * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
      */
-    private static DateFormat getISO8601Format() {
+    public static DateFormat getISO8601Format() {
         StdDateFormat iso8601Format = new StdDateFormat();
         iso8601Format.setTimeZone(TimeZone.getDefault());
         return iso8601Format;

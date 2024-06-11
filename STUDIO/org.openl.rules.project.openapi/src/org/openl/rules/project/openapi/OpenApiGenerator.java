@@ -35,7 +35,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
 
@@ -261,7 +260,6 @@ public class OpenApiGenerator {
         objectMapperFactoryBean.setClassLoader(classLoader);
         objectMapperFactoryBean.setRulesDeploy(getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) openClass);
-        objectMapperFactoryBean.setObjectMapperFactory(new OpenApiObjectMapperFactory());
         objectMapperFactoryBean.setClassLoader(serviceClassLoader);
         try {
             return objectMapperFactoryBean.createJacksonObjectMapper();
