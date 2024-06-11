@@ -55,19 +55,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(KafkaRuleServicePublisher.class);
 
-    private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
-    private static final String GROUP_ID = "group.id";
-    private static final String CLIENT_ID = "client.id";
-
     private static final ObjectMapper YAML = new ObjectMapper(new YAMLFactory());
 
     private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private BaseKafkaConfig defaultKafkaDeploy;
     private BaseKafkaConfig immutableKafkaDeploy;
-
-    private String defaultBootstrapServers;
-    private String defaultGroupId;
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
@@ -135,88 +128,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         return immutableKafkaDeploy;
     }
 
-    private void setBootstrapServers(OpenLService service,
-                                     BaseKafkaConfig kafkaConfig,
-                                     String logPrefix,
-                                     Properties configs) {
-        if (configs.containsKey(BOOTSTRAP_SERVERS)) {
-            if (kafkaConfig instanceof KafkaMethodConfig) {
-                KafkaMethodConfig kafkaMethodConfig = (KafkaMethodConfig) kafkaConfig;
-                log.warn("{} '{}' property is overridden in service '{}' for method '{}'.",
-                        logPrefix,
-                        BOOTSTRAP_SERVERS,
-                        service.getDeployPath(),
-                        kafkaMethodConfig.getMethodName());
-            } else {
-                log.warn("{} '{}' property is overridden in service '{}'.",
-                        logPrefix,
-                        BOOTSTRAP_SERVERS,
-                        service.getDeployPath());
-            }
-        } else {
-            configs.setProperty(BOOTSTRAP_SERVERS, getDefaultBootstrapServers());
-        }
-    }
-
-    private Properties getProducerConfigs(OpenLService service,
-                                          BaseKafkaConfig baseKafkaDeploy) throws IOException {
-        Properties configs = new Properties();
-        if (getDefaultKafkaDeploy().getProducerConfigs() != null) {
-            configs.putAll(getDefaultKafkaDeploy().getProducerConfigs());
-        }
-        if (baseKafkaDeploy.getProducerConfigs() != null) {
-            configs.putAll(baseKafkaDeploy.getProducerConfigs());
-        }
-        if (getImmutableKafkaDeploy().getProducerConfigs() != null) {
-            configs.putAll(getImmutableKafkaDeploy().getProducerConfigs());
-        }
-        defineClientIdIfAbsent(configs, service);
-        setBootstrapServers(service, baseKafkaDeploy, "Producer", configs);
-        return configs;
-    }
-
-    private Properties getDltProducerConfigs(OpenLService service,
-                                             BaseKafkaConfig kafkaConfig) throws IOException {
-        Properties configs = new Properties();
-        if (getDefaultKafkaDeploy().getDltProducerConfigs() != null) {
-            configs.putAll(getDefaultKafkaDeploy().getDltProducerConfigs());
-        }
-        if (kafkaConfig.getDltProducerConfigs() != null) {
-            configs.putAll(kafkaConfig.getDltProducerConfigs());
-        }
-        if (getImmutableKafkaDeploy().getDltProducerConfigs() != null) {
-            configs.putAll(getImmutableKafkaDeploy().getDltProducerConfigs());
-        }
-        defineClientIdIfAbsent(configs, service);
-        setBootstrapServers(service, kafkaConfig, "DLT producer", configs);
-        return configs;
-    }
-
-    private Properties getConsumerConfigs(OpenLService service,
-                                          BaseKafkaConfig kafkaConfig) throws IOException {
-        Properties configs = new Properties();
-        if (getDefaultKafkaDeploy().getConsumerConfigs() != null) {
-            configs.putAll(getDefaultKafkaDeploy().getConsumerConfigs());
-        }
-        if (kafkaConfig.getConsumerConfigs() != null) {
-            configs.putAll(kafkaConfig.getConsumerConfigs());
-        }
-        if (getImmutableKafkaDeploy().getConsumerConfigs() != null) {
-            configs.putAll(getImmutableKafkaDeploy().getConsumerConfigs());
-        }
-        defineClientIdIfAbsent(configs, service);
-        setBootstrapServers(service, kafkaConfig, "Consumer", configs);
-
-        if (!configs.containsKey(GROUP_ID)) {
-            configs.setProperty(GROUP_ID, getDefaultGroupId());
-        }
-        return configs;
-    }
-
-    private void defineClientIdIfAbsent(Properties configs, OpenLService service) {
-        configs.computeIfAbsent(CLIENT_ID, (k) -> service.getName() + "#" + Integer.toString(service.hashCode(), 16));
-    }
-
     private boolean requiredFieldIsMissed(Object value) {
         if (value instanceof String) {
             String v = (String) value;
@@ -250,15 +161,37 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    private KafkaServiceConfig makeMergedKafkaConfig(OpenLService service, KafkaServiceConfig kafkaConfig) throws IOException {
+    private KafkaServiceConfig makeMergedKafkaConfig(Environment environment, KafkaServiceConfig kafkaConfig) throws IOException {
         var config = new KafkaServiceConfig();
         config.setDltTopic(kafkaConfig.getDltTopic());
         config.setInTopic(kafkaConfig.getInTopic());
         config.setOutTopic(kafkaConfig.getOutTopic());
-        config.setProducerConfigs(getProducerConfigs(service, kafkaConfig));
-        config.setConsumerConfigs(getConsumerConfigs(service, kafkaConfig));
-        config.setDltProducerConfigs(getDltProducerConfigs(service, kafkaConfig));
+
+        substituteAndPut(environment, config.getConsumerConfigs(), getDefaultKafkaDeploy().getConsumerConfigs());
+        substituteAndPut(environment, config.getConsumerConfigs(), kafkaConfig.getConsumerConfigs());
+        substituteAndPut(environment, config.getConsumerConfigs(), getImmutableKafkaDeploy().getConsumerConfigs());
+
+        substituteAndPut(environment, config.getProducerConfigs(), getDefaultKafkaDeploy().getProducerConfigs());
+        substituteAndPut(environment, config.getProducerConfigs(), kafkaConfig.getProducerConfigs());
+        substituteAndPut(environment, config.getProducerConfigs(), getImmutableKafkaDeploy().getProducerConfigs());
+
+        substituteAndPut(environment, config.getDltProducerConfigs(), getDefaultKafkaDeploy().getDltProducerConfigs());
+        substituteAndPut(environment, config.getDltProducerConfigs(), kafkaConfig.getDltProducerConfigs());
+        substituteAndPut(environment, config.getDltProducerConfigs(), getImmutableKafkaDeploy().getDltProducerConfigs());
+
         return config;
+    }
+
+    private static void substituteAndPut(Environment environment, Properties target, Properties source) {
+        if (source != null) {
+            for (String key : source.stringPropertyNames()) {
+                String property = source.getProperty(key);
+                if (property != null) {
+                    property = environment.resolvePlaceholders(property);
+                    target.put(key, property);
+                }
+            }
+        }
     }
 
     private <T> T getConfiguredValueDeserializer(OpenLService service,
@@ -450,8 +383,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
             Map<KafkaMethodConfig, KafkaServiceConfig> kafkaMethodConfigsMap = new HashMap<>();
             Map<KafkaMethodConfig, Method> methodsMap = new HashMap<>();
+            var serviceEnv = service.getServiceContext().getEnvironment();
             for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
-                var kafkaMethodConfig = makeMergedKafkaConfig(service, kmc);
+                var kafkaMethodConfig = makeMergedKafkaConfig(serviceEnv, kmc);
                 validate(kafkaMethodConfig);
                 kafkaMethodConfigsMap.put(kmc, kafkaMethodConfig);
                 final Method method = KafkaHelpers.findMethodInService(service,
@@ -463,7 +397,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             try {
                 ServiceDeployContext sharedProducersContext = new ServiceDeployContext();
                 if (kafkaDeploy.getServiceConfig() != null) {
-                    var kafkaServiceConfig = makeMergedKafkaConfig(service, kafkaDeploy.getServiceConfig());
+                    var kafkaServiceConfig = makeMergedKafkaConfig(serviceEnv, kafkaDeploy.getServiceConfig());
                     createKafkaService(service,
                             kafkaServices,
                             kafkaConsumers,
@@ -574,7 +508,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
         Map<Pair<String, String>, List<String>> w1 = new HashMap<>();
         for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
             if (kmc.getInTopic() != null && kmc.getMethodName() != null) {
-                Pair<String, String> p = Pair.of(kmc.getInTopic(), kmc.getConsumerConfigs().getProperty(GROUP_ID));
+                Pair<String, String> p = Pair.of(kmc.getInTopic(), kmc.getConsumerConfigs().getProperty("group.id"));
                 Integer t = w.get(p);
                 w1.computeIfAbsent(p, e -> new ArrayList<>()).add(kmc.getMethodName());
                 if (t == null) {
@@ -634,22 +568,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     @Override
     public String getUrl(OpenLService service) {
         return null;
-    }
-
-    public String getDefaultGroupId() {
-        return defaultGroupId;
-    }
-
-    public void setDefaultGroupId(String defaultGroupId) {
-        this.defaultGroupId = defaultGroupId;
-    }
-
-    public String getDefaultBootstrapServers() {
-        return defaultBootstrapServers;
-    }
-
-    public void setDefaultBootstrapServers(String defaultBootstrapServers) {
-        this.defaultBootstrapServers = defaultBootstrapServers;
     }
 
     private static final class ServiceDeployContext {

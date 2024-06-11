@@ -79,6 +79,9 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addLast(new SysPropPropertySource(env.getSystemProperties()));
         propertySources.addLast(new SysEnvRefPropertySource(env.getSystemEnvironment()));
 
+        ConfigLog.LOG.info("Loading Random properties...");
+        propertySources.addLast(new RandomValuePropertySource());
+
         ConfigLog.LOG.info("Loading preference properties...");
         PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
         PreferencePropertySource.THE = preferencePropertySource;
