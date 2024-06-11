@@ -38,9 +38,24 @@
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
     </bean>
 
-    <!-- Initializes OpenL Engine instances according to Rule Services configuration description and calls RuleServicePublisher
-        to expose corresponding web service -->
-    <!-- Exposes web services. -->
+    <bean id="kafkaServiceObjectMapper"
+          class="org.openl.rules.ruleservice.kafka.databinding.KafkaProjectJacksonObjectMapperFactoryBean"
+          scope="prototype">
+        <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
+        <property name="caseInsensitiveProperties" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
+        <property name="defaultDateFormatAsString" value="${ruleservice.jackson.defaultDateFormat}"/>
+        <property name="failOnUnknownProperties" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+        <property name="failOnEmptyBeans" value="${ruleservice.jackson.failOnEmptyBeans}"/>
+        <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
+        <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
+        <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
+        <property name="simpleClassNameAsTypingPropertyValue"
+                  value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
+        <property name="typingPropertyName" value="${ruleservice.jackson.typingPropertyName}"/>
+        <property name="jsonTypeInfoId" value="${ruleservice.jackson.jsonTypeInfoId}"/>
+        <property name="polymorphicTypeValidation" value="true"/>
+        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
+        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
+    </bean>
 
-    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"/>
 </beans>

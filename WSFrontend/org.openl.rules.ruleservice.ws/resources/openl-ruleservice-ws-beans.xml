@@ -13,8 +13,10 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
     <import resource="classpath:openl-ruleservice-beans.xml"/>
-    <import resource="openl-ruleservice-jaxrs-publisher-beans.xml"/>
-    <import resource="openl-ruleservice-kafka-publisher-beans.xml"/>
+    <import resource="openl-ruleservice-object-mapper-beans.xml"/>
+
+    <bean class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher"/>
+    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"/>
 
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"
