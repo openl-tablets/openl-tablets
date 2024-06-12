@@ -191,9 +191,8 @@
             function setLayoutDimensions() {
                 $j("#center").css({
                    "height": $j(this).outerHeight()
-                       - $j("#header").outerHeight()
+                       - $j("#appRoot").outerHeight() // - Header height rendered by React application
                        - $j("#top").outerHeight()
-                       - $j("#footer").outerHeight()
                 });
             }
 
