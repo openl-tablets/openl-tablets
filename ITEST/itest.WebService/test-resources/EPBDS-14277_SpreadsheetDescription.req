@@ -1,1 +1,2 @@
-GET /EPBDS-14277_SpreadsheetDescription/EPBDS-14277_SpreadsheetDescription/openapi.json HTTP/1.1
+GET /EPBDS-14277/EPBDS-14277/openapi.json HTTP/1.1
+
