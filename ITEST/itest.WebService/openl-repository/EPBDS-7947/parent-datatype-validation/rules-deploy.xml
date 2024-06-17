@@ -1,7 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
-    <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
     <serviceName>parent-datatype-validation</serviceName>
     <publishers>
         <publisher>RESTFUL</publisher>

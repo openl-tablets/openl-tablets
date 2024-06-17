@@ -95,8 +95,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
-        private static final String DEFAULT_VERSION = "1.0.0";
-
         private static final String UNPROCESSABLE_ENTITY_MESSAGE = "Custom user errors in rules or validation errors in input parameters";
         private static final String UNPROCESSABLE_ENTITY_EXAMPLE = "{\"message\": \"Some message\", \"type\": \"USER_ERROR\"}";
         private static final String USER_ERROR_EXAMPLE = "{\"message\": \"Some message\", \"code\": \"code.example\", \"type\": \"USER_ERROR\"}";
@@ -113,7 +111,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private Set<String> usedPaths = null;
         private final Set<String> nicknames = new HashSet<>();
         private final boolean provideRuntimeContext;
-        private final boolean provideVariations;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
         private final Object targetService;
 
@@ -123,13 +120,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                      Class<?> originalClass,
                                                      Object targetService,
                                                      ClassLoader classLoader,
-                                                     boolean provideRuntimeContext,
-                                                     boolean provideVariations) {
+                                                     boolean provideRuntimeContext) {
             super(Opcodes.ASM5, arg0);
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
             this.provideRuntimeContext = provideRuntimeContext;
-            this.provideVariations = provideVariations;
             this.targetService = targetService;
 
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
@@ -456,7 +451,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private String[] resolveParameterNames(Method originalMethod) {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
                     targetService);
-            return MethodUtils.getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations);
+            return MethodUtils.getParameterNames(openMember, originalMethod, provideRuntimeContext);
         }
 
         private boolean isTextMediaType(Class<?> type) {
@@ -827,8 +822,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
     public static Class<?> enhanceInterface(Class<?> originalClass,
                                             Object targetService,
                                             ClassLoader classLoader,
-                                            boolean provideRuntimeContext,
-                                            boolean provideVariations) throws Exception {
+                                            boolean provideRuntimeContext) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
@@ -843,8 +837,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     originalClass,
                     targetService,
                     classLoader,
-                    provideRuntimeContext,
-                    provideVariations
+                    provideRuntimeContext
             );
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
                     enhancedClassName,

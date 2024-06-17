@@ -33,7 +33,6 @@ public final class GenRulesCode {
 
     static final String RULES_SOURCE_LOCATION = "../org.openl.rules/src/";
     private static final String DEFINITIONS_XLS = "../org.openl.rules/doc/TablePropertyDefinition.xlsx";
-    private static final String ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME = "../../EXT/org.openl.rules.activiti/src/org/openl/rules/activiti/util/IRulesRuntimeContextUtils.java";
 
     private TablePropertyDefinition[] tablePropertyDefinitions;
     private ContextPropertyDefinition[] contextPropertyDefinitions;
@@ -70,8 +69,6 @@ public final class GenRulesCode {
         generateDefaultPropertiesContextMatcherCode();
         generateDefaultPropertiesIntersectionFinderCode();
         generateMatchingOpenMethodDispatcherCode();
-
-        generateIRulesRuntimeContextUtils();
     }
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
@@ -126,13 +123,6 @@ public final class GenRulesCode {
         String sourceFilePath = getClassSourcePathInRulesModule(IRulesRuntimeContext.class);
 
         processFile(sourceFilePath, "IRulesContext-properties.vm", variables);
-    }
-
-    private void generateIRulesRuntimeContextUtils() throws IOException {
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
-
-        processFile(ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME, "IRulesRuntimeContextUtils-properties.vm", variables);
     }
 
     private void generateRulesCompileContextCode() throws IOException {

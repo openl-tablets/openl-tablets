@@ -67,8 +67,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
 
     private Entry generateWrapperClass(Method m) throws Exception {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
-        String[] parameterNames = MethodUtils
-                .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
+        String[] parameterNames = MethodUtils.getParameterNames(openMember, m, service.isProvideRuntimeContext());
         String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
                 .getName() + "$" + RandomStringUtils.random(16, true, false);
 

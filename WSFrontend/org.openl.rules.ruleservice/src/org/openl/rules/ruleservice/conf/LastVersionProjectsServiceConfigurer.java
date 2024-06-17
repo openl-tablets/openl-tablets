@@ -48,7 +48,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private IRulesDeploySerializer rulesDeploySerializer;
     private boolean provideRuntimeContext = false;
-    private boolean supportVariations = false;
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
     private Collection<String> defaultPublishers = Collections.emptyList();
@@ -84,7 +83,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                     Collection<Module> modulesOfProject = pd.getModules();
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                             .setProvideRuntimeContext(isProvideRuntimeContext())
-                            .setProvideVariations(isSupportVariations())
                             .setPublishers(defaultPublishers)
                             .setDeployment(deploymentDescription);
 
@@ -113,10 +111,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                 if (rulesDeploy.isProvideRuntimeContext() != null) {
                                     serviceDescriptionBuilder
                                             .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
-                                }
-                                if (rulesDeploy.isProvideVariations() != null) {
-                                    serviceDescriptionBuilder
-                                            .setProvideVariations(rulesDeploy.isProvideVariations());
                                 }
                                 if (rulesDeploy.getPublishers() != null) {
                                     Set<String> publishers = Arrays.stream(rulesDeploy.getPublishers())
@@ -277,14 +271,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     public void setProvideRuntimeContext(boolean provideRuntimeContext) {
         this.provideRuntimeContext = provideRuntimeContext;
-    }
-
-    public boolean isSupportVariations() {
-        return supportVariations;
-    }
-
-    public void setSupportVariations(boolean supportVariations) {
-        this.supportVariations = supportVariations;
     }
 
     public void setSupportedGroups(String supportedGroups) {

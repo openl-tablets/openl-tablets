@@ -57,7 +57,6 @@ public class JacksonObjectMapperISO8601DateFormatTest {
         this.target = target;
 
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setSupportVariations(true);
         ObjectMapper objectMapper = null;
         try {
             objectMapper = bean.createJacksonObjectMapper();

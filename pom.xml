@@ -99,12 +99,6 @@
         <opentelemetry.version>2.4.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
-        <!-- Casandra -->
-        <cassandra.driver.version>4.17.0</cassandra.driver.version>
-
-        <!-- Hive -->
-        <hive.jdbc.version>4.0.0</hive.jdbc.version>
-
         <!-- REST -->
         <jackson.version>2.17.1</jackson.version>
         <cxf.version>3.6.3</cxf.version>
@@ -178,7 +172,6 @@
         <commons.compress.version>1.26.2</commons.compress.version>
         <commons.collections4.version>4.4</commons.collections4.version>
         <commons.io.version>2.16.1</commons.io.version>
-        <commons.jxpath.version>1.3</commons.jxpath.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
 
         <!-- protocols -->
@@ -195,7 +188,6 @@
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <activiti.version>5.23.0</activiti.version>
         <picocli.version>4.7.6</picocli.version>
         <progressbar.version>0.10.1</progressbar.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
@@ -217,7 +209,6 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
-        <module>EXT</module>
         <module>DEMO</module>
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
@@ -719,18 +710,6 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>kafka</artifactId>
                 <version>${testcontainers.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>cassandra</artifactId>
-                <version>${testcontainers.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.datastax.cassandra</groupId>
-                        <artifactId>cassandra-driver-core</artifactId>
-                    </exclusion>
-                </exclusions>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1303,22 +1282,6 @@
                 <version>${cxf.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-core-shaded</artifactId>
-                <version>${cassandra.driver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.datastax.oss</groupId>
-                <artifactId>java-driver-mapper-processor</artifactId>
-                <version>${cassandra.driver.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.datastax.oss</groupId>
-                        <artifactId>java-driver-core</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>com.icegreen</groupId>
                 <artifactId>greenmail-junit5</artifactId>
                 <version>${greenmail.version}</version>
@@ -1394,17 +1357,6 @@
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
                 <version>${objenesis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-jxpath</groupId>
-                <artifactId>commons-jxpath</artifactId>
-                <version>${commons.jxpath.version}</version>
-            </dependency>
-            <!-- Hessian is a compact binary protocol for connecting web services. -->
-            <dependency>
-                <groupId>com.caucho</groupId>
-                <artifactId>hessian</artifactId>
-                <version>${hessian.version}</version>
             </dependency>
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
@@ -1678,24 +1630,6 @@
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
-            <!--Activity -->
-            <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-engine</artifactId>
-                <version>${activiti.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>activation</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-spring</artifactId>
-                <version>${activiti.version}</version>
-            </dependency>
-            <!--//Activity -->
             <!-- Kafka -->
             <dependency>
                 <groupId>org.apache.kafka</groupId>
@@ -1762,7 +1696,7 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus-utils.version}</version>
             </dependency>
-            <!-- hive & azure -->
+            <!-- azure -->
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
@@ -1775,7 +1709,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- //hive -->
+            <!-- //azure -->
             <!-- picocli -->
             <dependency>
                 <groupId>info.picocli</groupId>
@@ -1822,11 +1756,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.calculation.result</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -1913,11 +1842,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.tableeditor</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.variation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -2046,32 +1970,12 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

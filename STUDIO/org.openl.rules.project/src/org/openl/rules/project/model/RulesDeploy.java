@@ -29,7 +29,6 @@ public class RulesDeploy {
     }
 
     private Boolean isProvideRuntimeContext;
-    private Boolean isProvideVariations;
     private String serviceName;
     @XmlElementWrapper(name = PUBLISHERS_TAG)
     @XmlElement(name = PUBLISHER_TAG)
@@ -72,14 +71,6 @@ public class RulesDeploy {
 
     public void setProvideRuntimeContext(Boolean isProvideRuntimeContext) {
         this.isProvideRuntimeContext = isProvideRuntimeContext;
-    }
-
-    public Boolean isProvideVariations() {
-        return isProvideVariations;
-    }
-
-    public void setProvideVariations(Boolean isProvideVariations) {
-        this.isProvideVariations = isProvideVariations;
     }
 
     public String getServiceName() {
