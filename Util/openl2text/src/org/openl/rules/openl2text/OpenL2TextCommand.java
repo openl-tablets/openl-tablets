@@ -1,6 +1,5 @@
 package org.openl.rules.openl2text;
 
-import static org.openl.rules.project.ai.OpenL2TextUtils.createObjectMapper;
 import static org.openl.rules.project.ai.OpenL2TextUtils.methodToString;
 import static org.openl.rules.project.ai.OpenL2TextUtils.openClassToString;
 import static org.openl.rules.project.ai.OpenL2TextUtils.tableSyntaxNodeToString;
@@ -9,12 +8,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +146,8 @@ public class OpenL2TextCommand {
                     log.error("Rules '%s' are compiled with errors: \n{}", sb.toString());
                 }
                 IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
-                final ObjectMapper objectMapper = createObjectMapper();
+                final ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
                 Set<String> allRulesMethods = new HashSet<>();
                 if (includeAllRulesMethods) {
                     for (IOpenMethod openMethod : openClass.getMethods()) {
@@ -194,7 +197,13 @@ public class OpenL2TextCommand {
         // Write a table as a text
         sb.append(methodToString(rulesMethod, replaceAliasesWithBaseTypes, tableAsCode, onlyMethodCells, maxRows));
         if (includeDimensionalProperties) {
-            String dimensionalProperties = OpenL2TextUtils.dimensionalPropertiesToString(rulesMethod, objectMapper);
+            Map<String, Object> props = OpenL2TextUtils.dimensionalPropertiesToString(rulesMethod);
+            String dimensionalProperties;
+            try {
+                dimensionalProperties = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(props);
+            } catch (JsonProcessingException e) {
+                dimensionalProperties = null;
+            }
             if (dimensionalProperties != null) {
                 // Write header for dimensional properties section
                 sb.append("\n\n");

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -282,9 +284,14 @@ public class AssistantController {
                         .setType(tableSyntaxNode.getType())
                         .setTable(currentOpenedTable);
                 if (tableSyntaxNode.getMember() instanceof ExecutableRulesMethod) {
-                    var dimensionalProperties = OpenL2TextUtils.dimensionalPropertiesToString(
-                            (ExecutableRulesMethod) tableSyntaxNode.getMember(),
-                            objectMapper);
+                    Map<String, Object> props = OpenL2TextUtils.dimensionalPropertiesToString(
+                            (ExecutableRulesMethod) tableSyntaxNode.getMember());
+                    String dimensionalProperties;
+                    try {
+                        dimensionalProperties = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(props);
+                    } catch (JsonProcessingException e) {
+                        dimensionalProperties = null;
+                    }
                     if (dimensionalProperties != null) {
                         tableSyntaxNodeMessageBuilder.setBusinessDimensionProperties(dimensionalProperties);
                     }

@@ -12,10 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.MethodUsage;
@@ -39,6 +35,10 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
+/**
+ * A utility for conversion of all OpenL data structures to the text.
+ * It is used for organize text-based search in OpenL Studio and in OpenL Assistant for training models and indexing.
+ */
 public final class OpenL2TextUtils {
 
     private OpenL2TextUtils() {
@@ -291,34 +291,17 @@ public final class OpenL2TextUtils {
         return sb.toString();
     }
 
-    public static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return objectMapper;
-    }
-
-    public static String dimensionalPropertiesToString(ExecutableRulesMethod rulesMethod) {
-        return dimensionalPropertiesToString(rulesMethod, createObjectMapper());
-    }
-
-    public static String dimensionalPropertiesToString(ExecutableRulesMethod rulesMethod, ObjectMapper objectMapper) {
+    public static Map<String, Object> dimensionalPropertiesToString(ExecutableRulesMethod rulesMethod) {
         if (rulesMethod.getMethodProperties() != null && !rulesMethod.getMethodProperties()
                 .getAllDimensionalProperties()
                 .isEmpty()) {
-            if (objectMapper == null) {
-                objectMapper = createObjectMapper();
+            Map<String, Object> props = new HashMap<>(
+                    rulesMethod.getMethodProperties().getAllDimensionalProperties());
+            if (props.containsKey("state")) {
+                UsStatesEnum[] states = (UsStatesEnum[]) props.get("state");
+                props.put("state", Arrays.stream(states).map(UsStatesEnum::toString).toArray());
             }
-            try {
-                Map<String, Object> props = new HashMap<>(
-                        rulesMethod.getMethodProperties().getAllDimensionalProperties());
-                if (props.containsKey("state")) {
-                    UsStatesEnum[] states = (UsStatesEnum[]) props.get("state");
-                    props.put("state", Arrays.stream(states).map(UsStatesEnum::toString).toArray());
-                }
-                return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(props);
-            } catch (JsonProcessingException e) {
-                return null;
-            }
+            return props;
         }
         return null;
     }
