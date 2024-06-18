@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.ai.OpenL2TextUtils;
+import org.openl.OpenL2TextUtils;
 import org.openl.rules.webstudio.ai.WebstudioAIServiceGrpc;
 import org.openl.rules.webstudio.ai.WebstudioAi;
 import org.openl.rules.webstudio.grpc.AIService;

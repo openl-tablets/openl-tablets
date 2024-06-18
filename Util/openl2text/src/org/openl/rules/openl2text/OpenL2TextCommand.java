@@ -1,8 +1,8 @@
 package org.openl.rules.openl2text;
 
-import static org.openl.rules.project.ai.OpenL2TextUtils.methodToString;
-import static org.openl.rules.project.ai.OpenL2TextUtils.openClassToString;
-import static org.openl.rules.project.ai.OpenL2TextUtils.tableSyntaxNodeToString;
+import static org.openl.OpenL2TextUtils.methodToString;
+import static org.openl.OpenL2TextUtils.openClassToString;
+import static org.openl.OpenL2TextUtils.tableSyntaxNodeToString;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +28,7 @@ import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.project.ai.OpenL2TextUtils;
+import org.openl.OpenL2TextUtils;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.resolving.ProjectResolvingException;

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.project.ai.OpenL2TextUtils;
+import org.openl.OpenL2TextUtils;
 import org.openl.rules.webstudio.ai.WebstudioAi;
 import org.openl.rules.webstudio.grpc.AIService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;

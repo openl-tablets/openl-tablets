@@ -1,4 +1,4 @@
-package org.openl.rules.project.ai;
+package org.openl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
