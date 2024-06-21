@@ -100,7 +100,7 @@ public class TestDescription {
                 try {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
-                    log.error("Failed to clone an argument '{}'. Original argument will be used.",
+                    log.warn("Failed to clone an argument '{}'. Original argument will be used.",
                             executionParams[i].getName());
                     args[i] = value;
                 }
