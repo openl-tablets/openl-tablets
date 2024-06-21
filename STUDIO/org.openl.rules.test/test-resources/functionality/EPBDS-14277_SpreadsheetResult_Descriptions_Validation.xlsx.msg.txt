@@ -1,0 +1,3 @@
+WARN: The description column 'Values1' is already defined.
+WARN: The description column '// Values3' does not correspond to any existing column in the table.
+WARN: The description column '//' does not correspond to any existing column in the table.

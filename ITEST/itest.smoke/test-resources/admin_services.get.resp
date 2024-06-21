@@ -12,57 +12,63 @@ Content-Type: application/json
     "hasManifest": false,
     "deploymentName": "multimodule",
     "status": "DEPLOYED"
+  }, {
+  "startedTime": "#####",
+  "name": "multi_project_project2",
+  "servicePath": "multimodule/project2",
+  "urls": {},
+  "hasManifest": false,
+  "deploymentName": "multimodule",
+  "status": "DEPLOYED"
+}, {
+  "startedTime": "#####",
+  "name": "no-xlsx_common",
+  "servicePath": "no-xlsx/common",
+  "urls": {},
+  "hasManifest": false,
+  "deploymentName": "no-xlsx",
+  "status": "DEPLOYED"
+}, {
+  "startedTime": "#####",
+  "name": "no-xlsx_service",
+  "servicePath": "no-xlsx/service",
+  "urls": {
+    "RESTFUL": "no-xlsx"
   },
-  {
-    "startedTime": "#####",
-    "name": "multi_project_project2",
-    "servicePath": "multimodule/project2",
-    "urls": {},
-    "hasManifest": false,
-    "deploymentName": "multimodule",
-    "status": "DEPLOYED"
+  "hasManifest": false,
+  "deploymentName": "no-xlsx",
+  "status": "DEPLOYED"
+}, {
+  "startedTime": "#####",
+  "name": "openapi_openapi",
+  "servicePath": "openapi/openapi",
+  "urls": {
+    "RESTFUL": "openapi/openapi"
   },
-  {
-    "startedTime": "#####",
-    "name": "no-xlsx_common",
-    "servicePath": "no-xlsx/common",
-    "urls": {},
-    "hasManifest": false,
-    "deploymentName": "no-xlsx",
-    "status": "DEPLOYED"
+  "hasManifest": false,
+  "deploymentName": "openapi",
+  "status": "DEPLOYED"
+}, {
+  "startedTime": "#####",
+  "name": "simple_simple",
+  "servicePath": "simple/simple",
+  "urls": {
+    "RESTFUL": "simple"
   },
-  {
-    "startedTime": "#####",
-    "name": "no-xlsx_service",
-    "servicePath": "no-xlsx/service",
-    "urls": {
-      "RESTFUL": "no-xlsx"
-    },
-    "hasManifest": false,
-    "deploymentName": "no-xlsx",
-    "status": "DEPLOYED"
+  "hasManifest": false,
+  "deploymentName": "simple",
+  "status": "DEPLOYED"
+}, {
+  "startedTime": "#####",
+  "name": "spring",
+  "servicePath": "spring/spring",
+  "urls": {
+    "RESTFUL": "spring/spring"
   },
-  {
-    "startedTime": "#####",
-    "name": "simple_simple",
-    "servicePath": "simple/simple",
-    "urls": {
-      "RESTFUL": "simple"
-    },
-    "hasManifest": false,
-    "deploymentName": "simple",
-    "status": "DEPLOYED"
-  },
-  {
-    "startedTime": "#####",
-    "name": "spring",
-    "servicePath": "spring/spring",
-    "urls": {
-      "RESTFUL": "spring/spring"
-    },
-    "hasManifest": false,
-    "deploymentName": "spring",
-    "status": "DEPLOYED"
-  }
+  "hasManifest": false,
+  "deploymentName": "spring",
+  "status": "DEPLOYED"
+}
 ]
+
 

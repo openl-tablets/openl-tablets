@@ -608,7 +608,7 @@ Content-Type: application/json
     },
     "/Greeting" : {
       "post" : {
-        "description" : "Rules method: java.lang.String Greeting(java.lang.Integer hour)",
+        "description" : "The rule table determines appropriate greeting according to input hours.",
         "operationId" : "Greeting",
         "parameters" : [ {
           "example" : "en-GB",

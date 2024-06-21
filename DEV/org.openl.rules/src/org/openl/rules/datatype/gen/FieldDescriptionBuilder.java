@@ -31,6 +31,10 @@ public class FieldDescriptionBuilder {
     private Object defaultValue;
     private String contextPropertyName;
     private boolean isTransient;
+    private String description;
+    private String[] allowableValues;
+    private String example;
+    private Boolean mandatory;
 
     private FieldDescriptionBuilder(String typeName) {
         this.typeName = typeName;
@@ -60,8 +64,28 @@ public class FieldDescriptionBuilder {
         return this;
     }
 
+    public FieldDescriptionBuilder setDescriptionValue(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public FieldDescriptionBuilder setAllowableValues(String[] allowableValues) {
+        this.allowableValues = allowableValues;
+        return this;
+    }
+
+    public FieldDescriptionBuilder setExampleValue(String example) {
+        this.example = example;
+        return this;
+    }
+
+    public FieldDescriptionBuilder setMandatoryValue(Boolean mandatory) {
+        this.mandatory = mandatory;
+        return this;
+    }
+
     public FieldDescription build() {
-        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString, contextPropertyName, isTransient);
+        return new FieldDescription(typeName, getDefaultValue(), defaultValueAsString, contextPropertyName, null, description, allowableValues, example, Boolean.TRUE.equals(mandatory), isTransient);
     }
 
     /**

@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-14273_RuleNameDescription</name>
+    <modules>
+        <module>
+            <name>EPBDS-14273_RuleNameDescription</name>
+            <rules-root path="EPBDS-14273_RuleNameDescription.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+</project>

@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-14246_DatatypeDescription</name>
+    <modules>
+        <module>
+            <name>EPBDS-14246_DatatypeDescription</name>
+            <rules-root path="EPBDS-14246_DatatypeDescription.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+</project>

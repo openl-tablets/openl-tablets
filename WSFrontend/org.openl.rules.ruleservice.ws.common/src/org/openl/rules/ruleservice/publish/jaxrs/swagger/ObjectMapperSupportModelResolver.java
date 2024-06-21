@@ -34,23 +34,41 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
         super(mapper);
     }
 
+    private Object stringValueToObject(String value, Class<?> rawType) {
+        try {
+            IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
+            if (convertor != null) {
+                Object o = convertor.parse(value, null);
+                return processDates(o);
+            }
+        } catch (Exception ignore) {
+            return null;
+        }
+        return value;
+    }
+
+    private Object stringToRawType(Annotated a, String value) {
+        Class<?> t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
+        Class<?> rawType = t == null ? a.getRawType() : t;
+        return stringValueToObject(value, rawType);
+    }
+
+    @Override
+    protected Object resolveExample(Annotated a, Annotation[] annotations, io.swagger.v3.oas.annotations.media.Schema schema) {
+        Object exampleValue = super.resolveExample(a, annotations, schema);
+        if (exampleValue instanceof String) {
+            return stringToRawType(a, (String) exampleValue);
+        }
+        return exampleValue;
+    }
+
     @Override
     protected Object resolveDefaultValue(Annotated a,
                                          Annotation[] annotations,
                                          io.swagger.v3.oas.annotations.media.Schema schema) {
         Object defaultValue = super.resolveDefaultValue(a, annotations, schema);
         if (defaultValue instanceof String) {
-            Class<?> t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
-            Class<?> rawType = t == null ? a.getRawType() : t;
-            try {
-                IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
-                if (convertor != null) {
-                    Object o = convertor.parse((String) defaultValue, null);
-                    return processDates(o);
-                }
-            } catch (Exception ignore) {
-                return null;
-            }
+            return stringToRawType(a, (String) defaultValue);
         }
         return defaultValue;
     }
@@ -74,6 +92,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
     }
 
     @SuppressWarnings("rawtypes")
+    @Override
     protected void resolveDiscriminatorProperty(JavaType type, ModelConverterContext context, Schema model) {
         final BeanDescription beanDesc = _mapper.getSerializationConfig().introspect(type);
         JsonTypeInfo typeInfo = beanDesc.getClassAnnotations().get(JsonTypeInfo.class);
@@ -111,6 +130,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
         }
     }
 
+    @Override
     protected Discriminator resolveDiscriminator(JavaType type, ModelConverterContext context) {
 
         io.swagger.v3.oas.annotations.media.Schema declaredSchemaAnnotation = AnnotationsUtils

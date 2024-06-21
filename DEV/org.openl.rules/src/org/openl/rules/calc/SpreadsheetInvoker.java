@@ -1,5 +1,7 @@
 package org.openl.rules.calc;
 
+import org.apache.commons.collections4.BidiMap;
+
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IDynamicObject;
@@ -40,24 +42,35 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
      */
     protected Object[][] preFetchResult(Spreadsheet spreadsheet) {
         SpreadsheetCell[][] cc = spreadsheet.getCells();
-        Object[][] res = cc.length == 0 ? EMPTY_RESULT : new Object[cc.length][cc[0].length];
 
-        for (int i = 0; i < cc.length; i++) {
-            SpreadsheetCell[] row = cc[i];
-            for (int j = 0; j < row.length; j++) {
-                SpreadsheetCell cell = row[j];
-                switch (cell.getSpreadsheetCellType()) {
-                    case EMPTY:
-                        res[i][j] = cell.isDefaultPrimitiveCell() ? cell.getValue()
-                                : SpreadsheetResultCalculator.EMPTY_CELL;
-                        break;
-                    case VALUE:
-                    case CONSTANT:
-                        res[i][j] = cell.getValue();
-                        break;
-                    case METHOD:
-                        res[i][j] = SpreadsheetResultCalculator.METHOD_VALUE;
-                        break;
+        int height = spreadsheet.getHeight();
+        int width = spreadsheet.getWidth();
+
+        Object[][] res = cc.length == 0 ? EMPTY_RESULT : new Object[height][width];
+
+        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
+        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
+
+        for (int i = 0; i < height; i++) {
+            SpreadsheetCell[] row = cc[rowOffsets.get(i)];
+            for (int j = 0; j < width; j++) {
+                SpreadsheetCell cell = row[columnOffsets.get(j)];
+                if (cell != null) {
+                    switch (cell.getSpreadsheetCellType()) {
+                        case EMPTY:
+                            res[i][j] = cell.isDefaultPrimitiveCell() ? cell.getValue()
+                                    : SpreadsheetResultCalculator.EMPTY_CELL;
+                            break;
+                        case VALUE:
+                        case CONSTANT:
+                            res[i][j] = cell.getValue();
+                            break;
+                        case METHOD:
+                            res[i][j] = SpreadsheetResultCalculator.METHOD_VALUE;
+                            break;
+                    }
+                } else {
+                    res[i][j] = SpreadsheetResultCalculator.DESCRIPTION_CELL;
                 }
             }
         }

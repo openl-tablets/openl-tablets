@@ -17,6 +17,10 @@ public class FieldDescription {
     private String contextPropertyName;
     private String xmlName;
     private boolean isTransient;
+    private String description;
+    private String[] allowableValues;
+    private String example;
+    private boolean mandatory;
     private final Collection<Consumer<FieldVisitor>> fieldVisitorWriters;
     private final Collection<Consumer<MethodVisitor>> getterVisitorWriters;
 
@@ -26,45 +30,35 @@ public class FieldDescription {
         this.getterVisitorWriters = null;
     }
 
-    public FieldDescription(String typeName,
-                            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
-                            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
+    public FieldDescription(String typeName, Collection<Consumer<FieldVisitor>> fieldVisitorWriters, Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this.typeDescription = new TypeDescription(typeName);
         this.fieldVisitorWriters = fieldVisitorWriters;
         this.getterVisitorWriters = getterVisitorWriters;
     }
 
-    public FieldDescription(String typeName,
-                            Object defaultValue,
-                            String defaultValueAsString,
-                            String contextPropertyName,
-                            boolean isTransient) {
+    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, boolean isTransient) {
         this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null, isTransient);
     }
 
-    public FieldDescription(String typeName,
-                            Object defaultValue,
-                            String defaultValueAsString,
-                            String contextPropertyName,
-                            String xmlName,
-                            boolean isTransient) {
-        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, isTransient, null, null);
+    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, boolean isTransient) {
+        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, null, null, null, false, isTransient, null, null);
     }
 
-    public FieldDescription(String typeName,
-                            Object defaultValue,
-                            String defaultValueAsString,
-                            String contextPropertyName,
-                            String xmlName,
-                            boolean isTransient,
-                            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
-                            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
+    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, String description, String[] allowableValues, String example, boolean mandatory, boolean isTransient) {
+        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, description, allowableValues, example, mandatory, isTransient, null, null);
+    }
+
+    public FieldDescription(String typeName, Object defaultValue, String defaultValueAsString, String contextPropertyName, String xmlName, String description, String[] allowableValues, String example, boolean mandatory, boolean isTransient, Collection<Consumer<FieldVisitor>> fieldVisitorWriters, Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this(typeName, fieldVisitorWriters, getterVisitorWriters);
+        this.description = description;
         this.defaultValueAsString = defaultValueAsString;
         this.defaultValue = defaultValue;
         this.contextPropertyName = contextPropertyName;
         this.xmlName = xmlName;
         this.isTransient = isTransient;
+        this.allowableValues = allowableValues;
+        this.example = example;
+        this.mandatory = mandatory;
     }
 
     public String getTypeName() {
@@ -122,5 +116,21 @@ public class FieldDescription {
 
     public Collection<Consumer<MethodVisitor>> getGetterVisitorWriters() {
         return getterVisitorWriters;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String[] getAllowableValues() {
+        return allowableValues;
+    }
+
+    public String getExample() {
+        return example;
+    }
+
+    public boolean isMandatory() {
+        return mandatory;
     }
 }

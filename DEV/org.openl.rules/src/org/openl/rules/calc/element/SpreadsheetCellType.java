@@ -4,5 +4,6 @@ public enum SpreadsheetCellType {
     VALUE,
     CONSTANT,
     METHOD,
-    EMPTY
+    EMPTY,
+    DESCRIPTION
 }

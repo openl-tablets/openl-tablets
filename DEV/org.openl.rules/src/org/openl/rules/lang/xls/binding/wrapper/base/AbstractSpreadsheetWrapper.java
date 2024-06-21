@@ -3,6 +3,8 @@ package org.openl.rules.lang.xls.binding.wrapper.base;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.collections4.BidiMap;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
@@ -140,8 +142,28 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
+    public BidiMap<Integer, Integer> getRowOffsets() {
+        return delegate.getRowOffsets();
+    }
+
+    @Override
+    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
+        delegate.setRowOffsets(rowOffsets);
+    }
+
+    @Override
     public String[] getColumnNames() {
         return delegate.getColumnNames();
+    }
+
+    @Override
+    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
+        delegate.setColumnOffsets(columnOffsets);
+    }
+
+    @Override
+    public BidiMap<Integer, Integer> getColumnOffsets() {
+        return delegate.getColumnOffsets();
     }
 
     @Override
@@ -252,6 +274,26 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     @Override
     public boolean isStatic() {
         return delegate.isStatic();
+    }
+
+    @Override
+    public BidiMap<Integer, Integer> getColumnDescriptions() {
+        return delegate.getColumnDescriptions();
+    }
+
+    @Override
+    public void setColumnDescriptions(Map<Integer, Integer> columnComments) {
+        super.setColumnDescriptions(columnComments);
+    }
+
+    @Override
+    public BidiMap<Integer, Integer> getRowDescriptions() {
+        return super.getRowDescriptions();
+    }
+
+    @Override
+    public void setRowDescriptions(Map<Integer, Integer> rowComments) {
+        super.setRowDescriptions(rowComments);
     }
 
     @Override

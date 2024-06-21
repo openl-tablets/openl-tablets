@@ -1,0 +1,527 @@
+{
+  "openapi" : "3.0.1",
+  "paths" : {
+    "/MyRulesArr/{a}" : {
+      "get" : {
+        "description" : "Rules method: SpreadsheetResultMyRulesArr[] MyRulesArr(int a)",
+        "operationId" : "MyRulesArr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "a",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MyRulesArr"
+                  }
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "MyRulesArr[] MyRulesArr(int)"
+      }
+    },
+    "/MyRulesCombo/{a}" : {
+      "get" : {
+        "description" : "Rules method: SRtheSpr & SRtheSpr1 MyRulesCombo(int a)",
+        "operationId" : "MyRulesCombo",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "a",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TheSprTheSpr1"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "TheSprTheSpr1 MyRulesCombo(int)"
+      }
+    },
+    "/theSpr" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResulttheSpr theSpr(java.lang.Integer intA, java.lang.String strB, org.openl.generated.beans.MyDatatype obj)",
+        "operationId" : "theSpr",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TheSprRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TheSpr"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "TheSpr theSpr(Integer, String, MyDatatype)"
+      }
+    },
+    "/theSpr1" : {
+      "post" : {
+        "description" : "Rules method: SpreadsheetResulttheSpr1 theSpr1(java.lang.Integer intA, java.lang.String strB, org.openl.generated.beans.MyDatatype obj)",
+        "operationId" : "theSpr1",
+        "parameters" : [ {
+          "example" : "en-GB",
+          "in" : "header",
+          "name" : "Accept-Language",
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TheSpr1Request"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TheSpr1"
+                }
+              }
+            },
+            "description" : "Successful operation"
+          },
+          "204" : {
+            "description" : "Successful operation"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Cannot parse 'bar' to JSON",
+                  "type" : "BAD_REQUEST"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+          },
+          "422" : {
+            "content" : {
+              "application/json" : {
+                "examples" : {
+                  "Example 1" : {
+                    "description" : "Example 1",
+                    "value" : {
+                      "message" : "Some message",
+                      "type" : "USER_ERROR"
+                    }
+                  },
+                  "Example 2" : {
+                    "description" : "Example 2",
+                    "value" : {
+                      "message" : "Some message",
+                      "code" : "code.example",
+                      "type" : "USER_ERROR"
+                    }
+                  }
+                },
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/JAXRSUserErrorResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                  } ]
+                }
+              }
+            },
+            "description" : "Custom user errors in rules or validation errors in input parameters"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "example" : {
+                  "message" : "Failed to load lazy method.",
+                  "type" : "COMPILATION"
+                },
+                "schema" : {
+                  "$ref" : "#/components/schemas/JAXRSErrorResponse"
+                }
+              }
+            },
+            "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+          }
+        },
+        "summary" : "TheSpr1 theSpr1(Integer, String, MyDatatype)"
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "JAXRSErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION" ]
+          }
+        }
+      },
+      "JAXRSUserErrorResponse" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MyDatatype" : {
+        "type" : "object",
+        "properties" : {
+          "intValue" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "strValues" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MyRulesArr" : {
+        "type" : "object",
+        "properties" : {
+          "spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "The Only Table"
+          }
+        }
+      },
+      "TheSpr" : {
+        "type" : "object",
+        "properties" : {
+          "spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "The Only Table"
+          }
+        }
+      },
+      "TheSpr1" : {
+        "type" : "object",
+        "properties" : {
+          "My_Result_1_spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "When discussing tables in a broad sense, we can delve into various aspects ranging from their historical development and cultural significance to their practical applications and design variations. This comprehensive exploration will touch on the historical evolution of tables, their role in different cultures, the myriad of designs and materials used in their construction, and their multifaceted purposes in contemporary settings."
+          },
+          "你好世界_2__spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ddd"
+          },
+          "你好世界_2__ternaryOpp" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ternary Operator 世界  !@#$%^&*("
+          }
+        }
+      },
+      "TheSpr1Request" : {
+        "type" : "object",
+        "properties" : {
+          "intA" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "obj" : {
+            "$ref" : "#/components/schemas/MyDatatype"
+          },
+          "strB" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TheSprRequest" : {
+        "type" : "object",
+        "properties" : {
+          "intA" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "obj" : {
+            "$ref" : "#/components/schemas/MyDatatype"
+          },
+          "strB" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TheSprTheSpr1" : {
+        "type" : "object",
+        "properties" : {
+          "My_Result_1_spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "When discussing tables in a broad sense, we can delve into various aspects ranging from their historical development and cultural significance to their practical applications and design variations. This comprehensive exploration will touch on the historical evolution of tables, their role in different cultures, the myriad of designs and materials used in their construction, and their multifaceted purposes in contemporary settings."
+          },
+          "你好世界_2__spomeCalc2" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "The Only Table"
+          },
+          "你好世界_2__ternaryOpp" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "ternary Operator 世界  !@#$%^&*("
+          }
+        }
+      }
+    }
+  }
+}

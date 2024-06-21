@@ -4,17 +4,20 @@ Content-Type: application/json
 {
   "urls": [
     {
-      "name": "multi_project_project1",
-      "url": "multi_project/project1/openapi.json"
+      "url": "multi_project/project1/openapi.json",
+      "name": "multi_project_project1"
     }, {
-      "name": "no-xlsx_service",
-      "url": "no-xlsx/openapi.json"
+      "url": "no-xlsx/openapi.json",
+      "name": "no-xlsx_service"
     }, {
-      "name": "simple_simple",
-      "url": "simple/openapi.json"
+      "url": "openapi/openapi/openapi.json",
+      "name": "openapi_openapi"
     }, {
-      "name": "spring",
-      "url": "spring/spring/openapi.json"
+      "url": "simple/openapi.json",
+      "name": "simple_simple"
+    }, {
+      "url": "spring/spring/openapi.json",
+      "name": "spring"
     }
   ]
 }

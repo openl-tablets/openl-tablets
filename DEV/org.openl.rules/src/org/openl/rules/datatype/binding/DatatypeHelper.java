@@ -1,5 +1,7 @@
 package org.openl.rules.datatype.binding;
 
+import java.util.List;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
@@ -12,11 +14,21 @@ import org.openl.types.NullOpenClass;
 import org.openl.util.StringUtils;
 
 public class DatatypeHelper {
+    public static final String TYPE_COLUMN_TITLE = "Type";
+    public static final String NAME_COLUMN_TITLE = "Name";
+    public static final String DEFAULT_COLUMN_TITLE = "Default";
+    public static final String EXAMPLE_COLUMN_TITLE = "Example";
+    public static final String DESCRIPTION_COLUMN_TITLE = "Description";
+    public static final String MANDATORY_COLUMN_TITLE = "Mandatory";
+
+    public static final List<String> COLUMN_TITLES = List.of(TYPE_COLUMN_TITLE, NAME_COLUMN_TITLE, DEFAULT_COLUMN_TITLE, EXAMPLE_COLUMN_TITLE, DESCRIPTION_COLUMN_TITLE, MANDATORY_COLUMN_TITLE);
+
     /**
-     * Datatype table can contain no more than 3 columns: 1) First column - type name 2) Second column - field name 3)
-     * Third column - default value
+     * Datatype table can contain no more than 7 columns: 1) First column - type name 2) Second column - field name 3)
+     * Third column - default value, if the width of the table is 3. If the width of the table is more than 3, the table must contain titles for each column.
      */
-    private static final int MAXIMUM_COLUMNS_COUNT = 3;
+    private static final int MAXIMUM_COLUMNS_COUNT_NO_TITLES = 3;
+    private static final int MAXIMUM_COLUMNS_COUNT = 7;
     private static final int TYPE_NAME_COLUMN = 0;
     private static final int FIELD_NAME_COLUMN = 1;
     private static final int DEFAULTS_COLUMN = 2;
@@ -49,20 +61,35 @@ public class DatatypeHelper {
             return dataPart.transpose();
         }
 
-        if (dataPart.getWidth() == MAXIMUM_COLUMNS_COUNT && isThirdColumnForDefaults(dataPart)) {
+        if (dataPart.getWidth() == MAXIMUM_COLUMNS_COUNT_NO_TITLES && isThirdColumnForDefaults(dataPart)) {
             return dataPart;
         }
 
-        if (dataPart.getHeight() == MAXIMUM_COLUMNS_COUNT && isThirdColumnForDefaults(dataPart.transpose())) {
+        if (dataPart.getHeight() == MAXIMUM_COLUMNS_COUNT_NO_TITLES && isThirdColumnForDefaults(dataPart.transpose())) {
             return dataPart.transpose();
         }
 
-        int verticalCount = countTypes(dataPart, openl, cxt);
+        int verticalTitles = 0;
+        int horizontalTitles = 0;
+        if (dataPart.getWidth() > MAXIMUM_COLUMNS_COUNT_NO_TITLES) {
+            verticalTitles = countTitles(dataPart);
+        }
+        if (dataPart.getHeight() > MAXIMUM_COLUMNS_COUNT_NO_TITLES) {
+            horizontalTitles = countTitles(dataPart.transpose());
+        }
+
+        if (verticalTitles > horizontalTitles && verticalTitles > 0) {
+            return dataPart;
+        } else if (horizontalTitles > verticalTitles && horizontalTitles > 0) {
+            return dataPart.transpose();
+        }
+
+        int verticalCount = countTypes(dataPart, cxt);
         if (verticalCount == dataPart.getHeight() && verticalCount >= dataPart.getWidth()) {
             // There is no need to check horizontal types.
             return dataPart;
         }
-        int horizontalCount = countTypes(dataPart.transpose(), openl, cxt);
+        int horizontalCount = countTypes(dataPart.transpose(), cxt);
 
         if (verticalCount < horizontalCount) {
             return dataPart.transpose();
@@ -90,7 +117,7 @@ public class DatatypeHelper {
 
     }
 
-    private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    private static int countTypes(ILogicalTable table, IBindingContext cxt) {
 
         int height = table.getHeight();
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
@@ -112,6 +139,28 @@ public class DatatypeHelper {
         } finally {
             cxt.popErrors();
         }
+        return count;
+    }
+
+    private static int countTitles(ILogicalTable table) {
+        int width = table.getWidth();
+        int count = 0; // The first cell is always title, there is no need to check it. Start from the second one.
+        ILogicalTable row = table.getRow(0);
+        for (int i = 1; i < width; i++) {
+            String code = row.getCell(i, 0).getStringValue();
+
+            if (StringUtils.isBlank(code)) {
+                continue;
+            }
+
+            for (String title : COLUMN_TITLES) {
+                if (title.equalsIgnoreCase(code)) {
+                    count += 1;
+                    break;
+                }
+            }
+        }
+
         return count;
     }
 }

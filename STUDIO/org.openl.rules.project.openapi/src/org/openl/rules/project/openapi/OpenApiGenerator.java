@@ -124,7 +124,7 @@ public class OpenApiGenerator {
     }
 
     private ProjectResource loadProjectResource(ProjectResourceLoader projectResourceLoader, String name) {
-        ProjectResource[] projectResources = projectResourceLoader.loadResource(name);
+        ProjectResource[] projectResources = projectResourceLoader.loadResource(name, false);
         return Arrays.stream(projectResources)
                 .filter(e -> Objects.equals(e.getProjectDescriptor().getName(), projectDescriptor.getName()))
                 .findFirst()
@@ -132,7 +132,7 @@ public class OpenApiGenerator {
     }
 
     private RulesDeploy loadRulesDeploy() {
-        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(compiledOpenClass);
+        ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(projectDescriptor, compiledOpenClass);
         ProjectResource projectResource = loadProjectResource(projectResourceLoader, RULES_DEPLOY_XML);
         if (projectResource != null) {
             try {
@@ -272,9 +272,11 @@ public class OpenApiGenerator {
                                       Object targetService,
                                       ClassLoader classLoader) throws RulesInstantiationException {
         try {
-            return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
+            return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(
+                    originalClass,
                     targetService,
                     classLoader,
+                    null,
                     isProvidedRuntimeContext(),
                     isProvideVariations()
             );

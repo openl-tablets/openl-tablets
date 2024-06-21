@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.OpenL;
@@ -24,6 +25,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -59,6 +61,34 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         return (XlsModuleOpenClass) super.getModule();
     }
 
+    private String[][] getDescriptions(Spreadsheet spreadsheet) {
+        BidiMap<Integer, Integer> rowOffsets = spreadsheet.getRowOffsets();
+        BidiMap<Integer, Integer> columnOffsets = spreadsheet.getColumnOffsets();
+        String[][] descriptions = new String[spreadsheet.getHeight()][spreadsheet.getWidth()];
+        for (int i = 0; i < spreadsheet.getHeight(); i++) {
+            for (int j = 0; j < spreadsheet.getWidth(); j++) {
+                int col = columnOffsets.get(j);
+                int row = rowOffsets.get(i);
+                boolean f = false;
+                if (spreadsheet.getColumnDescriptions().containsValue(col)) {
+                    col = spreadsheet.getColumnDescriptions().inverseBidiMap().get(col);
+                    f = true;
+                } else if (spreadsheet.getRowDescriptions().containsValue(row)) {
+                    row = spreadsheet.getRowDescriptions().inverseBidiMap().get(row);
+                    f = true;
+                }
+                if (f) {
+                    ICell cell = structureBuilder.getTableBody().getCell(col + 1, row + 1);
+                    String value = cell.getStringValue();
+                    if (org.openl.util.StringUtils.isNotBlank(value)) {
+                        descriptions[i][j] = value;
+                    }
+                }
+            }
+        }
+        return descriptions;
+    }
+
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
         Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
                 .getFields()
@@ -74,6 +104,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 spreadsheet.getColumnNames(),
                 spreadsheet.getRowNamesForResultModel(),
                 spreadsheet.getColumnNamesForResultModel(),
+                getDescriptions(spreadsheet),
                 getModule(),
                 spreadsheet.isTableStructureDetails(),
                 true,
@@ -102,6 +133,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 && !structureBuilder.isExistsReturnHeader()
                 && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
 
+        //*TODO Refactor this to build Spreadsheet in the SpreadsheetBinder
         var spreadsheet = new Spreadsheet(getHeader(), this);
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
@@ -110,7 +142,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         // Add generated type to be accessible through binding context.
         //
         spreadsheet.setRowNames(structureBuilder.getRowNames());
+        spreadsheet.setRowOffsets(structureBuilder.getRowOffsets());
+        spreadsheet.setRowDescriptions(structureBuilder.getRowDescriptions());
+
         spreadsheet.setColumnNames(structureBuilder.getColumnNames());
+        spreadsheet.setColumnOffsets(structureBuilder.getColumnOffsets());
+        spreadsheet.setColumnDescriptions(structureBuilder.getColumnDescriptions());
 
         spreadsheet.setRowNamesForResultModel(structureBuilder.getRowNamesForResultModel());
         spreadsheet.setColumnNamesForResultModel(structureBuilder.getColumnNamesForResultModel());
