@@ -89,6 +89,7 @@ EOT
 RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
 export JAVA_OPTS="$JAVA_OPTS \
 -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+-Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
 "

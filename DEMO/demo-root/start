@@ -65,7 +65,7 @@ if [[ -z "$OPENL_HOME" ]]; then
   fi
 fi
 
-JAVA_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 -Dapple.awt.UIElement=true $JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
+JAVA_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 -Dapple.awt.UIElement=true $JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")" #Evaluate environment variables are put trough strings placeholders
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
