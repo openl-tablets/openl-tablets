@@ -18,7 +18,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
+ * Request scope managed bean providing logic for 'Run Tables' page of OpenL Studio.
  */
 @Service
 @RequestScope

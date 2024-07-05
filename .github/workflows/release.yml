@@ -146,7 +146,7 @@ jobs:
           asset_name: openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
           asset_content_type: application/zip
 
-      - name: Attach WebStudio
+      - name: Attach OpenL Studio
         id: attach-webstudio
         uses: actions/upload-release-asset@v1
         env:

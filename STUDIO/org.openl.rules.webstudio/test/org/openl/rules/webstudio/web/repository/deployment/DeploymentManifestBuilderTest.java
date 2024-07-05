@@ -31,7 +31,7 @@ public class DeploymentManifestBuilderTest {
         assertEquals("", mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 
@@ -54,7 +54,7 @@ public class DeploymentManifestBuilderTest {
         assertEquals("My Rules", mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 
@@ -71,7 +71,7 @@ public class DeploymentManifestBuilderTest {
         assertNull(mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 }

@@ -3086,7 +3086,7 @@ public final class RulesUtils {
 
     /*
      * into the return statement the full path of StringUtils should be written if we write StringUtils.removeStart(str,
-     * remove); WebStudio won't work correctly;
+     * remove); OpenL Studio won't work correctly;
      */
 
     // <<< lowerCase and upperCase functions >>>

@@ -1,7 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 /**
- * Type of reloading of WebStudio.
+ * Type of reloading of OpenL Studio.
  *
  * @author PUdalau
  */

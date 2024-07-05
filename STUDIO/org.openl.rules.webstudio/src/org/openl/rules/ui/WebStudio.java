@@ -615,7 +615,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             facesContext.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
             facesContext.responseComplete();
         } else {
-            // faces context may not be available in WebStudio if it's used from REST API
+            // faces context may not be available in OpenL Studio if it's used from REST API
             throw new NotFoundException("project.identifier.message");
         }
     }
@@ -1432,7 +1432,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
             if (userWorkspace.isOpenedOtherProject(historic)) {
                 throw new Message(
-                        "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.");
+                        "OpenL Studio cannot open two projects with the same name. Close the currently opened project and try again.");
             }
 
             if (project.isOpened()) {

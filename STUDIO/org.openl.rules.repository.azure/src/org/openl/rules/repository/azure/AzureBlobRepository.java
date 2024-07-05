@@ -58,7 +58,7 @@ import org.openl.util.StringUtils;
  * Each project version description is called Azure Commit and contains an author,
  * commit message and file names with their versions for that particular commit.<br/>
  * Also, it is possible to read and save only modified files when opening old project version or saving a project
- * in WebStudio (see supports().uniqueFileId() feature).
+ * in OpenL Studio (see supports().uniqueFileId() feature).
  *
  * @author Nail Samatov
  */

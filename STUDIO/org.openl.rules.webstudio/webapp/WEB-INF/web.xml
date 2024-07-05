@@ -14,8 +14,8 @@
         </cookie-config>
     </session-config>
 
-    <display-name>OpenL Tablets WebStudio</display-name>
-    <description>OpenL Tablets WebStudio</description>
+    <display-name>OpenL Studio</display-name>
+    <description>OpenL Studio</description>
 
     <context-param>
         <description>

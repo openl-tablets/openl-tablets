@@ -59,7 +59,7 @@ public class OAuth2AccessTokenConfiguration {
     @Bean
     public BearerTokenAuthenticationEntryPoint bearerTokenAuthenticationEntryPoint() {
         var entrypoint = new BearerTokenAuthenticationEntryPoint();
-        entrypoint.setRealmName("WebStudio Realm");
+        entrypoint.setRealmName("OpenL Studio Realm");
         return entrypoint;
     }
 

@@ -98,7 +98,7 @@ public class HistoryForRevertedCommitTest {
     private GitRepository createRepository() {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(new File(REPO_URI).getAbsolutePath());
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         repo.setGcAutoDetach(false);
         repo.setBranch("main");
         repo.initialize();

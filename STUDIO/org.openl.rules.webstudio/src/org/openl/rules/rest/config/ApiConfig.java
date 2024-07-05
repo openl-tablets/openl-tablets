@@ -35,7 +35,7 @@ import org.openl.rules.serialization.ExtendedStdDateFormat;
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 /**
- * Spring WebStudio API Configuration
+ * Spring OpenL Studio API Configuration
  *
  * @author Vladyslav Pikus
  */

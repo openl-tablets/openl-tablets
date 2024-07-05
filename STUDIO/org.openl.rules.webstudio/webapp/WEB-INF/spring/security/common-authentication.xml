@@ -22,7 +22,7 @@
 
     <bean id="basicAuthenticationEntryPoint"
           class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
-        <property name="realmName" value="WebStudio Realm"/>
+        <property name="realmName" value="OpenL Studio Realm"/>
     </bean>
 
     <bean id="restBasicAuthenticationFilter"
@@ -32,7 +32,7 @@
     </bean>
 
     <bean name="restBasicAuthenticationEntryPoint" class="org.openl.rules.rest.RestBasicAuthenticationEntryPoint">
-        <property name="realmName" value="WebStudio Realm"/>
+        <property name="realmName" value="OpenL Studio Realm"/>
     </bean>
 
     <bean id="restExceptionTranslationFilter"

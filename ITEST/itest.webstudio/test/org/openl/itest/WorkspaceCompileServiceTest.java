@@ -27,7 +27,7 @@ public class WorkspaceCompileServiceTest {
     @Test
     @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
     public void compile() {
-        // Initialize WebStudio.
+        // Initialize OpenL Studio.
         client.send("workspace-compile/empty.get");
         // Init project compilation.
         client.send("workspace-compile/project.get");

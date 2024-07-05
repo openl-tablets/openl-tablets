@@ -66,7 +66,7 @@ public class MergeLfsRepoTest {
     private GitRepository createRepository(String repoPath) {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(repoPath);
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         repo.setGcAutoDetach(false);
         repo.setBranch("main");
         repo.initialize();

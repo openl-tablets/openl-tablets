@@ -77,7 +77,7 @@ echo "Using JAVA_OPTS:            $JAVA_OPTS"
 echo "Using OPENL_HOME:           $OPENL_HOME"
 
 if [[ $1 != "batchMode" ]]; then
-  echo -ne "\033]0;OpenL WebStudio DEMO\007"
+  echo -ne "\033]0;OpenL Studio DEMO\007"
   echo "Open a default browser"
   sleep 1 && open http://localhost:8080/ &
 fi

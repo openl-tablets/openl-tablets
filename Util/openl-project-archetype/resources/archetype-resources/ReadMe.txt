@@ -29,6 +29,6 @@ Project structure uses default Maven project structure and contains the followin
 OPENL PROJECT DESCRIPTOR
 
 OpenL project descriptor is just simple xml file which contains information about current OpenL project. It is used
-by OpenL WebStudio and Rule Services deploy manager to obtain information about project.
+by OpenL Studio and Rule Services deploy manager to obtain information about project.
 
 For more information about OpenL Tablets visit our site https://openl-tablets.org .

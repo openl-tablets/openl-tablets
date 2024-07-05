@@ -27,7 +27,7 @@ final class OpenApiContext {
 
     public OpenApiContext() {
         this.openAPI = new OpenAPI()
-                .info(new Info().version(OpenLVersion.getVersion()).title("OpenL Tablets WebStudio API"))
+                .info(new Info().version(OpenLVersion.getVersion()).title("OpenL Studio API"))
                 .addServersItem(new Server().url(OpenApiUtils.getRequestBasePath()))
                 .paths(new Paths())
                 .components(new Components());

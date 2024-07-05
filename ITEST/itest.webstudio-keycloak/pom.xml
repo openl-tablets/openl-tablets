@@ -10,7 +10,7 @@
 
     <artifactId>itest.webstudio-keycloak</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - WebStudio - Keycloak</name>
+    <name>ITEST - OpenL Studio - Keycloak</name>
     <url>https://openl-tablets.org</url>
 
     <properties>

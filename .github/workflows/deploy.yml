@@ -89,7 +89,7 @@ jobs:
             --build-arg APP=STUDIO/org.openl.rules.webstudio/target/webapp \
             --platform ${BUILD_PLATFORMS} --push \
             --label $created --label $version --label $revision \
-            --label "org.opencontainers.image.title=OpenL WebStudio" \
+            --label "org.opencontainers.image.title=OpenL Studio" \
             --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
           cd DEMO
           docker buildx build -t $repo/demo:x . \

@@ -3300,7 +3300,7 @@ public class GitRepository implements BranchRepository, RepositorySettingsAware,
                         null,
                         commitMessageParser,
                         commitMessageParserOld);
-                // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
+                // Must mark it as deleted explicitly because the file can be erased outside OpenL Studio.
                 data.setDeleted(true);
             }
 

@@ -52,7 +52,7 @@ public final class DefaultPropertyDefinitions {
 
         definitions[2] = new TablePropertyDefinition();
         definitions[2].setConstraints(new Constraints("no"));
-        definitions[2].setDescription("A name of a user created the table in OpenL Tablets WebStudio");
+        definitions[2].setDescription("A name of a user created the table in OpenL Studio");
         definitions[2].setDimensional(false);
         definitions[2].setDisplayName("Created By");
         definitions[2].setGroup("Info");
@@ -67,7 +67,7 @@ public final class DefaultPropertyDefinitions {
 
         definitions[3] = new TablePropertyDefinition();
         definitions[3].setConstraints(new Constraints("no"));
-        definitions[3].setDescription("Date of the table creation in OpenL Tablets WebStudio");
+        definitions[3].setDescription("Date of the table creation in OpenL Studio");
         definitions[3].setDimensional(false);
         definitions[3].setDisplayName("Created On");
         definitions[3].setFormat("MM/dd/yyyy hh:mm a");
@@ -83,7 +83,7 @@ public final class DefaultPropertyDefinitions {
 
         definitions[4] = new TablePropertyDefinition();
         definitions[4].setConstraints(new Constraints("no"));
-        definitions[4].setDescription("A name of a user last modified the table in OpenL Tablets WebStudio");
+        definitions[4].setDescription("A name of a user last modified the table in OpenL Studio");
         definitions[4].setDimensional(false);
         definitions[4].setDisplayName("Modified By");
         definitions[4].setGroup("Info");
@@ -98,7 +98,7 @@ public final class DefaultPropertyDefinitions {
 
         definitions[5] = new TablePropertyDefinition();
         definitions[5].setConstraints(new Constraints("no"));
-        definitions[5].setDescription("The date of the last table modification in OpenL Tablets WebStudio");
+        definitions[5].setDescription("The date of the last table modification in OpenL Studio");
         definitions[5].setDimensional(false);
         definitions[5].setDisplayName("Modified On");
         definitions[5].setFormat("MM/dd/yyyy hh:mm a");

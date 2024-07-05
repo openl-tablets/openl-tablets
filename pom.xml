@@ -921,7 +921,7 @@
                 <!-- This library implements a filter to process X-Forwarded-* headers.
                 The reason of this usage: no huge dependencies.
                 Neither Spring filter, nor CXF filter works correctly within the same reverse proxy.
-                So this library unifies forwarding for both WebStudio and RuleServices -->
+                So this library unifies forwarding for both OpenL Studio and RuleServices -->
                 <groupId>de.qaware.xff</groupId>
                 <artifactId>x-forwarded-filter</artifactId>
                 <version>${x-forwarded-filter.version}</version>

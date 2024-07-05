@@ -318,7 +318,7 @@ public class LocalRepository extends FileSystemRepository {
                     if (modifiedAtLong != null) {
                         modifiedAt = new Date(Long.parseLong(modifiedAtLong));
                     } else {
-                        // Backward compatibility for projects opened in previous version of WebStudio.
+                        // Backward compatibility for projects opened in previous version of OpenL Studio.
                         // Will be removed in the future.
                         String modifiedAtStr = properties.get(MODIFIED_AT_PROPERTY);
                         modifiedAt = modifiedAtStr == null ? null

@@ -18,7 +18,7 @@ public class UserModel extends UserCreateModel {
     private boolean unsafePassword;
     private UserExternalFlags externalFlags;
 
-    @Parameter(description = "Number of external groups which is unknown by WebStudio")
+    @Parameter(description = "Number of external groups which is unknown by OpenL Studio")
     private Long notMatchedExternalGroupsCount;
 
     @Parameter(description = "User online marker")

@@ -1815,7 +1815,7 @@ Content-Type: application/json
     }
   },
   "info": {
-    "title": "OpenL Tablets WebStudio API",
+    "title": "OpenL Studio API",
     "version": "#.##.*"
   },
   "openapi": "3.0.1",

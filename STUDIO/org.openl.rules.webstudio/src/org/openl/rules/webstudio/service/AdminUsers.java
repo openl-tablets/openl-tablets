@@ -19,7 +19,7 @@ import org.openl.util.StringUtils;
  * <p>
  * There are two cases are supported:<br>
  * 1) When roles are managed externally (in LDAP/AD for example). Then ADMIN privilege is set to groups.<br>
- * 2) When roles are managed in WebStudio. Then a group with ADMIN privilege is set to users.<br>
+ * 2) When roles are managed in OpenL Studio. Then a group with ADMIN privilege is set to users.<br>
  *
  * @author Yury Molchan
  */

@@ -700,7 +700,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      *
      * @param delegate   original repository
      * @param configFile properties file
-     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
@@ -816,7 +816,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
      * to them
      *
      * @param delegate   repository to detect projects {@link ArtefactProperties#DESCRIPTORS_FILE}
-     * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
+     * @param baseFolder virtual base folder. OpenL Studio will think that projects can be found in this folder.
      * @return generated mapping
      */
     private ProjectIndex generateExternalToInternalMap(Repository delegate,

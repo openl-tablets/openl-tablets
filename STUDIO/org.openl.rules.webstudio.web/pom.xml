@@ -8,8 +8,8 @@
     </parent>
     <artifactId>org.openl.rules.webstudio.web</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - POM</name>
-    <description>OpenL WebStudio Web</description>
+    <name>OpenL - STUDIO - Web components</name>
+    <description>OpenL Studio Web components</description>
     <url>https://openl-tablets.org</url>
 
     <build>

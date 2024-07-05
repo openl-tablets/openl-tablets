@@ -16,7 +16,7 @@ import org.springframework.validation.beanvalidation.SpringConstraintValidatorFa
 import org.openl.rules.rest.validation.BeanValidationProvider;
 
 /**
- * WebStudio validation configuration
+ * OpenL Studio validation configuration
  *
  * @author Vladyslav Pikus
  */

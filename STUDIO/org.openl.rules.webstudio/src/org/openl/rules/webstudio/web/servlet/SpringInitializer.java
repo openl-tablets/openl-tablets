@@ -72,7 +72,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext = new XmlWebApplicationContext();
         registerDispatcherServlet(servletContext);
         applicationContext.setServletContext(servletContext);
-        applicationContext.setId("OpenL_WebStudio");
+        applicationContext.setId("OpenL_Studio");
         applicationContext.setConfigLocations("/WEB-INF/spring/webstudio.xml");
 
         // If not define classloader at this time, then CXF bus will get random classloader from the current thread

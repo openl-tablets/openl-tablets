@@ -256,7 +256,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
             try {
                 FileData folder = getRepository().check(getFolderPath());
                 if (folder != null) {
-                    // Determine whether the deployment project has been modified by other WebStudio instances or
+                    // Determine whether the deployment project has been modified by other OpenL Studio instances or
                     // manually, if so, then refresh it.
                     // do not refresh the project if it is open
                     Date modifiedAt = folder.getModifiedAt();

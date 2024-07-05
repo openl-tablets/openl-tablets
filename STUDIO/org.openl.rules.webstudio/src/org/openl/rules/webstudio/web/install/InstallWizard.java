@@ -446,7 +446,7 @@ public class InstallWizard implements Serializable {
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
+            throw new ValidatorException(createErrorMessage("OpenL Studio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
@@ -535,11 +535,11 @@ public class InstallWizard implements Serializable {
     }
 
     /**
-     * Validates WebStudio working directory for write access. If specified folder is not writable the validation error
+     * Validates OpenL Studio working directory for write access. If specified folder is not writable the validation error
      * will appears
      */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        WebStudioValidationUtils.directoryValidator(value, "WebStudio working directory");
+        WebStudioValidationUtils.directoryValidator(value, "OpenL Studio working directory");
     }
 
     /**

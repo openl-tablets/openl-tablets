@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 
 /**
  * This class is used to prevent full xls load using User API (DOM approach). Base class loads the file fully when gets
- * sheet name (it's needed when create Categories in WebStudio and when building sheet URI). To prevent it we get sheet
+ * sheet name (it's needed when create Categories in OpenL Studio and when building sheet URI). To prevent it we get sheet
  * name from SheetDescriptor.
  */
 class SequentialXlsSheetSourceCodeModule extends XlsSheetSourceCodeModule {
@@ -24,7 +24,7 @@ class SequentialXlsSheetSourceCodeModule extends XlsSheetSourceCodeModule {
 
     @Override
     public String getSheetName() {
-        // Sheet name is used as category name in WebStudio and in URI
+        // Sheet name is used as category name in OpenL Studio and in URI
         return sheet.getName();
     }
 

@@ -131,7 +131,7 @@ public class Migrator {
         var repoIsChanged = uri != null && !uri.equals(defaultUri) || factory != null && !factory.equals(defaultFactory);
 
         // 1) If had only defaulted repository and its uri was not changed in configuration, we assume, it
-        // wasn't used and can be removed in the latest WebStudio. Don't restore any defaults.
+        // wasn't used and can be removed in the latest OpenL Studio. Don't restore any defaults.
         // 2) If default repository was reconfigured (URI or factory were changed), then it was used,
         // we need to restore only absent defaults for repository with id "production".
         // 3) If several repositories existed but default repository with id "production" wasn't changed (including
@@ -157,7 +157,7 @@ public class Migrator {
             props.put("repository.production.base.path.$ref", "repo-default.production.base.path");
 
             if (severalReposIncludingProduction && !repoIsChanged) {
-                // Restore property as it was in previous WebStudio.
+                // Restore property as it was in previous OpenL Studio.
                 props.put(repoUriProp, defaultUri);
             }
         }

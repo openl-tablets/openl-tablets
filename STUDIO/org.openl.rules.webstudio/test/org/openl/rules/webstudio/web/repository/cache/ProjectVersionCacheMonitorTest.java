@@ -76,7 +76,7 @@ public class ProjectVersionCacheMonitorTest {
                 case "local-repository-path":
                     return local.getAbsolutePath();
                 case "comment-template":
-                    return "WebStudio: {commit-type}. {user-message}";
+                    return "OpenL Studio: {commit-type}. {user-message}";
             }
             return null;
         });

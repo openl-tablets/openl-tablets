@@ -20,7 +20,7 @@
             <a4j:commandButton value="Apply and Restart"
                                render="commonProps repositoryProps javaProps restartMessage"
                                onclick="submitGeneralGroupSettingsForm();"
-                               styleClass="button-primary" title="Apply all changes and restart WebStudio"/>
+                               styleClass="button-primary" title="Apply all changes and restart OpenL Studio"/>
         </h:panelGroup>
     </form>
     <a4j:jsFunction name="applyChangesAndRestart"
@@ -44,7 +44,7 @@
         });
 
         function submitGeneralGroupSettingsForm() {
-            if (confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
+            if (confirm('All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
                 $j('#generalGroupSettingsForm').submit()
             }
         }

@@ -1,7 +1,7 @@
-# Extending OpenL Tablets WebStudio UI by External JavaScript
+# Extending OpenL Studio UI by External JavaScript
 
-To extend the OpenL Tablets WebStudio UI functionality, in the `webstudio.javascript.url` property, provide the URL to the corresponding JavaScript.
-This JavaScript will be loaded and executed in a web browser along with the OpenL Tablets WebStudio UI.
+To extend the OpenL Studio UI functionality, in the `webstudio.javascript.url` property, provide the URL to the corresponding JavaScript.
+This JavaScript will be loaded and executed in a web browser along with the OpenL Studio UI.
 
 ### Google Analytics Extension
 

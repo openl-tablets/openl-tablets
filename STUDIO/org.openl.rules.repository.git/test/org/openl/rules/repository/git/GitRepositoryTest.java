@@ -1313,7 +1313,7 @@ public class GitRepositoryTest {
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch(branch);
         repo.setTagPrefix(TAG_PREFIX);
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);

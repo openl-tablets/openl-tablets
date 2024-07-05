@@ -26,7 +26,7 @@ import org.openl.util.StringUtils;
  * Application properties can be get as combinations of locations and names. If a location is a folder then it is
  * concatenated with each name. For example:
  * <p>
- * application name (from the Spring application context): WebStudio<br>
+ * application name (from the Spring application context): OpenL Studio<br>
  * Spring active profiles: prod, qa<br>
  * locations: file:, file:openl.properties, file:openl/<br>
  * names: application.properties, {appName}.properties, {profile}.properties<br>

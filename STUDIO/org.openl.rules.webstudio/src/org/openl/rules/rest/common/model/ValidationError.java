@@ -6,7 +6,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /**
- * Validation Error model for handling Binding Exceptions (validation) in WebStudio REST API
+ * Validation Error model for handling Binding Exceptions (validation) in OpenL Studio REST API
  *
  * @author Vladyslav Pikus
  * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice

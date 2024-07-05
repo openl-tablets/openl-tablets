@@ -29,7 +29,7 @@ EOT
 FROM ubuntu:focal
 
 LABEL org.opencontainers.image.title="OpenL Tablets DEMO"
-LABEL org.opencontainers.image.description="Demo with preconfigured OpenL WebStudio, OpenL RuleServices and simple web client"
+LABEL org.opencontainers.image.description="Demo with preconfigured OpenL Studio, OpenL RuleServices and simple web client"
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"
 

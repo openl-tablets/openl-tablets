@@ -145,7 +145,7 @@ import org.openl.util.StringUtils;
 public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
-    private static final String OPENED_OTHER_PROJECT = "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.";
+    private static final String OPENED_OTHER_PROJECT = "OpenL Studio cannot open two projects with the same name. Close the currently opened project and try again.";
     private static final String NONE_REPO = "none";
     public static final String OPENAPI_DEFAULT_DATA_MODULE_PATH = "openapi.default.data.module.path";
     public static final String OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH = "openapi.default.algorithm.module.path";

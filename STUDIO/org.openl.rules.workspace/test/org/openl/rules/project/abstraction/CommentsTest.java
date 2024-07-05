@@ -28,7 +28,7 @@ public class CommentsTest {
         String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
         String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
-        String newBranchNameTemplate = "WebStudio/{project-name}/{username}/{current-date} {foo}";
+        String newBranchNameTemplate = "{project-name}/{username}/{current-date} {foo}";
         comments = new Comments(dateTimeFormat,
                 saveProjectTemplate,
                 createProjectTemplate,
@@ -165,11 +165,11 @@ public class CommentsTest {
 
     @Test
     public void testNewBranch() {
-        assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}",
+        assertEquals("myProjectName/myUserName/myCurrentDate {foo}",
                 comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
-        assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
+        assertEquals("$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
                 comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
-        assertEquals("WebStudio/Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
+        assertEquals("Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
                 comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
     }
 

@@ -53,7 +53,7 @@ It is possible to use the following settings:
 
 
 Artifacts:
-* **WebStudio** - STUDIO/org.openl.rules.webstudio/target/webapp.war
+* **OpenL Studio** - STUDIO/org.openl.rules.webstudio/target/webapp.war
 * **RuleService WS** - WSFrontend/org.openl.rules.ruleservice.ws/target/webapp.war
 * **DEMO App** - DEMO/target/openl-tablets-demo.zip
 

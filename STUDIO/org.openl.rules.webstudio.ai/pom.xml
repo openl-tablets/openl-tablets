@@ -8,8 +8,8 @@
     </parent>
     <artifactId>org.openl.rules.webstudio.ai</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - STUDIO - WebStudio AI Integration</name>
-    <description>OpenL WebStudio AI Integration</description>
+    <name>OpenL - STUDIO - Assistant Integration</name>
+    <description>OpenL Studio Assistant Integration</description>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

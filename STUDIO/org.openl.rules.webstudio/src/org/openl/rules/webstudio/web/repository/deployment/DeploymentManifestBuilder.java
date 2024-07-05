@@ -15,7 +15,7 @@ import org.openl.util.StringUtils;
  * <p>
  * Manifest-Version: 1.0</br>
  * Build-Date: current date in ISO 8601 format</br>
- * Created-By: OpenL WebStudio v.{@code project.version}</br>
+ * Created-By: OpenL Studio v.{@code project.version}</br>
  * </p>
  * <p>
  * Optional parameters: Build-Number, Built-By, Branch-Name, Implementation-Title
@@ -92,7 +92,7 @@ public class DeploymentManifestBuilder {
         Attributes attributes = manifest.getMainAttributes();
         attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
         attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        attributes.putValue("Created-By", "OpenL WebStudio v." + OpenLVersion.getVersion());
+        attributes.putValue("Created-By", "OpenL Studio v." + OpenLVersion.getVersion());
         for (Map.Entry<String, String> entry : entries.entrySet()) {
             attributes.putValue(entry.getKey(), entry.getValue());
         }

@@ -9,7 +9,7 @@
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <packaging>pom</packaging>
     <name>OpenL - STUDIO - POM</name>
-    <description>OpenL WebStudio Pom Project</description>
+    <description>OpenL Studio Pom Project</description>
     <modules>
         <module>../WSFrontend/org.openl.rules.ruleservice.annotation</module>
         <module>../WSFrontend/org.openl.rules.ruleservice.common</module>

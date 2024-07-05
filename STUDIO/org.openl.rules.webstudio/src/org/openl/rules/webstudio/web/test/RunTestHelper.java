@@ -25,7 +25,7 @@ public class RunTestHelper {
 
     // FIXME last parameters of the test suite should have temporary
     // location(such as Flash scope)
-    // but now it placed to session bean due to WebStudio navigation specific
+    // but now it placed to session bean due to OpenL Studio navigation specific
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
     private IRulesRuntimeContext runtimeContext;

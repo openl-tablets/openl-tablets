@@ -71,7 +71,7 @@ jobs:
           echo "tags_17=$tags_17" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
 
-      - name: Download WebStudio
+      - name: Download OpenL Studio
         run: |
           # Define urls
           artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio"
@@ -190,7 +190,7 @@ jobs:
           --label '"org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"'
           .
 
-      - name: Push WebStudio
+      - name: Push OpenL Studio
         env:
           appName: webstudio
         run: >
@@ -200,7 +200,7 @@ jobs:
           --build-arg APP=webstudio
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --build-arg JDK=$JAVA11
-          --label '"org.opencontainers.image.title=OpenL WebStudio"'
+          --label '"org.opencontainers.image.title=OpenL Studio"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
           --label "org.opencontainers.image.created=${BUILD_DATE}"

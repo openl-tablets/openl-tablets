@@ -101,7 +101,7 @@ public class GitRepositoryLockTest {
         settingsRepository.setUri(local.getParent() + "/git-settings");
         String locksRoot = root.resolve("locks").toAbsolutePath().toString();
         repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         repo.setGcAutoDetach(false);
         repo.initialize();
 
