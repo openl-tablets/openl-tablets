@@ -21,7 +21,6 @@ import org.springframework.jndi.JndiPropertySource;
  * </ul>
  * Resolving order (next resource overrides previous):
  * <li>OpenL default properties. {@link DefaultPropertySource}</li>
- * <li>Java preferences. {@link PreferencePropertySource}</li>
  * <li>Application externalized configuration. {@link ApplicationPropertySource} <br>
  * <li>Application modifiable configuration. {@link DynamicPropertySource} <br>
  * <li>OS environment variables. {@link System#getenv()}</li>
@@ -82,18 +81,13 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG.info("Loading Random properties...");
         propertySources.addLast(new RandomValuePropertySource());
 
-        ConfigLog.LOG.info("Loading preference properties...");
-        PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
-        PreferencePropertySource.THE = preferencePropertySource;
-        propertySources.addLast(preferencePropertySource);
-
         ConfigLog.LOG.info("Loading default properties...");
         DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
         propertySources.addLast(defaultPropertySource);
 
         ConfigLog.LOG.info("Loading application properties...");
         String[] profiles = env.getActiveProfiles();
-        propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
+        propertySources.addBefore(DefaultPropertySource.PROPS_NAME,
                 new ApplicationPropertySource(props, appName, profiles));
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
