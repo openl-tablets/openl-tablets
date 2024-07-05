@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -25,7 +24,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
-import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
@@ -73,8 +71,6 @@ public class InstallWizard implements Serializable {
     private static final String PAGE_PREFIX = "step";
     private static final String PAGE_POSTFIX = "?faces-redirect=true";
 
-    @NotBlank
-    private String workingDir;
     private boolean showErrorMessage = false;
 
     private String userMode = "demo";
@@ -118,14 +114,9 @@ public class InstallWizard implements Serializable {
         return new FacesMessage(FacesMessage.SEVERITY_ERROR, summary, null);
     }
 
-    @PostConstruct
-    public void init() {
-        workingDir = propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME);
-    }
-
     public String start() {
         step = 1;
-        return PAGE_PREFIX + step + PAGE_POSTFIX;
+        return next();
     }
 
     public String reconfigure() throws IOException {
@@ -570,16 +561,6 @@ public class InstallWizard implements Serializable {
 
     public void setStep(int step) {
         this.step = step;
-    }
-
-    public String getWorkingDir() {
-        return workingDir;
-    }
-
-    public void setWorkingDir(String workingDir) {
-        this.workingDir = workingDir;
-        // Other configurations depend on this property
-        DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
     }
 
     public void setAllowAccessToNewUsers(Boolean allowAccessToNewUsers) {

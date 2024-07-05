@@ -8,8 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -114,19 +112,6 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
      */
     public String version() {
         return version;
-    }
-
-    public void setOpenLHomeDir(String workingDir) {
-        Preferences node = PreferencePropertySource.THE.getSource();
-        node.put(DynamicPropertySource.OPENL_HOME, workingDir);
-        try {
-            // guard against loss in case of abnormal termination of the VM
-            // in case of normal VM termination, the flush method is not required
-            node.flush();
-        } catch (BackingStoreException e) {
-            ConfigLog.LOG.error("Cannot save preferences value", e);
-        }
-        loadProperties();
     }
 
     public synchronized void save(Map<String, String> config) throws IOException {
