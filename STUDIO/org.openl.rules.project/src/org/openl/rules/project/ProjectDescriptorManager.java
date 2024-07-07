@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 
-import com.rits.cloning.Cloner;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -43,8 +43,6 @@ public class ProjectDescriptorManager {
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
     private PathMatcher pathMatcher = new AntPathMatcher();
-
-    private final Cloner cloner = new SafeCloner();
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;
@@ -98,7 +96,7 @@ public class ProjectDescriptorManager {
     public void writeDescriptor(ProjectDescriptor descriptor,
                                 OutputStream dest) throws IOException, ValidationException, JAXBException {
         validator.validate(descriptor);
-        descriptor = cloner.deepClone(descriptor); // prevent changes argument
+        descriptor = Cloner.clone(descriptor); // prevent changes argument
         // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
