@@ -4799,10 +4799,10 @@ public class RulesUtilsTest {
         }
     }
 
-    private static class Some {
-        String str;
-        int num;
-        Integer num2;
-        Some obj;
+    public static class Some {
+        public String str;
+        public int num;
+        public Integer num2;
+        public Some obj;
     }
 }

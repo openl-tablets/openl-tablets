@@ -30,6 +30,7 @@ import org.openl.binding.impl.method.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.rules.cloner.Cloner;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
@@ -3240,19 +3241,7 @@ public final class RulesUtils {
         return null;
     }
 
-    @MethodSearchTuner(wrapper = CopyMethodCallerWrapper.class)
     public static <T> T copy(T origin) {
-        if (origin == null) {
-            return null;
-        }
-        /*
-         * We cannot use one cloner for all OpenL projects, because it may work incorrectly or can be a reason of memory
-         * leak. Cloner on first deepClone builds a cache, that uses all classes from the passed object. Creating a new
-         * cloner on each method call solves memory leak problem, but may show a pure performance, because the system
-         * doesn't know how to clone an object and resolve this data on each time the deepClone method call first time.
-         * This solution creates one cloner for each linked method and each method call reuses it.
-         */
-        CopyMethodDetails copyMethodDetails = (CopyMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
-        return copyMethodDetails.getCloner().deepClone(origin);
+        return Cloner.clone(origin);
     }
 }
