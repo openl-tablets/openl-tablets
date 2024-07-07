@@ -36,6 +36,7 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
 
 import org.openl.CompiledOpenClass;
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -48,7 +49,6 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
-import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -1584,7 +1584,7 @@ public class ProjectBean {
     }
 
     private ProjectDescriptor cloneProjectDescriptor(ProjectDescriptor projectDescriptor) {
-        return new SafeCloner().deepClone(projectDescriptor);
+        return Cloner.clone(projectDescriptor);
     }
 
     public UIInput getPropertiesFileNameProcessorInput() {
