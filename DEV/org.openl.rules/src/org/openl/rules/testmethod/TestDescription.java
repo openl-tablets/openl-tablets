@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
@@ -13,7 +14,6 @@ import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
-import org.openl.rules.table.OpenLCloner;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -88,7 +88,7 @@ public class TestDescription {
         return names;
     }
 
-    public Object[] getArguments(OpenLCloner cloner) {
+    public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
@@ -96,13 +96,13 @@ public class TestDescription {
             try {
                 if (value != null) {
                     Thread.currentThread().setContextClassLoader(value.getClass().getClassLoader());
-                }
-                try {
-                    args[i] = cloner.deepClone(value);
-                } catch (RuntimeException e) {
-                    log.warn("Failed to clone an argument '{}'. Original argument will be used.",
-                            executionParams[i].getName());
-                    args[i] = value;
+                    try {
+                        args[i] = Cloner.clone(value);
+                    } catch (RuntimeException e) {
+                        log.warn("Failed to clone an argument '{}' of '{}' type. Original argument will be used.",
+                                executionParams[i].getName(), value.getClass().getName(), e);
+                        args[i] = value;
+                    }
                 }
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -164,7 +164,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.CONTEXT_NAME);
     }
 
-    public IRulesRuntimeContext getRuntimeContext(OpenLCloner cloner) {
+    public IRulesRuntimeContext getRuntimeContext() {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
 
         if (context == null) {
@@ -172,7 +172,7 @@ public class TestDescription {
         }
 
         try {
-            return cloner.deepClone(context);
+            return Cloner.clone(context);
         } catch (Exception e) {
             log.error("Failed to clone context. Original context will be used.");
             return context;
