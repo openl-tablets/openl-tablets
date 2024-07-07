@@ -13,7 +13,7 @@ public final class TestUtils {
     public static ParameterWithValueDeclaration[] getContextParams(TestSuite test, TestDescription testCase) {
         List<ParameterWithValueDeclaration> params = new ArrayList<>();
 
-        IRulesRuntimeContext context = testCase.getRuntimeContext(test.getCloner());
+        IRulesRuntimeContext context = testCase.getRuntimeContext();
         TestSuiteMethod testMethod = test.getTestSuiteMethod();
         if (testMethod != null) {
             for (int i = 0; i < testMethod.getColumnsCount(); i++) {
