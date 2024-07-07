@@ -1,6 +1,5 @@
 package org.openl.rules.testmethod;
 
-import org.openl.rules.table.OpenLCloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -17,10 +16,9 @@ public class TestRunner {
     public ITestUnit runTest(TestDescription test,
                              Object target,
                              IRuntimeEnv env,
-                             OpenLCloner cloner,
                              int ntimes) {
         if (ntimes <= 0) {
-            return runTest(test, target, env, cloner, 1);
+            return runTest(test, target, env, 1);
         } else {
             Object res = null;
             Throwable exception = null;
@@ -29,9 +27,9 @@ public class TestRunner {
             long start = System.nanoTime(); // Initialization here is needed if exception is thrown
             long end;
             try {
-                IRuntimeContext context = test.getRuntimeContext(cloner);
+                IRuntimeContext context = test.getRuntimeContext();
                 env.setContext(context);
-                Object[] args = test.getArguments(cloner);
+                Object[] args = test.getArguments();
                 IOpenMethod testedMethod = test.getTestedMethod();
                 // Measure only actual test run time
                 start = System.nanoTime();
