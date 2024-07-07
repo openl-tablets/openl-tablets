@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.core.ce.ServiceMT;
-import org.openl.rules.project.SafeCloner;
 import org.openl.rules.runtime.OpenLRulesMethodHandler;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
@@ -36,8 +36,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 @Deprecated
 class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
-
-    private final SafeCloner cloner = new SafeCloner();
 
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
@@ -174,7 +172,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
         }
         for (Variation variation : variationsPack.getVariations()) {
             final VariationCalculationTask item = new VariationCalculationTask(member,
-                    cloner.deepClone(arguments),
+                    Cloner.clone(arguments),
                     variation,
                     parentRuntimeEnv.clone());
             tasks.add(item);
