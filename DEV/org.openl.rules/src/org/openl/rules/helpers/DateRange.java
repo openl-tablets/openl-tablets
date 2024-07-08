@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.range.Range;
 
 public class DateRange extends Range<Date> {
@@ -35,28 +34,6 @@ public class DateRange extends Range<Date> {
         this.lowerBound = lowerBound.getTime();
         this.upperBound = upperBound.getTime();
         this.type = Type.CLOSED;
-        validate();
-    }
-
-    DateRange(Date lowerBound, Date upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-
-        assert lowerBound != null;
-        assert upperBound != null;
-        long localLowerBound = lowerBound.getTime();
-        long localUpperBound = upperBound.getTime();
-
-        if (Long.MAX_VALUE == localUpperBound) {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
-        } else if (Long.MIN_VALUE == localLowerBound) {
-            this.type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
-        } else if (upperBoundType == BoundType.EXCLUDING) {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
-        } else {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
-        }
-
-        this.lowerBound = localLowerBound;
-        this.upperBound = localUpperBound;
         validate();
     }
 
