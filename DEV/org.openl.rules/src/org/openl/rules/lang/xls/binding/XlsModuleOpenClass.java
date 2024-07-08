@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.rits.cloning.Cloner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,6 @@ import org.openl.rules.lang.xls.binding.wrapper.DataOpenFieldWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -788,19 +786,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public Collection<XlsModuleOpenClass> getExternalXlsModuleOpenClasses() {
         return Collections.unmodifiableCollection(this.externalXlsModuleOpenClasses);
-    }
-
-    private volatile OpenLCloner cloner;
-
-    public Cloner getCloner() {
-        if (cloner == null) {
-            synchronized (this) {
-                if (cloner == null) {
-                    cloner = new OpenLCloner();
-                }
-            }
-        }
-        return cloner;
     }
 
     private void addError(Throwable e) {

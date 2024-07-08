@@ -15,22 +15,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.cloner.Cloner;
 
 public class ArgumentCachingStorage {
     private static final Logger LOG = LoggerFactory.getLogger(ArgumentCachingStorage.class);
 
     private List<CalculationStep> originalCalculationSteps;
     private Iterator<CalculationStep> step;
-    private final SimpleRulesRuntimeEnv simpleRulesRuntimeEnv;
 
     public void resetMethodArgumentsCache() {
         storage.clear();
-    }
-
-    public ArgumentCachingStorage(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
-        this.simpleRulesRuntimeEnv = Objects.requireNonNull(simpleRulesRuntimeEnv,
-                "simpleRulesRuntimeEnv cannot be null");
     }
 
     private final Storage storage = new Storage();
@@ -55,8 +49,7 @@ public class ArgumentCachingStorage {
             Object[] clonedParams = new Object[params.length];
             for (int i = 0; i < params.length; i++) {
                 if (params[i] != null) {
-                    clonedParams[i] = ((XlsModuleOpenClass) simpleRulesRuntimeEnv.getTopClass()).getCloner()
-                            .deepClone(params[i]);
+                    clonedParams[i] = Cloner.clone(params[i]);
                 }
             }
             data.add(new InvocationData(clonedParams, result));
