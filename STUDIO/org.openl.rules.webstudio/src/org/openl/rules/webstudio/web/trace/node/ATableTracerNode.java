@@ -25,11 +25,10 @@ public class ATableTracerNode extends SimpleTracerObject {
         super(type);
         this.prefix = prefix;
         this.method = method;
-        CachingArgumentsCloner cloner = CachingArgumentsCloner.getInstance();
         if (params != null) {
             Object[] clonedParams;
             try {
-                clonedParams = cloner.deepClone(params);
+                clonedParams = CachingArgumentsCloner.<Object[]>getInstance().clone(params);
             } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
                 LOG.debug("Ignored error: ", e);
