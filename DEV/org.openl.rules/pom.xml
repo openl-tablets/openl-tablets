@@ -49,10 +49,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-        <dependency>
-            <groupId>design.aem</groupId>
-            <artifactId>cloning</artifactId>
-        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>

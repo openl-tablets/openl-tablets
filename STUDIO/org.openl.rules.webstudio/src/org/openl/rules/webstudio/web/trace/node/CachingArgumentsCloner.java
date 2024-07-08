@@ -3,12 +3,7 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.rits.cloning.IDeepCloner;
-import com.rits.cloning.IFastCloner;
-
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.StubSpreadSheetResult;
-import org.openl.rules.table.OpenLCloner;
+import org.openl.rules.cloner.Cloner;
 
 /**
  * This cloner is based on assumption that hashCode() and equals() methods are cheaper than cloning huge objects.
@@ -25,59 +20,24 @@ import org.openl.rules.table.OpenLCloner;
  * and show them to the user later. In this case we can safely reuse already cloned object in other method invocation if
  * it's not changed since that.
  */
-public final class CachingArgumentsCloner extends OpenLCloner {
-    private static final ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
+public final class CachingArgumentsCloner<T> {
+    private static final ThreadLocal<CachingArgumentsCloner<?>> instance = new ThreadLocal<>();
 
     private final Map<Object, Object> cache = new HashMap<>();
 
-    private CachingArgumentsCloner() {
-        dontCloneInstanceOf(StubSpreadSheetResult.class);
-        registerFastCloner(SpreadsheetResult.class, new SpreadsheetResultFastCloner());
+    public T clone(T o) {
+        return Cloner.clone(o, cache);
     }
 
-    @Override
-    public <T> T cloneInternal(T o, Map<Object, Object> clones) {
-        if (o == null) {
-            return null;
-        } else if (o instanceof SpreadsheetResult) {
-            return super.cloneInternal(o, clones);
-        }
-
-        @SuppressWarnings("unchecked")
-        T clone = (T) cache.get(o);
-        if (clone != null) {
-            return clone;
-        }
-
-        T t = super.cloneInternal(o, clones);
-        if (t != null && t != o && !t.getClass().isArray()) {
-            cache.put(t, t);
-        }
-        return t;
-    }
-
-    public static CachingArgumentsCloner getInstance() {
-        return instance.get();
+    public static <T> CachingArgumentsCloner<T> getInstance() {
+        return (CachingArgumentsCloner<T>) instance.get();
     }
 
     public static void initInstance() {
-        instance.set(new CachingArgumentsCloner());
+        instance.set(new CachingArgumentsCloner<>());
     }
 
     public static void removeInstance() {
         instance.remove();
-    }
-
-    private static class SpreadsheetResultFastCloner implements IFastCloner {
-        @Override
-        public Object clone(Object t, IDeepCloner cloner, Map<Object, Object> clones) {
-            SpreadsheetResult spr = (SpreadsheetResult) t;
-
-            Object[][] clonedResults = cloner.deepClone(spr.getResults(), clones);
-
-            SpreadsheetResult clonedSpr = new SpreadsheetResult(spr);
-            clonedSpr.setResults(clonedResults);
-            return clonedSpr;
-        }
     }
 }
