@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.range.Range;
 
 @XmlRootElement
@@ -17,25 +16,6 @@ public class StringRange extends Range<CharSequence> {
     private final Type type;
     private final NumericComparableString lowerBound;
     private final NumericComparableString upperBound;
-
-    StringRange(String lowerBound, String upperBound) {
-        this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
-    }
-
-    StringRange(String lowerBound, String upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-        this.lowerBound = NumericComparableString.valueOf(lowerBound);
-        this.upperBound = NumericComparableString.valueOf(upperBound);
-        if (StringRangeParser.MAX_VALUE.equals(upperBound)) {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
-        } else if (StringRangeParser.MIN_VALUE.equals(lowerBound)) {
-            this.type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
-        } else if (upperBoundType == BoundType.EXCLUDING) {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
-        } else {
-            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
-        }
-        validate();
-    }
 
     public StringRange(String source) {
         var rangeParser = parse(source);
@@ -57,16 +37,8 @@ public class StringRange extends Range<CharSequence> {
         return lowerBound;
     }
 
-    public BoundType getLowerBoundType() {
-        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
-    }
-
     public NumericComparableString getUpperBound() {
         return upperBound;
-    }
-
-    public BoundType getUpperBoundType() {
-        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Override
