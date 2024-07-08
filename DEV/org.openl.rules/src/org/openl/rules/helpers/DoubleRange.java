@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.range.Range;
 
 
@@ -37,21 +36,6 @@ public class DoubleRange extends Range<Double> implements INumberRange {
             type = Type.RIGHT_CLOSED;
         } else {
             type = Type.CLOSED;
-        }
-        validate();
-    }
-
-    public DoubleRange(double lowerBound, double upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
-        if (Double.isInfinite(upperBound)) {
-            type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
-        } else if (Double.isInfinite(lowerBound)) {
-            type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
-        } else if (upperBoundType == BoundType.EXCLUDING) {
-            type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
-        } else {
-            type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
         }
         validate();
     }
@@ -155,42 +139,6 @@ public class DoubleRange extends Range<Double> implements INumberRange {
      */
     public double getUpperBound() {
         return upperBound;
-    }
-
-    /**
-     * @param lowerBound The lowerBound to set.
-     */
-    @Deprecated
-    public void setLowerBound(double lowerBound) {
-        this.lowerBound = lowerBound;
-    }
-
-    /**
-     * @param upperBound The upperBound to set.
-     */
-    @Deprecated
-    public void setUpperBound(double upperBound) {
-        this.upperBound = upperBound;
-    }
-
-    @Deprecated
-    public BoundType getLowerBoundType() {
-        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
-    }
-
-    @Deprecated
-    public void setLowerBoundType(BoundType lowerBoundType) {
-
-    }
-
-    @Deprecated
-    public BoundType getUpperBoundType() {
-        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
-    }
-
-    @Deprecated
-    public void setUpperBoundType(BoundType upperBoundType) {
-
     }
 
     public static DoubleRange autocast(byte x, DoubleRange y) {
