@@ -22,7 +22,7 @@ import org.openl.itest.core.JettyServer;
 
 public class KeycloakTest {
 
-    private static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:24.0")
+    private static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer("quay.io/keycloak/keycloak:25.0")
             .withRealmImportFile("/keycloak/openlstudio-realm.json");
 
     private static final String CLIENT_ID = "openlstudio";

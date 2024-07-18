@@ -620,11 +620,8 @@ Content-Type: application/json
         "type" : "object",
         "properties" : {
           "data" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string",
-              "format" : "byte"
-            }
+            "type" : "string",
+            "format" : "byte"
           },
           "variationFailures" : {
             "type" : "object",
