@@ -353,6 +353,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         final String servicePath = service.getDeployPath();
+
         Collection<String> sp = service.getPublishers();
         Collection<RuleServicePublisher> publishers = new ArrayList<>();
         if (supportedPublishers.size() > 1) {
@@ -363,7 +364,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 } else {
                     log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
                             p,
-                            service.getDeployPath());
+                            servicePath);
                 }
             }
         } else {
