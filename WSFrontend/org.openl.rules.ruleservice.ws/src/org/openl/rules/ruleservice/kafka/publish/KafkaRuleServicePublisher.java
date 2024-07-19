@@ -44,7 +44,6 @@ import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
-import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
@@ -81,7 +80,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     @Autowired
-    @Qualifier("kafkaServiceObjectMapper")
+    @Qualifier("jaxrsServiceObjectMapper")
     private ObjectFactory<JacksonObjectMapperFactory> kafkaJacksonObjectMapperFactoryBean;
 
     public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
@@ -422,16 +421,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     }
 
     private ObjectMapper createJacksonObjectMapper(Properties config) throws KafkaServiceException {
+        var jacksonObjectMapperFactory = kafkaJacksonObjectMapperFactoryBean.getObject();
         try {
-            KafkaConfigHolder.getInstance().setKafkaConfig(config::getProperty);
-            var jacksonObjectMapperFactory = kafkaJacksonObjectMapperFactoryBean.getObject();
-            try {
-                return jacksonObjectMapperFactory.createJacksonObjectMapper();
-            } catch (Exception e) {
-                throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
-            }
-        } finally {
-            KafkaConfigHolder.getInstance().remove();
+            return jacksonObjectMapperFactory.createJacksonObjectMapper();
+        } catch (Exception e) {
+            throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
         }
     }
 
