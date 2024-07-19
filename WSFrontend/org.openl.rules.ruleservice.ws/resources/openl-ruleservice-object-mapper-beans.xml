@@ -2,14 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="jaxrsOpenApiObjectMapper"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean"
-          scope="prototype">
-        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
-        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
-        <property name="environment" ref="environment"/>
-    </bean>
-
     <bean id="jaxrsServiceObjectMapper"
           class="org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean" scope="prototype">
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>

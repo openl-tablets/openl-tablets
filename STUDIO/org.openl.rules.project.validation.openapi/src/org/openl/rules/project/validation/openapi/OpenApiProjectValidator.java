@@ -82,7 +82,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelp
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
@@ -246,7 +246,7 @@ public class OpenApiProjectValidator {
     private ObjectMapper createObjectMapper(Context context) {
         ClassLoader classLoader = context.getValidatedCompiledOpenClass().getClassLoader();
 
-        SchemaJacksonObjectMapperFactoryBean objectMapperFactoryBean = new SchemaJacksonObjectMapperFactoryBean();
+        var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactoryBean.setClassLoader(classLoader);
         objectMapperFactoryBean.setRulesDeploy(context.getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) context.getOpenClass());
