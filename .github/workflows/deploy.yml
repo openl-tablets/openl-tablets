@@ -46,18 +46,12 @@ jobs:
       - name: Build with Maven
         run: mvn package -T1C -DskipTests "-Dstyle.color=always"
 
-      - name: Deploy Maven artifacts
-        run: |
-          cd STUDIO/org.openl.rules.webstudio
-          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webstudio.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-          cd ../../WSFrontend/org.openl.rules.ruleservice.ws
-          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-          cd ../../WSFrontend/org.openl.rules.ruleservice.ws.all
-          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-          cd ../../DEMO
-          mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Store openl-tablets-demo.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: openl-tablets-demo
+          path: DEMO/target/openl-tablets-demo.zip
+          retention-days: 5
 
       - name: Prepare for multi-platform docker build
         run: |
