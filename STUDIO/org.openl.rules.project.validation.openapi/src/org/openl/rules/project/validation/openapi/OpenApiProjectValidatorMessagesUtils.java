@@ -2,6 +2,8 @@ package org.openl.rules.project.validation.openapi;
 
 import java.util.Objects;
 
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.oas.models.media.Schema;
 
 import org.openl.message.OpenLMessage;
@@ -13,6 +15,7 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -70,7 +73,11 @@ final class OpenApiProjectValidatorMessagesUtils {
                             } else {
                                 instanceClass = openFieldInSpr.getType().getInstanceClass();
                             }
-                            Schema actualSchema = SchemaResolver.resolve(context, instanceClass);
+                            if (instanceClass == null) {
+                                instanceClass = Object.class;
+                            }
+                            var openAPIContext = new ModelConverterContextImpl(OpenAPIConfiguration.getConverters(context.getObjectMapper()));
+                            Schema actualSchema = openAPIContext.resolve(new AnnotatedType().type(instanceClass));
                             if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
                                 addMethodError(context, m, summary);
                             }

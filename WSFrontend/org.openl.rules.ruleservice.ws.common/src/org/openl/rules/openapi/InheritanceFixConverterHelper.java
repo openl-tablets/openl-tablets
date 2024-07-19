@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs.swagger;
+package org.openl.rules.openapi;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public final class InheritanceFixConverterHelper {
+final class InheritanceFixConverterHelper {
 
     private InheritanceFixConverterHelper() {
     }

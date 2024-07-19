@@ -1270,20 +1270,6 @@
                 <artifactId>cxf-rt-transports-http-hc</artifactId>
                 <version>${cxf.version}</version>
             </dependency>
-            <!-- CXF Runtime CORBA Binding -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
-                <version>${cxf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <!-- consumes a lot of memory due scanning all classloader to find all relations of all classes -->
-                        <!-- So it often causes OOM Error due OpenL generates a lot of classes in the runtime -->
-                        <groupId>io.github.classgraph</groupId>
-                        <artifactId>classgraph</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-management</artifactId>

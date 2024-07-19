@@ -41,7 +41,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.swagger.parser.OpenAPIParser;
-import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
@@ -67,6 +66,7 @@ import org.openl.classloader.OpenLClassLoader;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -82,8 +82,6 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelp
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -106,7 +104,6 @@ public class OpenApiProjectValidator {
     private static final Logger LOG = LoggerFactory.getLogger(OpenApiProjectValidator.class);
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Reader reader = new Reader();
     private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private boolean provideRuntimeContext = true;
     private boolean provideVariations;
@@ -236,26 +233,7 @@ public class OpenApiProjectValidator {
                         .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
                 return validatedCompiledOpenClass;
             }
-            OpenAPI actualOpenAPI;
-            synchronized (OpenApiRulesCacheWorkaround.class) {
-                OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
-                try {
-                    OpenApiRulesCacheWorkaround.reset();
-                    openApiObjectMapperHack.apply(objectMapper);
-                    actualOpenAPI = reader.read(enhancedServiceClass);
-                } catch (Exception e) {
-                    StringBuilder message = new StringBuilder(OPEN_API_VALIDATION_MSG_PREFIX);
-                    message.append("Failed to build OpenAPI for the current project.");
-                    if (StringUtils.isNotBlank(e.getMessage())) {
-                        message.append(" ").append(e.getMessage());
-                    }
-                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
-                    return validatedCompiledOpenClass;
-                } finally {
-                    OpenApiRulesCacheWorkaround.reset();
-                    openApiObjectMapperHack.revert();
-                }
-            }
+            var actualOpenAPI = OpenAPIConfiguration.generateOpenAPI(enhancedServiceClass, objectMapper);
             context.setActualOpenAPI(actualOpenAPI);
             context.setActualOpenAPIResolver(new OpenAPIResolver(context, actualOpenAPI));
             validateOpenAPI(context);

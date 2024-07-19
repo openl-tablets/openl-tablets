@@ -4,14 +4,16 @@ Content-Type: application/json
 {
   "openapi" : "3.0.1",
   "info" : {
-    "description" : "Auto-generated OpenAPI schema from the OpenL rules",
+    "description" : "Secured",
     "title" : "simple_simple",
-    "version" : "1.0.0"
+    "version" : "x.x.x"
   },
   "servers" : [ {
     "url" : "http://example.com/simple"
   } ],
   "security" : [ {
+    "Basic" : [ ]
+  }, {
     "OAuth2" : [ ]
   } ],
   "paths" : {
@@ -344,6 +346,10 @@ Content-Type: application/json
       }
     },
     "securitySchemes" : {
+      "Basic" : {
+        "scheme" : "basic",
+        "type" : "http"
+      },
       "OAuth2" : {
         "bearerFormat" : "JWT",
         "scheme" : "bearer",

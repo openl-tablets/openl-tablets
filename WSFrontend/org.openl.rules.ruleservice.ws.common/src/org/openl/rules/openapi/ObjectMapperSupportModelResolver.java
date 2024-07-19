@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs.swagger;
+package org.openl.rules.openapi;
 
 import static io.swagger.v3.core.util.RefUtils.constructRef;
 
@@ -29,7 +29,7 @@ import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.util.JAXBUtils;
 
-public class ObjectMapperSupportModelResolver extends ModelResolver {
+class ObjectMapperSupportModelResolver extends ModelResolver {
     public ObjectMapperSupportModelResolver(ObjectMapper mapper) {
         super(mapper);
     }

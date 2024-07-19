@@ -1,17 +1,15 @@
 {
-  "openAPI": {
-    "security": [
-      {
-        "OAuth2": []
-      }
-    ],
-    "components": {
-      "securitySchemes": {
-        "OAuth2": {
-          "type": "http",
-          "scheme": "bearer",
-          "bearerFormat": "JWT"
-        }
+  "security": [
+    {
+      "OAuth2": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "OAuth2": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs.swagger;
+package org.openl.rules.openapi;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.converter.ModelConverterContextImpl;
 import io.swagger.v3.oas.models.media.Schema;
 
-public class OpenApiInheritanceFixConverter implements ModelConverter {
+class OpenApiInheritanceFixConverter implements ModelConverter {
     private final List<ModelConverter> converters;
     private final ObjectMapper objectMapper;
 

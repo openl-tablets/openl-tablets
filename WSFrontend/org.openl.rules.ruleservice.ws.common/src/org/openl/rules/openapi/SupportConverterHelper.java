@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs.swagger;
+package org.openl.rules.openapi;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
