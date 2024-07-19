@@ -47,10 +47,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private boolean authenticationEnabled;
 
     @Autowired
-    @Qualifier("jaxrsOpenApiObjectMapper")
-    private ObjectFactory<JacksonObjectMapperFactory> jaxrsOpenApiObjectMapper;
-
-    @Autowired
     @Qualifier("jaxrsServiceObjectMapper")
     private ObjectFactory<JacksonObjectMapperFactory> jaxrsServiceObjectMapper;
 
@@ -105,7 +101,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             svrFactory.getFeatures().addAll(features);
 
             var serviceObjectMapper = jaxrsServiceObjectMapper.getObject().createJacksonObjectMapper();
-            var openApiObjectMapper = jaxrsOpenApiObjectMapper.getObject().createJacksonObjectMapper();
 
             svrFactory.setProvider(new TextPlainMessageProvider(serviceObjectMapper));
             svrFactory.setProvider(new JacksonJsonProvider(serviceObjectMapper));
@@ -135,7 +130,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
 
-            var openApiResource = new OpenApiResource(serviceClass, openApiObjectMapper, service, authenticationEnabled);
+            var openApiResource = new OpenApiResource(serviceClass, serviceObjectMapper, service, authenticationEnabled);
 
             svrFactory.setResourceClasses(serviceClass, OpenApiResource.class);
             svrFactory.setResourceProvider(serviceClass, new SingletonResourceProvider(proxyServiceBean));

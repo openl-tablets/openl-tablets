@@ -33,7 +33,7 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
 
@@ -239,7 +239,7 @@ public class OpenApiGenerator {
     private ObjectMapper createObjectMapper(ClassLoader serviceClassLoader) {
         ClassLoader classLoader = compiledOpenClass.getClassLoader();
 
-        SchemaJacksonObjectMapperFactoryBean objectMapperFactoryBean = new SchemaJacksonObjectMapperFactoryBean();
+        var objectMapperFactoryBean = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactoryBean.setClassLoader(classLoader);
         objectMapperFactoryBean.setRulesDeploy(getRulesDeploy());
         objectMapperFactoryBean.setXlsModuleOpenClass((XlsModuleOpenClass) openClass);
