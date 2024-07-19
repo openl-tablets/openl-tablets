@@ -1,18 +1,23 @@
 package org.openl.rules.openapi;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.mixin.OpenAPIMixin;
 import io.swagger.v3.core.jackson.mixin.SchemaMixin;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.PrimitiveType;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
@@ -66,6 +71,50 @@ public class OpenAPIConfiguration {
 
         @JsonIgnore
         public abstract XML getXml();  // Remove needless xml namespace attribute from the generated OpenAPI schema
+    }
+
+    public static OpenAPI generateOpenAPI(Class<?> clazz, ObjectMapper objectMapper) {
+        return generateOpenAPI(new OpenAPI(), clazz, objectMapper);
+    }
+
+    public static synchronized OpenAPI generateOpenAPI(OpenAPI openAPI, Class<?> clazz, ObjectMapper objectMapper) {
+        var singleton = ModelConverters.getInstance();
+        var converters = clearConverters(singleton);
+
+        try {
+            // Configure converters in the needed order
+            singleton.addConverter(getConverters(objectMapper));
+
+            return new Reader(openAPI).read(clazz);
+        } finally {
+            // Restore the previous converters
+            var ignore = clearConverters(singleton);
+            var itr = converters.listIterator(converters.size());
+            while (itr.hasPrevious()) {
+                var converter = itr.previous();
+                // Restore in the revers order due addConverter put the element in the beginning of the list.
+                singleton.addConverter(converter);
+            }
+        }
+    }
+
+    public static ModelConverter getConverters(ObjectMapper objectMapper) {
+        var hackedConverters = new ArrayList<ModelConverter>();
+        hackedConverters.add(OpenApiSupportConverter.INSTANCE);
+        hackedConverters.add(BinarySchemaConverter.INSTANCE);
+        hackedConverters.add(new ObjectMapperSupportModelResolver(objectMapper));
+        return new OpenApiInheritanceFixConverter(objectMapper, hackedConverters);
+    }
+
+    private static List<ModelConverter> clearConverters(ModelConverters singleton) {
+        // Copy converters in the separate instance
+        var converters = new ArrayList<>(singleton.getConverters());
+
+        // Clean up the converters stored in the singleton.
+        for (var converter : converters) {
+            singleton.removeConverter(converter);
+        }
+        return converters;
     }
 
 }

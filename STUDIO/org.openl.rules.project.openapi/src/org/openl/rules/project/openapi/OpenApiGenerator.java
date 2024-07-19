@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -32,8 +33,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
@@ -101,23 +100,7 @@ public class OpenApiGenerator {
                 throw new OpenApiGenerationException(
                         "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
             }
-            synchronized (OpenApiRulesCacheWorkaround.class) {
-                OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
-                try {
-                    OpenApiRulesCacheWorkaround.reset();
-                    openApiObjectMapperHack.apply(objectMapper);
-                    return reader.read(enhancedServiceClass);
-                } catch (Exception e) {
-                    StringBuilder message = new StringBuilder("Failed to build OpenAPI for the current project.");
-                    if (StringUtils.isNotBlank(e.getMessage())) {
-                        message.append(" ").append(e.getMessage());
-                    }
-                    throw new OpenApiGenerationException(message.toString());
-                } finally {
-                    OpenApiRulesCacheWorkaround.reset();
-                    openApiObjectMapperHack.revert();
-                }
-            }
+            return OpenAPIConfiguration.generateOpenAPI(enhancedServiceClass, objectMapper);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

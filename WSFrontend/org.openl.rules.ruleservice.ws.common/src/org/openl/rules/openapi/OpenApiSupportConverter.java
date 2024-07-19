@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs.swagger;
+package org.openl.rules.openapi;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -20,7 +20,10 @@ import io.swagger.v3.oas.models.media.Schema;
 import org.openl.util.ClassUtils;
 import org.openl.util.JAXBUtils;
 
-public class OpenApiSupportConverter implements ModelConverter {
+class OpenApiSupportConverter implements ModelConverter {
+
+    static final OpenApiSupportConverter INSTANCE = new OpenApiSupportConverter();
+
     public Schema<?> resolve(AnnotatedType annotatedType,
                              ModelConverterContext context,
                              Iterator<ModelConverter> chain) {

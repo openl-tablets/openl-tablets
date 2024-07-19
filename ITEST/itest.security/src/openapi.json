@@ -1,0 +1,19 @@
+{
+  "info": {
+    "version": "x.x.x",
+    "description": "Secured"
+  },
+  "security": [
+    {
+      "Basic": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Basic": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  }
+}
