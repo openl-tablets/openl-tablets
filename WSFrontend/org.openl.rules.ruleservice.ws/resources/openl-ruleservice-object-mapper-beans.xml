@@ -8,13 +8,4 @@
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
         <property name="environment" ref="environment"/>
     </bean>
-
-    <bean id="kafkaServiceObjectMapper"
-          class="org.openl.rules.ruleservice.kafka.databinding.KafkaProjectJacksonObjectMapperFactoryBean"
-          scope="prototype">
-        <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
-        <property name="rulesDeploy" ref="rulesDeployInProcess"/>
-        <property name="environment" ref="environment"/>
-    </bean>
-
 </beans>
