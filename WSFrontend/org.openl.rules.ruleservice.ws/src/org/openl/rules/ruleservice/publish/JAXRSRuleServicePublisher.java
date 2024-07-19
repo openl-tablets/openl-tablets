@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -23,13 +24,13 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectRequestMessageInInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectResponseMessageOutInterceptor;
 import org.openl.rules.ruleservice.storelogdata.PopulateStoreLogDataInterceptor;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
-import org.openl.rules.serialization.JacksonObjectMapperFactory;
 
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
@@ -45,10 +46,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Value("${ruleservice.authentication.enabled}")
     private boolean authenticationEnabled;
-
-    @Autowired
-    @Qualifier("jaxrsServiceObjectMapper")
-    private ObjectFactory<JacksonObjectMapperFactory> jaxrsServiceObjectMapper;
 
     @Autowired
     @Qualifier("serviceDescriptionInProcess")
@@ -100,7 +97,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
             svrFactory.getFeatures().addAll(features);
 
-            var serviceObjectMapper = jaxrsServiceObjectMapper.getObject().createJacksonObjectMapper();
+            var serviceObjectMapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
 
             svrFactory.setProvider(new TextPlainMessageProvider(serviceObjectMapper));
             svrFactory.setProvider(new JacksonJsonProvider(serviceObjectMapper));

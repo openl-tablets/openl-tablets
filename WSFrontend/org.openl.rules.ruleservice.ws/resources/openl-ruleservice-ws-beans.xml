@@ -13,7 +13,6 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
     <import resource="classpath:openl-ruleservice-beans.xml"/>
-    <import resource="openl-ruleservice-object-mapper-beans.xml"/>
 
     <bean class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher"/>
     <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"/>

@@ -39,6 +39,7 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
+import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
@@ -48,7 +49,6 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
-import org.openl.rules.serialization.JacksonObjectMapperFactory;
 
 public class KafkaRuleServicePublisher implements RuleServicePublisher {
 
@@ -78,10 +78,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
     }
-
-    @Autowired
-    @Qualifier("jaxrsServiceObjectMapper")
-    private ObjectFactory<JacksonObjectMapperFactory> kafkaJacksonObjectMapperFactoryBean;
 
     public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
         return serviceDescriptionObjectFactory;
@@ -274,9 +270,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                                                                 Method method,
                                                                 RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
-        final ObjectMapper consumerObjectMapper = createJacksonObjectMapper(mergedKafkaConfig.getConsumerConfigs());
+        final var objectMapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer( service,
-                consumerObjectMapper,
+                objectMapper,
                 method,
                 mergedKafkaConfig.getConsumerConfigs());
         kafkaConsumers.add(consumer);
@@ -290,10 +286,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             objectSerializer = context.getObjectSerializer();
         }
         if (producer == null) {
-            ObjectMapper producerObjectMapper = createJacksonObjectMapper(mergedKafkaConfig.getProducerConfigs());
-            objectSerializer = new JacksonObjectSerializer(producerObjectMapper);
+            objectSerializer = new JacksonObjectSerializer(objectMapper);
             producer = buildProducer(service,
-                    producerObjectMapper,
+                    objectMapper,
                     mergedKafkaConfig.getProducerConfigs());
             if (possibleToReuseShared) {
                 context.setProducerAndObjectSerializer(producer, objectSerializer);
@@ -417,15 +412,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                     t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
-        }
-    }
-
-    private ObjectMapper createJacksonObjectMapper(Properties config) throws KafkaServiceException {
-        var jacksonObjectMapperFactory = kafkaJacksonObjectMapperFactoryBean.getObject();
-        try {
-            return jacksonObjectMapperFactory.createJacksonObjectMapper();
-        } catch (Exception e) {
-            throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
         }
     }
 
