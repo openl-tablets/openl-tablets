@@ -130,7 +130,7 @@ public class OpenAPIGenerationTest {
                 actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
                         .generator()
                         .generate();
-            } catch (RulesInstantiationException e) {
+            } catch (RulesInstantiationException | OpenApiGenerationException e) {
                 error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                 testsFailed = true;
                 continue;

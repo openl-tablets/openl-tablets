@@ -81,7 +81,7 @@ public class OpenApiGenerator {
      * @return new instance of OpenAPI model
      * @throws RulesInstantiationException in case of compilation errors or if project has now public rules tables
      */
-    public OpenAPI generate() throws RulesInstantiationException {
+    public OpenAPI generate() throws RulesInstantiationException, OpenApiGenerationException {
         final ClassLoader serviceClassLoader = resolveServiceClassLoader(instantiationStrategy);
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -179,7 +179,7 @@ public class OpenApiGenerator {
     }
 
     private Class<?> resolveInterface(
-            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException, OpenApiGenerationException {
         final RulesDeploy rulesDeployValue = getRulesDeploy();
         final Optional<String> serviceClassName = Optional.ofNullable(rulesDeployValue)
                 .map(RulesDeploy::getServiceClass)
@@ -270,7 +270,7 @@ public class OpenApiGenerator {
 
     private Class<?> enhanceWithJAXRS(Class<?> originalClass,
                                       Object targetService,
-                                      ClassLoader classLoader) throws RulesInstantiationException {
+                                      ClassLoader classLoader) throws OpenApiGenerationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                     targetService,
@@ -284,7 +284,7 @@ public class OpenApiGenerator {
     }
 
     private Map<Method, Method> buildMethodMapWithJAXRS(Class<?> serviceClass,
-                                                        Class<?> enhancedServiceClass) throws RulesInstantiationException {
+                                                        Class<?> enhancedServiceClass) throws OpenApiGenerationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass);
         } catch (Exception e) {

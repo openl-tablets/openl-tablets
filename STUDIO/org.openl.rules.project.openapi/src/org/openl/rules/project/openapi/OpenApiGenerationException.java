@@ -1,8 +1,6 @@
 package org.openl.rules.project.openapi;
 
-import org.openl.rules.project.instantiation.RulesInstantiationException;
-
-public class OpenApiGenerationException extends RulesInstantiationException {
+public class OpenApiGenerationException extends Exception {
 
     private static final long serialVersionUID = 4688639540320312954L;
 

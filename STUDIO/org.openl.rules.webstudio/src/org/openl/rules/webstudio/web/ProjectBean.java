@@ -1063,7 +1063,7 @@ public class ProjectBean {
     }
 
     private static InputStream serializeOpenApi(OpenApiGenerator generator,
-                                                OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException {
+                                                OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException, OpenApiGenerationException {
         String generatedOpenAPISchema;
         switch (openAPIType) {
             case JSON:
