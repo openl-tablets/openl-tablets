@@ -1,7 +1,5 @@
 package org.openl.rules.openapi;
 
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,10 +14,8 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.PrimitiveType;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
-import org.springframework.core.io.InputStreamSource;
 
 /**
  * Customization of the OpenAPI schema generation with the converters of common types.
@@ -51,18 +47,7 @@ public class OpenAPIConfiguration {
         Yaml.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Yaml.mapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-        ModelConverters.getInstance().addConverter((type, context, chain) -> {
-            var clazz = Json.mapper().constructType(type.getType()).getRawClass();
-
-            // Binary file format
-            if (InputStream.class.isAssignableFrom(clazz)
-                    || Reader.class.isAssignableFrom(clazz)
-                    || InputStreamSource.class.isAssignableFrom(clazz)) {
-                return new BinarySchema();
-            }
-
-            return chain.hasNext() ? chain.next().resolve(type, context, chain) : null;
-        });
+        ModelConverters.getInstance().addConverter(BinarySchemaConverter.INSTANCE);
     }
 
     @JsonPropertyOrder(value = {"openapi", "info", "externalDocs", "servers", "security", "tags", "paths", "components"}, alphabetic = true)
