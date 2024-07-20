@@ -8,23 +8,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,24 +43,6 @@ class HttpData {
     static {
         OBJECT_MAPPER = new ObjectMapper();
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        try {
-            // Add PATCH method to HttpURLConnection
-            // because it is not supported by default
-            Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
-
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
-
-            methodsField.setAccessible(true);
-            String[] oldMethods = (String[]) methodsField.get(null);
-            Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
-            methodsSet.add("PATCH");
-            methodsField.set(null, methodsSet.toArray(new String[0]));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static final Pattern NO_CONTENT_STATUS_PATTERN = Pattern.compile("HTTP/\\S+\\s+204(\\s.*)?");
@@ -116,45 +95,23 @@ class HttpData {
         return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
     }
 
-    static HttpData send(URL baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws IOException {
-        if (httpData.headers.containsKey("Cookie")) {
-            cookie = null;
-        }
-        HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
-                httpData.getHttpMethod(),
-                cookie);
-        write(connection, httpData, localEnv);
-        return readData(connection);
-    }
+    static HttpData send(URL baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(baseURL.toString() + httpData.getUrl()))
+                .method(httpData.getHttpMethod(), HttpRequest.BodyPublishers.ofByteArray(httpData.body))
+                .timeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.read"))))
+                .header("Host", "example.com");
+        httpData.headers.forEach((key, value) -> request.header(key, replacePlaceholders(value, localEnv)));
 
-    private static HttpURLConnection openConnection(URL url, String httpMethod, String cookie) throws IOException {
-        URLConnection connection = url.openConnection();
-        if (cookie != null && !cookie.isEmpty()) {
-            connection.setRequestProperty("Cookie", cookie);
+        if (cookie != null && !cookie.isEmpty() && !httpData.headers.containsKey("Cookie")) {
+            request.header("Cookie", cookie);
         }
-        if (!(connection instanceof HttpURLConnection)) {
-            throw new IllegalStateException("HttpURLConnection required for [" + url + "] but got: " + connection);
-        }
-        connection.setConnectTimeout(Integer.parseInt(System.getProperty("http.timeout.connect")));
-        connection.setReadTimeout(Integer.parseInt(System.getProperty("http.timeout.read")));
-        connection.setDoInput(true);
-        ((HttpURLConnection) connection).setInstanceFollowRedirects("GET".equals(httpMethod));
-        connection.setDoOutput("POST".equals(httpMethod) || "PUT".equals(httpMethod) || "DELETE".equals(httpMethod) || "PATCH"
-                .equals(httpMethod));
-        ((HttpURLConnection) connection).setRequestMethod(httpMethod);
-        return (HttpURLConnection) connection;
-    }
 
-    private static void write(HttpURLConnection connection, HttpData httpData, Map<String, String> localEnv) throws IOException {
-        httpData.headers.putIfAbsent("Content-Length", String.valueOf(httpData.body.length));
-        httpData.headers.putIfAbsent("Host", "example.com");
-        httpData.headers.forEach((key, value) -> connection.addRequestProperty(key, replacePlaceholders(value, localEnv)));
-        connection.connect();
-        if (httpData.body.length != 0) {
-            try (OutputStream os = connection.getOutputStream()) {
-                os.write(httpData.body);
-            }
-        }
+        var response = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
+                .build()
+                .sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join();
+        return readData(response);
     }
 
     private static String replacePlaceholders(String text, Map<String, String> env) {
@@ -275,38 +232,22 @@ class HttpData {
         }
     }
 
-    private static HttpData readData(HttpURLConnection connection) throws IOException {
-        connection.getResponseCode();
-        InputStream input = connection.getErrorStream();
-        if (input == null) {
-            try {
-                input = connection.getInputStream();
-            } catch (IOException ignored) {
-
-            }
-        }
-        try {
-            String firstLine = connection.getHeaderField(0);
-            String cookie = null;
-            Map<String, String> headers = new HashMap<>();
-            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                if (entries.getKey() != null) {
-                    if (entries.getKey().equals("Set-Cookie")) {
-                        cookie = String.join("; ", entries.getValue());
-                    }
-                    headers.put(entries.getKey(), String.join(", ", entries.getValue()));
+    private static HttpData readData(HttpResponse<byte[]> connection) {
+        String firstLine = "HTTP/1.1 " + connection.statusCode();
+        String cookie = null;
+        Map<String, String> headers = new HashMap<>();
+        for (Map.Entry<String, List<String>> entries : connection.headers().map().entrySet()) {
+            if (entries.getKey() != null) {
+                if (entries.getKey().equalsIgnoreCase("Set-Cookie")) {
+                    cookie = String.join("; ", entries.getValue());
                 }
-            }
-
-            byte[] body = input != null ? input.readAllBytes() : new byte[0];
-            HttpData httpData = new HttpData(firstLine, headers, body);
-            httpData.setCookie(cookie);
-            return httpData;
-        } finally {
-            if (input != null) {
-                input.close();
+                headers.put(entries.getKey(), String.join(", ", entries.getValue()));
             }
         }
+
+        HttpData httpData = new HttpData(firstLine, headers, connection.body());
+        httpData.setCookie(cookie);
+        return httpData;
     }
 
     private static HttpData readData(InputStream input, String resource) throws IOException {

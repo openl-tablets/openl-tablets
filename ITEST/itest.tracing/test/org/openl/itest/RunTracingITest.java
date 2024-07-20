@@ -97,11 +97,10 @@ public class RunTracingITest {
         client.send("simple1.tracing.rest.post");
 
         var log = stdOut.capturedString();
-        checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.http-url-connection");
+        checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.java-http-client");
     }
 
-    private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) throws InterruptedException {
-        Thread.sleep(100); // Waiting logs due async deferred output
+    private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) {
         ObjectMapper objectMapper = new ObjectMapper();
         List<ObjectNode> spanJsons;
         var allSpans = log.lines()
