@@ -33,12 +33,12 @@
         <entry key="appTitle" value="${openl.application.title}" value-type="java.lang.String"/>
     </util:map>
 
-    <bean class="org.openl.rules.ruleservice.rest.RulesDeployerRestController" id="deployer" lazy-init="true"/>
+    <bean class="org.openl.rules.ruleservice.admin.RulesDeployerRestController" id="deployer" lazy-init="true"/>
     <bean class="java.lang.Object" id="emptyEndPoint" lazy-init="true"/>
 
     <jaxrs:server address="/admin">
         <jaxrs:serviceBeans>
-            <bean class="org.openl.rules.ruleservice.rest.AdminRestController"/>
+            <bean class="org.openl.rules.ruleservice.admin.AdminRestController"/>
             <ref bean="#{ ${ruleservice.deployer.enabled} ? 'deployer' : 'emptyEndPoint'}"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>

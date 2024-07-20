@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.rest;
+package org.openl.rules.ruleservice.admin;
 
 import java.util.Collection;
 import java.util.HashMap;
