@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.jaxrs;
 
 import java.io.File;
 import java.io.IOException;

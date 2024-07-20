@@ -1,10 +1,11 @@
-package org.openl.rules.ruleservice.publish.jaxrs;
+package org.openl.rules.ruleservice.jaxrs;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.runtime.ASMProxyFactory;
 
 /**

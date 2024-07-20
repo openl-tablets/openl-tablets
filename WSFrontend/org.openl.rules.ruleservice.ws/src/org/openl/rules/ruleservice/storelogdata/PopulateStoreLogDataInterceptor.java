@@ -8,7 +8,7 @@ import org.apache.cxf.phase.Phase;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
-import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
+import org.openl.rules.ruleservice.jaxrs.JacksonObjectSerializer;
 
 /**
  * CXF interceptor for collecting service data for logging to external source feature.
