@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.rest;
+package org.openl.rules.ruleservice.admin;
 
 import java.io.IOException;
 import java.net.URLEncoder;
