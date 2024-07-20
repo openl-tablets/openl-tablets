@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
+import org.openl.rules.ruleservice.jaxrs.JAXRSOpenLServiceEnhancer;
 
 public class JAXRSOpenLServiceEnhancerTest {
 

@@ -46,7 +46,7 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaDeploy;
 import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
-import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
+import org.openl.rules.ruleservice.jaxrs.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 

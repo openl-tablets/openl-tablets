@@ -15,7 +15,7 @@
     <import resource="classpath:openl-ruleservice-beans.xml"/>
 
     <bean class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher"/>
-    <bean class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher"/>
+    <bean class="org.openl.rules.ruleservice.jaxrs.JAXRSRuleServicePublisher"/>
 
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"

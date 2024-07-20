@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish;
+package org.openl.rules.ruleservice.jaxrs;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,8 @@ import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.core.ServiceInvocationAdvice;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
+import org.openl.rules.ruleservice.publish.URLHelper;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectRequestMessageInInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectResponseMessageOutInterceptor;

@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs;
+package org.openl.rules.ruleservice.jaxrs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

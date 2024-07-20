@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.publish.jaxrs;
+package org.openl.rules.ruleservice.jaxrs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.Objects;
 import javax.ws.rs.core.Response;
 
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 
-public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
+class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final Object target;
     private final Map<Method, Method> methodMap;
