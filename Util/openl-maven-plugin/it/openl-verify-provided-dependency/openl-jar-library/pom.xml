@@ -24,7 +24,7 @@
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
             <!-- This version should differ from current OpenL version -->
-            <version>4.0.4</version>
+            <version>4.0.5</version>
             <optional>true</optional>
         </dependency>
     </dependencies>
