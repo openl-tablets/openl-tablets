@@ -34,7 +34,7 @@
             <!-- This dependency exists in OpenL RuleServices -->
             <scope>provided</scope>
             <!-- This version should differ from current OpenL version -->
-            <version>4.0.4</version>
+            <version>4.0.5</version>
         </dependency>
         <dependency>
             <!-- To test hierarchy of classloaders -->
