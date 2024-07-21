@@ -103,7 +103,7 @@ public class OpenAPIConfiguration {
         hackedConverters.add(OpenApiSupportConverter.INSTANCE);
         hackedConverters.add(BinarySchemaConverter.INSTANCE);
         hackedConverters.add(new ObjectMapperSupportModelResolver(objectMapper));
-        return new OpenApiInheritanceFixConverter(objectMapper, hackedConverters);
+        return new InheritanceFixConverter(hackedConverters);
     }
 
     private static List<ModelConverter> clearConverters(ModelConverters singleton) {
