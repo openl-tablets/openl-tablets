@@ -5,8 +5,11 @@ import static io.swagger.v3.core.util.RefUtils.constructRef;
 import java.lang.annotation.Annotation;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -158,6 +161,31 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
             return discriminator;
         }
         return null;
+    }
+
+    @Override
+    protected void applyBeanValidatorAnnotations(Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
+        super.applyBeanValidatorAnnotations(property, annotations, parent, applyNotNullAnnotations);
+        String propertyName = property.getName();
+        if (propertyName != null && (propertyName.startsWith("get") || propertyName.startsWith("is"))) {
+
+            // datatype with incorrect field is generated if property name looks like a getter method
+            property.setName(propertyName.substring(propertyName.startsWith("get") ? 3 : 2));
+
+            if (annotations != null) {
+                // Some properties are generated with wrong property name in an OpenAPI schema.
+                // For example "aBC" field is represented as "getaBC" in the OpenAPI schema.
+                Arrays.stream(annotations)
+                        .filter(e -> e instanceof XmlElement)
+                        .map(x -> ((XmlElement) x).name())
+                        .findFirst()
+                        .or(() -> Arrays.stream(annotations)
+                                .filter(e -> e instanceof XmlAttribute)
+                                .map(x -> ((XmlAttribute) x).name())
+                                .findFirst()
+                        ).ifPresent(property::setName);
+            }
+        }
     }
 
 }
