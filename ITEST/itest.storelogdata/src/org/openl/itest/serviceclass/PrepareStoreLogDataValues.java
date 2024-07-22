@@ -59,4 +59,12 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
         StoreLogDataHolder.get().ignore(HelloEntity8.class);
         StoreLogDataHolder.get().ignore(org.openl.itest.db.HelloEntity8.class);
     }
+
+    public void setCassandraSession(CqlSession cassandraSession) {
+        this.cassandraSession = cassandraSession;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 }
