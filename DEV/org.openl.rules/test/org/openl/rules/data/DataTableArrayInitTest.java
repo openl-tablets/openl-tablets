@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -91,58 +91,27 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
         }
     }
 
-    private Object getP(Object obj) throws NoSuchFieldException,
-            SecurityException,
-            IllegalArgumentException,
-            IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField("p");
-        field.setAccessible(true);
-        Object res = field.get(obj);
-        field.setAccessible(false);
-        return res;
+    private Object getP(Object obj) throws Exception {
+        return invokeGetter(obj, "getP");
     }
 
-    private Object[] getVehicles(Object obj) throws NoSuchFieldException,
-            SecurityException,
-            IllegalArgumentException,
-            IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField("vehicles");
-        field.setAccessible(true);
-        Object[] res = (Object[]) field.get(obj);
-        field.setAccessible(false);
-        return res;
+    private Object[] getVehicles(Object obj) throws Exception {
+        return invokeGetter(obj, "getVehicles");
     }
 
-    private String getModel(Object obj) throws NoSuchFieldException,
-            SecurityException,
-            IllegalArgumentException,
-            IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField("model");
-        field.setAccessible(true);
-        String res = (String) field.get(obj);
-        field.setAccessible(false);
-        return res;
+    private String getModel(Object obj) throws Exception {
+        return invokeGetter(obj, "getModel");
     }
 
-    private Object[] getAddressArry(Object obj) throws NoSuchFieldException,
-            SecurityException,
-            IllegalArgumentException,
-            IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField("addressArry");
-        field.setAccessible(true);
-        Object[] res = (Object[]) field.get(obj);
-        field.setAccessible(false);
-        return res;
+    private Object[] getAddressArry(Object obj) throws Exception {
+        return invokeGetter(obj, "getAddressArry");
     }
 
-    private int getZip(Object obj) throws NoSuchFieldException,
-            SecurityException,
-            IllegalArgumentException,
-            IllegalAccessException {
-        Field field = obj.getClass().getDeclaredField("zip");
-        field.setAccessible(true);
-        int res = Integer.parseInt(field.get(obj).toString());
-        field.setAccessible(false);
-        return res;
+    private int getZip(Object obj) throws Exception {
+        return invokeGetter(obj, "getZip");
+    }
+
+    private static <T> T invokeGetter(Object obj, String methodName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        return (T) obj.getClass().getMethod(methodName).invoke(obj);
     }
 }

@@ -1,4 +1,4 @@
-package org.openl.rules.serialization.jackson;
+package org.openl.rules.serialization;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
@@ -16,21 +14,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.serialization.JsonUtils;
 
 public class JsonUtilsTest {
 
     @Test
-    public void defaultJacksonObjectMapperTest() throws NoSuchMethodException,
-            InvocationTargetException,
-            IllegalAccessException {
-        Method getDefaultJacksonObjectMapperMethod = JsonUtils.class.getDeclaredMethod("getDefaultJacksonObjectMapper");
-        getDefaultJacksonObjectMapperMethod.setAccessible(true);
+    public void defaultJacksonObjectMapperTest(){
         assertNotEquals(
-                getDefaultJacksonObjectMapperMethod.invoke(null),
-                getDefaultJacksonObjectMapperMethod.invoke(null),
-                JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
-                        .getName() + " must return different instances.");
+                JsonUtils.getDefaultJacksonObjectMapper(),
+                JsonUtils.getDefaultJacksonObjectMapper(),
+                "JsonUtils.getDefaultJacksonObjectMapper() must return different instances.");
     }
 
     @Test
@@ -69,7 +61,7 @@ public class JsonUtilsTest {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
         assertEquals("{\"model\":\"BMW\",\"year\":null}",
                 JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class}));
-        assertEquals("{\"@class\":\"org.openl.rules.serialization.jackson.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
+        assertEquals("{\"@class\":\"org.openl.rules.serialization.JsonUtilsTest$Car\",\"model\":\"BMW\",\"year\":null}",
                 JsonUtils.toJSON(new Car("BMW", null), new Class[]{Car.class, Track.class}, true));
     }
 

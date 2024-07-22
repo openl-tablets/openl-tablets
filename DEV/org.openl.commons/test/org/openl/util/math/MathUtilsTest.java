@@ -6,12 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
@@ -393,120 +389,106 @@ public class MathUtilsTest {
         assertEquals(BigDecimal.valueOf(-0.28D), MathUtils.mod(BigDecimal.valueOf(3.22), BigDecimal.valueOf(-1.75)));
     }
 
-    private void testSmall(Class<?> primitiveType, Object values) throws Throwable {
-        Method smallMethod = MathUtils.class.getDeclaredMethod("small", values.getClass(), int.class);
-        Method sortMethod = Arrays.class.getDeclaredMethod("sort", values.getClass());
-        Method cloneMethod = Object.class.getDeclaredMethod("clone");
-        cloneMethod.setAccessible(true);
-        Object sortedValues = cloneMethod.invoke(values);
-        sortMethod.invoke(null, sortedValues);
-
-        assertEquals(Array.get(sortedValues, 0), smallMethod.invoke(null, values, 1));
-        assertEquals(Array.get(sortedValues, 1), smallMethod.invoke(null, values, 2));
-        assertEquals(Array.get(sortedValues, 2), smallMethod.invoke(null, values, 3));
-        assertEquals(Array.get(sortedValues, 3), smallMethod.invoke(null, values, 4));
-        assertEquals(Array.get(sortedValues, 4), smallMethod.invoke(null, values, 5));
-
-        try {
-            try {
-                smallMethod.invoke(null, values, 6);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array.", e.getMessage());
-        }
-
-        assertNull(smallMethod.invoke(null, null, 5));
-
-        try {
-            try {
-                smallMethod.invoke(null, values, 0);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array.", e.getMessage());
-        }
-
-    }
-
-    private void testBig(Class<?> primitiveType, Object values) throws Throwable {
-        Method bigMethod = MathUtils.class.getDeclaredMethod("big", values.getClass(), int.class);
-        Method sortMethod = Arrays.class.getDeclaredMethod("sort", values.getClass());
-        Method cloneMethod = Object.class.getDeclaredMethod("clone");
-        cloneMethod.setAccessible(true);
-        Object sortedValues = cloneMethod.invoke(values);
-        sortMethod.invoke(null, sortedValues);
-
-        assertEquals(Array.get(sortedValues, 4), bigMethod.invoke(null, values, 1));
-        assertEquals(Array.get(sortedValues, 3), bigMethod.invoke(null, values, 2));
-        assertEquals(Array.get(sortedValues, 2), bigMethod.invoke(null, values, 3));
-        assertEquals(Array.get(sortedValues, 1), bigMethod.invoke(null, values, 4));
-        assertEquals(Array.get(sortedValues, 0), bigMethod.invoke(null, values, 5));
-
-        try {
-            try {
-                bigMethod.invoke(null, values, 6);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '6' in the given array.", e.getMessage());
-        }
-
-        assertNull(bigMethod.invoke(null, null, 5));
-
-        try {
-            try {
-                bigMethod.invoke(null, values, 0);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
-            fail();
-        } catch (IllegalArgumentException e) {
-            assertEquals("There is no position '0' in the given array.", e.getMessage());
-        }
-
-    }
-
     @Test
     public void testBigForByte() throws Throwable {
         byte[] values = new byte[]{10, 45, 4, 44, 22};
-        testBig(byte.class, values);
+        assertEquals((byte)45, MathUtils.big(values, 1));
+        assertEquals((byte)44, MathUtils.big(values, 2));
+        assertEquals((byte)22, MathUtils.big(values, 3));
+        assertEquals((byte)10, MathUtils.big(values, 4));
+        assertEquals((byte)4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((byte[])null, 1));
     }
 
     @Test
     public void testBigForShort() throws Throwable {
         short[] values = new short[]{10, 45, 4, 44, 22};
-        testBig(short.class, values);
+        assertEquals((short)45, MathUtils.big(values, 1));
+        assertEquals((short)44, MathUtils.big(values, 2));
+        assertEquals((short)22, MathUtils.big(values, 3));
+        assertEquals((short)10, MathUtils.big(values, 4));
+        assertEquals((short)4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((short[])null, 1));
     }
 
     @Test
     public void testBigForInt() throws Throwable {
         int[] values = new int[]{10, 45, 4, 44, 22};
-        testBig(int.class, values);
+        assertEquals(45, MathUtils.big(values, 1));
+        assertEquals(44, MathUtils.big(values, 2));
+        assertEquals(22, MathUtils.big(values, 3));
+        assertEquals(10, MathUtils.big(values, 4));
+        assertEquals(4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((int[])null, 1));
     }
 
     @Test
     public void testBigForLong() throws Throwable {
         long[] values = new long[]{10, 45, 4, 44, 22};
-        testBig(long.class, values);
+        assertEquals(45, MathUtils.big(values, 1));
+        assertEquals(44, MathUtils.big(values, 2));
+        assertEquals(22, MathUtils.big(values, 3));
+        assertEquals(10, MathUtils.big(values, 4));
+        assertEquals(4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((long[])null, 1));
     }
 
     @Test
     public void testBigForFloat() throws Throwable {
         float[] values = new float[]{10, 45, 4, 44, 22};
-        testBig(float.class, values);
+        assertEquals(45, MathUtils.big(values, 1));
+        assertEquals(44, MathUtils.big(values, 2));
+        assertEquals(22, MathUtils.big(values, 3));
+        assertEquals(10, MathUtils.big(values, 4));
+        assertEquals(4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((float[]) null, 1));
     }
 
     @Test
     public void testBigForDouble() throws Throwable {
         double[] values = new double[]{10, 45, 4, 44, 22};
-        testBig(double.class, values);
+        assertEquals(45, MathUtils.big(values, 1));
+        assertEquals(44, MathUtils.big(values, 2));
+        assertEquals(22, MathUtils.big(values, 3));
+        assertEquals(10, MathUtils.big(values, 4));
+        assertEquals(4, MathUtils.big(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.big(values, 6);
+        });
+        assertNull(MathUtils.big((double[]) null, 1));
     }
 
     @Test
@@ -548,37 +530,103 @@ public class MathUtilsTest {
     @Test
     public void testSmallForByte() throws Throwable {
         byte[] values = new byte[]{10, 45, 4, 44, 22};
-        testSmall(byte.class, values);
+        assertEquals((byte)4, MathUtils.small(values, 1));
+        assertEquals((byte)10, MathUtils.small(values, 2));
+        assertEquals((byte)22, MathUtils.small(values, 3));
+        assertEquals((byte)44, MathUtils.small(values, 4));
+        assertEquals((byte)45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((byte[]) null, 1));
     }
 
     @Test
     public void testSmallForShort() throws Throwable {
         short[] values = new short[]{10, 45, 4, 44, 22};
-        testSmall(short.class, values);
+        assertEquals((short)4, MathUtils.small(values, 1));
+        assertEquals((short)10, MathUtils.small(values, 2));
+        assertEquals((short)22, MathUtils.small(values, 3));
+        assertEquals((short)44, MathUtils.small(values, 4));
+        assertEquals((short)45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((short[]) null, 1));
     }
 
     @Test
     public void testSmallForInt() throws Throwable {
         int[] values = new int[]{10, 45, 4, 44, 22};
-        testSmall(int.class, values);
+        assertEquals(4, MathUtils.small(values, 1));
+        assertEquals(10, MathUtils.small(values, 2));
+        assertEquals(22, MathUtils.small(values, 3));
+        assertEquals(44, MathUtils.small(values, 4));
+        assertEquals(45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((int[]) null, 1));
     }
 
     @Test
     public void testSmallForLong() throws Throwable {
         long[] values = new long[]{10, 45, 4, 44, 22};
-        testSmall(long.class, values);
+        assertEquals(4,  MathUtils.small(values, 1));
+        assertEquals(10, MathUtils.small(values, 2));
+        assertEquals(22, MathUtils.small(values, 3));
+        assertEquals(44, MathUtils.small(values, 4));
+        assertEquals(45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((long[]) null, 1));
     }
 
     @Test
     public void testSmallForFloat() throws Throwable {
         float[] values = new float[]{10, 45, 4, 44, 22};
-        testSmall(float.class, values);
+        assertEquals(4,  MathUtils.small(values, 1));
+        assertEquals(10, MathUtils.small(values, 2));
+        assertEquals(22, MathUtils.small(values, 3));
+        assertEquals(44, MathUtils.small(values, 4));
+        assertEquals(45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((float[]) null, 1));
     }
 
     @Test
     public void testSmallForDouble() throws Throwable {
         double[] values = new double[]{10, 45, 4, 44, 22};
-        testSmall(double.class, values);
+        assertEquals(4,  MathUtils.small(values, 1));
+        assertEquals(10, MathUtils.small(values, 2));
+        assertEquals(22, MathUtils.small(values, 3));
+        assertEquals(44, MathUtils.small(values, 4));
+        assertEquals(45, MathUtils.small(values, 5));
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            MathUtils.small(values, 6);
+        });
+        assertNull(MathUtils.small((double[]) null, 1));
     }
 
     @Test
