@@ -36,6 +36,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
+import org.openl.util.ClassUtils;
 
 public class StoreLogDataMapper {
 
@@ -301,7 +302,7 @@ public class StoreLogDataMapper {
 
     private void setValueWithAnnotatedElement(Object target,
                                               AnnotatedElement annotatedElement,
-                                              Object value) throws InvocationTargetException, IllegalAccessException {
+                                              Object value) throws Exception {
         if (annotatedElement instanceof Method) {
             Method method = (Method) annotatedElement;
             if (method.getParameterCount() == 0 && method.getName().startsWith("get")) {
@@ -318,11 +319,7 @@ public class StoreLogDataMapper {
             method.invoke(target, value);
             return;
         } else if (annotatedElement instanceof Field) {
-            Field field = (Field) annotatedElement;
-            if (value != null || !field.getType().isPrimitive()) {
-                field.setAccessible(true);
-                field.set(target, value);
-            }
+            ClassUtils.set(target, ((Field) annotatedElement).getName(), value);
             return;
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
