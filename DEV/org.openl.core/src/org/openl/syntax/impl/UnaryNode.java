@@ -14,7 +14,7 @@ import org.openl.util.text.ILocation;
  * @author snshor
  */
 public class UnaryNode extends ASyntaxNode {
-    private final ISyntaxNode left;
+    public ISyntaxNode left; //FIXME: Refactor code to not use a public access
 
     public UnaryNode(String type, ILocation pos, ISyntaxNode left, IOpenSourceCodeModule module) {
         super(type, pos, module);
