@@ -1,6 +1,5 @@
 package org.openl.rules.project.openapi;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +8,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.swagger.v3.oas.models.OpenAPI;
+
+import org.openl.util.ClassUtils;
 
 public class OpenAPIRefResolver {
     private final Map<String, Object> resolvedByRefCache = new HashMap<>();
@@ -49,17 +50,13 @@ public class OpenAPIRefResolver {
                     .collect(Collectors.toList())) {
                 if (resolvedByRef != null) {
                     try {
-                        Field field = resolvedByRef.getClass().getDeclaredField(expressionPart);
-                        field.setAccessible(true);
-                        resolvedByRef = field.get(resolvedByRef);
-                    } catch (NoSuchFieldException | SecurityException e) {
+                        resolvedByRef = ClassUtils.get(resolvedByRef, expressionPart);
+                    } catch (Exception e) {
                         if (Map.class.isAssignableFrom(resolvedByRef.getClass())) {
                             resolvedByRef = ((Map<?, ?>) resolvedByRef).get(expressionPart);
                         } else {
                             resolvedByRef = null;
                         }
-                    } catch (IllegalAccessException e) {
-                        resolvedByRef = null;
                     }
                 }
             }
