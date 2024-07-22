@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +21,7 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
+import org.openl.util.ClassUtils;
 
 @Component
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
@@ -86,10 +86,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     } else {
                         inject(storeLogDataAdvice, annotationClass, e -> resource);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    log.error("Failed to inject a resource through annotation '{}'",
-                            annotationClass.getTypeName(),
-                            e);
+                } catch (Exception e) {
+                    log.error("Failed to inject a resource through annotation '{}'", annotationClass.getTypeName(), e);
                 }
             }
         }
@@ -101,14 +99,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
         try {
             inject(storeLogDataAdvice, InjectObjectSerializer.class, e -> objectSerializer);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             log.error("Failed to inject a resource through @InjectObjectSerializer annotation.", e);
         }
     }
 
     private Object inject(Object target,
                           Class<? extends Annotation> annotationClass,
-                          Function<Annotation, Object> supplier) throws IllegalAccessException, InvocationTargetException {
+                          Function<Annotation, Object> supplier) throws Exception {
         if (annotationClass != null) {
             Class<?> cls = target.getClass();
             Object resource = null;
@@ -124,8 +122,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                             }
                             initialized = true;
                         }
-                        field.setAccessible(true);
-                        field.set(target, resource);
+                        ClassUtils.set(target, field.getName(), resource);
                     }
                 }
                 cls = cls.getSuperclass();
