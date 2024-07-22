@@ -14,7 +14,7 @@ import org.openl.util.text.ILocation;
  * @author snshor
  */
 public class BinaryNode extends ASyntaxNode {
-    private final ISyntaxNode left;
+    public ISyntaxNode left; //FIXME: Refactor code to not use a public access
     private final ISyntaxNode right;
 
     public BinaryNode(String type, ILocation pos, ISyntaxNode left, ISyntaxNode right, IOpenSourceCodeModule module) {
