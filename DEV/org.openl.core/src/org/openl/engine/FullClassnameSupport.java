@@ -1,6 +1,5 @@
 package org.openl.engine;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,25 +18,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
-    private static final Field binaryNodeLeftField;
-    private static final Field unaryNodeLeftField;
-
-    static {
-        Field binaryNodeLeftFieldTmp = null;
-        try {
-            binaryNodeLeftFieldTmp = BinaryNode.class.getDeclaredField("left");
-            binaryNodeLeftFieldTmp.setAccessible(true);
-        } catch (NoSuchFieldException ignored) {
-        }
-        binaryNodeLeftField = binaryNodeLeftFieldTmp;
-        Field unaryNodeLeftFieldTmp = null;
-        try {
-            unaryNodeLeftFieldTmp = UnaryNode.class.getDeclaredField("left");
-            unaryNodeLeftFieldTmp.setAccessible(true);
-        } catch (NoSuchFieldException ignored) {
-        }
-        unaryNodeLeftField = unaryNodeLeftFieldTmp;
-    }
 
     private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) throws IdentifierChainException {
         if (syntaxNode instanceof IdentifierNode) {
@@ -171,25 +151,22 @@ class FullClassnameSupport {
                                          List<ISyntaxNode> identifierChain,
                                          String fullClassName,
                                          int j) {
-        try {
-            ISyntaxNode nodeToChange;
-            if (j < identifierChain.size() - 1) {
-                nodeToChange = identifierChain.get(j + 1).getParent();
-            } else {
-                nodeToChange = syntaxNode.getParent();
-            }
-            IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
-                    nodeToChange.getChild(0).getSourceLocation(),
-                    fullClassName,
-                    nodeToChange.getChild(0).getModule());
-            if (nodeToChange instanceof BinaryNode) {
-                binaryNodeLeftField.set(nodeToChange, newIdentifierNode);
-            } else if (nodeToChange instanceof UnaryNode) {
-                unaryNodeLeftField.set(nodeToChange, newIdentifierNode);
-            } else {
-                throw new IllegalStateException();
-            }
-        } catch (IllegalAccessException ignored) {
+        ISyntaxNode nodeToChange;
+        if (j < identifierChain.size() - 1) {
+            nodeToChange = identifierChain.get(j + 1).getParent();
+        } else {
+            nodeToChange = syntaxNode.getParent();
+        }
+        IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
+                nodeToChange.getChild(0).getSourceLocation(),
+                fullClassName,
+                nodeToChange.getChild(0).getModule());
+        if (nodeToChange instanceof BinaryNode) {
+            ((BinaryNode) nodeToChange).left = newIdentifierNode;
+        } else if (nodeToChange instanceof UnaryNode) {
+            ((UnaryNode) nodeToChange).left = newIdentifierNode;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
