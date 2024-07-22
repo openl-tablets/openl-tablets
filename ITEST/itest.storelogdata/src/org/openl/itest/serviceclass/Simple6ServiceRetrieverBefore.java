@@ -24,4 +24,8 @@ public class Simple6ServiceRetrieverBefore implements StoreLogDataAdvice {
             values.put("responseTemp", rows.get(0).getString("response"));
         }
     }
+
+    public void setCassandraSession(CqlSession cassandraSession) {
+        this.cassandraSession = cassandraSession;
+    }
 }
