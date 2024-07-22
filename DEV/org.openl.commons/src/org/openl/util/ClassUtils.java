@@ -390,4 +390,108 @@ public final class ClassUtils {
         }
         return PACKAGE_NAME.matcher(packageName).matches();
     }
+
+    public static void set(Object target, String fieldName, Object value) throws Exception {
+        var clz = target.getClass();
+        try {
+            // Try direct access to the public fields
+            clz.getField(fieldName).set(target, value);
+            return;
+        } catch (NoSuchFieldException ignore) {
+            // Ignore attempt. No public field has been found.
+        }
+
+        Class<?> type = value != null ? value.getClass() : getType(target, fieldName);
+
+        var setterName = setter(fieldName);
+        Method setter = null;
+        Method setter2 = null;
+
+        var methods = clz.getMethods();
+        for (var method : methods) {
+            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                var parameterType = method.getParameterTypes()[0];
+                if (isAssignable(type, parameterType)) {
+                    if (setter != null) {
+                        var setterType = setter.getParameterTypes()[0];
+                        if (isAssignable(parameterType, setterType)) {
+                            setter = method;
+                        } else if (!isAssignable(setterType, parameterType)) {
+                            throw new IllegalArgumentException("Method '" + setterName + "(" + type + ")' is ambiguous in " + clz);
+                        }
+                    } else {
+                        setter = method;
+                    }
+                }
+                setter2 = method;
+            }
+        }
+        if (setter == null) {
+            setter = setter2;
+        }
+
+        if (setter == null) {
+            throw new IllegalAccessException("Field '" + fieldName + "' is not accessible in class " + clz.getName());
+        }
+
+        try {
+            setter.invoke(target, value);
+        } catch (InvocationTargetException ex) {
+            var exception = ex.getTargetException();
+            if (exception instanceof Exception) {
+                throw (Exception) exception;
+            }
+            throw ex;
+        }
+    }
+
+    public static Object get(Object target, String fieldName) throws Exception {
+        var clz = target.getClass();
+        try {
+            // Try direct access to the public fields
+            return clz.getField(fieldName).get(target);
+        } catch (NoSuchFieldException ignore) {
+            // Ignore attempt. No public field has been found.
+        }
+
+        var getter = findGetterMethod(target, fieldName);
+
+        if (getter == null) {
+            throw new IllegalAccessException("Field '" + fieldName + "' is not accessible in class " + clz.getName());
+        }
+
+        try {
+            return getter.invoke(target);
+        } catch (InvocationTargetException ex) {
+            var exception = ex.getTargetException();
+            if (exception instanceof Exception) {
+                throw (Exception) exception;
+            }
+            throw ex;
+        }
+    }
+
+    public static Class<?> getType(Object target, String fieldName) {
+        Class<?> type;
+        try {
+            type = target.getClass().getDeclaredField(fieldName).getType();
+        } catch (NoSuchFieldException ignore) {
+            var getterMethod = findGetterMethod(target, fieldName);
+            type = getterMethod != null ? getterMethod.getReturnType() : null;
+        }
+        return type;
+    }
+
+    private static Method findGetterMethod(Object target, String fieldName) {
+        try {
+            // Try to find a getter method
+            return target.getClass().getMethod(getter(fieldName));
+        } catch (NoSuchMethodException ignore) {
+            try {
+                return target.getClass().getMethod("is" + capitalize(fieldName));
+            } catch (NoSuchMethodException ex) {
+                return null;
+            }
+        }
+    }
 }
