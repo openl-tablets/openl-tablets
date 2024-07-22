@@ -123,7 +123,6 @@ public class InterfaceTransformer {
                 if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
                     usedFields.add(field.getName());
                     try {
-                        field.setAccessible(true);
                         FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
                                 field.getName(),
                                 Type.getDescriptor(field.getType()),
