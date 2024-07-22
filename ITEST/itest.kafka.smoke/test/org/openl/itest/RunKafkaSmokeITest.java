@@ -196,9 +196,8 @@ public class RunKafkaSmokeITest {
                 assertEquals("Hello", getHeaderValue(response, KafkaHeaders.METHOD_NAME));
                 assertEquals(replyTopic, getHeaderValue(response, KafkaHeaders.REPLY_TOPIC));
                 assertEquals("891", getHeaderValue(response, KafkaHeaders.REPLY_PARTITION));
-                assertEquals("com.fasterxml.jackson.databind.exc.MismatchedInputException",
-                        getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
-                assertTrue(getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE).startsWith("Cannot construct instance of `org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer"));
+                assertEquals("java.lang.IllegalArgumentException", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_FQCN));
+                assertEquals("Expecting a JSON object", getHeaderValue(response, KafkaHeaders.DLT_EXCEPTION_MESSAGE));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION));
                 assertNotNull(response.headers().lastHeader(KafkaHeaders.DLT_EXCEPTION_STACKTRACE));
