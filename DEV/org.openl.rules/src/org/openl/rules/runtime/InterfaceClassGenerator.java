@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.InterfaceByteCodeBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.TypeDescription;
@@ -102,11 +103,7 @@ public class InterfaceClassGenerator {
 
         // Create class object.
         //
-        ClassUtils.defineClass(className, bytecode, classLoader);
-
-        // Return loaded to classpath class object.
-        //
-        return Class.forName(className, true, classLoader);
+        return ClassLoaderUtils.defineClass(className, bytecode, classLoader);
     }
 
     /**

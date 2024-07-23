@@ -12,8 +12,8 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.util.ClassUtils;
 
 public class InterfaceImplGeneratorTest {
 
@@ -85,7 +85,7 @@ public class InterfaceImplGeneratorTest {
             InterfaceImplBuilder builder = new InterfaceImplBuilder(clazzInterface);
             byte[] byteCode = builder.byteCode();
             String className = builder.getBeanName();
-            return ClassUtils.defineClass(className, byteCode, simpleClassLoader);
+            return ClassLoaderUtils.defineClass(className, byteCode, simpleClassLoader);
         } catch (Exception e) {
             e.printStackTrace();
             fail();

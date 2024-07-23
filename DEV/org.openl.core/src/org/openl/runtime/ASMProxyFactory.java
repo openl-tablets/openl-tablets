@@ -13,8 +13,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.util.ClassUtils;
 
 public final class ASMProxyFactory {
 
@@ -61,7 +61,7 @@ public final class ASMProxyFactory {
         cw.visitEnd();
         byte[] bytes = cw.toByteArray();
         try {
-            Class<?> aClass = ClassUtils.defineClass(proxyType.getClassName(), bytes, classLoader);
+            Class<?> aClass = ClassLoaderUtils.defineClass(proxyType.getClassName(), bytes, classLoader);
             return aClass.getDeclaredConstructor(ASMProxyHandler.class).newInstance(handler);
         } catch (Exception e) {
             throw new OpenlNotCheckedException("Failed to instantiate a new proxy.", e);

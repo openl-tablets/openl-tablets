@@ -22,13 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.MethodUtil;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.types.IOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 public final class DynamicInterfaceAnnotationEnhancerHelper {
@@ -231,7 +231,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         transformer.accept(dynamicInterfaceAnnotationEnhancerClassVisitor);
         cw.visitEnd();
         logMissedMethods(dynamicInterfaceAnnotationEnhancerClassVisitor);
-        return ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
+        return ClassLoaderUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
     }
 
     private static void logMissedMethods(
