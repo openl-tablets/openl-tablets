@@ -7,6 +7,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.cmatch.ColumnMatch;
@@ -18,7 +19,6 @@ import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.util.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +60,7 @@ public aspect OpenLRulesProfiler {
                     .accept(new ExecutableRulesMethodVisitor(Opcodes.ASM7, cw, superclass), ClassReader.EXPAND_FRAMES);
             cw.visitEnd();
 
-            return ClassUtils
+            return ClassLoaderUtils
                     .defineClass(wrapperClassName, cw.toByteArray(), Thread.currentThread().getContextClassLoader());
         }
     }

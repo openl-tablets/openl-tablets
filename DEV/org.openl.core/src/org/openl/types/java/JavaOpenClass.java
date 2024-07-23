@@ -27,6 +27,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.InterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
@@ -36,7 +37,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
-import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -521,7 +521,7 @@ public class JavaOpenClass extends AOpenClass {
                     synchronized (this) {
                         if (generatedImplClass == null) {
                             InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
-                            generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
+                            generatedImplClass = ClassLoaderUtils.defineClass(builder.getBeanName(),
                                     builder.byteCode(),
                                     Thread.currentThread().getContextClassLoader());
                         }
