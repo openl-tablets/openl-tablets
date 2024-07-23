@@ -49,14 +49,7 @@
     </bean>
 
     <!-- Allow unrestricted access  -->
-    <bean id="accessDecisionManager" class="org.springframework.security.access.AccessDecisionManager">
-        <lookup-method name="decide" bean="voidValue"/>
-        <lookup-method name="supports" bean="trueValue"/>
-    </bean>
-    <bean id="voidValue" class="java.lang.Void"/>
-    <bean id="trueValue" class="java.lang.Boolean" factory-method="valueOf">
-        <constructor-arg value="true"/>
-    </bean>
+    <bean id="accessDecisionManager" class="org.openl.rules.webstudio.AlwaysGrantAccessDecisionManager"/>
 
     <bean id="securityMetadataSource"
           class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
