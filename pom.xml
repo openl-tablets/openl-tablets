@@ -88,6 +88,7 @@
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7</asm.version>
+        <byte-buddy.version>1.14.18</byte-buddy.version>
         <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
@@ -1207,6 +1208,21 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-util</artifactId>
                 <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-dep</artifactId>
+                <version>${byte-buddy.version}</version>
             </dependency>
             <!-- Java source code generation library -->
             <dependency>
