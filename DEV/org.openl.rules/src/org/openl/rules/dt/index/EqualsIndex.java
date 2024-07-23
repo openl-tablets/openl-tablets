@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -87,8 +88,10 @@ public class EqualsIndex extends ARuleIndex {
             if (map == null) {
                 nodeMap = Collections.emptyMap();
             } else {
+                Map<List<Integer>, DecisionTableRuleNode> rulesToNode = new HashMap<>();
                 for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
-                    nodeMap.put(element.getKey(), element.getValue().makeNode());
+                    var node = rulesToNode.computeIfAbsent(element.getValue().getRules(), key -> element.getValue().makeNode());
+                    nodeMap.put(element.getKey(), node);
                 }
             }
             return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, conditionCasts);
