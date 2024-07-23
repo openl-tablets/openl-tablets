@@ -113,7 +113,7 @@ public final class OpenLService {
                 builder.provideVariations,
                 builder.publishers,
                 builder.modules,
-                builder.classLoader,
+                null,
                 builder.serviceClass,
                 builder.deployment);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
@@ -367,13 +367,7 @@ public final class OpenLService {
         private boolean provideVariations = false;
         private Collection<Module> modules;
         private Set<String> publishers;
-        private ClassLoader classLoader;
         private DeploymentDescription deployment;
-
-        public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
-            this.classLoader = classLoader;
-            return this;
-        }
 
         public OpenLServiceBuilder addPublisher(String publisher) {
             if (this.publishers == null) {

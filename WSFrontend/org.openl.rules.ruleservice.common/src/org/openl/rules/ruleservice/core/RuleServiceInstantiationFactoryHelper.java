@@ -24,6 +24,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import org.openl.binding.MethodUtil;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -51,7 +52,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 public final class RuleServiceInstantiationFactoryHelper {
@@ -236,7 +236,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             try {
                 // Create class object.
                 //
-                return ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+                return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
             } catch (Exception e) {
                 throw new OpenlNotCheckedException(e);
             }

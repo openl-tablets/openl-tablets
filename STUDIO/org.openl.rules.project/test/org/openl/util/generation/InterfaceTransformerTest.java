@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
 
-import org.openl.util.ClassUtils;
+import org.openl.classloader.ClassLoaderUtils;
 
 public class InterfaceTransformerTest {
     private Class<?> getGeneratedClass() throws Exception {
@@ -42,9 +42,7 @@ public class InterfaceTransformerTest {
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         }
     }
 
@@ -61,9 +59,7 @@ public class InterfaceTransformerTest {
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         }
     }
 

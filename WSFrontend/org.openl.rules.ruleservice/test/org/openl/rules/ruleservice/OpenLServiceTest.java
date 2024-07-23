@@ -323,7 +323,7 @@ class OpenLServiceTest {
         assertNull(OpenLService.rulesFrontend);
     }
 
-    private interface Proxy {
+    public interface Proxy {
         String worldHello(Integer i, String s);
 
         String toString();

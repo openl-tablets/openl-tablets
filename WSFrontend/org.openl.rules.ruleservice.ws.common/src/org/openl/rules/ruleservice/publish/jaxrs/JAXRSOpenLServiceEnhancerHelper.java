@@ -60,6 +60,7 @@ import org.objectweb.asm.Type;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
@@ -67,7 +68,6 @@ import org.openl.rules.ruleservice.core.annotations.ApiErrors;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
-import org.openl.util.ClassUtils;
 import org.openl.util.JAXBUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -245,7 +245,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             beanClassBuilder.setOriginalMethodTypeFields(originalMethodTypeFields);
             byte[] byteCode = beanClassBuilder.byteCode();
 
-            return ClassUtils.defineClass(beanName, byteCode, classLoader);
+            return ClassLoaderUtils.defineClass(beanName, byteCode, classLoader);
         }
 
         Set<String> getUsedPaths() {
@@ -851,7 +851,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
             transformer.accept(enhancerClassVisitor);
             cw.visitEnd();
-            enhancedClass = ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
+            enhancedClass = ClassLoaderUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);
         }
         return enhancedClass;
     }

@@ -37,6 +37,7 @@ import org.objectweb.asm.ClassWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
@@ -56,7 +57,6 @@ import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
-import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -143,8 +143,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         transformer.accept(classVisitor);
         classWriter.visitEnd();
         try {
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         } catch (Exception e1) {
             throw new IllegalStateException(e1);
         }

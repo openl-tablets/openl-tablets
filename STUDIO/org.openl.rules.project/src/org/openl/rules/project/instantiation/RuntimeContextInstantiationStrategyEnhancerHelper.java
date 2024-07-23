@@ -9,8 +9,8 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 /**
@@ -80,11 +80,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         // Create class object.
         //
-        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-        // Return loaded to classpath class object.
-        //
-        return Class.forName(className, true, classLoader);
+        return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
     }
 
     /**
@@ -126,11 +122,7 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         // Create class object.
         //
-        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-        // Return loaded to classpath class object.
-        //
-        return Class.forName(className, true, classLoader);
+        return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
     }
 
     static class DecoratingClassWriter extends ClassVisitor {
