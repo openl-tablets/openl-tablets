@@ -86,6 +86,7 @@ public class RunTracingITest {
             });
             consumer.unsubscribe();
         }
+        Thread.sleep(500);
         var log = stdOut.capturedString();
 
         checkOpenLMethodsSpans(log, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
@@ -96,6 +97,7 @@ public class RunTracingITest {
     public void testRESTServiceSpans(StdErr stdOut) throws Exception {
         client.send("simple1.tracing.rest.post");
 
+        Thread.sleep(500);
         var log = stdOut.capturedString();
         checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.java-http-client");
     }
