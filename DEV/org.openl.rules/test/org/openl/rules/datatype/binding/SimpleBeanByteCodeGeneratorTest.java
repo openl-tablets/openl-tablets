@@ -14,12 +14,12 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.util.ClassUtils;
 
 public class SimpleBeanByteCodeGeneratorTest {
 
@@ -170,7 +170,7 @@ public class SimpleBeanByteCodeGeneratorTest {
             JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(className);
             beanBuilder.addFields(fields);
             byte[] byteCode = beanBuilder.byteCode();
-            return ClassUtils.defineClass(className, byteCode, simpleClassLoader);
+            return ClassLoaderUtils.defineClass(className, byteCode, simpleClassLoader);
         } catch (Exception e) {
             fail();
             return null;

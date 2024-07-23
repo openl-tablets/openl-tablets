@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.junit.jupiter.api.Test;
 
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.jaxrs.JAXRSOpenLServiceEnhancer;
 
@@ -439,9 +440,7 @@ public class JAXRSOpenLServiceEnhancerTest {
     }
 
     private static Class<?> createService(Class<?> clazz) throws Exception {
-        ClassLoader classLoader = new ClassLoader() {
-        };
-        OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
+        OpenLService service = new OpenLService.OpenLServiceBuilder()
                 .setName("test")
                 .setDeployPath("testPath")
                 .setDeployment(new DeploymentDescription("testPath", new CommonVersionImpl("0")))
@@ -449,6 +448,7 @@ public class JAXRSOpenLServiceEnhancerTest {
                 .build(new AbstractOpenLServiceInitializer() {
                     @Override
                     protected void init(OpenLService openLService) {
+                        openLService.setClassLoader(new OpenLClassLoader(Thread.currentThread().getContextClassLoader()));
                     }
                 });
         service.setServiceBean(new Object());

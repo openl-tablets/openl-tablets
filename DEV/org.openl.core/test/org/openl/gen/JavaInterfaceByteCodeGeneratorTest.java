@@ -19,9 +19,9 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
-import org.openl.util.ClassUtils;
 
 public class JavaInterfaceByteCodeGeneratorTest {
 
@@ -244,7 +244,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
         try {
             ClassLoader newClassLoader = new OpenLClassLoader(oldClassLoader);
             Thread.currentThread().setContextClassLoader(newClassLoader);
-            return ClassUtils.defineClass(name, bytes, newClassLoader);
+            return ClassLoaderUtils.defineClass(name, bytes, newClassLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

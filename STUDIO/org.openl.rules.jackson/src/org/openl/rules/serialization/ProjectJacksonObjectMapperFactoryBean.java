@@ -20,6 +20,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.springframework.core.env.Environment;
 
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -27,7 +28,6 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.serialization.jackson.NonNullMixIn;
 import org.openl.types.IOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -503,8 +503,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         transformer.accept(classVisitor);
         classWriter.visitEnd();
         try {
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         } catch (Exception e1) {
             throw new RuntimeException(e1);
         }
