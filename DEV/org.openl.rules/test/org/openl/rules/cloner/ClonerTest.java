@@ -133,28 +133,58 @@ class ClonerTest {
 
     @Test
     void testCloneArrays() {
-        assertCloned(new int[0]);
+        assertNotCloned(new int[0]);
         assertCloned(new int[]{1});
         assertCloned(new int[]{1, 2});
         assertCloned(new int[]{1, 2, 3});
         assertCloned(new int[]{1, 2, 3, 4});
 
-        assertCloned(new Integer[0]);
+        assertNotCloned(new Integer[0]);
         assertCloned(new Integer[]{1});
         assertCloned(new Integer[]{1, 2});
         assertCloned(new Integer[]{1, 2, 3});
         assertCloned(new Integer[]{1, 2, 3, 4});
 
+        assertNotCloned(new Integer[]{});
         assertCloned(new Integer[]{null});
         assertCloned(new Integer[]{null, null});
         assertCloned(new Integer[]{null, null, null});
         assertCloned(new Integer[]{null, 2, null, 4});
 
-        assertCloned(new Date[]{});
+        assertNotCloned(new Date[]{});
         assertCloned(new Date[]{new Date(12)});
         assertCloned(new Date[]{new Date(23), new Date(44)});
         assertCloned(new Date[]{new Date(23), null, new Date(44)});
         assertCloned(new Date[]{null});
+
+        assertNotCloned(new Object[0]);
+        assertCloned(new Object[]{1});
+        assertCloned(new Object[]{1, 2});
+        assertCloned(new Object[]{1, 2, 3});
+        assertCloned(new Object[]{1, 2, 3, 4});
+
+        assertCloned(new Object[] {null});
+        assertCloned(new Object[] {new Object()});
+        assertCloned(new Object[] {new Object(), null, new Object()});
+        assertCloned(new Object[] {new Object(), new Object(), new Object()});
+
+        assertNotCloned(new Beans[0]);
+        assertCloned(new Beans[1]);
+
+        // Case 1
+        Object[] arr1 = new Object[] {new Beans()};
+        Object[] cloned1 = Cloner.clone(arr1);
+        assertNotSame(arr1, cloned1);
+        assertEquals(arr1.length, cloned1.length);
+        assertNotSame(arr1[0], cloned1[0]); // Not immutable
+
+        // Case 2
+        Object[] arr2 = new Object[] {new Object()};
+        Object[] cloned2 = Cloner.clone(arr2);
+        assertNotSame(arr2, cloned2);
+        assertEquals(arr2.length, cloned2.length);
+        assertSame(arr2[0], cloned2[0]); // Immutable
+
     }
 
     @Test

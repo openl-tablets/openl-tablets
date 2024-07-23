@@ -1,6 +1,7 @@
 package org.openl.rules.cloner;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -98,7 +99,6 @@ public class Cloner {
         immutable.add(MonthDay.class);
         immutable.add(DayOfWeek.class);
         immutable.add(Class.class);
-        immutable.add(Object.class);
         immutable.add(Pattern.class);
 
         immutable.add(CharRange.class);
@@ -200,7 +200,7 @@ public class Cloner {
         }
 
         Class<?> clazz = source.getClass();
-        if (skipClone(clazz)) {
+        if (skipClone(clazz) || clazz == Object.class || clazz.isArray() && Array.getLength(source) == 0) {
             return source;
         }
 
