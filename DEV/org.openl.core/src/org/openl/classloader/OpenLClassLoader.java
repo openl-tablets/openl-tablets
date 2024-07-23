@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
-import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
 
 /**
@@ -136,7 +135,12 @@ public class OpenLClassLoader extends GroovyClassLoader {
             byte[] byteCode = generatedClasses.get(name);
             if (byteCode != null) {
                 try {
-                    return ClassUtils.defineClass(name, byteCode, this);
+                    var clazz = defineClass(name, byteCode, 0, byteCode.length);
+                    var packageName = clazz.getPackageName();
+                    if (getDefinedPackage(packageName) == null) {
+                        definePackage(packageName, null, null, null, null, null, null, null);
+                    }
+                    return clazz;
                 } catch (Exception e1) {
                     throw e;
                 }
