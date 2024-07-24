@@ -120,6 +120,19 @@ class ClonerTest {
         assertCloned(new TreeMap<>(Map.of("one", 1)));
         assertCloned(new TreeMap<>(Map.of("one", 1, "two", 2)));
         assertCloned(new TreeMap<>(Map.of("one", 1, "two", 2, "three", 3)));
+
+        assertNotCloned(Collections.emptySet());
+        assertNotCloned(Collections.emptyNavigableSet());
+        assertNotCloned(Collections.emptySortedSet());
+
+        assertNotCloned(Collections.emptyMap());
+        assertNotCloned(Collections.emptyNavigableMap());
+        assertNotCloned(Collections.emptySortedMap());
+
+        assertNotCloned(Collections.emptyList());
+        assertNotCloned(Collections.emptyEnumeration());
+        assertNotCloned(Collections.emptyIterator());
+        assertNotCloned(Collections.emptyListIterator());
     }
 
     @Test

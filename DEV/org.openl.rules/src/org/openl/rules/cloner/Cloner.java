@@ -25,6 +25,7 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.GregorianCalendar;
@@ -62,12 +63,26 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 
 public class Cloner {
+    private static final Set<Object> constants = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<Class<?>> immutable = new HashSet<>();
     private static final Set<Class<?>> doNotClone = new HashSet<>();
     private static final Map<Class<?>, ICloner<?>> cloners = new HashMap<>();
     private static final Map<Class<?>, WeakReference<ICloner<?>>> cache = new WeakHashMap<>();
 
     static {
+        constants.add(Collections.emptySet());
+        constants.add(Collections.emptyNavigableSet());
+        constants.add(Collections.emptySortedSet());
+
+        constants.add(Collections.emptyMap());
+        constants.add(Collections.emptyNavigableMap());
+        constants.add(Collections.emptySortedMap());
+
+        constants.add(Collections.emptyList());
+        constants.add(Collections.emptyEnumeration());
+        constants.add(Collections.emptyIterator());
+        constants.add(Collections.emptyListIterator());
+
         immutable.add(Void.class);
         immutable.add(String.class);
         immutable.add(Double.class);
@@ -195,8 +210,8 @@ public class Cloner {
     }
 
     public static <T> T clone(T source, Map<Object, Object> clones) {
-        if (source == null) {
-            return null;
+        if (source == null || constants.contains(source)) {
+            return source;
         }
 
         Class<?> clazz = source.getClass();
