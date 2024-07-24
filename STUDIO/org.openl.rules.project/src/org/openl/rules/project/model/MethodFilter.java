@@ -21,11 +21,11 @@ public class MethodFilter {
     @XmlElementWrapper(name = "includes")
     @XmlElement(name = STRING_VALUE)
     @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
-    private Collection<String> includes;
+    private Set<String> includes;
     @XmlElementWrapper(name = "excludes")
     @XmlElement(name = STRING_VALUE)
     @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
-    private Collection<String> excludes;
+    private Set<String> excludes;
 
     public Collection<String> getExcludes() {
         return excludes;
