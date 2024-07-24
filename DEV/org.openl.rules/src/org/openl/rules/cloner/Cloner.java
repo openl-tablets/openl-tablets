@@ -25,8 +25,10 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.EnumMap;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -35,9 +37,14 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -62,6 +69,13 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 
+/**
+ * The cloner is used to deep cloning of Java Beans, Java collections and arrays. There was not a goal to do
+ * the universal solution to cover all possible cases. It was inspired to create alternative which will work
+ * on Java 17+ without illegal reflective access to the closed fields.
+ *
+ * @author Yury Molchan
+ */
 public class Cloner {
     private static final Set<Object> constants = Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Set<Class<?>> immutable = new HashSet<>();
@@ -144,21 +158,26 @@ public class Cloner {
         cloners.put(Timestamp.class, ICloner.<Date>create(x1 -> new Timestamp(x1.getTime())));
         cloners.put(java.sql.Date.class, ICloner.<Date>create(x1 -> new java.sql.Date(x1.getTime())));
 
-        var listCloner = CollectionCloner.create(x -> new ArrayList<>(x.size()));
-        var setCloner = CollectionCloner.create(x -> new HashSet<>(x.size()));
-        var mapCloner = MapCloner.create(x -> new HashMap<>(x.size()));
+        var listCloner = CollectionCloner.<Collection<Object>>create(x -> new ArrayList<>(x.size()));
+        var linkedListCloner = CollectionCloner.<Deque<Object>>create(x -> new LinkedList<>());
+        var setCloner = CollectionCloner.<Set<Object>>create(x -> new HashSet<>(x.size()));
+        var linkedHashSetCloner = CollectionCloner.<Set<Object>>create(x -> new LinkedHashSet<>(x.size()));
+        var treeSetCloner = CollectionCloner.<SortedSet<Object>>create(x -> new TreeSet<>(x.comparator()));
+        var mapCloner = MapCloner.<Map<Object, Object>, HashMap<Object, Object>>create(x -> new HashMap<>(x.size()));
+        var linkedMapCloner = MapCloner.<Map<Object, Object>, LinkedHashMap<Object, Object>>create(x -> new LinkedHashMap<>(x.size()));
+        var treeMapCloner = MapCloner.<SortedMap<Object, Object>, TreeMap<Object, Object>>create(x -> new TreeMap<>(x.comparator()));
 
         cloners.put(ArrayList.class, listCloner);
-        cloners.put(LinkedList.class, CollectionCloner.create(x -> new LinkedList<>()));
+        cloners.put(LinkedList.class, linkedListCloner);
         cloners.put(HashSet.class, setCloner);
         cloners.put(HashMap.class, mapCloner);
-        cloners.put(TreeMap.class, MapCloner.<TreeMap<Object, Object>>create(x -> new TreeMap<>(x.comparator())));
-        cloners.put(TreeSet.class, CollectionCloner.<TreeSet<Object>>create(x -> new TreeSet<>(x.comparator())));
-        cloners.put(LinkedHashMap.class, MapCloner.create(x -> new LinkedHashMap<>(x.size())));
+        cloners.put(TreeMap.class, treeMapCloner);
+        cloners.put(TreeSet.class, treeSetCloner);
+        cloners.put(LinkedHashMap.class, linkedMapCloner);
         cloners.put(ConcurrentHashMap.class, MapCloner.create(x -> new ConcurrentHashMap<>(x.size())));
         cloners.put(ConcurrentLinkedQueue.class, CollectionCloner.create(x -> new ConcurrentLinkedQueue<>()));
-        cloners.put(EnumMap.class, MapCloner.<EnumMap>create(x -> new EnumMap<>(x)));
-        cloners.put(LinkedHashSet.class, CollectionCloner.create(x -> new LinkedHashSet<>(x.size())));
+        cloners.put(EnumMap.class, MapCloner.<EnumMap, EnumMap>create(x -> new EnumMap<>(x)));
+        cloners.put(LinkedHashSet.class, linkedHashSetCloner);
         cloners.put(SpreadsheetResult.class, ICloner.<SpreadsheetResult>create(x -> {
             var result = new SpreadsheetResult(x);
             result.setResults(clone(x.getResults()));
@@ -176,6 +195,15 @@ public class Cloner {
         registerCloner("java.util.ImmutableCollections$SetN", setCloner);
         registerCloner("java.util.ImmutableCollections$Map1", mapCloner);
         registerCloner("java.util.ImmutableCollections$MapN", mapCloner);
+
+        registerCloner("java.util.Collections$UnmodifiableCollection", UnmodifiableCloner.create(Collections::unmodifiableCollection, listCloner));
+        registerCloner("java.util.Collections$UnmodifiableRandomAccessList", UnmodifiableCloner.<List<Object>>create(Collections::unmodifiableList, listCloner));
+        registerCloner("java.util.Collections$UnmodifiableSet", UnmodifiableCloner.<Set<Object>>create(Collections::unmodifiableSet, setCloner));
+        registerCloner("java.util.Collections$UnmodifiableNavigableSet", UnmodifiableCloner.<NavigableSet<Object>>create(Collections::unmodifiableNavigableSet, treeSetCloner));
+        registerCloner("java.util.Collections$UnmodifiableSortedSet", UnmodifiableCloner.<SortedSet<Object>>create(Collections::unmodifiableSortedSet, treeSetCloner));
+        registerCloner("java.util.Collections$UnmodifiableMap", UnmodifiableCloner.create(Collections::unmodifiableMap, mapCloner));
+        registerCloner("java.util.Collections$UnmodifiableNavigableMap", UnmodifiableCloner.<NavigableMap<Object, Object>>create(Collections::unmodifiableNavigableMap, treeMapCloner));
+        registerCloner("java.util.Collections$UnmodifiableSortedMap", UnmodifiableCloner.<SortedMap<Object, Object>>create(Collections::unmodifiableSortedMap, treeMapCloner));
     }
 
     private static void registerCloner(String privateClass, ICloner<?> fastCloner) {
@@ -226,10 +254,16 @@ public class Cloner {
         }
 
         var cloner = getCloner(clazz);
-        var target = (T) cloner.getInstance(source);
-        clones.put(source, target);
+        Object instance = cloner.getInstance(source);
+        Object target = instance;
+        if (instance instanceof Wrapper) {
+            var w = (Wrapper) instance;
+            target = w.target;
+            instance = w.unmodifiable;
+        }
+        clones.put(source, instance);
         cloner.clone(source, x -> clone(x, clones), target);
-        return target;
+        return (T) instance;
     }
 
     private static <T> ICloner getCloner(Class<T> clazz) {

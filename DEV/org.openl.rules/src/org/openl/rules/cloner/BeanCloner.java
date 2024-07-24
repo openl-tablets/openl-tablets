@@ -10,6 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * This cloner use Java Bean introspection to get public properties and fields, and using them to copy data to the
+ * new created Java Bean instance.
+ *
+ * @author Yury Molchan
+ */
 class BeanCloner<T> implements ICloner<T> {
 
     private final Map<String, GetSetter> fields = new HashMap<>();

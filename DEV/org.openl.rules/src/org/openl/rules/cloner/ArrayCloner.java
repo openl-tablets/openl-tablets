@@ -3,6 +3,11 @@ package org.openl.rules.cloner;
 import java.lang.reflect.Array;
 import java.util.function.Function;
 
+/**
+ * This cloner do cloning of the array.
+ *
+ * @author Yury Molchan
+ */
 class ArrayCloner implements ICloner<Object> {
 
     final static ICloner<Object> theInstance = new ArrayCloner();

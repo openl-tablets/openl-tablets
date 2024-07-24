@@ -1,8 +1,11 @@
 package org.openl.rules.cloner;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -11,10 +14,41 @@ import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.*;
-import java.util.*;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
+import org.junit.jupiter.api.Test;
 
 class ClonerTest {
 
@@ -60,7 +94,7 @@ class ClonerTest {
     }
 
     @Test
-    void testCloneCollections() {
+    void testCloneList() {
         assertCloned(List.of());
         assertCloned(List.of("one"));
         assertCloned(List.of("one", "two"));
@@ -75,7 +109,10 @@ class ClonerTest {
         assertCloned(new LinkedList<>(List.of("one")));
         assertCloned(new LinkedList<>(List.of("one", "two")));
         assertCloned(new LinkedList<>(List.of("one", "two", "three")));
+    }
 
+    @Test
+    void testCloneSet() {
         assertCloned(Set.of());
         assertCloned(Set.of(1));
         assertCloned(Set.of(1, 2));
@@ -95,7 +132,10 @@ class ClonerTest {
         assertCloned(new TreeSet<>(Set.of(1)));
         assertCloned(new TreeSet<>(Set.of(1, 2)));
         assertCloned(new TreeSet<>(Set.of(1, 2, 3)));
+    }
 
+    @Test
+    void testCloneMap() {
         assertCloned(Map.of());
         assertCloned(Map.of("one", 1));
         assertCloned(Map.of("one", 1, "two", 2));
@@ -120,7 +160,10 @@ class ClonerTest {
         assertCloned(new TreeMap<>(Map.of("one", 1)));
         assertCloned(new TreeMap<>(Map.of("one", 1, "two", 2)));
         assertCloned(new TreeMap<>(Map.of("one", 1, "two", 2, "three", 3)));
+    }
 
+    @Test
+    void testCloneEmptyCollections() {
         assertNotCloned(Collections.emptySet());
         assertNotCloned(Collections.emptyNavigableSet());
         assertNotCloned(Collections.emptySortedSet());
@@ -133,6 +176,28 @@ class ClonerTest {
         assertNotCloned(Collections.emptyEnumeration());
         assertNotCloned(Collections.emptyIterator());
         assertNotCloned(Collections.emptyListIterator());
+    }
+
+    @Test
+    void testCloneUnmodifiableCollections() {
+        assertCloned(Collections.unmodifiableCollection(new ArrayList<>()));
+        assertCloned(Collections.unmodifiableCollection(new ArrayList<>(List.of("one", "two"))));
+        assertCloned(Collections.unmodifiableList(new ArrayList<>()));
+        assertCloned(Collections.unmodifiableList(new ArrayList<>(List.of("one", "two"))));
+
+        assertCloned(Collections.unmodifiableSet(new HashSet<>()));
+        assertCloned(Collections.unmodifiableSet(new HashSet<>(Set.of("one", "two"))));
+        assertCloned(Collections.unmodifiableNavigableSet(new TreeSet<>()));
+        assertCloned(Collections.unmodifiableNavigableSet(new TreeSet<>(Set.of(1, 2))));
+        assertCloned(Collections.unmodifiableSortedSet(new TreeSet<>()));
+        assertCloned(Collections.unmodifiableSortedSet(new TreeSet<>(Set.of(1, 2))));
+
+        assertCloned(Collections.unmodifiableMap(new HashMap<>()));
+        assertCloned(Collections.unmodifiableMap(new HashMap<>(Map.of("one", "two"))));
+        assertCloned(Collections.unmodifiableNavigableMap(new TreeMap<>()));
+        assertCloned(Collections.unmodifiableNavigableMap(new TreeMap<>(Map.of(1, 2))));
+        assertCloned(Collections.unmodifiableSortedMap(new TreeMap<>()));
+        assertCloned(Collections.unmodifiableSortedMap(new TreeMap<>(Map.of(1, 2))));
     }
 
     @Test
@@ -176,23 +241,23 @@ class ClonerTest {
         assertCloned(new Object[]{1, 2, 3});
         assertCloned(new Object[]{1, 2, 3, 4});
 
-        assertCloned(new Object[] {null});
-        assertCloned(new Object[] {new Object()});
-        assertCloned(new Object[] {new Object(), null, new Object()});
-        assertCloned(new Object[] {new Object(), new Object(), new Object()});
+        assertCloned(new Object[]{null});
+        assertCloned(new Object[]{new Object()});
+        assertCloned(new Object[]{new Object(), null, new Object()});
+        assertCloned(new Object[]{new Object(), new Object(), new Object()});
 
         assertNotCloned(new Beans[0]);
         assertCloned(new Beans[1]);
 
         // Case 1
-        Object[] arr1 = new Object[] {new Beans()};
+        Object[] arr1 = new Object[]{new Beans()};
         Object[] cloned1 = Cloner.clone(arr1);
         assertNotSame(arr1, cloned1);
         assertEquals(arr1.length, cloned1.length);
         assertNotSame(arr1[0], cloned1[0]); // Not immutable
 
         // Case 2
-        Object[] arr2 = new Object[] {new Object()};
+        Object[] arr2 = new Object[]{new Object()};
         Object[] cloned2 = Cloner.clone(arr2);
         assertNotSame(arr2, cloned2);
         assertEquals(arr2.length, cloned2.length);
@@ -284,6 +349,21 @@ class ClonerTest {
     private static void assertCloned(Object obj) {
         Object cloned = Cloner.clone(obj);
         assertNotSame(obj, cloned);
+        assertEquals(obj, cloned);
+    }
+
+    private static void assertCloned(List<?> obj) {
+        Collection<?> cloned = Cloner.clone(obj);
+        assertNotSame(obj, cloned);
+        assertIterableEquals(obj, cloned);
+    }
+
+    private static void assertCloned(Collection<?> obj) {
+        Collection<?> cloned = Cloner.clone(obj);
+        assertNotSame(obj, cloned);
+        if (obj.equals(cloned) || obj.containsAll(cloned) && cloned.containsAll(obj)) {
+            return;
+        }
         assertEquals(obj, cloned);
     }
 
