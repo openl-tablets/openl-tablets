@@ -29,7 +29,6 @@ import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.enumeration.OriginsEnum;
-import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
@@ -176,7 +175,6 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(UsRegionsEnum.class.getName());
         javaImport1.addClassImport(UsStatesEnum.class.getName());
         javaImport1.addClassImport(DTEmptyResultProcessingEnum.class.getName());
-        javaImport1.addClassImport(RecalculateEnum.class.getName());
         javaImport1.addClassImport(ValidateDTEnum.class.getName());
 
         typeLibrary.addConfiguration(javaImport1);

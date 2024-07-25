@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 21
           cache: 'maven'
 
       - name: Build with Maven
@@ -85,7 +85,3 @@ jobs:
             --label $created --label $version --label $revision \
             --label "org.opencontainers.image.title=OpenL Studio" \
             --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
-          cd DEMO
-          docker buildx build -t $repo/demo:x . \
-            --platform ${BUILD_PLATFORMS} --push \
-            --label $created --label $version --label $revision

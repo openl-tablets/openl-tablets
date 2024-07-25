@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: Define settings
         run: |
-          echo "JAVA8=8-jre-focal" >> $GITHUB_ENV
-          echo "JAVA11=11-jre-focal" >> $GITHUB_ENV
           echo "SERVER=https://repo.maven.apache.org/maven2" >> $GITHUB_ENV
 
       - name: Setup Soft
@@ -59,16 +57,13 @@ jobs:
           echo $latest
           echo $latestMajor
           tags_11="-t openltablets/\$appName:$version"
-          tags_17="-t openltablets/\$appName:$version-jre17"
           if [ "$latestMajor" = "$version" ]; then
             tags_11+=" -t openltablets/\$appName:$major.x"
-            tags_17+=" -t openltablets/\$appName:$major.x-jre17"
           fi
           if [ "$latest" = "$version" ]; then
             tags_11+=" -t openltablets/\$appName:latest"
           fi
           echo "tags_11=$tags_11" >> $GITHUB_ENV
-          echo "tags_17=$tags_17" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
 
       - name: Download OpenL Studio
@@ -113,18 +108,6 @@ jobs:
           rm app.war.asc
           rm app.war
 
-      - name: Download DEMO
-        run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app"
-          downloadUrl="$artifactUrl/$version/openl-demo-app-$version.zip"
-          # Download artifact.
-          wget --progress=dot:giga -O openl-tablets-demo.zip "$downloadUrl"
-          wget --progress=dot:giga -O demo.zip.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
-          rm demo.zip.asc
-
       - name: Download OpenTelemetry extension
         run: |
           # Define urls
@@ -145,19 +128,6 @@ jobs:
           docker buildx create --use
           docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Push DEMO
-        env:
-          appName: demo
-        run: >
-          eval docker buildx build
-          $tags_11
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=openl-tablets-demo.zip
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          -f DEMO/Dockerfile .
-
       - name: Push Rule Services (All)
         run: >
           docker buildx build
@@ -165,7 +135,6 @@ jobs:
           --platform ${BUILD_PLATFORMS} --push
           --build-arg APP=webservice-all
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
           --label "org.opencontainers.image.title=OpenL RuleServices (All)"
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
@@ -182,7 +151,6 @@ jobs:
           --platform ${BUILD_PLATFORMS} --push
           --build-arg APP=webservice
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
           --label '"org.opencontainers.image.title=OpenL RuleServices"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
@@ -199,7 +167,6 @@ jobs:
           --platform ${BUILD_PLATFORMS} --push
           --build-arg APP=webstudio
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
           --label '"org.opencontainers.image.title=OpenL Studio"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"

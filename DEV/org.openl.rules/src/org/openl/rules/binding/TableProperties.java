@@ -141,14 +141,6 @@ public class TableProperties {
         return tableProperties.getSpreadsheetResultPackage();
     }
 
-    public java.lang.Boolean getCacheable() {
-        return tableProperties.getCacheable();
-    }
-
-    public org.openl.rules.enumeration.RecalculateEnum getRecalculate() {
-        return tableProperties.getRecalculate();
-    }
-
     public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
         return tableProperties.getEmptyResultProcessing();
     }
@@ -294,12 +286,6 @@ public class TableProperties {
                     .append(" = ")
                     .append(toString(tableProperties.getSpreadsheetResultPackage()))
                     .append("\r\n");
-        }
-        if (tableProperties.getCacheable() != null) {
-            sb.append("Cacheable").append(" = ").append(toString(tableProperties.getCacheable())).append("\r\n");
-        }
-        if (tableProperties.getRecalculate() != null) {
-            sb.append("Recalculate").append(" = ").append(toString(tableProperties.getRecalculate())).append("\r\n");
         }
         if (tableProperties.getEmptyResultProcessing() != null) {
             sb.append("EmptyResultProcessing")

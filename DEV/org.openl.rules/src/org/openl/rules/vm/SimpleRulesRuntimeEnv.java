@@ -13,11 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
 
 public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
-    private volatile boolean methodArgumentsCacheEnable = false;
-    private volatile CacheMode cacheMode = CacheMode.READ_ONLY;
-    private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
-    private ArgumentCachingStorage argumentCachingStorage;
     private IRulesMethodWrapper methodWrapper;
 
     public SimpleRulesRuntimeEnv() {
@@ -26,10 +22,6 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     private SimpleRulesRuntimeEnv(SimpleRulesRuntimeEnv env) {
         super(env);
-        this.argumentCachingStorage = env.getArgumentCachingStorage();
-        this.methodArgumentsCacheEnable = env.methodArgumentsCacheEnable;
-        this.cacheMode = env.cacheMode;
-        this.ignoreRecalculate = env.ignoreRecalculate;
         this.originalCalculation = env.originalCalculation;
     }
 
@@ -45,45 +37,6 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     @Override
     protected IRuntimeContext buildDefaultRuntimeContext() {
         return RulesRuntimeContextFactory.buildRulesRuntimeContext();
-    }
-
-    public boolean isMethodArgumentsCacheEnable() {
-        return methodArgumentsCacheEnable;
-    }
-
-    public void changeMethodArgumentsCacheMode(CacheMode mode) {
-        this.cacheMode = mode;
-    }
-
-    public CacheMode getCacheMode() {
-        return cacheMode;
-    }
-
-    public void setMethodArgumentsCacheEnable(boolean enable) {
-        this.methodArgumentsCacheEnable = enable;
-    }
-
-    public boolean isIgnoreRecalculation() {
-        return ignoreRecalculate;
-    }
-
-    public void setIgnoreRecalculate(boolean ignoreRecalculate) {
-        this.ignoreRecalculate = ignoreRecalculate;
-    }
-
-    public boolean isOriginalCalculation() {
-        return originalCalculation;
-    }
-
-    public void setOriginalCalculation(boolean originalCalculation) {
-        this.originalCalculation = originalCalculation;
-    }
-
-    public ArgumentCachingStorage getArgumentCachingStorage() {
-        if (argumentCachingStorage == null) {
-            argumentCachingStorage = new ArgumentCachingStorage();
-        }
-        return argumentCachingStorage;
     }
 
     public IRulesMethodWrapper getMethodWrapper() {

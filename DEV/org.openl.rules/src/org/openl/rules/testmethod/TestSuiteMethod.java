@@ -239,11 +239,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     @Override
-    protected boolean isMethodCacheable() {
-        return false;
-    }
-
-    @Override
     protected TestUnitsResults innerInvoke(Object target, Object[] params, IRuntimeEnv env) {
         return new TestSuite(this).invoke(target, env);
     }

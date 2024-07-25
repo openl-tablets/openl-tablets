@@ -1,6 +1,5 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
     <url>multi_project/project2</url>
     <serviceName>multi_project_project2</serviceName>
     <publishers/>
