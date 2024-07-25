@@ -50,10 +50,8 @@ jobs:
           echo "::group::use colima"
           docker context use colima
           docker context ls
-          echo "DOCKER_HOST=${HOME}"
-          echo "DOCKER_HOST=${CALIMA_HOME}"
-          echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
           echo "DOCKER_HOST=unix://${HOME}/.colima/default/docker.sock" >> $GITHUB_ENV
+          echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
           echo "TESTCONTAINERS_HOST_OVERRIDE=$(colima ls -j | jq -r '.address')" >> $GITHUB_ENV
           cat $GITHUB_ENV
           echo "::endgroup::"
@@ -87,7 +85,4 @@ jobs:
         run: mvn -v
 
       - name: Build with Maven
-        run: mvn clean install -DskipTests -T1C
-
-      - name: Build with Maven
-        run: mvn "-Dstyle.color=always" ${{ env.SETTINGS }} ${{ github.event.inputs.mavenArgs }} -rf :itest.kafka.smoke
+        run: mvn "-Dstyle.color=always" ${{ env.SETTINGS }} ${{ github.event.inputs.mavenArgs }}
