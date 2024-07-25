@@ -93,7 +93,7 @@
         <objenesis.version>3.4</objenesis.version>
 
         <!-- Kafka -->
-        <kafka.version>3.7.1</kafka.version>
+        <kafka.version>3.8.0</kafka.version>
         <snappy-java.version>1.1.10.5</snappy-java.version>
 
         <!-- Open Telemetry -->
@@ -131,9 +131,9 @@
         <jetty.version>10.0.22</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.26.20</amazonaws.version>
-        <azure.version>12.26.1</azure.version>
-        <netty.version>4.1.111.Final</netty.version>
+        <amazonaws.version>2.26.25</amazonaws.version>
+        <azure.version>12.27.0</azure.version>
+        <netty.version>4.1.112.Final</netty.version>
         <reactor-netty-http.version>1.1.21</reactor-netty-http.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
@@ -180,7 +180,7 @@
         <commons.collections4.version>4.4</commons.collections4.version>
         <commons.io.version>2.16.1</commons.io.version>
         <commons.jxpath.version>1.3</commons.jxpath.version>
-        <commons.lang3.version>3.14.0</commons.lang3.version>
+        <commons.lang3.version>3.15.0</commons.lang3.version>
 
         <!-- protocols -->
         <hessian.version>4.0.66</hessian.version>
@@ -420,7 +420,7 @@
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.28.0</version>
+                    <version>5.36.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
