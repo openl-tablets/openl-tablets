@@ -32,7 +32,6 @@ import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
-import org.openl.util.db.JDBCDriverRegister;
 
 @WebListener
 public final class SpringInitializer implements Runnable, ServletContextListener {
@@ -64,7 +63,6 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        JDBCDriverRegister.registerDrivers();
         OpenAPIConfiguration.configure();
 
         ServletContext servletContext = sce.getServletContext();
