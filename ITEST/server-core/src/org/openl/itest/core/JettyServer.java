@@ -16,7 +16,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 /**
@@ -42,18 +41,6 @@ public class JettyServer {
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
                 "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
-
-        webAppContext.setClassLoader(new WebAppClassLoader(webAppContext) {
-            @Override
-            public void addClassPath(String classPath) throws IOException {
-                // exclude outdated Oracle JDBC Drive from classpath because it's challenging to use with testcontainers
-                if (classPath.contains("ojdbc6.jar")) {
-                    System.out.println("Excluding ojdbc6.jar from classpath: " + classPath);
-                    return; // Skip adding this JAR
-                }
-                super.addClassPath(classPath);
-            }
-        });
 
         var server = new Server(0);
         server.setStopAtShutdown(true);
