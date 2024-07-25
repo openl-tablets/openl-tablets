@@ -43,9 +43,16 @@ jobs:
           # using mount-type 9p to allow the containers launched via docker-compose to chown
           # https://github.com/abiosoft/colima/issues/54#issuecomment-1250217077
           # colima start --mount-type 9p --cpu 3 --memory 5 --disk 10
+          echo "::group::ls"
+          docker context ls
+          echo "::group::colima start"
           colima start
-          echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
-          echo "DOCKER_HOST=unix://${HOME}/.colima/docker.sock" >> $GITHUB_ENV
+          echo "::group::use colima"
+          docker context use colima
+          docker context ls
+          # echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
+          # echo 'DOCKER_HOST="unix://${COLIMA_HOME}/default/docker.sock"' >> $GITHUB_ENV
+          echo "::endgroup::"
 
         # Docker is not installed on GitHub's Widows hosted workers due to virtualization issues
         # (and it's necessary to run testcontainers)
