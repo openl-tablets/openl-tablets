@@ -23,7 +23,6 @@ import java.util.Map;
 import javax.faces.model.SelectItem;
 import javax.xml.bind.JAXBException;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -48,7 +47,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
