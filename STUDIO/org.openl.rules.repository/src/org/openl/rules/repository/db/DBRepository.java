@@ -29,7 +29,6 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.StringUtils;
-import org.openl.util.db.JDBCDriverRegister;
 import org.openl.util.db.SqlDBUtils;
 
 abstract class DBRepository implements Repository, Closeable {
@@ -575,7 +574,6 @@ abstract class DBRepository implements Repository, Closeable {
 
     public void initialize() {
         try {
-            JDBCDriverRegister.registerDrivers();
             monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
