@@ -4,7 +4,6 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_
 import static org.awaitility.Awaitility.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.ruleservice.kafka.KafkaHeaders.CORRELATION_ID;
 
