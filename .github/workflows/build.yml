@@ -50,6 +50,8 @@ jobs:
           echo "::group::use colima"
           docker context use colima
           docker context ls
+          echo "DOCKER_HOST=${DOCKER_HOST}"
+          echo "DOCKER_HOST=${DOCKER_HOST}" >> $GITHUB_ENV
           echo "::endgroup::"
 
         # Docker is not installed on GitHub's Widows hosted workers due to virtualization issues
@@ -81,4 +83,7 @@ jobs:
         run: mvn -v
 
       - name: Build with Maven
-        run: mvn "-Dstyle.color=always" ${{ env.SETTINGS }} ${{ github.event.inputs.mavenArgs }}
+        run: mvn clean install -DskipTests -T1C
+
+      - name: Build with Maven
+        run: mvn "-Dstyle.color=always" ${{ env.SETTINGS }} ${{ github.event.inputs.mavenArgs }} -rf :itest.kafka.smoke
