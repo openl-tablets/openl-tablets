@@ -30,6 +30,8 @@ public final class OpenLInfoLogger {
 
         logger.info("To discovery more information, define -Dopenl.info=all or OPENL_INFO=all");
 
+        new JdbcLogger().log();
+
         if (!"all".equals(level)) {
             return;
         }
