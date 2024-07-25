@@ -133,7 +133,6 @@
 
         <!-- DB -->
         <h2.version>2.3.232</h2.version>
-        <mssql.version>12.8.1.jre11</mssql.version>
         <hikaricp.version>6.0.0</hikaricp.version>
         <hibernate.orm.version>5.6.15.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
@@ -1250,12 +1249,6 @@
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
                 <version>${hikaricp.version}</version>
-            </dependency>
-            <!-- Microsoft JDBC Driver for SQL Server -->
-            <dependency>
-                <groupId>com.microsoft.sqlserver</groupId>
-                <artifactId>mssql-jdbc</artifactId>
-                <version>${mssql.version}</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
