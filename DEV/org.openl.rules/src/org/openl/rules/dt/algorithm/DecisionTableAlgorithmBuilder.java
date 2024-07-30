@@ -108,9 +108,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 v = v.substring(0, v.indexOf("["));
             }
             field = type.getField(v);
-            if (field == null) {
-                return null;
-            }
             type = field.getType();
             if (type.isArray() && arrayAccess) {
                 type = type.getComponentClass();

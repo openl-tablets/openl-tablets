@@ -71,10 +71,6 @@ class DependentParametersOptimizedAlgorithm {
                                                              IBindingContext bindingContext,
                                                              EvaluatorFactory evaluatorFactory) {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
-        if (expressionType == null) {
-            // Fall back to default evaluator
-            return null;
-        }
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass conditionParamType0 = params[0].getType();
         IOpenClass conditionParamType1 = params[1].getType();
@@ -119,10 +115,6 @@ class DependentParametersOptimizedAlgorithm {
                                                              IBindingContext bindingContext,
                                                              EvaluatorFactory evaluatorFactory) {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
-        if (expressionType == null) {
-            // Fall back to default evaluator
-            return null;
-        }
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass conditionParamType = params[0].getType();
 
@@ -145,8 +137,8 @@ class DependentParametersOptimizedAlgorithm {
                             (OneParameterContainsInFactory) evaluatorFactory,
                             aggregateConditionCasts);
                 }
+                return null;
             }
-            return null;
         }
 
         ConditionCasts conditionCasts = ConditionHelper
