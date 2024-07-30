@@ -40,8 +40,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     private String[] columnNamesForResultModel;
 
-    private boolean tableStructureDetails;
-
     /**
      * Type of the Spreadsheet with all its fields Is some type of internal. Is used on calculating the results of the
      * cells.
@@ -157,14 +155,6 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     public String[] getColumnNames() {
         return columnNames;
-    }
-
-    public boolean isTableStructureDetails() {
-        return tableStructureDetails;
-    }
-
-    public void getTableStructureDetails(boolean tableStructureDetails) {
-        this.tableStructureDetails = tableStructureDetails;
     }
 
     @Override

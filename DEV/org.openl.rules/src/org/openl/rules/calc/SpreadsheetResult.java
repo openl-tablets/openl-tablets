@@ -46,8 +46,6 @@ public class SpreadsheetResult implements Serializable {
     transient String[] columnNamesForResultModel;
     transient Map<String, Point> fieldsCoordinates;
 
-    transient boolean tableStructureDetails;
-
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
@@ -98,7 +96,6 @@ public class SpreadsheetResult implements Serializable {
                 spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
-        this.tableStructureDetails = spr.tableStructureDetails;
     }
 
     public boolean isFieldUsedInModel(String fieldName) {
@@ -195,15 +192,6 @@ public class SpreadsheetResult implements Serializable {
 
     public void setRowNames(String[] rowNames) {
         this.rowNames = rowNames;
-    }
-
-    @XmlTransient
-    public boolean isTableStructureDetails() {
-        return tableStructureDetails;
-    }
-
-    public void setTableStructureDetails(boolean tableStructureDetails) {
-        this.tableStructureDetails = tableStructureDetails;
     }
 
     public Object getValue(int row, int column) {
@@ -403,8 +391,6 @@ public class SpreadsheetResult implements Serializable {
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
             final boolean isSingleRow = nonNullsRowsCount == 1;
             final boolean isSingleColumn = nonNullsColumnsCount == 1;
-            final boolean isTableStructureDetailsPresented = tableStructureDetails;
-            String[][] tableDetails = tableStructureDetails ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 Map<String, String> xmlNamesMap = customSpreadsheetResultOpenClass.getXmlNamesMap();
                 for (Map.Entry<String, List<IOpenField>> e : customSpreadsheetResultOpenClass.getBeanFieldsMap()
@@ -436,9 +422,6 @@ public class SpreadsheetResult implements Serializable {
                                     convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
                                             spreadsheetResultsToMap,
                                             spreadsheetResultBeanPropertyNamingStrategy));
-                            if (isTableStructureDetailsPresented) {
-                                tableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
-                            }
                         }
                     }
                 }
@@ -476,30 +459,9 @@ public class SpreadsheetResult implements Serializable {
                                     convertSpreadsheetResult(getValue(i, j),
                                             spreadsheetResultsToMap,
                                             spreadsheetResultBeanPropertyNamingStrategy));
-                            if (isTableStructureDetailsPresented) {
-                                tableDetails[i][j] = fNewName;
-                            }
                         }
                     }
                 }
-            }
-            if (tableStructureDetails) {
-                String[] sprStructureFieldNames = null;
-                if (customSpreadsheetResultOpenClass != null) {
-                    sprStructureFieldNames = customSpreadsheetResultOpenClass.getSprStructureFieldNames();
-                }
-                if (sprStructureFieldNames == null) {
-                    sprStructureFieldNames = new String[]{
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                    CustomSpreadsheetResultOpenClass.ROW_NAMES_FIELD_NAME),
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                    CustomSpreadsheetResultOpenClass.COLUMN_NAMES_FIELD_NAME),
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                    CustomSpreadsheetResultOpenClass.TABLE_DETAILS_FIELD_NAME)};
-                }
-                values.put(sprStructureFieldNames[0], rowNames);
-                values.put(sprStructureFieldNames[1], columnNames);
-                values.put(sprStructureFieldNames[2], tableDetails);
             }
         }
         return values;

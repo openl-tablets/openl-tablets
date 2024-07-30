@@ -51,9 +51,6 @@ import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleSpecificType {
-    public static final String ROW_NAMES_FIELD_NAME = "rowNames";
-    public static final String COLUMN_NAMES_FIELD_NAME = "columnNames";
-    public static final String TABLE_DETAILS_FIELD_NAME = "tableDetails";
     private final Logger log = LoggerFactory.getLogger(CustomSpreadsheetResultOpenClass.class);
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
@@ -92,7 +89,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private boolean simpleRefByColumn;
     private long columnsForResultModelCount;
     private long rowsForResultModelCount;
-    private boolean tableStructureDetails;
     private boolean ignoreCompilation;
 
     private ILogicalTable logicalTable;
@@ -101,7 +97,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     protected volatile String beanClassName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile Map<String, String> xmlNamesMap;
-    private String[] sprStructureFieldNames;
     private volatile boolean initializing;
 
     private final boolean spreadsheet;
@@ -112,7 +107,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                             String[] rowNamesForResultModel,
                                             String[] columnNamesForResultModel,
                                             XlsModuleOpenClass module,
-                                            boolean tableStructureDetails,
                                             boolean spreadsheet) {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
@@ -133,7 +127,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.fieldsCoordinates = SpreadsheetResult
                 .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow);
         this.module = module;
-        this.tableStructureDetails = tableStructureDetails;
         this.spreadsheet = spreadsheet;
     }
 
@@ -147,15 +140,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 EMPTY_STRING_ARRAY,
                 EMPTY_STRING_ARRAY,
                 module,
-                false,
                 spreadsheet);
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
         this.logicalTable = logicalTable;
-    }
-
-    public String[] getSprStructureFieldNames() {
-        return sprStructureFieldNames;
     }
 
     public boolean isSimpleRefByColumn() {
@@ -236,8 +224,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                          String[] columnNamesForResultModel,
                                          Collection<IOpenField> fields,
                                          boolean simpleRefByRow,
-                                         boolean simpleRefByColumn,
-                                         boolean tableStructureDetails) {
+                                         boolean simpleRefByColumn) {
         if (beanClass != null) {
             throw new IllegalStateException(
                     "Bean class for custom spreadsheet result is already generated. This spreadsheet result type cannot be extended.");
@@ -306,9 +293,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         new CastingCustomSpreadsheetResultField(this, field.getName(), thisField, field));
             }
         }
-
-        this.tableStructureDetails = this.tableStructureDetails || tableStructureDetails;
-
     }
 
     public String[] getRowNames() {
@@ -343,8 +327,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 customSpreadsheetResultOpenClass.columnNamesForResultModel,
                 customSpreadsheetResultOpenClass.getFields(),
                 customSpreadsheetResultOpenClass.simpleRefByRow,
-                customSpreadsheetResultOpenClass.simpleRefByColumn,
-                customSpreadsheetResultOpenClass.tableStructureDetails);
+                customSpreadsheetResultOpenClass.simpleRefByColumn);
 
         eventsOnUpdateWithType.forEach(e -> e.accept(this));
     }
@@ -407,7 +390,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     rowNamesForResultModel,
                     columnNamesForResultModel,
                     (XlsModuleOpenClass) module,
-                    tableStructureDetails,
                     spreadsheet);
             type.simpleRefByRow = this.simpleRefByRow;
             type.simpleRefByColumn = this.simpleRefByColumn;
@@ -491,13 +473,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                     }
                                     sprSetters.add(new SpreadsheetResultValueSetter(
                                             sprSettersForField.toArray(SpreadsheetResultFieldValueSetter.EMPTY_ARRAY)));
-                                } else if (field.getName().equals(sprStructureFieldNames[0])) {
-                                    sprSetters.add(new SpreadsheetResultRowNamesSetter(field));
-                                } else if (field.getName().equals(sprStructureFieldNames[1])) {
-                                    sprSetters.add(new SpreadsheetResultColumnNamesSetter(field));
-                                } else if (field.getName().equals(sprStructureFieldNames[2])) {
-                                    sprSetters
-                                            .add(new SpreadsheetResultFieldNamesSetter(field, beanFieldsMap, xmlNamesMap));
                                 }
                             }
                         }
@@ -537,9 +512,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
                         addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, true, fieldsMap, cache);
                         addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, false, fieldsMap, cache);
-                        sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
-                                fieldsMap.keySet(),
-                                xmlNames.values());
                         byte[] bc = beanClassBuilder.byteCode();
                         getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
                         beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
@@ -582,28 +554,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             i++;
         }
         return fNewName;
-    }
-
-    private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder,
-                                           Set<String> beanFieldNames,
-                                           Collection<String> xmlNames) {
-        if (tableStructureDetails) {
-            String[] sprStructureFieldNames = new String[3];
-            sprStructureFieldNames[0] = findNonConflictFieldName(beanFieldNames, ROW_NAMES_FIELD_NAME);
-            sprStructureFieldNames[1] = findNonConflictFieldName(beanFieldNames, COLUMN_NAMES_FIELD_NAME);
-            sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, TABLE_DETAILS_FIELD_NAME);
-            beanClassBuilder.addField(sprStructureFieldNames[0],
-                    new FieldDescription(String[].class
-                            .getName(), null, null, null, findNonConflictFieldName(xmlNames, "RowNames"), false));
-            beanClassBuilder.addField(sprStructureFieldNames[1],
-                    new FieldDescription(String[].class
-                            .getName(), null, null, null, findNonConflictFieldName(xmlNames, "ColumnNames"), false));
-            beanClassBuilder.addField(sprStructureFieldNames[2],
-                    new FieldDescription(String[][].class
-                            .getName(), null, null, null, findNonConflictFieldName(xmlNames, "TableDetails"), false));
-            return sprStructureFieldNames;
-        }
-        return new String[3];
     }
 
     private static final Comparator<Pair<Point, IOpenField>> COMP = Comparator.comparing(Pair::getLeft,
@@ -950,90 +900,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 LoggerFactory.getLogger(SpreadsheetResultFieldValueSetter.class).debug("Ignored error: ", e);
             }
             return false;
-        }
-    }
-
-    private static class SpreadsheetResultColumnNamesSetter implements SpreadsheetResultSetter {
-        private final Field field;
-
-        public SpreadsheetResultColumnNamesSetter(Field field) {
-            this.field = Objects.requireNonNull(field);
-            this.field.setAccessible(true);
-        }
-
-        @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult,
-                              Object target,
-                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-            try {
-                if (spreadsheetResult.isTableStructureDetails()) {
-                    field.set(target, spreadsheetResult.columnNames);
-                }
-            } catch (IllegalAccessException e) {
-                LoggerFactory.getLogger(SpreadsheetResultColumnNamesSetter.class).debug("Ignored error: ", e);
-            }
-        }
-    }
-
-    private static class SpreadsheetResultRowNamesSetter implements SpreadsheetResultSetter {
-        private final Field field;
-
-        public SpreadsheetResultRowNamesSetter(Field field) {
-            this.field = Objects.requireNonNull(field);
-            this.field.setAccessible(true);
-        }
-
-        @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult,
-                              Object target,
-                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-            try {
-                if (spreadsheetResult.isTableStructureDetails()) {
-                    field.set(target, spreadsheetResult.rowNames);
-                }
-            } catch (IllegalAccessException e) {
-                LoggerFactory.getLogger(SpreadsheetResultRowNamesSetter.class).debug("Ignored error: ", e);
-            }
-        }
-    }
-
-    private static class SpreadsheetResultFieldNamesSetter implements SpreadsheetResultSetter {
-        private final Field field;
-        private final Map<String, List<IOpenField>> beanFieldsMap;
-        private final Map<String, String> xmlNamesMap;
-
-        public SpreadsheetResultFieldNamesSetter(Field field,
-                                                 Map<String, List<IOpenField>> beanFieldsMap,
-                                                 Map<String, String> xmlNamesMap) {
-            this.field = Objects.requireNonNull(field);
-            this.beanFieldsMap = Objects.requireNonNull(beanFieldsMap);
-            this.field.setAccessible(true);
-            this.xmlNamesMap = Objects.requireNonNull(xmlNamesMap);
-        }
-
-        @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult,
-                              Object target,
-                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-            if (spreadsheetResult.isTableStructureDetails()) {
-                String[][] tableStructureDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
-                        .getColumnNames().length];
-                for (Map.Entry<String, List<IOpenField>> e : beanFieldsMap.entrySet()) {
-                    List<IOpenField> openFields = e.getValue();
-                    for (IOpenField openField : openFields) {
-                        Point p = spreadsheetResult.fieldsCoordinates.get(openField.getName());
-                        if (p != null && spreadsheetResult.rowNamesForResultModel[p
-                                .getRow()] != null && spreadsheetResult.columnNamesForResultModel[p.getColumn()] != null) {
-                            tableStructureDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
-                        }
-                    }
-                }
-                try {
-                    field.set(target, tableStructureDetails);
-                } catch (IllegalAccessException e) {
-                    LoggerFactory.getLogger(SpreadsheetResultFieldNamesSetter.class).debug("Ignored error: ", e);
-                }
-            }
         }
     }
 
