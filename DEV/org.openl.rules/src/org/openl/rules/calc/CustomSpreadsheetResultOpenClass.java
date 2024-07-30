@@ -104,7 +104,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
 
-    private final boolean generateBeanClass;
     private final boolean spreadsheet;
 
     public CustomSpreadsheetResultOpenClass(String name,
@@ -114,7 +113,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                             String[] columnNamesForResultModel,
                                             XlsModuleOpenClass module,
                                             boolean tableStructureDetails,
-                                            boolean generateBeanClass,
                                             boolean spreadsheet) {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
@@ -136,14 +134,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow);
         this.module = module;
         this.tableStructureDetails = tableStructureDetails;
-        this.generateBeanClass = generateBeanClass;
         this.spreadsheet = spreadsheet;
     }
 
     public CustomSpreadsheetResultOpenClass(String name,
                                             XlsModuleOpenClass module,
                                             ILogicalTable logicalTable,
-                                            boolean generateBeanClass,
                                             boolean spreadsheet) {
         this(name,
                 EMPTY_STRING_ARRAY,
@@ -152,7 +148,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 EMPTY_STRING_ARRAY,
                 module,
                 false,
-                generateBeanClass,
                 spreadsheet);
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
@@ -413,7 +408,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     columnNamesForResultModel,
                     (XlsModuleOpenClass) module,
                     tableStructureDetails,
-                    generateBeanClass,
                     spreadsheet);
             type.simpleRefByRow = this.simpleRefByRow;
             type.simpleRefByColumn = this.simpleRefByColumn;
@@ -521,9 +515,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     protected void generateBeanClass() {
-        if (!generateBeanClass) {
-            throw new IllegalStateException("This custom spreadsheet result cannot be converted to a bean.");
-        }
         if (beanClassByteCode == null) {
             synchronized (this) {
                 if (beanClassByteCode == null && !initializing) {
@@ -594,7 +585,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public boolean isGenerateBeanClass() {
-        return generateBeanClass;
+        return true;
     }
 
     private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder,
