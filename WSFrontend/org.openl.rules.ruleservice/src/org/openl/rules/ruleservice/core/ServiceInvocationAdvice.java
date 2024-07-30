@@ -192,28 +192,22 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    mapClassToCustomSpreadsheetResultOpenClass.put(customSpreadsheetResultOpenClass.getBeanClass(),
-                            customSpreadsheetResultOpenClass);
-                }
+                mapClassToCustomSpreadsheetResultOpenClass.put(customSpreadsheetResultOpenClass.getBeanClass(),
+                        customSpreadsheetResultOpenClass);
             }
         }
         for (CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass : xlsModuleOpenClass
                 .getCombinedSpreadsheetResultOpenClasses()) {
-            if (combinedSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                mapClassToCustomSpreadsheetResultOpenClass.put(combinedSpreadsheetResultOpenClass.getBeanClass(),
-                        combinedSpreadsheetResultOpenClass);
-            }
+            mapClassToCustomSpreadsheetResultOpenClass.put(combinedSpreadsheetResultOpenClass.getBeanClass(),
+                    combinedSpreadsheetResultOpenClass);
         }
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass();
-            if (customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                mapClassToCustomSpreadsheetResultOpenClass.put(
-                        customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
-                        customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
-            }
+            mapClassToCustomSpreadsheetResultOpenClass.put(
+                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
+                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
         }
         return Collections.unmodifiableMap(mapClassToCustomSpreadsheetResultOpenClass);
     }

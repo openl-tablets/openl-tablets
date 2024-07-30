@@ -148,17 +148,12 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 if (type instanceof DatatypeOpenClass) {
                     rootClassNamesBindingClasses.add(type.getInstanceClass());
                 } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                    if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                        rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
-                    }
+                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
                 }
             }
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
                     .getCombinedSpreadsheetResultOpenClasses()) {
-                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    rootClassNamesBindingClasses.add(customSpreadsheetResultOpenClass.getBeanClass());
-                }
+                rootClassNamesBindingClasses.add(customSpreadsheetResultOpenClass.getBeanClass());
             }
             // Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
@@ -342,26 +337,19 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             if (type instanceof DatatypeOpenClass) {
                 datatypeOpenClassConsumer.accept((DatatypeOpenClass) type);
             } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                if (customResultOpenClass.isGenerateBeanClass()) {
-                    customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
-                }
+                customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
             }
         }
         // Check: custom spreadsheet is enabled
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
                     .getCombinedSpreadsheetResultOpenClasses()) {
-                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
-                }
+                customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
             }
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass();
-            if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
-            }
+            customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
         }
     }
 
