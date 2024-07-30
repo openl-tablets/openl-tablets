@@ -75,7 +75,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 spreadsheet.getRowNamesForResultModel(),
                 spreadsheet.getColumnNamesForResultModel(),
                 getModule(),
-                spreadsheet.isTableStructureDetails(),
                 true);
 
         customSpreadsheetResultOpenClass
@@ -113,9 +112,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
         spreadsheet.setRowNamesForResultModel(structureBuilder.getRowNamesForResultModel());
         spreadsheet.setColumnNamesForResultModel(structureBuilder.getColumnNamesForResultModel());
-
-        spreadsheet.getTableStructureDetails(
-                Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
 
         if (isTypeCustomSpreadsheetResult) {
             CustomSpreadsheetResultOpenClass type;

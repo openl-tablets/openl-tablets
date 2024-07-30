@@ -23,8 +23,6 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
                 spreadsheet.getColumnNamesForResultModel(),
                 spreadsheet.getFieldsCoordinates());
 
-        spreadsheetResult.setTableStructureDetails(spreadsheet.isTableStructureDetails());
-
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
         if (tsn != null) {
             spreadsheetResult.setLogicalTable(tsn.getTableBody());

@@ -145,16 +145,6 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public boolean isTableStructureDetails() {
-        return delegate.isTableStructureDetails();
-    }
-
-    @Override
-    public void getTableStructureDetails(boolean tableStructureDetails) {
-        delegate.getTableStructureDetails(tableStructureDetails);
-    }
-
-    @Override
     public void setInvoker(SpreadsheetInvoker invoker) {
         delegate.setInvoker(invoker);
     }
