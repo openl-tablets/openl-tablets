@@ -584,10 +584,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return fNewName;
     }
 
-    public boolean isGenerateBeanClass() {
-        return true;
-    }
-
     private String[] addSprStructureFields(JavaBeanClassBuilder beanClassBuilder,
                                            Set<String> beanFieldNames,
                                            Collection<String> xmlNames) {
@@ -693,18 +689,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             if (externalCustomSpreadsheetResultOpenClass) {
                                 additionalClassGenerationClassloaderModule = csroc.getModule();
                             }
-                            if (csroc.isGenerateBeanClass()) {
-                                fieldClsName = csroc.getBeanClassName();
-                                csroc.generateBeanClass();
-                            } else {
-                                XlsModuleOpenClass m = externalCustomSpreadsheetResultOpenClass ? csroc.getModule()
-                                        : getModule();
-                                fieldClsName = m.getGlobalTableProperties()
-                                        .getSpreadsheetResultPackage() + ".AnySpreadsheetResult";
-                                m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                        .toCustomSpreadsheetResultOpenClass()
-                                        .generateBeanClass();
-                            }
+                            fieldClsName = csroc.getBeanClassName();
+                            csroc.generateBeanClass();
                         } else if (t instanceof SpreadsheetResultOpenClass) {
                             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) t;
                             final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(

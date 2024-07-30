@@ -320,7 +320,6 @@ public final class RuleServiceInstantiationFactoryHelper {
                     .stream()
                     .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
                     .map(CustomSpreadsheetResultOpenClass.class::cast)
-                    .filter(CustomSpreadsheetResultOpenClass::isGenerateBeanClass)
                     .collect(Collectors.toList());
 
             for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
@@ -414,8 +413,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) type)
-                        .isGenerateBeanClass()) {
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
                     Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else if (type instanceof SpreadsheetResultOpenClass) {
@@ -495,8 +493,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 changes = new MethodSignatureChanges(newParamTypes, VariationsResult.class, true);
             } else if (type instanceof CustomSpreadsheetResultOpenClass || type instanceof SpreadsheetResultOpenClass || type instanceof AnySpreadsheetResultOpenClass) {
                 Class<?> t;
-                if (type instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) type)
-                        .isGenerateBeanClass()) {
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
                     t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
                 } else if (type instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) type)
                         .getModule() != null) {
@@ -590,8 +587,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                                     customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) baseOpenParameterType)
                                             .toCustomSpreadsheetResultOpenClass();
                                 }
-                                if (customSpreadsheetResultOpenClass.isGenerateBeanClass() && parameter
-                                        .getType() != customSpreadsheetResultOpenClass.getBeanClass()) {
+                                if (parameter.getType() != customSpreadsheetResultOpenClass.getBeanClass()) {
                                     Class<?> t = customSpreadsheetResultOpenClass.getBeanClass();
                                     methodParamType = dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                                     paramTypeSprToBeanConversation = Boolean.TRUE;

@@ -696,14 +696,11 @@ public class SpreadsheetResult implements Serializable {
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
-                    .isGenerateBeanClass() && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
                         spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) toTypeOpenClass)
-                    .toCustomSpreadsheetResultOpenClass()
-                    .isGenerateBeanClass() && ((SpreadsheetResultOpenClass) toTypeOpenClass)
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) toTypeOpenClass)
