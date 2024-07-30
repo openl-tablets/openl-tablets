@@ -25,7 +25,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     private final Set<CustomSpreadsheetResultOpenClass> combinedOpenClasses = new HashSet<>();
 
     public CombinedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
-        super("CombinedSpreadsheetResult", module, null, true, false);
+        super("CombinedSpreadsheetResult", module, null, false);
     }
 
     @Override
