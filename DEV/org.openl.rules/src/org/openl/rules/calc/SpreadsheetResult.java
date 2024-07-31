@@ -94,7 +94,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public boolean isFieldUsedInModel(String fieldName) {
-        Point point = fieldsCoordinates.get(fieldName);
+        Point point = getPoint(fieldName);
         if (point != null) {
             return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
                     .getRow()] != null;
@@ -151,10 +151,6 @@ public class SpreadsheetResult implements Serializable {
         return fieldsCoordinates;
     }
 
-    private void initFieldsCoordinates() {
-        this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames, false, false);
-    }
-
     @XmlTransient
     public int getHeight() {
         return rowNames.length;
@@ -193,16 +189,25 @@ public class SpreadsheetResult implements Serializable {
         return results[row][column];
     }
 
+    public Object getValue(String row, String column) {
+        var p = getPoint(SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(column, row));
+        return p != null ? getValue(p.getRow(), p.getColumn()) : null;
+    }
+
     public void setFieldValue(String name, Object value) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
-        }
-        Point fieldCoordinates = fieldsCoordinates.get(name);
+        Point fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
         }
+    }
+
+    private Point getPoint(String name) {
+        if (fieldsCoordinates == null) { // Required if default constructor is
+            // used with setter methods.
+            fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames, false, false);
+        }
+        return fieldsCoordinates.get(name);
     }
 
     protected void setValue(int row, int column, Object value) {
@@ -230,11 +235,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getFieldValue(String name) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
-        }
-        Point fieldCoordinates = fieldsCoordinates.get(name);
+        Point fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
@@ -243,11 +244,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public boolean hasField(String name) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
-        }
-        return fieldsCoordinates.get(name) != null;
+        return getPoint(name) != null;
     }
 
     @Override
@@ -394,7 +391,7 @@ public class SpreadsheetResult implements Serializable {
                     Map<String, Integer> p1 = new HashMap<>();
                     Set<Point> points = new HashSet<>();
                     for (IOpenField openField : openFields) {
-                        Point p = fieldsCoordinates.get(openField.getName());
+                        Point p = getPoint(openField.getName());
                         if (p != null && !points.contains(p) && columnNamesForResultModel[p
                                 .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
                             String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
@@ -403,7 +400,7 @@ public class SpreadsheetResult implements Serializable {
                         }
                     }
                     for (IOpenField openField : openFields) {
-                        Point p = fieldsCoordinates.get(openField.getName());
+                        Point p = getPoint(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                                 .getRow()] != null) {
                             String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
@@ -716,30 +713,34 @@ public class SpreadsheetResult implements Serializable {
             return false;
 
         SpreadsheetResult that = (SpreadsheetResult) o;
-        if (fieldsCoordinates == null) {
-            initFieldsCoordinates();
+
+        if (rowNames.length != that.rowNames.length) {
+            return false;
         }
-        if (that.fieldsCoordinates == null) {
-            that.initFieldsCoordinates();
+        if (columnNames.length != that.columnNames.length) {
+            return false;
         }
-        if (fieldsCoordinates.keySet().equals(that.fieldsCoordinates.keySet())) {
-            for (Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
-                Object v = this.getFieldValue(entry.getKey());
-                Object thatV = that.getFieldValue(entry.getKey());
+        for (int row = 0; row < rowNames.length; row++) {
+            for (int column = 0; column < columnNames.length; column++) {
+                var v = getValue(row, column);
+                var thatV = that.getValue(getRowName(row), getColumnName(column));
                 if (!Objects.deepEquals(v, thatV)) {
                     return false;
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     @Override
     public int hashCode() {
-        if (fieldsCoordinates == null) {
-            initFieldsCoordinates();
+        int hashCode = 0;
+        for (var row : rowNames) {
+            hashCode += Objects.hashCode(row);
         }
-        return fieldsCoordinates.keySet().hashCode();
+        for (var column : columnNames) {
+            hashCode += Objects.hashCode(column);
+        }
+        return hashCode;
     }
 }
