@@ -358,14 +358,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return openField;
     }
 
-    public String[] getRowNamesForResultModel() {
-        return rowNamesForResultModel.clone();
-    }
-
-    public String[] getColumnNamesForResultModel() {
-        return columnNamesForResultModel.clone();
-    }
-
     /**
      * Convert this type to a type belongs to another module and register it in the provided module.
      *
