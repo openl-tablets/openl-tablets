@@ -510,10 +510,6 @@ public class SpreadsheetResult implements Serializable {
                 spreadsheetResultBeanPropertyNamingStrategy);
     }
 
-    public static Object convertSpreadsheetResult(Object v) {
-        return convertSpreadsheetResult(v, null, null, false, null);
-    }
-
     public static Object convertSpreadsheetResult(Object v,
                                                   SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         return convertSpreadsheetResult(v, null, null, false, spreadsheetResultBeanPropertyNamingStrategy);
