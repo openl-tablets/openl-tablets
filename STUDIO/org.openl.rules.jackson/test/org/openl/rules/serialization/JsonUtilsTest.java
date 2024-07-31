@@ -33,7 +33,10 @@ public class JsonUtilsTest {
         Object[][] results = new Object[][]{new Object[]{"ROW1COLUMN1", "ROW1COLUMN2"},
                 new Object[]{"ROW2COLUMN1", "ROW2COLUMN2"}};
 
-        SpreadsheetResult spreadsheetResult = new SpreadsheetResult(results, rowNames, columnNames);
+        SpreadsheetResult spreadsheetResult = new SpreadsheetResult();
+        spreadsheetResult.setColumnNames(columnNames);
+        spreadsheetResult.setRowNames(rowNames);
+        spreadsheetResult.setResults(results);
 
         String json = JsonUtils.toJSON(spreadsheetResult);
         assertEquals(

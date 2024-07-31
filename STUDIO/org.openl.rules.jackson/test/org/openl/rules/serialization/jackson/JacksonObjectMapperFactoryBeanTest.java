@@ -78,7 +78,10 @@ public class JacksonObjectMapperFactoryBeanTest {
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
-        SpreadsheetResult value = new SpreadsheetResult(new Object[3][3], new String[3], new String[3]);
+        SpreadsheetResult value = new SpreadsheetResult();
+        value.setResults(new Object[3][3]);
+        value.setColumnNames(new String[3]);
+        value.setRowNames(new String[3]);
         String text = objectMapper.writeValueAsString(value);
         SpreadsheetResult result = objectMapper.readValue(text, SpreadsheetResult.class);
         assertNotNull(result);

@@ -59,11 +59,6 @@ public class SpreadsheetResult implements Serializable {
     public SpreadsheetResult() {
     }
 
-    public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames) {
-        this(results, rowNames, columnNames, new String[rowNames.length], new String[columnNames.length], null);
-        initFieldsCoordinates();
-    }
-
     public SpreadsheetResult(Object[][] results,
                              String[] rowNames,
                              String[] columnNames,
