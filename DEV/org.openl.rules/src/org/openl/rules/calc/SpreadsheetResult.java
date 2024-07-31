@@ -116,7 +116,7 @@ public class SpreadsheetResult implements Serializable {
                 for (int j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
-                                SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
+                                ASpreadsheetField.createFieldName(columnNames[j], rowNames[i]),
                                 Point.get(j, i));
                     }
                 }
@@ -190,7 +190,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getValue(String row, String column) {
-        var p = getPoint(SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(column, row));
+        var p = getPoint(ASpreadsheetField.createFieldName(column, row));
         return p != null ? getValue(p.getRow(), p.getColumn()) : null;
     }
 
