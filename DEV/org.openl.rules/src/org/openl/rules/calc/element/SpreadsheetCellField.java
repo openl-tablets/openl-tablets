@@ -11,27 +11,16 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     protected final SpreadsheetCell cell;
     private final SpreadsheetStructureBuilderHolder structureBuilderContainer;
-    private final SpreadsheetCellRefType refType;
     private IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
                                 IOpenClass declaringClass,
-                                String name,
-                                SpreadsheetCell cell,
-                                SpreadsheetCellRefType refType) {
-        super(declaringClass, name, cell.getType());
+                                String columnName, String rowName,
+                                SpreadsheetCell cell) {
+        super(declaringClass, columnName, rowName, cell.getType());
 
         this.cell = cell;
         this.structureBuilderContainer = structureBuilderContainer;
-        this.refType = refType;
-    }
-
-    public boolean isLastRowRef() {
-        return SpreadsheetCellRefType.SINGLE_ROW.equals(refType);
-    }
-
-    public boolean isLastColumnRef() {
-        return SpreadsheetCellRefType.SINGLE_COLUMN.equals(refType);
     }
 
     @Override
@@ -84,9 +73,9 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
         public ConstSpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
                                          IOpenClass declaringClass,
-                                         String name,
+                                         String columnName, String rowName,
                                          SpreadsheetCell cell) {
-            super(structureBuilderContainer, declaringClass, name, cell, SpreadsheetCellRefType.ROW_AND_COLUMN);
+            super(structureBuilderContainer, declaringClass, columnName, rowName, cell);
         }
 
         @Override

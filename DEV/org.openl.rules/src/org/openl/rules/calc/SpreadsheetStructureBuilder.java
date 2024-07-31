@@ -30,7 +30,6 @@ import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellField;
-import org.openl.rules.calc.element.SpreadsheetCellRefType;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
@@ -362,39 +361,17 @@ public class SpreadsheetStructureBuilder {
         // get row name from the row definition
         String rowName = rowDefinition.getName().getIdentifier();
 
-        // create name of the field
-        String fieldName = getSpreadsheetCellFieldName(columnName, rowName);
-
         SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
         // create spreadsheet cell field
-        createSpreadsheetCellField(spreadsheetType, spreadsheetCell, fieldName, SpreadsheetCellRefType.ROW_AND_COLUMN);
+        createSpreadsheetCellField(spreadsheetType, spreadsheetCell, columnName, rowName);
 
         if (oneColumnSpreadsheet) {
             // add simplified field name
-            String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(rowName);
-            IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
-            if (field1 == null) {
-                createSpreadsheetCellField(spreadsheetType,
-                        spreadsheetCell,
-                        simplifiedFieldName,
-                        SpreadsheetCellRefType.SINGLE_COLUMN);
-            }
+            createSpreadsheetCellField(spreadsheetType, spreadsheetCell, null, rowName);
         } else if (oneRowSpreadsheet) {
             // add simplified field name
-            String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(columnName);
-            IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
-            if (field1 == null || field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
-                    .isLastColumnRef()) {
-                createSpreadsheetCellField(spreadsheetType,
-                        spreadsheetCell,
-                        simplifiedFieldName,
-                        SpreadsheetCellRefType.SINGLE_ROW);
-            }
+            createSpreadsheetCellField(spreadsheetType, spreadsheetCell, columnName, null);
         }
-    }
-
-    private String getSpreadsheetCellSimplifiedFieldName(String rowName) {
-        return (DOLLAR_SIGN + rowName).intern();
     }
 
     /**
@@ -551,27 +528,27 @@ public class SpreadsheetStructureBuilder {
 
         SpreadsheetCell cell = cells[rowIndex][columnIndex];
 
-        SymbolicTypeDefinition typeDefinition = columnHeader.getDefinition();
-        String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-        createSpreadsheetCellField(rowOpenClass, cell, fieldName, SpreadsheetCellRefType.LOCAL);
+        String fieldName = columnHeader.getDefinition().getName().getIdentifier();
+        createSpreadsheetCellField(rowOpenClass, cell, fieldName, null);
     }
 
     private void createSpreadsheetCellField(ComponentOpenClass rowOpenClass,
                                             SpreadsheetCell cell,
-                                            String fieldName,
-                                            SpreadsheetCellRefType spreadsheetCellRefType) {
+                                            String columnName, String rowName) {
         SpreadsheetStructureBuilderHolder structureBuilderContainer = getSpreadsheetStructureBuilderHolder();
         SpreadsheetCellField field;
         if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
             field = new SpreadsheetCellField(structureBuilderContainer,
                     rowOpenClass,
-                    fieldName,
-                    cell,
-                    spreadsheetCellRefType);
+                    columnName,
+                    rowName,
+                    cell
+            );
         } else {
             field = new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
                     rowOpenClass,
-                    fieldName,
+                    columnName,
+                    rowName,
                     cell);
         }
         rowOpenClass.addField(field);
