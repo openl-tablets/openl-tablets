@@ -31,10 +31,10 @@ import org.openl.util.text.TextInfo;
  *
  * @author PUdalau
  */
-public abstract class AExecutableNodeBinder extends AXlsTableBinder {
+public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends AXlsTableBinder {
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
+    public T preBind(TableSyntaxNode tableSyntaxNode,
                                     OpenL openl,
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
@@ -77,7 +77,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
     }
 
-    protected abstract IMemberBoundNode createNode(TableSyntaxNode tsn,
+    protected abstract T createNode(TableSyntaxNode tsn,
                                                    OpenL openl,
                                                    OpenMethodHeader header,
                                                    XlsModuleOpenClass module);
