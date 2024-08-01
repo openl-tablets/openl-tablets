@@ -2,7 +2,6 @@ package org.openl.rules.cmatch;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -14,7 +13,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.OpenMethodHeader;
 
-public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
+public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoundNode> {
     private SubTextSourceCodeModule nameOfAlgorithm;
 
     private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
@@ -65,7 +64,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     }
 
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tsn,
+    protected ColumnMatchBoundNode createNode(TableSyntaxNode tsn,
                                           OpenL openl,
                                           OpenMethodHeader header,
                                           XlsModuleOpenClass module) {
