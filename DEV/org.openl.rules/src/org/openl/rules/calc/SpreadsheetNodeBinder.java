@@ -5,6 +5,8 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.types.impl.OpenMethodHeader;
 
 public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoundNode> {
@@ -20,6 +22,11 @@ public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoun
                 module);
         sprBoundNode.preBind(bindingContext);
         return sprBoundNode;
+    }
+
+    @Override
+    protected MetaInfoReader createMetaInfoReader(SpreadsheetBoundNode node) {
+        return new SpreadsheetMetaInfoReader(node);
     }
 
     @Override

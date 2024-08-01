@@ -13,7 +13,6 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -87,8 +86,5 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
-        if (!bindingContext.isExecutionMode()) {
-            getTableSyntaxNode().setMetaInfoReader(new DecisionTableMetaInfoReader(this));
-        }
     }
 }

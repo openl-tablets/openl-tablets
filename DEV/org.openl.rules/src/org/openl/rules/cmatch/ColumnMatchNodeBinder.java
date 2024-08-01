@@ -5,6 +5,8 @@ import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -41,6 +43,11 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
         }
 
         return new SubTextSourceCodeModule(src, p1 + 1, p2);
+    }
+
+    @Override
+    protected MetaInfoReader createMetaInfoReader(ColumnMatchBoundNode node) {
+        return new ColumnMatchMetaInfoReader(node);
     }
 
     @Override

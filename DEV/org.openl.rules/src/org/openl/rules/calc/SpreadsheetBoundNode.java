@@ -22,7 +22,6 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -199,9 +198,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     }
 
     public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
-        if (!bindingContext.isExecutionMode()) {
-            getTableSyntaxNode().setMetaInfoReader(new SpreadsheetMetaInfoReader(this));
-        }
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
