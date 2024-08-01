@@ -48,9 +48,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
                                 OpenL openl,
                                 IOpenMethodHeader header,
-                                XlsModuleOpenClass module) {
+                                XlsModuleOpenClass module,
+                                IBindingContext bindingContext) {
 
         super(tableSyntaxNode, openl, header, module);
+        this.bindingContext = bindingContext;
     }
 
     @Override
@@ -197,8 +199,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         }
     }
 
-    public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
-        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
+    public void preBind() throws SyntaxNodeException {
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();

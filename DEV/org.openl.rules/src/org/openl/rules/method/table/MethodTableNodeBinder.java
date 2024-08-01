@@ -1,6 +1,7 @@
 package org.openl.rules.method.table;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -19,7 +20,8 @@ public class MethodTableNodeBinder extends AExecutableNodeBinder<MethodTableBoun
     protected MethodTableBoundNode createNode(TableSyntaxNode tableSyntaxNode,
                                               OpenL openl,
                                               OpenMethodHeader header,
-                                              XlsModuleOpenClass module) {
+                                              XlsModuleOpenClass module,
+                                              IBindingContext context) {
 
         return new MethodTableBoundNode(tableSyntaxNode, openl, header, module);
     }

@@ -72,9 +72,10 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
 
     @Override
     protected ColumnMatchBoundNode createNode(TableSyntaxNode tsn,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+                                              OpenL openl,
+                                              OpenMethodHeader header,
+                                              XlsModuleOpenClass module,
+                                              IBindingContext context) {
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 }

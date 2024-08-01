@@ -13,7 +13,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -46,7 +45,7 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
 
         checkForDuplicates(tableSyntaxNode, bindingContext, header);
 
-        T node = createNode(tableSyntaxNode, openl, header, module);
+        T node = createNode(tableSyntaxNode, openl, header, module, bindingContext);
         if (!bindingContext.isExecutionMode()) {
             tableSyntaxNode.setMetaInfoReader(createMetaInfoReader(node));
         }
@@ -86,9 +85,10 @@ public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends 
     }
 
     protected abstract T createNode(TableSyntaxNode tsn,
-                                                   OpenL openl,
-                                                   OpenMethodHeader header,
-                                                   XlsModuleOpenClass module);
+                                    OpenL openl,
+                                    OpenMethodHeader header,
+                                    XlsModuleOpenClass module,
+                                    IBindingContext context);
 
     private void checkForDuplicates(TableSyntaxNode tableSyntaxNode,
                                     RulesModuleBindingContext bindingContext,

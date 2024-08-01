@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -20,7 +21,7 @@ public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoun
                 openl,
                 bindingContext,
                 module);
-        sprBoundNode.preBind(bindingContext);
+        sprBoundNode.preBind();
         return sprBoundNode;
     }
 
@@ -31,10 +32,11 @@ public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoun
 
     @Override
     protected SpreadsheetBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+                                              OpenL openl,
+                                              OpenMethodHeader header,
+                                              XlsModuleOpenClass module,
+                                              IBindingContext context) {
 
-        return new SpreadsheetBoundNode(tableSyntaxNode, openl, header, module);
+        return new SpreadsheetBoundNode(tableSyntaxNode, openl, header, module, context);
     }
 }

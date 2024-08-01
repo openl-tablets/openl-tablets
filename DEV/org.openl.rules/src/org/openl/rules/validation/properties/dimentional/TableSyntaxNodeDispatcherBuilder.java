@@ -175,7 +175,8 @@ class TableSyntaxNodeDispatcherBuilder {
             DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn,
                     moduleOpenClass.getOpenl(),
                     header,
-                    moduleOpenClass);
+                    moduleOpenClass,
+                    rulesModuleBindingContext);
             DecisionTable decisionTable = new DecisionTable(header, boundNode, false);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(

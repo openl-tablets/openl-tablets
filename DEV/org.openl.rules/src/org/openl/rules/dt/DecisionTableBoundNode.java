@@ -1,7 +1,5 @@
 package org.openl.rules.dt;
 
-import java.util.Objects;
-
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -31,9 +29,11 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     public DecisionTableBoundNode(TableSyntaxNode tableSyntaxNode,
                                   OpenL openl,
                                   IOpenMethodHeader header,
-                                  ModuleOpenClass module) {
+                                  ModuleOpenClass module,
+                                  IBindingContext bindingContext) {
 
         super(tableSyntaxNode, openl, header, module);
+        this.bindingContext = bindingContext;
     }
 
     @Override
@@ -82,9 +82,5 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
     @Override
     public void updateDependency(BindingDependencies dependencies) {
         getDecisionTable().updateDependency(dependencies);
-    }
-
-    public void preBind(IBindingContext bindingContext) throws SyntaxNodeException {
-        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
     }
 }
