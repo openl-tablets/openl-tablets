@@ -1,6 +1,7 @@
 package org.openl.rules.tbasic;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -17,9 +18,10 @@ public class AlgorithmNodeBinder extends AExecutableNodeBinder<AlgorithmBoundNod
 
     @Override
     protected AlgorithmBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+                                            OpenL openl,
+                                            OpenMethodHeader header,
+                                            XlsModuleOpenClass module,
+                                            IBindingContext context) {
 
         return new AlgorithmBoundNode(tableSyntaxNode, openl, header, module);
     }
