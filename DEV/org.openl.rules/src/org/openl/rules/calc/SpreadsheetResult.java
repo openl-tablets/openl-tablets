@@ -359,18 +359,6 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
     }
 
-    public Object toPlain() {
-        return toPlain(null);
-    }
-
-    public Object toPlain(SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        if (getCustomSpreadsheetResultOpenClass() != null) {
-            return getCustomSpreadsheetResultOpenClass().createBean(this, spreadsheetResultBeanPropertyNamingStrategy);
-        } else {
-            return toMap(false, spreadsheetResultBeanPropertyNamingStrategy);
-        }
-    }
-
     public Map<String, Object> toMap() {
         return toMap(true, null);
     }
@@ -669,7 +657,11 @@ public class SpreadsheetResult implements Serializable {
                         .toCustomSpreadsheetResultOpenClass()
                         .createBean(spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
             } else {
-                return spreadsheetResult.toPlain();
+                if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
+                    return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
+                } else {
+                    return spreadsheetResult.toMap(false, null);
+                }
             }
         }
         return v;
