@@ -85,8 +85,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private volatile Class<?> beanClass;
     private boolean simpleRefByRow;
     private boolean simpleRefByColumn;
-    private long columnsForResultModelCount;
-    private long rowsForResultModelCount;
     private boolean ignoreCompilation;
 
     private ILogicalTable logicalTable;
@@ -112,8 +110,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.rowNamesForResultModel = Objects.requireNonNull(rowNamesForResultModel);
         this.columnNamesForResultModel = Objects.requireNonNull(columnNamesForResultModel);
 
-        this.columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
-        this.rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
+        var columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
+        var rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
 
         this.simpleRefByRow = columnsForResultModelCount == 1;
         this.simpleRefByColumn = rowsForResultModelCount == 1;
@@ -270,10 +268,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
             this.rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
             this.columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
-            this.columnsForResultModelCount = Arrays.stream(this.columnNamesForResultModel)
-                    .filter(Objects::nonNull)
-                    .count();
-            this.rowsForResultModelCount = Arrays.stream(this.rowNamesForResultModel).filter(Objects::nonNull).count();
 
             this.rowNames = nRowNames.toArray(EMPTY_STRING_ARRAY);
             this.columnNames = nColumnNames.toArray(EMPTY_STRING_ARRAY);
