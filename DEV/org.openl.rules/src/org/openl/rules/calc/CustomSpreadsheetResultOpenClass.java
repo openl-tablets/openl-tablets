@@ -665,13 +665,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     Collection<Consumer<FieldVisitor>> fieldVisitorWriters = Collections.singleton((fieldVisitor) -> {
                         AnnotationVisitor annotationVisitor = fieldVisitor
                                 .visitAnnotation(Type.getDescriptor(SpreadsheetCell.class), true);
-                        annotationVisitor.visit("column", columnName);
-                        annotationVisitor.visit("row", rowName);
-                        if (simpleRefByRow) {
-                            annotationVisitor.visit("simpleRefByRow", true);
+                        if (simpleRefByRow || !simpleRefByColumn) {
+                            annotationVisitor.visit("row", rowName);
+                        }
+                        if (!simpleRefByRow) {
+                            annotationVisitor.visit("column", columnName);
                         }
                         if (simpleRefByColumn) {
-                            annotationVisitor.visit("simpleRefByColumn", true);
+                            // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
+                            // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
+                            annotationVisitor.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
                         }
                         annotationVisitor.visitEnd();
                     });

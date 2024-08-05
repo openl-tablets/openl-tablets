@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 
 import org.openl.rules.calc.SpreadsheetCell;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
+import org.openl.util.StringUtils;
 
 abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
 
@@ -45,9 +46,9 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     }
 
     protected String transform(SpreadsheetCell spreadsheetCell) {
-        if (spreadsheetCell.simpleRefByRow()) {
+        if (StringUtils.isEmpty(spreadsheetCell.column())) {
             return transform(spreadsheetCell.row());
-        } else if (spreadsheetCell.simpleRefByColumn()) {
+        } else if (StringUtils.isEmpty(spreadsheetCell.row())) {
             return transform(spreadsheetCell.column());
         } else {
             return transform(spreadsheetCell.column(), spreadsheetCell.row());
