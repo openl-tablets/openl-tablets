@@ -1,11 +1,9 @@
 package org.openl.rules.serialization.spr;
 
-import java.lang.reflect.Field;
-import java.util.Objects;
-
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 import org.openl.rules.calc.SpreadsheetCell;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -45,41 +43,26 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
         return sb.toString();
     }
 
-    protected String transform(SpreadsheetCell spreadsheetCell) {
-        if (StringUtils.isEmpty(spreadsheetCell.column())) {
-            return transform(spreadsheetCell.row());
-        } else if (StringUtils.isEmpty(spreadsheetCell.row())) {
-            return transform(spreadsheetCell.column());
-        } else {
-            return transform(spreadsheetCell.column(), spreadsheetCell.row());
-        }
+    @Override
+    public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
+        return getName(method, defaultName);
     }
 
     @Override
-    public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName) {
-        if (field.hasAnnotation(SpreadsheetCell.class)) {
-            SpreadsheetCell spreadsheetCell = field.getAnnotation(SpreadsheetCell.class);
-            String ret = transform(spreadsheetCell);
-            int duplicates = 0;
-            for (Field f : field.getDeclaringClass().getDeclaredFields()) {
-                SpreadsheetCell sc = f.getAnnotation(SpreadsheetCell.class);
-                if (sc != null) {
-                    if (Objects.equals(ret, transform(sc))) {
-                        duplicates++;
-                    }
-                }
+    public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method, String defaultName) {
+        return getName(method, defaultName);
+    }
+
+    private String getName(AnnotatedMember member, String defaultName) {
+        if (member.hasAnnotation(SpreadsheetCell.class)) {
+            SpreadsheetCell spreadsheetCell = member.getAnnotation(SpreadsheetCell.class);
+            if (StringUtils.isEmpty(spreadsheetCell.column())) {
+                return transform(spreadsheetCell.row());
+            } else if (StringUtils.isEmpty(spreadsheetCell.row())) {
+                return transform(spreadsheetCell.column());
+            } else {
+                return transform(spreadsheetCell.column(), spreadsheetCell.row());
             }
-            return duplicates < 2 ? ret : defaultName;
-        }
-        boolean g = false;
-        for (Field f : field.getDeclaringClass().getDeclaredFields()) {
-            if (f.isAnnotationPresent(SpreadsheetCell.class)) {
-                g = true;
-                break;
-            }
-        }
-        if (g) {
-            return transform(defaultName);
         }
         return defaultName;
     }
