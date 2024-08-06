@@ -662,25 +662,43 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             typeName = instanceClass.getName();
                         }
                     }
-                    Collection<Consumer<FieldVisitor>> fieldVisitorWriters = Collections.singleton((fieldVisitor) -> {
-                        AnnotationVisitor annotationVisitor = fieldVisitor
-                                .visitAnnotation(Type.getDescriptor(SpreadsheetCell.class), true);
-                        if (simpleRefByRow || !simpleRefByColumn) {
-                            annotationVisitor.visit("row", rowName);
-                        }
-                        if (!simpleRefByRow) {
-                            annotationVisitor.visit("column", columnName);
-                        }
-                        if (simpleRefByColumn) {
-                            // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
-                            // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
-                            annotationVisitor.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
-                        }
-                        annotationVisitor.visitEnd();
-                    });
 
                     fieldName = ClassUtils.decapitalize(fieldName); // FIXME: WSDL decapitalize field name without this
-                    if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
+                    if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName) || addFieldNameWithCollisions) {
+                        if (usedXmlNames.containsKey(fieldName) || usedXmlNames.containsValue(xmlName)) {
+                            String newFieldName = fieldName;
+                            int i = 1;
+                            while (usedXmlNames.containsKey(newFieldName)) {
+                                newFieldName = fieldName + i;
+                                i++;
+                            }
+                            String newXmlName = xmlName;
+                            i = 1;
+                            while (usedXmlNames.containsValue(newXmlName)) {
+                                newXmlName = xmlName + i;
+                                i++;
+                            }
+                            fieldName = newFieldName;
+                            xmlName = newXmlName;
+                        }
+
+                        Collection<Consumer<FieldVisitor>> fieldVisitorWriters = Collections.singleton((fieldVisitor) -> {
+                            AnnotationVisitor annotationVisitor = fieldVisitor
+                                    .visitAnnotation(Type.getDescriptor(SpreadsheetCell.class), true);
+                            if (simpleRefByRow || !simpleRefByColumn) {
+                                annotationVisitor.visit("row", rowName);
+                            }
+                            if (!simpleRefByRow) {
+                                annotationVisitor.visit("column", columnName);
+                            }
+                            if (simpleRefByColumn) {
+                                // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
+                                // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
+                                annotationVisitor.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
+                            }
+                            annotationVisitor.visitEnd();
+                        });
+
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                                 null,
                                 null,
@@ -692,30 +710,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
-                    } else if (addFieldNameWithCollisions) {
-                        String newFieldName = fieldName;
-                        int i = 1;
-                        while (usedXmlNames.containsKey(newFieldName)) {
-                            newFieldName = fieldName + i;
-                            i++;
-                        }
-                        String newXmlName = xmlName;
-                        i = 1;
-                        while (usedXmlNames.containsValue(newXmlName)) {
-                            newXmlName = xmlName + i;
-                            i++;
-                        }
-                        FieldDescription fieldDescription = new FieldDescription(typeName,
-                                null,
-                                null,
-                                null,
-                                newXmlName,
-                                false,
-                                fieldVisitorWriters,
-                                null);
-                        beanClassBuilder.addField(newFieldName, fieldDescription);
-                        beanFieldsMap.put(newFieldName, fillUsed(used, point, field));
-                        usedXmlNames.put(newFieldName, newXmlName);
                     }
                 } else {
                     boolean f = false;
