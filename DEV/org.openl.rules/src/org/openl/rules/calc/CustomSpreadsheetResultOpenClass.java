@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -479,25 +480,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 if (beanClassByteCode == null && !initializing) {
                     try {
                         initializing = true;
-                        final String beanClassName = getBeanClassName();
-                        JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
-                                .withAdditionalConstructor(false)
-                                .withEqualsHashCodeToStringMethods(false);
-                        beanClassBuilder.writeToType(e -> {
-                            AnnotationVisitor av = e
-                                    .visitAnnotation(Type.getDescriptor(SpreadsheetResultBeanClass.class), true);
-                            av.visitEnd();
-                        });
                         TreeMap<String, String> xmlNames = new TreeMap<>(FIELD_COMPARATOR);
                         @SuppressWarnings("unchecked")
                         List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                         Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
                         List<Pair<Point, IOpenField>> fields = getListOfFields();
                         IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
-                        addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, true, fieldsMap, cache);
-                        addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, false, fieldsMap, cache);
-                        byte[] bc = beanClassBuilder.byteCode();
+                        var beanFields = new LinkedHashMap<String, FieldDescription>();
+                        addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, true, fieldsMap, cache);
+                        addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, false, fieldsMap, cache);
+
+                        final String beanClassName = getBeanClassName();
+                        byte[] bc = generateByteCode(beanClassName, beanFields);
                         getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
+
                         beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
                         xmlNamesMap = Collections.unmodifiableMap(xmlNames);
                         beanClassByteCode = bc;
@@ -507,6 +503,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
         }
+    }
+
+    private static byte[] generateByteCode(String beanClassName, LinkedHashMap<String, FieldDescription> beanFields) {
+        JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
+                .withAdditionalConstructor(false)
+                .withEqualsHashCodeToStringMethods(false);
+        beanClassBuilder.writeToType(e -> {
+            AnnotationVisitor av = e
+                    .visitAnnotation(Type.getDescriptor(SpreadsheetResultBeanClass.class), true);
+            av.visitEnd();
+        });
+        beanClassBuilder.addFields(beanFields);
+        return beanClassBuilder.byteCode();
     }
 
     private List<Pair<Point, IOpenField>> getListOfFields() {
@@ -554,7 +563,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return !getModule().isDependencyModule(spreadsheetResultOpenClass.getModule(), cache);
     }
 
-    private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
+    private void addFieldsToJavaClassBuilder(Map<String, FieldDescription> beanFields,
                                              List<Pair<Point, IOpenField>> fields,
                                              List<IOpenField>[][] used,
                                              Map<String, String> usedXmlNames,
@@ -707,7 +716,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 false,
                                 fieldVisitorWriters,
                                 null);
-                        beanClassBuilder.addField(fieldName, fieldDescription);
+                        beanFields.put(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
                     }
