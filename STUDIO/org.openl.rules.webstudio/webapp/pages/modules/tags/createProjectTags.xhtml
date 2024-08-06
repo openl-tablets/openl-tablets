@@ -68,11 +68,43 @@
             </footer>
 
             <a4j:jsFunction name="renderCreateProjectTagsForm" render="@form"/>
-            <a4j:jsFunction name="initCreateProjectTagsDialog" action="#{projectTagsBean.initFromTemplate}" render="@form" oncomplete="showCreateProjectTagsDialog();">
+            <a4j:jsFunction name="initCreateProjectTagsDialog" action="#{projectTagsBean.init}" render="@form modalConfirmIgnoreNonApplicableTags" oncomplete="showWarningOrCreateTagDialogs();">
                 <a4j:param name="projectName" assignTo="#{projectTagsBean.projectName}"/>
+                <a4j:param name="tagsArePreconfigured" assignTo="#{projectTagsBean.tagsArePreconfigured}"/>
+                <a4j:param name="initFromOpenedProject" assignTo="#{projectTagsBean.initFromOpenedProject}"/>
             </a4j:jsFunction>
+            <h:inputHidden id="projectContainsNonApplicableTags" value="#{(not empty projectTagsBean.notApplicableTagTypes) or (not empty projectTagsBean.notApplicableTagValues)}" readonly="true"/>
+            <h:inputHidden id="applicableTagsForProjectExist" value="#{not empty projectTagsBean.tags}" readonly="true"/>
 
         </h:form>
+
+    </rich:popupPanel>
+
+    <rich:popupPanel id="modalConfirmIgnoreNonApplicableTags" minWidth="330" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Missing Tags"/>
+        </f:facet>
+
+        <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagTypes}">
+            <p>The following tag types don't exist in the system and therefore won't be applied:</p>
+            <ui:repeat value="#{projectTagsBean.notApplicableTagTypes}" var="tagInfo">
+                <p>
+                    <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                </p>
+            </ui:repeat>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagValues}">
+            <p>The following tag values for non-extensible tag types don't exist and therefore won't be applied:</p>
+            <ui:repeat value="#{projectTagsBean.notApplicableTagValues}" var="tagInfo">
+                <p>
+                    <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                </p>
+            </ui:repeat>
+        </h:panelGroup>
+        <footer>
+            <input type="button" id="continueAndIgnoreNonApplicableTagsButton" value="Continue" class="button-primary" onclick="showCreateProjectTagsDialogIfNeeded();"/>
+            <input type="button" value="Cancel" onclick="RichFaces.$('modalConfirmIgnoreNonApplicableTags').hide();"/>
+        </footer>
 
     </rich:popupPanel>
 
@@ -80,13 +112,29 @@
         //<![CDATA[
         var submitForm = function () {};
 
-        function createProjectTags(projectName, submitFormFunction) {
+        function createProjectTagsIfNeeded(projectName, submitFormFunction, tagsArePreconfigured, initFromOpenedProject) {
             submitForm = submitFormFunction;
-            initCreateProjectTagsDialog(projectName);
+            initCreateProjectTagsDialog(projectName, tagsArePreconfigured, initFromOpenedProject);
         }
 
         function submitCreateProjectForm() {
             submitForm();
+        }
+        
+        function showWarningOrCreateTagDialogs() {
+            if ($j('#createProjectTagsForm\\:projectContainsNonApplicableTags').val() === 'true') {
+                RichFaces.$('modalConfirmIgnoreNonApplicableTags').show(); 
+            } else {
+                showCreateProjectTagsDialogIfNeeded();
+            }
+        }
+        
+        function showCreateProjectTagsDialogIfNeeded() {
+            if ($j('#createProjectTagsForm\\:applicableTagsForProjectExist').val() === 'true') {
+                showCreateProjectTagsDialog();
+            } else {
+                submitForm();
+            }
         }
 
         function showCreateProjectTagsDialog() {

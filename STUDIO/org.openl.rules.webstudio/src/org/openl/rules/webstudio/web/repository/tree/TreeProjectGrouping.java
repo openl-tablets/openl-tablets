@@ -5,19 +5,17 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.ProjectGrouping;
-import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
-import org.openl.rules.webstudio.service.OpenLProjectService;
-import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.util.StringUtils;
@@ -36,12 +34,10 @@ public class TreeProjectGrouping extends AbstractTreeNode {
 
     private Map<Object, TreeNode> elements;
     private final int level;
-    private final TagService tagService;
     private final Collection<RulesProject> projects;
     private final ProjectGrouping projectGrouping;
     private final boolean hideDeleted;
     private final ProjectDescriptorArtefactResolver projectDescriptorResolver;
-    private final OpenLProjectService projectService;
     private final List<Repository> repositories;
 
     public TreeProjectGrouping(String id,
@@ -49,19 +45,15 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                Collection<RulesProject> projects,
                                ProjectGrouping projectGrouping,
                                int level,
-                               TagService tagService,
                                boolean hideDeleted,
                                ProjectDescriptorArtefactResolver projectDescriptorResolver,
-                               OpenLProjectService projectService,
                                List<Repository> repositories) {
         super("grp_" + id, name);
         this.projects = projects;
         this.projectGrouping = projectGrouping;
         this.level = level;
-        this.tagService = tagService;
         this.hideDeleted = hideDeleted;
         this.projectDescriptorResolver = projectDescriptorResolver;
-        this.projectService = projectService;
         this.repositories = repositories;
     }
 
@@ -118,25 +110,23 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                         subProjects,
                                         projectGrouping,
                                         level + 1,
-                                        tagService,
                                         hideDeleted,
                                         projectDescriptorResolver,
-                                        projectService,
                                         repositories));
                             }
                         });
                     } else {
-                        final List<Tag> tags = tagService.getByTagType(nextGroupingType);
-                        tags.forEach(tag -> {
-                            final String name = tag.getName();
+
+                        final List<String> tagValues = projects.stream().map(RulesProject::getDesignTags)
+                                .filter(designTags -> designTags.containsKey(nextGroupingType))
+                                .map(designTags -> designTags.get(nextGroupingType))
+                                .sorted()
+                                .collect(Collectors.toList());
+                        tagValues.forEach(name -> {
                             final String id = RepositoryUtils.getTreeNodeId(name);
 
-                            final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
-
                             final List<RulesProject> subProjects = projects.stream()
-                                    .filter(project -> projectsForTags.stream()
-                                            .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath())) &&
-                                                    p.getRepositoryId().equals(project.getRepository().getId())))
+                                    .filter(project -> project.getDesignTags().containsKey(nextGroupingType) && Objects.equals(project.getDesignTags().get(nextGroupingType), name))
                                     .collect(Collectors.toList());
                             projectsAtCurrentLevel.removeAll(subProjects);
 
@@ -146,10 +136,8 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                                         subProjects,
                                         projectGrouping,
                                         level + 1,
-                                        tagService,
                                         hideDeleted,
                                         projectDescriptorResolver,
-                                        projectService,
                                         repositories));
                             }
                         });

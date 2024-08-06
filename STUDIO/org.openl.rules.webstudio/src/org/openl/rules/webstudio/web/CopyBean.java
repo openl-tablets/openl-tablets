@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -289,7 +290,9 @@ public class CopyBean {
                     designData.addAdditionalData(mappingData);
                 }
                 designData.setComment(comment);
-                designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
+                Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
+                designProject.setResourceTransformer(new CopyProjectTransformer(newProjectName, tags));
+                
                 designProject.update(localProject, user);
                 designProject.setResourceTransformer(null);
 
@@ -309,8 +312,6 @@ public class CopyBean {
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
-
-                projectTagsBean.saveTags(copiedProject);
             }
 
             WebStudioUtils.getWebStudio().resetProjects();

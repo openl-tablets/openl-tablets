@@ -4,10 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-import org.openl.rules.security.standalone.dao.OpenLProjectDao;
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.dao.TagTypeDao;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 
@@ -19,11 +17,6 @@ import org.openl.rules.webstudio.service.TagTypeService;
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
 public class TagsConfiguration {
-
-    @Bean
-    public OpenLProjectService openLProjectService(OpenLProjectDao openLProjectDao) {
-        return new OpenLProjectService(openLProjectDao);
-    }
 
     @Bean
     public TagService tagService(TagDao tagDao) {

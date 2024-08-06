@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 
@@ -75,8 +76,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                                  String modelsPath,
                                  String algorithmsPath,
                                  String modelsModuleName,
-                                 String algorithmsModuleName) throws ProjectException {
-        super(projectName, projectFolder, userWorkspace);
+                                 String algorithmsModuleName, 
+                                 Map<String, String> tags) throws ProjectException {
+        super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;
         if (!checkFileSize(projectFile)) {
             throw new OpenAPIProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");

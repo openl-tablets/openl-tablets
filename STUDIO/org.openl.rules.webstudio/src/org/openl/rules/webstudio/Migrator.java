@@ -17,17 +17,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
+import org.openl.rules.common.CommonUser;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.branch.BranchesData;
+import org.openl.rules.security.standalone.persistence.OpenLProject;
+import org.openl.rules.security.standalone.persistence.Tag;
+import org.openl.rules.webstudio.migration.ProjectTagsMigrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
@@ -40,6 +56,9 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 public class Migrator {
+
+    private static final String MIGRATION_USER_NAME_PROPERTY = "migration.user.name";
+    private static final String MIGRATION_USER_EMAIL_PROPERTY = "migration.user.email";
 
     private Migrator() {
     }
@@ -437,5 +456,62 @@ public class Migrator {
                 LOG.error("Migration of locks failed.", e);
             }
         }
+    }
+    
+    public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
+        if (! applicationContext.containsBean("openlSessionFactory")) {
+            //webstudio is not configured, skipping migration
+            return;
+        }
+        SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
+        try (Session session = sessionFactory.openSession()) {
+            List<OpenLProject> allOpenLProjects = readAllProjectsAndTags(session);
+            if (!allOpenLProjects.isEmpty()) {
+                var migrationUserInfo = createMigrationUser(applicationContext.getEnvironment());
+                var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
+                var migrator = new ProjectTagsMigrator(designTimeRepository);
+                allOpenLProjects.forEach(openLProject -> {
+                    var projectTags = openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
+                    try {
+                        migrator.migrate(openLProject.getRepositoryId(), openLProject.getProjectPath(), projectTags, migrationUserInfo);
+                        deleteProjectTagsInDB(openLProject, session);
+                    } catch (IOException | ProjectException e) {
+                        LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.getProjectPath(), openLProject.getRepositoryId()), e);
+                    }
+                });
+            }
+
+        }
+    }
+
+    private static CommonUser createMigrationUser(Environment environment) {
+        String migrationUsername = environment.getProperty(MIGRATION_USER_NAME_PROPERTY, "Studio Migration");
+        String migrationUserEmail = environment.getProperty(MIGRATION_USER_EMAIL_PROPERTY, "");
+        UserInfo systemUserInfo = new UserInfo(migrationUsername, migrationUserEmail, migrationUsername);
+        return new CommonUser() {
+            @Override
+            public String getUserName() {
+                return migrationUsername;
+            }
+
+            @Override
+            public UserInfo getUserInfo() {
+                return systemUserInfo;
+            }
+        };
+    }
+
+    private static void deleteProjectTagsInDB(OpenLProject openLProject, Session session) {
+        Transaction transaction = session.beginTransaction();
+        session.delete(openLProject);
+        transaction.commit();
+    }
+
+    private static List<OpenLProject> readAllProjectsAndTags(Session session) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<OpenLProject> cq = cb.createQuery(OpenLProject.class);
+        cq.from(OpenLProject.class);
+        return session.createQuery(cq).getResultList();
+
     }
 }
