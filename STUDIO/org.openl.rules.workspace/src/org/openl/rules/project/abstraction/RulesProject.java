@@ -1,9 +1,14 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +40,8 @@ public class RulesProject extends UserWorkspaceProject {
     private Repository designRepository;
     private String designFolderName;
     private final LockEngine lockEngine;
+    private static final String TAGS_FILE_NAME = "tags.properties";
+    private volatile Map<String, String> tags;
 
     public RulesProject(WorkspaceUser user,
                         LocalRepository localRepository,
@@ -594,4 +601,56 @@ public class RulesProject extends UserWorkspaceProject {
         }
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
+    
+    public Map<String, String> getTags() {
+        var localTags = tags;
+        if (localTags == null) {
+            synchronized (this) {
+                if (tags == null) {
+                    tags = loadTags();
+                }
+                return tags;
+            }
+        } else {
+            return localTags;
+        }
+    }
+
+    private Map<String, String> loadTags() {
+
+        if (hasArtefact(TAGS_FILE_NAME)) {
+            try {
+                Properties properties = new Properties();
+                AProjectResource resource = (AProjectResource) getArtefact(TAGS_FILE_NAME);
+                properties.load(resource.getContent());
+                return properties.stringPropertyNames().stream().collect(Collectors.toUnmodifiableMap(tagType -> tagType, properties::getProperty));
+            } catch (ProjectException | IOException e) {
+                throw new IllegalStateException("Cannot load tags", e);
+            }
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public void saveTags(Map<String, String> tags) throws ProjectException {
+        synchronized (this) {
+            Properties properties = new Properties();
+            properties.putAll(tags);
+            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                properties.store(byteArrayOutputStream, null);
+                try (var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+                    if (!hasArtefact(TAGS_FILE_NAME)) {
+                        addResource(TAGS_FILE_NAME, inputStream);
+                    } else {
+                        AProjectResource artefact = (AProjectResource) getArtefact(TAGS_FILE_NAME);
+                        artefact.setContent(inputStream);
+                    }
+                }
+                this.tags = Collections.unmodifiableMap(tags);
+            } catch (IOException e) {
+                throw new ProjectException("Cannot save tags", e);
+            }
+        }
+    }
+
 }
