@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository.upload;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -31,6 +32,7 @@ public class ProjectUploader {
     private final String modelsModuleName;
     private final String algorithmsModuleName;
     private String createdProjectName;
+    private final Map<String, String> tags;
 
     public ProjectUploader(String repositoryId,
                            ProjectFile uploadedFile,
@@ -44,7 +46,8 @@ public class ProjectUploader {
                            String modelsPath,
                            String algorithmsPath,
                            String modelsModuleName,
-                           String algorithmsModuleName) {
+                           String algorithmsModuleName,
+                           Map<String, String> tags) {
         this.repositoryId = repositoryId;
         this.projectFolder = projectFolder;
         this.comment = comment;
@@ -60,6 +63,7 @@ public class ProjectUploader {
         this.algorithmsPath = algorithmsPath;
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
+        this.tags = tags;
     }
 
     public ProjectUploader(String repositoryId,
@@ -74,7 +78,8 @@ public class ProjectUploader {
                            String modelsPath,
                            String algorithmsPath,
                            String modelsModuleName,
-                           String algorithmsModuleName) {
+                           String algorithmsModuleName,
+                           Map<String, String> tags) {
         this.repositoryId = repositoryId;
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
@@ -88,6 +93,7 @@ public class ProjectUploader {
         this.algorithmsPath = algorithmsPath;
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
+        this.tags = tags;
     }
 
     public RulesProject uploadProject() throws ProjectException {
@@ -109,7 +115,8 @@ public class ProjectUploader {
                         modelsPath,
                         algorithmsPath,
                         modelsModuleName,
-                        algorithmsModuleName);
+                        algorithmsModuleName,
+                        tags);
             } else if (FileTypeHelper.isZipFile(fileName)) {
                 // Create project creator for the single zip file
                 projectCreator = new ZipFileProjectCreator(repositoryId,
@@ -120,7 +127,8 @@ public class ProjectUploader {
                         userWorkspace,
                         comment,
                         zipFilter,
-                        zipCharsetDetector);
+                        zipCharsetDetector,
+                        tags);
             } else {
                 projectCreator = new ExcelFilesProjectCreator(repositoryId,
                         projectName,
@@ -128,6 +136,7 @@ public class ProjectUploader {
                         userWorkspace,
                         comment,
                         zipFilter,
+                        tags,
                         uploadedFiles.toArray(new ProjectFile[0]));
                 uploadedFiles.toArray(new ProjectFile[0]);
             }

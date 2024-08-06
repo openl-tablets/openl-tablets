@@ -18,8 +18,15 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
+/**
+ * This class was used to store link between projects and associated tags in a database. After 5.27.8 associated tags 
+ * are stored in {@code tags.properties} file. This entity is still important to conduct migration to a new approach.
+ * However, it should not be used outside of migration.
+ * @deprecated Left for backward compatibility.
+ */
 @Entity
 @Table(name = "OpenL_Projects")
+@Deprecated(since = "5.27.8")
 public class OpenLProject implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

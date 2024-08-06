@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,13 @@ public abstract class AProjectCreator {
     private final String projectFolder;
     private final UserWorkspace userWorkspace;
     private String createdProjectName;
+    private Map<String, String> tags;
 
-    public AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace) {
+    public AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace, Map<String, String> tags) {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
+        this.tags = tags;
     }
 
     protected String getProjectName() {
@@ -52,6 +55,7 @@ public abstract class AProjectCreator {
         RulesProjectBuilder projectBuilder = null;
         try {
             projectBuilder = getProjectBuilder();
+            projectBuilder.getProject().saveTags(tags);
             projectBuilder.save();
             createdProjectName = projectBuilder.getCreateProjectName();
             return projectBuilder.getProject();

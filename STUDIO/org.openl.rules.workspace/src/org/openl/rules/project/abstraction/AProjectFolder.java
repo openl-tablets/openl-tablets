@@ -262,6 +262,9 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                     changesetType = ChangesetType.FULL;
                     findChanges(from, changes);
                 }
+                if (getResourceTransformer() != null) {
+                    changes = getResourceTransformer().transformChangedFiles(getFolderPath(), changes);
+                }
 
                 FileData fileData = getFileData();
                 fileData.setAuthor(user == null ? null : user.getUserInfo());

@@ -104,7 +104,7 @@
             </h:panelGroup>
 
             <footer>
-                <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
+                <ui:param name="tagsAreConfigured" value="#{repositoryTreeController.tagsAreConfigured}"/>
 
                 <a4j:commandButton id="copyProjectButton" value="Copy"
                                    onclick="copyProjectWithRequiredInfo(() => $j('#copyProjectForm\\:copyButton').click(), $j('#copyProjectForm\\:newProjectName').val()); return false;"
@@ -256,12 +256,11 @@
         function copyProjectWithRequiredInfo(originalSubmit, projectName) {
             let afterAction = () => $j('#copyProjectForm\\:copyButton').click();
 
-            if (#{hasTags} && #{canCreateNewProject}
-        )
+            if (#{canCreateNewProject})
             {
                 var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
                 if ($separateProjectCheckbox.length === 0 || $separateProjectCheckbox.is(':checked')) {
-                    afterAction = () => createProjectTags(projectName, originalSubmit);
+                    afterAction = () => createProjectTagsIfNeeded(projectName, originalSubmit, false, true);
                 }
             }
             withCommitInfoRequired(

@@ -47,8 +47,8 @@
             <h:outputText value="There are no permissions to create projects"
                           rendered="#{!repositoryTreeController.canCreateNewProject}"/>
         </h:panelGroup>
-
-        <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
+        
+        <ui:param name="tagsAreConfigured" value="#{repositoryTreeController.tagsAreConfigured}"/>
         <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')"
                        rendered="#{repositoryTreeController.canCreateNewProject}">
             <rich:tab id="template" header="Template">
@@ -189,7 +189,7 @@
                         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                                 Now errors are shown after dialog is closed. -->
                         <h:commandButton id="sbtTemplatesBtn" value="Create" styleClass="button-primary"
-                                         onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormTempl\\:sbtTemplates').click(), $j('#createProjectFormTempl\\:repositoryTemplate option:selected').val(), $j('#createProjectFormTempl\\:projectName').val()); return false;"/>
+                                         onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormTempl\\:sbtTemplates').click(), $j('#createProjectFormTempl\\:repositoryTemplate option:selected').val(), $j('#createProjectFormTempl\\:projectName').val(), false); return false;"/>
                         <h:commandButton id="sbtTemplates" styleClass="hidden" action="#{repositoryTreeController.createNewRulesProject}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
@@ -259,7 +259,7 @@
                     </h:panelGrid>
                     <footer>
                         <h:commandButton id="sbtFilesBtn" value="Create" styleClass="button-primary"
-                                         onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormFiles\\:sbtFiles').click(), $j('#createProjectFormFiles\\:repositoryExcel option:selected').val(), $j('#createProjectFormFiles\\:projectName').val()); return false;"/>
+                                         onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormFiles\\:sbtFiles').click(), $j('#createProjectFormFiles\\:repositoryExcel option:selected').val(), $j('#createProjectFormFiles\\:projectName').val(), false); return false;"/>
                         <h:commandButton id="sbtFiles" styleClass="hidden" action="#{repositoryTreeController.createProjectWithFiles}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
@@ -329,9 +329,12 @@
                     </h:panelGrid>
                     <footer>
                         <h:commandButton id="sbtZipsBtn" value="Create" styleClass="button-primary"
-                                         onclick="createProjectWithRequiredInfo(() => $j('#uploadProjectForm\\:sbtZips').click(), $j('#uploadProjectForm\\:repositoryZip option:selected').val(), $j('#uploadProjectForm\\:projectName').val()); return false;"/>
+                                         onclick="submitZipFile(); return false;"/>
                         <h:commandButton id="sbtZips" styleClass="hidden" action="#{repositoryTreeController.upload}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
+                        <a4j:jsFunction name="submitZipFile"
+                                        action="#{repositoryTreeController.loadTagsFromUploadedFile}"
+                                        oncomplete="createProjectWithRequiredInfo(() => $j('#uploadProjectForm\\:sbtZips').click(), $j('#uploadProjectForm\\:repositoryZip option:selected').val(), $j('#uploadProjectForm\\:projectName').val(), true);"/>
                     </footer>
                 </h:form>
             </rich:tab>
@@ -470,7 +473,7 @@
                     </h:panelGrid>
                     <footer>
                         <h:commandButton id="submitOpenAPIFileBtn" value="Create" styleClass="button-primary"
-                                         onclick="createProjectWithRequiredInfo(() => $j('#openAPIProjectForm\\:submitOpenAPIFile').click(), $j('#openAPIProjectForm\\:repositoryOpenAPI option:selected').val(), $j('#openAPIProjectForm\\:projectName').val()); return false;"/>
+                                         onclick="createProjectWithRequiredInfo(() => $j('#openAPIProjectForm\\:submitOpenAPIFile').click(), $j('#openAPIProjectForm\\:repositoryOpenAPI option:selected').val(), $j('#openAPIProjectForm\\:projectName').val(), false); return false;"/>
                         <h:commandButton id="submitOpenAPIFile" styleClass="hidden"
                                          action="#{repositoryTreeController.upload}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
@@ -568,7 +571,7 @@
                         <footer>
                             <a4j:commandButton id="sbtWorkspaceBtn" value="Create" styleClass="button-primary"
                                              rendered="#{not empty localUpload.projects4Upload}"
-                                             onclick="createProjectWithRequiredInfo(() => $j('#sbtWorkspace').click(), $j('#repositoryLocal option:selected').val(), ''); return false;"/>
+                                             onclick="createProjectWithRequiredInfo(() => $j('#sbtWorkspace').click(), $j('#repositoryLocal option:selected').val(), '', false); return false;"/>
                             <a4j:commandButton id="sbtWorkspace" styleClass="hidden" action="#{localUpload.upload}"
                                                render="uploadWorkspaceProjectForm uploadPrjFromLocalMessageDiv projectTree nodeView"
                                                oncomplete="hideNewProjectDialog()" process="@form"/>
@@ -607,15 +610,17 @@
                     </h:panelGrid>
 
                     <footer>
-                        <h:commandButton id="sbtRepo#{hasTags ? '' : 'Hidden'}" value="Import" styleClass="button-primary"
-                                         onclick="createProjectTags('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}); return false;"
-                                         rendered="#{hasTags}"/>
-                        <h:commandButton id="sbtRepo#{hasTags ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
+                        <h:commandButton id="sbtRepo#{tagsAreConfigured ? '' : 'Hidden'}" value="Import" styleClass="button-primary"
+                                         onclick="readTagsFromImportedProject(); return false;"
+                                         rendered="#{tagsAreConfigured}"/>
+                        <h:commandButton id="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
                                          onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false; else showLoader();"
-                                         styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
+                                         styleClass="button-primary #{tagsAreConfigured ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
-                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo#{hasTags ? 'Hidden' : ''}"/>
+                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}"/>
+                    <a4j:jsFunction name="readTagsFromImportedProject" 
+                        action="#{repositoryTreeController.readTagsFromImportedProject}" oncomplete="createProjectTagsIfNeeded('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}, true, false);"/>
                 </h:form>
             </rich:tab>
 
@@ -638,11 +643,8 @@
 
         //<![CDATA[
 
-        let createProjectWithRequiredInfo = function(originalSubmit, repositoryId, projectName) {
-            let afterAction = originalSubmit;
-            if (#{hasTags}) {
-                afterAction = () => createProjectTags(projectName, originalSubmit);
-            }
+        let createProjectWithRequiredInfo = function(originalSubmit, repositoryId, projectName, tagsArePreconfigured) {
+            let afterAction = () => createProjectTagsIfNeeded(projectName, originalSubmit, tagsArePreconfigured, false);
             withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{repositoryTreeController.createAllowedRepositoriesTypes}')[repositoryId] === "repo-git",  afterAction);
         }
 

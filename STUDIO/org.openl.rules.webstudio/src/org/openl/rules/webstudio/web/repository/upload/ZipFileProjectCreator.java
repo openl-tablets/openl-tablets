@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
@@ -47,8 +48,9 @@ public class ZipFileProjectCreator extends AProjectCreator {
                                  UserWorkspace userWorkspace,
                                  String comment,
                                  PathFilter zipFilter,
-                                 ZipCharsetDetector zipCharsetDetector) throws IOException {
-        super(projectName, projectFolder, userWorkspace);
+                                 ZipCharsetDetector zipCharsetDetector, 
+                                 Map<String, String> tags) throws IOException {
+        super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;
         this.comment = comment;
 
