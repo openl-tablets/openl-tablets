@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -29,9 +28,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     private final DesignTimeRepository designTimeRepository;
 
     public RepositoryProjectService(DesignTimeRepository designTimeRepository,
-                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-                                    OpenLProjectService projectService) {
-        super(designRepositoryAclService, projectService);
+                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+        super(designRepositoryAclService);
         this.designTimeRepository = designTimeRepository;
     }
 

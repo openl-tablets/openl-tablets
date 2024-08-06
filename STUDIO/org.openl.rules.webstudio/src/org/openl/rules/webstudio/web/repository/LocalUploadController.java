@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -38,6 +39,7 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 @Service("localUpload")
@@ -213,6 +215,9 @@ public class LocalUploadController {
                         if (!baseFolder.isDirectory()) {
                             throw new FileNotFoundException(baseFolder.getName());
                         }
+                        File tagsFile = new File(baseFolder, RulesProjectTags.TAGS_FILE_NAME);
+                        PropertiesUtils.store(tagsFile.toPath(), projectTagsBean.saveTagsTypesAndGetTags().entrySet());
+                        
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
                                 .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService
@@ -221,7 +226,6 @@ public class LocalUploadController {
                                     ProjectArtifactUtils.extractResourceName(createdProject));
                             WebStudioUtils.addErrorMessage(message);
                         }
-                        projectTagsBean.saveTags(createdProject);
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;

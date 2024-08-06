@@ -7,6 +7,8 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -15,15 +17,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.ProjectLockInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.util.CollectionUtils;
 
 /**
  * Abstract project service.
@@ -38,11 +39,9 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     protected static final String PROJECT_ID_SEPARATOR = ":";
 
     protected final RepositoryAclService designRepositoryAclService;
-    private final OpenLProjectService projectService;
 
-    public AbstractProjectService(RepositoryAclService designRepositoryAclService, OpenLProjectService projectService) {
+    public AbstractProjectService(RepositoryAclService designRepositoryAclService) {
         this.designRepositoryAclService = designRepositoryAclService;
-        this.projectService = projectService;
     }
 
     @Override
@@ -67,10 +66,17 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     private Predicate<AProject> buildTagsFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = ALL_PROJECTS;
         if (!query.getTags().isEmpty()) {
-            filter = project -> projectService
-                    .isProjectHasTags(project.getRepository().getId(), project.getRealPath(), query.getTags());
+            filter = project ->
+                    project instanceof RulesProject
+                            && projectHasTags((RulesProject) project, query.getTags());
         }
         return filter;
+    }
+
+    public boolean projectHasTags(RulesProject project, Map<String, String> tags) {
+        return project.getLocalTags().entrySet().stream().anyMatch(tagValues ->
+                tags.containsKey(tagValues.getKey()) && Objects.equals(tags.get(tagValues.getKey()), tagValues.getValue())
+        );
     }
 
     protected abstract Stream<T> getProjects0(ProjectCriteriaQuery query);
@@ -115,9 +121,12 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             builder.path(path);
         }
 
-        var tags = projectService.getTagsForProject(repository.getId(), src.getRealPath());
-        if (CollectionUtils.isNotEmpty(tags)) {
-            tags.forEach(tag -> builder.addTag(tag.getType().getName(), tag.getName()));
+        if (src instanceof RulesProject) {
+            RulesProject rulesProject = (RulesProject) src;
+            var tags = rulesProject.getLocalTags();
+            if (tags != null) {
+                tags.forEach(builder::addTag);
+            }
         }
 
         return builder;
