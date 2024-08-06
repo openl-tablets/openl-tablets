@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -17,12 +18,9 @@ import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
 import org.openl.binding.impl.IndexNode;
 import org.openl.binding.impl.LiteralBoundNode;
-import org.openl.binding.impl.MethodBoundNode;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluator;
-import org.openl.rules.dt.algorithm.evaluator.ContainsInArrayIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
@@ -32,11 +30,7 @@ import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.type.IRangeAdaptor;
 import org.openl.rules.dt.type.ITypeAdaptor;
-import org.openl.rules.range.Range;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.NaryNode;
-import org.openl.types.IAggregateInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
@@ -71,10 +65,6 @@ class DependentParametersOptimizedAlgorithm {
                                                              IBindingContext bindingContext,
                                                              EvaluatorFactory evaluatorFactory) {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
-        if (expressionType == null) {
-            // Fall back to default evaluator
-            return null;
-        }
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass conditionParamType0 = params[0].getType();
         IOpenClass conditionParamType1 = params[1].getType();
@@ -119,35 +109,8 @@ class DependentParametersOptimizedAlgorithm {
                                                              IBindingContext bindingContext,
                                                              EvaluatorFactory evaluatorFactory) {
         IOpenClass expressionType = evaluatorFactory.getExpressionType();
-        if (expressionType == null) {
-            // Fall back to default evaluator
-            return null;
-        }
         IParameterDeclaration[] params = condition.getParams();
         IOpenClass conditionParamType = params[0].getType();
-
-        if (evaluatorFactory instanceof OneParameterContainsInFactory) {
-            IAggregateInfo aggregateInfo = conditionParamType.getAggregateInfo();
-            if (aggregateInfo.isAggregate(conditionParamType)) {
-                var componentType = aggregateInfo.getComponentType(conditionParamType);
-                if (Range.class.isAssignableFrom(componentType.getInstanceClass())) {
-                    // indexing of range arrays is not support right now. Default condition evaluator must be used
-                    return null;
-                }
-                ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(componentType, expressionType, bindingContext);
-                if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
-                        .isCastToInputTypeExists() && !expressionType.isArray()) {
-                    return condition.getNumberOfEmptyRules(0) > 1
-                            ? new OneParameterContainsInArrayIndexedEvaluatorV2(
-                            (OneParameterContainsInFactory) evaluatorFactory,
-                            aggregateConditionCasts)
-                            : new OneParameterContainsInArrayIndexedEvaluator(
-                            (OneParameterContainsInFactory) evaluatorFactory,
-                            aggregateConditionCasts);
-                }
-            }
-            return null;
-        }
 
         ConditionCasts conditionCasts = ConditionHelper
                 .findConditionCasts(conditionParamType, expressionType, bindingContext);
@@ -284,35 +247,6 @@ class DependentParametersOptimizedAlgorithm {
         return value;
     }
 
-    private static Triple<String, RelationType, String> parseMethodBoundExpression(MethodBoundNode methodBoundNode,
-                                                                                   IBindingContext ctx) {
-        var children = methodBoundNode.getChildren();
-        if (children != null && children.length == 2 && children[0] instanceof FieldBoundNode && children[1] instanceof FieldBoundNode) {
-            RelationType relationType;
-            if (isContainsMethod(methodBoundNode)) {
-                relationType = RelationType.IN;
-            } else {
-                return null;
-            }
-            FieldBoundNode fieldBoundNode0 = (FieldBoundNode) children[0];
-            FieldBoundNode fieldBoundNode1 = (FieldBoundNode) children[1];
-            return Triple.of(buildFieldName(fieldBoundNode0, ctx), relationType, buildFieldName(fieldBoundNode1, ctx));
-        }
-
-        return null;
-    }
-
-    private static boolean isContainsMethod(MethodBoundNode methodBoundNode) {
-        if (methodBoundNode.getSyntaxNode() instanceof NaryNode) {
-            var children = ((NaryNode) methodBoundNode.getSyntaxNode()).getNodes();
-            if (children.length == 3) {
-                var identifier = children[2];
-                return "funcname".equals(identifier.getType()) && "contains".equals(((IdentifierNode) identifier).getIdentifier());
-            }
-        }
-        return false;
-    }
-
     private static Triple<String, RelationType, String> parseBinaryOpExpression(BinaryOpNode binaryOpNode,
                                                                                 IBindingContext bindingContext) {
         IBoundNode[] children = binaryOpNode.getChildren();
@@ -361,14 +295,9 @@ class DependentParametersOptimizedAlgorithm {
                 if (children != null && children.length == 1 && children[0] instanceof BlockNode) {
                     blockNode = (BlockNode) children[0];
                     children = blockNode.getChildren();
-                    if (children.length == 1) {
-                        if (children[0] instanceof BinaryOpNode) {
-                            BinaryOpNode binaryOpNode = (BinaryOpNode) children[0];
-                            return parseBinaryOpExpression(binaryOpNode, bindingContext);
-                        } else if (children[0] instanceof MethodBoundNode) {
-                            var methodBoundNode = (MethodBoundNode) children[0];
-                            return parseMethodBoundExpression(methodBoundNode, bindingContext);
-                        }
+                    if (children.length == 1 && children[0] instanceof BinaryOpNode) {
+                        BinaryOpNode binaryOpNode = (BinaryOpNode) children[0];
+                        return parseBinaryOpExpression(binaryOpNode, bindingContext);
                     }
                 }
             }
@@ -432,13 +361,10 @@ class DependentParametersOptimizedAlgorithm {
                 if (parsedExpression == null) {
                     return null;
                 }
-                switch (parsedExpression.getMiddle()) {
-                    case EQ:
-                        return makeOneParameterEqualsFactory(parsedExpression, condition, signature);
-                    case IN:
-                        return makeOneParameterContainsFactory(parsedExpression, condition, signature);
-                    default:
-                        return makeOneParameterRangeFactory(parsedExpression, condition, signature);
+                if (RelationType.EQ.equals(parsedExpression.getMiddle())) {
+                    return makeOneParameterEqualsFactory(parsedExpression, condition, signature);
+                } else {
+                    return makeOneParameterRangeFactory(parsedExpression, condition, signature);
                 }
             case 2:
                 Pair<Triple<String, RelationType, String>, Triple<String, RelationType, String>> parsedExpressionWithTwoParams = twoParameterExpressionParse(
@@ -452,38 +378,6 @@ class DependentParametersOptimizedAlgorithm {
                 return null;
         }
 
-    }
-
-    private static String getOrBuildParameterPath(String p, IParameterDeclaration signatureParam) {
-        if (p.startsWith(signatureParam.getName() + "[") || p.startsWith(signatureParam.getName() + ".") || p
-                .equals(signatureParam.getName())) {
-            return p;
-        } else {
-            return signatureParam.getName() + "." + p;
-        }
-    }
-
-    private static OneParameterContainsInFactory makeOneParameterContainsFactory(
-            Triple<String, RelationType, String> parsedExpression,
-            ICondition condition,
-            IMethodSignature signature) {
-        final String p1 = parsedExpression.getLeft();
-        final String p2 = parsedExpression.getRight();
-
-        IParameterDeclaration signatureParam = getParameter(p1, signature);
-        if (signatureParam == null) {
-            signatureParam = getParameter(p2, signature);
-            if (signatureParam == null) {
-                return null;
-            }
-            IParameterDeclaration conditionParam = condition.getParams()[0];
-            if (!p1.equals(conditionParam.getName())) {
-                return null;
-            }
-            return new OneParameterContainsInFactory(signatureParam, getOrBuildParameterPath(p2, signatureParam));
-        }
-
-        return null;
     }
 
     private static OneParameterEqualsFactory makeOneParameterEqualsFactory(
@@ -504,14 +398,24 @@ class DependentParametersOptimizedAlgorithm {
             if (!p1.equals(conditionParam.getName())) {
                 return null;
             }
-            return new OneParameterEqualsFactory(signatureParam, getOrBuildParameterPath(p2, signatureParam));
+            if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
+                    .equals(signatureParam.getName())) {
+                return new OneParameterEqualsFactory(signatureParam, p2);
+            } else {
+                return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p2);
+            }
         }
 
         if (!p2.equals(conditionParam.getName())) {
             return null;
         }
 
-        return new OneParameterEqualsFactory(signatureParam, getOrBuildParameterPath(p1, signatureParam));
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
+                .equals(signatureParam.getName())) {
+            return new OneParameterEqualsFactory(signatureParam, p1);
+        } else {
+            return new OneParameterEqualsFactory(signatureParam, signatureParam.getName() + "." + p1);
+        }
     }
 
     private static OneParameterRangeFactory makeOneParameterRangeFactory(
@@ -533,10 +437,15 @@ class DependentParametersOptimizedAlgorithm {
             return null;
         }
 
-        return new OneParameterRangeFactory(signatureParam,
-                conditionParam,
-                parsedExpression.getMiddle(),
-                getOrBuildParameterPath(p1, signatureParam));
+        if (p1.startsWith(signatureParam.getName() + "[") || p1.startsWith(signatureParam.getName() + ".") || p1
+                .equals(signatureParam.getName())) {
+            return new OneParameterRangeFactory(signatureParam, conditionParam, parsedExpression.getMiddle(), p1);
+        } else {
+            return new OneParameterRangeFactory(signatureParam,
+                    conditionParam,
+                    parsedExpression.getMiddle(),
+                    signatureParam.getName() + "." + p1);
+        }
     }
 
     private static TwoParameterRangeFactory makeTwoParameterRangeFactory(
@@ -595,19 +504,28 @@ class DependentParametersOptimizedAlgorithm {
             return null;
         }
 
-        return new TwoParameterRangeFactory(signatureParam,
-                conditionParam1,
-                expr1.getMiddle(),
-                conditionParam2,
-                expr2.getMiddle(),
-                getOrBuildParameterPath(expr1.getRight(), signatureParam));
+        final String v = expr1.getRight();
+
+        if (v.startsWith(signatureParam.getName() + "[") || v.startsWith(signatureParam.getName() + ".") || v
+                .equals(signatureParam.getName())) {
+            return new TwoParameterRangeFactory(signatureParam,
+                    conditionParam1,
+                    expr1.getMiddle(),
+                    conditionParam2,
+                    expr2.getMiddle(),
+                    expr1.getRight());
+        } else {
+            return new TwoParameterRangeFactory(signatureParam,
+                    conditionParam1,
+                    expr1.getMiddle(),
+                    conditionParam2,
+                    expr2.getMiddle(),
+                    signatureParam.getName() + "." + v);
+        }
 
     }
 
     private static IParameterDeclaration getParameter(String pname, IMethodSignature signature) {
-        if (pname == null) {
-            return null;
-        }
         String parameterName = pname;
         int dotIndex = parameterName.indexOf('.');
         if (dotIndex > 0) {
@@ -653,10 +571,18 @@ class DependentParametersOptimizedAlgorithm {
             return null;
         }
 
-        return new OneParameterRangeFactory(signatureParam,
-                conditionParam,
-                parsedExpression.getMiddle().oposite(),
-                getOrBuildParameterPath(p2, signatureParam));
+        if (p2.startsWith(signatureParam.getName() + "[") || p2.startsWith(signatureParam.getName() + ".") || p2
+                .equals(signatureParam.getName())) {
+            return new OneParameterRangeFactory(signatureParam,
+                    conditionParam,
+                    parsedExpression.getMiddle().oposite(),
+                    p2);
+        } else {
+            return new OneParameterRangeFactory(signatureParam,
+                    conditionParam,
+                    parsedExpression.getMiddle().oposite(),
+                    signatureParam.getName() + "." + p2);
+        }
     }
 
     enum Bound {
@@ -670,8 +596,7 @@ class DependentParametersOptimizedAlgorithm {
         LE("<=", ">=", true, Bound.UPPER),
         GE(">=", "<=", false, null),
         GT(">", "<", false, Bound.LOWER),
-        EQ("==", "==", false, null),
-        IN("in", "in", false, null);
+        EQ("==", "==", false, null);
 
         final String func;
         final String opposite;
@@ -718,7 +643,7 @@ class DependentParametersOptimizedAlgorithm {
 
         @SuppressWarnings("unchecked")
         RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
-                             ITypeAdaptor<?, C> typeAdaptor,
+                             ITypeAdaptor<? extends Object, C> typeAdaptor,
                              ConditionCasts conditionCasts) {
             super();
             this.evaluatorFactory = evaluatorFactory;
@@ -773,52 +698,27 @@ class DependentParametersOptimizedAlgorithm {
 
     }
 
-    public static class OneParameterContainsInArrayIndexedEvaluator extends ContainsInArrayIndexedEvaluator {
-        private final OneParameterContainsInFactory oneParameterContainsInFactory;
+    static class RangeEvaluatorFactory {
 
-        OneParameterContainsInArrayIndexedEvaluator(OneParameterContainsInFactory oneParameterContainsInFactory,
-                                                           ConditionCasts conditionCasts) {
-            super(conditionCasts);
-            this.oneParameterContainsInFactory = Objects.requireNonNull(oneParameterContainsInFactory,
-                    "oneParameterContainsInFactory cannot be null");
-        }
+        Pattern pattern;
+        final String regex;
+        final int numberOfparams;
+        final int minDelta;
+        final int maxDelta;
 
-        @Override
-        public String getOptimizedSourceCode() {
-            return oneParameterContainsInFactory.getExpression();
-        }
-
-        @Override
-        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
-        }
-    }
-
-    public static class OneParameterContainsInArrayIndexedEvaluatorV2 extends ContainsInArrayIndexedEvaluatorV2 {
-        private final OneParameterContainsInFactory oneParameterContainsInFactory;
-
-        OneParameterContainsInArrayIndexedEvaluatorV2(OneParameterContainsInFactory oneParameterContainsInFactory,
-                                                             ConditionCasts conditionCasts) {
-            super(conditionCasts);
-            this.oneParameterContainsInFactory = Objects.requireNonNull(oneParameterContainsInFactory,
-                    "oneParameterContainsInFactory cannot be null");
-        }
-
-        @Override
-        public String getOptimizedSourceCode() {
-            return oneParameterContainsInFactory.getExpression();
-        }
-
-        @Override
-        public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {
-            return condition.getSourceCodeModule();
+        public RangeEvaluatorFactory(String regex, int numberOfparams, int minDelta, int maxDelta) {
+            super();
+            this.regex = regex;
+            this.numberOfparams = numberOfparams;
+            this.minDelta = minDelta;
+            this.maxDelta = maxDelta;
         }
     }
 
     public static class OneParameterEqualsIndexedEvaluator extends EqualsIndexedEvaluator {
         private final OneParameterEqualsFactory oneParameterEqualsFactory;
 
-        OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
+        public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
                                                   ConditionCasts conditionCasts) {
             super(conditionCasts);
             this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
@@ -839,7 +739,7 @@ class DependentParametersOptimizedAlgorithm {
     public static class OneParameterEqualsIndexedEvaluatorV2 extends EqualsIndexedEvaluatorV2 {
         private final OneParameterEqualsFactory oneParameterEqualsFactory;
 
-        OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
+        public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
                                                     ConditionCasts conditionCasts) {
             super(conditionCasts);
             this.oneParameterEqualsFactory = Objects.requireNonNull(oneParameterEqualsFactory,
@@ -882,28 +782,6 @@ class DependentParametersOptimizedAlgorithm {
             return DecisionTableAlgorithmBuilder.findExpressionType(signatureParam.getType(), expression);
         }
 
-    }
-
-    static class OneParameterContainsInFactory extends EvaluatorFactory {
-
-        public OneParameterContainsInFactory(IParameterDeclaration signatureParam, String expression) {
-            super(signatureParam, expression);
-        }
-
-        @Override
-        public boolean hasMin() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean hasMax() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean needsIncrement(Bound bound) {
-            throw new UnsupportedOperationException();
-        }
     }
 
     static class OneParameterEqualsFactory extends EvaluatorFactory {
