@@ -442,10 +442,24 @@ public class AProject extends AProjectFolder implements IProject {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ZipOutputStream zipOutputStream = null;
         try {
-            zipOutputStream = new ZipOutputStream(out);
 
+            List<FileItem> changes = new ArrayList<>();
             for (AProjectArtefact artefact : projectFrom.getArtefacts()) {
-                writeArtefact(zipOutputStream, artefact);
+                writeArtefact(changes, artefact);
+            }
+            
+            if (getResourceTransformer() != null) {
+                changes = getResourceTransformer().transformChangedFiles(null, changes);
+            }
+
+            zipOutputStream = new ZipOutputStream(out);
+            for(FileItem file: changes) {
+                zipOutputStream.putNextEntry(new ZipEntry(file.getData().getName()));
+
+                try (InputStream content = file.getStream()) {
+                    content.transferTo(zipOutputStream);
+                    zipOutputStream.closeEntry();
+                }
             }
             zipOutputStream.finish();
 
@@ -487,21 +501,16 @@ public class AProject extends AProjectFolder implements IProject {
         }
     }
 
-    private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws IOException,
+    private void writeArtefact(List<FileItem> files, AProjectArtefact artefact) throws IOException,
             ProjectException {
         if (artefact instanceof AProjectResource) {
             AProjectResource resource = (AProjectResource) artefact;
-            zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));
-
-            ResourceTransformer transformer = getResourceTransformer();
-            try (InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent()) {
-                content.transferTo(zipOutputStream);
-                zipOutputStream.closeEntry();
-            }
+            InputStream content = getResourceTransformer() != null ? getResourceTransformer().transform(resource) : resource.getContent();
+            files.add(new FileItem(resource.getInternalPath(), content));
         } else {
             AProjectFolder folder = (AProjectFolder) artefact;
             for (AProjectArtefact a : folder.getArtefacts()) {
-                writeArtefact(zipOutputStream, a);
+                writeArtefact(files, a);
             }
         }
     }
