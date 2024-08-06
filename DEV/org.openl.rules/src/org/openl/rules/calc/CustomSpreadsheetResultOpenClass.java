@@ -76,7 +76,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private String[] columnNames;
     private String[] rowNamesForResultModel;
     private String[] columnNamesForResultModel;
-    private final List<Pair<String[], String[]>> rowAndColumnNamesForResultModelHistory;
     private Map<String, Point> fieldsCoordinates;
     private final XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
@@ -112,10 +111,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
         this.simpleRefByRow = columnsForResultModelCount == 1;
         this.simpleRefByColumn = rowsForResultModelCount == 1;
-
-        this.rowAndColumnNamesForResultModelHistory = new ArrayList<>();
-        this.rowAndColumnNamesForResultModelHistory
-                .add(Pair.of(this.columnNamesForResultModel, this.rowNamesForResultModel));
 
         this.fieldsCoordinates = SpreadsheetResult
                 .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow);
@@ -260,8 +255,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (rowColumnsForResultModelNeedUpdate) {
             this.simpleRefByRow = simpleRefByRow && this.simpleRefByRow;
             this.simpleRefByColumn = simpleRefByColumn && this.simpleRefByColumn;
-
-            this.rowAndColumnNamesForResultModelHistory.add(Pair.of(columnNamesForResultModel, rowNamesForResultModel));
 
             this.rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
             this.columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
@@ -575,8 +568,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         fieldName = columnName;
                         xmlName = columnName;
                         field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnName);
-                    } else if (absentInHistory(rowName, columnName)) {
-                        continue;
                     } else if (StringUtils.isBlank(columnName)) { // * in the column
                         fieldName = rowName;
                         xmlName = rowName;
@@ -698,22 +689,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
         }
-    }
-
-    private boolean absentInHistory(String rowName, String columnName) {
-        for (Pair<String[], String[]> p : rowAndColumnNamesForResultModelHistory) {
-            for (String col : p.getLeft()) {
-                if (Objects.equals(columnName, col)) {
-                    for (String row : p.getRight()) {
-                        if (Objects.equals(rowName, row)) {
-                            return false; // column and row exist in the given Spreadsheet
-                        }
-                    }
-                    break; // Skip checking of rest columns, because of the rowName does not exist
-                }
-            }
-        }
-        return true;
     }
 
     private List<IOpenField> fillUsed(List<IOpenField>[][] used, Point point, IOpenField field) {
