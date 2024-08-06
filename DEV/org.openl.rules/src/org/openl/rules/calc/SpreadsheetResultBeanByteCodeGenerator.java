@@ -71,7 +71,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av.visitEnd();
 
         av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlAccessorType;", true);
-        av.visitEnum("value", "Ljavax/xml/bind/annotation/XmlAccessType;", "FIELD");
+        av.visitEnum("value", "Ljavax/xml/bind/annotation/XmlAccessType;", "PROPERTY");
         av.visitEnd();
 
         av = classWriter.visitAnnotation(SR_BEAN_CLASS, true);
@@ -105,27 +105,6 @@ final class SpreadsheetResultBeanByteCodeGenerator {
             var fieldType = fieldDescription.fieldType;
             var fieldVisitor = classWriter.visitField((Opcodes.ACC_PRIVATE), fieldName, fieldType, null, null);
 
-            var av = fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-            av.visit("name", fieldDescription.xmlName);
-            av.visitEnd();
-
-            av = fieldVisitor.visitAnnotation(SPREADSHEET_CELL, true);
-            if (fieldDescription.column != null) {
-                av.visit("column", fieldDescription.column);
-
-            }
-            if (fieldDescription.row != null) {
-                av.visit("row", fieldDescription.row);
-            }
-
-            if (fieldDescription.FIX_ME) {
-                // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
-                // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
-                av.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
-            }
-
-            av.visitEnd();
-
             fieldVisitor.visitEnd();
 
             generateGetter(classWriter, fieldName, fieldDescription);
@@ -142,6 +121,29 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         methodVisitor.visitFieldInsn(Opcodes.GETFIELD, beanNameWithPackage, fieldName, fieldDescription.fieldType);
         methodVisitor.visitInsn(Type.getType(fieldDescription.fieldType).getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
+
+
+        var av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
+        av.visit("name", fieldDescription.xmlName);
+        av.visitEnd();
+
+        av = methodVisitor.visitAnnotation(SPREADSHEET_CELL, true);
+        if (fieldDescription.column != null) {
+            av.visit("column", fieldDescription.column);
+
+        }
+        if (fieldDescription.row != null) {
+            av.visit("row", fieldDescription.row);
+        }
+
+        if (fieldDescription.FIX_ME) {
+            // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
+            // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
+            av.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
+        }
+
+        av.visitEnd();
+        methodVisitor.visitEnd();
     }
 
     private void generateSetter(ClassWriter classWriter, String fieldName, String fieldType) {
