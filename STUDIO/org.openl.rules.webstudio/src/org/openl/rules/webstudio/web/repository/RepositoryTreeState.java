@@ -36,14 +36,12 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.ProjectGrouping;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
@@ -92,9 +90,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private ProjectGroupingService projectGroupingService;
-
-    @Autowired
-    private OpenLProjectService projectService;
 
     @Autowired
     @Qualifier("designRepositoryAclService")
@@ -205,7 +200,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     tagService,
                                     hideDeleted,
                                     projectDescriptorResolver,
-                                    projectService,
                                     repositories));
 
                             withoutRepo.removeAll(subProjects);
@@ -226,12 +220,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final String name = tag.getName();
                         final String id = RepositoryUtils.getTreeNodeId(name);
 
-                        final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
+                        final String tagType = tag.getType().getName();
 
                         final List<RulesProject> subProjects = rulesProjects.stream()
-                                .filter(project -> (projectsForTags.stream()
-                                        .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath()) && p.getRepositoryId()
-                                                .equals(project.getRepository().getId())))))
+                                .filter(project -> project.getTags().containsKey(tagType) && Objects.equals(project.getTags().get(tagType), name))
                                 .collect(Collectors.toList());
 
                         if (!subProjects.isEmpty()) {
@@ -243,7 +235,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     tagService,
                                     hideDeleted,
                                     projectDescriptorResolver,
-                                    projectService,
                                     repositories));
 
                             withoutTags.removeAll(subProjects);
@@ -1078,9 +1069,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanModifyTags() {
         UserWorkspaceProject project = getSelectedProject();
-        RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
-                : designRepositoryAclService;
-        return repositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
+        if (project.isOpened()) {
+            RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                    : designRepositoryAclService;
+            return repositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
+        } else {
+            return false;
+        }
     }
 
     public boolean getCanAppend() {

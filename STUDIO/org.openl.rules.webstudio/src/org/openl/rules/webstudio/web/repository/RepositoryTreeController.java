@@ -2143,7 +2143,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(createdProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
@@ -2198,7 +2197,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(uploadedProject);
                 selectProject(uploadedProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(uploadedProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
                 return null;
             } catch (Exception e) {
@@ -3034,7 +3032,6 @@ public class RepositoryTreeController {
                     .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
 
             resetStudioModel();
-            importedProject.ifPresent(this::saveTags);
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {
@@ -3198,7 +3195,7 @@ public class RepositoryTreeController {
         return !tagTypeService.getAllTagTypes().isEmpty();
     }
 
-    private void saveTags(RulesProject project) {
+    private void saveTags(RulesProject project) throws ProjectException {
         projectTagsBean.saveTags(project);
     }
 

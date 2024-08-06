@@ -1,8 +1,12 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -25,9 +29,11 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.util.PropertiesUtils;
 
 public class RulesProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(RulesProject.class);
+    private static final String TAGS_FILE_NAME = "tags.properties";
 
     private final LocalRepository localRepository;
     private String localFolderName;
@@ -35,6 +41,7 @@ public class RulesProject extends UserWorkspaceProject {
     private Repository designRepository;
     private String designFolderName;
     private final LockEngine lockEngine;
+    private volatile Map<String, String> tags;
 
     public RulesProject(WorkspaceUser user,
                         LocalRepository localRepository,
@@ -594,4 +601,54 @@ public class RulesProject extends UserWorkspaceProject {
         }
         return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
+    
+    public Map<String, String> getTags() {
+        var localTags = tags;
+        if (localTags == null) {
+            synchronized (this) {
+                if (tags == null) {
+                    tags = loadTags();
+                }
+                return tags;
+            }
+        } else {
+            return localTags;
+        }
+    }
+
+    private Map<String, String> loadTags() {
+
+        if (hasArtefact(TAGS_FILE_NAME)) {
+            try {
+                AProjectResource resource = (AProjectResource) getArtefact(TAGS_FILE_NAME);
+                Map<String, String> readTags = new HashMap<>();
+                PropertiesUtils.load(resource.getContent(), readTags::put);
+                return Collections.unmodifiableMap(readTags);
+            } catch (ProjectException | IOException e) {
+                throw new IllegalStateException("Cannot load tags", e);
+            }
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public void saveTags(Map<String, String> tags) throws ProjectException {
+        synchronized (this) {
+            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                PropertiesUtils.store(byteArrayOutputStream, tags.entrySet());
+                try (var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+                    if (!hasArtefact(TAGS_FILE_NAME)) {
+                        addResource(TAGS_FILE_NAME, inputStream);
+                    } else {
+                        AProjectResource artefact = (AProjectResource) getArtefact(TAGS_FILE_NAME);
+                        artefact.setContent(inputStream);
+                    }
+                }
+                this.tags = Collections.unmodifiableMap(tags);
+            } catch (IOException e) {
+                throw new ProjectException("Cannot save tags", e);
+            }
+        }
+    }
+
 }

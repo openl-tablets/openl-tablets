@@ -71,8 +71,6 @@ public class CopyBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
-    private final ProjectTagsBean projectTagsBean;
-
     private final RepositoryAclService designRepositoryAclService;
 
     private final ApplicationContext applicationContext = FacesContextUtils
@@ -96,11 +94,9 @@ public class CopyBean {
 
     public CopyBean(PropertyResolver propertyResolver,
                     RepositoryTreeState repositoryTreeState,
-                    ProjectTagsBean projectTagsBean,
                     @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
-        this.projectTagsBean = projectTagsBean;
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
@@ -309,8 +305,6 @@ public class CopyBean {
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
-
-                projectTagsBean.saveTags(copiedProject);
             }
 
             WebStudioUtils.getWebStudio().resetProjects();
