@@ -21,9 +21,6 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +29,7 @@ import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.cast.VOID;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
-import org.openl.gen.FieldDescription;
-import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
+import org.openl.rules.calc.SpreadsheetResultBeanByteCodeGenerator.FieldDescription;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -491,7 +487,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, false, fieldsMap, cache);
 
                         final String beanClassName = getBeanClassName();
-                        byte[] bc = generateByteCode(beanClassName, beanFields);
+                        byte[] bc = SpreadsheetResultBeanByteCodeGenerator.byteCode(beanClassName, beanFields);
                         getModule().getClassGenerationClassLoader().addGeneratedClass(beanClassName, bc);
 
                         beanFieldsMap = Collections.unmodifiableMap(fieldsMap);
@@ -503,19 +499,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 }
             }
         }
-    }
-
-    private static byte[] generateByteCode(String beanClassName, LinkedHashMap<String, FieldDescription> beanFields) {
-        JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
-                .withAdditionalConstructor(false)
-                .withEqualsHashCodeToStringMethods(false);
-        beanClassBuilder.writeToType(e -> {
-            AnnotationVisitor av = e
-                    .visitAnnotation(Type.getDescriptor(SpreadsheetResultBeanClass.class), true);
-            av.visitEnd();
-        });
-        beanClassBuilder.addFields(beanFields);
-        return beanClassBuilder.byteCode();
     }
 
     private List<Pair<Point, IOpenField>> getListOfFields() {
@@ -691,31 +674,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             xmlName = newXmlName;
                         }
 
-                        Collection<Consumer<FieldVisitor>> fieldVisitorWriters = Collections.singleton((fieldVisitor) -> {
-                            AnnotationVisitor annotationVisitor = fieldVisitor
-                                    .visitAnnotation(Type.getDescriptor(SpreadsheetCell.class), true);
-                            if (simpleRefByRow || !simpleRefByColumn) {
-                                annotationVisitor.visit("row", rowName);
-                            }
-                            if (!simpleRefByRow) {
-                                annotationVisitor.visit("column", columnName);
-                            }
-                            if (simpleRefByColumn) {
-                                // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
-                                // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
-                                annotationVisitor.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
-                            }
-                            annotationVisitor.visitEnd();
-                        });
-
                         FieldDescription fieldDescription = new FieldDescription(typeName,
-                                null,
-                                null,
-                                null,
                                 xmlName,
-                                false,
-                                fieldVisitorWriters,
-                                null);
+                                simpleRefByRow || !simpleRefByColumn ? rowName : null,
+                                !simpleRefByRow ? columnName : null,
+                                simpleRefByColumn
+                        );
                         beanFields.put(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);

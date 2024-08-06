@@ -37,42 +37,7 @@ public class TypeDescription {
     TypeDescription(String typeName, AnnotationDescription[] annotations) {
         this.typeName = Objects.requireNonNull(typeName, "Type name is null.");
         this.canonicalName = Type.getObjectType(typeName).getClassName();
-        switch (typeName) {
-            case "byte":
-                this.typeDescriptor = "B";
-                break;
-            case "short":
-                this.typeDescriptor = "S";
-                break;
-            case "int":
-                this.typeDescriptor = "I";
-                break;
-            case "long":
-                this.typeDescriptor = "J";
-                break;
-            case "float":
-                this.typeDescriptor = "F";
-                break;
-            case "double":
-                this.typeDescriptor = "D";
-                break;
-            case "boolean":
-                this.typeDescriptor = "Z";
-                break;
-            case "char":
-                this.typeDescriptor = "C";
-                break;
-            case "void":
-                this.typeDescriptor = "V";
-                break;
-            default:
-                String internal = typeName;
-                if (typeName.charAt(0) != '[') {
-                    internal = 'L' + internal + ';';
-                }
-                this.typeDescriptor = internal.replace('.', '/');
-                break;
-        }
+        this.typeDescriptor = ByteCodeUtils.toTypeDescriptor(typeName);
         this.annotations = Optional.ofNullable(annotations).orElse(AnnotationDescription.EMPTY_ANNOTATIONS);
     }
 
