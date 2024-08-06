@@ -10,43 +10,42 @@
             Tags
         </h3>
         <table class="formfields" style="max-width: 500px;">
-            <ui:repeat value="#{editProjectTagsBean.tags}" var="tag">
+            <ui:repeat value="#{editProjectTagsBean.tags}" var="tagInfo">
                 <tr>
                     <td class="label">
-                        <h:outputText value="#{tag.type.name}:"/>
+                        <h:outputText value="#{tagInfo.typeName}:"/>
                     </td>
                     <td>
-                        <h:outputText value="#{empty tag.name ? '[None]' : tag.name}" rendered="#{not canModifyTags}"/>
+                        <h:outputText value="#{empty tagInfo.name ? '[None]' : tagInfo.name}" rendered="#{not canModifyTags}"/>
 
-                        <h:panelGroup rendered="#{canModifyTags}" styleClass="tag-type-#{tag.type.id}">
-                            <h:inputHidden id="tag-type" value="#{tag.type.id}"/>
-                            <h:inputHidden id="tag-type-name" value="#{tag.type.name}"/>
-                            <h:inputHidden id="tag-name" value="#{tag.name}"/>
+                        <h:panelGroup rendered="#{canModifyTags}">
+                            <h:inputHidden id="tag-type-name" value="#{tagInfo.typeName}"/>
+                            <h:inputHidden id="tag-name" value="#{tagInfo.name}"/>
 
-                            <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
-                                <h:panelGroup rendered="#{tag.type.nullable}">
-                                    <h:panelGroup rendered="#{tag.name == '[None]'}">
+                            <select class="editable-select #{tagInfo.extensible ? '' : 'readonly'} #{tagInfo.tagTypeExists ? 'tag-type-exists' : ''}">
+                                <h:panelGroup rendered="#{tagInfo.nullable}">
+                                    <h:panelGroup rendered="#{tagInfo.name == '[None]'}">
                                         <option value="[None]" selected="selected">[None]</option>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{tag.name != '[None]'}">
+                                    <h:panelGroup rendered="#{tagInfo.name != '[None]'}">
                                         <option value="[None]">[None]</option>
                                     </h:panelGroup>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{not tag.type.nullable and tag.name == '[None]'}">
+                                <h:panelGroup rendered="#{not tagInfo.nullable and tagInfo.name == '[None]'}">
                                     <option value="[None]" disabled="disabled" selected="selected">[None]</option>
                                 </h:panelGroup>
 
-                                <ui:repeat value="#{editProjectTagsBean.getTagValues(tag.type.name)}" var="t">
-                                    <h:panelGroup rendered="#{tag.name == t.name}">
+                                <ui:repeat value="#{editProjectTagsBean.getTagValues(tagInfo.typeName)}" var="t">
+                                    <h:panelGroup rendered="#{tagInfo.name == t.name}">
                                         <option value="#{t.name}" selected="selected"><h:outputText value="#{t.name}"/></option>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{tag.name != t.name}">
+                                    <h:panelGroup rendered="#{tagInfo.name != t.name}">
                                         <option value="#{t.name}"><h:outputText value="#{t.name}"/></option>
                                     </h:panelGroup>
                                 </ui:repeat>
                             </select>
                             <h:panelGroup styleClass="error"
-                                          rendered="#{not empty editProjectTagsBean.errorMessage and editProjectTagsBean.typeId == tag.type.id}">
+                                          rendered="#{not empty editProjectTagsBean.errorMessage and editProjectTagsBean.typeName == tagInfo.typeName}">
                                 <h:outputText value="#{editProjectTagsBean.errorMessage}"/>
                             </h:panelGroup>
                         </h:panelGroup>
@@ -58,10 +57,11 @@
             <h:inputHidden id="realPathForTags" value="#{editProjectTagsBean.realPath}"/>
             <a4j:jsFunction name="saveTagChanges" action="#{editProjectTagsBean.save()}"
                             execute="repoIdForTags realPathForTags"
-                            render="editProjectTagsPanel">
-                <a4j:param name="typeId" assignTo="#{editProjectTagsBean.typeId}"/>
+                            render="editProjectTagsPanel projectTree nodeButtons propertiesContent">
+                <a4j:param name="typeName" assignTo="#{editProjectTagsBean.typeName}"/>
                 <a4j:param name="tagName" assignTo="#{editProjectTagsBean.tagName}"/>
             </a4j:jsFunction>
+            <a4j:jsFunction name="refreshTags" render="editProjectTagsPanel" />
         </table>
 
         <script>
@@ -71,29 +71,40 @@
                 return window.confirm('Tag "' + tagName + '" does not exist for tag type "' + tagType + '".\nDo you want to add it?')
             }
 
+            function confirmNonPersistentTagRemoval(tagType) {
+                return window.confirm('Tag type "' + tagType + '" does not exist, therefore this tag can only be removed. Remove tag?')
+            }
+
             function initEditProjectTagsPanel() {
                 $j('#editProjectTagsPanel .editable-select').editableSelect({
                     filter: false
                 }).on('select.editable-select', function (e, $li) {
-                    let typeId = $li.parent().parent().find('input[type=hidden][id$="tag-type"]').val();
-                    saveTagChanges(typeId, $li.text());
+                    let typeName = $li.parent().parent().find('input[type=hidden][id$="tag-type-name"]').val();
+                    let tagName = $j(this).val();
+                    let shouldSave = $j(this).hasClass("tag-type-exists") || (tagName === "[None]" && confirmNonPersistentTagRemoval(typeName));
+                    if (shouldSave) {
+                        saveTagChanges(typeName, $li.text());
+                    } else {
+                        refreshTags();
+                    }
                 });
 
                 let applyManualEdit = function () {
                     $j(this).off('blur');
-                    let typeId = $j(this).parent().find('input[type=hidden][id$="tag-type"]').val();
-                    let typeName = $j(this).parent().find('input[type=hidden][id$="tag-type-name"]').val();
-                    let tagName = $j(this).val();
-                    let exist = $j(this).parent().find('.es-list > li').filter(function () {
-                        return $j(this).text().toLowerCase() === tagName.toLowerCase();
-                    }).length > 0;
+                    if ($j(this).hasClass("tag-type-exists")) {
+                        let typeName = $j(this).parent().find('input[type=hidden][id$="tag-type-name"]').val();
+                        let tagName = $j(this).val();
+                        let exist = $j(this).parent().find('.es-list > li').filter(function () {
+                            return $j(this).text().toLowerCase() === tagName.toLowerCase();
+                        }).length > 0;
 
-                    if (exist) {
-                        saveTagChanges(typeId, tagName);
-                    } else {
-                        if (confirmAddTag(typeName, tagName)) {
-                            $j(this).blur();
-                            saveTagChanges(typeId, tagName);
+                        if (exist) {
+                            saveTagChanges(typeName, tagName);
+                        } else {
+                            if (confirmAddTag(typeName, tagName)) {
+                                $j(this).blur();
+                                saveTagChanges(typeName, tagName);
+                            }
                         }
                     }
                 };
