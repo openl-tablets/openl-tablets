@@ -69,7 +69,6 @@ import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
@@ -102,12 +101,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            OpenLProjectService projectService,
             ProjectStateValidator projectStateValidator,
             ProjectDependencyResolver projectDependencyResolver,
             SummaryTableReader summaryTableReader,
             List<EditableTableReader<? extends TableView, ? extends TableView.Builder<?>>> readers) {
-        super(designRepositoryAclService, projectService);
+        super(designRepositoryAclService);
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
         this.summaryTableReader = summaryTableReader;

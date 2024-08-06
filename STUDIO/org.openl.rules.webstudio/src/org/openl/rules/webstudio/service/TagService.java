@@ -1,6 +1,8 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.persistence.Tag;
@@ -41,4 +43,7 @@ public class TagService {
         return tagDao.getByName(tagTypeId, name);
     }
 
+    public Tag getByTypeNameAndName(String key, String value) {
+        return tagDao.getByTagTypeAndName(key, value);
+    }
 }
