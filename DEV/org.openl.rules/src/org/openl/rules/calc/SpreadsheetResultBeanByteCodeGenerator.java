@@ -1,6 +1,7 @@
 package org.openl.rules.calc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -10,12 +11,12 @@ import javax.xml.bind.annotation.XmlElement;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
+import org.openl.cache.GenericKey;
 import org.openl.gen.ByteCodeUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
@@ -31,9 +32,15 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     private static final String SR_BEAN_CLASS = Type.getDescriptor(SpreadsheetResultBeanClass.class);
     private static final String SPREADSHEET_CELL = Type.getDescriptor(SpreadsheetCell.class);
     private static final String XML_ELEMENT = Type.getDescriptor(XmlElement.class);
+    public static final Type GENERIC_KEY_TYPE = Type.getType(GenericKey.class);
+    public static final Method GENERIC_KEY_CREATOR = Method.getMethod("org.openl.cache.GenericKey getInstance(Object, Object)");
+    public static final Type VALUES_TYPE = Type.getType(HashMap.class);
+    public static final Method GET_VALUE = Method.getMethod("Object get(Object)");
+    public static final Method SET_VALUE = Method.getMethod("Object put(Object, Object)");
 
     private final String beanNameWithPackage;
     private final List<FieldDescription> fields;
+    private final Type beanType;
 
 
     /**
@@ -43,8 +50,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
      * @param beanFields map of fields, field name as a key, and type as value.
      */
     public static byte[] byteCode(String beanName, List<FieldDescription> beanFields) {
-        var jvmClassName = beanName.replace('.', '/');
-        return new SpreadsheetResultBeanByteCodeGenerator(jvmClassName, beanFields).getBytes();
+        return new SpreadsheetResultBeanByteCodeGenerator(beanName, beanFields).getBytes();
     }
 
     private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, List<FieldDescription> beanFields) {
@@ -52,6 +58,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
         this.fields = beanFields;
         this.beanNameWithPackage = beanNameWithPackage;
+        this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
     }
 
     private byte[] getBytes() {
@@ -84,17 +91,27 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitClassDescription(ClassWriter classWriter) {
-        classWriter.visit(Opcodes.V1_8,
+        classWriter.visit(Opcodes.V11,
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
-                beanNameWithPackage,
+                beanType.getInternalName(),
                 null,
                 "java/lang/Object",
                 new String[]{"java/io/Serializable"});
     }
 
     private void visitClassAnnotations(ClassWriter classWriter) {
-        String namespace = ByteCodeUtils.getNamespace(beanNameWithPackage);
-        String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
+        var parts = StringUtils.split(beanNameWithPackage, '.');
+
+        var str = new StringBuilder(beanNameWithPackage.length());
+        str.append("https://");
+        for (int i = parts.length - 2; i >= 0; i--) {
+            str.append(parts[i]).append('.');
+            if (i != 0) {
+                str.append('.');
+            }
+        }
+        String namespace = str.toString();
+        String name = parts[parts.length - 1];
         var av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
@@ -119,34 +136,47 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitConstructor(ClassWriter classWriter) {
+        var map = classWriter.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, "values", "Ljava/util/HashMap;", "Ljava/util/HashMap<Lorg/openl/cache/GenericKey;Ljava/lang/Object;>;", null);
+        map.visitEnd();
+
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, DEFAULT_CONSTRUCTOR, null, null, classWriter);
 
         // invokes the super class constructor
         mg.loadThis();
         mg.invokeConstructor(Type.getType(Object.class), DEFAULT_CONSTRUCTOR);
+
+        mg.loadThis();
+        mg.newInstance(VALUES_TYPE);
+        mg.dup();
+        mg.push(fields.size());
+        mg.push(1.0f);
+        mg.invokeConstructor(VALUES_TYPE, Method.getMethod("void <init> (int, float)"));
+        mg.putField(beanType, "values", VALUES_TYPE);
+
         mg.returnValue();
         mg.endMethod();
     }
 
     private void visitFields(ClassWriter classWriter) {
         for (var field : fields) {
-            classWriter.visitField((Opcodes.ACC_PRIVATE), field.fieldName, field.fieldType, null, null).visitEnd();
             generateGetter(classWriter, field.fieldName, field);
-            generateSetter(classWriter, field.fieldName, field.fieldType);
+            generateSetter(classWriter, field.fieldName, field);
         }
     }
 
     private void generateGetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
-        String getterName = ClassUtils.getter(fieldName);
-        final String methodDescriptor = "()" + fieldDescription.fieldType;
-        var methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, getterName, methodDescriptor, null, null);
+        String getterMethod = fieldDescription.className + " " + ClassUtils.getter(fieldName) + "()";
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(getterMethod), null, null, classWriter);
+        mg.loadThis();
+        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.push(fieldDescription.row);
+        mg.push(fieldDescription.column);
+        mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
+        mg.invokeVirtual(VALUES_TYPE, GET_VALUE);
+        mg.checkCast(fieldDescription.type);
+        mg.returnValue();
 
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD, beanNameWithPackage, fieldName, fieldDescription.fieldType);
-        methodVisitor.visitInsn(Type.getType(fieldDescription.fieldType).getOpcode(Opcodes.IRETURN));
-        methodVisitor.visitMaxs(0, 0);
-
-        var av = methodVisitor.visitAnnotation(SPREADSHEET_CELL, true);
+        var av = mg.visitAnnotation(SPREADSHEET_CELL, true);
         if (fieldDescription.column != null) {
             av.visit("column", fieldDescription.column);
 
@@ -162,39 +192,33 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         }
         av.visitEnd();
 
-        av = methodVisitor.visitAnnotation(XML_ELEMENT, true);
+        av = mg.visitAnnotation(XML_ELEMENT, true);
         av.visit("name", fieldDescription.xmlName);
         av.visitEnd();
 
-        methodVisitor.visitEnd();
+        mg.endMethod();
     }
 
-    private void generateSetter(ClassWriter classWriter, String fieldName, String fieldType) {
-        String setterName = ClassUtils.setter(fieldName);
-        String methodDescriptor = "(" + fieldType + ")V";
-        var methodVisitor = classWriter.visitMethod(Opcodes.ACC_PUBLIC, setterName, methodDescriptor, null, null);
+    private void generateSetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
+        String setterMethod = "void " + ClassUtils.setter(fieldName) + "(" + fieldDescription.className + ")";
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(setterMethod), null, null, classWriter);
 
-        Label l0 = new Label();
-        methodVisitor.visitLabel(l0);
+        mg.loadThis();
+        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.push(fieldDescription.row);
+        mg.push(fieldDescription.column);
+        mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
+        mg.loadArg(0);
+        mg.invokeVirtual(VALUES_TYPE, SET_VALUE);
+        mg.pop();
 
-        // this.fieldName = arg0
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-        int constantForVarInsn = Type.getType(fieldType).getOpcode(Opcodes.ILOAD);
-        methodVisitor.visitVarInsn(constantForVarInsn, 1);
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD, beanNameWithPackage, fieldName, fieldType);
-        methodVisitor.visitInsn(Opcodes.RETURN);
-
-        // Add variable name to DEBUG
-        Label l2 = new Label();
-        methodVisitor.visitLabel(l2);
-        methodVisitor.visitLocalVariable(fieldName, fieldType, null, l0, l2, 1);
-
-        methodVisitor.visitMaxs(0, 0);
+        mg.returnValue();
+        mg.endMethod();
     }
 
     static final class FieldDescription {
         final String className;
-        final String fieldType;
+        final Type type;
         final String row;
         final String column;
         final boolean FIX_ME;
@@ -203,7 +227,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
         FieldDescription(String canonicalClassName, String row, String column, boolean FIX_ME) {
             this.className = canonicalClassName;
-            this.fieldType = ByteCodeUtils.toTypeDescriptor(canonicalClassName);
+            this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
             this.column = column;
             this.FIX_ME = FIX_ME;

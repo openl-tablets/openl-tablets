@@ -27,6 +27,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.serialization.jackson.NonNullMixIn;
+import org.openl.rules.serialization.spr.DefaultStrategy;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -48,6 +49,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_JSON_TYPE_INFO_ID = "jackson.jsonTypeInfoId";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_PROPERTY_NAMING_STRATEGY = "jackson.propertyNamingStrategy";
+    private static final DefaultStrategy DEFAULT_STRATEGY = new DefaultStrategy();
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
@@ -116,10 +118,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         processJacksonJsonTypeInfoIdSetting(getProperty(JACKSON_JSON_TYPE_INFO_ID));
         processRootClassNamesBindingSetting(getProperty(ROOT_CLASS_NAMES_BINDING));
         processXlsModuleOpenClassRelatedSettings();
-    }
-
-    protected JacksonObjectMapperFactoryBean getDelegate() {
-        return delegate;
     }
 
     protected Object getProperty(String name) {
@@ -430,7 +428,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 }
             }
         }
-        return null;
+        return DEFAULT_STRATEGY;
     }
 
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
