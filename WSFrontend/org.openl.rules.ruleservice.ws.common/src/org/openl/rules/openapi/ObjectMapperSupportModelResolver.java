@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverterContext;
@@ -186,6 +187,18 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                         ).ifPresent(property::setName);
             }
         }
+    }
+
+    @Override
+    protected void applyBeanValidatorAnnotations(BeanPropertyDefinition propDef, Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
+        String name = property.getName();
+        if (name != null && propDef.getAccessor() != null && name.equals(propDef.getAccessor().getName())) {
+            // The workaround till the fix will be applied https://github.com/swagger-api/swagger-core/issues/415#issuecomment-277947538
+            // https://github.com/swagger-api/swagger-core/blob/e6d3fa3608d32d7c74fd62a007253f440a1f773d/modules/swagger-core/src/main/java/io/swagger/v3/core/jackson/ModelResolver.java#L610
+            // Fixes the issue when the property is look like xXxxx: aDog -> getaDog()
+            property.setName(propDef.getName());
+        }
+        super.applyBeanValidatorAnnotations(propDef, property, annotations, parent, applyNotNullAnnotations);
     }
 
 }

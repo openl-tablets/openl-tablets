@@ -120,10 +120,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         processXlsModuleOpenClassRelatedSettings();
     }
 
-    protected JacksonObjectMapperFactoryBean getDelegate() {
-        return delegate;
-    }
-
     protected Object getProperty(String name) {
         Object result = null;
         if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
