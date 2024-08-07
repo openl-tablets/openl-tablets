@@ -1,6 +1,5 @@
 package org.openl.rules.calc;
 
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -19,7 +18,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -607,16 +605,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                     .toCustomSpreadsheetResultOpenClass()
                                     .generateBeanClass();
                         } else {
-                            fieldClsName = Map.class.getName();
+                            fieldClsName = Map.class.getCanonicalName();
                         }
                         if (additionalClassGenerationClassloaderModule != null) {
                             getModule().getClassGenerationClassLoader()
                                     .addClassLoader(
                                             additionalClassGenerationClassloaderModule.getClassGenerationClassLoader());
                         }
-                        typeName = dim > 0 ? (IntStream.range(0, dim)
-                                .mapToObj(e -> "[")
-                                .collect(joining()) + "L" + fieldClsName + ";") : fieldClsName;
+                        typeName = fieldClsName + "[]".repeat(dim);
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                             .equals(t) || JavaOpenClass.getOpenClass(VOID.class).equals(t)) {
                         continue; // IGNORE VOID FIELDS
@@ -625,7 +621,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         if (instanceClass.isPrimitive()) {
                             typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
                         } else {
-                            typeName = instanceClass.getName();
+                            typeName = instanceClass.getCanonicalName();
                         }
                     }
 
