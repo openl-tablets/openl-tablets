@@ -515,16 +515,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return xmlNamesMap;
     }
 
-    public static String findNonConflictFieldName(Collection<String> beanFieldNames, String fName) {
-        String fNewName = fName;
-        int i = 1;
-        while (beanFieldNames.contains(fNewName)) {
-            fNewName = fName + i;
-            i++;
-        }
-        return fNewName;
-    }
-
     private static final Comparator<Pair<Point, IOpenField>> COMP = Comparator.comparing(Pair::getLeft,
             Comparator.nullsLast(Comparator.comparingInt(Point::getRow).thenComparingInt(Point::getColumn)));
 
