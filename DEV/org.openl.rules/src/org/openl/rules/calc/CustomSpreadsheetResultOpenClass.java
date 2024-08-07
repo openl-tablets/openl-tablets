@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -477,7 +476,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
                         List<Pair<Point, IOpenField>> fields = getListOfFields();
                         IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
-                        var beanFields = new LinkedHashMap<String, FieldDescription>();
+                        var beanFields = new ArrayList<FieldDescription>();
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, true, fieldsMap, cache);
                         addFieldsToJavaClassBuilder(beanFields, fields, used, xmlNames, false, fieldsMap, cache);
 
@@ -531,7 +530,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return !getModule().isDependencyModule(spreadsheetResultOpenClass.getModule(), cache);
     }
 
-    private void addFieldsToJavaClassBuilder(Map<String, FieldDescription> beanFields,
+    private void addFieldsToJavaClassBuilder(List<FieldDescription> beanFields,
                                              List<Pair<Point, IOpenField>> fields,
                                              List<IOpenField>[][] used,
                                              Map<String, String> usedXmlNames,
@@ -650,12 +649,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         }
 
                         FieldDescription fieldDescription = new FieldDescription(typeName,
-                                xmlName,
-                                simpleRefByRow || !simpleRefByColumn ? rowName : null,
-                                !simpleRefByRow ? columnName : null,
+                                simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
+                                !simpleRefByRow ? columnNames[column] : null,
                                 simpleRefByColumn
                         );
-                        beanFields.put(fieldName, fieldDescription);
+                        beanFields.add(fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
                     }
