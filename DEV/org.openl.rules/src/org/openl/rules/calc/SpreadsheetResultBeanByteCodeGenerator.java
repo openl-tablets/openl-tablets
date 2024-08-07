@@ -1,7 +1,8 @@
 package org.openl.rules.calc;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -13,6 +14,8 @@ import org.objectweb.asm.commons.Method;
 
 import org.openl.gen.ByteCodeUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.JavaKeywordUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Generates Java Beans byte code for the SpreadsheetResult
@@ -25,7 +28,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     private static final String SPREADSHEET_CELL = Type.getDescriptor(SpreadsheetCell.class);
 
     private final String beanNameWithPackage;
-    private final Map<String, FieldDescription> fields;
+    private final List<FieldDescription> fields;
 
 
     /**
@@ -34,12 +37,13 @@ final class SpreadsheetResultBeanByteCodeGenerator {
      * @param beanName   name of the generated class, with namespace (e.g. <code>org.opel.generated.spreadsheetresults.MySpr</code>)
      * @param beanFields map of fields, field name as a key, and type as value.
      */
-    public static byte[] byteCode(String beanName, Map<String, FieldDescription> beanFields) {
+    public static byte[] byteCode(String beanName, List<FieldDescription> beanFields) {
         var jvmClassName = beanName.replace('.', '/');
         return new SpreadsheetResultBeanByteCodeGenerator(jvmClassName, beanFields).getBytes();
     }
 
-    private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, Map<String, FieldDescription> beanFields) {
+    private SpreadsheetResultBeanByteCodeGenerator(String beanNameWithPackage, List<FieldDescription> beanFields) {
+        fixDuplicates(beanFields);
         this.fields = beanFields;
         this.beanNameWithPackage = beanNameWithPackage;
     }
@@ -51,6 +55,25 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         visitConstructor(classWriter);
         visitFields(classWriter);
         return classWriter.toByteArray();
+    }
+
+    private static void fixDuplicates(List<FieldDescription> fields) {
+        var names = new HashSet<String>(fields.size());
+        var duplicates = new ArrayList<FieldDescription>();
+        for (var field : fields) {
+            if (!names.add(field.fieldName)) {
+                duplicates.add(field);
+            }
+        }
+        for (var field : duplicates) {
+            var name = field.fieldName;
+            int i = 1;
+            while (names.contains(name + i)) {
+                i++;
+            }
+            field.fieldName = name + i;
+            names.add(field.fieldName);
+        }
     }
 
     private void visitClassDescription(ClassWriter classWriter) {
@@ -81,8 +104,8 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         av.visit("namespace", namespace);
         av.visit("name", name);
         AnnotationVisitor av1 = av.visitArray("propOrder");
-        for (Entry<String, FieldDescription> e : fields.entrySet()) {
-            av1.visit(null, e.getKey());
+        for (var e : fields) {
+            av1.visit(null, e.fieldName);
         }
         av1.visitEnd();
         av.visitEnd();
@@ -99,16 +122,10 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitFields(ClassWriter classWriter) {
-        for (Entry<String, FieldDescription> field : fields.entrySet()) {
-            var fieldName = field.getKey();
-            var fieldDescription = field.getValue();
-            var fieldType = fieldDescription.fieldType;
-            var fieldVisitor = classWriter.visitField((Opcodes.ACC_PRIVATE), fieldName, fieldType, null, null);
-
-            fieldVisitor.visitEnd();
-
-            generateGetter(classWriter, fieldName, fieldDescription);
-            generateSetter(classWriter, fieldName, fieldType);
+        for (var field : fields) {
+            classWriter.visitField((Opcodes.ACC_PRIVATE), field.fieldName, field.fieldType, null, null).visitEnd();
+            generateGetter(classWriter, field.fieldName, field);
+            generateSetter(classWriter, field.fieldName, field.fieldType);
         }
     }
 
@@ -164,17 +181,47 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         methodVisitor.visitMaxs(0, 0);
     }
 
+    private static String toJavaIdentifier(String s) {
+        if (!s.isEmpty()) {
+            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++) {
+                if (Character.isJavaIdentifierPart(s.charAt(i))) {
+                    sb.append(s.charAt(i));
+                }
+            }
+            s = sb.toString();
+            if (JavaKeywordUtils.isJavaKeyword(s) || !s.isEmpty() && !Character.isJavaIdentifierStart(s.charAt(0))) {
+                s = "_" + s;
+            }
+        }
+        return s;
+    }
+
     static final class FieldDescription {
         final String fieldType;
         final String row;
         final String column;
         final boolean FIX_ME;
+        String fieldName;
 
         FieldDescription(String fieldType, String row, String column, boolean FIX_ME) {
             this.fieldType = ByteCodeUtils.toTypeDescriptor(fieldType);
             this.row = row;
             this.column = column;
             this.FIX_ME = FIX_ME;
+            String fieldName;
+            if (column == null) {
+                fieldName = toJavaIdentifier(row);
+            } else if (row == null) {
+                fieldName = toJavaIdentifier(column);
+            } else {
+                fieldName = toJavaIdentifier(column) + StringUtils.capitalize(toJavaIdentifier(row));
+            }
+            if (fieldName.isEmpty()) {
+                fieldName = "_";
+            }
+            this.fieldName = ClassUtils.decapitalize(fieldName);
         }
     }
 }
