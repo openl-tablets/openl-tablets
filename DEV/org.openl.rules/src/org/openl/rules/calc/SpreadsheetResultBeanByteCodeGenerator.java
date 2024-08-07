@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -32,10 +33,13 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     public static final Type VALUES_TYPE = Type.getType(HashMap.class);
     public static final Method GET_VALUE = Method.getMethod("Object get(Object)");
     public static final Method SET_VALUE = Method.getMethod("Object put(Object, Object)");
+    public static final Type SR_TYPE = Type.getType(SpreadsheetResult.class);
+    public static final Method SR_GET_VALUE = Method.getMethod("Object getValue(String, String)");
 
     private final String beanNameWithPackage;
     private final List<FieldDescription> fields;
     private final Type beanType;
+    private final Method setMethod;
 
 
     /**
@@ -53,6 +57,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         this.fields = beanFields;
         this.beanNameWithPackage = beanNameWithPackage;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
+        this.setMethod = Method.getMethod(beanNameWithPackage + " set(org.openl.rules.calc.SpreadsheetResult, String, String, Class, java.util.function.BiFunction)");
     }
 
     private byte[] getBytes() {
@@ -61,6 +66,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         visitClassAnnotations(classWriter);
         visitConstructor(classWriter);
         visitFields(classWriter);
+        visitValueOf(classWriter);
         return classWriter.toByteArray();
     }
 
@@ -158,7 +164,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void generateGetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
-        String getterMethod = fieldDescription.fieldType + " " + ClassUtils.getter(fieldName) + "()";
+        String getterMethod = fieldDescription.className + " " + ClassUtils.getter(fieldName) + "()";
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(getterMethod), null, null, classWriter);
         mg.loadThis();
         mg.getField(beanType, "values", VALUES_TYPE);
@@ -166,7 +172,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         mg.push(fieldDescription.column);
         mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
         mg.invokeVirtual(VALUES_TYPE, GET_VALUE);
-        mg.checkCast(Type.getType(ByteCodeUtils.toTypeDescriptor(fieldDescription.fieldType)));
+        mg.checkCast(fieldDescription.type);
         mg.returnValue();
 
         var av = mg.visitAnnotation(SPREADSHEET_CELL, true);
@@ -189,7 +195,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void generateSetter(ClassWriter classWriter, String fieldName, FieldDescription fieldDescription) {
-        String setterMethod = "void " + ClassUtils.setter(fieldName) + "(" + fieldDescription.fieldType + ")";
+        String setterMethod = "void " + ClassUtils.setter(fieldName) + "(" + fieldDescription.className + ")";
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(setterMethod), null, null, classWriter);
 
         mg.loadThis();
@@ -202,6 +208,80 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         mg.pop();
 
         mg.returnValue();
+        mg.endMethod();
+    }
+
+    private void visitValueOf(ClassWriter classWriter) {
+        visitSet(classWriter);
+
+        var valueOf = Method.getMethod(beanNameWithPackage + " valueOf(org.openl.rules.calc.SpreadsheetResult, java.util.function.BiFunction)");
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, valueOf, null, null, classWriter);
+
+        // {
+        mg.visitCode();
+
+        // bean = new Bean();
+        mg.newInstance(beanType);
+        mg.dup();
+        mg.invokeConstructor(beanType, DEFAULT_CONSTRUCTOR);
+
+        for (var field : fields) {
+            // bean = bean.set(sr, row, column, clazz, converter)
+            mg.loadArg(0); // sr
+            mg.push(field.row);
+            mg.push(field.column);
+            mg.push(field.type);
+            mg.loadArg(1); // converter
+            mg.invokeVirtual(beanType, setMethod);
+        }
+
+        // return bean;
+        mg.returnValue();
+
+        // }
+        mg.endMethod();
+    }
+
+    private void visitSet(ClassWriter classWriter) {
+
+        var mg = new GeneratorAdapter(Opcodes.ACC_PRIVATE, setMethod, null, null, classWriter);
+
+        // {
+        mg.visitCode();
+
+        // _a = this.values;
+        mg.loadThis();
+        mg.getField(beanType, "values", VALUES_TYPE);
+
+        // _k = GenericKey.geyInstance(row, column)
+        mg.loadArg(1); // row
+        mg.loadArg(2); // column
+        mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
+
+        // put on the stack
+        mg.loadArg(4); // converter
+
+        // _v = sr.getValue(row, column);
+        mg.loadArg(0); // sr
+        mg.loadArg(1); // row
+        mg.loadArg(2); // column
+        mg.invokeVirtual(SR_TYPE, SR_GET_VALUE);
+
+        // _v = converter.apply(_v, clazz)
+        mg.loadArg(3); // clazz
+        mg.invokeInterface(Type.getType(BiFunction.class), Method.getMethod("Object apply(Object, Object)"));
+
+        // _z = _a.put(_k, _v);
+        mg.invokeVirtual(VALUES_TYPE, SET_VALUE);
+
+        // remove _z from the stack
+        mg.pop();
+
+        // return this;
+        mg.loadThis();
+        mg.returnValue();
+
+        // }
         mg.endMethod();
     }
 
@@ -223,14 +303,16 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     static final class FieldDescription {
-        final String fieldType;
+        final String className;
+        final Type type;
         final String row;
         final String column;
         final boolean FIX_ME;
         String fieldName;
 
-        FieldDescription(String fieldType, String row, String column, boolean FIX_ME) {
-            this.fieldType = fieldType;
+        FieldDescription(String canonicalClassName, String row, String column, boolean FIX_ME) {
+            this.className = canonicalClassName;
+            this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
             this.column = column;
             this.FIX_ME = FIX_ME;

@@ -2,6 +2,7 @@ package org.openl.rules.calc;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -91,15 +93,6 @@ public class SpreadsheetResult implements Serializable {
                 spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
-    }
-
-    public boolean isFieldUsedInModel(String fieldName) {
-        Point point = getPoint(fieldName);
-        if (point != null) {
-            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
-                    .getRow()] != null;
-        }
-        return false;
     }
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames,
@@ -631,6 +624,18 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                try {
+                    var method = toType.getMethod("valueOf", SpreadsheetResult.class, BiFunction.class);
+                    return method.invoke(null, spreadsheetResult, new BiFunction<Object, Class<?>, Object>() {
+                        @Override
+                        public Object apply(Object v, Class<?> aClass) {
+                            return convertSpreadsheetResult(v, aClass, null, spreadsheetResultBeanPropertyNamingStrategy);
+                        }
+                    });
+                } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException ignore) {
+                }
+            }
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)

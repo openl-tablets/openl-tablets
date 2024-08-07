@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 
 import static org.openl.rules.calc.ASpreadsheetField.createFieldName;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -407,37 +409,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public Object createBean(SpreadsheetResult spreadsheetResult,
                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Class<?> clazz = getBeanClass();
-        Object target;
         try {
-            target = clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            var method = clazz.getMethod("valueOf", SpreadsheetResult.class, BiFunction.class);
+            return method.invoke(null, spreadsheetResult, new BiFunction<Object, Class<?>, Object>() {
+                @Override
+                public Object apply(Object v, Class<?> aClass) {
+                    return SpreadsheetResult.convertSpreadsheetResult(v, aClass, null, spreadsheetResultBeanPropertyNamingStrategy);
+                }
+            });
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             log.debug("Ignored error: ", e);
             return null;
         }
-
-        for (Map.Entry<String, List<IOpenField>> cell : beanFieldsMap.entrySet()) {
-            var fieldName = cell.getKey();
-            Object v;
-            for (IOpenField openField : cell.getValue()) {
-                if (spreadsheetResult.isFieldUsedInModel(openField.getName())) {
-                    v = openField.get(spreadsheetResult, null);
-                    if (v != null) {
-                        Object cv = SpreadsheetResult.convertSpreadsheetResult(v,
-                                ClassUtils.getType(target, fieldName),
-                                openField.getType(),
-                                spreadsheetResultBeanPropertyNamingStrategy);
-                        try {
-                            ClassUtils.set(target, fieldName, cv);
-                        } catch (Exception e) {
-                            log.debug("Ignored error: ", e);
-                            continue;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        return target;
     }
 
     public boolean isBeanClassInitialized() {
