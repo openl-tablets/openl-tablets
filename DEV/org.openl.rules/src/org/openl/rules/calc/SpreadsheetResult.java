@@ -93,15 +93,6 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
     }
 
-    public boolean isFieldUsedInModel(String fieldName) {
-        Point point = getPoint(fieldName);
-        if (point != null) {
-            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
-                    .getRow()] != null;
-        }
-        return false;
-    }
-
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames,
                                                      String[] rowNames,
                                                      boolean simpleRefByColumn,
