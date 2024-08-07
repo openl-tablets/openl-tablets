@@ -122,12 +122,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         methodVisitor.visitInsn(Type.getType(fieldDescription.fieldType).getOpcode(Opcodes.IRETURN));
         methodVisitor.visitMaxs(0, 0);
 
-
-        var av = methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
-        av.visit("name", fieldDescription.xmlName);
-        av.visitEnd();
-
-        av = methodVisitor.visitAnnotation(SPREADSHEET_CELL, true);
+        var av = methodVisitor.visitAnnotation(SPREADSHEET_CELL, true);
         if (fieldDescription.column != null) {
             av.visit("column", fieldDescription.column);
 
@@ -171,14 +166,12 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
     static final class FieldDescription {
         final String fieldType;
-        final String xmlName;
         final String row;
         final String column;
         final boolean FIX_ME;
 
-        FieldDescription(String fieldType, String xmlName, String row, String column, boolean FIX_ME) {
+        FieldDescription(String fieldType, String row, String column, boolean FIX_ME) {
             this.fieldType = ByteCodeUtils.toTypeDescriptor(fieldType);
-            this.xmlName = xmlName;
             this.row = row;
             this.column = column;
             this.FIX_ME = FIX_ME;

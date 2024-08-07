@@ -650,7 +650,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         }
 
                         FieldDescription fieldDescription = new FieldDescription(typeName,
-                                xmlName,
                                 simpleRefByRow || !simpleRefByColumn ? rowName : null,
                                 !simpleRefByRow ? columnName : null,
                                 simpleRefByColumn
