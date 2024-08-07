@@ -48,8 +48,14 @@ public final class ByteCodeUtils {
             case "void":
                 return "V";
             default:
+                if (typeName.endsWith("[]")) {
+                    // Canonical name like int[][]
+                    var pos = typeName.indexOf('[');
+                    return "[".repeat((typeName.length() - pos) / 2) + toTypeDescriptor(typeName.substring(0, pos));
+                }
                 String internal = typeName;
                 if (typeName.charAt(0) != '[') {
+                    // base name like java.lang.Object
                     internal = 'L' + internal + ';';
                 }
                 return internal.replace('.', '/');
