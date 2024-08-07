@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import static org.openl.rules.calc.ASpreadsheetField.createFieldName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -546,33 +548,25 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             String rowName = rowNamesForResultModel[row];
             String columnName = columnNamesForResultModel[column];
             if (rowName != null && columnName != null) {
-                IOpenField field = null;
+                IOpenField field;
                 if (used[row][column] == null) {
                     String fieldName;
                     String xmlName;
-                    if (simpleRefByRow) {
+                    if (simpleRefByRow || StringUtils.isBlank(columnName)) {
                         fieldName = rowName;
                         xmlName = rowName;
-                        field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowName);
-                    } else if (simpleRefByColumn) {
+                        field = getField(createFieldName(null, rowName));
+                    } else if (simpleRefByColumn || StringUtils.isBlank(rowName)) {
                         fieldName = columnName;
                         xmlName = columnName;
-                        field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnName);
-                    } else if (StringUtils.isBlank(columnName)) { // * in the column
-                        fieldName = rowName;
-                        xmlName = rowName;
-                    } else if (StringUtils.isBlank(rowName)) { // * in the row
-                        fieldName = columnName;
-                        xmlName = columnName;
+                        field = getField(createFieldName(columnName, null));
                     } else {
                         fieldName = columnName + StringUtils.capitalize(rowName);
                         xmlName = columnName + "_" + rowName;
+                        field = getField(createFieldName(columnName, rowName));
                     }
                     if (field == null) {
                         field = pair.getRight();
-                    }
-                    if (!field.getName().startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
-                        continue;
                     }
                     if (StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
