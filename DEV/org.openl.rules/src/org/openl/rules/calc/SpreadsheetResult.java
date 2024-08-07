@@ -93,13 +93,55 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
     }
 
-    public boolean isFieldUsedInModel(String fieldName) {
-        Point point = getPoint(fieldName);
-        if (point != null) {
-            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
-                    .getRow()] != null;
+    static Map<String, Point> buildFieldsCoordinates2(String[] columnNames,
+                                                      String[] rowNames,
+                                                      String[] modelColumnNames,
+                                                      String[] modelRowNames) {
+        Map<String, Point> fieldsCoordinates = new HashMap<>();
+        if (columnNames != null && rowNames != null) {
+            for (int row = 0; row < rowNames.length; row++) {
+                for (int column = 0; column < columnNames.length; column++) {
+                    if (columnNames[column] != null && rowNames[row] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], rowNames[row]), Point.get(column, row));
+                    }
+                }
+            }
+
+            int index = getIndex(modelColumnNames == null ? columnNames : modelColumnNames);
+            if (index >= 0) {
+                for (int row = 0; row < rowNames.length; row++) {
+                    if (rowNames[row] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(null, rowNames[row]), Point.get(index, row));
+                    }
+                }
+            }
+
+            index = getIndex(modelRowNames == null ? rowNames : modelRowNames);
+            if (index >= 0) {
+                for (int column = 0; column < columnNames.length; column++) {
+                    if (columnNames[column] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], null), Point.get(column, index));
+                    }
+
+                }
+            }
         }
-        return false;
+        return Map.copyOf(fieldsCoordinates);
+    }
+
+    private static int getIndex(String[] names) {
+        int index = -1;
+        for (int i = 0; i < names.length; i++) {
+            if (names[i] != null) {
+                if (index >= 0) {
+                    index = -1;
+                    // The multiple references by name
+                    break;
+                }
+                index = i;
+            }
+        }
+        return index;
     }
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames,
@@ -205,7 +247,7 @@ public class SpreadsheetResult implements Serializable {
     private Point getPoint(String name) {
         if (fieldsCoordinates == null) { // Required if default constructor is
             // used with setter methods.
-            fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames, false, false);
+            fieldsCoordinates = buildFieldsCoordinates2(columnNames, rowNames, columnNamesForResultModel, rowNamesForResultModel);
         }
         return fieldsCoordinates.get(name);
     }
@@ -239,6 +281,23 @@ public class SpreadsheetResult implements Serializable {
 
         if (fieldCoordinates != null) {
             return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
+        }
+        return null;
+    }
+
+    /**
+     * @see SpreadsheetResultBeanByteCodeGenerator
+     */
+    public Object getModelValue(String name) {
+        var p = getPoint(name);
+
+        if (p != null) {
+            var column = columnNamesForResultModel[p.getColumn()];
+            var row = rowNamesForResultModel[p.getRow()];
+            if (column != null && row != null) {
+                Object result = getValue(p.getRow(), p.getColumn());
+                return result;
+            }
         }
         return null;
     }
@@ -631,6 +690,9 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                return CustomSpreadsheetResultOpenClass.createBean(toType, spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+            }
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)

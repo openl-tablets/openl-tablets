@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toSet;
 
 import static org.openl.rules.calc.ASpreadsheetField.createFieldName;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,6 +44,7 @@ import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -112,7 +116,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.simpleRefByColumn = rowsForResultModelCount == 1;
 
         this.fieldsCoordinates = SpreadsheetResult
-                .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow);
+                .buildFieldsCoordinates2(this.columnNames, this.rowNames, this.columnNamesForResultModel, this.rowNamesForResultModel);
         this.module = module;
         this.spreadsheet = spreadsheet;
     }
@@ -407,37 +411,103 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public Object createBean(SpreadsheetResult spreadsheetResult,
                              SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Class<?> clazz = getBeanClass();
-        Object target;
-        try {
-            target = clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            log.debug("Ignored error: ", e);
-            return null;
-        }
+        return createBean(clazz, spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+    }
 
-        for (Map.Entry<String, List<IOpenField>> cell : beanFieldsMap.entrySet()) {
-            var fieldName = cell.getKey();
-            Object v;
-            for (IOpenField openField : cell.getValue()) {
-                if (spreadsheetResult.isFieldUsedInModel(openField.getName())) {
-                    v = openField.get(spreadsheetResult, null);
-                    if (v != null) {
-                        Object cv = SpreadsheetResult.convertSpreadsheetResult(v,
-                                ClassUtils.getType(target, fieldName),
-                                openField.getType(),
-                                spreadsheetResultBeanPropertyNamingStrategy);
-                        try {
-                            ClassUtils.set(target, fieldName, cv);
-                        } catch (Exception e) {
-                            log.debug("Ignored error: ", e);
-                            continue;
-                        }
-                        break;
+    public static Object createBean(Class<?> clazz, SpreadsheetResult spreadsheetResult, SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+        try {
+            var method = clazz.getMethod("valueOf", SpreadsheetResult.class, BiFunction.class);
+            return method.invoke(null, spreadsheetResult, new BiFunction<Object, Class<?>, Object>() {
+                @Override
+                public Object apply(Object v, Class<?> toClass) {
+                    if (v == null) {
+                        return JavaOpenClass.getOpenClass(toClass).nullObject();
                     }
+                    var fromClass = v.getClass();
+                    if (toClass.equals(Object.class)) {
+                        if (v instanceof SpreadsheetResult) {
+                            var sr = (SpreadsheetResult) v;
+                            var customClass = sr.getCustomSpreadsheetResultOpenClass();
+                            if (customClass != null) {
+                                return customClass.createBean(sr, namingStrategy);
+                            }
+                        }
+                    }
+
+                    var toComponentType = toClass;
+                    while (toComponentType.isArray()) {
+                        toComponentType = toComponentType.getComponentType();
+                    }
+                    if (toComponentType.equals(Object.class)) {
+                        if (fromClass.isArray()) {
+                            // Optimized case for SpreadsheetResult[][][]...
+                            var fromComponentType = fromClass;
+                            while (fromComponentType.isArray()) {
+                                fromComponentType = fromComponentType.getComponentType();
+                            }
+                            if (SpreadsheetResult.class.isAssignableFrom(fromComponentType)) {
+                                return ArrayUtils.convert(v, x -> apply(x, Object.class));
+                            }
+                        }
+                    }
+                    if (v instanceof SpreadsheetResult && toClass.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                        return createBean(toClass, (SpreadsheetResult) v, namingStrategy);
+                    }
+                    if (v instanceof Collection) {
+                        try {
+                            var newCollection = (Collection<Object>) v.getClass().newInstance();
+                            for (var o : (Collection<?>)v) {
+                                newCollection.add(apply(o, Object.class));
+                            }
+                            return newCollection;
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            return v;
+                        }
+                    }
+                    if (v instanceof Map) {
+                        try {
+                            var newCollection = (Map<Object, Object>) v.getClass().newInstance();
+                            for (var o : ((Map<?, ?>)v).entrySet()) {
+                                newCollection.put(apply(o.getKey(), Object.class), apply(o.getValue(), Object.class));
+                            }
+                            return newCollection;
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            return v;
+                        }
+                    }
+                    if (ClassUtils.isAssignable(fromClass, toClass)) {
+                        // Optimization for the trivial case without type conversion
+                        return v;
+                    }
+                    var openClass = spreadsheetResult.getCustomSpreadsheetResultOpenClass();
+                    if (openClass != null) {
+                        var module = openClass.getModule();
+                        if (module != null) {
+                            var cast = module.getObjectToDataOpenCastConvertor().getConvertor(fromClass, toClass);
+                            if (cast != null && cast.isImplicit()) {
+                                // Embedded conversion
+                                return cast.convert(v);
+                            }
+                        }
+                    }
+
+                    if (toClass.isArray()) {
+                        var componentType = toClass.getComponentType();
+                        int len = Array.getLength(v);
+                        var array = Array.newInstance(componentType, len);
+                        for (int i = 0; i < len; i++) {
+                            Array.set(array, i, apply(Array.get(v, i), componentType));
+                        }
+                        return array;
+                    }
+
+                    // Fallback to old implementation.
+                    return SpreadsheetResult.convertSpreadsheetResult(v, toClass, null, namingStrategy);
                 }
-            }
+            });
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
         }
-        return target;
     }
 
     public boolean isBeanClassInitialized() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -34,12 +35,16 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     public static final Type VALUES_TYPE = Type.getType(HashMap.class);
     public static final Method GET_VALUE = Method.getMethod("Object get(Object)");
     public static final Method SET_VALUE = Method.getMethod("Object put(Object, Object)");
+    private static final Type SR_TYPE = Type.getType(SpreadsheetResult.class);
+    private static final Method SR_GET_VALUE = Method.getMethod("Object getModelValue(String)");
+    private static final Type METHOD_TYPE = Type.getType(java.lang.reflect.Method.class);
 
     private final List<FieldDescription> fields;
     private final Type beanType;
     private final String namespace;
     private final String name;
     private final String propertyNameSpace;
+    private final Method valueOfMethod;
 
 
     /**
@@ -57,6 +62,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
         this.fields = beanFields;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
+        this.valueOfMethod = Method.getMethod(beanNameWithPackage + " valueOf(org.openl.rules.calc.SpreadsheetResult, java.util.function.BiFunction)");
 
         var parts = StringUtils.split(beanNameWithPackage, '.');
 
@@ -79,6 +85,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         visitClassAnnotations(classWriter);
         visitConstructor(classWriter);
         visitFields(classWriter);
+        visitValueOf(classWriter);
         return classWriter.toByteArray();
     }
 
@@ -212,6 +219,112 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
         mg.returnValue();
         mg.endMethod();
+    }
+
+    private void visitValueOf(ClassWriter classWriter) {
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, valueOfMethod, null, null, classWriter);
+
+        // {
+        mg.visitCode();
+
+        // bean = new Bean();
+        mg.newInstance(beanType);
+        mg.dup();
+        mg.invokeConstructor(beanType, DEFAULT_CONSTRUCTOR);
+        var bean = mg.newLocal(beanType);
+        mg.storeLocal(bean);
+
+        // array
+        mg.push(beanType);
+        mg.invokeVirtual(Type.getType(Class.class), Method.getMethod("java.lang.reflect.Method[] getDeclaredMethods()"));
+        var array = mg.newLocal(Type.getType(java.lang.reflect.Method[].class));
+        mg.storeLocal(array);
+
+        // end index
+        mg.loadLocal(array);
+        mg.arrayLength();
+        var end = mg.newLocal(Type.INT_TYPE);
+        mg.storeLocal(end);
+
+        // index
+        mg.push(0);
+        var index = mg.newLocal(Type.INT_TYPE);
+        mg.storeLocal(index);
+
+
+        var methodVisitor = mg.getDelegate();
+
+        var forLoop = mg.mark();
+        methodVisitor.visitFrame(Opcodes.F_FULL, 6, new Object[]{"org/openl/rules/calc/SpreadsheetResult", "java/util/function/BiFunction", beanType.getInternalName(), "[Ljava/lang/reflect/Method;", Opcodes.INTEGER, Opcodes.INTEGER}, 0, new Object[]{});
+
+        // index >= end
+        mg.loadLocal(index);
+        mg.loadLocal(end);
+        var exitFor = mg.newLabel();
+        mg.ifCmp(Type.INT_TYPE, GeneratorAdapter.GE, exitFor);
+
+        // method = array[index]
+        mg.loadLocal(array);
+        mg.loadLocal(index);
+        mg.arrayLoad(METHOD_TYPE);
+        var method = mg.newLocal(METHOD_TYPE);
+        mg.storeLocal(method);
+
+        // annotation = method.getAnnotation(SpreadsheetCell.class)
+        mg.loadLocal(method);
+        mg.push(Type.getType(SpreadsheetCell.class));
+        mg.invokeVirtual(METHOD_TYPE, Method.getMethod("java.lang.annotation.Annotation getAnnotation(Class)"));
+        mg.checkCast(Type.getType(SpreadsheetCell.class));
+        var annotation = mg.newLocal(Type.getType(SpreadsheetCell.class));
+        mg.storeLocal(annotation);
+
+        // if annotation == null
+        mg.loadLocal(annotation);
+        var exitIf = mg.newLabel();
+        mg.ifNull(exitIf);
+
+        // cell = annotation.getCell()
+        mg.loadLocal(annotation);
+        mg.invokeInterface(Type.getType(SpreadsheetCell.class), Method.getMethod("String cell()"));
+        var cell = mg.newLocal(Type.getType(String.class));
+        mg.storeLocal(cell);
+
+        // put on the stack
+        mg.loadLocal(bean);
+        mg.getField(beanType, "values", VALUES_TYPE);
+        mg.loadLocal(cell); // cell
+        mg.loadArg(1); // converter
+
+        // _v = sr.getFieldValue(cell);
+        mg.loadArg(0); // sr
+        mg.loadLocal(cell); // cell
+        mg.invokeVirtual(SR_TYPE, SR_GET_VALUE);
+
+        // _v = converter.apply(_v, method.getReturnType())
+        mg.loadLocal(method);
+        mg.invokeVirtual(METHOD_TYPE, Method.getMethod("Class getReturnType()"));
+        mg.invokeInterface(Type.getType(BiFunction.class), Method.getMethod("Object apply(Object, Object)"));
+
+        // _z = values.put(cell, _v);
+        mg.invokeVirtual(VALUES_TYPE, SET_VALUE);
+        // remove _z from the stack
+        mg.pop();
+
+        mg.mark(exitIf);
+        methodVisitor.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
+
+        // index++
+        mg.iinc(index, 1);
+        mg.goTo(forLoop);
+
+        mg.mark(exitFor);
+        methodVisitor.visitFrame(Opcodes.F_CHOP, 3, null, 0, null);
+
+        // return bean
+        mg.loadLocal(bean);
+        mg.returnValue();
+        mg.endMethod();
+
     }
 
     static final class FieldDescription {

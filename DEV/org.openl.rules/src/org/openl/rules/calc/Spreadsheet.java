@@ -188,7 +188,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
         if (fieldsCoordinates == null) {
             synchronized (this) {
                 if (fieldsCoordinates == null) {
-                    fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(columnNames, rowNames, false, false);
+                    fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates2(columnNames, rowNames, columnNamesForResultModel, rowNamesForResultModel);
                 }
             }
         }
