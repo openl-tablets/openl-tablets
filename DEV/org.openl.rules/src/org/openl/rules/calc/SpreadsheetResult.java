@@ -351,11 +351,10 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Map<String, Object> toMap() {
-        return toMap(true, null);
+        return toMap(true);
     }
 
-    public Map<String, Object> toMap(boolean spreadsheetResultsToMap,
-                                     SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+    public Map<String, Object> toMap(boolean spreadsheetResultsToMap) {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
@@ -373,7 +372,7 @@ public class SpreadsheetResult implements Serializable {
                         Point p = getPoint(openField.getName());
                         if (p != null && !points.contains(p) && columnNamesForResultModel[p
                                 .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
-                            String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
+                            String key = xmlNamesMap.get(e.getKey());
                             p1.merge(key, 1, Integer::sum);
                             points.add(p);
                         }
@@ -382,7 +381,7 @@ public class SpreadsheetResult implements Serializable {
                         Point p = getPoint(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                                 .getRow()] != null) {
-                            String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
+                            String key = xmlNamesMap.get(e.getKey());
                             String fName;
                             if (p1.get(key) == 1) {
                                 fName = key;
@@ -391,8 +390,7 @@ public class SpreadsheetResult implements Serializable {
                             }
                             values.put(fName,
                                     convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
-                                            spreadsheetResultsToMap,
-                                            spreadsheetResultBeanPropertyNamingStrategy));
+                                            spreadsheetResultsToMap));
                         }
                     }
                 }
@@ -402,22 +400,12 @@ public class SpreadsheetResult implements Serializable {
                         if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
                             String fName;
                             if (isSingleColumn) {
-                                fName = spreadsheetResultBeanPropertyNamingStrategy == null ? rowNamesForResultModel[i]
-                                        : spreadsheetResultBeanPropertyNamingStrategy
-                                        .transform(
-                                                rowNamesForResultModel[i]);
+                                fName = rowNamesForResultModel[i];
                             } else {
                                 if (isSingleRow) {
-                                    fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j]
-                                            : spreadsheetResultBeanPropertyNamingStrategy
-                                            .transform(
-                                                    columnNamesForResultModel[j]);
+                                    fName = columnNamesForResultModel[j];
                                 } else {
-                                    fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i]
-                                            : spreadsheetResultBeanPropertyNamingStrategy
-                                            .transform(
-                                                    columnNamesForResultModel[j],
-                                                    rowNamesForResultModel[i]);
+                                    fName = columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i];
                                 }
                             }
                             String fNewName = fName;
@@ -428,8 +416,7 @@ public class SpreadsheetResult implements Serializable {
                             }
                             values.put(fNewName,
                                     convertSpreadsheetResult(getValue(i, j),
-                                            spreadsheetResultsToMap,
-                                            spreadsheetResultBeanPropertyNamingStrategy));
+                                            spreadsheetResultsToMap));
                         }
                     }
                 }
@@ -438,29 +425,8 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    private String getKey(SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy,
-                          Map<String, String> xmlNamesMap,
-                          Entry<String, List<IOpenField>> e,
-                          Point p) {
-        String key;
-        if (spreadsheetResultBeanPropertyNamingStrategy == null) {
-            key = xmlNamesMap.get(e.getKey());
-        } else {
-            if (customSpreadsheetResultOpenClass.isSimpleRefByRow()) {
-                key = spreadsheetResultBeanPropertyNamingStrategy.transform(rowNamesForResultModel[p.getRow()]);
-            } else if (customSpreadsheetResultOpenClass.isSimpleRefByColumn()) {
-                key = spreadsheetResultBeanPropertyNamingStrategy.transform(columnNamesForResultModel[p.getColumn()]);
-            } else {
-                key = spreadsheetResultBeanPropertyNamingStrategy.transform(columnNamesForResultModel[p.getColumn()],
-                        rowNamesForResultModel[p.getRow()]);
-            }
-        }
-        return key;
-    }
-
     private static Object convertSpreadsheetResult(Object v,
-                                                   boolean spreadsheetResultsToMap,
-                                                   SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                   boolean spreadsheetResultsToMap) {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
@@ -472,33 +438,31 @@ public class SpreadsheetResult implements Serializable {
                 return convertSpreadsheetResult(v,
                         customSpreadsheetResultOpenClass.getBeanClass(),
                         customSpreadsheetResultOpenClass,
-                        spreadsheetResultsToMap,
-                        spreadsheetResultBeanPropertyNamingStrategy);
+                        spreadsheetResultsToMap
+                );
             } else {
                 return convertSpreadsheetResult(v,
                         null,
                         null,
-                        spreadsheetResultsToMap,
-                        spreadsheetResultBeanPropertyNamingStrategy);
+                        spreadsheetResultsToMap
+                );
             }
         }
         return convertSpreadsheetResult(v,
                 null,
                 null,
-                spreadsheetResultsToMap,
-                spreadsheetResultBeanPropertyNamingStrategy);
+                spreadsheetResultsToMap
+        );
     }
 
-    public static Object convertSpreadsheetResult(Object v,
-                                                  SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        return convertSpreadsheetResult(v, null, null, false, spreadsheetResultBeanPropertyNamingStrategy);
+    public static Object convertSpreadsheetResult(Object v) {
+        return convertSpreadsheetResult(v, null, null, false);
     }
 
     public static Object convertSpreadsheetResult(Object v,
                                                   Class<?> toType,
-                                                  IOpenClass toTypeOpenClass,
-                                                  SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        return convertSpreadsheetResult(v, toType, toTypeOpenClass, false, spreadsheetResultBeanPropertyNamingStrategy);
+                                                  IOpenClass toTypeOpenClass) {
+        return convertSpreadsheetResult(v, toType, null, false);
     }
 
     public static Object convertBeansToSpreadsheetResults(Object v,
@@ -545,18 +509,17 @@ public class SpreadsheetResult implements Serializable {
     private static Object convertSpreadsheetResult(Object v,
                                                    Class<?> toType,
                                                    IOpenClass toTypeOpenClass,
-                                                   boolean spreadsheetResultsToMap,
-                                                   SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                   boolean spreadsheetResultsToMap) {
         if (v == null) {
             return null;
         }
         if (v instanceof Collection) {
             return convertCollection((Collection<?>) v,
-                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
+                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap));
         }
         if (v instanceof Map) {
             return convertMap((Map<?, ?>) v,
-                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
+                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap));
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
@@ -575,8 +538,8 @@ public class SpreadsheetResult implements Serializable {
                                     toType != null && toType.isArray() ? toType.getComponentType() : null,
                                     toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
                                             : null,
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
+                                    spreadsheetResultsToMap
+                            ));
                 }
                 if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
                     return tmpArray;
@@ -612,8 +575,8 @@ public class SpreadsheetResult implements Serializable {
                             convertSpreadsheetResult(Array.get(v, i),
                                     componentType,
                                     null,
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
+                                    spreadsheetResultsToMap
+                            ));
                 }
                 return newArray;
             } else {
@@ -623,19 +586,19 @@ public class SpreadsheetResult implements Serializable {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType || spreadsheetResultsToMap) {
-                return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
+                return spreadsheetResult.toMap(spreadsheetResultsToMap);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
-                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                        spreadsheetResultBeanPropertyNamingStrategy);
+                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult
+                );
             } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) toTypeOpenClass)
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) toTypeOpenClass)
                         .toCustomSpreadsheetResultOpenClass();
-                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                        spreadsheetResultBeanPropertyNamingStrategy);
+                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult
+                );
             } else if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && toType == spreadsheetResult
                     .getCustomSpreadsheetResultOpenClass()
                     .getModule()
@@ -646,12 +609,12 @@ public class SpreadsheetResult implements Serializable {
                         .getModule()
                         .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                         .toCustomSpreadsheetResultOpenClass()
-                        .createBean(spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+                        .createBean(spreadsheetResult);
             } else {
                 if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
-                    return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
+                    return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult);
                 } else {
-                    return spreadsheetResult.toMap(false, null);
+                    return spreadsheetResult.toMap(false);
                 }
             }
         }

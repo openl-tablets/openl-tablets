@@ -4,11 +4,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.ruleservice.core.interceptors.RulesDeployAware;
-import org.openl.rules.ruleservice.core.interceptors.ServiceClassLoaderAware;
+import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
 import org.openl.rules.variation.VariationsResult;
 
-public class VariationResultSPRToPlainConverterAdvice extends AbstractSPRToPlainConverterAdvice<VariationsResult<Object>> implements RulesDeployAware, ServiceClassLoaderAware {
+public class VariationResultSPRToPlainConverterAdvice extends AbstractServiceMethodAfterReturningAdvice<VariationsResult<Object>> {
 
     @Override
     @SuppressWarnings("unchecked")
@@ -19,11 +18,7 @@ public class VariationResultSPRToPlainConverterAdvice extends AbstractSPRToPlain
         VariationsResult<Object> ret = new VariationsResult<>();
 
         for (Map.Entry<String, SpreadsheetResult> entry : variationsResult.getVariationResults().entrySet()) {
-            ret.registerResult(entry.getKey(),
-                    SpreadsheetResult.convertSpreadsheetResult(entry.getValue(),
-                            getConvertToType().getLeft(),
-                            getConvertToType().getRight(),
-                            getSpreadsheetResultBeanPropertyNamingStrategy()));
+            ret.registerResult(entry.getKey(), SpreadsheetResult.convertSpreadsheetResult(entry.getValue()));
         }
 
         for (Map.Entry<String, String> entry : variationsResult.getVariationFailures().entrySet()) {

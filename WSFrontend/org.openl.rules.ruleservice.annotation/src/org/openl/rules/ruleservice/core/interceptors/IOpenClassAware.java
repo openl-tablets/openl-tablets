@@ -5,6 +5,7 @@ import org.openl.types.IOpenClass;
 /**
  * This interface is designed to inject @{@link IOpenClass} related to compiled project to ruleservice interceptors.
  */
+@Deprecated
 public interface IOpenClassAware {
     void setIOpenClass(IOpenClass openClass);
 }

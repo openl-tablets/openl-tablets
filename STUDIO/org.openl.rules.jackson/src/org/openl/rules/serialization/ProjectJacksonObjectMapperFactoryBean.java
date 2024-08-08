@@ -383,11 +383,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private PropertyNamingStrategy extractPropertyNamingStrategy() {
-        return extractPropertyNamingStrategy(rulesDeploy, getClassLoader());
-    }
-
-    public static PropertyNamingStrategy extractPropertyNamingStrategy(RulesDeploy rulesDeploy,
-                                                                       ClassLoader classLoader) {
+        ClassLoader classLoader = getClassLoader();
         if (rulesDeploy != null) {
             if (rulesDeploy.getConfiguration() != null) {
                 Object propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
