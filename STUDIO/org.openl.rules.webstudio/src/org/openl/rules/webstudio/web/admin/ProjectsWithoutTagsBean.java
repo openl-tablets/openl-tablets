@@ -3,59 +3,53 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTemplateService;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.uw.UserWorkspace;
 
 @Service
 @SessionScope
 public class ProjectsWithoutTagsBean {
-    private final OpenLProjectService projectService;
     private final TagTemplateService tagTemplateService;
-    private final DesignTimeRepository designTimeRepository;
     private final TagService tagService;
 
     private List<ProjectTags> projectsWithoutTags = Collections.emptyList();
 
-    public ProjectsWithoutTagsBean(OpenLProjectService projectService,
-                                   TagTemplateService tagTemplateService,
-                                   DesignTimeRepository designTimeRepository,
+    public ProjectsWithoutTagsBean(TagTemplateService tagTemplateService,
                                    TagService tagService) {
-        this.projectService = projectService;
         this.tagTemplateService = tagTemplateService;
-        this.designTimeRepository = designTimeRepository;
         this.tagService = tagService;
     }
 
     public void init() {
         projectsWithoutTags = new ArrayList<>();
 
-        final ArrayList<AProject> projects = new ArrayList<>(designTimeRepository.getProjects());
-        projects.sort(
-                Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath));
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
+        UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
 
-        for (AProject project : projects) {
-            final String repoId = project.getRepository().getId();
-            final String repoName = project.getRepository().getName();
-            final String realPath = project.getRealPath();
-            final OpenLProject existing = projectService.getProject(repoId, realPath);
+        List<RulesProject> projects = userWorkspace.getProjects().stream()
+                .sorted(Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath))
+                .collect(Collectors.toList());
 
-            final String projectName = project.getBusinessName();
-            final List<Tag> tags = tagTemplateService.getTags(projectName);
+        for (RulesProject project : projects) {
+            final List<Tag> tags = tagTemplateService.getTags(project.getBusinessName());
 
             if (tags.isEmpty()) {
                 // Cannot automatically fill tags.
@@ -64,15 +58,10 @@ public class ProjectsWithoutTagsBean {
 
             final List<TagType> allTypes = tags.stream().map(Tag::getType).collect(Collectors.toList());
 
-            if (existing == null || existing.getTags().isEmpty() || allTypes.stream()
-                    .anyMatch(type -> existing.getTags().stream().noneMatch(tag -> tag.getType().equals(type)))) {
+            Map<String, String> currentTags = project.getTags();
+            if (allTypes.stream().anyMatch(type -> ! currentTags.containsKey(type.getName()))) {
 
-                OpenLProject openlProject = new OpenLProject();
-                openlProject.setRepositoryId(repoId);
-                openlProject.setProjectPath(realPath);
-                openlProject.setTags(tags);
-
-                ProjectTags projectTags = new ProjectTags(openlProject, existing, projectName, repoName);
+                ProjectTags projectTags = new ProjectTags(project, tags);
 
                 projectsWithoutTags.add(projectTags);
             }
@@ -87,27 +76,22 @@ public class ProjectsWithoutTagsBean {
         this.projectsWithoutTags = projectsWithoutTags;
     }
 
-    public void applyTags() {
+    public void applyTags() throws ProjectException {
         int applied = 0;
-        for (ProjectTags openLProject : projectsWithoutTags) {
-            if (openLProject.fillTags) {
-                final OpenLProject project = openLProject.getProject();
-                createExtensibleIfAbsent(project.getTags());
-                if (project.getTags().isEmpty()) {
+        for (ProjectTags projectTags : projectsWithoutTags) {
+            if (projectTags.fillTags) {
+                List<Tag> tagsToBeAdded = projectTags.getRawTags();
+                createExtensibleIfAbsent(tagsToBeAdded);
+                if (tagsToBeAdded.isEmpty()) {
                     continue;
                 }
-
-                OpenLProject existing = projectService.getProject(project.getRepositoryId(), project.getProjectPath());
-                if (existing == null) {
-                    projectService.save(project);
-                } else {
-                    final List<Tag> currentTags = existing.getTags();
-                    project.getTags().forEach(tag -> {
-                        currentTags.removeIf(currentTag -> tag.getType().equals(currentTag.getType()));
-                        currentTags.add(tag);
-                    });
-                    projectService.update(existing);
-                }
+                
+                var newTagsMap = tagsToBeAdded.stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
+                RulesProject rulesProject = projectTags.getRulesProject();
+                
+                var tagsToSave = new HashMap<>(rulesProject.getTags());
+                tagsToSave.putAll(newTagsMap);
+                rulesProject.saveTags(tagsToSave);
 
                 applied++;
             }
@@ -136,36 +120,36 @@ public class ProjectsWithoutTagsBean {
     }
 
     public static class ProjectTags {
-        private final OpenLProject project;
-        private final OpenLProject existing;
-        private final String projectName;
-        private final String repoName;
+        private final RulesProject rulesProject;
+        private final List<Tag> tags;
         private boolean fillTags;
 
-        ProjectTags(OpenLProject project, OpenLProject existing, String projectName, String repoName) {
-            this.project = project;
-            this.existing = existing;
-            this.projectName = projectName;
-            this.repoName = repoName;
-            fillTags = true;
-        }
-
-        private OpenLProject getProject() {
-            return project;
+        ProjectTags(RulesProject rulesProject, List<Tag> tags) {
+            this.rulesProject = rulesProject;
+            this.tags = tags;
+            fillTags = rulesProject.isOpenedForEditing();
         }
 
         public String getProjectName() {
-            return projectName;
+            return rulesProject.getBusinessName();
         }
 
         public String getProjectPath() {
-            return project.getProjectPath();
+            return rulesProject.getRealPath();
         }
 
         public String getRepoName() {
-            return repoName;
+            return rulesProject.getRepository().getName();
+        }
+        
+        public boolean isOpenedForEditing() {
+            return rulesProject.isOpenedForEditing();
         }
 
+        public RulesProject getRulesProject() {
+            return rulesProject;
+        }
+        
         public boolean isFillTags() {
             return fillTags;
         }
@@ -173,20 +157,16 @@ public class ProjectsWithoutTagsBean {
         public void setFillTags(boolean fillTags) {
             this.fillTags = fillTags;
         }
+        
+        protected List<Tag> getRawTags() {
+            return tags;
+        }
 
         public List<TagDTO> getTags() {
             List<TagDTO> dtoList = new ArrayList<>();
-            final List<Tag> tags = project.getTags();
             for (Tag tag : tags) {
-                Tag existingTag = null;
-                if (existing != null) {
-                    existingTag = existing.getTags()
-                            .stream()
-                            .filter(e -> e.getType().equals(tag.getType()))
-                            .findAny()
-                            .orElse(null);
-                }
-                final TagDTO dto = new TagDTO(tag, existingTag);
+                String existingTagName = rulesProject.getTags().get(tag.getName());
+                final TagDTO dto = new TagDTO(tag, existingTagName);
                 dtoList.add(dto);
             }
             return dtoList;
@@ -195,11 +175,11 @@ public class ProjectsWithoutTagsBean {
 
     public static class TagDTO {
         private final Tag tag;
-        private final Tag existing;
+        private final String existingTagName;
 
-        TagDTO(Tag tag, Tag existing) {
+        TagDTO(Tag tag, String existingTagName) {
             this.tag = tag;
-            this.existing = existing;
+            this.existingTagName = existingTagName;
         }
 
         public String getName() {
@@ -207,7 +187,7 @@ public class ProjectsWithoutTagsBean {
         }
 
         public String getExistingName() {
-            return existing.getName();
+            return existingTagName;
         }
 
         public String getType() {
@@ -215,7 +195,7 @@ public class ProjectsWithoutTagsBean {
         }
 
         public boolean isAssigned() {
-            return existing != null;
+            return existingTagName != null;
         }
 
         public boolean isAddExistingTag() {
@@ -229,9 +209,9 @@ public class ProjectsWithoutTagsBean {
         public boolean isCannotCreate() {
             return tag.getId() == null && !tag.getType().isExtensible();
         }
-
+        
         public boolean isWillReplace() {
-            return existing != null && !existing.getName().equalsIgnoreCase(tag.getName()) && !isCannotCreate();
+            return existingTagName != null && !existingTagName.equalsIgnoreCase(tag.getName()) && !isCannotCreate();
         }
     }
 }

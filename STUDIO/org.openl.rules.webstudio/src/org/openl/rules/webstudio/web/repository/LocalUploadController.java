@@ -221,7 +221,6 @@ public class LocalUploadController {
                                     ProjectArtifactUtils.extractResourceName(createdProject));
                             WebStudioUtils.addErrorMessage(message);
                         }
-                        projectTagsBean.saveTags(createdProject);
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
