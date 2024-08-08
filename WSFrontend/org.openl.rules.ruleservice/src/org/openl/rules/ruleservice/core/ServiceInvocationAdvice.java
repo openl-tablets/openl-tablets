@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -28,7 +27,6 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.annotations.BeanToSpreadsheetResultConvert;
@@ -80,7 +78,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap;
     private final RulesDeploy rulesDeploy;
-    private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     private final ThreadLocal<IOpenMember> iOpenMethodHolder = new ThreadLocal<>();
 
@@ -104,23 +101,16 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 serviceMethodAdviceListeners) : new ArrayList<>();
         this.mapClassToSprOpenClass = initMapClassToSprOpenClass();
         this.rulesDeploy = rulesDeploy;
-        PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
-        if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
-            this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
-        } else {
-            this.sprBeanPropertyNamingStrategy = null;
-        }
 
         final ObjectMapper mapper = configureObjectMapper(applicationContext, rulesDeploy, serviceClassLoader, (XlsModuleOpenClass) openClass);
         serializer = (Object x) -> {
             try {
                 Object object;
                 if (x instanceof Throwable) {
-                    var exc = RuleServiceWrapperException.create((Throwable) x, sprBeanPropertyNamingStrategy);
+                    var exc = RuleServiceWrapperException.create((Throwable) x);
                     object = exc.getBody() != null ? exc.getBody() : exc.getMessage();
                 } else {
-                    object = SpreadsheetResult.convertSpreadsheetResult(x, sprBeanPropertyNamingStrategy);
+                    object = SpreadsheetResult.convertSpreadsheetResult(x);
                 }
                 return mapper.writeValueAsString(object);
             } catch (Exception ignore) {
@@ -466,7 +456,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
         } catch (Throwable t) {
-            var error = RuleServiceWrapperException.create(t, sprBeanPropertyNamingStrategy);
+            var error = RuleServiceWrapperException.create(t);
             if (error.getType().isServerError()) {
                 log.error(error.getMessage(), t);
             }

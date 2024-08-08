@@ -7,7 +7,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 
 /**
  * Exception for wrapping exceptions for returning them from ruleservice.
@@ -42,7 +41,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
         this.type = type;
     }
 
-    public static RuleServiceWrapperException create(Throwable ex, SpreadsheetResultBeanPropertyNamingStrategy namingStrategy) {
+    public static RuleServiceWrapperException create(Throwable ex) {
 
         Object body = null;
         var type = ExceptionType.SYSTEM;
@@ -50,7 +49,7 @@ public class RuleServiceWrapperException extends RuleServiceRuntimeException {
         for (Throwable t : ExceptionUtils.getThrowableList(ex)) {
             if (t instanceof OpenLUserRuntimeException) {
                 body = ((OpenLUserRuntimeException) t).getBody();
-                body = SpreadsheetResult.convertSpreadsheetResult(body, namingStrategy);
+                body = SpreadsheetResult.convertSpreadsheetResult(body);
                 type = ExceptionType.USER_ERROR;
                 message = t.getMessage();
             } else if (t instanceof OutsideOfValidDomainException) {

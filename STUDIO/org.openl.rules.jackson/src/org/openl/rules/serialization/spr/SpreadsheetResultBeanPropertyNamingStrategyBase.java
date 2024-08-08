@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 import org.openl.rules.calc.SpreadsheetCell;
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.util.StringUtils;
 
-abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
+abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy {
 
-    public abstract String transform(String name);
+    protected abstract String transform(String name);
 
-    public abstract String transform(String column, String row);
+    protected abstract String transform(String column, String row);
 
     protected String toUpperCamelCase(String input) {
         if (input == null || input.length() == 0) {

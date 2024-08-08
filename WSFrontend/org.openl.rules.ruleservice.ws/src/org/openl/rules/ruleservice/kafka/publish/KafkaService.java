@@ -17,7 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
@@ -33,11 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
@@ -47,7 +43,6 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
-import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 
 public final class KafkaService implements Runnable {
 
@@ -74,7 +69,6 @@ public final class KafkaService implements Runnable {
     private final ObjectSerializer objectSerializer;
     private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
-    private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public static KafkaService createService(OpenLService service,
                                              String requestIdHeaderKey,
@@ -86,8 +80,7 @@ public final class KafkaService implements Runnable {
                                              KafkaProducer<String, byte[]> dltProducer,
                                              ObjectSerializer objectSerializer,
                                              StoreLogDataManager storeLogDataManager,
-                                             boolean storeLogDataEnabled,
-                                             RulesDeploy rulesDeploy) throws KafkaServiceException {
+                                             boolean storeLogDataEnabled) {
         return new KafkaService(service,
                 requestIdHeaderKey,
                 inTopic,
@@ -98,8 +91,7 @@ public final class KafkaService implements Runnable {
                 dltProducer,
                 objectSerializer,
                 storeLogDataManager,
-                storeLogDataEnabled,
-                rulesDeploy);
+                storeLogDataEnabled);
     }
 
     private KafkaService(OpenLService service,
@@ -112,8 +104,7 @@ public final class KafkaService implements Runnable {
                          KafkaProducer<String, byte[]> dltProducer,
                          ObjectSerializer objectSerializer,
                          StoreLogDataManager storeLogDataManager,
-                         boolean storageEnabled,
-                         RulesDeploy rulesDeploy) throws KafkaServiceException {
+                         boolean storageEnabled) {
         this.service = Objects.requireNonNull(service);
         this.requestIdHeaderKey = requestIdHeaderKey;
         this.inTopic = Objects.requireNonNull(inTopic);
@@ -127,17 +118,6 @@ public final class KafkaService implements Runnable {
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
         this.storageEnabled = storageEnabled;
-        try {
-            PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                    .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
-            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
-                this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
-            } else {
-                this.sprBeanPropertyNamingStrategy = null;
-            }
-        } catch (RuleServiceInstantiationException e) {
-            throw new KafkaServiceException("Failed to initialize 'PropertyNamingStrategy' for kafka service.", e);
-        }
     }
 
     public boolean isStoreLogDataEnabled() {
@@ -396,7 +376,7 @@ public final class KafkaService implements Runnable {
                     .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
             dltRecord.headers()
                     .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
-                            Optional.ofNullable(RuleServiceWrapperException.create(exception, sprBeanPropertyNamingStrategy).getMessage())
+                            Optional.ofNullable(RuleServiceWrapperException.create(exception).getMessage())
                                     .map(s -> s.getBytes(StandardCharsets.UTF_8))
                                     .orElse(null));
             dltRecord.headers()

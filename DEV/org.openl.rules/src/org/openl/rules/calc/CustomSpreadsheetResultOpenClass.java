@@ -403,18 +403,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) {
-        return createBean(spreadsheetResult, null);
-    }
-
-    public Object createBean(SpreadsheetResult spreadsheetResult,
-                             SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Class<?> clazz = getBeanClass();
         try {
             var method = clazz.getMethod("valueOf", SpreadsheetResult.class, BiFunction.class);
             return method.invoke(null, spreadsheetResult, new BiFunction<Object, Class<?>, Object>() {
                 @Override
                 public Object apply(Object v, Class<?> aClass) {
-                    return SpreadsheetResult.convertSpreadsheetResult(v, aClass, null, spreadsheetResultBeanPropertyNamingStrategy);
+                    return SpreadsheetResult.convertSpreadsheetResult(v, aClass, null);
                 }
             });
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {

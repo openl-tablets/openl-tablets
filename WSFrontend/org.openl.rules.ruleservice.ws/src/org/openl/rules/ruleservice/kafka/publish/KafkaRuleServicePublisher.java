@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -267,8 +266,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                                                                 ServiceDeployContext context,
                                                                 KafkaServiceConfig mergedKafkaConfig,
                                                                 KafkaServiceConfig config,
-                                                                Method method,
-                                                                RulesDeploy rulesDeploy) throws KafkaServiceException {
+                                                                Method method) throws KafkaServiceException {
         // Build Kafka Consumer
         final var objectMapper = service.getServiceContext().getBean(ServiceInvocationAdvice.OBJECT_MAPPER_ID, ObjectMapper.class);
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer( service,
@@ -319,8 +317,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                 dltProducer,
                 objectSerializer,
                 getStoreLogDataManager(),
-                getStoreLogDataManager().isEnabled(),
-                rulesDeploy);
+                getStoreLogDataManager().isEnabled());
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -377,8 +374,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                             sharedProducersContext,
                             kafkaServiceConfig,
                             kafkaDeploy.getServiceConfig(),
-                            null,
-                            serviceDescription.getRulesDeploy());
+                            null);
                 }
                 for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
                     final Method method = methodsMap.get(kmc);
@@ -390,8 +386,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
                             sharedProducersContext,
                             kafkaMethodConfig,
                             kmc,
-                            method,
-                            serviceDescription.getRulesDeploy());
+                            method);
                 }
             } catch (Exception e) {
                 stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
