@@ -135,14 +135,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.logicalTable = logicalTable;
     }
 
-    public boolean isSimpleRefByColumn() {
-        return simpleRefByColumn;
-    }
-
-    public boolean isSimpleRefByRow() {
-        return simpleRefByRow;
-    }
-
     public boolean isSpreadsheet() {
         return spreadsheet;
     }
@@ -284,10 +276,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     public String[] getColumnNames() {
         return columnNames.clone();
-    }
-
-    public Map<String, Point> getFieldsCoordinates() {
-        return fieldsCoordinates;
     }
 
     @Override
