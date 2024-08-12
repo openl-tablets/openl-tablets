@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -17,17 +19,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.branch.BranchesData;
+import org.openl.rules.security.standalone.persistence.OpenLProject;
+import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
@@ -437,5 +454,61 @@ public class Migrator {
                 LOG.error("Migration of locks failed.", e);
             }
         }
+    }
+    
+    public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
+        SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
+        try (Session session = sessionFactory.openSession()) {
+            List<OpenLProject> allOpenLProjects = readAllProjectsAndTags(session);
+            if (!allOpenLProjects.isEmpty()) {
+                var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
+                allOpenLProjects.forEach(openLProject -> {
+                    Repository repository = designTimeRepository.getRepository(openLProject.getRepositoryId());
+
+                    if (repository != null) {
+                        if (repository instanceof RepositoryDelegate) {
+                            repository = ((RepositoryDelegate) repository).getOriginal();
+                        }
+                        var projectTags = openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
+
+                        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+                            PropertiesUtils.store(byteArrayOutputStream, projectTags.entrySet());
+                            FileData tagsData = new FileData();
+                            tagsData.setName(openLProject.getProjectPath() + "/tags.properties");
+                            tagsData.setAuthor(new UserInfo(Migrator.class.getName(), "", "system"));
+                            tagsData.setComment(String.format("Migrate tags to tags.properties for OpenL project %s", openLProject.getProjectPath()));
+                            try (var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
+                                repository.save(tagsData, inputStream);
+                            }
+
+                            deleteProject(openLProject, session);
+                        } catch (Exception e) {
+                            LOG.error(String.format("Migration of tags for project %s in repository %s has failed.", openLProject.getProjectPath(), repository.getName()), e);
+                        }
+                    } else {
+                        try {
+                            deleteProject(openLProject, session);
+                        } catch (Exception e) {
+                            LOG.error(String.format("Cannot delete obsolete OpenL tags information for the project %s in non-existing repository %s", openLProject.getProjectPath(), openLProject.getRepositoryId()), e);
+                        }
+                    }
+                });
+            }
+
+        }
+    }
+
+    private static void deleteProject(OpenLProject openLProject, Session session) {
+        Transaction transaction = session.beginTransaction();
+        session.delete(openLProject);
+        transaction.commit();
+    }
+
+    private static List<OpenLProject> readAllProjectsAndTags(Session session) {
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<OpenLProject> cq = cb.createQuery(OpenLProject.class);
+        cq.from(OpenLProject.class);
+        return session.createQuery(cq).getResultList();
+
     }
 }
