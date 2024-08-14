@@ -429,6 +429,7 @@ public class Migrator {
                                 branchName,
                                 "ready.lock");
                         newLock.getParent().toFile().mkdirs();
+                        
                         Files.copy(file, newLock);
                         return FileVisitResult.CONTINUE;
                     }
