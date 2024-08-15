@@ -170,7 +170,7 @@
 
         .manifest,
         .urls {
-            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .urls-RESTFUL {
@@ -189,12 +189,14 @@
             display: none;
         }
 
-        .time {
-            color: #9a9a9a;
+        .timeCol {
             padding: 0 8px;
             display: inline-block;
             min-width: 135px;
-            text-align: right;
+            text-align: left;
+        }
+        .time {
+            color: #9a9a9a;
         }
 
         .delete-button,
@@ -243,6 +245,14 @@
             margin-top: 2px;
             display: none;
         }
+
+        .serviceLinkCol {
+            padding: 0 8px;
+            display: inline-block;
+            min-width: 135px;
+            text-align: left;
+            padding-right: 30px;
+        }
     </style>
 </head>
 
@@ -260,8 +270,8 @@
             <span>Service Name</span>
         </div>
         <div class="right-block">
-            <span style="padding-right: 30px;">Services & Links</span>
-            <span style="padding-right: 40px;">Start Time</span>
+            <span class="serviceLinkCol">Services & Links</span>
+            <span class="timeCol" style="padding-right: 15px;">Start Time</span>
             <span class="forDeploy">Actions</span>
         </div>
     </div>
@@ -271,9 +281,11 @@
     <span class="icon collapse" data-uri="admin/services/${servicePathURI}/errors"></span>
     <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
     <div class="right-block">
+        <span class="serviceLinkCol">
         ${urls}
         <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
-        <span class="time">${startedAt}</span>
+        </span>
+        <span class="time timeCol">${startedAt}</span>
         <div style="display: inline-block; padding-top: 4px;">&nbsp;</div>
         <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
             <button type='deploy' class='download-button forDeploy' title='Download'>&nbsp;</button>
