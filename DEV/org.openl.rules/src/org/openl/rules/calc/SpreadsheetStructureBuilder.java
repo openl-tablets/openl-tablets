@@ -554,27 +554,6 @@ public class SpreadsheetStructureBuilder {
         rowOpenClass.addField(field);
     }
 
-    private static String removeWrongSymbols(String s) {
-        if (s == null) {
-            return null;
-        }
-        s = s.trim();
-        if (s.length() > 0) {
-            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < s.length(); i++) {
-                if (Character.isJavaIdentifierPart(s.charAt(i))) {
-                    sb.append(s.charAt(i));
-                }
-            }
-            s = sb.toString();
-            if (JavaKeywordUtils.isJavaKeyword(s) || s.length() > 0 && !Character.isJavaIdentifierStart(s.charAt(0))) {
-                s = "_" + s;
-            }
-        }
-        return s;
-    }
-
     public String[] getRowNamesForResultModel() {
         return getNamesForResultModel(rowHeaders);
     }
@@ -595,7 +574,7 @@ public class SpreadsheetStructureBuilder {
             ret = buildArrayForHeaders(headers, e -> !e.getDefinition().isTildePresented());
         }
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = removeWrongSymbols(ret[i]);
+            ret[i] = JavaKeywordUtils.toJavaIdentifier(ret[i]);
         }
         return ret;
     }
@@ -741,7 +720,7 @@ public class SpreadsheetStructureBuilder {
                     .getMetaInfoReader();
             List<NodeUsage> nodeUsages = new ArrayList<>();
             if (headerDefinition.getDefinition().isAsteriskPresented()) {
-                String s = removeWrongSymbols(headerDefinition.getDefinitionName());
+                String s = JavaKeywordUtils.toJavaIdentifier(headerDefinition.getDefinitionName());
                 if (org.apache.commons.lang3.StringUtils.isEmpty(s)) {
                     s = "Empty string";
                 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 import org.openl.rules.calc.SpreadsheetCell;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
+import org.openl.util.JavaKeywordUtils;
 import org.openl.util.StringUtils;
 
 abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
@@ -16,9 +17,7 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     public abstract String transform(String column, String row);
 
     protected String toUpperCamelCase(String input) {
-        if (input == null || input.length() == 0) {
-            return input;
-        }
+        input = JavaKeywordUtils.toJavaIdentifier(input);
         char c = input.charAt(0);
         char uc = Character.toUpperCase(c);
         if (c == uc) {
@@ -30,9 +29,7 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     }
 
     protected String toLowerCamelCase(String input) {
-        if (input == null || input.length() == 0) {
-            return input;
-        }
+        input = JavaKeywordUtils.toJavaIdentifier(input);
         char c = input.charAt(0);
         char uc = Character.toLowerCase(c);
         if (c == uc) {

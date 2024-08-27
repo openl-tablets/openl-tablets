@@ -1,9 +1,11 @@
 package org.openl.rules.serialization.spr;
 
+import org.openl.util.JavaKeywordUtils;
+
 public class DefaultStrategy extends SpreadsheetResultBeanPropertyNamingStrategyBase {
     @Override
     public String transform(String name) {
-        return name;
+        return JavaKeywordUtils.toJavaIdentifier(name);
     }
 
     @Override
