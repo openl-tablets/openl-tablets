@@ -655,8 +655,8 @@ public class StringsTest {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2022, Calendar.JANUARY, 11, 12, 13, 15);
             calendar.set(Calendar.MILLISECOND, 0);
-            assertEquals("At 12:13:15 PM on Jan 11, 2022, there was a disturbance in the Force on planet 7.",
-                    format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", 7, calendar.getTime(), "a disturbance in the Force"));
+            assertTrue(format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", 7, calendar.getTime(), "a disturbance in the Force")
+                            .matches("At 12:13:15[  ]PM on Jan 11, 2022, there was a disturbance in the Force on planet 7\\."));
         } finally {
             TimeZone.setDefault(defaultTz);
         }

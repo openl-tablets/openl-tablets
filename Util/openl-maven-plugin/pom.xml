@@ -151,7 +151,7 @@
                         <goal>verify</goal>
                     </goals>
                     <streamLogsOnFailures>true</streamLogsOnFailures>
-                    <useLocalRepository>true</useLocalRepository>
+                    <scope>compile</scope>
                     <properties>
                         <maven.compiler.release>11</maven.compiler.release>
                     </properties>
