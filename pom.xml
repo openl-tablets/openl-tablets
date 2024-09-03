@@ -62,6 +62,9 @@
             <id>shibboleth-releases</id>
             <name>Shibboleth Repository</name>
             <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <properties>
