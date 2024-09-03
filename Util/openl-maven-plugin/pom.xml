@@ -150,6 +150,7 @@
                         <goal>clean</goal>
                         <goal>verify</goal>
                     </goals>
+                    <parallelThreads>0.4C</parallelThreads>
                     <streamLogsOnFailures>true</streamLogsOnFailures>
                     <scope>compile</scope>
                     <properties>
