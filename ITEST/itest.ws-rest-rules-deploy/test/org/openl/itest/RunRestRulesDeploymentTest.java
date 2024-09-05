@@ -76,12 +76,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testMissingServiceMethods() {
-        client.send("admin_services_no_services.json.get");
-        client.send("missing-service.delete");
-        client.send("missing-service.get");
-        client.send("missing-service_errors.get");
-        client.send("missing-service_manifest.get");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/missing-service");
     }
 
     @Test
