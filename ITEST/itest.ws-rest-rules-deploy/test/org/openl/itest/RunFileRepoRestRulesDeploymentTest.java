@@ -35,6 +35,11 @@ public class RunFileRepoRestRulesDeploymentTest {
     }
 
     @Test
+    public void testDeployVersion() {
+        client.test("test-resources/deploy-version");
+    }
+
+    @Test
     public void testDeployRules_multipleDeployment() {
         client.test("test-resources/deploy-multi");
     }
