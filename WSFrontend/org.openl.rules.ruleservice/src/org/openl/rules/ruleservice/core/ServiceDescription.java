@@ -28,7 +28,6 @@ public final class ServiceDescription {
     private final String rmiName;
     private final String annotationTemplateClassName;
     private final boolean provideRuntimeContext;
-    private final boolean provideVariations;
     private final Map<String, Object> configuration;
     private final Collection<Module> modules;
     private final DeploymentDescription deployment;
@@ -44,7 +43,6 @@ public final class ServiceDescription {
      * @param url
      * @param serviceClassName
      * @param provideRuntimeContext
-     * @param provideVariations
      * @param modules
      */
     ServiceDescription(String name,
@@ -55,7 +53,6 @@ public final class ServiceDescription {
                        String rmiName,
                        String annotationTemplateClassName,
                        boolean provideRuntimeContext,
-                       boolean provideVariations,
                        Collection<Module> modules,
                        DeploymentDescription deployment,
                        Map<String, Object> configuration,
@@ -71,7 +68,6 @@ public final class ServiceDescription {
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
         this.rmiName = rmiName;
-        this.provideVariations = provideVariations;
         this.annotationTemplateClassName = annotationTemplateClassName;
         this.rulesDeploy = rulesDeploy;
         if (configuration == null) {
@@ -99,7 +95,6 @@ public final class ServiceDescription {
                 builder.rmiName,
                 builder.annotationTemplateClassName,
                 builder.provideRuntimeContext,
-                builder.provideVariations,
                 builder.modules,
                 builder.deployment,
                 builder.configuration,
@@ -187,15 +182,6 @@ public final class ServiceDescription {
     }
 
     /**
-     * This flag defines whether variations will be supported or not.
-     *
-     * @return <code>true</code> if variations should be injected in service class, and <code>false</code> otherwise.
-     */
-    public boolean isProvideVariations() {
-        return provideVariations;
-    }
-
-    /**
      * Returns modules for the deployment.
      *
      * @return a set of modules
@@ -266,7 +252,6 @@ public final class ServiceDescription {
         private String rmiName;
         private String annotationTemplateClassName;
         private boolean provideRuntimeContext;
-        private boolean provideVariations = false;
         private Map<String, Object> configuration;
         private Collection<Module> modules;
         private DeploymentDescription deployment;
@@ -423,17 +408,6 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setRmiServiceClassName(String rmiServiceClassName) {
             this.rmiServiceClassName = rmiServiceClassName;
-            return this;
-        }
-
-        /**
-         * Sets flag that is responsible for variations support.
-         *
-         * @param provideVariations
-         * @return
-         */
-        public ServiceDescriptionBuilder setProvideVariations(boolean provideVariations) {
-            this.provideVariations = provideVariations;
             return this;
         }
 

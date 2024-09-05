@@ -32,7 +32,6 @@ public final class JsonUtils {
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, DefaultTypingMode defaultTypingMode) {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
-        jacksonObjectMapperFactoryBean.setSupportVariations(true);
         jacksonObjectMapperFactoryBean.setOverrideClasses(new HashSet<>(Arrays.asList(types)));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
@@ -43,7 +42,6 @@ public final class JsonUtils {
 
     static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-        jacksonObjectMapperFactoryBean.setSupportVariations(true);
         jacksonObjectMapperFactoryBean.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();

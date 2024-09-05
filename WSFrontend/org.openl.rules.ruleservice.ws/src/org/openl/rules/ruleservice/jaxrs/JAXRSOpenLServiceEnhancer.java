@@ -22,8 +22,7 @@ public final class JAXRSOpenLServiceEnhancer {
         Class<?> enhancedServiceClass = JAXRSOpenLServiceEnhancerHelper.enhanceInterface(serviceClass,
                 service.getServiceBean(),
                 classLoader,
-                service.isProvideRuntimeContext(),
-                service.isProvideVariations()
+                service.isProvideRuntimeContext()
         );
         if (enhancedServiceClass.getPackage() == null) {
             throw new IllegalStateException("Package cannot be null");

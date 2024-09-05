@@ -21,7 +21,6 @@ public class FunctionalityTest {
     public void test() throws Exception {
         SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setProvideRuntimeContext(true)
-                .setProvideVariations(true)
                 .setExecutionMode(false)
                 .setProject("src/main/openl").build();
 

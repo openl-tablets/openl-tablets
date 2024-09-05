@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,14 +56,6 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.project.openapi.OpenAPIRefResolver;
-import org.openl.rules.variation.ArgumentReplacementVariation;
-import org.openl.rules.variation.ComplexVariation;
-import org.openl.rules.variation.DeepCloningVariation;
-import org.openl.rules.variation.JXPathVariation;
-import org.openl.rules.variation.NoVariation;
-import org.openl.rules.variation.Variation;
-import org.openl.rules.variation.VariationsPack;
-import org.openl.rules.variation.VariationsResult;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -77,20 +68,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     private static final Set<String> IGNORED_FIELDS = Set.copyOf(Collections.singletonList("@class"));
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
     public static final String GET_PREFIX = "get";
-
-    public static final Set<String> VARIATIONS_SCHEMAS_NAME = Set.of(Variation.class.getSimpleName(),
-            NoVariation.class.getSimpleName(),
-            VariationsPack.class.getSimpleName(),
-            ArgumentReplacementVariation.class.getSimpleName(),
-            ComplexVariation.class.getSimpleName(),
-            DeepCloningVariation.class.getSimpleName(),
-            JXPathVariation.class.getSimpleName(),
-            VariationsResult.class.getSimpleName());
-
-    // collect all refs which are using variations
-    protected final Set<String> ignoredRefs = VARIATIONS_SCHEMAS_NAME.stream()
-            .map(s -> SCHEMAS_LINK + s)
-            .collect(Collectors.toSet());
 
     public OpenAPIScaffoldingConverter() {
         // default constructor
@@ -109,25 +86,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         Paths paths = openAPI.getPaths();
 
-        boolean areVariationsProvided = OpenLOpenAPIUtils.checkVariations(openAPI, VARIATIONS_SCHEMAS_NAME);
-
         Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(paths, openAPIRefResolver);
 
         Map<String, Map<String, Integer>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(paths,
                 openAPIRefResolver);
-
-        if (areVariationsProvided) {
-            Iterator<Map.Entry<String, Map<String, Integer>>> it = pathsWithRequestsRefs.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Map<String, Integer>> pathEntry = it.next();
-                Map<String, Integer> usedSchemas = pathEntry.getValue();
-                if (usedSchemas.keySet().stream().anyMatch(ignoredRefs::contains)) {
-                    it.remove();
-                    String refToIgnore = pathEntry.getKey();
-                    paths.keySet().remove(refToIgnore);
-                }
-            }
-        }
 
         Map<String, Integer> allUsedSchemaRefsInRequests = pathsWithRequestsRefs.values()
                 .stream()
@@ -149,20 +111,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 .collect(Collectors.toSet());
 
         Map<String, Set<String>> refsWithFields = OpenLOpenAPIUtils.getRefsInProperties(openAPI, openAPIRefResolver);
-        if (areVariationsProvided) {
-            refsWithFields.entrySet().removeIf(entry -> {
-                String refKey = entry.getKey();
-                if (ignoredRefs.contains(refKey)) {
-                    return true;
-                }
-                Set<String> fieldRefs = entry.getValue();
-                if (fieldRefs.stream().anyMatch(ignoredRefs::contains)) {
-                    ignoredRefs.add(refKey);
-                    return true;
-                }
-                return false;
-            });
-        }
         Set<String> fieldsRefs = refsWithFields.values()
                 .stream()
                 .flatMap(Collection::stream)
@@ -231,14 +179,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 .collect(Collectors.toList());
         Set<String> datatypeRefs = allUsedSchemaRefs.keySet().stream().filter(x -> {
             boolean notSpreadsheetAndExpanded = !(spreadsheetResultRefs.contains(x) || refsToExpand.contains(x));
-            boolean isIgnored = ignoredRefs.contains(x);
             boolean isNotReserved = !x.equals(SPR_RESULT_LINK);
             boolean notDatatype = linkedRefs.contains(x);
-            if (isIgnored) {
-                return false;
-            } else {
-                return isNotReserved && (notSpreadsheetAndExpanded || notDatatype);
-            }
+            return isNotReserved && (notSpreadsheetAndExpanded || notDatatype);
         }).collect(Collectors.toSet());
 
         Set<String> refSpreadsheets = spreadsheetParserModels.stream()
@@ -251,8 +194,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Set<String> dtToAdd = allFieldsRefs.stream().filter(x -> {
             boolean isNotSpreadsheetResult = !SPR_RESULT_LINK.equals(x);
             boolean isNotPresentedInDataTypes = !datatypeRefs.contains(x);
-            boolean ignoredRef = ignoredRefs.contains(x);
-            return isNotSpreadsheetResult && isNotPresentedInDataTypes && !ignoredRef;
+            return isNotSpreadsheetResult && isNotPresentedInDataTypes;
         }).collect(Collectors.toSet());
 
         // If there is a datatype to add which was returned by any spreadsheet model, it will be transformed
@@ -270,7 +212,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         refSpreadsheets.removeAll(dtToAdd);
 
         Set<DatatypeModel> dts = new LinkedHashSet<>(extractDataTypeModels(openAPIRefResolver, openAPI, datatypeRefs));
-        allUnusedRefs.removeAll(ignoredRefs);
         dts.addAll(extractDataTypeModels(openAPIRefResolver, openAPI, allUnusedRefs));
 
         Set<String> usedInDataTypes = new HashSet<>();
@@ -332,7 +273,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
                 isRuntimeContextProvided,
-                areVariationsProvided,
                 dts,
                 dataModels,
                 isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,

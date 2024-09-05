@@ -836,12 +836,6 @@ public class SpreadsheetsConverterTest {
         assertEquals("= new CensusSummary[]{}", sp4.getSteps().get(0).getValue());
     }
 
-    @Test
-    public void testVariations() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/tutorial7.json");
-        assertTrue(projectModel.areVariationsProvided());
-    }
-
     private SpreadsheetModel findSpreadsheet(final List<SpreadsheetModel> spreadsheetModels, final String sprName) {
         Optional<SpreadsheetModel> spreadsheet = spreadsheetModels.stream()
                 .filter(x -> x.getName().equals(sprName))

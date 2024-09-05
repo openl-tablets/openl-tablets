@@ -35,7 +35,6 @@ public final class OpenLService {
     private Object serviceBean;
     private CompiledOpenClass compiledOpenClass;
     private final boolean provideRuntimeContext;
-    private final boolean provideVariations;
     private final Collection<Module> modules;
     private final Set<String> publishers;
     private ClassLoader classLoader;
@@ -62,7 +61,6 @@ public final class OpenLService {
      * @param url                   url
      * @param serviceClassName      class name for service
      * @param provideRuntimeContext define is runtime context should be used
-     * @param provideVariations     define is variations should be supported
      * @param modules               a list of modules for load
      */
     OpenLService(String name,
@@ -72,7 +70,6 @@ public final class OpenLService {
                  String rmiServiceClassName,
                  String rmiName,
                  boolean provideRuntimeContext,
-                 boolean provideVariations,
                  Set<String> publishers,
                  Collection<Module> modules,
                  ClassLoader classLoader,
@@ -90,7 +87,6 @@ public final class OpenLService {
         this.rmiServiceClassName = rmiServiceClassName;
         this.rmiName = rmiName;
         this.provideRuntimeContext = provideRuntimeContext;
-        this.provideVariations = provideVariations;
         if (publishers != null) {
             this.publishers = Collections.unmodifiableSet(publishers);
         } else {
@@ -110,7 +106,6 @@ public final class OpenLService {
                 builder.rmiServiceClassName,
                 builder.rmiName,
                 builder.provideRuntimeContext,
-                builder.provideVariations,
                 builder.publishers,
                 builder.modules,
                 null,
@@ -219,15 +214,6 @@ public final class OpenLService {
      */
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
-    }
-
-    /**
-     * This flag defines whether variations will be supported or not.
-     *
-     * @return <code>true</code> if variations should be injected in service class, and <code>false</code> otherwise.
-     */
-    public boolean isProvideVariations() {
-        return provideVariations;
     }
 
     /**
@@ -364,7 +350,6 @@ public final class OpenLService {
         private String rmiName;
         private Class<?> serviceClass;
         private boolean provideRuntimeContext = false;
-        private boolean provideVariations = false;
         private Collection<Module> modules;
         private Set<String> publishers;
         private DeploymentDescription deployment;
@@ -431,17 +416,6 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setProvideRuntimeContext(boolean provideRuntimeContext) {
             this.provideRuntimeContext = provideRuntimeContext;
-            return this;
-        }
-
-        /**
-         * Sets provideVariations flag to the builder. (Optional)
-         *
-         * @param provideVariations
-         * @return
-         */
-        public OpenLServiceBuilder setProvideVariations(boolean provideVariations) {
-            this.provideVariations = provideVariations;
             return this;
         }
 
