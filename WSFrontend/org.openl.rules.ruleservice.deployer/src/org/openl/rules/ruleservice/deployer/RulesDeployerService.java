@@ -184,6 +184,9 @@ public class RulesDeployerService implements Closeable {
                 return;
             }
             try (ZipOutputStream target = new ZipOutputStream(output)) {
+                target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
+                target.write("name: ".getBytes());
+                target.write(deployPath.getBytes());
                 for (String projectPath : projectsPath) {
                     final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
                     final String fullDeployPath = baseDeployPath + projectPath;

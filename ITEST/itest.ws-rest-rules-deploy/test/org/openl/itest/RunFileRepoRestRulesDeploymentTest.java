@@ -60,20 +60,7 @@ public class RunFileRepoRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules_multipleDeployment() {
-        client.send("admin_services_no_services.json.get");
-
-        client.send("multiple-deployment_v1.deploy.post");
-        client.send("yaml_project_services.get");
-        client.send("project1_sayHello.post");
-        client.send("multiple-deployment_v1.download.get");
-
-        // should be updated
-        client.send("multiple-deployment_v2.deploy.post");
-        client.send("project1_sayHello_2.post");
-        client.send("multiple-deployment_v2.download.get");
-
-        client.send("yaml_project_all.delete");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/deploy-multi");
     }
 
     @Test
