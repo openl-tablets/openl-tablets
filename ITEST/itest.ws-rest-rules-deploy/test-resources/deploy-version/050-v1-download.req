@@ -1,0 +1,2 @@
+GET /admin/deploy/rules-to-deploy.zip HTTP/1.1
+
