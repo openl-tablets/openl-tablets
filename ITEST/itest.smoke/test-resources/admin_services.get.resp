@@ -4,10 +4,10 @@ Content-Type: application/json
 [
   {
     "startedTime": "#####",
-    "name": "multi_project_project1",
+    "name": "multi_project_project1(version=2.0)",
     "servicePath": "multimodule/project1",
     "urls": {
-      "RESTFUL": "multi_project/project1"
+      "RESTFUL": "2.0/multi_project/project1"
     },
     "hasManifest": false,
     "deploymentName": "multimodule",
