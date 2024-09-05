@@ -39,7 +39,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;

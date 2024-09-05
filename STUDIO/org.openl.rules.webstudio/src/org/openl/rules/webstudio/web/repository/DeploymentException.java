@@ -1,4 +1,4 @@
-package org.openl.rules.workspace.deploy;
+package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.common.ProjectException;
 

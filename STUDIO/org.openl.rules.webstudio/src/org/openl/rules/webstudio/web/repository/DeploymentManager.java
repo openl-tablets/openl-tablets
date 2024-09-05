@@ -33,8 +33,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
