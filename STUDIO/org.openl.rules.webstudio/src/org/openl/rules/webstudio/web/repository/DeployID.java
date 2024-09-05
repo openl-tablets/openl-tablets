@@ -1,4 +1,4 @@
-package org.openl.rules.workspace.deploy;
+package org.openl.rules.webstudio.web.repository;
 
 /**
  * This class represents an identifier of a single deployment in production repository. It is immutable.
