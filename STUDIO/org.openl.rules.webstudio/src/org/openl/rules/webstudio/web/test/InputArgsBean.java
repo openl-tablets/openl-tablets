@@ -54,8 +54,8 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -494,9 +494,9 @@ public class InputArgsBean {
     private RulesDeploy getCurrentProjectRulesDeploy() {
         try {
             RulesProject currentProject = WebStudioUtils.getWebStudio().getCurrentProject();
-            if (currentProject.hasArtefact(DeployUtils.RULES_DEPLOY_XML)) {
+            if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
                 try {
-                    AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                    AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
                     if (artefact instanceof AProjectResource) {
                         try (InputStream content = ((AProjectResource) artefact).getContent()) {
                             IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();

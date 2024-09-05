@@ -34,7 +34,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.rules.workspace.deploy.DeploymentException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.IOUtils;
@@ -46,6 +45,8 @@ import org.openl.util.StringUtils;
  * @author Andrey Naumenko
  */
 public class DeploymentManager implements InitializingBean {
+    public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
+    private static final String API_VERSION_SEPARATOR = "_V";
     private static final Logger LOG = LoggerFactory.getLogger(DeploymentManager.class);
 
     private String[] initialProductionRepositoryConfigNames;
@@ -94,7 +95,7 @@ public class DeploymentManager implements InitializingBean {
             if (projectVersion != null) {
                 String apiVersion = getApiVersion(project);
                 if (apiVersion != null) {
-                    sb.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
+                    sb.append(API_VERSION_SEPARATOR).append(apiVersion);
                 }
             }
             DeployID id = new DeployID(sb.toString());
@@ -254,7 +255,7 @@ public class DeploymentManager implements InitializingBean {
                                 .getProject(repositoryId, pd.getProjectName(), pd.getProjectVersion());
                     }
 
-                    AProjectArtefact artifact = project.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                    AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
                     if (artifact instanceof AProjectResource) {
                         AProjectResource resource = (AProjectResource) artifact;
                         try (InputStream content = resource.getContent()) {
