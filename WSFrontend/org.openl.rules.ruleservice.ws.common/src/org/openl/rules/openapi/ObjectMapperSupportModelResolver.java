@@ -3,10 +3,7 @@ package org.openl.rules.openapi;
 import static io.swagger.v3.core.util.RefUtils.constructRef;
 
 import java.lang.annotation.Annotation;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Objects;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -48,32 +45,13 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
             try {
                 IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
                 if (convertor != null) {
-                    Object o = convertor.parse((String) defaultValue, null);
-                    return processDates(o);
+                    return convertor.parse((String) defaultValue, null);
                 }
             } catch (Exception ignore) {
                 return null;
             }
         }
         return defaultValue;
-    }
-
-    // io.swagger.v3.oas.models.media.DateTimeSchema.cast method set UTC timezone. This is workaround to use server
-    // timezone instead of hardcoded UTC timezone.
-    private static Object processDates(Object o) {
-        if (o instanceof Date) {
-            return ((Date) o).toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
-        } else if (o instanceof Date[]) {
-            Date[] t = (Date[]) o;
-            var arr = new OffsetDateTime[t.length];
-            for (int i = 0; i < t.length; i++) {
-                if (t[i] != null) {
-                    arr[i] = t[i].toInstant().atZone(ZoneId.systemDefault()).toOffsetDateTime();
-                }
-            }
-            return arr;
-        }
-        return o;
     }
 
     @SuppressWarnings("rawtypes")
