@@ -143,8 +143,8 @@ public class JettyServer {
         try {
             Locale.setDefault(Locale.US);
 
-            // set +2 as default
-            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+            // set -10 as default
+            TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
 
             jetty.server.start();
             try {

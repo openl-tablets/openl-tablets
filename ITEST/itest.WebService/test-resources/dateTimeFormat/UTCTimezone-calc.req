@@ -5,6 +5,6 @@ Content-Type: application/json
   "runtimeContext": {},
   "v": {
     "modelYear": 2007,
-    "vehEffectiveYear": "2016-12-31T22:00:00Z"
+    "vehEffectiveYear": "2017-01-01T02:50:00Z"
   }
 }
