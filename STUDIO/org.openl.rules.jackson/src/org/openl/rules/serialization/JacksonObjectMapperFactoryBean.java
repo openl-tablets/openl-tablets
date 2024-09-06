@@ -98,8 +98,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private ClassLoader classLoader;
 
-    private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
-
     @Deprecated
     private Boolean simpleClassNameAsTypingPropertyValue;
 
@@ -150,7 +148,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
-        ObjectMapper mapper = getObjectMapperFactory().createObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
 
         TypeFactory typeFactory = TypeFactory.defaultInstance().withClassLoader(getClassLoader());
         mapper.setTypeFactory(typeFactory);
@@ -482,14 +480,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
         this.caseInsensitiveProperties = caseInsensitiveProperties;
-    }
-
-    public ObjectMapperFactory getObjectMapperFactory() {
-        return objectMapperFactory;
-    }
-
-    public void setObjectMapperFactory(ObjectMapperFactory objectMapperFactory) {
-        this.objectMapperFactory = objectMapperFactory;
     }
 
     public String getTypingPropertyName() {
