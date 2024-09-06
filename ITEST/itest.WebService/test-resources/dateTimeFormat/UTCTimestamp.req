@@ -2,5 +2,5 @@ POST /EPBDS-6437/checkRulesModule HTTP/1.1
 Content-Type: application/json
 
 {
-  "requestDate": 1514757600000
+  "requestDate": 1514775000000
 }
