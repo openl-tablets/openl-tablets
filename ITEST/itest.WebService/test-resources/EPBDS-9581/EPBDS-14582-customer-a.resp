@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "cusomerID": "ID",
+  "genderCd": "female",
+  "dob": "2014-07-13",
+  "dob_s": "2014 07 13 - 00 00 00"
+}

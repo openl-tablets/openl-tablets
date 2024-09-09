@@ -2,13 +2,16 @@ package org.openl.rules.serialization.jackson;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -18,6 +21,7 @@ public class JacksonObjectMapperISO8601DateFormatTest {
 
     private static final Locale DEFAULT_LOCALE;
     private static final TimeZone DEFAULT_TIMEZONE;
+    private static ObjectMapper mapper;
 
     static {
         DEFAULT_TIMEZONE = TimeZone.getDefault();
@@ -36,6 +40,11 @@ public class JacksonObjectMapperISO8601DateFormatTest {
         TimeZone.setDefault(DEFAULT_TIMEZONE);
     }
 
+    @BeforeAll
+    public static void init() throws Exception {
+        mapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
+    }
+
     public static Object[] data() {
         return new Object[][]{{"2016-12-31T22:00:00", createDate(2016, 12, 31, 22)},
                 {"2016-12-31T22:00:00Z", createDate(2017, 1, 1, 0)},
@@ -47,11 +56,26 @@ public class JacksonObjectMapperISO8601DateFormatTest {
     }
 
     @MethodSource("data")
-    @ParameterizedTest(name = "{0} corresponds to {1} in local time zone")
+    @ParameterizedTest(name = "Date deserialization to {1} in local time zone from \"{0}\"")
     public void test(String source, Date target) throws Exception {
-        var objectMapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
-        var result = objectMapper.readValue("\"" + source + "\"", Date.class);
-        assertEquals(target, result);
+        assertEquals(target, mapper.readValue("\"" + source + "\"", Date.class));
+    }
+
+    public static String[] zdt() {
+        return new String[] {
+                "2016-12-31T22:00:00Z",
+                "2016-12-31T22:00:00+03:00",
+                "2016-12-31T22:00:00-07:00",
+        };
+    }
+
+    @MethodSource("zdt")
+    @ParameterizedTest(name = "ZonedDateTime serialization/deserialization of {0} ")
+    public void ZonedDateTimeTest(String date) throws Exception {
+        var str = "\"" + date + "\"";
+        var zdt = ZonedDateTime.parse(date);
+        assertEquals(zdt, mapper.readValue(str, ZonedDateTime.class));
+        assertEquals(str, mapper.writeValueAsString(zdt));
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour) {
