@@ -221,6 +221,9 @@ Content-Type: application/json
             "type" : "string",
             "format" : "date-time"
           },
+          "dob_s" : {
+            "type" : "string"
+          },
           "genderCd" : {
             "type" : "string",
             "default" : "other",
@@ -237,6 +240,9 @@ Content-Type: application/json
           "dob" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "dob_s" : {
+            "type" : "string"
           },
           "gCd" : {
             "type" : "string",
