@@ -122,7 +122,7 @@
         <swagger.parser.version>2.1.22</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.23.1</log4j.version>
+        <log4j.version>2.24.0</log4j.version>
         <slf4j.version>2.0.16</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
@@ -131,12 +131,12 @@
         <plexus-utils.version>4.0.1</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>10.0.23</jetty.version>
+        <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.27.17</amazonaws.version>
+        <amazonaws.version>2.27.21</amazonaws.version>
         <azure.version>12.27.1</azure.version>
-        <netty.version>4.1.112.Final</netty.version>
+        <netty.version>4.1.113.Final</netty.version>
         <reactor-netty-http.version>1.1.22</reactor-netty-http.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
@@ -195,7 +195,6 @@
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
         <guava.version>33.3.0-jre</guava.version>
-        <joda-time.version>2.12.7</joda-time.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
@@ -1043,11 +1042,6 @@
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
                 <version>${json-smart.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${joda-time.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
