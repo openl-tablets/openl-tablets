@@ -8,12 +8,10 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 
 public class JacksonObjectMapperISO8601DateFormatTest {
@@ -48,30 +46,12 @@ public class JacksonObjectMapperISO8601DateFormatTest {
                 {"1483142400000", createDate(2016, 12, 31, 2)}};
     }
 
-    private String json;
-    private Date target;
-    private ObjectMapper objectMapper;
-
-    public void initJacksonObjectMapperISO8601DateFormatTest(String source, Date target) {
-        this.json = "{\n\t\"currentDate\": \"" + source + "\"\n}";
-        this.target = target;
-
-        JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
-        bean.setSupportVariations(true);
-        ObjectMapper objectMapper = null;
-        try {
-            objectMapper = bean.createJacksonObjectMapper();
-        } catch (ClassNotFoundException ignored) {
-        }
-        this.objectMapper = objectMapper;
-    }
-
     @MethodSource("data")
     @ParameterizedTest(name = "{0} corresponds to {1} in local time zone")
     public void test(String source, Date target) throws Exception {
-        initJacksonObjectMapperISO8601DateFormatTest(source, target);
-        IRulesRuntimeContext context = objectMapper.readValue(json, IRulesRuntimeContext.class);
-        assertEquals(target, context.getCurrentDate());
+        var objectMapper = new JacksonObjectMapperFactoryBean().createJacksonObjectMapper();
+        var result = objectMapper.readValue("\"" + source + "\"", Date.class);
+        assertEquals(target, result);
     }
 
     private static Date createDate(int year, int month, int dayOfMonth, int hour) {
