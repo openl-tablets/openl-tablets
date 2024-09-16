@@ -86,7 +86,7 @@
         <spring.security.version>5.8.14</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.41.1</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
@@ -97,10 +97,10 @@
 
         <!-- Kafka -->
         <kafka.version>3.8.0</kafka.version>
-        <snappy-java.version>1.1.10.6</snappy-java.version>
+        <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.7.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.8.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
         <!-- Casandra -->
@@ -134,7 +134,7 @@
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.27.21</amazonaws.version>
+        <amazonaws.version>2.28.1</amazonaws.version>
         <azure.version>12.27.1</azure.version>
         <netty.version>4.1.113.Final</netty.version>
         <reactor-netty-http.version>1.1.22</reactor-netty-http.version>
@@ -190,7 +190,7 @@
         <gson.version>2.11.0</gson.version>
 
         <bouncycastle.version>1.78.1</bouncycastle.version>
-        <groovy.version>4.0.22</groovy.version>
+        <groovy.version>4.0.23</groovy.version>
         <poi.version>5.3.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
