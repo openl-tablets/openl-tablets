@@ -96,6 +96,9 @@ public class ProjectsWithoutTagsBean {
                 applied++;
             }
         }
+        RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
+        UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+        userWorkspace.refresh();
 
         WebStudioUtils.addInfoMessage("Tags were added to " + applied + " projects.");
     }
