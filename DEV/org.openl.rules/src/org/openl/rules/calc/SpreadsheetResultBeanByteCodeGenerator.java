@@ -38,9 +38,11 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     public static final Method GET_VALUE = Method.getMethod("Object get(Object)");
     public static final Method SET_VALUE = Method.getMethod("Object put(Object, Object)");
 
-    private final String beanNameWithPackage;
     private final List<FieldDescription> fields;
     private final Type beanType;
+    private final String namespace;
+    private final String name;
+    private final String propertyNameSpace;
 
 
     /**
@@ -57,8 +59,21 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         fixDuplicates(beanFields, (field, name) -> field.fieldName = name, field -> field.fieldName);
         fixDuplicates(beanFields, (field, name) -> field.xmlName = name, field -> field.xmlName);
         this.fields = beanFields;
-        this.beanNameWithPackage = beanNameWithPackage;
         this.beanType = Type.getType(ByteCodeUtils.toTypeDescriptor(beanNameWithPackage));
+
+        var parts = StringUtils.split(beanNameWithPackage, '.');
+
+        var str = new StringBuilder(beanNameWithPackage.length());
+        str.append("https://");
+        for (int i = parts.length - 2; i >= 0; i--) {
+            str.append(parts[i]);
+            if (i != 0) {
+                str.append('.');
+            }
+        }
+        this.namespace = str.toString();
+        this.name = parts[parts.length - 1];
+        this.propertyNameSpace = this.namespace + "/" + name;
     }
 
     private byte[] getBytes() {
@@ -100,18 +115,6 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitClassAnnotations(ClassWriter classWriter) {
-        var parts = StringUtils.split(beanNameWithPackage, '.');
-
-        var str = new StringBuilder(beanNameWithPackage.length());
-        str.append("https://");
-        for (int i = parts.length - 2; i >= 0; i--) {
-            str.append(parts[i]).append('.');
-            if (i != 0) {
-                str.append('.');
-            }
-        }
-        String namespace = str.toString();
-        String name = parts[parts.length - 1];
         var av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
@@ -185,15 +188,15 @@ final class SpreadsheetResultBeanByteCodeGenerator {
             av.visit("row", fieldDescription.row);
         }
 
-        if (fieldDescription.FIX_ME) {
-            // Strange behavior. EPBDS-9437 OpenAPI schema test is failing without it.
-            // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
-            av.visit("FIX_ME", true); // FIXME: AnySpreadsheetResult in OpenAPI
-        }
-        av.visitEnd();
-
         av = mg.visitAnnotation(XML_ELEMENT, true);
         av.visit("name", fieldDescription.xmlName);
+        // EPBDS-9437 OpenAPI schema test is failing without propertyNameSpace.
+        // Driver_Forms property is disappeared from the AnySpreadsheetResult component.
+        // It happens because of io.swagger.v3.core.converter.AnnotatedType.equals returns true for the different properties
+        // having the same type (AnySpreadsheetResult) and the same set of the annotations.
+        // So io.swagger.v3.core.converter.ModelConverterContextImpl.processedTypes contains no fully processed type.
+        // See also InheritanceFixConverter class.
+        av.visit("namespace", propertyNameSpace);
         av.visitEnd();
 
         mg.endMethod();
@@ -221,16 +224,14 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final Type type;
         final String row;
         final String column;
-        final boolean FIX_ME;
         String fieldName;
         String xmlName;
 
-        FieldDescription(String canonicalClassName, String row, String column, boolean FIX_ME) {
+        FieldDescription(String canonicalClassName, String row, String column) {
             this.className = canonicalClassName;
             this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
             this.column = column;
-            this.FIX_ME = FIX_ME;
             String fieldName;
             if (column == null) {
                 fieldName = JavaKeywordUtils.toJavaIdentifier(row);
