@@ -340,7 +340,12 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher {
             var resourceLoader = serviceDescription.getResourceLoader();
             var resource = resourceLoader.getResource("kafka-deploy.yaml");
             if (!resource.exists()) {
-                throw new FileNotFoundException("File 'kafka-deploy.yaml' is not found.");
+                resource = resourceLoader.getResource("kafka-deploy.yml");
+                if (resource.exists()) {
+                    log.warn("Non standard 'kafka-deploy.yml' file name is used. Use 'kafka-deploy.yaml' for unambiguity. Service: {}", service.getName());
+                } else {
+                    throw new FileNotFoundException("File 'kafka-deploy.yaml' is not found.");
+                }
             }
             var kafkaDeploy = YAML.readValue(resource.getResourceAsStream(), KafkaDeploy.class);
 
