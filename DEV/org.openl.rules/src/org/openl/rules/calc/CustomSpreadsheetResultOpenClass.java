@@ -646,8 +646,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                                 simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
-                                !simpleRefByRow ? columnNames[column] : null,
-                                simpleRefByColumn
+                                !simpleRefByRow ? columnNames[column] : null
                         );
                         beanFields.add(fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
