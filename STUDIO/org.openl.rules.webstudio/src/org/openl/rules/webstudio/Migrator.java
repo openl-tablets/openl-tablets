@@ -457,6 +457,10 @@ public class Migrator {
     }
     
     public static void migrateAfterContentInitialized(ApplicationContext applicationContext) {
+        if (! applicationContext.containsBean("openlSessionFactory")) {
+            //webstudio is not configured, skipping migration
+            return;
+        }
         SessionFactory sessionFactory = (SessionFactory) applicationContext.getBean("openlSessionFactory");
         try (Session session = sessionFactory.openSession()) {
             List<OpenLProject> allOpenLProjects = readAllProjectsAndTags(session);
