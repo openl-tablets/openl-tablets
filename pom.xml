@@ -1183,28 +1183,10 @@
             <!-- Byte code generation library -->
             <dependency>
                 <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
+                <artifactId>asm-bom</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-commons</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-analysis</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-tree</artifactId>
-                <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm-util</artifactId>
-                <version>${asm.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
