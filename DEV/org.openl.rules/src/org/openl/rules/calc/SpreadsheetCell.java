@@ -11,4 +11,6 @@ public @interface SpreadsheetCell {
     String column() default "";
 
     String row() default "";
+
+    String cell();
 }

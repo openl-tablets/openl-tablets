@@ -16,7 +16,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
-import org.openl.cache.GenericKey;
 import org.openl.gen.ByteCodeUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
@@ -32,8 +31,6 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     private static final String SR_BEAN_CLASS = Type.getDescriptor(SpreadsheetResultBeanClass.class);
     private static final String SPREADSHEET_CELL = Type.getDescriptor(SpreadsheetCell.class);
     private static final String XML_ELEMENT = Type.getDescriptor(XmlElement.class);
-    public static final Type GENERIC_KEY_TYPE = Type.getType(GenericKey.class);
-    public static final Method GENERIC_KEY_CREATOR = Method.getMethod("org.openl.cache.GenericKey getInstance(Object, Object)");
     public static final Type VALUES_TYPE = Type.getType(HashMap.class);
     public static final Method GET_VALUE = Method.getMethod("Object get(Object)");
     public static final Method SET_VALUE = Method.getMethod("Object put(Object, Object)");
@@ -172,14 +169,13 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, Method.getMethod(getterMethod), null, null, classWriter);
         mg.loadThis();
         mg.getField(beanType, "values", VALUES_TYPE);
-        mg.push(fieldDescription.row);
-        mg.push(fieldDescription.column);
-        mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
+        mg.push(fieldDescription.cell);
         mg.invokeVirtual(VALUES_TYPE, GET_VALUE);
         mg.checkCast(fieldDescription.type);
         mg.returnValue();
 
         var av = mg.visitAnnotation(SPREADSHEET_CELL, true);
+        av.visit("cell", fieldDescription.cell);
         if (fieldDescription.column != null) {
             av.visit("column", fieldDescription.column);
 
@@ -187,6 +183,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         if (fieldDescription.row != null) {
             av.visit("row", fieldDescription.row);
         }
+        av.visitEnd();
 
         av = mg.visitAnnotation(XML_ELEMENT, true);
         av.visit("name", fieldDescription.xmlName);
@@ -208,9 +205,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
 
         mg.loadThis();
         mg.getField(beanType, "values", VALUES_TYPE);
-        mg.push(fieldDescription.row);
-        mg.push(fieldDescription.column);
-        mg.invokeStatic(GENERIC_KEY_TYPE, GENERIC_KEY_CREATOR);
+        mg.push(fieldDescription.cell);
         mg.loadArg(0);
         mg.invokeVirtual(VALUES_TYPE, SET_VALUE);
         mg.pop();
@@ -224,6 +219,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
         final Type type;
         final String row;
         final String column;
+        final String cell;
         String fieldName;
         String xmlName;
 
@@ -232,6 +228,7 @@ final class SpreadsheetResultBeanByteCodeGenerator {
             this.type = Type.getType(ByteCodeUtils.toTypeDescriptor(canonicalClassName));
             this.row = row;
             this.column = column;
+            this.cell = ASpreadsheetField.createFieldName(column, row);
             String fieldName;
             if (column == null) {
                 fieldName = JavaKeywordUtils.toJavaIdentifier(row);
