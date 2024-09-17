@@ -133,14 +133,6 @@ public class ArrayUtilsTest {
         }
         assertEquals(A.class, resultType);
     }
-
-    @Test
-    public void testConvert() {
-        Object o = ArrayUtils.convert(array1D[0], C.class);
-        assertTrue(o.getClass().isArray());
-        Object[] o1 = (Object[]) o;
-        assertEquals(0, o1.length);
-    }
 }
 
 class A {

@@ -59,44 +59,25 @@ public final class ArrayUtils {
             dim2++;
         }
         if (!returnType.equals(expectedType) && o.getClass().isArray() && expectedType
-                .isAssignableFrom(returnType) && dim1 == dim2) {
-            return convert(o, expectedClass);
+                .isAssignableFrom(returnType) && dim1 == dim2 && dim1 > 0) {
+            return convert(o, expectedClass.getComponentType(), dim1);
         } else {
             return o;
         }
     }
 
-    public static Object convert(Object o, Class<?> newType) {
-        int dimension = getDimension(o);
-        return convert(o, newType, dimension);
-    }
-
     private static Object convert(Object o, Class<?> newType, int dimension) {
-        if (dimension == 0) {
-            return Array.newInstance(newType, 0);
-        } else {
-            int size = Array.getLength(o);
-            Object result = Array.newInstance(newType.getComponentType(), size);
-            if (dimension == 1) {
-                for (int i = 0; i < size; i++) {
-                    Array.set(result, i, Array.get(o, i));
-                }
-            } else {
-                for (int i = 0; i < size; i++) {
-                    Array.set(result, i, convert(Array.get(o, i), newType.getComponentType(), dimension - 1));
-                }
+        int size = Array.getLength(o);
+        Object result = Array.newInstance(newType, size);
+        if (dimension == 1) {
+            for (int i = 0; i < size; i++) {
+                Array.set(result, i, Array.get(o, i));
             }
-            return result;
+        } else {
+            for (int i = 0; i < size; i++) {
+                Array.set(result, i, convert(Array.get(o, i), newType.getComponentType(), dimension - 1));
+            }
         }
-    }
-
-    public static int getDimension(Object ndArray) {
-        int dim = 0;
-        Class<?> aClass = ndArray.getClass();
-        while (aClass.isArray()) {
-            aClass = aClass.getComponentType();
-            dim++;
-        }
-        return dim;
+        return result;
     }
 }
