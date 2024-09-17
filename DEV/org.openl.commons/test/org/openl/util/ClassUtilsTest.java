@@ -121,6 +121,30 @@ public class ClassUtilsTest {
         assertEquals("setBBB", ClassUtils.setter("BBB"));
     }
 
+    @Test
+    void commonTypeTest() {
+        assertEquals(Double.class, ClassUtils.commonType(null, Double.class));
+        assertEquals(Integer.class, ClassUtils.commonType(Integer.class, null));
+        assertNull(ClassUtils.commonType(null, null));
+
+        assertEquals(Object.class, ClassUtils.commonType(Object.class, Integer.class));
+        assertEquals(Object.class, ClassUtils.commonType(Integer.class, Object.class));
+        assertEquals(Number.class, ClassUtils.commonType(Integer.class, Double.class));
+        assertEquals(Number.class, ClassUtils.commonType(Double.class, Integer.class));
+        assertEquals(Integer.class, ClassUtils.commonType(int.class, Integer.class));
+        assertEquals(Integer.class, ClassUtils.commonType(Integer.class, int.class));
+        assertEquals(Number[].class, ClassUtils.commonType(Number[].class, Integer[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Integer[].class, Number[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Integer[].class, Double[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Double[].class, Integer[].class));
+        assertEquals(long[].class, ClassUtils.commonType(long[].class, int[].class));
+        assertEquals(long[].class, ClassUtils.commonType(int[].class, long[].class));
+        assertEquals(Number.class, ClassUtils.commonType(int.class, Long.class));
+        assertEquals(Number.class, ClassUtils.commonType(Long.class, int.class));
+        assertEquals(Number[].class, ClassUtils.commonType(int[].class, Long[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Long[].class, int[].class));
+    }
+
     static class InnerClass {
     }
 

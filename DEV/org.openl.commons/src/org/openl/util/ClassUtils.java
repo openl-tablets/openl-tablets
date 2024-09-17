@@ -3,6 +3,7 @@ package org.openl.util;
 import static java.util.Locale.ENGLISH;
 
 import java.beans.Introspector;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.regex.Pattern;
@@ -260,6 +261,29 @@ public final class ClassUtils {
             return false;
         }
         return toClass.isAssignableFrom(cls);
+    }
+
+    public static Class<?> commonType(Class<?> a, Class<?> b) {
+        if (a == null || b == null) {
+            return a == null ? b : a;
+        }
+        if (isAssignable(b, a) && !a.isPrimitive()) {
+            return a;
+        } else if (isAssignable(a, b)) {
+            return b;
+        } else if (isAssignable(b, a)) {
+            return a;
+        }
+        if (a.isArray() && b.isArray()) {
+            var component = commonType(a.getComponentType(), b.getComponentType());
+            return Array.newInstance(component, 0).getClass();
+        }
+        if (!a.isPrimitive()) {
+            return commonType(a.getSuperclass(), b);
+        } else if (!b.isPrimitive()) {
+            return commonType(a, b.getSuperclass());
+        }
+        return Object.class;
     }
 
     public static String capitalize(String name) {
