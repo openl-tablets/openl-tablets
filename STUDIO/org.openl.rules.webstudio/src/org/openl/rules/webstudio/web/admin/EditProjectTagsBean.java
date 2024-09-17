@@ -131,9 +131,7 @@ public class EditProjectTagsBean {
                         }
                     }
 
-                    currentTags.remove(typeName);
-                    var changed = ! currentTags.containsKey(typeName) || ! Objects.equals(currentTags.get(typeName), tagName);
-                    // If none - remove
+                    var changed = ! Objects.equals(currentTags.get(typeName), newTagName);
                     if (changed) {
                         if (newTagName != null) {
                             if (existed == null && type != null) {
@@ -146,6 +144,8 @@ public class EditProjectTagsBean {
                             } else {
                                 currentTags.put(typeName, newTagName);
                             }
+                        } else {
+                            currentTags.remove(typeName);
                         }
                         rulesProject.saveTags(currentTags);
                         userWorkspace.refresh();
