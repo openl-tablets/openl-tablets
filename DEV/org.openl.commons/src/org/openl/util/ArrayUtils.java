@@ -3,6 +3,7 @@ package org.openl.util;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 public final class ArrayUtils {
 
@@ -64,6 +65,27 @@ public final class ArrayUtils {
         } else {
             return o;
         }
+    }
+
+    public static Object convert(Object o, Function<Object, Object> converter) {
+        if (o == null || !o.getClass().isArray()) {
+            return converter.apply(o);
+        }
+        int size = Array.getLength(o);
+        var cache = new Object[size];
+        Class<?> componentType = null;
+        for (int i = 0; i < size; i++) {
+            var element = Array.get(o, i);
+            element = convert(element, converter);
+            cache[i] = element;
+            componentType = ClassUtils.commonType(componentType, element != null ? element.getClass() : null);
+        }
+        if (componentType == null || componentType.equals(Object.class)) {
+            return cache;
+        }
+        var result = Array.newInstance(componentType, size);
+        System.arraycopy(cache, 0, result, 0, size);
+        return result;
     }
 
     private static Object convert(Object o, Class<?> newType, int dimension) {
