@@ -1,14 +1,14 @@
 package org.openl.rules.cloner;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import org.openl.util.ClassUtils;
 
 /**
  * This cloner use Java Bean introspection to get public properties and fields, and using them to copy data to the
@@ -29,36 +29,33 @@ class BeanCloner<T> implements ICloner<T> {
             }
         }
 
-        try {
-            var beanInfo = Introspector.getBeanInfo(clazz);
-            var props = beanInfo.getPropertyDescriptors();
-            for (var prop : props) {
-                if (fields.containsKey(prop.getName())) {
-                    // Ignore, let's use public field for cloning
-                    continue;
-                } else if (prop.getReadMethod() != null && prop.getWriteMethod() != null) {
-                    this.fields.put(prop.getName(), new PropertyGetSetter(prop));
-                } else if ("class".equals(prop.getName())) {
-                    // The special case when a 'class' property is defined in the OpenL Datatype
-                    try {
-                        var getter = clazz.getMethod("getClass");
-                        var returnType = getter.getReturnType();
-                        if (!Class.class.equals(returnType)) {
-                            var setter = clazz.getMethod("setClass", returnType);
-                            prop.setReadMethod(getter);
-                            prop.setWriteMethod(setter);
-                            this.fields.put(prop.getName(), new PropertyGetSetter(prop));
-                        }
-                    } catch (NoSuchMethodException ignore) {
-                        continue;
-                    }
-                } else if (prop.getReadMethod() != null || prop.getWriteMethod() != null) {
-                    // WARN
-                    continue;
-                }
+        var methods = clazz.getMethods();
+        var setters = new HashMap<String, Method>();
+        var getters = new HashMap<String, Method>();
+        for (var method : methods) {
+            if (Modifier.isStatic(method.getModifiers()) || !Modifier.isPublic(method.getModifiers())) {
+                continue;
             }
-        } catch (IntrospectionException e) {
-            throw new IllegalStateException(e);
+            var methodName = method.getName();
+            if (methodName.startsWith("get") && method.getParameterCount() == 0) {
+                getters.put(ClassUtils.toFieldName(methodName), method);
+            } else if (methodName.startsWith("is") && method.getParameterCount() == 0 && method.getReturnType().equals(Boolean.TYPE)) {
+                getters.put(ClassUtils.decapitalize(methodName.substring(2)), method);
+            } else if (methodName.startsWith("set") && method.getParameterCount() == 1 && method.getReturnType().equals(Void.TYPE)) {
+                setters.put(ClassUtils.toFieldName(methodName), method);
+            }
+        }
+        for (var v : setters.entrySet()) {
+            var fieldName = v.getKey();
+            if (fields.containsKey(fieldName)) {
+                // Ignore, let's use public field for cloning
+                continue;
+            }
+            var setter = v.getValue();
+            var getter = getters.get(fieldName);
+            if (getter != null) {
+                this.fields.put(fieldName, new PropertyGetSetter(getter, setter));
+            }
         }
     }
 
@@ -111,20 +108,22 @@ class BeanCloner<T> implements ICloner<T> {
     }
 
     static class PropertyGetSetter implements GetSetter {
-        private final PropertyDescriptor field;
+        private final Method getter;
+        private final Method setter;
 
-        public PropertyGetSetter(PropertyDescriptor field) {
-            this.field = field;
+        public PropertyGetSetter(Method getter, Method setter) {
+            this.getter = getter;
+            this.setter = setter;
         }
 
         @Override
         public void set(Object target, Object value) throws InvocationTargetException, IllegalAccessException {
-            field.getWriteMethod().invoke(target, value);
+            setter.invoke(target, value);
         }
 
         @Override
         public Object get(Object source) throws InvocationTargetException, IllegalAccessException {
-            return field.getReadMethod().invoke(source);
+            return getter.invoke(source);
         }
     }
 }
