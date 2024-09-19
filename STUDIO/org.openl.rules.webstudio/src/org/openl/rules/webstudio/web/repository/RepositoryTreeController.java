@@ -733,6 +733,7 @@ public class RepositoryTreeController {
                 userWorkspace,
                 comment,
                 zipFilter,
+                projectTagsBean.saveTagsTypesAndGetTags(),
                 templateFiles);
         try {
             try {
@@ -753,8 +754,6 @@ public class RepositoryTreeController {
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
 
                     resetStudioModel();
-
-                    saveTags(createdProject);
 
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                     /* Clear the load form */
@@ -2173,6 +2172,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage(errorMessage);
                 return errorMessage;
             }
+            Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
             final ProjectUploader uploader = new ProjectUploader(repositoryId,
                     uploadedFiles,
                     projectName,
@@ -2185,7 +2185,8 @@ public class RepositoryTreeController {
                     modelsPath,
                     algorithmsPath,
                     modelsModuleName,
-                    algorithmsModuleName);
+                    algorithmsModuleName,
+                    tags);
             RulesProject uploadedProject;
             try {
                 uploadedProject = uploader.uploadProject();
@@ -2376,6 +2377,7 @@ public class RepositoryTreeController {
                 }
                 String pathForModels = extractPath(editModelsPath, modelsPath, OpenAPIModule.MODEL);
                 String pathForAlgorithms = extractPath(editAlgorithmsPath, algorithmsPath, OpenAPIModule.ALGORITHM);
+                Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
                 ProjectUploader projectUploader = new ProjectUploader(repositoryId,
                         uploadedItem,
                         projectName,
@@ -2388,7 +2390,8 @@ public class RepositoryTreeController {
                         pathForModels,
                         pathForAlgorithms,
                         modelsModuleName,
-                        algorithmsModuleName);
+                        algorithmsModuleName,
+                        tags);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     try {
@@ -3193,10 +3196,6 @@ public class RepositoryTreeController {
 
     public boolean isHasTags() {
         return !tagTypeService.getAllTagTypes().isEmpty();
-    }
-
-    private void saveTags(RulesProject project) throws ProjectException {
-        projectTagsBean.saveTags(project);
     }
 
     public void forceUpdateVersionsBean() {

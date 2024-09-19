@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -172,14 +173,12 @@ public class ProjectTagsBean {
         this.projectName = projectName;
     }
 
-    public void saveTags(RulesProject project) throws ProjectException {
+    public Map<String, String> saveTagsTypesAndGetTags() {
         if (tags == null) {
-            return;
+            return Collections.emptyMap();
         }
         tags.removeIf(tag -> tag.getName().equals(NONE_NAME));
         createExtensibleTags();
-        Map<String, String> tagForProject = tags.stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
-        project.saveTags(tagForProject);
-        
+        return tags.stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
     }
 }
