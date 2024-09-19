@@ -6,9 +6,11 @@
 
     <h:panelGroup id="editProjectTagsPanel">
         #{editProjectTagsBean.init(node)}
-        <h3 rendered="#{not empty editProjectTagsBean.tags}">
-            Tags
-        </h3>
+        <h:panelGroup rendered="#{not empty editProjectTagsBean.tags}">
+            <h3>
+                Tags
+            </h3>
+        </h:panelGroup>
         <table class="formfields" style="max-width: 500px;">
             <ui:repeat value="#{editProjectTagsBean.tags}" var="tagInfo">
                 <tr>
