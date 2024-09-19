@@ -181,4 +181,8 @@ public class ProjectTagsBean {
         createExtensibleTags();
         return tags.stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
     }
+    
+    public void clearTags() {
+        this.tags = Collections.emptyList();
+    }
 }

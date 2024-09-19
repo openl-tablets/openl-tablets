@@ -2986,6 +2986,7 @@ public class RepositoryTreeController {
 
     public void openNewProjectDialog() {
         clearUploadedFiles();
+        projectTagsBean.clearTags();
 
         List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
         if (repositories.size() == 1) {
