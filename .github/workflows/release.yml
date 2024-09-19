@@ -17,15 +17,13 @@ on:
         required: false
 
 jobs:
-  release:
-
-    name: Release
-
+  build:
+    name: Build
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
+    outputs:
+      RELEASE_TAG: ${{ steps.git.outputs.RELEASE_TAG }}
+      SHA1: ${{ steps.git.outputs.SHA1 }}
+      RELEASE_DATE: ${{ steps.git.outputs.RELEASE_DATE }}
     steps:
 
       - name: Configure GIT
@@ -40,14 +38,11 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
           path: release
 
-      - name: Setup Java & Maven settings
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 21
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
 
       - name: Prepare release
         working-directory: ./release
@@ -60,132 +55,310 @@ jobs:
           -DpreparationGoals="clean"
           -DpushChanges=false
 
-      - name: Show commits
+      - name: Stage commits
+        id: git
         working-directory: ./release
-        run: git log --decorate -n 5
-
-      - name: Stage GIT repository
-        run: git clone -n --no-hardlinks ./release ./build
-
-      - name: Checkout the latest tag
-        working-directory: ./build
         run: |
+          git log --decorate -n 5
           latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
-          echo checking out ${latestTag}
-          git checkout ${latestTag}
-          git log --decorate -n 20 --all --oneline --graph
+          sha1=$(git rev-list -n 1 ${latestTag})
+          release_date=$(git log -1 --format=%aI ${latestTag})
+          branch=$(git branch --show-current)
           echo "RELEASE_TAG=${latestTag}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${latestTag}" >> $GITHUB_OUTPUT
+          echo "RELEASE_DATE=${release_date}" >> $GITHUB_OUTPUT
+          echo "SHA1=${sha1}" >> $GITHUB_OUTPUT
+          echo "Version: \`${latestTag}\`" >> $GITHUB_STEP_SUMMARY
+          echo "SHA1: \`${sha1}\`" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: \`${branch}\`" >> $GITHUB_STEP_SUMMARY
+          git bundle create ../git.bundle @{u}..HEAD ${latestTag} ${branch}
 
-      - name: Build & Deploy to local staging repository
+      - name: Save the git bundle with the release commit
+        uses: actions/upload-artifact@v4
+        with:
+          name: git.bundle
+          path: ./git.bundle
+
+      - name: "Checkout the latest tag: ${{ env.RELEASE_TAG }}"
+        id: tag
+        run: |
+          git clone -n --no-hardlinks ./release ./build
+          cd ./build
+          git checkout ${{ env.RELEASE_TAG }}
+          git log --decorate -n 20 --all --oneline --graph
+
+      - name: Build to the local staging repository
         run: >
           mvn -f ./build/pom.xml "-Dstyle.color=always"
           deploy
           -Psources,gpg-sign
           -DnoPerf
+          -DskipTests
+          -T1C
           -DaltDeploymentRepository=local-staging::default::file:./mvn-staging
           -Duser.name=${{ github.actor }}
         env:
           SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
           SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
 
-      - name: Show all files to release
-        working-directory: ./mvn-staging
-        run: ls -Rl
+      - name: Save build maven artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven
+          path: ./mvn-staging
+
+      - name: Copy artifacts
+        run: |
+          cp './mvn-staging/org/openl/rules/org.openl.rules.webstudio/${{ env.RELEASE_TAG }}/org.openl.rules.webstudio-${{ env.RELEASE_TAG }}.war' webstudio.war
+          cp './mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws-${{ env.RELEASE_TAG }}.war' ws.war
+          cp './mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws.all-${{ env.RELEASE_TAG }}.war' ws-all.war
+          cp './mvn-staging/org/openl/rules/demo/openl-demo-app/${{ env.RELEASE_TAG }}/openl-demo-app-${{ env.RELEASE_TAG }}.zip' demo.zip
+          cp './mvn-staging/org/openl/rules/openl-rules-opentelemetry/${{ env.RELEASE_TAG }}/openl-rules-opentelemetry-${{ env.RELEASE_TAG }}.jar' openl-rules-opentelemetry.jar
+
+      - name: Save OpenL Studio .war file
+        uses: actions/upload-artifact@v4
+        with:
+          name: webstudio.war
+          path: webstudio.war
+
+      - name: Save Rule Service .war file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws.war
+          path: ws.war
+
+      - name: Save Rule Service (ALL) .war file
+        uses: actions/upload-artifact@v4
+        with:
+          name: ws-all.war
+          path: ws-all.war
+
+      - name: Save OpenL DEMO .zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo.zip
+          path: demo.zip
+
+      - name: Save OpenTelemetry .jar file
+        uses: actions/upload-artifact@v4
+        with:
+          name: openl-rules-opentelemetry.jar
+          path: openl-rules-opentelemetry.jar
+
+  maven:
+    name: "Staging to the Sonatype"
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      STAGE_ID: ${{ steps.props.outputs.STAGE_ID }}
+    steps:
+
+      - name: Get build maven artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: maven
+          path: ./mvn-staging
+
+      - name: Maven settings
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
       - name: Deploy to https://oss.sonatype.org/
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         run: >
           mvn "-Dstyle.color=always"
           org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged-repository
-          -DrepositoryDirectory=mvn-staging
+          -DrepositoryDirectory=./mvn-staging
           -DnexusUrl=https://oss.sonatype.org/
           -DserverId=ossrh
           -DstagingProfileId=${{ secrets.OSSRH_STAGING_PROFILE_ID }}
-          -DstagingDescription="Release ${{ env.RELEASE_TAG }} by ${{ github.actor }} #${{ github.run_number }}"
+          -DstagingDescription="Release ${{ needs.build.outputs.RELEASE_TAG }} by ${{ github.actor }} #${{ github.run_number }}"
           -DautoReleaseAfterClose=false
           -DautoDropAfterRelease=true
           -DkeepStagingRepositoryOnFailure=true
           -DkeepStagingRepositoryOnCloseRuleFailure=true
           -DskipStagingRepositoryClose=false
           -DstagingProgressTimeoutMinutes=30
+
+      - name: Collect Sonatype properties
+        id: props
+        run: |
+          while IFS='=' read -r key value; do
+            [[ "$key" = "stagingRepository.id" ]] && echo "STAGE_ID=$value" >> $GITHUB_OUTPUT
+            [[ "$key" = "stagingRepository.url" ]] && echo "[Staging repository]($value)" >> $GITHUB_STEP_SUMMARY
+          done < ./mvn-staging/${{ secrets.OSSRH_STAGING_PROFILE_ID }}.properties
+
+  docker:
+    strategy:
+      matrix:
+        app:
+          - ws.war
+          - ws-all.war
+          - webstudio.war
+    name: "Staging ${{ matrix.app }} to the Docker Hub"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Prepare for multi-platform docker build
+        run: |
+          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker buildx create --use
+          docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Get ${{ matrix.app }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.app }}
+
+      - name: Get openl-rules-opentelemetry.jar
+        uses: actions/download-artifact@v4
+        with:
+          name: openl-rules-opentelemetry.jar
+
+      - name: Unpack ${{ matrix.app }}
+        run: unzip -q ${{ matrix.app }} -d webapp
+
+      - name: Checkout ${{ github.event.inputs.branch }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          path: release
+
+      - name: Build ${{ matrix.app }}
         env:
-          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+          appName: ${{ matrix.app }}
+          tagSufix: ${{ matrix.app == 'ws-all.war' && '-all' || ''}}
+        run: >
+          docker buildx build
+          -t openltablets/${appName%%[-.]*}:${{ github.run_number }}${tagSufix}
+          --platform linux/amd64,linux/arm64/v8 --push
+          --build-arg APP=webapp
+          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
+          --label '"org.opencontainers.image.title=OpenL Tablets: ${{ matrix.app }}"'
+          --label "org.opencontainers.image.version=${{ needs.build.outputs.RELEASE_TAG }}"
+          --label "org.opencontainers.image.created=${{ needs.build.outputs.RELEASE_DATE }}"
+          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+          -f ./release${dockerfile}/Dockerfile .
+
+  approve:
+    name: 'Waiting for approval'
+    environment: release
+    needs:
+      - maven
+      - docker
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Approved"
+
+  publish:
+    name: "Publish release"
+
+    permissions:
+      contents: write
+    needs:
+     - approve
+     - maven
+     - docker
+     - build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get build maven artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "@(*.war|*.zip|git.bundle)"
+          merge-multiple: true
+
+      - name: Checkout ${{ github.event.inputs.branch }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          path: release
 
       - name: Push commits
         working-directory: ./release
         run: |
+          git pull ../git.bundle --tags
           git push
           git push --tags
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Create release on GitHub
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Create release on the GitHub
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.RELEASE_TAG }}
-          release_name: OpenL Tablets ${{ env.RELEASE_TAG }} Released
-          body: |
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.RELEASE_TAG }}
+        run: >
+          gh release create ${{ env.RELEASE_TAG }}
+          --repo ${{ github.repository }}
+          --verify-tag
+          --title 'OpenL Tablets ${{ env.RELEASE_TAG }} Released'
+          --notes '
             **OpenL Tablets ${{ env.RELEASE_TAG }} is available.**
             More detailed information you can find at [Release Notes ${{ env.RELEASE_TAG }}](//openl-tablets.org/release-notes?ver=${{ env.RELEASE_TAG }}).
             All artifacts are ready for Downloads.
             Enjoy!
-          draft: true
-          prerelease: false
+          '
+          ./demo.zip#openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
+          ./webstudio.war#openl-tablets-webstudio-${{ env.RELEASE_TAG }}.war
+          ./ws.war#openl-tablets-ws-${{ env.RELEASE_TAG }}.war
+          ./ws-all.war#openl-tablets-ws-all-${{ env.RELEASE_TAG }}.war
 
-      - name: Attach DEMO
-        id: attach-demo
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/demo/openl-demo-app/${{ env.RELEASE_TAG }}/openl-demo-app-${{ env.RELEASE_TAG }}.zip
-          asset_name: openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
-          asset_content_type: application/zip
+      - name: Release staging repository
+        run: >
+          curl -X POST https://oss.sonatype.org/service/local/staging/bulk/drop
+          -u "${{ secrets.OSSRH_USERNAME }}:${{ secrets.OSSRH_TOKEN }}"
+          --header 'Content-Type: application/json'
+          --fail
+          --data '{ "data" : {"stagedRepositoryIds":["${{ needs.maven.outputs.STAGE_ID }}"] } }'
 
-      - name: Attach OpenL Studio
-        id: attach-webstudio
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.webstudio/${{ env.RELEASE_TAG }}/org.openl.rules.webstudio-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-webstudio-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
+      - name: Release staging images
+        run: |
+          x_tag=$(echo "${{ env.RELEASE_TAG }}" | sed 's/\([0-9]*\.[0-9]*\)\..*/\1.x/')
+          docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
+          docker tag openltablets/webstudio:${{ github.run_number }} openltablets/webstudio:${{ env.RELEASE_TAG }}
+          docker tag openltablets/webstudio:${{ github.run_number }} openltablets/webstudio:${x_tag}
+          docker tag openltablets/ws:${{ github.run_number }} openltablets/ws:${{ env.RELEASE_TAG }}
+          docker tag openltablets/ws:${{ github.run_number }} openltablets/ws:${x_tag}
+          docker tag openltablets/ws:${{ github.run_number }} openltablets/ws:${{ env.RELEASE_TAG }}-all
+          
+          pushd release
+          the_latest=$(git tag -l | grep -E '^[0-9]+\.[0-9]+\..+$' | sort -V -r | head -n 1)
+          popd
+          if [ "${{ env.RELEASE_TAG }}" = "$the_latest" ]; then
+              docker tag openltablets/ws:${{ github.run_number }} openltablets/ws:lt
+              docker tag openltablets/webstudio:${{ github.run_number }} openltablets/webstudio:lt
+          fi
 
-      - name: Attach Rule Services WS
-        id: attach-webservice
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-ws-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
+  cleanup:
+    name: Delete staged artifacts
+    needs:
+      - approve
+      - maven
+      - publish
+    if: ${{ needs.publish.result == 'success' || needs.approve.result == 'cancelled'  || needs.approve.result == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
 
-      - name: Attach Rule Services WS (All)
-        id: attach-webservice-all
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws.all-${{ env.RELEASE_TAG }}.war
-          asset_name: openl-tablets-ws-all-${{ env.RELEASE_TAG }}.war
-          asset_content_type: application/zip
+      - name: Drop staging repository
+        run: >
+          curl -X POST https://oss.sonatype.org/service/local/staging/bulk/drop
+          -u "${{ secrets.OSSRH_USERNAME }}:${{ secrets.OSSRH_TOKEN }}"
+          --header 'Content-Type: application/json'
+          --data '{ "data" : {"stagedRepositoryIds":["${{ needs.maven.outputs.STAGE_ID }}"] } }'
 
-      - name: Attach Core
-        id: attach-core
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./mvn-staging/org/openl/rules/org.openl.rules/${{ env.RELEASE_TAG }}/org.openl.rules-${{ env.RELEASE_TAG }}.zip
-          asset_name: openl-tablets-core-${{ env.RELEASE_TAG }}.zip
-          asset_content_type: application/zip
+      - name: Drop staging images
+        run: |
+          HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "${{ secrets.DOCKER_LOGIN }}", "password": "${{ secrets.DOCKER_TOKEN }}"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+
+          curl -H "Authorization: JWT $HUB_TOKEN" -X "DELETE" https://hub.docker.com/v2/repositories/openltablets/ws/tags/${{ github.run_number }}
+          curl -H "Authorization: JWT $HUB_TOKEN" -X "DELETE" https://hub.docker.com/v2/repositories/openltablets/ws/tags/${{ github.run_number }}-all
+          curl -H "Authorization: JWT $HUB_TOKEN" -X "DELETE" https://hub.docker.com/v2/repositories/openltablets/webstudio/tags/${{ github.run_number }}
