@@ -1,9 +1,6 @@
 ![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
 ![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
-
-[![DEMO](https://img.shields.io/website?label=DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org%2Fwebstudio%2F)](https://demo.openl-tablets.org)
-[![Nightly Build DEMO](https://img.shields.io/website?label=Nightly%20Build%20DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org%2Fnightly%2Fwebstudio%2F)](https://demo.openl-tablets.org/nightly/)
 [![WebSite](https://img.shields.io/website?label=WebSite&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
 
 # Easy Business Rules
@@ -26,11 +23,11 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 #### Requirements:
 
-* JDK 11
-* Maven 3.9.4
-* Docker 24.0.4
-* Docker compose 1.29.2
-* 512 MiB RAM free
+* JDK 11+
+* Maven 3.9.9
+* Docker 27.1.1
+* Docker compose 2.29.1
+* 1 GiB RAM free
 * 2 GiB Disk space free
 
 #### Build Maven artifacts:
