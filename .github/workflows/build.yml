@@ -6,8 +6,8 @@ name: Build
 
 on:
   schedule:
-    # Every day at 02:00 UTC
-    - cron: '0 2 * * *'
+    # Every week at 02:00 UTC
+    - cron: '0 2 * * 3'
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:
@@ -25,42 +25,19 @@ jobs:
       matrix:
         # test against latest update of each major Java version, as well as specific updates of LTS versions:
         java: [ 11, 17, 21 ]
-        os: [ ubuntu-latest, windows-latest, macOS-13 ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
 
-    name: ${{ matrix.os }}/java-${{ matrix.java }}
-
+    name: Java ${{ matrix.java }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     steps:
 
-      # Docker is not installed on GitHub's MacOS hosted workers due to licensing issues
-      # (and it's necessary to run testcontainers)
-      - name: Setup docker and docker-compose (missing on MacOS)
-        if: runner.os == 'macos'
-        run: |
-          echo "::group::brew install colima"
-          brew install colima
-          echo "::group::brew install docker docker-compose"
-          brew install docker docker-compose
-          echo "::group::colima start"
-          # using mount-type 9p to allow the containers launched via docker-compose to chown
-          # https://github.com/abiosoft/colima/issues/54#issuecomment-1250217077
-          colima start --cpu 3 --memory 8 --disk 10  --mount-type 9p --network-address
-          echo "::group::use colima"
-          docker context use colima
-          docker context ls
-          echo "DOCKER_HOST=unix://${HOME}/.colima/default/docker.sock" >> $GITHUB_ENV
-          echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
-          echo "TESTCONTAINERS_HOST_OVERRIDE=$(colima ls -j | jq -r '.address')" >> $GITHUB_ENV
-          cat $GITHUB_ENV
-          echo "::endgroup::"
-
-        # Docker is not installed on GitHub's Widows hosted workers due to virtualization issues
+        # Docker is not installed on GitHub's Widows and MacOS hosted workers due to virtualization issues
         # (and it's necessary to run testcontainers)
-      - name: Switch off dockerized tests on Windows
-        if: runner.os == 'windows'
+      - name: Switch off dockerized tests
+        if: runner.os == 'windows' || runner.os == 'macos'
         run: |
           echo "SETTINGS=-DnoDocker" >> $env:GITHUB_ENV
+          echo "SETTINGS=-DnoDocker" >> $GITHUB_ENV
 
       - name: Configure GIT
         run: |
