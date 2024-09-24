@@ -10,6 +10,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -20,6 +21,7 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.CastingMethodCaller;
 
 /**
  * @author snshor, Yury Molchan
@@ -63,6 +65,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
+                    validateMethodParameter(methodCaller, children);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, parameterTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -117,6 +120,19 @@ public class MethodNodeBinder extends ANodeBinder {
             if (!errorsAndMessagesPopped) {
                 bindingContext.popErrors();
                 bindingContext.popMessages();
+            }
+        }
+    }
+
+    private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children) {
+        if (methodCaller instanceof CastingMethodCaller) {
+            IOpenCast[] casts = ((CastingMethodCaller) methodCaller).getCasts();
+            if (casts.length == children.length) {
+                for (int i = 0; i < casts.length; i++) {
+                    if (casts[i] != null && children[i] instanceof LiteralBoundNode) {
+                        casts[i].convert(((LiteralBoundNode) children[i]).value);
+                    }
+                }
             }
         }
     }
