@@ -1,5 +1,5 @@
 ![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
-![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
+![Maven Central](https://img.shields.io/maven-central/v/org.openl/org.openl.core)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
 [![WebSite](https://img.shields.io/website?label=WebSite&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
 
