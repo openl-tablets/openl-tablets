@@ -10,18 +10,18 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.domain.IDomain;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.impl.CastingMethodCaller;
+import org.openl.util.DomainUtils;
 
 /**
  * @author snshor, Yury Molchan
@@ -65,7 +65,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
-                    validateMethodParameter(methodCaller, children);
+                    validateMethodParameter(methodCaller, children, node, bindingContext);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, parameterTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -124,15 +124,51 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children) {
-        if (methodCaller instanceof CastingMethodCaller) {
-            IOpenCast[] casts = ((CastingMethodCaller) methodCaller).getCasts();
-            if (casts.length == children.length) {
-                for (int i = 0; i < casts.length; i++) {
-                    if (casts[i] != null && children[i] instanceof LiteralBoundNode) {
-                        casts[i].convert(((LiteralBoundNode) children[i]).value);
+    private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children, ISyntaxNode node, IBindingContext bindingContext) {
+        IOpenClass[] parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
+        if (parameterTypes.length == children.length) {
+            for (int i = 0; i < parameterTypes.length; i++) {
+                if (parameterTypes[i].getDomain() != null) {
+                    IDomain<Object> domain = (IDomain<Object>) parameterTypes[i].getDomain();
+                    String invalidValuesString = null;
+                    if (children[i] instanceof LiteralBoundNode) {
+                        LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[i];
+                        if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
+                            invalidValuesString = literalBoundNode.getValue().toString();
+                        }
+                    } else if (children[i] instanceof ArrayInitializerNode) {
+                        // In case of MultiCallOpenMethod
+                        StringBuilder invalidValues = new StringBuilder();
+                        validateParameterArray(((ArrayInitializerNode) children[i]).children, domain, invalidValues);
+                        if (invalidValues.length() > 0) {
+                            invalidValuesString = invalidValues.substring(0, invalidValues.length() - 1);
+                        }
+                    }
+                    if (invalidValuesString != null) {
+                        BindHelper.processError(String.format(
+                                "Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
+                                invalidValuesString,
+                                DomainUtils.toString(domain),
+                                "ne".equals(methodCaller.getMethod().getName())), node, bindingContext);
                     }
                 }
+            }
+        }
+
+    }
+
+    private void validateParameterArray(IBoundNode[] iBoundNode, IDomain<Object> domain, StringBuilder invalidValues) {
+        if (iBoundNode.length > 0 && iBoundNode[0] instanceof LiteralBoundNode) {
+            for (IBoundNode boundNode : iBoundNode) {
+                LiteralBoundNode literalBoundNode = (LiteralBoundNode) boundNode;
+                if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
+                    invalidValues.append(literalBoundNode.getValue()).append(",");
+                }
+            }
+
+        } else {
+            for (IBoundNode boundNode : iBoundNode) {
+                validateParameterArray(boundNode.getChildren(), domain, invalidValues);
             }
         }
     }
