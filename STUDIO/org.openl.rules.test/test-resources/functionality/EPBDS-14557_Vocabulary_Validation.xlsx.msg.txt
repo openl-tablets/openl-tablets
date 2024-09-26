@@ -1,0 +1,13 @@
+ERROR: Object 'F' is outside of valid domain '[Male, Female]'. The comparison always returns false.
+ERROR: Object '5' is outside of valid domain '[100, 200, 300]'. The comparison always returns false.
+ERROR: Object 'F' is outside of valid domain '[Male, Female]'. The comparison always returns false.
+ERROR: Object '5' is outside of valid domain '[100, 200, 300]'. The comparison always returns false.
+ERROR: Method 'GenderFactor(java.lang.String)' is not found.
+ERROR: Object 'F3' is outside of valid domain '[Male, Female]'. The comparison always returns false.
+ERROR: Object '125,225' is outside of valid domain '[100, 200, 300]'. The comparison always returns false.
+ERROR: Object 'F4,M1' is outside of valid domain '[Male, Female]'. The comparison always returns false.
+ERROR: Object '135,245' is outside of valid domain '[100, 200, 300]'. The comparison always returns false.
+ERROR: Method 'GenderFactor(java.lang.String, int)' is not found in type 'java.lang.String'.
+ERROR: Method 'GenderFactor(java.lang.String[], java.lang.Integer[])' is not found in type 'java.lang.String'.
+ERROR: Method 'GenderFactor()' is not found in type 'java.lang.String'.
+ERROR: Method 'GenderFactor()' is not found in type 'java.lang.String[]'.
