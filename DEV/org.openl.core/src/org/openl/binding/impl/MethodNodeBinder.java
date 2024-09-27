@@ -126,30 +126,16 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children, ISyntaxNode node, IBindingContext bindingContext) {
         IOpenClass[] parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
-        if (parameterTypes.length == children.length) {
-            for (int i = 0; i < parameterTypes.length; i++) {
-                if (parameterTypes[i].getDomain() != null) {
-                    IDomain<Object> domain = (IDomain<Object>) parameterTypes[i].getDomain();
-                    String invalidValuesString = null;
+        int parameterCount = parameterTypes.length;
+        if (parameterCount == children.length) {
+            for (int i = 0; i < parameterCount; i++) {
+                IDomain<Object> domain = (IDomain<Object>) parameterTypes[i].getDomain();
+                if (domain != null) {
                     if (children[i] instanceof LiteralBoundNode) {
-                        LiteralBoundNode literalBoundNode = (LiteralBoundNode) children[i];
-                        if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
-                            invalidValuesString = literalBoundNode.getValue().toString();
-                        }
+                        processLiteralBoundNode((LiteralBoundNode) children[i], domain, node, bindingContext, parameterTypes[i].getName());
                     } else if (children[i] instanceof ArrayInitializerNode) {
                         // In case of MultiCallOpenMethod
-                        StringBuilder invalidValues = new StringBuilder();
-                        validateParameterArray(((ArrayInitializerNode) children[i]).children, domain, invalidValues);
-                        if (invalidValues.length() > 0) {
-                            invalidValuesString = invalidValues.substring(0, invalidValues.length() - 1);
-                        }
-                    }
-                    if (invalidValuesString != null) {
-                        BindHelper.processError(String.format(
-                                "Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
-                                invalidValuesString,
-                                DomainUtils.toString(domain),
-                                "ne".equals(methodCaller.getMethod().getName())), node, bindingContext);
+                        validateParameterArray(((ArrayInitializerNode) children[i]).children, domain, node, bindingContext, parameterTypes[i].getName());
                     }
                 }
             }
@@ -157,18 +143,24 @@ public class MethodNodeBinder extends ANodeBinder {
 
     }
 
-    private void validateParameterArray(IBoundNode[] iBoundNode, IDomain<Object> domain, StringBuilder invalidValues) {
+    private void processLiteralBoundNode(LiteralBoundNode literalBoundNode, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
+        if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
+            BindHelper.processError(String.format(
+                    "Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    literalBoundNode.getValue(),
+                    toClass, DomainUtils.toString(domain)), node, bindingContext);
+        }
+    }
+
+    private void validateParameterArray(IBoundNode[] iBoundNode, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
         if (iBoundNode.length > 0 && iBoundNode[0] instanceof LiteralBoundNode) {
             for (IBoundNode boundNode : iBoundNode) {
-                LiteralBoundNode literalBoundNode = (LiteralBoundNode) boundNode;
-                if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
-                    invalidValues.append(literalBoundNode.getValue()).append(",");
-                }
+                processLiteralBoundNode((LiteralBoundNode) boundNode, domain, node, bindingContext, toClass);
             }
 
         } else {
             for (IBoundNode boundNode : iBoundNode) {
-                validateParameterArray(boundNode.getChildren(), domain, invalidValues);
+                validateParameterArray(boundNode.getChildren(), domain, node, bindingContext, toClass);
             }
         }
     }
