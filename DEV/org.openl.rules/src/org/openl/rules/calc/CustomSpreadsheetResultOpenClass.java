@@ -479,6 +479,23 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         // Optimization for the trivial case without type conversion
                         return v;
                     }
+
+                    if (toClass.isArray()) {
+                        var componentType = toClass.getComponentType();
+                        if (v.getClass().isArray()) {
+                            int len = Array.getLength(v);
+                            var array = Array.newInstance(componentType, len);
+                            for (int i = 0; i < len; i++) {
+                                Array.set(array, i, apply(Array.get(v, i), componentType));
+                            }
+                            return array;
+                        } else {
+                            var array = Array.newInstance(componentType, 1);
+                            Array.set(array, 0, apply(v, componentType));
+                            return array;
+                        }
+                    }
+
                     var openClass = spreadsheetResult.getCustomSpreadsheetResultOpenClass();
                     if (openClass != null) {
                         var module = openClass.getModule();
@@ -489,16 +506,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 return cast.convert(v);
                             }
                         }
-                    }
-
-                    if (toClass.isArray()) {
-                        var componentType = toClass.getComponentType();
-                        int len = Array.getLength(v);
-                        var array = Array.newInstance(componentType, len);
-                        for (int i = 0; i < len; i++) {
-                            Array.set(array, i, apply(Array.get(v, i), componentType));
-                        }
-                        return array;
                     }
 
                     // Fallback to old implementation.

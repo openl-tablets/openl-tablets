@@ -34,7 +34,7 @@ public class ObjectToDataOpenCastConvertor {
         }
         var cast = getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass), toClass);
 
-        if (cast != null && cast.isImplicit()) {
+        if (cast != null) {
             return cast.convert(from);
         }
 
