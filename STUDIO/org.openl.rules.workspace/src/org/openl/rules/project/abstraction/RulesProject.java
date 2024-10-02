@@ -33,7 +33,7 @@ import org.openl.util.PropertiesUtils;
 
 public class RulesProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(RulesProject.class);
-    private static final String TAGS_FILE_NAME = "tags.properties";
+    public static final String TAGS_FILE_NAME = "tags.properties";
 
     private final LocalRepository localRepository;
     private String localFolderName;

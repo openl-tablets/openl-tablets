@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -36,8 +37,11 @@ public class ProjectTagsBean {
     private final TagTemplateService tagTemplateService;
 
     private List<Tag> tags;
+    private List<TagInfo> notApplicableTags;
 
     private String projectName;
+    private boolean tagsArePreconfigured;
+    private boolean initFromOpenedProject;
 
     public ProjectTagsBean(TagTypeService tagTypeService,
                            TagService tagService,
@@ -49,19 +53,32 @@ public class ProjectTagsBean {
         this.tagTemplateService = tagTemplateService;
     }
 
-    public void initFromTemplate() {
-        tags = new ArrayList<>();
+    public void init() {
+        if (initFromOpenedProject) {
+            initFromOpenedProject();
+        }
+        initFromTemplate();
+    }
+
+    private void initFromTemplate() {
+        List<Tag> newTags = new ArrayList<>();
 
         if (StringUtils.isNotBlank(projectName)) {
-            tags.addAll(tagTemplateService.getTags(projectName));
+            newTags.addAll(tagTemplateService.getTags(projectName));
+            newTags.removeIf(tag -> tag.getId() == null && !tag.getType().isExtensible());
         }
 
-        tags.removeIf(tag -> tag.getId() == null && !tag.getType().isExtensible());
+        if (tagsArePreconfigured || initFromOpenedProject) {
+            Set<String> existingTags = tags.stream().map(Tag::getType).map(TagType::getName).collect(Collectors.toSet());
+            newTags.removeIf(tag -> existingTags.contains(tag.getType().getName()));
+            newTags.addAll(tags);
+        }
+        tags = newTags;
 
         fillAbsentTags();
     }
-
-    public void init() {
+    
+    private void initFromOpenedProject() {
         TreeNode selectedNode = this.repositorySelectNodeStateHolder.getSelectedNode();
         TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
 
@@ -72,6 +89,7 @@ public class ProjectTagsBean {
                     .map(entry -> tagService.getByTypeNameAndName(entry.getKey(), entry.getValue()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+            notApplicableTags = Collections.emptyList();
         }
 
         fillAbsentTags();
@@ -103,6 +121,10 @@ public class ProjectTagsBean {
     public List<Tag> getTagValues(String tagType) {
         return tagService.getByTagType(tagType);
     }
+    
+    public List<TagInfo> getNotApplicableTags() {
+        return notApplicableTags;
+    }
 
     public void validateCreate() {
         // Validate
@@ -131,30 +153,6 @@ public class ProjectTagsBean {
         });
     }
 
-    public void save() throws ProjectException {
-        TreeNode selectedNode = this.repositorySelectNodeStateHolder.getSelectedNode();
-        TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
-
-        // Validate
-        tags.stream().filter(tag -> !tag.getType().isExtensible() && !tag.getName().equals(NONE_NAME)).forEach(tag -> {
-            final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
-            if (existed == null) {
-                throw new IllegalArgumentException(String
-                        .format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
-            }
-        });
-
-        if (selectedProject != null) {
-            RulesProject project = (RulesProject) selectedProject.getData();
-            tags.removeIf(tag -> tag.getName().equals(NONE_NAME));
-
-            createExtensibleTags();
-            var tagsToSave = tags.stream().collect(Collectors.toMap(tag-> tag.getType().getName(), Tag::getName));
-
-            project.saveTags(tagsToSave);
-        }
-    }
-
     private void createExtensibleTags() {
         // Save extensible tags
         tags.stream().filter(tag -> tag.getType().isExtensible()).forEach(tag -> {
@@ -173,6 +171,14 @@ public class ProjectTagsBean {
         this.projectName = projectName;
     }
 
+    public void setTagsArePreconfigured(boolean tagsArePreconfigured) {
+        this.tagsArePreconfigured = tagsArePreconfigured;
+    }
+
+    public void setInitFromOpenedProject(boolean initFromOpenedProject) {
+        this.initFromOpenedProject = initFromOpenedProject;
+    }
+
     public Map<String, String> saveTagsTypesAndGetTags() {
         if (tags == null) {
             return Collections.emptyMap();
@@ -184,5 +190,28 @@ public class ProjectTagsBean {
     
     public void clearTags() {
         this.tags = Collections.emptyList();
+        this.notApplicableTags = Collections.emptyList();
+    }
+
+    public void initTagsFromPreexisting(Map<String, String> tagsMap) {
+        this.tags = new ArrayList<>();
+        this.notApplicableTags = new ArrayList<>();
+        for(Map.Entry<String, String> entry: tagsMap.entrySet()) {
+            Tag tag = tagService.getByTypeNameAndName(entry.getKey(), entry.getValue());
+            if (tag == null) {
+                TagType tagType = tagTypeService.getByName(entry.getKey());
+                if (tagType != null && tagType.isExtensible()) {
+                    tag = new Tag();
+                    tag.setType(tagType);
+                    tag.setName(entry.getValue());
+                } else {
+                    notApplicableTags.add(new TagInfo(entry.getKey(), entry.getValue(), null, tagType != null));
+                }
+            }
+            
+            if (tag != null) {
+                tags.add(tag);
+            } 
+        }
     }
 }

@@ -31,6 +31,8 @@ import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
@@ -132,6 +134,7 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -1972,6 +1975,29 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
+    
+    public void loadTagsFromUploadedFile() throws IOException {
+        ProjectFile file = getLastUploadedFile();
+        String fileName = file.getName();
+        boolean tagsAreReadFromProject = false;
+        if (FileTypeHelper.isZipFile(fileName)) {
+            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInput())) {
+                for (ZipEntry entry = zipInputStream.getNextEntry(); entry != null; entry = zipInputStream.getNextEntry()) {
+                    if (RulesProject.TAGS_FILE_NAME.equals(entry.getName())) {
+                        Map<String, String> readTags = new HashMap<>();
+                        PropertiesUtils.load(zipInputStream, readTags::put);
+                        projectTagsBean.initTagsFromPreexisting(readTags);
+                        tagsAreReadFromProject = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (! tagsAreReadFromProject) {
+            projectTagsBean.clearTags();
+        }
+        
+    }
 
     /**
      * Remove uploaded files.
@@ -3195,7 +3221,7 @@ public class RepositoryTreeController {
         return hasPermissionsForArtefactsInProject(project);
     }
 
-    public boolean isHasTags() {
+    public boolean isTagsAreConfigured() {
         return !tagTypeService.getAllTagTypes().isEmpty();
     }
 

@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -71,6 +72,8 @@ public class CopyBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
+    private final ProjectTagsBean projectTagsBean;
+
     private final RepositoryAclService designRepositoryAclService;
 
     private final ApplicationContext applicationContext = FacesContextUtils
@@ -94,9 +97,11 @@ public class CopyBean {
 
     public CopyBean(PropertyResolver propertyResolver,
                     RepositoryTreeState repositoryTreeState,
+                    ProjectTagsBean projectTagsBean,
                     @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
+        this.projectTagsBean = projectTagsBean;
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
@@ -285,7 +290,9 @@ public class CopyBean {
                     designData.addAdditionalData(mappingData);
                 }
                 designData.setComment(comment);
-                designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
+                Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
+                designProject.setResourceTransformer(new CopyProjectTransformer(newProjectName, tags));
+                
                 designProject.update(localProject, user);
                 designProject.setResourceTransformer(null);
 
