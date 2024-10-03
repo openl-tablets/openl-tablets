@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
@@ -85,11 +84,16 @@ public class ProjectTagsBean {
         if (selectedProject != null) {
             RulesProject project = (RulesProject) selectedProject.getData();
 
-            tags = project.getTags().entrySet().stream()
-                    .map(entry -> tagService.getByTypeNameAndName(entry.getKey(), entry.getValue()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            notApplicableTags = Collections.emptyList();
+            tags = new ArrayList<>();
+            notApplicableTags = new ArrayList<>();
+            for (Map.Entry<String, String> tagFromOpenedProject: project.getTags().entrySet()) {
+                Tag tag = tagService.getByTypeNameAndName(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue());
+                if (tag != null) {
+                    tags.add(tag);
+                } else {
+                    notApplicableTags.add(new TagInfo(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue(), null, false));
+                }
+            }
         }
 
         fillAbsentTags();
