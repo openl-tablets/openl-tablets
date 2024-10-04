@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.jaxrs;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -78,14 +77,10 @@ public class OpenApiResource {
         openAPI.setServers(servers);
 
         // Load custom override configuration
-        var custom = getClass().getResource("/openapi.json");
+        // https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration
+        var custom = getClass().getResource("/openapi-configuration.json");
         if (custom != null) {
-            openAPI = openApiMapper.readerForUpdating(openAPI).readValue(custom);
-        } else if (new File("openapi.json").exists()) {
-            openAPI = openApiMapper.readerForUpdating(openAPI).readValue(new File("openapi.json"));
-        } else if (getClass().getResource("/openapi-configuration.json") != null) {
-            // For backward compatibility
-            var res = openApiMapper.readerForUpdating(new ConfigWrapper(openAPI)).readValue(getClass().getResource("/openapi-configuration.json"));
+            var res = openApiMapper.readerForUpdating(new ConfigWrapper(openAPI)).readValue(custom);
             openAPI = ((ConfigWrapper) res).openAPI;
         }
         if (authenticationEnabled) {
