@@ -10,6 +10,8 @@ Content-Type: application/json
   },
   "servers" : [ {
     "url" : "http://example.com/simple"
+  }, {
+    "url" : "https://example.com/reserved"
   } ],
   "security" : [ {
     "Basic" : [ ]
