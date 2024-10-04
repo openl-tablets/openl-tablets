@@ -80,18 +80,17 @@
         <spring.framework.version>5.3.39</spring.framework.version>
         <spring.boot.version>2.7.18</spring.boot.version>
         <spring.integration.version>5.5.20</spring.integration.version>
-        <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
         <spring.security.version>5.8.14</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>9.41.1</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.41.2</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7</asm.version>
-        <byte-buddy.version>1.15.1</byte-buddy.version>
+        <byte-buddy.version>1.15.3</byte-buddy.version>
         <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
@@ -107,54 +106,54 @@
         <cassandra.driver.version>4.17.0</cassandra.driver.version>
 
         <!-- Hive -->
-        <hive.jdbc.version>4.0.0</hive.jdbc.version>
+        <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
         <!-- REST -->
-        <jackson.version>2.17.2</jackson.version>
+        <jackson.version>2.18.0</jackson.version>
         <cxf.version>3.6.4</cxf.version>
         <stax-ex.version>1.8.3</stax-ex.version>
 
         <!-- gRPC -->
-        <grpc.version>1.66.0</grpc.version>
+        <grpc.version>1.68.0</grpc.version>
 
         <!-- OpenAPI -->
         <swagger.core.version>2.2.23</swagger.core.version>
         <swagger.parser.version>2.1.22</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.24.0</log4j.version>
+        <log4j.version>2.24.1</log4j.version>
         <slf4j.version>2.0.16</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
         <maven.api.version>3.9.9</maven.api.version>
         <maven.plugin.version>3.15.0</maven.plugin.version>
-        <plexus-utils.version>4.0.1</plexus-utils.version>
+        <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.28.2</amazonaws.version>
-        <azure.version>12.27.1</azure.version>
-        <netty.version>4.1.113.Final</netty.version>
+        <amazonaws.version>2.28.15</amazonaws.version>
+        <azure.version>12.28.0</azure.version>
+        <netty.version>4.1.114.Final</netty.version>
         <reactor-netty-http.version>1.1.22</reactor-netty-http.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.3.232</h2.version>
         <mssql.version>12.8.1.jre11</mssql.version>
-        <hikaricp.version>5.1.0</hikaricp.version>
+        <hikaricp.version>6.0.0</hikaricp.version>
         <hibernate.orm.version>5.6.15.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.11.0</junit.version>
+        <junit.version>5.11.1</junit.version>
         <junit-pioneer.version>2.2.0</junit-pioneer.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <mockito.version>5.13.0</mockito.version>
+        <mockito.version>5.14.1</mockito.version>
         <datasource-proxy.version>1.10</datasource-proxy.version>
         <xmlunit.version>2.10.0</xmlunit.version>
-        <testcontainers.version>1.20.1</testcontainers.version>
+        <testcontainers.version>1.20.2</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.12</minio.version>
         <jmh.version>1.37</jmh.version>
@@ -181,7 +180,7 @@
         <commons.codec.version>1.17.1</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.collections4.version>4.4</commons.collections4.version>
-        <commons.io.version>2.16.1</commons.io.version>
+        <commons.io.version>2.17.0</commons.io.version>
         <commons.jxpath.version>1.3</commons.jxpath.version>
         <commons.lang3.version>3.17.0</commons.lang3.version>
 
@@ -193,8 +192,8 @@
         <groovy.version>4.0.23</groovy.version>
         <poi.version>5.3.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
-        <velocity.version>2.3</velocity.version>
-        <guava.version>33.3.0-jre</guava.version>
+        <velocity.version>2.4</velocity.version>
+        <guava.version>33.3.1-jre</guava.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
@@ -256,7 +255,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -271,12 +270,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -286,12 +285,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.3.2</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.6.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -309,7 +308,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.2.5</version>
+                    <version>3.5.0</version>
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
@@ -338,7 +337,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.4.2</version>
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
                         <archive>
@@ -378,12 +377,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.6.2</version>
+                    <version>3.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.12.1</version>
+                    <version>3.20.0</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
@@ -415,14 +414,14 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>9.1.0</version>
+                    <version>10.0.4</version>
                 </plugin>
                 <plugin>
                     <!-- See https://docs.openrewrite.org/recipes/java -->
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.36.0</version>
+                    <version>5.41.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
@@ -443,7 +442,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.2.1</version>
                 <configuration>
                     <timestampPropertyName>build.date</timestampPropertyName>
                     <timestampFormat>yyyy-MM-dd</timestampFormat>
@@ -628,7 +627,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.6.3</version>
+                        <version>3.10.1</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
@@ -840,101 +839,12 @@
                 <version>${commons.io.version}</version>
             </dependency>
             <!-- Spring Framework -->
-            <!-- Core utilities used by other modules. Define this if you use Spring
-                Utility APIs (org.springframework.core.*/org.springframework.util.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
+                <artifactId>spring-framework-bom</artifactId>
                 <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Expression Language (depends on spring-core) Define this if you use
-                Spring Expression APIs (org.springframework.expression.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-expression</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Bean Factory and JavaBeans utilities (depends on spring-core) Define
-                this if you use Spring Bean APIs (org.springframework.beans.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Aspect Oriented Programming (AOP) Framework (depends on spring-core,
-                spring-beans) Define this if you use Spring AOP APIs (org.springframework.aop.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Application Context (depends on spring-core, spring-expression, spring-aop,
-                spring-beans) This is the central artifact for Spring's Dependency Injection
-                Container and is generally always defined -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Various Application Context utilities, including EhCache, JavaMail,
-                Quartz, and Freemarker integration Define this if you need any of these integrations -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context-support</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Transaction Management Abstraction (depends on spring-core, spring-beans,
-                spring-aop, spring-context) Define this if you use Spring Transactions or
-                DAO Exception Hierarchy (org.springframework.transaction.*/org.springframework.dao.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-tx</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- JDBC Data Access Library (depends on spring-core, spring-beans, spring-context,
-                spring-tx) Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-jdbc</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA,
-                and iBatis. (depends on spring-core, spring-beans, spring-context, spring-tx)
-                Define this if you need ORM (org.springframework.orm.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-orm</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <!-- Web application development utilities applicable to both Servlet
-                and Portlet Environments (depends on spring-core, spring-beans, spring-context)
-                Define this if you use Spring MVC, or wish to use Struts, JSF, or another
-                web framework with Spring (org.springframework.web.*) -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-webmvc</artifactId>
-                <version>${spring.framework.version}</version>
-            </dependency>
-            <dependency>
-                <!-- This library implements a filter to process X-Forwarded-* headers.
-                The reason of this usage: no huge dependencies.
-                Neither Spring filter, nor CXF filter works correctly within the same reverse proxy.
-                So this library unifies forwarding for both OpenL Studio and RuleServices -->
-                <groupId>de.qaware.xff</groupId>
-                <artifactId>x-forwarded-filter</artifactId>
-                <version>${x-forwarded-filter.version}</version>
-            </dependency>
-            <!-- Spring's TestContext framework. Also includes common Servlet and Portlet API mocks. -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>${spring.framework.version}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- Spring Boot -->
             <dependency>
@@ -956,29 +866,10 @@
             <!-- Spring Security -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-core</artifactId>
+                <artifactId>spring-security-bom</artifactId>
                 <version>${spring.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-acl</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-test</artifactId>
-                <version>${spring.security.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-config</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-ldap</artifactId>
-                <version>${spring.security.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -991,22 +882,20 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-saml2-service-provider</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
             <!-- Spring Integration -->
             <dependency>
                 <groupId>org.springframework.integration</groupId>
                 <artifactId>spring-integration-jdbc</artifactId>
                 <version>${spring.integration.version}</version>
             </dependency>
-            <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
             <dependency>
-                <groupId>org.reactivestreams</groupId>
-                <artifactId>reactive-streams</artifactId>
-                <version>${reactive-streams.version}</version>
+                <!-- This library implements a filter to process X-Forwarded-* headers.
+                The reason of this usage: no huge dependencies.
+                Neither Spring filter, nor CXF filter works correctly within the same reverse proxy.
+                So this library unifies forwarding for both OpenL Studio and RuleServices -->
+                <groupId>de.qaware.xff</groupId>
+                <artifactId>x-forwarded-filter</artifactId>
+                <version>${x-forwarded-filter.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.groovy</groupId>
@@ -1047,27 +936,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-client</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-resource-server</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
-            <!-- Necessary for oauth2 Oidc. -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-jose</artifactId>
-                <version>${spring.security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <!--poi and opensaml -->
@@ -1190,18 +1058,10 @@
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-agent</artifactId>
+                <artifactId>byte-buddy-parent</artifactId>
                 <version>${byte-buddy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy</artifactId>
-                <version>${byte-buddy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-dep</artifactId>
-                <version>${byte-buddy.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <!-- Java source code generation library -->
             <dependency>
@@ -1217,8 +1077,10 @@
             <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                <artifactId>cxf-bom</artifactId>
                 <version>${cxf.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
@@ -1235,45 +1097,6 @@
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>
                 <version>${stax-ex.version}</version>
-            </dependency>
-            <!-- Apache CXF JAX-RS Extensions: Providers -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-extension-providers</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <!-- Apache CXF Runtime HTTP Transport -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <!-- Apache CXF Runtime HTTP Jetty Transport -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http-jetty</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <!-- Apache CXF Runtime JAXRS Client -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-client</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http-hc</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-management</artifactId>
-                <version>${cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-features-logging</artifactId>
-                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
@@ -1553,66 +1376,24 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
                 <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-xml</artifactId>
-                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${jackson.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-parameter-names</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <!-- Overrides old vulnerable releases from Elasticsearch and Amazon S3 SDK libs  -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
+
             <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
             <dependency>
                 <groupId>com.sun.mail</groupId>
