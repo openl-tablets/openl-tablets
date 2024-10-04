@@ -3,6 +3,9 @@
     "version": "x.x.x",
     "description": "Secured"
   },
+  "servers" : [ {
+    "url" : "https://example.com/reserved"
+  } ],
   "security": [
     {
       "Basic": []
