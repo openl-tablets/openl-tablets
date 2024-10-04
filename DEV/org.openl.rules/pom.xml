@@ -15,30 +15,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assembly-zip</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>openl-tablets-core-${project.version}</finalName>
-                            <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
-                            <descriptors>
-                                <descriptor>assembly/assembly-zip.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <!-- 3rd party dependencies -->
         <dependency>
