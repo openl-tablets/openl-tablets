@@ -91,7 +91,8 @@ public class ProjectTagsBean {
                 if (tag != null) {
                     tags.add(tag);
                 } else {
-                    notApplicableTags.add(new TagInfo(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue(), null, false));
+                    TagType tagType = tagTypeService.getByName(tagFromOpenedProject.getKey());
+                    notApplicableTags.add(new TagInfo(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue(), null, tagType != null));
                 }
             }
         }

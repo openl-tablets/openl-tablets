@@ -168,7 +168,7 @@ public class ProjectsWithoutTagsBean {
         public List<TagDTO> getTags() {
             List<TagDTO> dtoList = new ArrayList<>();
             for (Tag tag : tags) {
-                String existingTagName = rulesProject.getTags().get(tag.getName());
+                String existingTagName = rulesProject.getTags().get(tag.getType().getName());
                 final TagDTO dto = new TagDTO(tag, existingTagName);
                 dtoList.add(dto);
             }
