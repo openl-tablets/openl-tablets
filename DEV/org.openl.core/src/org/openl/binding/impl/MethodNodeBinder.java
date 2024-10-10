@@ -14,12 +14,16 @@ import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.domain.EnumDomain;
+import org.openl.domain.IDomain;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
 
 /**
  * @author snshor, Yury Molchan
@@ -63,6 +67,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
+                    validateMethodParameter(methodCaller, children, node, bindingContext);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, parameterTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -119,6 +124,73 @@ public class MethodNodeBinder extends ANodeBinder {
                 bindingContext.popMessages();
             }
         }
+    }
+
+    private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children, ISyntaxNode node, IBindingContext bindingContext) {
+        var parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
+        var parameterCount = parameterTypes.length;
+        if (parameterCount == children.length) {
+            for (int i = 0; i < parameterCount; i++) {
+                var parameterType = parameterTypes[i];
+                var param = children[i];
+                var domain = parameterType.getDomain();
+                if (domain != null) {
+                    var iDomain = (IDomain<Object>) domain;
+                    if (children[i] instanceof LiteralBoundNode) {
+                        processLiteralBoundNode(((LiteralBoundNode) param).getValue(), iDomain, node, bindingContext, parameterType.getName());
+                    } else if (children[i] instanceof ArrayInitializerNode) {
+                        // In case of MultiCallOpenMethod or enum is an array
+                        validateParameterArray(((ArrayInitializerNode) param).children, iDomain, node, bindingContext, parameterType.getName());
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void processLiteralBoundNode(Object inputValue, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
+        if (inputValue != null && !domain.selectObject(inputValue)) {
+            BindHelper.processError(String.format(
+                    "Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    inputValue,
+                    toClass, DomainUtils.toString(domain)), node, bindingContext);
+        }
+    }
+
+    private void validateParameterArray(IBoundNode[] iBoundNode, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
+        var enumDomain = (EnumDomain<Object>) domain;
+        if (enumDomain.getComponentType().isArray() && iBoundNode[0] instanceof LiteralBoundNode) {
+                // Enum/domain is itself an array
+                var stringBuilder = new StringBuilder();
+                var inputkey = generateEnumKey(stringBuilder, iBoundNode);
+                if (inputkey != null && !OpenClassUtils.belongsToEnum(enumDomain.getAllObjects(), inputkey)) {
+                    BindHelper.processError(String.format(
+                            "Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            inputkey,
+                            toClass, DomainUtils.toString(enumDomain)), node, bindingContext);
+                }
+        } else {
+            for (IBoundNode boundNode : iBoundNode) {
+                if (boundNode instanceof LiteralBoundNode) {
+                    // MultiCallOpenMethod
+                    processLiteralBoundNode(((LiteralBoundNode) boundNode).getValue(), domain, node, bindingContext, toClass);
+                } else {
+                    validateParameterArray(boundNode.getChildren(), domain, node, bindingContext, toClass);
+                }
+
+            }
+        }
+    }
+
+    private String generateEnumKey(StringBuilder enumKey, IBoundNode[] iBoundNodes) {
+        for (IBoundNode boundNode : iBoundNodes) {
+            LiteralBoundNode literalBoundNode = (LiteralBoundNode) boundNode;
+            if (literalBoundNode.getValue() != null) {
+                enumKey.append(literalBoundNode.getValue()).append(",");
+            }
+        }
+        var enumKeyLen = enumKey.length();
+        return enumKeyLen > 0 ? enumKey.substring(0, enumKeyLen - 1) : null;
     }
 
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
