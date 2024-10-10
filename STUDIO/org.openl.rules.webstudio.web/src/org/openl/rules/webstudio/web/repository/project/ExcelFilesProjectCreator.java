@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.project;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.webstudio.web.repository.upload.AProjectCreator;
@@ -22,8 +23,9 @@ public class ExcelFilesProjectCreator extends AProjectCreator {
                                     UserWorkspace userWorkspace,
                                     String comment,
                                     PathFilter pathFilter,
+                                    Map<String, String> tags,
                                     ProjectFile... files) {
-        super(projectName, projectFolder, userWorkspace);
+        super(projectName, projectFolder, userWorkspace, tags);
         this.repositoryId = repositoryId;
         this.comment = comment;
         this.pathFilter = pathFilter;

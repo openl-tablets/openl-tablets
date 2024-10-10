@@ -31,6 +31,8 @@ import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
@@ -132,6 +134,7 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -733,6 +736,7 @@ public class RepositoryTreeController {
                 userWorkspace,
                 comment,
                 zipFilter,
+                projectTagsBean.saveTagsTypesAndGetTags(),
                 templateFiles);
         try {
             try {
@@ -753,8 +757,6 @@ public class RepositoryTreeController {
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
 
                     resetStudioModel();
-
-                    saveTags(createdProject);
 
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                     /* Clear the load form */
@@ -1973,6 +1975,29 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
         }
     }
+    
+    public void loadTagsFromUploadedFile() throws IOException {
+        ProjectFile file = getLastUploadedFile();
+        String fileName = file.getName();
+        boolean tagsAreReadFromProject = false;
+        if (FileTypeHelper.isZipFile(fileName)) {
+            try (ZipInputStream zipInputStream = new ZipInputStream(file.getInput())) {
+                for (ZipEntry entry = zipInputStream.getNextEntry(); entry != null; entry = zipInputStream.getNextEntry()) {
+                    if (RulesProject.TAGS_FILE_NAME.equals(entry.getName())) {
+                        Map<String, String> readTags = new HashMap<>();
+                        PropertiesUtils.load(zipInputStream, readTags::put);
+                        projectTagsBean.initTagsFromPreexisting(readTags);
+                        tagsAreReadFromProject = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (! tagsAreReadFromProject) {
+            projectTagsBean.clearTags();
+        }
+        
+    }
 
     /**
      * Remove uploaded files.
@@ -2143,7 +2168,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(createdProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
@@ -2174,6 +2198,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage(errorMessage);
                 return errorMessage;
             }
+            Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
             final ProjectUploader uploader = new ProjectUploader(repositoryId,
                     uploadedFiles,
                     projectName,
@@ -2186,7 +2211,8 @@ public class RepositoryTreeController {
                     modelsPath,
                     algorithmsPath,
                     modelsModuleName,
-                    algorithmsModuleName);
+                    algorithmsModuleName,
+                    tags);
             RulesProject uploadedProject;
             try {
                 uploadedProject = uploader.uploadProject();
@@ -2198,7 +2224,6 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(uploadedProject);
                 selectProject(uploadedProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
-                saveTags(uploadedProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
                 return null;
             } catch (Exception e) {
@@ -2378,6 +2403,7 @@ public class RepositoryTreeController {
                 }
                 String pathForModels = extractPath(editModelsPath, modelsPath, OpenAPIModule.MODEL);
                 String pathForAlgorithms = extractPath(editAlgorithmsPath, algorithmsPath, OpenAPIModule.ALGORITHM);
+                Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
                 ProjectUploader projectUploader = new ProjectUploader(repositoryId,
                         uploadedItem,
                         projectName,
@@ -2390,7 +2416,8 @@ public class RepositoryTreeController {
                         pathForModels,
                         pathForAlgorithms,
                         modelsModuleName,
-                        algorithmsModuleName);
+                        algorithmsModuleName,
+                        tags);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     try {
@@ -2985,6 +3012,7 @@ public class RepositoryTreeController {
 
     public void openNewProjectDialog() {
         clearUploadedFiles();
+        projectTagsBean.clearTags();
 
         List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
         if (repositories.size() == 1) {
@@ -3034,7 +3062,6 @@ public class RepositoryTreeController {
                     .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
 
             resetStudioModel();
-            importedProject.ifPresent(this::saveTags);
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {
@@ -3194,12 +3221,8 @@ public class RepositoryTreeController {
         return hasPermissionsForArtefactsInProject(project);
     }
 
-    public boolean isHasTags() {
+    public boolean isTagsAreConfigured() {
         return !tagTypeService.getAllTagTypes().isEmpty();
-    }
-
-    private void saveTags(RulesProject project) {
-        projectTagsBean.saveTags(project);
     }
 
     public void forceUpdateVersionsBean() {
