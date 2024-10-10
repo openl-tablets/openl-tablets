@@ -1,6 +1,5 @@
 package org.openl.rules.binding;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,8 +17,6 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
-import org.openl.domain.IDomain;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
@@ -30,7 +27,6 @@ import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.helpers.ArraySplitter;
-import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.BaseMetaInfoReader;
@@ -52,7 +48,7 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-import org.openl.util.DomainUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringPool;
 
 public final class RuleRowHelper {
@@ -215,7 +211,12 @@ public final class RuleRowHelper {
                 }
 
                 if (res != null) {
-                    validateValue(res, paramType);
+                    var validationMessage = OpenClassUtils.isValidValue(res, paramType);
+                    if (validationMessage != null) {
+                        BindHelper.processError(validationMessage,
+                                new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()),
+                                openlAdapter.getBindingContext());
+                    }
                     return res;
                 }
             } catch (Exception | LinkageError t) {
@@ -439,7 +440,12 @@ public final class RuleRowHelper {
             }
 
             try {
-                validateValue(result, paramType);
+                var validationMessage = OpenClassUtils.isValidValue(result, paramType);
+                if (validationMessage != null) {
+                    IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                            bindingContext);
+                    BindHelper.processError(validationMessage, cellSourceCodeModule, bindingContext);
+                }
             } catch (Exception e) {
                 String message = String.format("Invalid cell value '%s'", source);
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
@@ -495,52 +501,6 @@ public final class RuleRowHelper {
             valueMetaInfo.setSource(new GridCellSourceCodeModule(cell.getSource(), bindingContext));
 
             holder.setMetaInfo(valueMetaInfo);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void validateValue(Object value, IOpenClass paramType) throws OpenLCompilationException {
-        IDomain<Object> domain = (IDomain<Object>) paramType.getDomain();
-
-        if (domain != null) {
-            validateDomain(value, domain, paramType);
-        }
-    }
-
-    private static void validateDomain(Object value,
-                                       IDomain<Object> domain,
-                                       IOpenClass paramType) throws OpenLCompilationException {
-        if (value == null) {
-            return;
-        }
-        if (value.getClass().isArray()) {
-            int length = Array.getLength(value);
-            for (int i = 0; i < length; i++) {
-                Object element = Array.get(value, i);
-                validateDomain(element, domain, paramType);
-            }
-        } else if (value instanceof Iterable && !(value instanceof INumberRange)) {
-            Iterable list = (Iterable) value;
-            for (Object element : list) {
-                validateDomain(element, domain, paramType);
-            }
-        } else {
-            try {
-                // block is surrounded by try block, as EnumDomain
-                // implementation throws a
-                // RuntimeException when value doesn`t belong to domain.
-                //
-                boolean contains = domain.selectObject(value);
-                if (!contains) {
-                    throw new OpenLCompilationException(
-                            String.format("The value '%s' is outside of valid domain '%s'. Valid values: %s",
-                                    value,
-                                    paramType.getName(),
-                                    DomainUtils.toString(domain)));
-                }
-            } catch (RuntimeException e) {
-                throw new OpenLCompilationException(e.getMessage(), e.getCause());
-            }
         }
     }
 
