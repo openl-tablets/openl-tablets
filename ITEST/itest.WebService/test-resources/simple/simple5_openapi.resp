@@ -116,30 +116,9 @@ Content-Type: application/json
       "Calc" : {
         "type" : "object",
         "properties" : {
-          "ColumnNames" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
-          "RowNames" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "Step1" : {
             "type" : "number",
             "format" : "double"
-          },
-          "TableDetails" : {
-            "type" : "array",
-            "items" : {
-              "type" : "array",
-              "items" : {
-                "type" : "string"
-              }
-            }
           }
         }
       },

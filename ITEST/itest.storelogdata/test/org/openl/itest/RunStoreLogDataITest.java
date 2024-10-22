@@ -85,7 +85,7 @@ public class RunStoreLogDataITest {
     private static Connection h2Connection;
     private static Server h2Server;
 
-    private static final CassandraContainer<?> CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:4");
+    private static final CassandraContainer<?> CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:5");
     private static CqlSession cassandraSession;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(

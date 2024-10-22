@@ -8,11 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = {ElementType.FIELD, ElementType.METHOD})
 public @interface SpreadsheetCell {
-    String column();
+    String column() default "";
 
-    String row();
+    String row() default "";
 
-    boolean simpleRefByRow() default false;
-
-    boolean simpleRefByColumn() default false;
+    String cell();
 }

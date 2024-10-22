@@ -12,6 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>
         <datastax.oss.version>4.17.0</datastax.oss.version>
+        <asm.version>9.7</asm.version>
     </properties>
 
     <build>

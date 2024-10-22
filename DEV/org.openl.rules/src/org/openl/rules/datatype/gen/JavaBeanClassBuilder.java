@@ -23,7 +23,6 @@ public class JavaBeanClassBuilder {
     protected final LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
 
     protected boolean additionalConstructor = true;
-    protected boolean publicFields = false;
     protected boolean equalsHashCodeToStringMethods = true;
     protected final LinkedHashSet<Consumer<ClassWriter>> typeWriters = new LinkedHashSet<>();
 
@@ -34,10 +33,6 @@ public class JavaBeanClassBuilder {
     public JavaBeanClassBuilder setParentType(TypeDescription parentType) {
         this.parentType = parentType;
         return this;
-    }
-
-    public JavaBeanClassBuilder addParentField(String name, String type) {
-        return addParentField(name, new FieldDescription(type));
     }
 
     public JavaBeanClassBuilder addParentField(String name, FieldDescription type) {
@@ -79,20 +74,8 @@ public class JavaBeanClassBuilder {
         return this;
     }
 
-    public JavaBeanClassBuilder addParentFields(Map<String, FieldDescription> parentFields) {
-        for (Map.Entry<String, FieldDescription> field : parentFields.entrySet()) {
-            addParentField(field.getKey(), field.getValue());
-        }
-        return this;
-    }
-
     public JavaBeanClassBuilder withAdditionalConstructor(boolean additionalConstructor) {
         this.additionalConstructor = additionalConstructor;
-        return this;
-    }
-
-    public JavaBeanClassBuilder withPublicFields(boolean publicFields) {
-        this.publicFields = publicFields;
         return this;
     }
 
@@ -112,7 +95,7 @@ public class JavaBeanClassBuilder {
                 typeWriters,
                 additionalConstructor,
                 equalsHashCodeToStringMethods,
-                publicFields).byteCode();
+                false).byteCode();
     }
 
 }

@@ -265,8 +265,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
     private void writeCustomSpreadsheetResultBeans(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
                                                    Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
-        if (customSpreadsheetResultOpenClass
-                .isGenerateBeanClass() && !writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
+        if (!writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
             Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
             info("Java Bean for Spreadsheet Result: " + cls.getName());
             Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");

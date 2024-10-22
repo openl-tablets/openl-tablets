@@ -2,10 +2,11 @@ package org.openl.util;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.reflect.Array;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 
@@ -135,11 +136,24 @@ public class ArrayUtilsTest {
     }
 
     @Test
-    public void testConvert() {
-        Object o = ArrayUtils.convert(array1D[0], C.class);
-        assertTrue(o.getClass().isArray());
-        Object[] o1 = (Object[]) o;
-        assertEquals(0, o1.length);
+    void convertTest() {
+        assertNull(ArrayUtils.convert(null, Function.identity()));
+        assertEquals(10, ArrayUtils.convert(10, Function.identity()));
+        assertEquals("10", ArrayUtils.convert(10, String::valueOf));
+        assertConvert(new String[]{"10"}, ArrayUtils.convert(new int[]{10}, String::valueOf));
+        assertConvert(new Integer[]{1, 25, 30}, ArrayUtils.convert(new int[]{1, 25, 30}, Function.identity()));
+        assertConvert(new Number[]{1, 2.5, 3.0}, ArrayUtils.convert(new int[]{1, 25, 30}, x -> ((int) x) > 10 ? ((int) x) / 10.0 : x));
+        assertConvert(new String[]{"null"}, ArrayUtils.convert(new Integer[]{null}, String::valueOf));
+        assertConvert(new Integer[]{null, 5}, ArrayUtils.convert(new Integer[]{null, 5}, Function.identity()));
+        assertConvert(new Integer[]{10, 5}, ArrayUtils.convert(new Object[]{10, 5}, Function.identity()));
+        assertConvert(new Number[]{10, 5.5}, ArrayUtils.convert(new Object[]{10, 5.5}, Function.identity()));
+        assertConvert(new Number[][]{null, {10, 5.5}, null}, ArrayUtils.convert(new Object[][]{null, {10, 5.5}, null}, Function.identity()));
+        assertConvert(new Double[][]{null, {10.5, 5.5}, null}, ArrayUtils.convert(new Object[][]{null, {10.5, 5.5}, null}, Function.identity()));
+    }
+
+    private static void assertConvert(Object[] expected, Object actual) {
+        assertEquals(expected.getClass(), actual.getClass());
+        assertArrayEquals(expected, (Object[]) actual);
     }
 }
 

@@ -2,13 +2,10 @@ package org.openl.rules.calc;
 
 import java.util.Objects;
 
-import org.openl.base.INamedThing;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.binding.RecursiveSpreadsheetMethodPreBindingException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
@@ -54,30 +51,9 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
     }
 
     protected Object processResult(Object res) {
-        if (res != null) {
-            if (!ClassUtils.isAssignable(res.getClass(), getType().getInstanceClass())) {
-                return convertWithFailSafeCast(res);
-            }
-            return res;
-        } else {
-            return getType().nullObject();
-        }
-    }
-
-    protected final Object convertWithFailSafeCast(Object res) {
-        IOpenCast cast = ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
+        return  ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule()
                 .getObjectToDataOpenCastConvertor()
-                .getConvertor(res.getClass(), getType().getInstanceClass());
-        if (cast != null && cast.isImplicit()) {
-            return cast.convert(res);
-        } else {
-            throw new UnexpectedSpreadsheetResultFieldTypeException(
-                    String.format("Unexpected type for field '%s' in '%s'. Expected type '%s', but found '%s'.",
-                            getName(),
-                            getDeclaringClass().getName(),
-                            getType().getDisplayName(INamedThing.LONG),
-                            res.getClass().getTypeName()));
-        }
+                .convert(res, getType());
     }
 
     @Override

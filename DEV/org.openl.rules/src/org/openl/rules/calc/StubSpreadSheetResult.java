@@ -56,6 +56,11 @@ public final class StubSpreadSheetResult extends SpreadsheetResult {
     }
 
     @Override
+    public Object getValue(String row, String column) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     protected void setValue(int row, int column, Object value) {
         throw new UnsupportedOperationException();
     }

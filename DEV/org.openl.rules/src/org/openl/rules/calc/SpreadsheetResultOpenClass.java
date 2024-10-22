@@ -179,7 +179,6 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                             anySpreadsheetResultName,
                             this.module,
                             null,
-                            true,
                             false);
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {

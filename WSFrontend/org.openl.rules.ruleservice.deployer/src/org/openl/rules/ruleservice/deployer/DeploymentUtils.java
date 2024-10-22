@@ -20,7 +20,7 @@ final class DeploymentUtils {
     }
 
     static String getApiVersion(InputStream stream) {
-        return evaluateXPath(stream, "/version");
+        return evaluateXPath(stream, "/rules-deploy/version");
     }
 
     static String evaluateXPath(InputStream stream, String expression) {

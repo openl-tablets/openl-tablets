@@ -16,14 +16,14 @@ import java.util.stream.Stream;
  */
 public class AsyncExecutor {
 
-    private static final int MAX_THREADS = Math.min(Runtime.getRuntime().availableProcessors() * 2, 20);
+    private static final int MAX_THREADS = Math.min(Runtime.getRuntime().availableProcessors() * 2, 8);
 
     private final ExecutorService executor;
     private final List<Wrapper> workers;
     private final int threads;
 
     /**
-     * Executes a task as many time as twice cpu available
+     * Executes a task as many times as twice cpu available
      *
      * @param command task to execute
      */

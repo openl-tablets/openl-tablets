@@ -3,6 +3,7 @@ package org.openl.rules.openapi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,11 +47,13 @@ public class OpenAPIConfiguration {
         Json.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         Json.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
+        Json.mapper().setTimeZone(TimeZone.getDefault());
 
         Yaml.mapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Yaml.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         Yaml.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Yaml.mapper().enable(SerializationFeature.INDENT_OUTPUT);
+        Yaml.mapper().setTimeZone(TimeZone.getDefault());
 
         ModelConverters.getInstance().addConverter(BinarySchemaConverter.INSTANCE);
     }

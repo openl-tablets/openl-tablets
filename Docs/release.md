@@ -20,6 +20,5 @@
 run the [DockerHub Publisher](https://github.com/openl-tablets/openl-tablets/actions/workflows/docker.yml) action.
 4. For each product, update the supported tags on the [DockerHub](https://hub.docker.com/u/openltablets) page.
 5. Go to the [Releases](https://github.com/openl-tablets/openl-tablets/releases) section and publish the release artifacts on GitHub.
-6. If necessary, update the DEMO download to the latest version at [Sourceforge](https://sourceforge.net/projects/openl-tablets/files/).
-7. Publish the release and migration notes at https://openl-tablets.org/.
-8. Do [tweet](https://twitter.com/openltablets) and email to the OpenL Tablets Announcements group.
+6. Publish the release and migration notes at https://openl-tablets.org/.
+7. Do [tweet](https://twitter.com/openltablets) and email to the OpenL Tablets Announcements group.

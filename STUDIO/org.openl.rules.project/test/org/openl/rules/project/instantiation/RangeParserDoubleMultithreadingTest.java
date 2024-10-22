@@ -199,7 +199,7 @@ public class RangeParserDoubleMultithreadingTest {
         assertEquals(154.0, instance.CupCapAdj(-902));
     }
 
-    private interface DoubleRange {
+    public interface DoubleRange {
         Double CupCapAdj(double expPremDDIFF);
     }
 }

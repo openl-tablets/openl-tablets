@@ -10,12 +10,12 @@ Content-Type: application/json
     {
       "deploymentName": "multimodule",
       "hasManifest": false,
-      "name": "multi_project_project1",
+      "name": "multi_project_project1(version=2.0)",
       "servicePath": "multimodule/project1",
       "startedTime": "*",
       "status": "DEPLOYED",
       "urls": {
-        "RESTFUL": "multi_project/project1"
+        "RESTFUL": "2.0/multi_project/project1"
       }
     },
     {

@@ -97,8 +97,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                     .toCustomSpreadsheetResultOpenClass()
                                     .getBeanClass();
-                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
-                                .isGenerateBeanClass()) {
+                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                             t = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
                         }
                         if (dim > 0) {

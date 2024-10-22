@@ -128,7 +128,7 @@ public class POJOByteCodeGenerator {
     }
 
     private void visitJAXBAnnotations(ClassWriter classWriter) {
-        String namespace = getNamespace(beanNameWithPackage);
+        String namespace = ByteCodeUtils.getNamespace(beanNameWithPackage);
         String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
 
         AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
@@ -239,18 +239,6 @@ public class POJOByteCodeGenerator {
                 true);
         annotationVisitor.visit("value", fieldName);
         annotationVisitor.visitEnd();
-    }
-
-    private static String getNamespace(String beanNameWithPackage) {
-        String[] parts = beanNameWithPackage.split("/");
-        StringBuilder builder = new StringBuilder("http://");
-        for (int i = parts.length - 2; i >= 0; i--) {
-            builder.append(parts[i]);
-            if (i != 0) {
-                builder.append(".");
-            }
-        }
-        return builder.toString();
     }
 
     protected void visitExtraByteCodeGeneration(ClassWriter classWriter) {

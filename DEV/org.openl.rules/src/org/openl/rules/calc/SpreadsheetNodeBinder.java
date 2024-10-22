@@ -1,34 +1,42 @@
 package org.openl.rules.calc;
 
 import org.openl.OpenL;
-import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.types.impl.OpenMethodHeader;
 
-public class SpreadsheetNodeBinder extends AExecutableNodeBinder {
+public class SpreadsheetNodeBinder extends AExecutableNodeBinder<SpreadsheetBoundNode> {
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
+    public SpreadsheetBoundNode preBind(TableSyntaxNode tableSyntaxNode,
                                     OpenL openl,
                                     RulesModuleBindingContext bindingContext,
                                     XlsModuleOpenClass module) throws Exception {
-        SpreadsheetBoundNode sprBoundNode = (SpreadsheetBoundNode) super.preBind(tableSyntaxNode,
+        SpreadsheetBoundNode sprBoundNode = super.preBind(tableSyntaxNode,
                 openl,
                 bindingContext,
                 module);
-        sprBoundNode.preBind(bindingContext);
+        sprBoundNode.preBind();
         return sprBoundNode;
     }
 
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+    protected MetaInfoReader createMetaInfoReader(SpreadsheetBoundNode node) {
+        return new SpreadsheetMetaInfoReader(node);
+    }
 
-        return new SpreadsheetBoundNode(tableSyntaxNode, openl, header, module);
+    @Override
+    protected SpreadsheetBoundNode createNode(TableSyntaxNode tableSyntaxNode,
+                                              OpenL openl,
+                                              OpenMethodHeader header,
+                                              XlsModuleOpenClass module,
+                                              IBindingContext context) {
+
+        return new SpreadsheetBoundNode(tableSyntaxNode, openl, header, module, context);
     }
 }

@@ -1,9 +1,3 @@
-/*
- * Created on Oct 7, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.method.table;
 
 import org.openl.OpenL;
@@ -13,7 +7,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.MethodTableMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -44,10 +37,6 @@ public class MethodTableBoundNode extends AMethodBasedNode {
 
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
-        if (!bindingContext.isExecutionMode()) {
-            getTableSyntaxNode().setMetaInfoReader(new MethodTableMetaInfoReader(this));
-        }
-
         super.finalizeBind(bindingContext);
 
         TableSyntaxNode tsn = getTableSyntaxNode();

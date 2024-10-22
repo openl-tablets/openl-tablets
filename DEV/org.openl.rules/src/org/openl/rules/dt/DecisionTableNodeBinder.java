@@ -1,37 +1,28 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.binding.IMemberBoundNode;
-import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.types.impl.OpenMethodHeader;
 
-/**
- * @author snshor
- */
-public class DecisionTableNodeBinder extends AExecutableNodeBinder {
+public class DecisionTableNodeBinder extends AExecutableNodeBinder<DecisionTableBoundNode> {
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
-                                    OpenL openl,
-                                    RulesModuleBindingContext bindingContext,
-                                    XlsModuleOpenClass module) throws Exception {
-        DecisionTableBoundNode dtBoundNode = (DecisionTableBoundNode) super.preBind(tableSyntaxNode,
-                openl,
-                bindingContext,
-                module);
-        dtBoundNode.preBind(bindingContext);
-        return dtBoundNode;
+    protected MetaInfoReader createMetaInfoReader(DecisionTableBoundNode node) {
+        return new DecisionTableMetaInfoReader(node);
     }
 
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tableSyntaxNode,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+    protected DecisionTableBoundNode createNode(TableSyntaxNode tableSyntaxNode,
+                                                OpenL openl,
+                                                OpenMethodHeader header,
+                                                XlsModuleOpenClass module,
+                                                IBindingContext context) {
 
-        return new DecisionTableBoundNode(tableSyntaxNode, openl, header, module);
+        return new DecisionTableBoundNode(tableSyntaxNode, openl, header, module, context);
     }
 }

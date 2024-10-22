@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.27.8-SNAPSHOT</version>
+        <version>5.27.9-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
@@ -150,8 +150,9 @@
                         <goal>clean</goal>
                         <goal>verify</goal>
                     </goals>
+                    <parallelThreads>0.4C</parallelThreads>
                     <streamLogsOnFailures>true</streamLogsOnFailures>
-                    <useLocalRepository>true</useLocalRepository>
+                    <scope>compile</scope>
                     <properties>
                         <maven.compiler.release>11</maven.compiler.release>
                     </properties>

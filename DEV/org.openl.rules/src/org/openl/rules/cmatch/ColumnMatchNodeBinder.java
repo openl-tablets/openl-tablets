@@ -2,10 +2,11 @@ package org.openl.rules.cmatch;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IMemberBoundNode;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
@@ -14,7 +15,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.OpenMethodHeader;
 
-public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
+public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoundNode> {
     private SubTextSourceCodeModule nameOfAlgorithm;
 
     private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
@@ -45,6 +46,11 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     }
 
     @Override
+    protected MetaInfoReader createMetaInfoReader(ColumnMatchBoundNode node) {
+        return new ColumnMatchMetaInfoReader(node);
+    }
+
+    @Override
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
                                                     IBindingContext bindingContext) throws SyntaxNodeException {
         IGridTable table = tableSyntaxNode.getGridTable();
@@ -65,10 +71,11 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder {
     }
 
     @Override
-    protected IMemberBoundNode createNode(TableSyntaxNode tsn,
-                                          OpenL openl,
-                                          OpenMethodHeader header,
-                                          XlsModuleOpenClass module) {
+    protected ColumnMatchBoundNode createNode(TableSyntaxNode tsn,
+                                              OpenL openl,
+                                              OpenMethodHeader header,
+                                              XlsModuleOpenClass module,
+                                              IBindingContext context) {
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 }

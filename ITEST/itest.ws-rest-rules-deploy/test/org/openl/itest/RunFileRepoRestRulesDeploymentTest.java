@@ -31,59 +31,22 @@ public class RunFileRepoRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() {
-        client.send("ui-info.get");
-        client.send("admin_services_no_services.json.get");
-        client.send("deployed-rules_hello_not_found.post");
+        client.test("test-resources/deploy-single");
+    }
 
-        client.send("rules-to-deploy.deploy.post");
-        client.send("deployed-rules_services.get");
-        client.send("rules-to-deploy.download.get");
-        client.send("deployed-rules_hello.post");
-
-        // should be always redeployed
-        client.send("rules-to-deploy_v2.deploy.post");
-        client.send("deployed-rules_services.get");
-        client.send("deployed-rules_ui-info.get");
-        client.send("deployed-rules_hello_2.post");
-
-        client.send("rules-to-deploy-failed.deploy.post");
-        client.send("deployed-rules_services_failed.get");
-        client.send("deployed-rules_errors.get");
-        client.send("deployed-rules_manifest.get");
-
-        client.send("deployed-rules.delete");
-        client.send("admin_services_no_services.json.get");
-
-        client.send("empty_project.deploy.post");
-        client.send("admin_services_no_services.json.get");
+    @Test
+    public void testDeployVersion() {
+        client.test("test-resources/deploy-version");
     }
 
     @Test
     public void testDeployRules_multipleDeployment() {
-        client.send("admin_services_no_services.json.get");
-
-        client.send("multiple-deployment_v1.deploy.post");
-        client.send("yaml_project_services.get");
-        client.send("project1_sayHello.post");
-        client.send("multiple-deployment_v1.download.get");
-
-        // should be updated
-        client.send("multiple-deployment_v2.deploy.post");
-        client.send("project1_sayHello_2.post");
-        client.send("multiple-deployment_v2.download.get");
-
-        client.send("yaml_project_all.delete");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/deploy-multi");
     }
 
     @Test
     public void testMissingServiceMethods() {
-        client.send("admin_services_no_services.json.get");
-        client.send("missing-service.delete");
-        client.send("missing-service.get");
-        client.send("missing-service_errors.get");
-        client.send("missing-service_manifest.get");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/missing-service");
     }
 
     @Test

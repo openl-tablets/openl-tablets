@@ -27,6 +27,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeployHelper;
 import org.openl.rules.serialization.jackson.NonNullMixIn;
+import org.openl.rules.serialization.spr.DefaultStrategy;
 import org.openl.types.IOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -48,6 +49,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_JSON_TYPE_INFO_ID = "jackson.jsonTypeInfoId";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_PROPERTY_NAMING_STRATEGY = "jackson.propertyNamingStrategy";
+    private static final DefaultStrategy DEFAULT_STRATEGY = new DefaultStrategy();
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
@@ -118,10 +120,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         processXlsModuleOpenClassRelatedSettings();
     }
 
-    protected JacksonObjectMapperFactoryBean getDelegate() {
-        return delegate;
-    }
-
     protected Object getProperty(String name) {
         Object result = null;
         if (rulesDeploy != null && rulesDeploy.getConfiguration() != null) {
@@ -148,17 +146,12 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 if (type instanceof DatatypeOpenClass) {
                     rootClassNamesBindingClasses.add(type.getInstanceClass());
                 } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                    if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                        rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
-                    }
+                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
                 }
             }
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
                     .getCombinedSpreadsheetResultOpenClasses()) {
-                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    rootClassNamesBindingClasses.add(customSpreadsheetResultOpenClass.getBeanClass());
-                }
+                rootClassNamesBindingClasses.add(customSpreadsheetResultOpenClass.getBeanClass());
             }
             // Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
@@ -342,26 +335,19 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             if (type instanceof DatatypeOpenClass) {
                 datatypeOpenClassConsumer.accept((DatatypeOpenClass) type);
             } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
-                if (customResultOpenClass.isGenerateBeanClass()) {
-                    customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
-                }
+                customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
             }
         }
         // Check: custom spreadsheet is enabled
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
                     .getCombinedSpreadsheetResultOpenClasses()) {
-                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
-                }
+                customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
             }
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass();
-            if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
-            }
+            customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
         }
     }
 
@@ -442,7 +428,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 }
             }
         }
-        return null;
+        return DEFAULT_STRATEGY;
     }
 
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,

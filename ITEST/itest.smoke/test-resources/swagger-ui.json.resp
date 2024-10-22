@@ -4,8 +4,8 @@ Content-Type: application/json
 {
   "urls": [
     {
-      "name": "multi_project_project1",
-      "url": "multi_project/project1/openapi.json"
+      "name": "multi_project_project1(version=2.0)",
+      "url": "2.0/multi_project/project1/openapi.json"
     }, {
       "name": "no-xlsx_service",
       "url": "no-xlsx/openapi.json"

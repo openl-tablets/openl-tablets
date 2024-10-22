@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.27.8-SNAPSHOT</version>
+        <version>5.27.9-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
@@ -249,11 +249,6 @@
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <!--added for fix problem webstudio failure on Jboss 7.1 and JBoss 7.2, due to new JSF version-->
-        <dependency>
-            <groupId>org.reactivestreams</groupId>
-            <artifactId>reactive-streams</artifactId>
         </dependency>
         <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
         <dependency>

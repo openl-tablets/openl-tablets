@@ -80,7 +80,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
-    private DateFormat defaultDateFormat = getISO8601Format();
+    private DateFormat defaultDateFormat = new StdDateFormat();
 
     private JsonInclude.Include serializationInclusion;
 
@@ -97,8 +97,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     private boolean caseInsensitiveProperties = MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES.enabledByDefault();
 
     private ClassLoader classLoader;
-
-    private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
 
     @Deprecated
     private Boolean simpleClassNameAsTypingPropertyValue;
@@ -150,7 +148,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
-        ObjectMapper mapper = getObjectMapperFactory().createObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setTimeZone(TimeZone.getDefault());
 
         TypeFactory typeFactory = TypeFactory.defaultInstance().withClassLoader(getClassLoader());
         mapper.setTypeFactory(typeFactory);
@@ -283,6 +282,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         mapper.configure(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING, true);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
         mapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        mapper.disable(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE);
+        mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
 
         if (getDefaultDateFormat() != null) {
             mapper.setDateFormat(getDefaultDateFormat());
@@ -361,28 +362,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         if (mapper.findMixInClassFor(classFor) == null) {
             mapper.addMixIn(classFor, mixIn);
         }
-    }
-
-    /**
-     * Create instance of ISO-8601 date time format using following pattern: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" Time zones in
-     * ISO-8601 are represented as local time (with the location unspecified), as UTC, or as an offset from UTC. If no
-     * UTC relation information is given with a time representation, the time is assumed to be in local time. Examples,
-     * when local Time Zone is +2:
-     *
-     * <pre>
-     *     2016-12-31T22:00:00 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00Z corresponds to 2017-01-01T00:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00+0200 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00+0300 corresponds to 2016-12-31T21:00:00+0200 in local Time Zone
-     * </pre>
-     *
-     * @return
-     * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
-     */
-    public static DateFormat getISO8601Format() {
-        StdDateFormat iso8601Format = new StdDateFormat();
-        iso8601Format.setTimeZone(TimeZone.getDefault());
-        return iso8601Format;
     }
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
@@ -482,14 +461,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
         this.caseInsensitiveProperties = caseInsensitiveProperties;
-    }
-
-    public ObjectMapperFactory getObjectMapperFactory() {
-        return objectMapperFactory;
-    }
-
-    public void setObjectMapperFactory(ObjectMapperFactory objectMapperFactory) {
-        this.objectMapperFactory = objectMapperFactory;
     }
 
     public String getTypingPropertyName() {

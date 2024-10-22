@@ -13,7 +13,6 @@ public class CustomSpreadsheetResultOpenClassTest {
         CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,
-                true,
                 true);
         openClass.getField("$f1", true);
         openClass.addField(new CustomSpreadsheetResultField(null, "$f1", JavaOpenClass.OBJECT));
@@ -25,7 +24,6 @@ public class CustomSpreadsheetResultOpenClassTest {
         CustomSpreadsheetResultOpenClass openClass = new CustomSpreadsheetResultOpenClass("CSR1",
                 null,
                 null,
-                true,
                 true);
         assertFalse(openClass.isAssignableFrom(NullOpenClass.the));
     }
