@@ -23,7 +23,7 @@ if [[ "$_java" ]]; then
 fi
 
 if [[ $(uname -s) == "Darwin" ]]; then
-  memory=$(sysctl -a | grep hw.memsize | awk '{print $2/1024/1024/1024}')
+  memory=$(sysctl -a | grep hw.memsize: | awk '{print $2/1024/1024/1024}')
 else
   memory=$(free -g | awk '/Mem:/{print $2}')
 fi
