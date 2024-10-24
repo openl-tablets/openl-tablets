@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -622,7 +623,9 @@ public class RulesProject extends UserWorkspaceProject {
             try {
                 AProjectResource resource = (AProjectResource) getArtefact(TAGS_FILE_NAME);
                 Map<String, String> readTags = new HashMap<>();
-                PropertiesUtils.load(resource.getContent(), readTags::put);
+                try (InputStream projectTagsFileStream = resource.getContent()) {
+                    PropertiesUtils.load(projectTagsFileStream, readTags::put);
+                }
                 return Collections.unmodifiableMap(readTags);
             } catch (ProjectException | IOException e) {
                 throw new IllegalStateException("Cannot load tags", e);
