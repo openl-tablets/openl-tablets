@@ -29,7 +29,10 @@ import org.openl.rules.webstudio.service.config.TagsConfiguration;
  * @author Vladyslav Pikus
  */
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, TagsConfiguration.class})
-@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password ="})
+@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
+        "db.user =",
+        "db.password =",
+        "db.maximumPoolSize = 3"})
 public class OpenLProjectServiceTest {
 
     @Autowired

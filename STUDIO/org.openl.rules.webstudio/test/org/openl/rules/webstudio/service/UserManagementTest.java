@@ -29,7 +29,10 @@ import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 @SpringJUnitConfig(classes = {DBTestConfiguration.class,
         UserManagementConfiguration.class,
         AclServiceTestConfiguration.class})
-@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password ="})
+@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
+        "db.user =",
+        "db.password =",
+        "db.maximumPoolSize = 3"})
 public class UserManagementTest {
 
     @Autowired
