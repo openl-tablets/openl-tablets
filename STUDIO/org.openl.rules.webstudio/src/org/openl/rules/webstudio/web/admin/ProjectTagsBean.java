@@ -36,7 +36,8 @@ public class ProjectTagsBean {
     private final TagTemplateService tagTemplateService;
 
     private List<Tag> tags;
-    private List<TagInfo> notApplicableTags;
+    private List<TagInfo> notApplicableTagTypes;
+    private List<TagInfo> notApplicableTagValues;
 
     private String projectName;
     private boolean tagsArePreconfigured;
@@ -85,14 +86,20 @@ public class ProjectTagsBean {
             RulesProject project = (RulesProject) selectedProject.getData();
 
             tags = new ArrayList<>();
-            notApplicableTags = new ArrayList<>();
+            notApplicableTagTypes = new ArrayList<>();
+            notApplicableTagValues = new ArrayList<>();
             for (Map.Entry<String, String> tagFromOpenedProject: project.getTags().entrySet()) {
                 Tag tag = tagService.getByTypeNameAndName(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue());
                 if (tag != null) {
                     tags.add(tag);
                 } else {
                     TagType tagType = tagTypeService.getByName(tagFromOpenedProject.getKey());
-                    notApplicableTags.add(new TagInfo(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue(), null, tagType != null));
+                    TagInfo tagInfo = new TagInfo(tagFromOpenedProject.getKey(), tagFromOpenedProject.getValue(), null, tagType != null);
+                    if (tagType != null) {
+                        notApplicableTagValues.add(tagInfo);
+                    } else {
+                        notApplicableTagTypes.add(tagInfo);
+                    }
                 }
             }
         }
@@ -127,8 +134,12 @@ public class ProjectTagsBean {
         return tagService.getByTagType(tagType);
     }
     
-    public List<TagInfo> getNotApplicableTags() {
-        return notApplicableTags;
+    public List<TagInfo> getNotApplicableTagTypes() {
+        return notApplicableTagTypes;
+    }
+
+    public List<TagInfo> getNotApplicableTagValues() {
+        return notApplicableTagValues;
     }
 
     public void validateCreate() {
@@ -195,12 +206,14 @@ public class ProjectTagsBean {
     
     public void clearTags() {
         this.tags = Collections.emptyList();
-        this.notApplicableTags = Collections.emptyList();
+        this.notApplicableTagTypes = Collections.emptyList();
+        this.notApplicableTagValues = Collections.emptyList();
     }
 
     public void initTagsFromPreexisting(Map<String, String> tagsMap) {
         this.tags = new ArrayList<>();
-        this.notApplicableTags = new ArrayList<>();
+        this.notApplicableTagTypes = new ArrayList<>();
+        this.notApplicableTagValues = new ArrayList<>();
         for(Map.Entry<String, String> entry: tagsMap.entrySet()) {
             Tag tag = tagService.getByTypeNameAndName(entry.getKey(), entry.getValue());
             if (tag == null) {
@@ -210,7 +223,12 @@ public class ProjectTagsBean {
                     tag.setType(tagType);
                     tag.setName(entry.getValue());
                 } else {
-                    notApplicableTags.add(new TagInfo(entry.getKey(), entry.getValue(), null, tagType != null));
+                    TagInfo tagInfo = new TagInfo(entry.getKey(), entry.getValue(), null, tagType != null);
+                    if (tagType != null) {
+                        notApplicableTagValues.add(tagInfo);
+                    } else {
+                        notApplicableTagTypes.add(tagInfo);
+                    }
                 }
             }
             

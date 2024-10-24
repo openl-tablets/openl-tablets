@@ -73,7 +73,7 @@
                 <a4j:param name="tagsArePreconfigured" assignTo="#{projectTagsBean.tagsArePreconfigured}"/>
                 <a4j:param name="initFromOpenedProject" assignTo="#{projectTagsBean.initFromOpenedProject}"/>
             </a4j:jsFunction>
-            <h:inputHidden id="projectContainsNonApplicableTags" value="#{not empty projectTagsBean.notApplicableTags}" readonly="true"/>
+            <h:inputHidden id="projectContainsNonApplicableTags" value="#{(not empty projectTagsBean.notApplicableTagTypes) or (not empty projectTagsBean.notApplicableTagValues)}" readonly="true"/>
             <h:inputHidden id="applicableTagsForProjectExist" value="#{not empty projectTagsBean.tags}" readonly="true"/>
 
         </h:form>
@@ -82,28 +82,21 @@
 
     <rich:popupPanel id="modalConfirmIgnoreNonApplicableTags" minWidth="330" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Cannot apply tags"/>
+            <h:outputText value="Missing Tags"/>
         </f:facet>
 
-        <p>There are tags, which are defined in imported project, but couldn't be applied. Please review necessary changes.</p>
-        <div>
-            <table class="formfields">
-                <tbody>
-                <ui:repeat value="#{projectTagsBean.notApplicableTags}" var="tagInfo">
-                    <tr>
-                        <td>
-                            <label><h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}"/></label>
-                        </td>
-                        <td class="error">
-                            <h:outputText rendered="#{not tagInfo.tagTypeExists}" value="Tag #{tagInfo.typeName} is not configured. It will be ignored."/>
-                            <h:outputText rendered="#{tagInfo.tagTypeExists}" value="Value #{tagInfo.name} is not allowed for tag #{tagInfo.typeName}. You will be asked to choose a different value."/>
-                        </td>
-                    </tr>
-                </ui:repeat>
-                </tbody>
-            </table>
-
-        </div>
+        <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagTypes}">
+            <p>The following tag types don't exist in the system and therefore won't be applied:</p>
+            <ui:repeat value="#{projectTagsBean.notApplicableTagTypes}" var="tagInfo">
+                <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+            </ui:repeat>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagValues}">
+            <p>The following tag values for non-extensible tag types don't exist and therefore won't be applied</p>
+            <ui:repeat value="#{projectTagsBean.notApplicableTagValues}" var="tagInfo">
+                <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+            </ui:repeat>
+        </h:panelGroup>
         <footer>
             <input type="button" id="continueAndIgnoreNonApplicableTagsButton" value="Continue" class="button-primary" onclick="showCreateProjectTagsDialogIfNeeded();"/>
             <input type="button" value="Cancel" onclick="RichFaces.$('modalConfirmIgnoreNonApplicableTags').hide();"/>
