@@ -88,13 +88,17 @@
         <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagTypes}">
             <p>The following tag types don't exist in the system and therefore won't be applied:</p>
             <ui:repeat value="#{projectTagsBean.notApplicableTagTypes}" var="tagInfo">
-                <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                <p>
+                    <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                </p>
             </ui:repeat>
         </h:panelGroup>
         <h:panelGroup rendered="#{not empty projectTagsBean.notApplicableTagValues}">
-            <p>The following tag values for non-extensible tag types don't exist and therefore won't be applied</p>
+            <p>The following tag values for non-extensible tag types don't exist and therefore won't be applied:</p>
             <ui:repeat value="#{projectTagsBean.notApplicableTagValues}" var="tagInfo">
-                <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                <p>
+                    <h:outputText value="#{tagInfo.typeName}: #{tagInfo.name}" styleClass="error"/>
+                </p>
             </ui:repeat>
         </h:panelGroup>
         <footer>
