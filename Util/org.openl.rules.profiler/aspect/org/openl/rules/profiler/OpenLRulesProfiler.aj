@@ -6,6 +6,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IBoundMethodNode;
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.calc.Spreadsheet;
@@ -19,8 +22,6 @@ import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmBoundNode;
 import org.openl.types.IOpenMethodHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public aspect OpenLRulesProfiler {
     private Logger log = LoggerFactory.getLogger(getClass());
@@ -77,16 +78,16 @@ public aspect OpenLRulesProfiler {
         }
     }
 
-    Spreadsheet around(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheetType): call(Spreadsheet.new(IOpenMethodHeader, SpreadsheetBoundNode, boolean)) && args(header, boundNode, customSpreadsheetType) {
+    Spreadsheet around(IOpenMethodHeader header, SpreadsheetBoundNode boundNode): call(Spreadsheet.new(IOpenMethodHeader, SpreadsheetBoundNode)) && args(header, boundNode) {
         try {
             final String wrapperClassName = getWrapperClassName(header, boundNode);
             Class<?> subClass = makeWrapperClass(wrapperClassName, Spreadsheet.class);
             return (Spreadsheet) subClass
-                    .getConstructor(IOpenMethodHeader.class, SpreadsheetBoundNode.class, boolean.class)
-                    .newInstance(header, boundNode, customSpreadsheetType);
+                    .getConstructor(IOpenMethodHeader.class, SpreadsheetBoundNode.class)
+                    .newInstance(header, boundNode);
         } catch (Exception e) {
             log.error("OpenLRulesProfiler: InstantiationError!", e);
-            return proceed(header, boundNode, customSpreadsheetType);
+            return proceed(header, boundNode);
         }
     }
 
