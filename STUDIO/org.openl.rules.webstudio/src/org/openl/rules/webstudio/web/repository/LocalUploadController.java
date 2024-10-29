@@ -38,6 +38,7 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 @Service("localUpload")
@@ -213,6 +214,9 @@ public class LocalUploadController {
                         if (!baseFolder.isDirectory()) {
                             throw new FileNotFoundException(baseFolder.getName());
                         }
+                        File tagsFile = new File(baseFolder, RulesProject.TAGS_FILE_NAME);
+                        PropertiesUtils.store(tagsFile.toPath(), projectTagsBean.saveTagsTypesAndGetTags().entrySet());
+                        
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
                                 .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService

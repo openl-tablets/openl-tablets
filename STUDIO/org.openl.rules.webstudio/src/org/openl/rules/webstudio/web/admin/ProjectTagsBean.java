@@ -58,6 +58,8 @@ public class ProjectTagsBean {
             initFromOpenedProject();
         }
         initFromTemplate();
+        fillAbsentTags();
+        tags.sort(Comparator.comparing((Tag tag) -> tag.getType().getName()).thenComparing(Tag::getName));
     }
 
     private void initFromTemplate() {
@@ -74,8 +76,6 @@ public class ProjectTagsBean {
             newTags.addAll(tags);
         }
         tags = newTags;
-
-        fillAbsentTags();
     }
     
     private void initFromOpenedProject() {
@@ -103,9 +103,6 @@ public class ProjectTagsBean {
                 }
             }
         }
-
-        fillAbsentTags();
-        tags.sort(Comparator.comparing((Tag tag) -> tag.getType().getName()).thenComparing(Tag::getName));
     }
 
     private void fillAbsentTags() {

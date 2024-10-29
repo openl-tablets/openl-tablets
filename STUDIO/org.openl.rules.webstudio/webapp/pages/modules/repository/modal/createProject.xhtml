@@ -611,7 +611,7 @@
 
                     <footer>
                         <h:commandButton id="sbtRepo#{tagsAreConfigured ? '' : 'Hidden'}" value="Import" styleClass="button-primary"
-                                         onclick="createProjectTagsIfNeeded('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}); return false;"
+                                         onclick="readTagsFromImportedProject(); return false;"
                                          rendered="#{tagsAreConfigured}"/>
                         <h:commandButton id="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
                                          onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false; else showLoader();"
@@ -619,6 +619,8 @@
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                     <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo#{tagsAreConfigured ? 'Hidden' : ''}"/>
+                    <a4j:jsFunction name="readTagsFromImportedProject" 
+                        action="#{repositoryTreeController.readTagsFromImportedProject}" oncomplete="createProjectTagsIfNeeded('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}, true, false);"/>
                 </h:form>
             </rich:tab>
 

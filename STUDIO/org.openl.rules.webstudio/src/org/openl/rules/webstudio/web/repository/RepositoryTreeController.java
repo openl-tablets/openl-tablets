@@ -3031,7 +3031,53 @@ public class RepositoryTreeController {
             importFromRepo();
         }
     }
+    private FolderMapper findAndValidateMappedRepository() throws IOException {
+        Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+        if (!mappedRepo.supports().mappedFolders()) {
+            throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
+        }
+        Repository repository = ((FolderMapper) mappedRepo).getDelegate();
+        FileData fileData = repository.check(projectFolder);
+        if (fileData == null) {
+            WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
+            clearForm();
+            return null;
+        }
 
+        return (FolderMapper) mappedRepo;
+    }
+
+    public void readTagsFromImportedProject() {
+        try {
+            var mappedRepo = findAndValidateMappedRepository();
+            if (mappedRepo == null) {
+                return;
+            }
+            Repository repository = mappedRepo.getDelegate();
+            
+            var tagsFileNameBuilder = new StringBuilder(projectFolder);
+            if (! projectFolder.endsWith("/")) {
+                tagsFileNameBuilder.append("/");
+            }
+            tagsFileNameBuilder.append(RulesProject.TAGS_FILE_NAME);
+            
+            var tagsFile = repository.read(tagsFileNameBuilder.toString());
+            if (tagsFile != null) {
+                Map<String, String> existingTags = new HashMap<>();
+                try (InputStream projectTagsFileStream = tagsFile.getStream()) {
+                    PropertiesUtils.load(projectTagsFileStream, existingTags::put);
+                }
+                projectTagsBean.initTagsFromPreexisting(existingTags);
+            } else {
+                projectTagsBean.clearTags();
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Cannot read the project: " + e.getMessage());
+            clearForm();
+        }
+    }
+    
     public void importFromRepo() {
         String msg = validateImportFromRepoParams();
         if (msg != null) {
@@ -3041,25 +3087,25 @@ public class RepositoryTreeController {
         }
 
         try {
-            Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
-            if (!mappedRepo.supports().mappedFolders()) {
-                throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
-            }
-            Repository repository = ((FolderMapper) mappedRepo).getDelegate();
-            FileData fileData = repository.check(projectFolder);
-            if (fileData == null) {
-                WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
-                clearForm();
+            var mappedRepo = findAndValidateMappedRepository();
+            if (mappedRepo == null) {
                 return;
             }
-
-            ((FolderMapper) mappedRepo).addMapping(projectFolder);
+            mappedRepo.addMapping(projectFolder);
 
             workspaceManager.refreshWorkspaces();
             repositoryTreeState.invalidateTree();
             Optional<RulesProject> importedProject = userWorkspace.getProjectByPath(repositoryId, projectFolder);
-            importedProject
-                    .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
+            if (importedProject.isPresent()) {
+                var project = importedProject.get();
+                var tags = projectTagsBean.saveTagsTypesAndGetTags();
+                var existingTags = project.getTags();
+                if (!existingTags.equals(tags)) {
+                    project.saveTags(tags);
+                }
+
+                selectProject(project.getName(), repositoryTreeState.getRulesRepository());
+            }
 
             resetStudioModel();
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
