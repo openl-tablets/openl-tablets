@@ -66,7 +66,7 @@ import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.RepositoryAclServiceImpl;
+import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -191,8 +191,7 @@ public class DesignTimeRepositoryController {
                                                  @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
             JAXBException {
         if (overwrite) {
-            String pathInRepo = repository.supports().mappedFolders() && StringUtils
-                    .isNotBlank(path) ? RepositoryAclServiceImpl.concatPaths(path, projectName) : projectName;
+            String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.EDIT))) {
                 throw new SecurityException();
             }
