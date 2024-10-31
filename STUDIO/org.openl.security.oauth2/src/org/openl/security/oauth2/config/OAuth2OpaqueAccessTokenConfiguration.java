@@ -1,7 +1,7 @@
 package org.openl.security.oauth2.config;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.jcache.JCacheCacheManager;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.PropertyResolver;
@@ -30,7 +30,7 @@ public class OAuth2OpaqueAccessTokenConfiguration {
                                                            OAuth2Configuration oAuth2Configuration,
                                                            ClientRegistrationRepository clientRegistrationRepository,
                                                            UserInfoClaimsConverter userInfoClaimsConverter,
-                                                           JCacheCacheManager cacheManager) {
+                                                           CacheManager cacheManager) {
         var clientRegistration = clientRegistrationRepository.findByRegistrationId("webstudio");
         return new UserInfoOpaqueTokenIntrospector(oAuth2Configuration.getIntrospectionEndpoint().get(),
                 clientRegistration,

@@ -2,20 +2,18 @@ package org.openl.security.acl;
 
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.Sid;
 
-public class JdbcMutableAclService extends org.springframework.security.acls.jdbc.JdbcMutableAclService implements InitializingBean, MutableAclService {
-    public final String jdbcUrl;
+public class JdbcMutableAclService extends org.springframework.security.acls.jdbc.JdbcMutableAclService implements MutableAclService {
 
-    private String deleteSidQuery = "delete from acl_sid where id=?";
-    private String updateOwnerQuery = "update acl_object_identity set owner_sid = ? where owner_sid = ?";
-    private String deleteEntriesBySidQuery = "delete from acl_entry where sid=?";
-    private String updateSidQuery = "update acl_sid set sid = ? where sid = ? and principal=?";
+    private static final String DELETE_SID_QUERY = "delete from acl_sid where id=?";
+    private static final String UPDATE_OWNER_QUERY = "update acl_object_identity set owner_sid = ? where owner_sid = ?";
+    private static final String DELETE_ENTRIES_BY_SID_QUERY = "delete from acl_entry where sid=?";
+    private static final String UPDATE_SID_QUERY = "update acl_sid set sid = ? where sid = ? and principal=?";
 
     private final AclCache aclCache;
     private final Sid relevantSystemWideSid;
@@ -23,32 +21,10 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     public JdbcMutableAclService(DataSource dataSource,
                                  LookupStrategy lookupStrategy,
                                  AclCache aclCache,
-                                 String jdbcUrl,
                                  Sid relevantSystemWideSid) {
         super(dataSource, lookupStrategy, aclCache);
-        this.jdbcUrl = jdbcUrl;
         this.aclCache = aclCache;
         this.relevantSystemWideSid = relevantSystemWideSid;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:postgresql")) {
-            setClassIdentityQuery("select currval(pg_get_serial_sequence('acl_class', 'id'))");
-            setSidIdentityQuery("select currval(pg_get_serial_sequence('acl_sid', 'id'))");
-        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:mysql")) {
-            setClassIdentityQuery("select @@IDENTITY");
-            setSidIdentityQuery("select @@IDENTITY");
-        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:oracle")) {
-            setClassIdentityQuery("select acl_class_sequence.currval from dual");
-            setSidIdentityQuery("select acl_sid_sequence.currval from dual");
-        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:sqlserver")) {
-            setClassIdentityQuery("select ident_current('acl_class')");
-            setSidIdentityQuery("select ident_current('acl_sid')");
-        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:h2")) {
-            setClassIdentityQuery("select currval('acl_class_sequence')");
-            setSidIdentityQuery("select currval('acl_sid_sequence')");
-        }
     }
 
     public void deleteSid(Sid sid) {
@@ -56,38 +32,28 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
         if (sidId == null) {
             return;
         }
-        this.jdbcOperations.update(deleteEntriesBySidQuery, sidId);
+        jdbcOperations.update(DELETE_ENTRIES_BY_SID_QUERY, sidId);
+
         Long newOwnerSid = createOrRetrieveSidPrimaryKey(relevantSystemWideSid, true);
-        this.jdbcOperations.update(updateOwnerQuery, newOwnerSid, sidId);
-        this.jdbcOperations.update(deleteSidQuery, sidId);
-        this.aclCache.clearCache();
+        jdbcOperations.update(UPDATE_OWNER_QUERY, newOwnerSid, sidId);
+        jdbcOperations.update(DELETE_SID_QUERY, sidId);
+        aclCache.clearCache();
     }
 
     public void updateSid(Sid sid, String newSidName) {
+        String currentSidName;
+        boolean isPrincipal;
         if (sid instanceof GrantedAuthoritySid) {
-            this.jdbcOperations
-                    .update(updateSidQuery, newSidName, ((GrantedAuthoritySid) sid).getGrantedAuthority(), false);
+            currentSidName = ((GrantedAuthoritySid) sid).getGrantedAuthority();
+            isPrincipal = false;
         } else if (sid instanceof PrincipalSid) {
-            this.jdbcOperations.update(updateSidQuery, newSidName, ((PrincipalSid) sid).getPrincipal(), true);
+            currentSidName = ((PrincipalSid) sid).getPrincipal();
+            isPrincipal = true;
         } else {
             throw new IllegalStateException("Sid type is not supported");
         }
-        this.aclCache.clearCache();
-    }
 
-    public void setDeleteSidQuery(String deleteSidQuery) {
-        this.deleteSidQuery = deleteSidQuery;
-    }
-
-    public void setDeleteEntriesBySidQuery(String deleteEntriesBySidQuery) {
-        this.deleteEntriesBySidQuery = deleteEntriesBySidQuery;
-    }
-
-    public void setUpdateOwnerQuery(String updateOwnerQuery) {
-        this.updateOwnerQuery = updateOwnerQuery;
-    }
-
-    public void setUpdateSidQuery(String updateSidQuery) {
-        this.updateSidQuery = updateSidQuery;
+        jdbcOperations.update(UPDATE_SID_QUERY, newSidName, currentSidName, isPrincipal);
+        aclCache.clearCache();
     }
 }
