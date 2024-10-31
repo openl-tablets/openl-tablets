@@ -21,6 +21,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.MutableAclService;
+import org.openl.security.acl.utils.AclPathUtils;
 
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
@@ -76,7 +77,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     }
 
     private String buildObjectIdentityId(AProjectArtefact projectArtefact) {
-        return concat(projectArtefact.getRepository().getId(), extractInternalPath(projectArtefact));
+        var repoId = projectArtefact.getRepository().getId();
+        var internalPath = extractInternalPath(projectArtefact);
+        return AclPathUtils.buildRepositoryPath(repoId, internalPath);
     }
 
     private ObjectIdentity buildObjectIdentity(AProjectArtefact projectArtefact) {

@@ -1,7 +1,6 @@
 package org.openl.security.acl.repository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -29,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.MutableAclService;
-import org.openl.util.StringUtils;
+import org.openl.security.acl.utils.AclPathUtils;
 
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
 
@@ -43,6 +41,8 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private final static int MAX_LIFE_TIME = 15000;
     private final Map<ObjectIdentity, Long> objectIdentityIdCache = new ConcurrentHashMap<>();
 
+    private final ObjectIdentity rootOid;
+
     public SimpleRepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
                                           MutableAclService aclService,
                                           String rootId,
@@ -55,30 +55,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         this.objectIdentityClass = objectIdentityClass;
         this.relevantSystemWideSid = relevantSystemWideSid;
         this.sidRetrievalStrategy = sidRetrievalStrategy;
-    }
-
-    public static String concatPaths(String path1, String path2) {
-        if (!path1.endsWith("/")) {
-            path1 = path1 + "/";
-        }
-        return path1 + path2;
-    }
-
-    static String concat(String repositoryId, String path) {
-        if (path != null) {
-            String[] parts = path.split("/");
-            path = Arrays.stream(parts).map(e -> e.trim() + "/").collect(Collectors.joining());
-            while (path.contains("//")) {
-                path = path.replaceAll("//", "/");
-            }
-            if (!path.startsWith("/")) {
-                path = "/" + path;
-            }
-            if (path.endsWith("/")) {
-                path = path.substring(0, path.length() - 1);
-            }
-        }
-        return StringUtils.isNotBlank(path) ? repositoryId + ":" + path : repositoryId;
+        this.rootOid = getRootObjectIdentity(rootId);
     }
 
     protected void evictCache(ObjectIdentity objectIdentity) {
@@ -91,28 +68,30 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         if (Root.class.getName().equals(oi.getType())) {
             return null;
         }
-        String id = (String) oi.getIdentifier();
-        int i = id.lastIndexOf("/");
-        if (i >= 0) {
-            String parentObjectIdentity = id.substring(0, i);
-            if (parentObjectIdentity.endsWith(":")) {
-                parentObjectIdentity = parentObjectIdentity.substring(0, parentObjectIdentity.length() - 1);
-            }
-            return new ObjectIdentityImpl(objectIdentityClass, parentObjectIdentity);
+        var id = String.valueOf(oi.getIdentifier());
+        int lastSlashIdx = id.lastIndexOf('/');
+        if (lastSlashIdx < 0) {
+            return getRootObjectIdentity(rootId);
         }
-        return getRootObjectIdentity(rootId);
+
+        var parentOi = id.substring(0, lastSlashIdx);
+        int lastChPos = parentOi.length() - 1;
+        if (lastChPos >= 0 && parentOi.charAt(lastChPos) == ':') {
+            parentOi = parentOi.substring(0, lastChPos);
+        }
+        return new ObjectIdentityImpl(objectIdentityClass, parentOi);
     }
 
     protected ObjectIdentity buildParentObjectIdentity(ObjectIdentity oi) {
         return buildParentObjectIdentity(oi, objectIdentityClass, rootId);
     }
 
-    private ObjectIdentity getRootObjectIdentity() {
-        return getRootObjectIdentity(rootId);
-    }
-
     private static ObjectIdentity getRootObjectIdentity(String rootId) {
         return new ObjectIdentityImpl(Root.class, rootId);
+    }
+
+    private ObjectIdentity buildObjectIdentity(String repositoryId, String path) {
+        return new ObjectIdentityImpl(objectIdentityClass, AclPathUtils.buildRepositoryPath(repositoryId, path));
     }
 
     protected MutableAcl getOrCreateAcl(ObjectIdentity oi) {
@@ -143,7 +122,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return listPermissions(oi, null);
     }
 
@@ -151,27 +130,27 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path, List<Sid> sids) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return listPermissions(oi, sids);
     }
 
     @Override
     @Transactional
     public Map<Sid, List<Permission>> listRootPermissions() {
-        return listPermissions(getRootObjectIdentity(), null);
+        return listPermissions(rootOid, null);
     }
 
     @Override
     @Transactional
     public Map<Sid, List<Permission>> listRootPermissions(List<Sid> sids) {
-        return listPermissions(getRootObjectIdentity(), sids);
+        return listPermissions(rootOid, sids);
     }
 
     @Override
     @Transactional
     public void addPermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         addPermissions(oi, permissions);
     }
 
@@ -236,27 +215,27 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public void addPermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         addPermissions(oi, joinSidsAndPermissions(permissions, sids));
     }
 
     @Override
     @Transactional
     public void addRootPermissions(Map<Sid, List<Permission>> permissions) {
-        addPermissions(getRootObjectIdentity(), permissions);
+        addPermissions(rootOid, permissions);
     }
 
     @Override
     @Transactional
     public void addRootPermissions(List<Permission> permissions, List<Sid> sids) {
-        addPermissions(getRootObjectIdentity(), joinSidsAndPermissions(permissions, sids));
+        addPermissions(rootOid, joinSidsAndPermissions(permissions, sids));
     }
 
     @Override
     @Transactional
     public void removePermissions(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         removePermissions(oi);
     }
 
@@ -279,7 +258,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         if (sids == null) {
             return;
         }
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         removePermissions(oi, sids);
     }
 
@@ -309,7 +288,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public void removePermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         removePermissions(oi, joinSidsAndPermissions(permissions, sids));
     }
 
@@ -317,7 +296,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public void removePermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         removePermissions(oi, permissions);
     }
 
@@ -349,19 +328,19 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Override
     @Transactional
     public void removeRootPermissions(List<Permission> permissions, List<Sid> sids) {
-        removePermissions(getRootObjectIdentity(), joinSidsAndPermissions(permissions, sids));
+        removePermissions(rootOid, joinSidsAndPermissions(permissions, sids));
     }
 
     @Override
     @Transactional
     public void removeRootPermissions(List<Sid> sids) {
-        removePermissions(getRootObjectIdentity(), sids);
+        removePermissions(rootOid, sids);
     }
 
     @Override
     @Transactional
     public void removeRootPermissions() {
-        removePermissions(getRootObjectIdentity());
+        removePermissions(rootOid);
     }
 
     protected void movePermissions(ObjectIdentity oldObjectIdentity,
@@ -398,14 +377,14 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     public void move(String repositoryId, String path, String newPath) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         Objects.requireNonNull(path, "path cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         moveInternal(repositoryId, oi, newPath);
     }
 
     protected void moveInternal(String repositoryId, ObjectIdentity oi, String newPath) {
         Function<ObjectIdentity, ObjectIdentity> mapFunction = e1 -> {
             String s = ((String) e1.getIdentifier());
-            s = concat(repositoryId, newPath) + s.substring(((String) oi.getIdentifier()).length());
+            s = AclPathUtils.buildRepositoryPath(repositoryId, newPath) + s.substring(((String) oi.getIdentifier()).length());
             return new ObjectIdentityImpl(objectIdentityClass, s);
         };
         movePermissions(oi, mapFunction, true);
@@ -449,7 +428,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return isGranted(oi, sids, permissions);
     }
 
@@ -457,7 +436,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public void deleteAcl(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         aclService.deleteAcl(oi, true);
         objectIdentityIdCache.remove(oi);
     }
@@ -465,15 +444,14 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Override
     @Transactional
     public void deleteAclRoot() {
-        ObjectIdentity oi = getRootObjectIdentity();
-        aclService.deleteAcl(oi, true);
+        aclService.deleteAcl(rootOid, true);
     }
 
     @Override
     @Transactional
     public boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return createAcl(oi, permissions, force);
     }
 
@@ -481,7 +459,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public boolean hasAcl(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return hasAcl(oi);
     }
 
@@ -540,7 +518,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public boolean updateOwner(String repositoryId, String path, Sid newOwner) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return updateOwner(oi, newOwner);
     }
 
@@ -557,7 +535,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public Sid getOwner(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
-        ObjectIdentity oi = new ObjectIdentityImpl(objectIdentityClass, concat(repositoryId, path));
+        ObjectIdentity oi = buildObjectIdentity(repositoryId, path);
         return getOwner(oi);
     }
 }
