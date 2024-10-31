@@ -24,6 +24,7 @@ import org.openl.security.acl.AclAuthorizationStrategyImpl;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.MaskPermissionGrantingStrategy;
 import org.openl.security.acl.RoleHierarchyImpl;
+import org.openl.security.acl.oid.AclObjectIdentityProviderImpl;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceImpl;
@@ -145,36 +146,39 @@ public class OpenLAclConfiguration {
     public RepositoryAclService designRepositoryAclService(AclCache aclCache,
                                                            JdbcMutableAclService repositoryJdbcMutableAclService,
                                                            SidRetrievalStrategy sidRetrievalStrategy) {
+        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.ProjectArtifact.class,
+                DESIGN_REPO_ROOT_ID);
         return new RepositoryAclServiceImpl(aclCache,
                 repositoryJdbcMutableAclService,
-                DESIGN_REPO_ROOT_ID,
-                org.openl.security.acl.repository.ProjectArtifact.class,
                 RELEVANT_SYSTEM_WIDE_SID,
-                sidRetrievalStrategy);
+                sidRetrievalStrategy,
+                oidProvider);
     }
 
     @Bean
     public RepositoryAclService deployConfigRepositoryAclService(AclCache aclCache,
                                                                  JdbcMutableAclService repositoryJdbcMutableAclService,
                                                                  SidRetrievalStrategy sidRetrievalStrategy) {
+        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.DeploymentProjectArtifact.class,
+                DEPLOY_CONFIG_REPO_ROOT_ID);
         return new RepositoryAclServiceImpl(aclCache,
                 repositoryJdbcMutableAclService,
-                DEPLOY_CONFIG_REPO_ROOT_ID,
-                org.openl.security.acl.repository.DeploymentProjectArtifact.class,
                 RELEVANT_SYSTEM_WIDE_SID,
-                sidRetrievalStrategy);
+                sidRetrievalStrategy,
+                oidProvider);
     }
 
     @Bean
     public SimpleRepositoryAclService productionRepositoryAclService(AclCache aclCache,
                                                                      JdbcMutableAclService repositoryJdbcMutableAclService,
                                                                      SidRetrievalStrategy sidRetrievalStrategy) {
+        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.RepositoryObjectIdentity.class,
+                PROD_REPO_ROOT_ID);
         return new SimpleRepositoryAclServiceImpl(aclCache,
                 repositoryJdbcMutableAclService,
-                PROD_REPO_ROOT_ID,
-                org.openl.security.acl.repository.RepositoryObjectIdentity.class,
                 RELEVANT_SYSTEM_WIDE_SID,
-                sidRetrievalStrategy);
+                sidRetrievalStrategy,
+                oidProvider);
     }
 
 }
