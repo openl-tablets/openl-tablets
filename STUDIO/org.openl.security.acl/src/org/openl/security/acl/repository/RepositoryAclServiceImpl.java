@@ -5,10 +5,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
-import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
+import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
+import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +24,18 @@ import org.openl.security.acl.MutableAclService;
 
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
-    public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-                                    MutableAclService aclService,
-                                    String rootId,
-                                    Class<?> objectIdentityClass) {
-        super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
-    }
-
-    public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+    public RepositoryAclServiceImpl(AclCache springCacheBasedAclCache,
                                     MutableAclService aclService,
                                     String rootId,
                                     Class<?> objectIdentityClass,
-                                    Sid relevantSystemWideSid) {
-        super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass, relevantSystemWideSid);
+                                    Sid relevantSystemWideSid,
+                                    SidRetrievalStrategy sidRetrievalStrategy) {
+        super(springCacheBasedAclCache,
+                aclService,
+                rootId,
+                objectIdentityClass,
+                relevantSystemWideSid,
+                sidRetrievalStrategy);
     }
 
     private static String getRepoPath(FileData fileData) {
@@ -80,7 +80,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     }
 
     private ObjectIdentity buildObjectIdentity(AProjectArtefact projectArtefact) {
-        return new ObjectIdentityImpl(getObjectIdentityClass(), buildObjectIdentityId(projectArtefact));
+        return new ObjectIdentityImpl(objectIdentityClass, buildObjectIdentityId(projectArtefact));
     }
 
     @Override
@@ -164,7 +164,7 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
             return true;
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<Sid> sids = getSidRetrievalStrategy().getSids(authentication);
+        List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return isGranted(oi, sids, permissions);
     }
