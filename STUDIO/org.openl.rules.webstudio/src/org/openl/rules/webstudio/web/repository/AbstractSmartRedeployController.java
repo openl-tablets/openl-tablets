@@ -43,8 +43,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
 public abstract class AbstractSmartRedeployController {
@@ -77,8 +76,7 @@ public abstract class AbstractSmartRedeployController {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    @Qualifier("deployConfigRepositoryAclService")
-    private RepositoryAclService deployConfigRepositoryAclService;
+    private RepositoryAclServiceProvider aclServiceProvider;
 
     volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
@@ -87,10 +85,6 @@ public abstract class AbstractSmartRedeployController {
     private String repositoryConfigName;
 
     AProject currentProject;
-
-    @Autowired
-    @Qualifier("productionRepositoryAclService")
-    private SimpleRepositoryAclService productionRepositoryAclService;
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
@@ -237,7 +231,7 @@ public abstract class AbstractSmartRedeployController {
                     }
                 }
             } else {
-                if (!deployConfigRepositoryAclService.isGranted(deploymentProject,
+                if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject,
                         List.of(AclPermission.EDIT)) || DeploymentRepositoriesUtil
                         .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
@@ -321,7 +315,7 @@ public abstract class AbstractSmartRedeployController {
             result.add(item);
         }
         if (!userWorkspace.hasDDProject(projectName) && userWorkspace.getDesignTimeRepository()
-                .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
+                .hasDeployConfigRepo() && aclServiceProvider.getDeployConfigRepoAclService().isGranted(
                 userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 null,
                 List.of(AclPermission.CREATE)) && !DeploymentRepositoriesUtil
@@ -449,7 +443,7 @@ public abstract class AbstractSmartRedeployController {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                if (!deployConfigRepositoryAclService.isGranted(
+                if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                         null,
                         List.of(AclPermission.CREATE))) {
@@ -459,7 +453,7 @@ public abstract class AbstractSmartRedeployController {
                 }
                 // the same name, than create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
+                if (!aclServiceProvider.getDeployConfigRepoAclService().createAcl(deployConfiguration,
                         AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
                         true)) {
                     String message = String.format(
@@ -556,7 +550,7 @@ public abstract class AbstractSmartRedeployController {
         Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
                 deploymentManager,
                 propertyResolver,
-                productionRepositoryAclService,
+                aclServiceProvider.getProdRepoAclService(),
                 AclPermission.VIEW,
                 AclPermission.EDIT);
         return repositoryConfigurations.stream()
@@ -569,7 +563,7 @@ public abstract class AbstractSmartRedeployController {
         Map<String, String> types = deploymentManager.getRepositoryConfigNames()
                 .stream()
                 .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
-                .filter(e -> productionRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
                 .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
@@ -579,7 +573,7 @@ public abstract class AbstractSmartRedeployController {
                 .map(DesignTimeRepository::getDeployConfigRepository)
                 .map(Repository::getId)
                 .map(deployConfigRepositoryId -> new RepositoryConfiguration(deployConfigRepositoryId, propertyResolver))
-                .filter(e -> productionRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
                 .map(RepositoryConfiguration::getType)
                 .orElse(null);
     }

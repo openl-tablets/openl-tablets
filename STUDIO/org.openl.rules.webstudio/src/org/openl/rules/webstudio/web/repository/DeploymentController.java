@@ -39,8 +39,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
 /**
@@ -81,16 +80,7 @@ public class DeploymentController {
     private Comments deployConfigRepoComments;
 
     @Autowired
-    @Qualifier("deployConfigRepositoryAclService")
-    private RepositoryAclService deployConfigRepositoryAclService;
-
-    @Autowired
-    @Qualifier("designRepositoryAclService")
-    private RepositoryAclService designRepositoryAclService;
-
-    @Autowired
-    @Qualifier("productionRepositoryAclService")
-    private SimpleRepositoryAclService productionRepositoryAclService;
+    private RepositoryAclServiceProvider aclServiceProvider;
 
     public void onPageLoad() {
         if (repositoryTreeState.getSelectedNode() == null) {
@@ -125,7 +115,7 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils
                     .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
                             ProjectArtifactUtils.extractResourceName(project)));
@@ -177,7 +167,7 @@ public class DeploymentController {
                 WebStudioUtils.addErrorMessage("Deployment configuration is not selected");
                 return null;
             }
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
                         String.format("There is no permission for modifying '%s' deployment configuration.",
                                 ProjectArtifactUtils.extractResourceName(selectedProject)));
@@ -200,7 +190,7 @@ public class DeploymentController {
     public String open() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.VIEW))) {
                 WebStudioUtils
                         .addErrorMessage(String.format("There is no permission for opening '%s' deployment configuration.",
                                 ProjectArtifactUtils.extractResourceName(selectedProject)));
@@ -219,7 +209,7 @@ public class DeploymentController {
     public String close() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.VIEW))) {
                 WebStudioUtils
                         .addErrorMessage(String.format("There is no permission for closing '%s' deployment configuration.",
                                 ProjectArtifactUtils.extractResourceName(selectedProject)));
@@ -241,7 +231,7 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils
                     .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
                             ProjectArtifactUtils.extractResourceName(project)));
@@ -270,7 +260,7 @@ public class DeploymentController {
                 return null;
             }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
-            if (!productionRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
+            if (!aclServiceProvider.getProdRepoAclService().isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
                         String.format("There is no permission for deploying to the '%s' repository.", repo.getName()));
                 return null;
@@ -318,7 +308,7 @@ public class DeploymentController {
                         descriptor.getProjectVersion());
                 try {
                     RulesProject rulesProject = getRulesProject(workspace, item);
-                    if (!designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.EDIT))) {
+                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(rulesProject, List.of(AclPermission.EDIT))) {
                         item.setDisabled(true);
                     }
                 } catch (ProjectException e) {
@@ -408,7 +398,7 @@ public class DeploymentController {
     private ADeploymentProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {
-            if (deployConfigRepositoryAclService.isGranted(artefact, List.of(AclPermission.VIEW))) {
+            if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(artefact, List.of(AclPermission.VIEW))) {
                 return (ADeploymentProject) artefact;
             }
         }
@@ -552,7 +542,7 @@ public class DeploymentController {
         Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
                 deploymentManager,
                 propertyResolver,
-                productionRepositoryAclService,
+                aclServiceProvider.getProdRepoAclService(),
                 AclPermission.VIEW,
                 AclPermission.EDIT);
         return repositoryConfigurations.stream()

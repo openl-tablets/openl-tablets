@@ -12,7 +12,6 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -30,7 +29,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @Service
 @SessionScope
@@ -49,8 +48,7 @@ public class ProductionRepositoriesTreeState {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    @Qualifier("productionRepositoryAclService")
-    private SimpleRepositoryAclService productionRepositoryAclService;
+    private RepositoryAclServiceProvider aclServiceProvider;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -175,7 +173,10 @@ public class ProductionRepositoriesTreeState {
 
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<>(DeploymentRepositoriesUtil
-                .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService, AclPermission.VIEW));
+                .getRepositories(deploymentManager,
+                        propertyResolver,
+                        aclServiceProvider.getProdRepoAclService(),
+                        AclPermission.VIEW));
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }

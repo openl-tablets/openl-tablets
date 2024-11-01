@@ -20,7 +20,6 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
 import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -47,8 +46,7 @@ import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 
@@ -73,9 +71,7 @@ public class ManagementController {
     private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
     private final JdbcMutableAclService aclService;
-    private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
-    private final SimpleRepositoryAclService productionRepositoryAclService;
+    private final RepositoryAclServiceProvider aclServiceProvider;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
@@ -84,18 +80,14 @@ public class ManagementController {
                                 BeanValidationProvider validationProvider,
                                 ExternalGroupService extGroupService,
                                 @Autowired(required = false) JdbcMutableAclService aclService,
-                                @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-                                @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
-                                @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
+                                RepositoryAclServiceProvider aclServiceProvider) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
         this.aclService = aclService;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
-        this.productionRepositoryAclService = productionRepositoryAclService;
+        this.aclServiceProvider = aclServiceProvider;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -124,10 +116,10 @@ public class ManagementController {
         UIGroup uiGroup = new UIGroup(group);
         List<Sid> grantedAuthoritySidList = Collections.singletonList(new GrantedAuthoritySid(group.getName()));
         uiGroup.privileges
-                .addAll(getGroupUiPrivileges(() -> designRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                .addAll(getGroupUiPrivileges(() -> aclServiceProvider.getDesignRepoAclService().listRootPermissions(grantedAuthoritySidList),
                         DESIGN_PRIVILEGES::get));
         uiGroup.privileges.addAll(
-                getGroupUiPrivileges(() -> deployConfigRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                getGroupUiPrivileges(() -> aclServiceProvider.getDesignRepoAclService().listRootPermissions(grantedAuthoritySidList),
                         DEPLOY_CONFIG_PRIVILEGES::get));
         return uiGroup;
     }
@@ -176,22 +168,22 @@ public class ManagementController {
                 privileges == null ? null
                         : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
-        designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        deployConfigRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        productionRepositoryAclService.removeRootPermissions(List.of(AclPermission.EDIT),
+        aclServiceProvider.getDesignRepoAclService().removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
+        aclServiceProvider.getDeployConfigRepoAclService().removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
+        aclServiceProvider.getProdRepoAclService().removeRootPermissions(List.of(AclPermission.EDIT),
                 Collections.singletonList(grantedAuthoritySid));
         if (privileges != null) {
             List<Permission> designPermissions = toPermissions(privileges, DESIGN_PRIVILEGES::getKey);
-            designRepositoryAclService.addRootPermissions(designPermissions,
+            aclServiceProvider.getDesignRepoAclService().addRootPermissions(designPermissions,
                     Collections.singletonList(grantedAuthoritySid));
 
             List<Permission> deployConfigPermissions = toPermissions(privileges, DEPLOY_CONFIG_PRIVILEGES::getKey);
-            deployConfigRepositoryAclService.addRootPermissions(deployConfigPermissions,
+            aclServiceProvider.getDeployConfigRepoAclService().addRootPermissions(deployConfigPermissions,
                     Collections.singletonList(grantedAuthoritySid));
 
             List<Permission> productionPermissions = toPermissions(privileges, PRODUCTION_PRIVILEGES::getKey);
             if (!productionPermissions.isEmpty()) {
-                productionRepositoryAclService.addRootPermissions(
+                aclServiceProvider.getProdRepoAclService().addRootPermissions(
                         List.of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE),
                         Collections.singletonList(grantedAuthoritySid));
             }
