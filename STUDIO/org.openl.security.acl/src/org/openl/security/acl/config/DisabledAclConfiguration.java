@@ -1,10 +1,13 @@
 package org.openl.security.acl.config;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Map;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl;
-import org.openl.security.acl.repository.DisabledSimpleRepositoryAclServiceImpl;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
@@ -17,17 +20,54 @@ public class DisabledAclConfiguration {
 
     @Bean
     public RepositoryAclService designRepositoryAclService() {
-        return new DisabledRepositoryAclServiceImpl();
+        return createDisabledAclService(RepositoryAclService.class);
     }
 
     @Bean
     public RepositoryAclService deployConfigRepositoryAclService() {
-        return new DisabledRepositoryAclServiceImpl();
+        return createDisabledAclService(RepositoryAclService.class);
     }
 
     @Bean
     public SimpleRepositoryAclService productionRepositoryAclService() {
-        return new DisabledSimpleRepositoryAclServiceImpl();
+        return createDisabledAclService(SimpleRepositoryAclService.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends SimpleRepositoryAclService> T createDisabledAclService(Class<T> serviceClass) {
+        return (T) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class<?>[]{serviceClass},
+                new DisabledAclServiceHandler(serviceClass.getSimpleName()));
+    }
+
+    private static final class DisabledAclServiceHandler implements InvocationHandler {
+
+        private final String typeName;
+
+        private DisabledAclServiceHandler(String typeName) {
+            this.typeName = typeName;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) {
+            if ("hashCode".equals(method.getName()) && method.getParameterCount() == 0) {
+                return System.identityHashCode(proxy);
+            } else if ("equals".equals(method.getName()) && method.getParameterCount() == 1) {
+                return proxy == args[0];
+            } else if ("toString".equals(method.getName()) && method.getParameterCount() == 0) {
+                return String.format("Disabled%s@%s", typeName,
+                        Integer.toHexString(System.identityHashCode(proxy)));
+            }
+
+            Class<?> returnType = method.getReturnType();
+            if (returnType.equals(boolean.class) || returnType.equals(Boolean.class)) {
+                return true;
+            } else if (Map.class.isAssignableFrom(returnType)) {
+                return Map.of();
+            }
+            return null;
+        }
     }
 
 }
