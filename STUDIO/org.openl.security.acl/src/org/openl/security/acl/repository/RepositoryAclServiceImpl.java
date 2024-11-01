@@ -1,7 +1,6 @@
 package org.openl.security.acl.repository;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -29,61 +28,6 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
                 relevantSystemWideSid,
                 sidRetrievalStrategy,
                 oidProvider);
-    }
-
-    @Override
-    @Transactional
-    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        return listPermissions(oi, null);
-    }
-
-    @Override
-    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact, List<Sid> sids) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        return listPermissions(oi, sids);
-    }
-
-    @Override
-    @Transactional
-    public void addPermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        addPermissions(oi, joinSidsAndPermissions(permissions, sids));
-    }
-
-    @Override
-    @Transactional
-    public void addPermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        addPermissions(oi, permissions);
-    }
-
-    @Override
-    @Transactional
-    public void removePermissions(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        removePermissions(oi);
-    }
-
-    @Override
-    @Transactional
-    public void removePermissions(AProjectArtefact projectArtefact, List<Sid> sids) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        removePermissions(oi, sids);
-    }
-
-    @Override
-    @Transactional
-    public void removePermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        removePermissions(oi, joinSidsAndPermissions(permissions, sids));
-    }
-
-    @Override
-    @Transactional
-    public void removePermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        removePermissions(oi, permissions);
     }
 
     @Override
@@ -127,20 +71,6 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     public boolean hasAcl(AProjectArtefact projectArtefact) {
         ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
         return hasAcl(oi);
-    }
-
-    @Override
-    @Transactional
-    public Sid getOwner(AProjectArtefact projectArtefact) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        return getOwner(oi);
-    }
-
-    @Override
-    @Transactional
-    public boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner) {
-        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
-        return updateOwner(oi, newOwner);
     }
 
     protected String cutRepositoryId(String identifier) {

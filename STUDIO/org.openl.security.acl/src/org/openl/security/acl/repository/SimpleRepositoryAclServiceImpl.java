@@ -89,13 +89,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path, List<Sid> sids) {
-        ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
-        return listPermissions(oi, sids);
-    }
-
-    @Override
-    @Transactional
     public Map<Sid, List<Permission>> listRootPermissions() {
         var rootOid = oidProvider.getRootOid();
         return listPermissions(rootOid, null);
@@ -106,13 +99,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     public Map<Sid, List<Permission>> listRootPermissions(List<Sid> sids) {
         var rootOid = oidProvider.getRootOid();
         return listPermissions(rootOid, sids);
-    }
-
-    @Override
-    @Transactional
-    public void addPermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
-        ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
-        addPermissions(oi, permissions);
     }
 
     protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
@@ -181,13 +167,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public void addRootPermissions(Map<Sid, List<Permission>> permissions) {
-        var rootOid = oidProvider.getRootOid();
-        addPermissions(rootOid, permissions);
-    }
-
-    @Override
-    @Transactional
     public void addRootPermissions(List<Permission> permissions, List<Sid> sids) {
         var rootOid = oidProvider.getRootOid();
         addPermissions(rootOid, joinSidsAndPermissions(permissions, sids));
@@ -249,13 +228,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     public void removePermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids) {
         ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
         removePermissions(oi, joinSidsAndPermissions(permissions, sids));
-    }
-
-    @Override
-    @Transactional
-    public void removePermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
-        ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
-        removePermissions(oi, permissions);
     }
 
     protected void removePermissions(ObjectIdentity objectIdentity, Map<Sid, List<Permission>> permissions) {
@@ -398,23 +370,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public void deleteAclRoot() {
-        var rootOid = oidProvider.getRootOid();
-        aclService.deleteAcl(rootOid, true);
-    }
-
-    @Override
-    @Transactional
     public boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force) {
         ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
         return createAcl(oi, permissions, force);
-    }
-
-    @Override
-    @Transactional
-    public boolean hasAcl(String repositoryId, String path) {
-        ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
-        return hasAcl(oi);
     }
 
     protected boolean hasAcl(ObjectIdentity oi) {

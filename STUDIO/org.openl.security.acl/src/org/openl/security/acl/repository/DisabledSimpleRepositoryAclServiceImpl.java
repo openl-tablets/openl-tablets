@@ -14,11 +14,6 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
-    public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path, List<Sid> sids) {
-        return Collections.emptyMap();
-    }
-
-    @Override
     public Map<Sid, List<Permission>> listRootPermissions() {
         return Collections.emptyMap();
     }
@@ -29,15 +24,7 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
-    public void addPermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
-    }
-
-    @Override
     public void addPermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids) {
-    }
-
-    @Override
-    public void addRootPermissions(Map<Sid, List<Permission>> permissions) {
     }
 
     @Override
@@ -53,10 +40,6 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
-    public void deleteAclRoot() {
-    }
-
-    @Override
     public void removePermissions(String repositoryId, String path) {
     }
 
@@ -66,10 +49,6 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
 
     @Override
     public void removePermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids) {
-    }
-
-    @Override
-    public void removePermissions(String repositoryId, String path, Map<Sid, List<Permission>> permissions) {
     }
 
     @Override
@@ -91,11 +70,6 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
 
     @Override
     public boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force) {
-        return true;
-    }
-
-    @Override
-    public boolean hasAcl(String repositoryId, String path) {
         return true;
     }
 
