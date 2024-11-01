@@ -11,6 +11,8 @@
 
     <context:component-scan base-package="org.openl.rules.webstudio.service.config"/>
 
+    <bean id="openLAclConfiguration" class="org.openl.security.acl.config.OpenLAclConfiguration"/>
+
     <bean id="projectGroupingService" class="org.openl.rules.webstudio.service.ProjectGroupingService">
         <property name="userSettingManagementService" ref="userSettingManagementService"/>
     </bean>
@@ -36,6 +38,7 @@
                 <constructor-arg name="role" value="ADMIN"/>
             </bean>
         </constructor-arg>
+        <constructor-arg name="aclServiceProvider" ref="repositoryAclServiceProvider"/>
     </bean>
 
     <bean id="syncUserData" class="org.openl.rules.webstudio.security.SyncUserData">

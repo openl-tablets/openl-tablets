@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +38,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,8 +49,7 @@ public class ProjectManagementController {
     private final ProjectDeploymentService projectDeploymentService;
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
-    private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
+    private final RepositoryAclServiceProvider aclServiceProvider;
     private final WorkspaceProjectService projectService;
 
     @Autowired
@@ -59,15 +57,13 @@ public class ProjectManagementController {
                                        ProjectDeploymentService projectDeploymentService,
                                        DeploymentManager deploymentManager,
                                        ProjectStateValidator projectStateValidator,
-                                       @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-                                       @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+                                       RepositoryAclServiceProvider aclServiceProvider,
                                        WorkspaceProjectService projectService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.aclServiceProvider = aclServiceProvider;
         this.projectService = projectService;
     }
 
@@ -93,7 +89,7 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
@@ -208,7 +204,7 @@ public class ProjectManagementController {
                         .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
-                    if (!deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
+                    if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
                         throw new SecurityException();
                     }
                     deploymentProjectsToDeploy.add(deploymentProject);
@@ -239,7 +235,7 @@ public class ProjectManagementController {
         // request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {
@@ -272,14 +268,14 @@ public class ProjectManagementController {
                       @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ERASE))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.ERASE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {
                 throw new ConflictException("project.erase.message");
             }
             project.erase(getUserWorkspace().getUser(), comment);
-            designRepositoryAclService.deleteAcl(project);
+            aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }

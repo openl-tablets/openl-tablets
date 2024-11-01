@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,8 +22,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
 /**
@@ -34,23 +32,17 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
-    private final RepositoryAclService deployConfigRepositoryAclService;
-    private final RepositoryAclService designRepositoryAclService;
-    private final SimpleRepositoryAclService productionRepositoryAclService;
+    private final RepositoryAclServiceProvider aclServiceProvider;
     private final GrantedAuthority relevantSystemWideGrantedAuthority;
 
     public GetUserPrivileges(UserManagementService userManagementService,
                              GroupManagementService groupManagementService,
                              GrantedAuthority relevantSystemWideGrantedAuthority,
-                             @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
-                             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-                             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
+                             RepositoryAclServiceProvider aclServiceProvider) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.defaultGroup = Props.text("security.default-group");
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.productionRepositoryAclService = productionRepositoryAclService;
+        this.aclServiceProvider = aclServiceProvider;
         this.relevantSystemWideGrantedAuthority = relevantSystemWideGrantedAuthority;
     }
 
@@ -108,11 +100,11 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
             SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group1)).build();
             SecurityContextHolder.getContext()
                     .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
-            deployConfigRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getDeployConfigRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
                     List.of(new GrantedAuthoritySid(group.getName())));
-            designRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getDesignRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
                     List.of(new GrantedAuthoritySid(group.getName())));
-            productionRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getProdRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
                     List.of(new GrantedAuthoritySid(group.getName())));
         } finally {
             SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
