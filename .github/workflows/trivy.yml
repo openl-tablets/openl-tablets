@@ -58,6 +58,10 @@ jobs:
           IMAGE_REF: ${{ env.REGISTRY }}/${{ env.NAME }}:${{ env.VERSION }}${{ env.SUFFIX }}
         run: >-
           trivy image $IMAGE_REF
+          --output report.json
+          --format json
+
+          trivy convert report.json
           --output report.html
           --format template
           --template '
@@ -117,3 +121,9 @@ jobs:
             '
           
           cat report.html >> $GITHUB_STEP_SUMMARY
+
+      - name: Archive report results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.image }}
+          path: report.json
