@@ -170,7 +170,7 @@
 
         <!-- Cache -->
         <javax.cache-api.version>1.1.1</javax.cache-api.version>
-        <cache2k.version>1.6.0.Final</cache2k.version>
+        <cache2k.version>2.6.1.Final</cache2k.version>
 
         <!-- Mail -->
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
