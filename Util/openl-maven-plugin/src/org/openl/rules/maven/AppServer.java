@@ -52,8 +52,14 @@ public class AppServer {
             server.start();
 
             int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-            var client = HttpClient.newBuilder()
-                    .executor(Runnable::run) // To prevent memory leak via the default thread pool
+            var builder = HttpClient.newBuilder();
+            if (Runtime.version().feature() >= 13) {
+                // The leak memory fix is failed under Java 11 when multi-thread maven build.
+                // So add the check, when the issue was fixed
+                // See https://bugs.openjdk.org/browse/JDK-8217264
+                builder.executor(Runnable::run); // To prevent memory leak via the default thread pool
+            }
+            var client = builder
                     .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
                     .build();

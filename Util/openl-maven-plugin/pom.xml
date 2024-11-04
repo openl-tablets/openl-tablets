@@ -157,7 +157,7 @@
                         <maven.compiler.release>11</maven.compiler.release>
                     </properties>
                     <showErrors>true</showErrors>
-                    <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
+                    <mavenOpts>-ea ${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
                 </configuration>
             </plugin>
         </plugins>
