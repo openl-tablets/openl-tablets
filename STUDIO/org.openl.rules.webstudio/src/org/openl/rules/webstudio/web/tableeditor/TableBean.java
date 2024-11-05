@@ -15,12 +15,10 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -42,7 +40,6 @@ import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.permission.AclPermission;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -364,13 +361,7 @@ public class TableBean {
         if (currentProject == null) {
             return false;
         }
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.RUN));
+        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
     }
 
     public boolean getCanBenchmark() {
@@ -379,13 +370,7 @@ public class TableBean {
         if (currentProject == null) {
             return false;
         }
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.BENCHMARK));
+        return currentProject.hasArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
     }
 
     public Integer getRowIndex() {
