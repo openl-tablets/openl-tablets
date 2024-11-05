@@ -106,7 +106,7 @@ public class SecureRepository implements Repository, RepositoryDelegate {
 
     protected void checkDeleteHistoryPermission(String name) throws IOException {
         if (!simpleRepositoryAclService
-                .isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE_HISTORY))) {
+                .isGranted(getId(), name, List.of(AclPermission.DELETE))) {
             throw new AccessDeniedException(
                     String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }

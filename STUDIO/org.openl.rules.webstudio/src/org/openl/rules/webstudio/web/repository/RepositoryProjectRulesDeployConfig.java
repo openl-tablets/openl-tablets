@@ -131,7 +131,7 @@ public class RepositoryProjectRulesDeployConfig {
                 }
                 artefact.setContent(inputStream);
             } else {
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD))) {
+                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
                             ProjectArtifactUtils.extractResourceName(project),
                             RULES_DEPLOY_CONFIGURATION_FILE));
@@ -214,7 +214,7 @@ public class RepositoryProjectRulesDeployConfig {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.EDIT));
             } else {
-                return designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD));
+                return designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE));
             }
         } catch (ProjectException e) {
             return false;
