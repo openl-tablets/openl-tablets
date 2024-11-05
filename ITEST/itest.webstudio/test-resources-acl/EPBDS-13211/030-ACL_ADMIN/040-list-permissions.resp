@@ -4,7 +4,7 @@ Content-Type: application/json
 [
   {
     "username": "admin",
-    "permissions": ["VIEW", "ADD", "EDIT", "DELETE", "ERASE", "RUN", "BENCHMARK"]
+    "permissions": ["VIEW", "CREATE", "EDIT", "DELETE"]
   }
 ]
 

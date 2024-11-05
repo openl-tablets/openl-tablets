@@ -1,7 +1,6 @@
 package org.openl.rules.rest;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +108,7 @@ public class RepositoryAclServiceController {
         List<SidPermissionsDto> ret = new ArrayList<>();
         for (Map.Entry<Sid, List<Permission>> entry : permissions.entrySet()) {
             String[] permissionsArray = entry.getValue().stream().map(e -> {
-                AclPermission projectArtifactPermission = AclPermission.getPermission(e.getMask());
+                var projectArtifactPermission = AclPermission.getPermission(e.getMask());
                 if (projectArtifactPermission != null) {
                     return AclPermission.toString(projectArtifactPermission);
                 } else {
@@ -142,10 +141,10 @@ public class RepositoryAclServiceController {
         if (repoType == null) {
             throw new NotFoundException("repository.type.message", repositoryType);
         }
-        Collection<AclPermission> supportedPermissions = AclCommandSupport.listAllSupportedPermissions(repoType);
+        var supportedPermissions = AclCommandSupport.listAllSupportedPermissions(repoType);
 
         for (String permission : permissions) {
-            AclPermission aclPermission = AclPermission.getPermission(permission);
+            var aclPermission = AclPermission.getPermission(permission);
             if (aclPermission == null) {
                 throw new NotFoundException("repository.permission.message", permission);
             }
@@ -186,7 +185,7 @@ public class RepositoryAclServiceController {
     private static String[] listAllSupportedPermissions(AclCommandSupport.RepoType repoType) {
         return AclCommandSupport.listAllSupportedPermissions(repoType)
                 .stream()
-                .map(e -> AclPermission.toString(e))
+                .map(AclPermission::toString)
                 .toArray(String[]::new);
     }
 
