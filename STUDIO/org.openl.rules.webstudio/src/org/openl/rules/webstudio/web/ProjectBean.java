@@ -796,7 +796,7 @@ public class ProjectBean {
                 path = designRepositoryAclService
                         .getPath(currentProject) + (StringUtils.isNotBlank(path) ? "/" + path : StringUtils.EMPTY);
                 return designRepositoryAclService
-                        .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.ADD));
+                        .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.CREATE));
             }
         }
         return false;
@@ -815,7 +815,7 @@ public class ProjectBean {
                     return false;
                 }
             } else {
-                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD));
+                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.CREATE));
             }
         }
         return false;
@@ -1239,7 +1239,7 @@ public class ProjectBean {
     private void validatePermissionForCreating(RulesProject currentProject, String path) {
         String p = designRepositoryAclService.getPath(currentProject);
         if (!designRepositoryAclService
-                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.ADD))) {
+                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.CREATE))) {
             throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                     ProjectArtifactUtils.extractResourceName(currentProject),
                     path));
