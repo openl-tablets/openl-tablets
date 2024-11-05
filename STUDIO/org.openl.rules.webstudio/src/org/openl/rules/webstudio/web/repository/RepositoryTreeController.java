@@ -288,7 +288,7 @@ public class RepositoryTreeController {
                                     .getProject() instanceof ADeploymentProject
                                     ? aclServiceProvider.getDeployConfigRepoAclService()
                                     : aclServiceProvider.getDesignRepoAclService();
-                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.ADD))) {
+                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.CREATE))) {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
@@ -1549,7 +1549,7 @@ public class RepositoryTreeController {
 
                 is = ((AProjectResource) uwp.getArtefactByPath(pathInProject)).getContent();
             }
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(folder, List.of(AclPermission.ADD))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(folder, List.of(AclPermission.CREATE))) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         folder.getArtefactPath().getStringValue(),
                         artefactPath.segment(artefactPath.segmentCount() - 1)));
@@ -2226,7 +2226,7 @@ public class RepositoryTreeController {
             var repositoryAclService = node
                     .getProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(node, List.of(AclPermission.ADD))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.CREATE))) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         ProjectArtifactUtils.extractResourceName(node),
                         fileName));
@@ -2520,7 +2520,7 @@ public class RepositoryTreeController {
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -3164,7 +3164,7 @@ public class RepositoryTreeController {
         }
         for (AProjectArtefact artefact : project.getArtefacts()) {
             if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                 return true;
             }
         }

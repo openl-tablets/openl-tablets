@@ -220,13 +220,9 @@ public class ManagementController {
     static {
         BidiMap<Permission, String> designPrivileges = new DualLinkedHashBidiMap<>();
         designPrivileges.put(AclPermission.VIEW, "VIEW_PROJECTS");
-        designPrivileges.put(AclPermission.CREATE, "CREATE_PROJECTS");
-        designPrivileges.put(AclPermission.ADD, "ADD");
+        designPrivileges.put(AclPermission.CREATE, "CREATE");
         designPrivileges.put(AclPermission.EDIT, "EDIT_PROJECTS");
         designPrivileges.put(AclPermission.DELETE, "DELETE_PROJECTS");
-        designPrivileges.put(AclPermission.ERASE, "ERASE_PROJECTS");
-        designPrivileges.put(AclPermission.RUN, "RUN");
-        designPrivileges.put(AclPermission.BENCHMARK, "BENCHMARK");
         DESIGN_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(designPrivileges);
 
         BidiMap<Permission, String> deployConfigPrivileges = new DualLinkedHashBidiMap<>();
@@ -234,8 +230,6 @@ public class ManagementController {
         deployConfigPrivileges.put(AclPermission.CREATE, "CREATE_DEPLOYMENT");
         deployConfigPrivileges.put(AclPermission.EDIT, "EDIT_DEPLOYMENT");
         deployConfigPrivileges.put(AclPermission.DELETE, "DELETE_DEPLOYMENT");
-        deployConfigPrivileges.put(AclPermission.ERASE, "ERASE_DEPLOYMENT");
-        deployConfigPrivileges.put(AclPermission.DEPLOY, "DEPLOY_PROJECTS");
         DEPLOY_CONFIG_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(deployConfigPrivileges);
 
         BidiMap<Permission, String> productionPrivileges = new DualLinkedHashBidiMap<>();
@@ -246,21 +240,15 @@ public class ManagementController {
 
         Map<String, String> privileges = new LinkedHashMap<>();
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.VIEW), "View Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Create Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.ADD), "Add Resource to Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Add lower-level resources");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.EDIT), "Edit Projects");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DELETE), "Delete Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.ERASE), "Erase Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.RUN), "Run and Trace Tables");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.BENCHMARK), "Benchmark Tables");
         privileges.put(Privileges.UNLOCK_PROJECTS.getName(), Privileges.UNLOCK_PROJECTS.getDisplayName());
 
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.VIEW), "View Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.CREATE), "Create Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.EDIT), "Edit Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.DELETE), "Delete Deploy Configuration");
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.ERASE), "Erase Deploy Configuration");
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.DEPLOY), "Deploy Projects");
         privileges.put(Privileges.UNLOCK_DEPLOYMENT.getName(), Privileges.UNLOCK_DEPLOYMENT.getDisplayName());
 
         privileges.put(Privileges.ADMIN.getName(), Privileges.ADMIN.getDisplayName());

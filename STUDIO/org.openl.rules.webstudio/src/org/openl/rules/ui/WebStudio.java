@@ -747,7 +747,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
-                        List.of(AclPermission.ADD))) {
+                        List.of(AclPermission.CREATE))) {
                     throw new Message(String.format("There is no permission for creating '%s' file.",
                             ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
                 }
@@ -1374,7 +1374,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }

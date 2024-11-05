@@ -545,7 +545,7 @@ public class CopyBean {
         if (branchesSupported) {
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }

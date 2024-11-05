@@ -7,22 +7,17 @@ import org.springframework.security.acls.model.Permission;
 public final class AclPermissionsSets {
 
     public static final List<Permission> NEW_PROJECT_PERMISSIONS = List.of(AclPermission.VIEW,
-            AclPermission.ADD,
+            AclPermission.CREATE,
             AclPermission.EDIT,
-            AclPermission.DELETE,
-            AclPermission.ERASE,
-            AclPermission.RUN,
-            AclPermission.BENCHMARK);
+            AclPermission.DELETE);
 
     public static final List<Permission> NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS = List.of(AclPermission.VIEW,
-            AclPermission.ADD,
+            AclPermission.CREATE,
             AclPermission.EDIT,
-            AclPermission.DELETE,
-            AclPermission.ERASE,
-            AclPermission.DEPLOY);
+            AclPermission.DELETE);
 
     public static final List<Permission> NEW_FILE_PERMISSIONS = List
-            .of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE, AclPermission.RUN, AclPermission.BENCHMARK);
+            .of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE);
 
     private AclPermissionsSets() {
     }
