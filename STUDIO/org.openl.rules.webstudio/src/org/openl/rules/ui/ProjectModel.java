@@ -685,7 +685,7 @@ public class ProjectModel {
                 return false;
             }
         } else {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.ADD));
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.CREATE));
         }
     }
 
@@ -700,7 +700,7 @@ public class ProjectModel {
                 RulesProject currentProject = getProject();
                 return studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.EDIT)) || studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.ADD)) || studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.CREATE)) || studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.DELETE));
             }
             return true;
