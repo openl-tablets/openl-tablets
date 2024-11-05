@@ -3,14 +3,10 @@ Content-Type: application/json
 
 [
   {
-    "groupId": 7,
-    "groupName": "Group1",
-    "permissions": ["ERASE"]
+    "username": "EPBDS_13211_3",
+    "permissions": ["VIEW", "EDIT"]
   }, {
-  "username": "EPBDS_13211_3",
-  "permissions": ["VIEW", "EDIT"]
-}, {
   "username": "admin",
-  "permissions": ["VIEW", "ADD", "EDIT", "DELETE", "ERASE", "RUN", "BENCHMARK"]
+  "permissions": ["VIEW", "CREATE", "EDIT", "DELETE"]
 }
 ]

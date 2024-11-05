@@ -868,7 +868,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
             for (AProjectArtefact artefact : selectedProject.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -904,7 +904,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         var repositoryAclService = project instanceof ADeploymentProject
                 ? aclServiceProvider.getDeployConfigRepoAclService()
                 : aclServiceProvider.getDesignRepoAclService();
-        if (!repositoryAclService.isGranted(project, List.of(AclPermission.ERASE))) {
+        if (!repositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
             return false;
         }
         boolean branchProtected = isCurrentBranchProtected(project);
@@ -990,10 +990,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
-                    List.of(AclPermission.CREATE)) && aclServiceProvider.getDeployConfigRepoAclService().isGranted(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                    null,
-                    List.of(AclPermission.DEPLOY))) {
+                    List.of(AclPermission.CREATE))) {
                 return true;
             }
 
@@ -1013,8 +1010,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                 .getPath() == null || projectDescriptor.getPath()
                                 .equals(selectedProject.getRealPath()))) {
                             if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(latestDeploymentVersion,
-                                    List.of(AclPermission.EDIT)) && aclServiceProvider.getDeployConfigRepoAclService()
-                                    .isGranted(latestDeploymentVersion, List.of(AclPermission.DEPLOY))) {
+                                    List.of(AclPermission.EDIT))) {
                                 return true;
                             }
                         }
@@ -1088,7 +1084,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
             return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
-                    List.of(AclPermission.ADD)) && !branchProtected;
+                    List.of(AclPermission.CREATE)) && !branchProtected;
         } else {
             return false;
         }
@@ -1101,7 +1097,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
             return project.isOpenedForEditing() && !isCurrentBranchProtected(project) && repositoryAclService
-                    .isGranted(getSelectedNode().getData(), List.of(AclPermission.ADD));
+                    .isGranted(getSelectedNode().getData(), List.of(AclPermission.CREATE));
         } else {
             return false;
         }
@@ -1110,7 +1106,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeployDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject instanceof ADeploymentProject) {
-            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.DEPLOY))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.EDIT))) {
                 return false;
             }
         }
@@ -1138,7 +1134,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
