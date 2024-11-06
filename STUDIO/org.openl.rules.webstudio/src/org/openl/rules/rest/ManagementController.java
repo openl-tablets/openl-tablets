@@ -119,7 +119,7 @@ public class ManagementController {
                 .addAll(getGroupUiPrivileges(() -> aclServiceProvider.getDesignRepoAclService().listRootPermissions(grantedAuthoritySidList),
                         DESIGN_PRIVILEGES::get));
         uiGroup.privileges.addAll(
-                getGroupUiPrivileges(() -> aclServiceProvider.getDesignRepoAclService().listRootPermissions(grantedAuthoritySidList),
+                getGroupUiPrivileges(() -> aclServiceProvider.getDeployConfigRepoAclService().listRootPermissions(grantedAuthoritySidList),
                         DEPLOY_CONFIG_PRIVILEGES::get));
         return uiGroup;
     }
