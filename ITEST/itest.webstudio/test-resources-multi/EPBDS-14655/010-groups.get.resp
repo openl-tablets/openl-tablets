@@ -1,0 +1,37 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "Administrators": {
+    "id": 1,
+    "privileges": ["ADMIN"]
+  },
+  "Analysts": {
+    "id": 6,
+    "roles": ["Developers", "Testers"]
+  },
+  "Authenticated": {
+    "id": 7,
+    "description": "A default group for authenticated users",
+    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+  },
+  "Deployers": {
+    "id": 5,
+    "roles": ["Viewers"],
+    "privileges": ["DELETE_DEPLOYMENT", "ERASE_DEPLOYMENT", "CREATE_DEPLOYMENT", "DEPLOY_PROJECTS", "EDIT_DEPLOYMENT"]
+  },
+  "Developers": {
+    "id": 3,
+    "roles": ["Viewers"],
+    "privileges": ["CREATE_PROJECTS", "ADD", "ERASE_PROJECTS", "EDIT_PROJECTS", "DELETE_PROJECTS"]
+  },
+  "Testers": {
+    "id": 4,
+    "roles": ["Viewers"],
+    "privileges": ["BENCHMARK", "RUN"]
+  },
+  "Viewers": {
+    "id": 2,
+    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+  }
+}
