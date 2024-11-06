@@ -346,12 +346,12 @@ Content-Type: application/json
       "M3Request" : {
         "type" : "object",
         "properties" : {
+          "v" : {
+            "type" : "string"
+          },
           "n" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "v" : {
-            "type" : "string"
           }
         }
       }

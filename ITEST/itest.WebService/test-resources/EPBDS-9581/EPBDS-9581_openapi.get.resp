@@ -217,17 +217,17 @@ Content-Type: application/json
           "cusomerID" : {
             "type" : "string"
           },
+          "genderCd" : {
+            "type" : "string",
+            "default" : "other",
+            "example" : "male"
+          },
           "dob" : {
             "type" : "string",
             "format" : "date-time"
           },
           "dob_s" : {
             "type" : "string"
-          },
-          "genderCd" : {
-            "type" : "string",
-            "default" : "other",
-            "example" : "male"
           }
         }
       },
@@ -237,17 +237,17 @@ Content-Type: application/json
           "cusomerID" : {
             "type" : "string"
           },
+          "gCd" : {
+            "type" : "string",
+            "default" : "female",
+            "example" : "male"
+          },
           "dob" : {
             "type" : "string",
             "format" : "date-time"
           },
           "dob_s" : {
             "type" : "string"
-          },
-          "gCd" : {
-            "type" : "string",
-            "default" : "female",
-            "example" : "male"
           }
         }
       },

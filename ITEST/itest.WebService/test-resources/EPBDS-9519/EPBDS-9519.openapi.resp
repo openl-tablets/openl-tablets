@@ -254,13 +254,13 @@ Content-Type: application/json
       "SprMyType" : {
         "type" : "object",
         "properties" : {
-          "BaRFoO" : {
-            "type" : "string"
-          },
           "FOOBar" : {
             "type" : "string"
           },
           "Foo" : {
+            "type" : "string"
+          },
+          "BaRFoO" : {
             "type" : "string"
           }
         }

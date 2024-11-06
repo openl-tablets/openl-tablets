@@ -120,13 +120,13 @@ Content-Type: application/json
           "propertyName" : "@class"
         },
         "properties" : {
-          "@class" : {
-            "type" : "string"
-          },
           "fieldOne" : {
             "type" : "string"
           },
           "fieldTwo" : {
+            "type" : "string"
+          },
+          "@class" : {
             "type" : "string"
           }
         },

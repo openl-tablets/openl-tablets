@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -43,13 +44,11 @@ public class OpenAPIConfiguration {
         Json.mapper().addMixIn(OpenAPI.class, SortedOpenAPIMixin.class);
         Yaml.mapper().addMixIn(OpenAPI.class, SortedOpenAPIMixin.class);
 
-        Json.mapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Json.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         Json.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Json.mapper().enable(SerializationFeature.INDENT_OUTPUT);
         Json.mapper().setTimeZone(TimeZone.getDefault());
 
-        Yaml.mapper().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
         Yaml.mapper().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
         Yaml.mapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Yaml.mapper().enable(SerializationFeature.INDENT_OUTPUT);
@@ -88,7 +87,36 @@ public class OpenAPIConfiguration {
             // Configure converters in the needed order
             singleton.addConverter(getConverters(objectMapper));
 
-            return new Reader(openAPI).read(clazz);
+            var result = new Reader(openAPI).read(clazz);
+
+            // Order alphabetically
+            if (result.getComponents() != null) {
+                var schemas = result.getComponents().getSchemas();
+                if (schemas != null) {
+                    result.getComponents().setSchemas(new TreeMap<>(schemas));
+                }
+            }
+
+            // Order paths alphabetically
+            var paths = result.getPaths();
+            if (paths != null) {
+                for (var pathItem : paths.values()) {
+                    for (var operation : pathItem.readOperations()) {
+                        // Order response codes alphabetically
+                        var responses = operation.getResponses();
+                        if (responses != null) {
+                            var ordered = new TreeMap<>(responses);
+                            responses.clear();
+                            responses.putAll(ordered);
+                        }
+                    }
+                }
+                var ordered = new TreeMap<>(paths);
+                paths.clear();
+                paths.putAll(ordered);
+            }
+
+            return result;
         } finally {
             // Restore the previous converters
             var ignore = clearConverters(singleton);

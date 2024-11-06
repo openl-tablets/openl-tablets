@@ -1288,12 +1288,12 @@ Content-Type: application/json
       "Box" : {
         "type" : "object",
         "properties" : {
+          "txt" : {
+            "type" : "string"
+          },
           "date" : {
             "type" : "string",
             "format" : "date-time"
-          },
-          "txt" : {
-            "type" : "string"
           }
         }
       },
@@ -1336,33 +1336,7 @@ Content-Type: application/json
       "Numbers" : {
         "type" : "object",
         "properties" : {
-          "bigDec" : {
-            "type" : "number"
-          },
-          "bigInt" : {
-            "type" : "integer"
-          },
-          "d1" : {
-            "type" : "number",
-            "format" : "double"
-          },
-          "d2" : {
-            "type" : "number",
-            "format" : "double"
-          },
-          "f1" : {
-            "type" : "number",
-            "format" : "float"
-          },
-          "f2" : {
-            "type" : "number",
-            "format" : "float"
-          },
           "i1" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "i2" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -1370,9 +1344,35 @@ Content-Type: application/json
             "type" : "integer",
             "format" : "int64"
           },
+          "d1" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "f1" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "i2" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "l2" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "d2" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "f2" : {
+            "type" : "number",
+            "format" : "float"
+          },
+          "bigInt" : {
+            "type" : "integer"
+          },
+          "bigDec" : {
+            "type" : "number"
           }
         }
       }

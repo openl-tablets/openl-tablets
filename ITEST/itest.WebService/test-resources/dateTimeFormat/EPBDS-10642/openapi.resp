@@ -807,10 +807,6 @@ Content-Type: application/json
             "type" : "string",
             "format" : "date-time"
           },
-          "instant" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
           "localDate" : {
             "type" : "string",
             "format" : "date"
@@ -819,12 +815,16 @@ Content-Type: application/json
             "type" : "string",
             "format" : "date-time"
           },
-          "localTime" : {
-            "$ref" : "#/components/schemas/LocalTime"
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
           },
           "zonedDateTime" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "localTime" : {
+            "$ref" : "#/components/schemas/LocalTime"
           }
         }
       },
@@ -862,11 +862,11 @@ Content-Type: application/json
             "type" : "integer",
             "format" : "int32"
           },
-          "nano" : {
+          "second" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "second" : {
+          "nano" : {
             "type" : "integer",
             "format" : "int32"
           }

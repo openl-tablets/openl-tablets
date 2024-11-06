@@ -711,7 +711,18 @@ Content-Type: application/json
       "Test" : {
         "type" : "object",
         "properties" : {
+          "Value_R10" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "Value1_R10" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "Value2_R10" : {
+            "type" : "string"
+          },
+          "Value_R20" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -719,7 +730,21 @@ Content-Type: application/json
             "type" : "integer",
             "format" : "int32"
           },
+          "Value2_R20" : {
+            "type" : "string"
+          },
+          "Value_R30" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "Value1_R30" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "Value2_R30" : {
+            "type" : "string"
+          },
+          "Value_R40" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -727,33 +752,8 @@ Content-Type: application/json
             "type" : "integer",
             "format" : "int32"
           },
-          "Value2_R10" : {
-            "type" : "string"
-          },
-          "Value2_R20" : {
-            "type" : "string"
-          },
-          "Value2_R30" : {
-            "type" : "string"
-          },
           "Value2_R40" : {
             "type" : "string"
-          },
-          "Value_R10" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Value_R20" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Value_R30" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "Value_R40" : {
-            "type" : "integer",
-            "format" : "int32"
           }
         }
       }

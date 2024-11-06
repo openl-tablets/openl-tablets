@@ -828,6 +828,18 @@ Content-Type: application/json
       "MainSpr" : {
         "type" : "object",
         "properties" : {
+          "callSpr" : {
+            "$ref" : "#/components/schemas/SprSmartRules"
+          },
+          "callSpr1" : {
+            "$ref" : "#/components/schemas/SprSmartRules"
+          },
+          "retCell" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MyDatatype"
+            }
+          },
           "Stepchik1" : {
             "$ref" : "#/components/schemas/Spr1"
           },
@@ -840,28 +852,16 @@ Content-Type: application/json
               "$ref" : "#/components/schemas/Spr1Spr3"
             }
           },
-          "callSpr" : {
-            "$ref" : "#/components/schemas/SprSmartRules"
-          },
-          "callSpr1" : {
-            "$ref" : "#/components/schemas/SprSmartRules"
+          "retCell1" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/MyDatatype"
+            }
           },
           "newStep" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/Spr1Spr2Spr3"
-            }
-          },
-          "retCell" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/MyDatatype"
-            }
-          },
-          "retCell1" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/MyDatatype"
             }
           }
         }
@@ -902,28 +902,28 @@ Content-Type: application/json
       "Spr1Spr2Spr3" : {
         "type" : "object",
         "properties" : {
-          "Step1" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          },
-          "Step4" : {
-            "$ref" : "#/components/schemas/MyDatatype"
+          "paramCalc" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "Step7" : {
             "type" : "object"
           },
-          "paramCalc" : {
-            "type" : "integer",
-            "format" : "int32"
+          "Step4" : {
+            "$ref" : "#/components/schemas/MyDatatype"
+          },
+          "Step1" : {
+            "$ref" : "#/components/schemas/MyDatatype"
           }
         }
       },
       "Spr1Spr3" : {
         "type" : "object",
         "properties" : {
-          "Step1" : {
+          "Step4" : {
             "$ref" : "#/components/schemas/MyDatatype"
           },
-          "Step4" : {
+          "Step1" : {
             "$ref" : "#/components/schemas/MyDatatype"
           },
           "Step7" : {
@@ -934,24 +934,24 @@ Content-Type: application/json
       "Spr2" : {
         "type" : "object",
         "properties" : {
-          "Step7" : {
-            "type" : "number",
-            "format" : "double"
-          },
           "paramCalc" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "Step7" : {
+            "type" : "number",
+            "format" : "double"
           }
         }
       },
       "Spr2Request" : {
         "type" : "object",
         "properties" : {
-          "b" : {
+          "param" : {
             "type" : "number",
             "format" : "double"
           },
-          "param" : {
+          "b" : {
             "type" : "number",
             "format" : "double"
           }
@@ -971,15 +971,15 @@ Content-Type: application/json
           "Step1" : {
             "$ref" : "#/components/schemas/MyDatatype"
           },
-          "Step4" : {
-            "$ref" : "#/components/schemas/MyDatatype"
-          },
           "Step7" : {
             "type" : "object"
           },
           "paramCalc" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "Step4" : {
+            "$ref" : "#/components/schemas/MyDatatype"
           }
         }
       },

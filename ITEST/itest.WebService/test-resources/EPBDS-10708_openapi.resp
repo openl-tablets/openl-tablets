@@ -130,29 +130,17 @@ Content-Type: application/json
       "MainSpr" : {
         "type" : "object",
         "properties" : {
-          "d" : {
-            "type" : "array",
-            "items" : {
-              "type" : "number",
-              "format" : "double"
-            }
-          },
           "s" : {
             "type" : "array",
             "items" : {
               "type" : "integer"
             }
           },
-          "v" : {
+          "d" : {
             "type" : "array",
             "items" : {
-              "type" : "number"
-            }
-          },
-          "w" : {
-            "type" : "array",
-            "items" : {
-              "type" : "number"
+              "type" : "number",
+              "format" : "double"
             }
           },
           "x" : {
@@ -162,6 +150,18 @@ Content-Type: application/json
             }
           },
           "y" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number"
+            }
+          },
+          "v" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number"
+            }
+          },
+          "w" : {
             "type" : "array",
             "items" : {
               "type" : "number"

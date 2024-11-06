@@ -613,10 +613,10 @@ Content-Type: application/json
       "MakeError" : {
         "type" : "object",
         "properties" : {
-          "Code" : {
+          "Message" : {
             "type" : "string"
           },
-          "Message" : {
+          "Code" : {
             "type" : "string"
           }
         }
@@ -624,10 +624,10 @@ Content-Type: application/json
       "MyError" : {
         "type" : "object",
         "properties" : {
-          "code" : {
+          "message" : {
             "type" : "string"
           },
-          "message" : {
+          "code" : {
             "type" : "string"
           },
           "messages" : {
@@ -649,14 +649,14 @@ Content-Type: application/json
       "ThrowMyErrorArr" : {
         "type" : "object",
         "properties" : {
+          "SS" : {
+            "$ref" : "#/components/schemas/MyError"
+          },
           "S1" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/MyError"
             }
-          },
-          "SS" : {
-            "$ref" : "#/components/schemas/MyError"
           }
         }
       },

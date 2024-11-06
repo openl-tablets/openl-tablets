@@ -1062,13 +1062,13 @@ Content-Type: application/json
       "Bean" : {
         "type" : "object",
         "properties" : {
+          "beanBName" : {
+            "$ref" : "#/components/schemas/BeanB"
+          },
           "I" : {
             "type" : "integer",
             "format" : "int32",
             "default" : 17
-          },
-          "beanBName" : {
-            "$ref" : "#/components/schemas/BeanB"
           }
         },
         "required" : [ "I" ]
@@ -1088,12 +1088,12 @@ Content-Type: application/json
       "EDGECaseRequest" : {
         "type" : "object",
         "properties" : {
+          "sTring" : {
+            "type" : "string"
+          },
           "NUMBer" : {
             "type" : "number",
             "format" : "double"
-          },
-          "sTring" : {
-            "type" : "string"
           }
         }
       },
@@ -1135,40 +1135,40 @@ Content-Type: application/json
       "MixedCaseRequest" : {
         "type" : "object",
         "properties" : {
-          "String" : {
-            "type" : "string"
-          },
           "numBer" : {
             "type" : "number",
             "format" : "double"
+          },
+          "String" : {
+            "type" : "string"
           }
         }
       },
       "Mixes" : {
         "type" : "object",
         "properties" : {
+          "a" : {
+            "type" : "string",
+            "default" : "default"
+          },
           "B" : {
             "type" : "integer",
             "format" : "int32",
             "default" : 10
           },
-          "BB" : {
-            "type" : "boolean",
-            "default" : true
+          "aB" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 0.0
           },
           "Ba" : {
             "type" : "string",
             "format" : "date-time",
             "default" : "2020-01-15T00:00:00-10:00"
           },
-          "a" : {
-            "type" : "string",
-            "default" : "default"
-          },
-          "aB" : {
-            "type" : "number",
-            "format" : "double",
-            "default" : 0.0
+          "BB" : {
+            "type" : "boolean",
+            "default" : true
           },
           "aa" : {
             "type" : "number",
@@ -1190,12 +1190,12 @@ Content-Type: application/json
       "OverloadRequest2" : {
         "type" : "object",
         "properties" : {
-          "J" : {
-            "type" : "string"
-          },
           "i" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "J" : {
+            "type" : "string"
           }
         }
       },
@@ -1214,12 +1214,12 @@ Content-Type: application/json
       "UPCaseRequest" : {
         "type" : "object",
         "properties" : {
+          "STRING" : {
+            "type" : "string"
+          },
           "NUMBER" : {
             "type" : "number",
             "format" : "double"
-          },
-          "STRING" : {
-            "type" : "string"
           }
         }
       }

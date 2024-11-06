@@ -236,16 +236,16 @@ Content-Type: application/json
           "propertyName" : "@class"
         },
         "properties" : {
-          "@class" : {
-            "type" : "string"
+          "rooms" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "kithen" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "rooms" : {
-            "type" : "integer",
-            "format" : "int32"
+          "@class" : {
+            "type" : "string"
           }
         },
         "required" : [ "@class" ]

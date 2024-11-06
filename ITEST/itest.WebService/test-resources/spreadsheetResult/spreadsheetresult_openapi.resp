@@ -139,12 +139,6 @@ Content-Type: application/json
       "SpreadsheetResult" : {
         "type" : "object",
         "properties" : {
-          "columnNames" : {
-            "type" : "array",
-            "items" : {
-              "type" : "string"
-            }
-          },
           "results" : {
             "type" : "array",
             "items" : {
@@ -152,6 +146,12 @@ Content-Type: application/json
               "items" : {
                 "type" : "object"
               }
+            }
+          },
+          "columnNames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
             }
           },
           "rowNames" : {

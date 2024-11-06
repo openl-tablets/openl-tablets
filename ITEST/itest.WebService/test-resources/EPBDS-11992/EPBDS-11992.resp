@@ -246,12 +246,9 @@ Content-Type: application/json
       "org.openl.generated.beans.RatingDetails" : {
         "type" : "object",
         "properties" : {
-          "censusForRatingDetails" : {
-            "type" : "array",
-            "items" : {
-              "type" : "number",
-              "format" : "double"
-            }
+          "policyFactors" : {
+            "type" : "number",
+            "format" : "double"
           },
           "expenses" : {
             "type" : "number",
@@ -264,16 +261,19 @@ Content-Type: application/json
               "format" : "double"
             }
           },
-          "policyFactors" : {
-            "type" : "number",
-            "format" : "double"
+          "censusForRatingDetails" : {
+            "type" : "array",
+            "items" : {
+              "type" : "number",
+              "format" : "double"
+            }
           }
         }
       },
       "org.openl.generated.spreadsheetresults.RatingDetails" : {
         "type" : "object",
         "properties" : {
-          "censusForRatingDetails" : {
+          "policyFactors" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -285,7 +285,7 @@ Content-Type: application/json
             "type" : "integer",
             "format" : "int32"
           },
-          "policyFactors" : {
+          "censusForRatingDetails" : {
             "type" : "integer",
             "format" : "int32"
           }

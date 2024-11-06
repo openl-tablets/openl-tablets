@@ -503,13 +503,13 @@ Content-Type: application/json
           "propertyName" : "_type"
         },
         "properties" : {
-          "_type" : {
-            "type" : "string"
-          },
           "fieldOne" : {
             "type" : "string"
           },
           "fieldTwo" : {
+            "type" : "string"
+          },
+          "_type" : {
             "type" : "string"
           }
         },

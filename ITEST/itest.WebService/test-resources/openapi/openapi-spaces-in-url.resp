@@ -327,12 +327,12 @@ Content-Type: application/json
       "CalVehicleYearRequest0" : {
         "type" : "object",
         "properties" : {
+          "v" : {
+            "$ref" : "#/components/schemas/CalVehicleYearRequest"
+          },
           "a" : {
             "type" : "number",
             "format" : "double"
-          },
-          "v" : {
-            "$ref" : "#/components/schemas/CalVehicleYearRequest"
           }
         }
       },

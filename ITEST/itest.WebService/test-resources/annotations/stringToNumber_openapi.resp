@@ -1410,30 +1410,33 @@ Content-Type: application/json
       "MyType" : {
         "type" : "object",
         "properties" : {
+          "status" : {
+            "type" : "string"
+          },
           "code" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "status" : {
-            "type" : "string"
           }
         }
       },
       "ProcessRequest" : {
         "type" : "object",
         "properties" : {
+          "nick" : {
+            "type" : "string"
+          },
           "month" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "nick" : {
-            "type" : "string"
           }
         }
       },
       "RootType" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
           "age" : {
             "type" : "number",
             "format" : "double",
@@ -1441,22 +1444,19 @@ Content-Type: application/json
           },
           "extra" : {
             "type" : "string"
-          },
-          "name" : {
-            "type" : "string"
           }
         }
       },
       "RuleType" : {
         "type" : "object",
         "properties" : {
+          "name" : {
+            "type" : "string"
+          },
           "age" : {
             "type" : "number",
             "format" : "double",
             "default" : 0.0
-          },
-          "name" : {
-            "type" : "string"
           }
         }
       },

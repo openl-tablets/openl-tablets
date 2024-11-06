@@ -151,12 +151,33 @@ Content-Type: application/json
       "MyType" : {
         "type" : "object",
         "properties" : {
-          "dateArr" : {
+          "x1" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 1
+          },
+          "integerArr" : {
             "type" : "array",
-            "default" : [ "2022-12-23T00:00:00.000-10:00", "2022-12-25T00:00:00.000-10:00" ],
+            "default" : [ 1, 2, 3 ],
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "intArr" : {
+            "type" : "array",
+            "default" : [ 1, 2, 3 ],
+            "items" : {
+              "type" : "integer",
+              "format" : "int32"
+            }
+          },
+          "stringArr" : {
+            "type" : "array",
+            "default" : [ "Hello, World", "Greeting" ],
             "items" : {
               "type" : "string",
-              "format" : "date-time"
+              "default" : "Hello\\, World, Greeting"
             }
           },
           "doubleArr" : {
@@ -175,34 +196,13 @@ Content-Type: application/json
               "format" : "double"
             }
           },
-          "intArr" : {
+          "dateArr" : {
             "type" : "array",
-            "default" : [ 1, 2, 3 ],
-            "items" : {
-              "type" : "integer",
-              "format" : "int32"
-            }
-          },
-          "integerArr" : {
-            "type" : "array",
-            "default" : [ 1, 2, 3 ],
-            "items" : {
-              "type" : "integer",
-              "format" : "int32"
-            }
-          },
-          "stringArr" : {
-            "type" : "array",
-            "default" : [ "Hello, World", "Greeting" ],
+            "default" : [ "2022-12-23T00:00:00.000-10:00", "2022-12-25T00:00:00.000-10:00" ],
             "items" : {
               "type" : "string",
-              "default" : "Hello\\, World, Greeting"
+              "format" : "date-time"
             }
-          },
-          "x1" : {
-            "type" : "integer",
-            "format" : "int32",
-            "default" : 1
           }
         }
       }
