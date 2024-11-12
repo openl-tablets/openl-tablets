@@ -24,7 +24,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public boolean isMergedInto(String from, String to) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.READ))) {
             return branchRepository.isMergedInto(from, to);
         }
         throw new AccessDeniedException("There is no permission for the action.");
@@ -42,7 +42,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public void createBranch(String projectPath, String branch) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.WRITE))) {
             branchRepository.createBranch(projectPath, branch);
         } else {
             throw new AccessDeniedException("There is no permission for creating a branch.");
@@ -51,7 +51,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public void createBranch(String projectPath, String branch, String startPoint) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.WRITE))) {
             branchRepository.createBranch(projectPath, branch, startPoint);
         } else {
             throw new AccessDeniedException("There is no permission for creating a branch.");
@@ -65,7 +65,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public List<String> getBranches(String projectPath) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
+        if (simpleRepositoryAclService.isGranted(getId(), projectPath, List.of(AclPermission.READ))) {
             return branchRepository.getBranches(projectPath);
         }
         return Collections.emptyList();
@@ -90,7 +90,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
             if (simpleRepositoryAclService
-                    .isGranted(getId(), fileItem.getData().getName(), List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+                    .isGranted(getId(), fileItem.getData().getName(), List.of(AclPermission.WRITE))) {
                 throw new AccessDeniedException("There is no permission for merging changes to a branch.");
             }
         }

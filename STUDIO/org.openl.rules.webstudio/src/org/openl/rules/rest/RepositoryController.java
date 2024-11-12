@@ -194,7 +194,7 @@ public class RepositoryController {
                     throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
                 }
                 if (!designRepositoryAclService
-                        .isGranted(repository.getId(), fileData.getName(), List.of(AclPermission.VIEW))) {
+                        .isGranted(repository.getId(), fileData.getName(), List.of(AclPermission.READ))) {
                     throw new SecurityException();
                 }
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
@@ -208,7 +208,7 @@ public class RepositoryController {
                     throw new FileNotFoundException(String.format("File '%s' is not found.", name));
                 }
                 if (!designRepositoryAclService
-                        .isGranted(repository.getId(), fileItem.getData().getName(), List.of(AclPermission.VIEW))) {
+                        .isGranted(repository.getId(), fileItem.getData().getName(), List.of(AclPermission.READ))) {
                     throw new SecurityException();
                 }
                 entity = fileItem.getStream();
@@ -375,7 +375,7 @@ public class RepositoryController {
             String repositoryId = getDefaultRepositoryId();
             if (userWorkspace.hasProject(repositoryId, name)) {
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .contentType(MediaType.TEXT_PLAIN)
                             .body(String.format("No permission for modifying projects in the repository with id '%s'.",
@@ -473,7 +473,7 @@ public class RepositoryController {
             @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name) throws ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.TEXT_PLAIN)
                     .body("There is no permission for modifying the project.");

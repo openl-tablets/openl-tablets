@@ -100,11 +100,11 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
             SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group1)).build();
             SecurityContextHolder.getContext()
                     .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
-            aclServiceProvider.getDeployConfigRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getDeployConfigRepoAclService().addRootPermissions(List.of(AclPermission.READ),
                     List.of(new GrantedAuthoritySid(group.getName())));
-            aclServiceProvider.getDesignRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getDesignRepoAclService().addRootPermissions(List.of(AclPermission.READ),
                     List.of(new GrantedAuthoritySid(group.getName())));
-            aclServiceProvider.getProdRepoAclService().addRootPermissions(List.of(AclPermission.VIEW),
+            aclServiceProvider.getProdRepoAclService().addRootPermissions(List.of(AclPermission.READ),
                     List.of(new GrantedAuthoritySid(group.getName())));
         } finally {
             SecurityContextHolder.getContext().setAuthentication(oldAuthentication);

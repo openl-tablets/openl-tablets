@@ -127,7 +127,7 @@ public class DesignTimeRepositoryController {
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepository.getRepositories()
                 .stream()
-                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
+                .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.READ)))
                 .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
                 .collect(Collectors.toList());
     }
@@ -136,7 +136,7 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.READ))) {
             throw new SecurityException();
         }
         return projectService.getProjects(
@@ -166,7 +166,7 @@ public class DesignTimeRepositoryController {
             throw new NotFoundException("project.message", projectName);
         }
 
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
             throw new SecurityException();
         }
 
@@ -192,7 +192,7 @@ public class DesignTimeRepositoryController {
             JAXBException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
-            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.EDIT))) {
+            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.WRITE))) {
                 throw new SecurityException();
             }
         } else if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
