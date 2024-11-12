@@ -8,7 +8,7 @@ Content-Type: application/json
   },
   "Analysts": {
     "id": 6,
-    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","BENCHMARK","VIEW_DEPLOYMENT","RUN","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
+    "roles": ["Developers", "Testers"]
   },
   "Authenticated": {
     "id": 7,
@@ -17,15 +17,17 @@ Content-Type: application/json
   },
   "Deployers": {
     "id": 5,
-    "privileges": ["DELETE_DEPLOYMENT","ERASE_DEPLOYMENT","VIEW_DEPLOYMENT","CREATE_DEPLOYMENT","DEPLOY_PROJECTS","EDIT_DEPLOYMENT","VIEW_PROJECTS"]
+    "roles": ["Viewers"],
+    "privileges": ["DELETE_DEPLOYMENT", "CREATE_DEPLOYMENT", "EDIT_DEPLOYMENT"]
   },
   "Developers": {
     "id": 3,
-    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","VIEW_DEPLOYMENT","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
+    "roles": ["Viewers"],
+    "privileges": ["CREATE_PROJECTS", "EDIT_PROJECTS", "DELETE_PROJECTS"]
   },
   "Testers": {
     "id": 4,
-    "privileges": ["BENCHMARK","VIEW_DEPLOYMENT","RUN","VIEW_PROJECTS"]
+    "roles": ["Viewers"]
   },
   "Viewers": {
     "id": 2,
