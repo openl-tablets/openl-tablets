@@ -370,7 +370,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
             var repositoryAclService = repositoryProject instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.READ))) {
                 WebStudioUtils.addErrorMessage(String.format("There is no permission for closing '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
                 return null;
@@ -1004,7 +1004,7 @@ public class RepositoryTreeController {
             if (projectDescriptorChanged) {
                 String xmlString = serializer.serialize(projectDescriptor);
                 InputStream newContent = IOUtils.toInputStream(xmlString);
-                if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.EDIT))) {
+                if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.WRITE))) {
                     throw new Message(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(resource)));
                 }
@@ -1736,7 +1736,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
             var repositoryAclService = project instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(project)));
             }
@@ -1800,7 +1800,7 @@ public class RepositoryTreeController {
             }
             var repositoryAclService = repositoryProject instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.READ))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
             }
@@ -2290,7 +2290,7 @@ public class RepositoryTreeController {
                             .getSerializer(selectedProject);
 
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.EDIT))) {
+                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.WRITE))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
                                 ProjectArtifactUtils.extractResourceName(resource)));
                     }
@@ -2332,7 +2332,7 @@ public class RepositoryTreeController {
             var repositoryAclService = node
                     .getProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(node, List.of(AclPermission.EDIT))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.WRITE))) {
                 throw new Message(String.format("There is no permission for modifying '%s' file.",
                         ProjectArtifactUtils.extractResourceName(node)));
             }
@@ -2524,7 +2524,7 @@ public class RepositoryTreeController {
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -3173,7 +3173,7 @@ public class RepositoryTreeController {
         }
         for (AProjectArtefact artefact : project.getArtefacts()) {
             if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                    List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                 return true;
             }
         }
