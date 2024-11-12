@@ -59,15 +59,30 @@
             <h:inputHidden id="realPathForTags" value="#{editProjectTagsBean.realPath}"/>
             <a4j:jsFunction name="saveTagChanges" action="#{editProjectTagsBean.save()}"
                             execute="repoIdForTags realPathForTags"
-                            render="editProjectTagsPanel projectTree nodeButtons propertiesContent">
+                            render="editProjectTagsPanel projectTree nodeButtons propertiesContent"
+                            onbegin="ajaxInProgress = true;"
+                            oncomplete="ajaxInProgress = false;">
                 <a4j:param name="typeName" assignTo="#{editProjectTagsBean.typeName}"/>
                 <a4j:param name="tagName" assignTo="#{editProjectTagsBean.tagName}"/>
             </a4j:jsFunction>
-            <a4j:jsFunction name="refreshTags" render="editProjectTagsPanel" />
+            <a4j:jsFunction name="refreshTags" render="editProjectTagsPanel" 
+                            onbegin="ajaxInProgress = true;" 
+                            oncomplete="ajaxInProgress = false;"/>
         </table>
 
         <script>
             //<![CDATA[
+            
+            function attemptToSaveChanges(typeName, tagName) {
+                let confirmNeeded = #{editProjectTagsBean.shouldAskForConfirmation};
+                let shouldProceed = !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+                
+                if (shouldProceed) {
+                    saveTagChanges(typeName, tagName)
+                } else {
+                    refreshTags();
+                }
+            }
 
             function confirmAddTag(tagType, tagName) {
                 return window.confirm('Tag "' + tagName + '" does not exist for tag type "' + tagType + '".\nDo you want to add it?')
@@ -77,16 +92,18 @@
                 return window.confirm('Tag type "' + tagType + '" does not exist, therefore this tag can only be removed. Remove tag?')
             }
 
+            window.ajaxInProgress = false;
             function initEditProjectTagsPanel() {
                 $j('#editProjectTagsPanel .editable-select').editableSelect({
                     filter: false
                 }).on('select.editable-select', function (e, $li) {
+                    if (ajaxInProgress) return;
                     let typeName = $li.parent().parent().find('input[type=hidden][id$="tag-type-name"]').val();
                     let tagName = $j(this).val();
                     let shouldSave = $j(this).hasClass("tag-type-exists") || (tagName === "[None]" && confirmNonPersistentTagRemoval(typeName));
                     if (shouldSave) {
-                        saveTagChanges(typeName, $li.text());
-                    } else {
+                       attemptToSaveChanges(typeName, $li.text());
+                   } else {
                         refreshTags();
                     }
                 });
@@ -94,6 +111,7 @@
                 let applyManualEdit = function () {
                     $j(this).off('blur');
                     if ($j(this).hasClass("tag-type-exists")) {
+                        if (ajaxInProgress) return;
                         let typeName = $j(this).parent().find('input[type=hidden][id$="tag-type-name"]').val();
                         let tagName = $j(this).val();
                         let exist = $j(this).parent().find('.es-list > li').filter(function () {
@@ -101,11 +119,11 @@
                         }).length > 0;
 
                         if (exist) {
-                            saveTagChanges(typeName, tagName);
+                            attemptToSaveChanges(typeName, tagName);
                         } else {
                             if (confirmAddTag(typeName, tagName)) {
                                 $j(this).blur();
-                                saveTagChanges(typeName, tagName);
+                                attemptToSaveChanges(typeName, tagName);
                             }
                         }
                     }

@@ -39,6 +39,7 @@ public class EditProjectTagsBean {
     private String tagName;
     private String errorMessage;
     
+    private boolean shouldAskForConfirmation;
 
     public EditProjectTagsBean(TagTypeService tagTypeService,
                                TagService tagService) {
@@ -54,6 +55,7 @@ public class EditProjectTagsBean {
             
             this.repoId = project.getRepository().getId();
             this.realPath = project.getRealPath();
+            this.shouldAskForConfirmation = project.isOpenedOtherVersion() && !project.isModified();
 
             tags = project.getTags().entrySet().stream()
                     .map(entry -> {
@@ -193,5 +195,9 @@ public class EditProjectTagsBean {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public boolean isShouldAskForConfirmation() {
+        return shouldAskForConfirmation;
     }
 }
