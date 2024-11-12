@@ -247,7 +247,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
                 throw new Message("There is no permission for copying the project.");
             }
             if (isSupportsBranches() && !isSeparateProject()) {
@@ -545,7 +545,7 @@ public class CopyBean {
         if (branchesSupported) {
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }

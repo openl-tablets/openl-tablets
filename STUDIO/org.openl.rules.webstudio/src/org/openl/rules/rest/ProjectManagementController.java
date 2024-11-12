@@ -89,7 +89,7 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.READ))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
