@@ -176,7 +176,7 @@ public class ProductionRepositoriesTreeState {
                 .getRepositories(deploymentManager,
                         propertyResolver,
                         aclServiceProvider.getProdRepoAclService(),
-                        AclPermission.VIEW));
+                        AclPermission.READ));
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }

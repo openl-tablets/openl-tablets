@@ -160,7 +160,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 }
             } else {
                 if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !deployConfigRepositoryAclService
-                        .isGranted(deploymentProject, List.of(AclPermission.EDIT)) || isMainBranchProtected(
+                        .isGranted(deploymentProject, List.of(AclPermission.WRITE)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it

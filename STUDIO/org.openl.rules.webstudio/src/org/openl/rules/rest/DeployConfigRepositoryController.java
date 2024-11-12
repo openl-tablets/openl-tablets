@@ -72,7 +72,7 @@ public class DeployConfigRepositoryController {
             throw new NotFoundException("project.message", name);
         }
         String fullPath = designTimeRepository.getDeployConfigLocation() + name;
-        if (!deployConfigRepositoryAclService.isGranted(repository.getId(), fullPath, List.of(AclPermission.VIEW))) {
+        if (!deployConfigRepositoryAclService.isGranted(repository.getId(), fullPath, List.of(AclPermission.READ))) {
             throw new SecurityException();
         }
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, false, page);

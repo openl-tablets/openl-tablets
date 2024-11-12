@@ -5,8 +5,6 @@ import org.springframework.security.acls.domain.DefaultPermissionGrantingStrateg
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Permission;
 
-import org.openl.security.acl.permission.AclPermission;
-
 public class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
     public MaskPermissionGrantingStrategy(AuditLogger auditLogger) {
         super(auditLogger);
@@ -14,13 +12,11 @@ public class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStr
 
     @Override
     protected boolean isGranted(AccessControlEntry ace, Permission p) {
-        if (p.getMask() >= 1 << AclPermission.MASK_END) {
-            return ace.getPermission().getMask() == p.getMask();
-        }
+        var acep = ace.getPermission();
         if (ace.isGranting() && p.getMask() != 0) {
-            return (ace.getPermission().getMask() & p.getMask()) == p.getMask();
+            return (acep.getMask() & p.getMask()) == p.getMask();
         } else {
-            return ace.getPermission().getMask() == p.getMask();
+            return acep.getMask() == p.getMask();
         }
     }
 }
