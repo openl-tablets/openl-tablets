@@ -132,7 +132,7 @@ public class RepositoryProjectRulesDeployConfig {
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(artefact)));
                     return;
@@ -233,7 +233,7 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.EDIT));
+                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.WRITE));
             } else {
                 return designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE));
             }

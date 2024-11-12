@@ -41,7 +41,7 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
         Collection<? extends AProject> projects;
         if (query.getRepositoryId().isPresent()) {
             var repositoryId = query.getRepositoryId().get();
-            if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.READ))) {
                 return Stream.empty();
             }
             projects = designTimeRepository.getProjects(repositoryId);

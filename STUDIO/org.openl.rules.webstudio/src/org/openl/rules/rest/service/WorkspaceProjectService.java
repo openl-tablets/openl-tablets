@@ -216,7 +216,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     public void close(RulesProject project) throws ProjectException {
         var webStudio = getWebStudio();
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
             throw new ForbiddenException("default.message");
         }
         if (project.isDeleted()) {
@@ -255,7 +255,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private void open(RulesProject project,
                       boolean openDependencies,
                       ProjectStatusUpdateModel model) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
             throw new ForbiddenException("default.message");
         }
         var workspace = getUserWorkspace();
@@ -389,7 +389,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (project.isSupportsBranches()) {
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -521,7 +521,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ProjectException if project is locked by another user
      */
     public void updateTable(RulesProject project, String tableId, EditableTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);
@@ -576,7 +576,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public void appendTableLines(RulesProject project,
                                  String tableId,
                                  AppendTableView tableView) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.WRITE))) {
             throw new ForbiddenException("default.message");
         }
         var table = getOpenLTable(project, tableId);

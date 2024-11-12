@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "VIEW_PROJECTS": "View Projects",
-  "CREATE": "Add lower-level resources",
+  "CREATE_PROJECTS": "Add lower-level resources",
   "EDIT_PROJECTS": "Edit Projects",
   "DELETE_PROJECTS": "Delete Projects",
   "UNLOCK_PROJECTS": "Unlock Projects",
