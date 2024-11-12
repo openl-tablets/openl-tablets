@@ -232,7 +232,7 @@ public abstract class AbstractSmartRedeployController {
                 }
             } else {
                 if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject,
-                        List.of(AclPermission.EDIT)) || DeploymentRepositoriesUtil
+                        List.of(AclPermission.WRITE)) || DeploymentRepositoriesUtil
                         .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -551,8 +551,8 @@ public abstract class AbstractSmartRedeployController {
                 deploymentManager,
                 propertyResolver,
                 aclServiceProvider.getProdRepoAclService(),
-                AclPermission.VIEW,
-                AclPermission.EDIT);
+                AclPermission.READ,
+                AclPermission.WRITE);
         return repositoryConfigurations.stream()
                 .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
                         deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
@@ -563,7 +563,7 @@ public abstract class AbstractSmartRedeployController {
         Map<String, String> types = deploymentManager.getRepositoryConfigNames()
                 .stream()
                 .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
-                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)))
                 .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
@@ -573,7 +573,7 @@ public abstract class AbstractSmartRedeployController {
                 .map(DesignTimeRepository::getDeployConfigRepository)
                 .map(Repository::getId)
                 .map(deployConfigRepositoryId -> new RepositoryConfiguration(deployConfigRepositoryId, propertyResolver))
-                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)))
                 .map(RepositoryConfiguration::getType)
                 .orElse(null);
     }
