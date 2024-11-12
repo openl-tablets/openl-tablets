@@ -798,7 +798,7 @@ public class ProjectBean {
                     return designRepositoryAclService.isGranted(
                             currentProject
                                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
-                            List.of(AclPermission.EDIT));
+                            List.of(AclPermission.WRITE));
                 } catch (ProjectException ignored) {
                     return false;
                 }
@@ -1218,7 +1218,7 @@ public class ProjectBean {
     }
 
     private void validatePermissionForEditing(AProjectArtefact artefact) {
-        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
             throw new Message(String.format("There is no permission for modifying '%s' file.",
                     ProjectArtifactUtils.extractResourceName(artefact)));
         }

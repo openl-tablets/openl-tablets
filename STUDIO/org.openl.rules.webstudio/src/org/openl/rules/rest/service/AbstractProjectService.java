@@ -48,7 +48,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     @Nonnull
     public List<ProjectViewModel> getProjects(ProjectCriteriaQuery query) {
         var criteriaFilter = buildFilterCriteria(query)
-                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
+                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.READ)))
                 .and(buildTagsFilterCriteria(query));
         return getProjects0(query).filter(criteriaFilter)
                 .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))

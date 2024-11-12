@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -32,7 +31,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
@@ -749,7 +747,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-        return aclServiceProvider.getDesignRepoAclService().isGranted(selectedProject, List.of(AclPermission.EDIT));
+        return aclServiceProvider.getDesignRepoAclService().isGranted(selectedProject, List.of(AclPermission.WRITE));
     }
 
     public boolean getCanCreateDeployment() {
@@ -767,7 +765,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
         return aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject,
-                List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
+                List.of(AclPermission.WRITE)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -859,7 +857,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
             for (AProjectArtefact artefact : selectedProject.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -912,7 +910,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             var repositoryAclService = selectedProject instanceof ADeploymentProject
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
+            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -930,7 +928,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             var repositoryAclService = selectedProject instanceof ADeploymentProject
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
+            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
         }
 
         return false;
@@ -948,7 +946,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         var repositoryAclService = selectedProject instanceof ADeploymentProject
                 ? aclServiceProvider.getDeployConfigRepoAclService()
                 : aclServiceProvider.getDesignRepoAclService();
-        return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
+        return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
     }
 
     public boolean getCanRedeploy() {
@@ -974,7 +972,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (deploymentManager.getRepositoryConfigNames()
                     .stream()
                     .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                    .noneMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.EDIT)))) {
+                    .noneMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.WRITE)))) {
                 return false;
             }
 
@@ -1001,7 +999,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                 .getPath() == null || projectDescriptor.getPath()
                                 .equals(selectedProject.getRealPath()))) {
                             if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(latestDeploymentVersion,
-                                    List.of(AclPermission.EDIT))) {
+                                    List.of(AclPermission.WRITE))) {
                                 return true;
                             }
                         }
@@ -1049,7 +1047,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
             return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
-                    List.of(AclPermission.EDIT)) && !branchProtected;
+                    List.of(AclPermission.WRITE)) && !branchProtected;
         } else {
             return false;
         }
@@ -1065,7 +1063,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             var repositoryAclService = project instanceof ADeploymentProject
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            return repositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
+            return repositoryAclService.isGranted(project, List.of(AclPermission.WRITE));
         } else {
             return false;
         }
@@ -1101,14 +1099,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeployDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject instanceof ADeploymentProject) {
-            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.EDIT))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.WRITE))) {
                 return false;
             }
         }
         return !selectedProject.isModified() && deploymentManager.getRepositoryConfigNames()
                 .stream()
                 .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                .anyMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.EDIT)));
+                .anyMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.WRITE)));
     }
 
     public boolean getCanMerge() {
@@ -1129,7 +1127,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.CREATE))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }

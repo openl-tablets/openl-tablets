@@ -51,7 +51,7 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
         if (project == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
             throw new SecurityException();
         }
         return project;

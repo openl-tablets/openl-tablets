@@ -42,7 +42,7 @@ public class TreeBean {
 
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.VIEW));
+        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.READ));
     }
 
     public TreeNode getTree() {
