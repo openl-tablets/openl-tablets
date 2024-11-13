@@ -30,7 +30,7 @@ import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -148,7 +148,7 @@ public class RepositoryProjectRulesDeployConfig {
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
