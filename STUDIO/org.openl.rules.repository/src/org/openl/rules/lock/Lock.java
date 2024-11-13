@@ -217,7 +217,7 @@ public class Lock {
         } catch (IOException e) {
             return false;
         }
-        Files.move(lock, lockPath.resolve(READY_LOCK));
+        Files.move(lock, lockPath.resolve(READY_LOCK)); // FIXME: sometimes it pass incorrectly
         return true;
     }
 
