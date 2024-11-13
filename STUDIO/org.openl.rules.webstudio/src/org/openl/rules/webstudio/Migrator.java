@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -32,15 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.RepositoryDelegate;
-import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
+import org.openl.rules.webstudio.migration.ProjectTagsMigrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
@@ -57,7 +53,7 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 public class Migrator {
-
+    
     private Migrator() {
     }
 
@@ -466,31 +462,14 @@ public class Migrator {
             List<OpenLProject> allOpenLProjects = readAllProjectsAndTags(session);
             if (!allOpenLProjects.isEmpty()) {
                 var designTimeRepository = applicationContext.getBean("designTimeRepository", DesignTimeRepository.class);
+                var migrator = new ProjectTagsMigrator(designTimeRepository);
                 allOpenLProjects.forEach(openLProject -> {
-                    Repository repository = designTimeRepository.getRepository(openLProject.getRepositoryId());
-
-                    if (repository != null) {
-                        if (repository instanceof RepositoryDelegate) {
-                            repository = ((RepositoryDelegate) repository).getOriginal();
-                        }
-                        try {
-                            FileData projectFolder = repository.check(openLProject.getProjectPath());
-                            if (projectFolder != null) {
-                                var projectTags = openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
-                                saveTagsForAProject(openLProject, projectTags, repository, session);
-                            } else {
-                                deleteProject(openLProject, session);
-                            }
-                        } catch (IOException e) {
-                            LOG.error(String.format("Cannot open folder for project %s in repository %s has failed.", openLProject.getProjectPath(), repository.getName()), e);
-                        }
-                    } else {
-                        try {
-                            //Project doesn't exist in a repository
-                            deleteProject(openLProject, session);
-                        } catch (Exception e) {
-                            LOG.error(String.format("Cannot delete obsolete OpenL tags information for the project %s in non-existing repository %s", openLProject.getProjectPath(), openLProject.getRepositoryId()), e);
-                        }
+                    var projectTags = openLProject.getTags().stream().collect(Collectors.toMap(tag -> tag.getType().getName(), Tag::getName));
+                    try {
+                        migrator.migrate(openLProject.getRepositoryId(), openLProject.getProjectPath(), projectTags);
+                        deleteProjectTagsInDB(openLProject, session);
+                    } catch (IOException | ProjectException e) {
+                        LOG.error(String.format("Migration of project %s with repository id %s has failed", openLProject.getProjectPath(), openLProject.getRepositoryId()), e);
                     }
                 });
             }
@@ -498,24 +477,7 @@ public class Migrator {
         }
     }
 
-    private static void saveTagsForAProject(OpenLProject openLProject, Map<String, String> projectTags, Repository repository, Session session) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            PropertiesUtils.store(byteArrayOutputStream, projectTags.entrySet());
-            FileData tagsData = new FileData();
-            tagsData.setName(openLProject.getProjectPath() + "/tags.properties");
-            tagsData.setAuthor(new UserInfo(Migrator.class.getName(), "", "system"));
-            tagsData.setComment(String.format("Migrate tags to tags.properties for OpenL project %s", openLProject.getProjectPath()));
-            try (var inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray())) {
-                repository.save(tagsData, inputStream);
-            }
-
-            deleteProject(openLProject, session);
-        } catch (Exception e) {
-            LOG.error(String.format("Migration of tags for project %s in repository %s has failed.", openLProject.getProjectPath(), repository.getName()), e);
-        }
-    }
-
-    private static void deleteProject(OpenLProject openLProject, Session session) {
+    private static void deleteProjectTagsInDB(OpenLProject openLProject, Session session) {
         Transaction transaction = session.beginTransaction();
         session.delete(openLProject);
         transaction.commit();
