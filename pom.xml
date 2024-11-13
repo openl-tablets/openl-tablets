@@ -85,21 +85,21 @@
         <spring.security.version>5.8.15</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>9.45</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.46</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7.1</asm.version>
-        <byte-buddy.version>1.15.9</byte-buddy.version>
+        <byte-buddy.version>1.15.10</byte-buddy.version>
         <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
         <!-- Kafka -->
-        <kafka.version>3.8.1</kafka.version>
+        <kafka.version>3.9.0</kafka.version>
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.9.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.10.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
         <!-- Casandra -->
@@ -133,16 +133,16 @@
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.29.6</amazonaws.version>
+        <amazonaws.version>2.29.11</amazonaws.version>
         <azure.version>12.28.1</azure.version>
-        <netty.version>4.1.114.Final</netty.version>
-        <reactor-netty-http.version>1.1.23</reactor-netty-http.version>
+        <netty.version>4.1.115.Final</netty.version>
+        <reactor-netty-http.version>1.1.24</reactor-netty-http.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.3.232</h2.version>
         <mssql.version>12.8.1.jre11</mssql.version>
-        <hikaricp.version>6.0.0</hikaricp.version>
+        <hikaricp.version>6.1.0</hikaricp.version>
         <hibernate.orm.version>5.6.15.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
@@ -151,7 +151,7 @@
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.2.2</awaitility.version>
         <mockito.version>5.14.2</mockito.version>
-        <datasource-proxy.version>1.10</datasource-proxy.version>
+        <datasource-proxy.version>1.10.1</datasource-proxy.version>
         <xmlunit.version>2.10.0</xmlunit.version>
         <testcontainers.version>1.20.3</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
@@ -189,7 +189,7 @@
         <gson.version>2.11.0</gson.version>
 
         <bouncycastle.version>1.79</bouncycastle.version>
-        <groovy.version>4.0.23</groovy.version>
+        <groovy.version>4.0.24</groovy.version>
         <poi.version>5.3.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
@@ -255,7 +255,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -308,7 +308,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.5.0</version>
+                    <version>3.5.2</version>
                     <configuration>
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
@@ -372,17 +372,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.8.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.7.0</version>
+                    <version>3.8.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.20.0</version>
+                    <version>3.21.0</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
@@ -414,14 +414,14 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>10.0.4</version>
+                    <version>11.1.0</version>
                 </plugin>
                 <plugin>
                     <!-- See https://docs.openrewrite.org/recipes/java -->
                     <!-- Usage:    mvn rewrite:run   -->
                     <groupId>org.openrewrite.maven</groupId>
                     <artifactId>rewrite-maven-plugin</artifactId>
-                    <version>5.41.0</version>
+                    <version>5.44.0</version>
                     <configuration>
                         <activeRecipes>
                             <recipe>org.openl.rewrite.Recipe</recipe>
@@ -627,7 +627,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.10.1</version>
+                        <version>3.11.1</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
