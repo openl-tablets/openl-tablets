@@ -83,7 +83,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -429,8 +429,10 @@ public class RepositoryController {
                 save = repository.save(data, zipFile);
             }
             if (existing == null) {
-                designRepositoryAclService
-                        .createAcl(repositoryId, fileName, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true);
+                designRepositoryAclService.createAcl(repositoryId,
+                        fileName,
+                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
+                        true);
             }
             userWorkspace.getProject(repositoryId, name).unlock();
             return ResponseEntity.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
