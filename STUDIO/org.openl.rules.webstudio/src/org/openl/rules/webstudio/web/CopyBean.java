@@ -55,7 +55,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 
@@ -303,7 +303,7 @@ public class CopyBean {
                         designProject.getFileData(),
                         userWorkspace.getProjectsLockEngine());
                 if (!designRepositoryAclService
-                        .createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
+                        .createAcl(copiedProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new project '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(copiedProject));
                     WebStudioUtils.addErrorMessage(message);
