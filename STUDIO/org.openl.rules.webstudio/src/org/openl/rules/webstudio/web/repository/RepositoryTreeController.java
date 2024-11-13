@@ -125,7 +125,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
@@ -583,7 +583,7 @@ public class RepositoryTreeController {
             String comment = deployConfigRepoComments.copiedFrom(project.getName());
             ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
             if (!aclServiceProvider.getDeployConfigRepoAclService()
-                    .createAcl(newProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
+                    .createAcl(newProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new deployment configuration '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(newProject));
                 WebStudioUtils.addErrorMessage(message);
@@ -627,7 +627,7 @@ public class RepositoryTreeController {
             }
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
             if (!aclServiceProvider.getDeployConfigRepoAclService()
-                    .createAcl(createdProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
+                    .createAcl(createdProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new deployment configuration '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(createdProject));
                 WebStudioUtils.addErrorMessage(message);
@@ -732,7 +732,7 @@ public class RepositoryTreeController {
 
                 if (aclServiceProvider.getDesignRepoAclService().createAcl(newRuleProject.getDesignRepository().getId(),
                         newRuleProject.getDesignFolderName(),
-                        AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                         true)) {
                     // Get just created project, because creator API doesn't create internals states for ProjectState
                     RulesProject createdProject = userWorkspace.getProject(repositoryId,
@@ -1558,7 +1558,7 @@ public class RepositoryTreeController {
                     .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             if ((selectedProject instanceof ADeploymentProject || !aclServiceProvider.getDesignRepoAclService()
                     .hasAcl(addedFileResource)) && !repositoryAclService
-                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -2241,7 +2241,7 @@ public class RepositoryTreeController {
             while (!projectFolders.isEmpty()) {
                 AProjectFolder p = projectFolders.pop();
                 if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
-                        .hasAcl(p)) && !repositoryAclService.createAcl(p, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .hasAcl(p)) && !repositoryAclService.createAcl(p, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new folder '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(p));
                     WebStudioUtils.addErrorMessage(message);
@@ -2249,7 +2249,7 @@ public class RepositoryTreeController {
             }
             if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
                     .hasAcl(addedFileResource)) && !repositoryAclService
-                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
