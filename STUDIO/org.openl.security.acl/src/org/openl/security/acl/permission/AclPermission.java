@@ -8,6 +8,8 @@ import org.springframework.security.acls.model.Permission;
 
 public class AclPermission extends BasePermission {
 
+    static final Collection<Permission> ALL_SUPPORTED_PERMISSIONS = List.of(READ, CREATE, WRITE, DELETE, ADMINISTRATION);
+
     public static final Collection<Permission> ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS = List
             .of(READ, WRITE, CREATE, DELETE);
 
