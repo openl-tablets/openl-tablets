@@ -240,7 +240,7 @@ public class ManagementController {
 
         Map<String, String> privileges = new LinkedHashMap<>();
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.READ), "View Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Add lower-level resources");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Create Projects");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.WRITE), "Edit Projects");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DELETE), "Delete Projects");
         privileges.put(Privileges.UNLOCK_PROJECTS.getName(), Privileges.UNLOCK_PROJECTS.getDisplayName());

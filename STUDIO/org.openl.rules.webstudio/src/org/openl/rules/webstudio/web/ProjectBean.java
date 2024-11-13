@@ -86,7 +86,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
@@ -661,7 +661,7 @@ public class ProjectBean {
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService.hasAcl(newProjectResource) && !designRepositoryAclService
-                    .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(newProjectResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(newProjectResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -1020,7 +1020,7 @@ public class ProjectBean {
                     currentProject.addResource(openAPIType.getDefaultFileName(), in);
                     AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
                     if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                            .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                            .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                         String message = String.format("Granting permissions to a new file '%s' is failed.",
                                 ProjectArtifactUtils.extractResourceName(projectArtefact));
                         WebStudioUtils.addErrorMessage(message);
@@ -1476,7 +1476,7 @@ public class ProjectBean {
                 AProjectArtefact projectArtefact = project
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);

@@ -36,7 +36,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 
@@ -216,7 +216,7 @@ public class LocalUploadController {
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
                                 .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
                         if (!designRepositoryAclService
-                                .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
+                                .createAcl(createdProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                             String message = String.format("Granting permissions to a new project '%s' is failed.",
                                     ProjectArtifactUtils.extractResourceName(createdProject));
                             WebStudioUtils.addErrorMessage(message);

@@ -12,7 +12,7 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileTypeHelper;
 
@@ -133,7 +133,7 @@ public class ProjectUploader {
             }
             RulesProject rulesProject = projectCreator.createRulesProject();
             if (!designRepositoryAclService.createAcl(rulesProject,
-                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                    List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                     true)) {
                 throw new ProjectException(String.format("Granting permissions to a new project '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(rulesProject)));

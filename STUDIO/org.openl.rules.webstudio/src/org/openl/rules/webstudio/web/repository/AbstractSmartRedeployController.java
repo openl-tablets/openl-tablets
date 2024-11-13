@@ -42,7 +42,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
@@ -454,7 +454,7 @@ public abstract class AbstractSmartRedeployController {
                 // the same name, than create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
                 if (!aclServiceProvider.getDeployConfigRepoAclService().createAcl(deployConfiguration,
-                        AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
+                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                         true)) {
                     String message = String.format(
                             "Granting permissions to a new deployment configuration '%s' is failed.",
