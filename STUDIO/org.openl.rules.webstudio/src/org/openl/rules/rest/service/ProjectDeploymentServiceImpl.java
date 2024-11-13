@@ -39,7 +39,7 @@ import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 
@@ -330,7 +330,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
-                        AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
+                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                         true)) {
                     String message = String.format(
                             "Granting permissions to a new deployment configuration '%s' is failed.",
