@@ -7,30 +7,25 @@ Content-Type: application/json
     "privileges": ["ADMIN"]
   },
   "Analysts": {
-    "id": 6,
-    "roles": ["Developers", "Testers"]
+    "id": 6
   },
   "Deployers": {
-    "id": 5,
-    "roles": ["Viewers"]
+    "id": 5
   },
   "Developers": {
-    "id": 3,
-    "roles": ["Viewers"]
+    "id": 3
   },
   "openl-admin": {
     "id": 7,
     "description": "External Group",
-    "roles": ["Administrators"]
+    "privileges": ["ADMIN"]
   },
   "openl-ba": {
     "id": 8,
-    "description": "External Group",
-    "roles": ["Analysts"]
+    "description": "External Group"
   },
   "Testers": {
-    "id": 4,
-    "roles": ["Viewers"]
+    "id": 4
   },
   "Viewers": {
     "id": 2

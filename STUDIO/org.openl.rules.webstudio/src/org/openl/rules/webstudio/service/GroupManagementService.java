@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -64,23 +63,9 @@ public class GroupManagementService {
         aclService.updateSid(new GrantedAuthoritySid(name), newName);
     }
 
-    public void updateGroup(String name, Set<String> groups, Set<String> privileges) {
+    public void updateGroup(String name, Set<String> privileges) {
         Group persistGroup = groupDao.getGroupByName(name);
-
-        Set<Group> includedGroups = new HashSet<>();
-        if (groups != null) {
-            for (String group : groups) {
-                Group includedGroup = groupDao.getGroupByName(group);
-                if (!persistGroup.equals(includedGroup)) {
-                    // Persisting group should not include itself
-                    includedGroups.add(includedGroup);
-                }
-            }
-        }
-
-        persistGroup.setIncludedGroups(!includedGroups.isEmpty() ? includedGroups : null);
         persistGroup.setPrivileges(privileges);
-
         groupDao.update(persistGroup);
     }
 

@@ -97,8 +97,8 @@ public class GroupManagementTest {
                 matchedExtGroups,
                 Group::getName);
         queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(11, queryCount.getSelect());
-        assertEquals(11, queryCount.getTotal());
+        assertEquals(3, queryCount.getSelect());
+        assertEquals(3, queryCount.getTotal());
 
         QueryCountHolder.clear();
         long cntMatchedExternalGroups = externalGroupService.countMatchedForUser("jdoe");
@@ -258,19 +258,19 @@ public class GroupManagementTest {
                 mappedGroups.get("Administrators").getPrivileges(),
                 Privilege::getName);
 
-        assertCollectionEquals(Stream.of("Developers", "Testers").collect(Collectors.toList()),
+        assertCollectionEquals(Collections.emptyList(),
                 mappedGroups.get("Analysts").getPrivileges(),
                 Privilege::getName);
 
-        assertCollectionEquals(Stream.of("Viewers").collect(Collectors.toList()),
+        assertCollectionEquals(Collections.emptyList(),
                 mappedGroups.get("Deployers").getPrivileges(),
                 Privilege::getName);
 
-        assertCollectionEquals(Arrays.asList("Viewers"),
+        assertCollectionEquals(Collections.emptyList(),
                 mappedGroups.get("Developers").getPrivileges(),
                 Privilege::getName);
 
-        assertCollectionEquals(Arrays.asList("Viewers"),
+        assertCollectionEquals(Collections.emptyList(),
                 mappedGroups.get("Testers").getPrivileges(),
                 Privilege::getName);
 
@@ -279,8 +279,8 @@ public class GroupManagementTest {
                 Privilege::getName);
 
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(13, queryCount.getSelect());
-        assertEquals(13, queryCount.getTotal());
+        assertEquals(7, queryCount.getSelect());
+        assertEquals(7, queryCount.getTotal());
     }
 
     @Test
