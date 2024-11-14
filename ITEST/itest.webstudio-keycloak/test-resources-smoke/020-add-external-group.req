@@ -2,4 +2,4 @@ POST /rest/admin/management/groups HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 
-name=openl-ba&description=External Group&group=Analysts
+name=openl-ba&description=External Group&privilege=VIEW_PROJECTS&privilege=CREATE_PROJECTS&privilege=ADD&privilege=EDIT_PROJECTS&privilege=DELETE_PROJECTS&privilege=ERASE_PROJECTS&privilege=RUN&privilege=BENCHMARK&privilege=VIEW_DEPLOYMENT

@@ -701,14 +701,6 @@ Content-Type: application/json
             },
             "type": "array",
             "uniqueItems": true
-          },
-          "roles": {
-            "description": "***",
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": true
           }
         },
         "type": "object"
@@ -2009,14 +2001,6 @@ Content-Type: application/json
                   "description": {
                     "description": "***",
                     "type": "string"
-                  },
-                  "group": {
-                    "description": "***",
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "uniqueItems": true
                   },
                   "name": {
                     "description": "***",

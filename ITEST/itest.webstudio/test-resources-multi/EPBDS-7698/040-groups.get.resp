@@ -9,37 +9,24 @@ Content-Type: application/json
     ]
   },
   "Analysts": {
-    "id": 6,
-    "roles": [
-      "Developers",
-      "Testers"
-    ]
+    "id": 6
   },
   "Authenticated": {
     "id": 7,
     "description": "A default group for authenticated users"
   },
   "Deployers": {
-    "id": 5,
-    "roles": [
-      "Viewers"
-    ]
+    "id": 5
   },
   "Developers": {
-    "id": 3,
-    "roles": [
-      "Viewers"
-    ]
+    "id": 3
   },
   "Foo": {
     "id": 8,
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
   },
   "Testers": {
-    "id": 4,
-    "roles": [
-      "Viewers"
-    ]
+    "id": 4
   },
   "Viewers": {
     "id": 2

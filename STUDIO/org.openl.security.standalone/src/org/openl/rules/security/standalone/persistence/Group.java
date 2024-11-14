@@ -2,7 +2,6 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -12,8 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -32,7 +29,6 @@ public class Group implements Serializable {
     private String name;
     private String description;
     private Set<String> privileges;
-    private Set<Group> includedGroups;
 
     /**
      * Description of group.
@@ -55,18 +51,6 @@ public class Group implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    /**
-     * Included groups.
-     *
-     * @return
-     */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Group2Group", joinColumns = {@JoinColumn(name = "groupID")}, inverseJoinColumns = {
-            @JoinColumn(name = "includedGroupID")})
-    public Set<Group> getIncludedGroups() {
-        return includedGroups;
     }
 
     /**
@@ -93,10 +77,6 @@ public class Group implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setIncludedGroups(Set<Group> includedGroups) {
-        this.includedGroups = includedGroups;
     }
 
     public void setName(String name) {

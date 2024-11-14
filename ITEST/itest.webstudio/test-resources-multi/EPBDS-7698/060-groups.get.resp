@@ -7,24 +7,20 @@ Content-Type: application/json
     "privileges": ["ADMIN"]
   },
   "Analysts": {
-    "id": 6,
-    "roles": ["Developers", "Testers"]
+    "id": 6
   },
   "Authenticated": {
     "id": 7,
     "description": "A default group for authenticated users"
   },
   "Deployers": {
-    "id": 5,
-    "roles": ["Viewers"]
+    "id": 5
   },
   "Developers": {
-    "id": 3,
-    "roles": ["Viewers"]
+    "id": 3
   },
   "Testers": {
-    "id": 4,
-    "roles": ["Viewers"]
+    "id": 4
   },
   "Viewers": {
     "id": 2

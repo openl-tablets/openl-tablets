@@ -8,7 +8,7 @@ Content-Type: application/json
   },
   "Analysts": {
     "id": 6,
-    "roles": ["Developers", "Testers"]
+    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","BENCHMARK","VIEW_DEPLOYMENT","RUN","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
   },
   "Authenticated": {
     "id": 7,
@@ -17,18 +17,15 @@ Content-Type: application/json
   },
   "Deployers": {
     "id": 5,
-    "roles": ["Viewers"],
-    "privileges": ["DELETE_DEPLOYMENT", "ERASE_DEPLOYMENT", "CREATE_DEPLOYMENT", "DEPLOY_PROJECTS", "EDIT_DEPLOYMENT"]
+    "privileges": ["DELETE_DEPLOYMENT","ERASE_DEPLOYMENT","VIEW_DEPLOYMENT","CREATE_DEPLOYMENT","DEPLOY_PROJECTS","EDIT_DEPLOYMENT","VIEW_PROJECTS"]
   },
   "Developers": {
     "id": 3,
-    "roles": ["Viewers"],
-    "privileges": ["CREATE_PROJECTS", "ADD", "ERASE_PROJECTS", "EDIT_PROJECTS", "DELETE_PROJECTS"]
+    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","VIEW_DEPLOYMENT","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
   },
   "Testers": {
     "id": 4,
-    "roles": ["Viewers"],
-    "privileges": ["BENCHMARK", "RUN"]
+    "privileges": ["BENCHMARK","VIEW_DEPLOYMENT","RUN","VIEW_PROJECTS"]
   },
   "Viewers": {
     "id": 2,

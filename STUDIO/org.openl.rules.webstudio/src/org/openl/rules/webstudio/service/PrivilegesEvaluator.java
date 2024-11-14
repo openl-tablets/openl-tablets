@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.openl.rules.security.Privilege;
@@ -20,31 +19,19 @@ public final class PrivilegesEvaluator {
 
         Set<Group> groups = user.getGroups();
         for (Group group : groups) {
-            Collection<Privilege> privileges = createPrivileges(group, new HashSet<>());
+            Collection<Privilege> privileges = createPrivileges(group);
             grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
         }
         return grantedList;
     }
 
     public static SimpleGroup wrap(Group group) {
-        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(group, new HashSet<>());
+        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(group);
         return new SimpleGroup(group.getName(), group.getDescription(), privileges);
     }
 
-    private static Collection<Privilege> createPrivileges(Group group, Set<Group> visitedGroups) {
-        visitedGroups.add(group);
+    private static Collection<Privilege> createPrivileges(Group group) {
         Collection<Privilege> grantedList = new ArrayList<>();
-
-        Set<Group> groups = group.getIncludedGroups();
-        for (Group persistGroup : groups) {
-            if (!visitedGroups.contains(persistGroup)) {
-                Collection<Privilege> privileges = createPrivileges(persistGroup, visitedGroups);
-                SimpleGroup simpleGroup = new SimpleGroup(persistGroup.getName(),
-                        persistGroup.getDescription(),
-                        privileges);
-                grantedList.add(simpleGroup);
-            }
-        }
 
         Set<String> privileges = group.getPrivileges();
 

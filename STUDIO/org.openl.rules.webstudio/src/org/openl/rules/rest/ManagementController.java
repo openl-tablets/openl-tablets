@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -151,7 +150,6 @@ public class ManagementController {
             @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,
             @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
             @Parameter(description = "mgmt.schema.group.description") @RequestParam(value = "description", required = false) final String description,
-            @Parameter(description = "mgmt.schema.group.sub-groups") @RequestParam(value = "group", required = false) final Set<String> roles,
             @Parameter(description = "mgmt.schema.group.privileges") @RequestParam(value = "privilege", required = false) final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
@@ -164,7 +162,6 @@ public class ManagementController {
         }
 
         groupManagementService.updateGroup(name,
-                roles,
                 privileges == null ? null
                         : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
@@ -294,11 +291,6 @@ public class ManagementController {
             id = group.getId();
             description = group.getDescription();
             privileges = group.getPrivileges();
-            roles = group.getIncludedGroups()
-                    .stream()
-                    .map(Group::getName)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
         }
 
         @Parameter(description = "mgmt.schema.group.id")
@@ -306,9 +298,6 @@ public class ManagementController {
 
         @Parameter(description = "mgmt.schema.group.description")
         public String description;
-
-        @Parameter(description = "mgmt.schema.group.sub-groups")
-        public Set<String> roles;
 
         @Parameter(description = "mgmt.schema.group.privileges")
         public Set<String> privileges;
