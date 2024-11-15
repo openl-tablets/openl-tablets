@@ -243,13 +243,11 @@ public class ManagementController {
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Create Projects");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.WRITE), "Edit Projects");
         privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DELETE), "Delete Projects");
-        privileges.put(Privileges.UNLOCK_PROJECTS.getName(), Privileges.UNLOCK_PROJECTS.getDisplayName());
 
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.READ), "View Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.CREATE), "Create Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.WRITE), "Edit Deploy Configuration");
         privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.DELETE), "Delete Deploy Configuration");
-        privileges.put(Privileges.UNLOCK_DEPLOYMENT.getName(), Privileges.UNLOCK_DEPLOYMENT.getDisplayName());
 
         privileges.put(Privileges.ADMIN.getName(), Privileges.ADMIN.getDisplayName());
 
