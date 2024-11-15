@@ -69,7 +69,7 @@
                                  onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}', '#{prj.data.name}', function() {location.href = location.href;}); return false;" title="Copy project">
                       <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
                   </h:commandLink>
-                  <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
+                  <h:panelGroup rendered="#{repositoryTreeController.canUnlock(prj.data) and prj.data.locked and not prj.data.lockedByMe}">
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="openProjectUnlockDialog('#{prj.data.repository.id}', '#{prj.data.name}');return false;"
