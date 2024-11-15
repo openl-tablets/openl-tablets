@@ -1,7 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -75,7 +73,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -502,12 +499,12 @@ public class RepositoryController {
         // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
-        if (!isGranted(Privileges.UNLOCK_PROJECTS)) {
+        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADMINISTRATION))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.TEXT_PLAIN)
                     .body("There is no permission for unlocking the project.");
         }
-        RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .contentType(MediaType.TEXT_PLAIN)

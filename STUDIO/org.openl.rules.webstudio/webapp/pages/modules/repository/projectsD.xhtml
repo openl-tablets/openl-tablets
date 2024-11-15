@@ -64,7 +64,7 @@
                         title="Copy Deploy Configuration">
                     <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
                   </h:commandLink>
-                  <h:panelGroup rendered="#{repositoryTreeController.canUnlockDeployment and prj.data.locked and not prj.data.lockedByMe}">
+                  <h:panelGroup rendered="#{repositoryTreeController.canUnlockDeployment(prj.data) and prj.data.locked and not prj.data.lockedByMe}">
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="openDeploymentUnlockDialog('#{prj.name}');return false;"

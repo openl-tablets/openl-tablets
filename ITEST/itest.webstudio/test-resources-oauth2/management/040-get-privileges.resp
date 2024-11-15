@@ -6,11 +6,9 @@ Content-Type: application/json
   "CREATE_PROJECTS": "Create Projects",
   "EDIT_PROJECTS": "Edit Projects",
   "DELETE_PROJECTS": "Delete Projects",
-  "UNLOCK_PROJECTS": "Unlock Projects",
   "VIEW_DEPLOYMENT": "View Deploy Configuration",
   "CREATE_DEPLOYMENT": "Create Deploy Configuration",
   "EDIT_DEPLOYMENT": "Edit Deploy Configuration",
   "DELETE_DEPLOYMENT": "Delete Deploy Configuration",
-  "UNLOCK_DEPLOYMENT": "Unlock Deploy Configuration",
   "ADMIN": "Administrate"
 }
