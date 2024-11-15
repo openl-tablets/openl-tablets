@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
@@ -2552,12 +2550,12 @@ public class RepositoryTreeController {
         return false;
     }
 
-    public boolean getCanUnlock() {
-        return isGranted(UNLOCK_PROJECTS);
+    public boolean canUnlock(AProject project) {
+        return aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.ADMINISTRATION));
     }
 
-    public boolean getCanUnlockDeployment() {
-        return isGranted(UNLOCK_DEPLOYMENT);
+    public boolean canUnlockDeployment(AProject project) {
+        return aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.ADMINISTRATION));
     }
 
     public boolean getCanDeleteDeployment() {
