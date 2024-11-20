@@ -58,7 +58,7 @@ public class DisabledAclConfigurationTest {
     private void test_DisabledSimpleRepositoryAclService_stubs(SimpleRepositoryAclService service) {
         assertTrue(service.listPermissions(null, null).isEmpty());
         assertTrue(service.listRootPermissions().isEmpty());
-        assertTrue(service.listRootPermissions(List.of()).isEmpty());
+        assertTrue(service.listRootPermissions(null).isEmpty());
 
         service.addPermissions(null, null, List.of(), List.of());
         service.addRootPermissions(List.of(), List.of());
@@ -68,7 +68,7 @@ public class DisabledAclConfigurationTest {
         service.removePermissions(null, null, List.of());
         service.removePermissions(null, null, List.of(), List.of());
         service.removeRootPermissions(List.of(), List.of());
-        service.removeRootPermissions(List.of());
+        service.removeRootPermissions(null);
         service.removeRootPermissions();
 
         assertTrue(service.isGranted(null, null, List.of()));
