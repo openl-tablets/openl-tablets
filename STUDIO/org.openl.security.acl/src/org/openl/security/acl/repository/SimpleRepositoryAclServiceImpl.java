@@ -96,9 +96,10 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public Map<Sid, List<Permission>> listRootPermissions(List<Sid> sids) {
+    public List<Permission> listRootPermissions(Sid sid) {
         var rootOid = oidProvider.getRootOid();
-        return listPermissions(rootOid, sids);
+        var permissions = listPermissions(rootOid, List.of(sid));
+        return permissions.getOrDefault(sid, Collections.emptyList());
     }
 
     protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
@@ -170,6 +171,13 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     public void addRootPermissions(List<Permission> permissions, List<Sid> sids) {
         var rootOid = oidProvider.getRootOid();
         addPermissions(rootOid, joinSidsAndPermissions(permissions, sids));
+    }
+
+    @Override
+    @Transactional
+    public void addRootPermissions(Sid sid, Permission... permissions) {
+        var rootOid = oidProvider.getRootOid();
+        addPermissions(rootOid, Map.of(sid, List.of(permissions)));
     }
 
     @Override
@@ -264,9 +272,9 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public void removeRootPermissions(List<Sid> sids) {
+    public void removeRootPermissions(Sid sid) {
         var rootOid = oidProvider.getRootOid();
-        removePermissions(rootOid, sids);
+        removePermissions(rootOid, List.of(sid));
     }
 
     @Override

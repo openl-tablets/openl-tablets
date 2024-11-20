@@ -2,4 +2,4 @@ POST /rest/admin/management/groups HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Content-Type: application/x-www-form-urlencoded
 
-name=openl-admin&description=External Group&privilege=ADMIN
+name=openl-admin&description=External Group&admin=yes
