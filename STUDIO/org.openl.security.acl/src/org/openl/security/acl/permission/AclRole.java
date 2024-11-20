@@ -14,7 +14,8 @@ public enum AclRole {
     /**
      * A role designed for the administration and oversight of a specific resource within the system.
      */
-    MANAGER(AclPermission.ADMINISTRATION,
+    MANAGER("Manager",
+            AclPermission.ADMINISTRATION,
             AclPermission.READ,
             AclPermission.CREATE,
             AclPermission.WRITE,
@@ -26,7 +27,8 @@ public enum AclRole {
      * to existing information. Editors can modify the resources they have access to but do not have access
      * to the alter system settings or manage user permissions.
      */
-    CONTRIBUTOR(AclPermission.READ,
+    CONTRIBUTOR("Contributor",
+            AclPermission.READ,
             AclPermission.CREATE,
             AclPermission.WRITE,
             AclPermission.DELETE),
@@ -36,11 +38,13 @@ public enum AclRole {
      * but cannot make any changes, modifications, or deletions. Their role is to monitor and review information
      * without affecting the integrity or configuration of the resource.
      */
-    VIEWER(AclPermission.READ);
+    VIEWER("Viewer", AclPermission.READ);
 
+    private final String description;
     private final CumulativePermission cumulativePermission;
 
-    AclRole(Permission... permissions) {
+    AclRole(String description, Permission... permissions) {
+        this.description = description;
         this.cumulativePermission = Stream.of(permissions)
                 .collect(CumulativePermission::new,
                         CumulativePermission::set,
@@ -55,6 +59,10 @@ public enum AclRole {
 
     public int getMask() {
         return cumulativePermission.getMask();
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public static AclRole getRole(int mask) {
