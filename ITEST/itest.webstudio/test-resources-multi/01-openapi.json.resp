@@ -708,6 +708,13 @@ Content-Type: application/json
             },
             "type": "array",
             "uniqueItems": true
+          },
+          "repositoryTypeToRole" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+            }
           }
         },
         "type": "object"
@@ -2031,13 +2038,19 @@ Content-Type: application/json
                     "description": "***",
                     "type": "string"
                   },
-                  "privilege": {
-                    "description": "***",
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "uniqueItems": true
+                  "designRole" : {
+                    "type" : "string",
+                    "description" : "***",
+                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+                  },
+                  "deployConfigRole" : {
+                    "type" : "string",
+                    "description" : "***",
+                    "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
+                  },
+                  "admin" : {
+                    "type" : "boolean",
+                    "description" : "***."
                   }
                 },
                 "required": [
@@ -2477,29 +2490,26 @@ Content-Type: application/json
         ]
       }
     },
-    "/admin/management/privileges": {
+    "/admin/management/roles": {
       "get": {
-        "description": "***",
-        "operationId": "***",
+        "description": "Get all roles.",
+        "operationId": "roles",
         "responses": {
-          "200": {
+          "423": {
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
             "description": "***"
           },
-          "400": {
+          "500": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
+                  "$ref": "#/components/schemas/BaseError"
                 }
               }
             },
@@ -2535,21 +2545,24 @@ Content-Type: application/json
             },
             "description": "***"
           },
-          "423": {
+          "400": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "$ref": "#/components/schemas/ValidationError"
                 }
               }
             },
             "description": "***"
           },
-          "500": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseError"
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 }
               }
             },
