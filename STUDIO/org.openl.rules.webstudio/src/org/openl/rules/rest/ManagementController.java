@@ -1,29 +1,20 @@
 package org.openl.rules.rest;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
-import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.acls.model.Sid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +35,7 @@ import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
-import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
@@ -60,9 +51,6 @@ import org.openl.util.StringUtils;
 public class ManagementController {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
-    private static final Set<String> DATABASE_PRIVILEGES = Arrays.stream(Privileges.values())
-            .map(Privileges::getName)
-            .collect(Collectors.toSet());
 
     private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
@@ -96,31 +84,31 @@ public class ManagementController {
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
     }
 
-    private Set<String> getGroupUiPrivileges(Supplier<Map<Sid, List<Permission>>> g, Function<Permission, String> f) {
-        Map<Sid, List<Permission>> groupPermissions = g.get();
-        Set<String> uiPrivileges = new HashSet<>();
-        if (!groupPermissions.isEmpty()) {
-            List<Permission> permissions = groupPermissions.values().iterator().next();
-            for (Permission permission : permissions) {
-                String designPrivilege = f.apply(permission);
-                if (designPrivilege != null) {
-                    uiPrivileges.add(designPrivilege);
-                }
-            }
-        }
-        return uiPrivileges;
-    }
-
     private UIGroup buildUIGroup(Group group) {
         UIGroup uiGroup = new UIGroup(group);
-        List<Sid> grantedAuthoritySidList = Collections.singletonList(new GrantedAuthoritySid(group.getName()));
-        uiGroup.privileges
-                .addAll(getGroupUiPrivileges(() -> aclServiceProvider.getDesignRepoAclService().listRootPermissions(grantedAuthoritySidList),
-                        DESIGN_PRIVILEGES::get));
-        uiGroup.privileges.addAll(
-                getGroupUiPrivileges(() -> aclServiceProvider.getDeployConfigRepoAclService().listRootPermissions(grantedAuthoritySidList),
-                        DEPLOY_CONFIG_PRIVILEGES::get));
+        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DESIGN, group, uiGroup);
+        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DEPLOY_CONFIG, group, uiGroup);
         return uiGroup;
+    }
+
+    private void buildUIRoles(String repoType, Group group, UIGroup uiGroup) {
+        var repositoryAclService = aclServiceProvider.getAclService(repoType);
+        var groupPermissions = repositoryAclService.listRootPermissions(new GrantedAuthoritySid(group.getName()));
+        if (groupPermissions.size() > 1) {
+            throw new IllegalStateException("Only one permission set is expected for the group.");
+        }
+        var permission = groupPermissions.stream().findFirst();
+        if (permission.isPresent()) {
+            var role = AclRole.getRole(permission.get().getMask());
+            if (role != null) {
+                if (uiGroup.repositoryTypeToRole == null) {
+                    uiGroup.repositoryTypeToRole = new LinkedHashMap<>();
+                }
+                uiGroup.repositoryTypeToRole.put(repoType, role);
+            } else {
+                throw new IllegalStateException("Role is expected.");
+            }
+        }
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary", hidden = true)
@@ -134,6 +122,7 @@ public class ManagementController {
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
     @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @Transactional
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         Group group = groupDao.getGroupById(id);
@@ -146,11 +135,14 @@ public class ManagementController {
     @Operation(description = "mgmt.save-group.desc", summary = "mgmt.save-group.summary")
     @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @Transactional
     public void saveGroup(
             @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,
             @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
             @Parameter(description = "mgmt.schema.group.description") @RequestParam(value = "description", required = false) final String description,
-            @Parameter(description = "mgmt.schema.group.privileges") @RequestParam(value = "privilege", required = false) final Set<String> privileges) {
+            @Parameter(description = "mgmt.schema.group.design.role") @RequestParam(value = "designRole", required = false) final AclRole designRole,
+            @Parameter(description = "mgmt.schema.group.deployConfig.role") @RequestParam(value = "deployConfigRole", required = false) final AclRole deployConfigRole,
+            @Parameter(description = "mgmt.schema.group.admin") @RequestParam(value = "admin", required = false) final Boolean admin) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
             throw new ConflictException("duplicated.group.message");
@@ -160,39 +152,27 @@ public class ManagementController {
         } else {
             groupManagementService.updateGroup(oldName, name, description);
         }
-
-        groupManagementService.updateGroup(name,
-                privileges == null ? null
-                        : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
-        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
-        aclServiceProvider.getDesignRepoAclService().removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        aclServiceProvider.getDeployConfigRepoAclService().removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        aclServiceProvider.getProdRepoAclService().removeRootPermissions(List.of(AclPermission.WRITE),
-                Collections.singletonList(grantedAuthoritySid));
-        if (privileges != null) {
-            List<Permission> designPermissions = toPermissions(privileges, DESIGN_PRIVILEGES::getKey);
-            aclServiceProvider.getDesignRepoAclService().addRootPermissions(designPermissions,
-                    Collections.singletonList(grantedAuthoritySid));
-
-            List<Permission> deployConfigPermissions = toPermissions(privileges, DEPLOY_CONFIG_PRIVILEGES::getKey);
-            aclServiceProvider.getDeployConfigRepoAclService().addRootPermissions(deployConfigPermissions,
-                    Collections.singletonList(grantedAuthoritySid));
-
-            List<Permission> productionPermissions = toPermissions(privileges, PRODUCTION_PRIVILEGES::getKey);
-            if (!productionPermissions.isEmpty()) {
-                aclServiceProvider.getProdRepoAclService().addRootPermissions(
-                        List.of(AclPermission.READ, AclPermission.WRITE, AclPermission.DELETE),
-                        Collections.singletonList(grantedAuthoritySid));
-            }
-
+        if (Boolean.TRUE.equals(admin)) {
+            groupManagementService.updateGroup(name, Collections.singleton(Privileges.ADMIN.getName()));
+        } else {
+            groupManagementService.updateGroup(name, Collections.emptySet());
         }
-    }
 
-    private static List<Permission> toPermissions(Set<String> privileges, Function<String, Permission> mapper) {
-        return privileges.stream()
-                .map(mapper)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        var sid = new GrantedAuthoritySid(name);
+        var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
+        designRepoAclService.removeRootPermissions(sid);
+        var deployConfigRepoAclService = aclServiceProvider.getDeployConfigRepoAclService();
+        deployConfigRepoAclService.removeRootPermissions(sid);
+        var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
+        prodRepoAclService.removeRootPermissions(sid);
+        if (designRole != null) {
+            designRepoAclService.addRootPermissions(sid, designRole.getCumulativePermission());
+        }
+        if (deployConfigRole != null) {
+            var deployPermission = deployConfigRole.getCumulativePermission();
+            deployConfigRepoAclService.addRootPermissions(sid, deployPermission);
+            prodRepoAclService.addRootPermissions(sid, deployPermission);
+        }
     }
 
     @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
@@ -212,53 +192,12 @@ public class ManagementController {
         return model;
     }
 
-    public static final Map<String, String> UI_PRIVILEGES;
-    public static final BidiMap<Permission, String> DESIGN_PRIVILEGES;
-    public static final BidiMap<Permission, String> DEPLOY_CONFIG_PRIVILEGES;
-    public static final BidiMap<Permission, String> PRODUCTION_PRIVILEGES;
-
-    static {
-        BidiMap<Permission, String> designPrivileges = new DualLinkedHashBidiMap<>();
-        designPrivileges.put(AclPermission.READ, "VIEW_PROJECTS");
-        designPrivileges.put(AclPermission.CREATE, "CREATE_PROJECTS");
-        designPrivileges.put(AclPermission.WRITE, "EDIT_PROJECTS");
-        designPrivileges.put(AclPermission.DELETE, "DELETE_PROJECTS");
-        DESIGN_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(designPrivileges);
-
-        BidiMap<Permission, String> deployConfigPrivileges = new DualLinkedHashBidiMap<>();
-        deployConfigPrivileges.put(AclPermission.READ, "VIEW_DEPLOYMENT");
-        deployConfigPrivileges.put(AclPermission.CREATE, "CREATE_DEPLOYMENT");
-        deployConfigPrivileges.put(AclPermission.WRITE, "EDIT_DEPLOYMENT");
-        deployConfigPrivileges.put(AclPermission.DELETE, "DELETE_DEPLOYMENT");
-        DEPLOY_CONFIG_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(deployConfigPrivileges);
-
-        BidiMap<Permission, String> productionPrivileges = new DualLinkedHashBidiMap<>();
-        productionPrivileges.put(AclPermission.READ, "DEPLOY_PROJECTS");
-        productionPrivileges.put(AclPermission.WRITE, "DEPLOY_PROJECTS");
-        productionPrivileges.put(AclPermission.DELETE, "DEPLOY_PROJECTS");
-        PRODUCTION_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(productionPrivileges);
-
-        Map<String, String> privileges = new LinkedHashMap<>();
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.READ), "View Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Create Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.WRITE), "Edit Projects");
-        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DELETE), "Delete Projects");
-
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.READ), "View Deploy Configuration");
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.CREATE), "Create Deploy Configuration");
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.WRITE), "Edit Deploy Configuration");
-        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.DELETE), "Delete Deploy Configuration");
-
-        privileges.put(Privileges.ADMIN.getName(), Privileges.ADMIN.getDisplayName());
-
-        UI_PRIVILEGES = Collections.unmodifiableMap(privileges);
-    }
-
-    @Operation(description = "mgmt.get-privileges.desc", summary = "mgmt.get-privileges.summary")
-    @GetMapping("/privileges")
-    public Map<String, String> getPrivileges() {
+    @Operation(description = "mgmt.get-roles.desc", summary = "mgmt.get-roles.summary")
+    @GetMapping("/roles")
+    public Map<AclRole, String> roles() {
         SecurityChecker.allow(Privileges.ADMIN);
-        return UI_PRIVILEGES;
+        return Stream.of(AclRole.values())
+                .collect(StreamUtils.toLinkedMap(Function.identity(), AclRole::getDescription));
     }
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
@@ -287,5 +226,7 @@ public class ManagementController {
 
         @Parameter(description = "mgmt.schema.group.privileges")
         public Set<String> privileges;
+
+        public Map<String, AclRole> repositoryTypeToRole;
     }
 }

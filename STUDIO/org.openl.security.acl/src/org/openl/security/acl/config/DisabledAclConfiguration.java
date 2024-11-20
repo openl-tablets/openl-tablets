@@ -3,6 +3,7 @@ package org.openl.security.acl.config;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.context.annotation.Bean;
@@ -65,6 +66,8 @@ public class DisabledAclConfiguration {
                 return true;
             } else if (Map.class.isAssignableFrom(returnType)) {
                 return Map.of();
+            } else if (List.class.isAssignableFrom(returnType)) {
+                return List.of();
             }
             return null;
         }

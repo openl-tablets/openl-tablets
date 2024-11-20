@@ -8,29 +8,45 @@ Content-Type: application/json
   },
   "Analysts": {
     "id": 6,
-    "roles": ["Developers", "Testers"]
+    "repositoryTypeToRole": {
+      "design": "CONTRIBUTOR",
+      "deployConfig": "VIEWER"
+    }
   },
   "Authenticated": {
     "id": 7,
     "description": "A default group for authenticated users",
-    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   },
   "Deployers": {
     "id": 5,
-    "roles": ["Viewers"],
-    "privileges": ["DELETE_DEPLOYMENT", "CREATE_DEPLOYMENT", "EDIT_DEPLOYMENT"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "CONTRIBUTOR"
+    }
   },
   "Developers": {
     "id": 3,
-    "roles": ["Viewers"],
-    "privileges": ["CREATE_PROJECTS", "EDIT_PROJECTS", "DELETE_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "CONTRIBUTOR",
+      "deployConfig": "VIEWER"
+    }
   },
   "Testers": {
     "id": 4,
-    "roles": ["Viewers"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   },
   "Viewers": {
     "id": 2,
-    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   }
 }

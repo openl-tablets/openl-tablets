@@ -52,6 +52,10 @@
             background: #f54;
         }
 
+        #groupsTable .name.admin {
+            color: #f54;
+        }
+
         #groupsTable div.row:hover {
             background-color: #FAE5C1;
         }
@@ -67,10 +71,6 @@
             font-weight: bold;
         }
 
-        .privileges-row {
-            word-break: break-all;
-        }
-
         .align-middle {
             vertical-align: middle;
         }
@@ -81,13 +81,15 @@
         <header class="row">
             <div>Name</div>
             <div>Description</div>
-            <div>Privileges</div>
+            <div>Design Repository role</div>
+            <div>Deploy Repository role</div>
             <div>Action</div>
         </header>
         <div class="row {type}">
-            <div class="align-middle"><span class="clickable name">{name}</span></div>
+            <div class="align-middle"><span class="clickable name {isAdmin}">{name}</span></div>
             <div class="align-middle"><span class="description">{description}</span></div>
-            <div class="align-middle privileges-row">{privileges}</div>
+            <div class="align-middle"><span class="design {hasDesign}">{design}</span></div>
+            <div class="align-middle"><span class="deployConfig {hasDeployConfig}">{deployConfig}</span></div>
             <div class="align-middle"><span class="clickable delete-icon"/></div>
         </div>
     </section>
@@ -96,14 +98,14 @@
 
     <a href="javascript:void(0)" id="addNewGroup">Add New Group</a>
 
-    <rich:popupPanel id="modalAddEditGroup" autosized="true" minWidth="670" maxWidth="670">
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" minWidth="480" maxWidth="480">
         <f:facet name="header">Edit Group</f:facet>
 
         <f:facet name="controls">
             <span class="close-icon clickable icon-small" onclick="hideAddGroup()" style="margin: 8px 4px;"/>
         </f:facet>
 
-        <form id="addEditGroupForm" style="height: 260px; overflow: auto;">
+        <form id="addEditGroupForm" style="height: 220px; overflow: auto;">
             <table cellspacing="5">
                 <tr>
                     <td>
@@ -125,13 +127,30 @@
                 </tr>
                 <tr>
                     <td>
-                        <label>Privilege:</label>
+                        <label>Administrate:</label>
                     </td>
                     <td>
+                        <input type="checkbox" name="admin"/>
+                    </td>
+                </tr>
+                <tr class="rolesTable">
+                    <td colspan="2">Repository roles:</td>
+                </tr>
+                <tr class="rolesTable">
+                    <td colspan="2">
+                        <table>
+                            <tr>
+                                <td>Design:</td>
+                                <td repoType="design"></td>
+                            </tr>
+                            <tr>
+                                <td>Deploy:</td>
+                                <td repoType="deployConfig"></td>
+                            </tr>
+                        </table>
                     </td>
                 </tr>
             </table>
-            <div id="privilegesTable"/>
         </form>
 
         <footer>
@@ -171,15 +190,15 @@
             }
         })
 
-        var privileges = {};
         var groups = {};
+        var roles = {};
 
         $j.ajax({
-            url: "#{contextPath}/web/admin/management/privileges",
+            url: "#{contextPath}/web/admin/management/roles",
             async: false,
             datatype: "json"
         }).done(function (data) {
-            privileges = data;
+            roles = data;
         });
 
         (function () {
@@ -195,21 +214,25 @@
 
                 $j.each(data, function (name, item) {
                     var privs = "";
-
+                    let isAdmin = false;
                     item.privileges && item.privileges.sort().forEach(function (priv) {
                         if (priv === "ADMIN") {
-                            privs += "<span class='privilege admin'>Administrate</span>";
                             admins++;
                             onlyAdmin = name;
-                        } else {
-                            privs += "<span class='privilege'>" + (privileges[priv] || priv) + "</span>";
+                            isAdmin = true;
                         }
                     });
 
+                    let repositoryTypeToRole = item.repositoryTypeToRole || {};
                     list += htmlTemplate
                         .replaceString(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
+                        .replaceString(/{isAdmin}/g, isAdmin ? "admin" : "")
                         .replaceString(/{name}/g, ws.utils.escapeHtml(name))
                         .replaceString(/{description}/g, ws.utils.escapeHtml(item.description))
+                        .replaceString(/{hasDesign}/g, repositoryTypeToRole.design ? "privilege" : "")
+                        .replaceString(/{design}/g, ws.utils.escapeHtml(roles[repositoryTypeToRole.design]))
+                        .replaceString(/{deployConfig}/g, ws.utils.escapeHtml(roles[repositoryTypeToRole.deployConfig]))
+                        .replaceString(/{hasDeployConfig}/g, repositoryTypeToRole.deployConfig ? "privilege" : "")
                         .replaceString(/{privileges}/g, privs);
                 });
                 $j('#groupsTable').append(list);
@@ -280,20 +303,36 @@
                 $j("#addEditGroupForm input[name=description]").val(description);
                 $j("#modalAddEditGroup_header_content").text(name !== undefined ? "Edit Group" : "Add New Group");
 
-                var html = "";
-                $j.each(privileges, function (code, value) {
-                    html += "<label><input type='checkbox' value='" + code + "' name='privilege'>" + value + "</label>";
+                let rolesHtml = $j('<select></select>');
+                rolesHtml.append($j('<option></option>').val("").text("").prop("selected", true));
+                $j.each(roles, (value, text) => {
+                    const option = $j('<option></option>').val(value).text(text);
+                    rolesHtml.append(option);
                 });
-
-                $j("#privilegesTable").html(html);
+                let deployConfigRolesHtml = rolesHtml.clone();
+                deployConfigRolesHtml.attr("name", "deployConfigRole");
+                $j('#addEditGroupForm [repoType="deployConfig"]').html(deployConfigRolesHtml);
+                let designRolesHtml = rolesHtml.clone();
+                designRolesHtml.attr("name", "designRole");
+                $j('#addEditGroupForm [repoType="design"]').html(designRolesHtml);
 
                 var group = groups[name];
-                group && group.privileges && group.privileges.forEach(function (priv) {
-                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + priv + "]");
-                    checkBox.prop("checked", true);
+                if (group) {
+                    let repositoryTypeToRole = group.repositoryTypeToRole;
+                    if (repositoryTypeToRole && repositoryTypeToRole.design) {
+                        $j('#addEditGroupForm [repoType="design"] option[value="' + repositoryTypeToRole.design + '"]').prop("selected", true);
+                    }
+                    if (repositoryTypeToRole && repositoryTypeToRole.deployConfig) {
+                        $j('#addEditGroupForm [repoType="deployConfig"] option[value="' + repositoryTypeToRole.deployConfig + '"]').prop("selected", true);
+                    }
+                }
+                $j("#addEditGroupForm input[name=admin]").prop("checked", (group?.privileges && group.privileges.includes("ADMIN")) || false);
+                $j("#addEditGroupForm input[name=admin]").off("change").on("change", function () {
+                    var isChecked = $j(this).is(":checked");
+                    $j('#addEditGroupForm .rolesTable select').prop("disabled", isChecked);
                 });
-
-                $j("#privilegesTable input[value=ADMIN]").parent().toggleClass("disabled", isOnlyAdmin === true);
+                $j("#addEditGroupForm input[name=admin]").trigger("change");
+                $j("#addEditGroupForm input[name=admin]").prop("disabled", isOnlyAdmin || false);
 
                 RichFaces.$("modalAddEditGroup").show();
             }
@@ -316,7 +355,7 @@
             } else {
                 $j("#addEditGroupForm .error").text("");
             }
-
+            $j("#addEditGroupForm input[name=admin]").prop("disabled", false);
             $j.ajax({
                 type: "POST",
                 url: "#{contextPath}/web/admin/management/groups",
