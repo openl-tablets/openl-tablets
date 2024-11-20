@@ -204,6 +204,9 @@ public class ProjectManagementController {
                         .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
+                    if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject, List.of(AclPermission.WRITE))) {
+                        throw new SecurityException();
+                    }
                     deploymentProjectsToDeploy.add(deploymentProject);
                 }
             }
