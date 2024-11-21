@@ -27,7 +27,8 @@ import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.rest.model.NotificationModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privileges;
+import org.openl.rules.security.AdminPrivilege;
+import org.openl.rules.security.OwnerOrAdminPrivilege;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
@@ -90,11 +91,9 @@ public class MailController {
 
     @Operation(summary = "mail.send-verification.summary", description = "mail.send-verification.desc")
     @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @OwnerOrAdminPrivilege
     public NotificationModel sendVerification(HttpServletRequest request,
                                               @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
-        if (!currentUserInfo.getUserName().equals(username)) {
-            SecurityChecker.allow(Privileges.ADMIN);
-        }
         User user = userManagementService.getUser(username);
         boolean emailWasSent = mailSender.sendVerificationMail(user, request);
         if (emailWasSent) {
@@ -115,8 +114,8 @@ public class MailController {
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
     @PutMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminPrivilege
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
-        SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(mailConfig);
         Map<String, String> mailConfigMap = new HashMap<>();
         mailConfigMap.put(MAIL_URL, mailConfig.getUrl());

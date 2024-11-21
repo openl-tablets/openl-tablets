@@ -49,4 +49,6 @@
         <property name="securityMetadataSource" ref="securityMetadataSource"/>
     </bean>
 
+    <bean class="org.openl.rules.security.config.MethodSecurityConfig"/>
+
 </beans>
