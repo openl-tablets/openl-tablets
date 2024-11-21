@@ -26,12 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.security.Privileges;
+import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.TagService;
@@ -55,16 +54,16 @@ public class TagConfigController {
 
     @Operation(summary = "tags.get-types.summary", description = "tags.get-types.desc")
     @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminPrivilege
     public List<TagTypeDTO> getTypes() {
-        SecurityChecker.allow(Privileges.ADMIN);
         return tagTypeService.getAll();
     }
 
     @Operation(summary = "tags.delete-tag-type.summary", description = "tags.delete-tag-type.desc")
     @DeleteMapping(value = "/types/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTagType(@Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id) {
-        SecurityChecker.allow(Privileges.ADMIN);
         if (!tagTypeService.delete(id)) {
             throw new NotFoundException("tag-type.message");
         }
@@ -73,10 +72,10 @@ public class TagConfigController {
     @Operation(summary = "tags.delete-tag.summary", description = "tags.delete-tag.desc")
     @DeleteMapping("/types/{tagTypeId}/tags/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminPrivilege
     public void deleteTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("id") final Long id) {
-        SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
             throw new NotFoundException("tag.message");
@@ -89,6 +88,7 @@ public class TagConfigController {
     @Operation(summary = "tags.add-tag-type.summary", description = "tags.add-tag-type.desc")
     @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
+    @AdminPrivilege
     public ResponseEntity<Void> addTagType(@JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO,
                                            HttpServletRequest request) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
@@ -97,6 +97,7 @@ public class TagConfigController {
     @Operation(summary = "tags.update-tag-type.summary", description = "tags.update-tag-type.desc")
     @PutMapping(value = "/types/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "204", description = "Updated")
+    @AdminPrivilege
     public ResponseEntity<Void> updateTagType(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id,
             @JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO) {
@@ -108,7 +109,6 @@ public class TagConfigController {
                                                     final Boolean nullable,
                                                     final Boolean extensible,
                                                     final HttpServletRequest request) {
-        SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
         if (id == null) {
@@ -154,6 +154,7 @@ public class TagConfigController {
     @Operation(summary = "tags.add-tag.summary", description = "tags.add-tag.desc")
     @PostMapping(value = "/types/{tagTypeId}/tags", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
+    @AdminPrivilege
     public ResponseEntity<Void> addTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @RequestBody final String name,
@@ -164,6 +165,7 @@ public class TagConfigController {
     @Operation(summary = "tags.update-tag.summary", description = "tags.update-tag.desc")
     @PutMapping(value = "/types/{tagTypeId}/tags/{tagId}", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponse(responseCode = "204", description = "Updated")
+    @AdminPrivilege
     public ResponseEntity<Void> updateTag(
             @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @Parameter(description = "tags.tag.id.desc") @PathVariable("tagId") final Long tagId,
@@ -175,8 +177,6 @@ public class TagConfigController {
                                                 final Long tagId,
                                                 final String name,
                                                 HttpServletRequest request) {
-        SecurityChecker.allow(Privileges.ADMIN);
-
         final Tag tag;
 
         if (tagId == null) {
