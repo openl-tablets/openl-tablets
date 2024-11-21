@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.openl.rules.rest.SecurityChecker;
-import org.openl.rules.security.Privileges;
+import org.openl.rules.security.AdminPrivilege;
 import org.openl.spring.env.DefaultPropertySource;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertyBean;
@@ -41,8 +40,8 @@ public class PropertyController {
     @SuppressWarnings("unchecked")
     @GetMapping("/current")
     @Hidden
+    @AdminPrivilege
     public Map<String, String> getProperties() {
-        SecurityChecker.allow(Privileges.ADMIN);
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         Map<String, String> currentPropertyMap = new HashMap<>(propertyBean.getPropertyMap());
         currentPropertyMap.putAll(dynamicPropertySource.getProperties());
@@ -51,8 +50,8 @@ public class PropertyController {
 
     @GetMapping("/webStudio")
     @Hidden
+    @AdminPrivilege
     public Map<String, String> getWebStudioProperties() {
-        SecurityChecker.allow(Privileges.ADMIN);
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         return dynamicPropertySource.getProperties();
     }
@@ -73,9 +72,9 @@ public class PropertyController {
 
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminPrivilege
     @Hidden
     public void saveProperties(@RequestBody Map<String, String> properties) throws IOException {
-        SecurityChecker.allow(Privileges.ADMIN);
         DynamicPropertySource.get().save(properties);
     }
 }
