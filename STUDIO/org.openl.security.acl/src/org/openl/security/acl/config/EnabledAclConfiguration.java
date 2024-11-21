@@ -7,6 +7,8 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
 import org.springframework.security.acls.domain.AuditLogger;
@@ -23,7 +25,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.openl.security.acl.AclAuthorizationStrategyImpl;
 import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.security.acl.MaskPermissionGrantingStrategy;
-import org.openl.security.acl.RoleHierarchyImpl;
 import org.openl.security.acl.oid.AclObjectIdentityProviderImpl;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -74,8 +75,8 @@ public class EnabledAclConfiguration {
     }
 
     @Bean
-    public SidRetrievalStrategy sidRetrievalStrategy() {
-        return new SidRetrievalStrategyImpl(new RoleHierarchyImpl());
+    public SidRetrievalStrategy sidRetrievalStrategy(RoleHierarchy roleHierarchy) {
+        return new SidRetrievalStrategyImpl(roleHierarchy);
     }
 
     @Bean
@@ -139,10 +140,13 @@ public class EnabledAclConfiguration {
     @Bean
     public AclPermissionEvaluator aclPermissionEvaluator(JdbcMutableAclService repositoryJdbcMutableAclService,
                                                          DefaultPermissionFactory repositoryPermissionFactory,
-                                                         SidRetrievalStrategy sidRetrievalStrategy) {
+                                                         SidRetrievalStrategy sidRetrievalStrategy,
+                                                         DefaultMethodSecurityExpressionHandler expressionHandler) {
         var permissionEvaluator = new AclPermissionEvaluator(repositoryJdbcMutableAclService);
         permissionEvaluator.setPermissionFactory(repositoryPermissionFactory);
         permissionEvaluator.setSidRetrievalStrategy(sidRetrievalStrategy);
+
+        expressionHandler.setPermissionEvaluator(permissionEvaluator);
         return permissionEvaluator;
     }
 

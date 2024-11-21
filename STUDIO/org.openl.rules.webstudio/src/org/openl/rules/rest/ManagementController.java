@@ -29,6 +29,7 @@ import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.model.GroupSettingsModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -79,8 +80,8 @@ public class ManagementController {
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
     @GetMapping("/groups")
+    @AdminPrivilege
     public Map<String, UIGroup> getGroups() {
-        SecurityChecker.allow(Privileges.ADMIN);
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
     }
 
@@ -114,8 +115,8 @@ public class ManagementController {
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary", hidden = true)
     @GetMapping("/old/groups")
     @Deprecated
+    @AdminPrivilege
     public Map<String, UIGroup> getOldGroups() {
-        SecurityChecker.allow(Privileges.ADMIN);
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, this::buildUIGroup));
     }
 
@@ -123,8 +124,8 @@ public class ManagementController {
     @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
+    @AdminPrivilege
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
-        SecurityChecker.allow(Privileges.ADMIN);
         Group group = groupDao.getGroupById(id);
         groupDao.deleteGroupById(id);
         if (group != null && aclService != null) {
@@ -136,6 +137,7 @@ public class ManagementController {
     @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @Transactional
+    @AdminPrivilege
     public void saveGroup(
             @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,
             @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
@@ -143,7 +145,6 @@ public class ManagementController {
             @Parameter(description = "mgmt.schema.group.design.role") @RequestParam(value = "designRole", required = false) final AclRole designRole,
             @Parameter(description = "mgmt.schema.group.deployConfig.role") @RequestParam(value = "deployConfigRole", required = false) final AclRole deployConfigRole,
             @Parameter(description = "mgmt.schema.group.admin") @RequestParam(value = "admin", required = false) final Boolean admin) {
-        SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
             throw new ConflictException("duplicated.group.message");
         }
@@ -178,8 +179,8 @@ public class ManagementController {
     @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
     @PostMapping(value = "/groups/settings", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @AdminPrivilege
     public void saveSettings(@RequestBody GroupSettingsModel request) {
-        SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(request);
         properties.setProperty(SECURITY_DEF_GROUP_PROP, request.getDefaultGroup());
     }
@@ -194,8 +195,8 @@ public class ManagementController {
 
     @Operation(description = "mgmt.get-roles.desc", summary = "mgmt.get-roles.summary")
     @GetMapping("/roles")
+    @AdminPrivilege
     public Map<AclRole, String> roles() {
-        SecurityChecker.allow(Privileges.ADMIN);
         return Stream.of(AclRole.values())
                 .collect(StreamUtils.toLinkedMap(Function.identity(), AclRole::getDescription));
     }
