@@ -94,10 +94,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 640M
-        reservations:
-          memory: 32M
+          cpus: '2'
+          memory: 3G
     environment:
       JAVA_OPTS: $JAVA_DEBUG_OPTS
 
