@@ -17,12 +17,12 @@ public final class ConditionHelper {
     }
 
     public static ConditionCasts findConditionCasts(IOpenClass conditionParameterType,
-            IOpenClass inputType,
-            IBindingContext bindingContext) {
+                                                    IOpenClass inputType,
+                                                    IBindingContext bindingContext) {
         IOpenCast castToConditionType = toNullIfNotImplicitCastAndNotOneElementArrayCast(
-            bindingContext.getCast(inputType, conditionParameterType));
+                bindingContext.getCast(inputType, conditionParameterType));
         IOpenCast castToInputType = castToConditionType == null ? toNullIfNotImplicitCastAndNotOneElementArrayCast(
-            bindingContext.getCast(conditionParameterType, inputType)) : null;
+                bindingContext.getCast(conditionParameterType, inputType)) : null;
         return new ConditionCasts(castToInputType, castToConditionType);
     }
 

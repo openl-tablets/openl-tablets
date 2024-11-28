@@ -11,7 +11,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
 

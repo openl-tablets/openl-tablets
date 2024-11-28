@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.AbstractServiceClassEnhancerInstantiationStrategy;
@@ -12,8 +15,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.ValidationServiceClassException;
 import org.openl.runtime.ASMProxyHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Auxiliary class for support of variations.
@@ -43,9 +44,9 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
             return VariationInstantiationStrategyEnhancerHelper.decorateClass(serviceClass, classLoader);
         } catch (Exception e) {
             throw new OpenlNotCheckedException(
-                String.format("Failed to inject variation parameters into methods in the interface '%s'.",
-                    serviceClass.getTypeName()),
-                e);
+                    String.format("Failed to inject variation parameters into methods in the interface '%s'.",
+                            serviceClass.getTypeName()),
+                    e);
         }
     }
 
@@ -55,8 +56,8 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
             return true;
         } else {
             throw new ValidationServiceClassException(String.format(
-                "Variation result return type and variation pack parameter is required for each method in the interface '%s'.",
-                serviceClass.getTypeName()));
+                    "Variation result return type and variation pack parameter is required for each method in the interface '%s'.",
+                    serviceClass.getTypeName()));
         }
     }
 
@@ -66,9 +67,9 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
             return VariationInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass, classLoader);
         } catch (Exception e) {
             throw new OpenlNotCheckedException(
-                String.format("Failed to remove variation parameters from methods in the interface '%s'.",
-                    serviceClass.getTypeName()),
-                e);
+                    String.format("Failed to remove variation parameters from methods in the interface '%s'.",
+                            serviceClass.getTypeName()),
+                    e);
         }
     }
 
@@ -81,7 +82,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
     @Override
     protected ASMProxyHandler makeMethodHandler(Object originalInstance) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
-            getOriginalInstantiationStrategy().getInstanceClass());
+                getOriginalInstantiationStrategy().getInstanceClass());
         return new VariationInstantiationStrategyEnhancerInvocationHandler(methodsMap, originalInstance);
     }
 
@@ -89,7 +90,7 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
      * Gets methods map where keys are interface class methods and values - original service class methods.
      *
      * @param interfaceClass class to expose as service class
-     * @param serviceClass original service class
+     * @param serviceClass   original service class
      * @return methods map
      */
     private Map<Method, Method> makeMethodMap(Class<?> interfaceClass, Class<?> serviceClass) throws Exception {
@@ -101,12 +102,12 @@ public class VariationInstantiationStrategyEnhancer extends AbstractServiceClass
         for (Method serviceMethod : serviceMethods) {
             try {
                 Method originalMethod = VariationInstantiationStrategyEnhancerHelper
-                    .getMethodForDecoration(serviceClass, serviceMethod);
+                        .getMethodForDecoration(serviceClass, serviceMethod);
                 methodMap.put(serviceMethod, originalMethod);
             } catch (Exception e) {
                 throw new RulesInstantiationException(
-                    "Failed to find corresponding method in original class for method '" + MethodUtil
-                        .printMethod(serviceMethod.getName() + "'.", serviceMethod.getParameterTypes()));
+                        "Failed to find corresponding method in original class for method '" + MethodUtil
+                                .printMethod(serviceMethod.getName() + "'.", serviceMethod.getParameterTypes()));
             }
         }
 

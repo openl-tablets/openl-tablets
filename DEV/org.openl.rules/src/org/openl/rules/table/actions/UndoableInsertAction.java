@@ -11,7 +11,6 @@ import org.openl.rules.table.IGridTable;
  * Default behaviour for insert operations.
  *
  * @author DLiauchuk
- *
  */
 public abstract class UndoableInsertAction extends UndoableEditTableAction {
 
@@ -72,14 +71,14 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
     /**
      * Perform action for inserting rows or columns.
      *
-     * @param numberToInsert number of rows or columns to be inserted.
+     * @param numberToInsert  number of rows or columns to be inserted.
      * @param fullTableRegion a region of original table
-     * @param table a table to apply the action.
+     * @param table           a table to apply the action.
      * @return action for inserting rows or columns.
      */
     protected abstract IUndoableGridTableAction performAction(int numberToInsert,
-            IGridRegion fullTableRegion,
-            IGridTable table);
+                                                              IGridRegion fullTableRegion,
+                                                              IGridTable table);
 
     protected abstract GridRegionAction getGridRegionAction(IGridRegion gridRegion, int numberToInsert);
 

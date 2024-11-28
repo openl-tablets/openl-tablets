@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * @deprecated use @Autowire ClassLoader serviceClassLoader
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 @Deprecated
 @Autowired
 @Qualifier("serviceClassLoader")

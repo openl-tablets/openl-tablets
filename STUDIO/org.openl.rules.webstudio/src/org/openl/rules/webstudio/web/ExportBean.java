@@ -9,12 +9,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -40,11 +45,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope
@@ -88,15 +88,15 @@ public class ExportBean {
                 String suffix = name + "-" + modifiedOnStr;
                 fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
                 WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
-                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                        .orElse(null));
+                        (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                                .orElse(null));
                 file = ProjectExportHelper.export(user, selectedProject);
             } else {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 file = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
                 String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
                 fileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -140,7 +140,7 @@ public class ExportBean {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 projectResource = (AProjectResource) forExport.getArtefact(getArtifactName());
             }
 

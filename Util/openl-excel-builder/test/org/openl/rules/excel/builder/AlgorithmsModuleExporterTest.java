@@ -1,7 +1,8 @@
 package org.openl.rules.excel.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.openl.rules.excel.builder.export.DataTableExporter.DATA_SHEET;
 import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
@@ -20,8 +21,9 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ParameterModel;
@@ -40,15 +42,15 @@ public class AlgorithmsModuleExporterTest {
     @Test
     public void testAlgorithmsModuleGeneration() throws IOException {
         EnvironmentModel environmentModel = new EnvironmentModel(Arrays.asList("Apple", "Car"),
-            Arrays.asList("Building", "Person"));
+                Arrays.asList("Building", "Person"));
 
         SpreadsheetModel resultModel = new SpreadsheetModel();
         resultModel.setType("String");
         resultModel.setName("TestSpr");
 
         resultModel.setParameters(
-            Arrays.asList(new ParameterModel(new TypeInfo(Integer.class), "id"),
-                new ParameterModel(new TypeInfo(Integer.class), "count")));
+                Arrays.asList(new ParameterModel(new TypeInfo(Integer.class), "id"),
+                        new ParameterModel(new TypeInfo(Integer.class), "count")));
 
         StepModel longStep = new StepModel("balance", "Long", "=0L");
         StepModel formulaStepUpperCase = new StepModel("Formula", "String", "=Test");
@@ -56,7 +58,7 @@ public class AlgorithmsModuleExporterTest {
         StepModel valueStep = new StepModel("Step", "String", "=Test");
         StepModel formulaOneStep = new StepModel("Formula1", "String", "=Test");
         resultModel
-            .setSteps(Arrays.asList(longStep, formulaStepLowerCase, formulaStepUpperCase, valueStep, formulaOneStep));
+                .setSteps(Arrays.asList(longStep, formulaStepLowerCase, formulaStepUpperCase, valueStep, formulaOneStep));
 
         DatatypeModel dt = new DatatypeModel("Test");
         FieldModel stringField = new FieldModel("type", "String", "Hello, World");
@@ -66,9 +68,9 @@ public class AlgorithmsModuleExporterTest {
 
         try (ByteArrayOutputStream algorithmsFileOutputSteam = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(Collections.singletonList(resultModel),
-                Collections.singletonList(testModel),
-                algorithmsFileOutputSteam,
-                environmentModel);
+                    Collections.singletonList(testModel),
+                    algorithmsFileOutputSteam,
+                    environmentModel);
             try (OutputStream fos = new FileOutputStream(ALGORITHMS)) {
                 fos.write(algorithmsFileOutputSteam.toByteArray());
             }
@@ -197,7 +199,7 @@ public class AlgorithmsModuleExporterTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();

@@ -1,6 +1,6 @@
 /**
- *  OpenL Tablets,  2006
- *  https://sourceforge.net/projects/openl-tablets/
+ * OpenL Tablets,  2006
+ * https://sourceforge.net/projects/openl-tablets/
  */
 package org.openl.util;
 

@@ -268,15 +268,15 @@
                     const openApiImportType = fields.getOpenAPIImportTypeRadioButtons().filter(":checked").val();
                     switch (openApiImportType) {
                         case "GENERATE":
-                            fields.getPath().attr("disabled", true);
+                            fields.getPath().prop("disabled", true);
                             if (fields.getModeInputValue().val() !== RECONCILIATION) {
-                                fields.getModeInput().filter('[value="reconciliation"]').attr('checked', true).change();
+                                fields.getModeInput().filter('[value="reconciliation"]').prop('checked', true).change();
                             }
-                            fields.getModeInput().filter('[value="generation"]').attr("disabled", true);
+                            fields.getModeInput().filter('[value="generation"]').prop("disabled", true);
                             break;
                         case "IMPORT":
-                            fields.getPath().attr("disabled", false);
-                            fields.getModeInput().filter('[value="generation"]').attr("disabled", false);
+                            fields.getPath().prop("disabled", false);
+                            fields.getModeInput().filter('[value="generation"]').prop("disabled", false);
                             break;
                     }
                     switchFormState();

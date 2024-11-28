@@ -32,10 +32,10 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     private final Object[][] results;
 
     public SpreadsheetResultCalculator(Spreadsheet spreadsheet,
-            IDynamicObject targetModule,
-            Object[] params,
-            IRuntimeEnv env,
-            Object[][] preCalculatedResult) {
+                                       IDynamicObject targetModule,
+                                       Object[] params,
+                                       IRuntimeEnv env,
+                                       Object[][] preCalculatedResult) {
         super();
 
         this.spreadsheet = spreadsheet;

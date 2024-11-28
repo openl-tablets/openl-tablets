@@ -31,7 +31,7 @@ public interface ExcelReader extends AutoCloseable {
     /**
      * Get styles for a given table
      *
-     * @param sheet sheet containing the table
+     * @param sheet       sheet containing the table
      * @param tableRegion region needed to get styles for a given table
      * @return Cell styles
      */

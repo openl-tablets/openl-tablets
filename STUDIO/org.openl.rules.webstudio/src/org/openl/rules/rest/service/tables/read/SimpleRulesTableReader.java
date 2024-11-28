@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SimpleRuleHeaderView;
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads {@code SimpleRules} table to {@link SimpleRulesView} model.
@@ -33,6 +34,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        var metaInfoReader = tsn.getMetaInfoReader();
         var tableBody = tsn.getTableBody();
 
         var headers = getConditionHeaders(tableBody.getRow(0));
@@ -51,7 +53,7 @@ public class SimpleRulesTableReader extends ExecutableTableReader<SimpleRulesVie
                 if (ruleName == null) {
                     ruleName = SimpleRuleHeaderView.UNKNOWN_HEADER_NAME + col;
                 }
-                rule.put(ruleName, tableBody.getCell(col, row).getObjectValue());
+                rule.put(ruleName, getCellValue(tableBody.getCell(col, row), metaInfoReader));
             }
             list.add(rule);
         }

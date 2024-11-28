@@ -20,7 +20,7 @@ public final class PropertiesFileNameProcessorBuilder {
 
     public PropertiesFileNameProcessor build(
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException,
-                                                 InvalidFileNamePatternException {
+            InvalidFileNamePatternException {
         if (processor != null) {
             throw new IllegalStateException("Processor is already built! Use a new builder.");
         }
@@ -28,7 +28,7 @@ public final class PropertiesFileNameProcessorBuilder {
         String prcClass = projectDescriptor.getPropertiesFileNameProcessor();
 
         if (StringUtils.isBlank(prcClass) || prcClass
-            .equals("org.openl.rules.project.resolving.CWPropertyFileNameProcessor")) {
+                .equals("org.openl.rules.project.resolving.CWPropertyFileNameProcessor")) {
             processor = buildDefault(patterns);
         } else {
             ClassLoader classLoader = getCustomClassLoader(projectDescriptor);
@@ -45,9 +45,9 @@ public final class PropertiesFileNameProcessorBuilder {
 
             if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
                 String message = String.format(
-                    "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.",
-                    prcClass,
-                    PropertiesFileNameProcessor.class.getTypeName());
+                        "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.",
+                        prcClass,
+                        PropertiesFileNameProcessor.class.getTypeName());
                 throw new InvalidFileNameProcessorException(message);
             }
 
@@ -85,7 +85,7 @@ public final class PropertiesFileNameProcessorBuilder {
     }
 
     private PropertiesFileNameProcessor buildCustom(Constructor<PropertiesFileNameProcessor> procConstructor,
-            String... patterns) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
+                                                    String... patterns) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
         PropertiesFileNameProcessor[] processors = new PropertiesFileNameProcessor[patterns.length];
         for (int i = 0; i < patterns.length; i++) {
             processors[i] = newInstance(procConstructor, patterns[i]);
@@ -95,7 +95,7 @@ public final class PropertiesFileNameProcessorBuilder {
     }
 
     private PropertiesFileNameProcessor newInstance(Constructor<PropertiesFileNameProcessor> procConstructor,
-            Object... args) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
+                                                    Object... args) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
         PropertiesFileNameProcessor prc;
         try {
             prc = procConstructor.newInstance(args);
@@ -108,11 +108,11 @@ public final class PropertiesFileNameProcessorBuilder {
                 throw (RuntimeException) targetException;
             }
             String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
-                .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";
+                    .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
             String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
-                .getTypeName() + "'.";
+                    .getTypeName() + "'.";
             throw new InvalidFileNameProcessorException(message, e);
         }
         return prc;

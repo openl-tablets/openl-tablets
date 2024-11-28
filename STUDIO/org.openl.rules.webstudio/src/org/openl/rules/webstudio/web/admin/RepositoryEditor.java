@@ -46,8 +46,8 @@ public class RepositoryEditor {
         AtomicInteger max = new AtomicInteger(0);
         String configName = repoMode.getId();
         Set<String> configNames = configurations.stream()
-            .map(RepositoryConfiguration::getConfigName)
-            .collect(Collectors.toSet());
+                .map(RepositoryConfiguration::getConfigName)
+                .collect(Collectors.toSet());
 
         // existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to
         // a new repository
@@ -85,7 +85,7 @@ public class RepositoryEditor {
 
     private boolean isValidConfig(String configName) {
         return Objects.nonNull(
-            properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory"));
+                properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory"));
     }
 
     public void addRepository(RepositoryConfiguration configuration) {
@@ -117,7 +117,7 @@ public class RepositoryEditor {
         for (RepositoryConfiguration config : repositoryConfigurations) {
             if (forbiddenIds.contains(config.getConfigName())) {
                 String msg = String.format("Repository name '%s' already exists. Please, choose another name.",
-                    config.getName());
+                        config.getName());
                 throw new RepositoryValidationException(msg);
             }
             RepositoryValidators.validate(config, repositoryConfigurations);

@@ -6,11 +6,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.richfaces.model.TreeNode;
+
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
-import org.richfaces.model.TreeNode;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COLLECTION_TYPE = "collection";
@@ -49,11 +50,11 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                    .keyField(
-                        config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
-                    .parent(this)
-                    .requestId(config.getRequestId())
-                    .build();
+                        .keyField(
+                                config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
+                        .parent(this)
+                        .requestId(config.getRequestId())
+                        .build();
 
                 elements.put(index, ParameterTreeBuilder.createNode(childConfig));
                 index++;
@@ -161,10 +162,10 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
 
     protected ParameterDeclarationTreeNode createNode(Object key, Object value) {
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
-            .keyField(config.getKeyField())
-            .parent(this)
-            .requestId(config.getRequestId())
-            .build();
+                .keyField(config.getKeyField())
+                .parent(this)
+                .requestId(config.getRequestId())
+                .build();
 
         return ParameterTreeBuilder.createNode(childConfig);
     }
@@ -183,9 +184,9 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 value = getNullableValue();
             }
             if (key != null) {
-                if(index!=null){
+                if (index != null) {
                     index.setValue(newCollection, key, value);
-                }else if(newCollection instanceof Collection){
+                } else if (newCollection instanceof Collection) {
                     ((Collection<Object>) newCollection).add(value);
                 }
             }

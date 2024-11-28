@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 /**
  * Defaults for {@link org.openl.rules.repository.api.Pageable}
  *
+ * @author Vladyslav pikus
  * @see org.openl.rules.repository.api.Pageable
  * @see PaginationValueArgumentResolver
- * @author Vladyslav pikus
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

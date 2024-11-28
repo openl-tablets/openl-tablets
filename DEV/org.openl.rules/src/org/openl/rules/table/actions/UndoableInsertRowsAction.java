@@ -26,13 +26,13 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
     public static boolean canInsertRows(IGridTable table, int nRows) {
         IGridRegion region = getOriginalRegion(table);
         GridRegion newRegion = new GridRegion(region.getBottom() + 1,
-            region.getLeft() - 1,
-            region.getBottom() + 1 + nRows,
-            region.getRight() + 1);
+                region.getLeft() - 1,
+                region.getBottom() + 1 + nRows,
+                region.getRight() + 1);
         IGridTable[] allGridTables = table.getGrid().getTables();
         for (IGridTable allGridTable : allGridTables) {
             if (!table.getUri().equals(allGridTable.getUri()) && IGridRegion.Tool.intersects(newRegion,
-                allGridTable.getRegion())) {
+                    allGridTable.getRegion())) {
                 return false;
             }
         }
@@ -61,8 +61,8 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected IUndoableGridTableAction performAction(int numberToInsert,
-            IGridRegion fullTableRegion,
-            IGridTable table) {
+                                                     IGridRegion fullTableRegion,
+                                                     IGridTable table) {
         return GridTool.insertRows(numberToInsert, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 }

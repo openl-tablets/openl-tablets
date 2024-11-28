@@ -1,8 +1,8 @@
 package org.openl.rules.project.xml;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.FileInputStream;
 import java.nio.file.Paths;
@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -48,7 +49,7 @@ public class XmlProjectDescriptorSerializerTest {
         descriptor.setAutoIncluded(true);
         projectDescriptor.setDependencies(List.of(descriptor));
 
-        projectDescriptor.setPropertiesFileNamePatterns(new String[] {" {lob}"});
+        projectDescriptor.setPropertiesFileNamePatterns(new String[]{" {lob}"});
         projectDescriptor.setPropertiesFileNameProcessor(" default.DefaultProcessor");
 
         return projectDescriptor;
@@ -80,9 +81,9 @@ public class XmlProjectDescriptorSerializerTest {
     @Test
     public void testDeserialize() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
-            .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
+                .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
 
-        assertArrayEquals(new String[] {"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"properties-file-name-pattern"}, pd.getPropertiesFileNamePatterns());
         assertEquals("properties-file-name-processor", pd.getPropertiesFileNameProcessor());
     }
 
@@ -98,7 +99,7 @@ public class XmlProjectDescriptorSerializerTest {
         Module m = modules.get(0);
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
-        assertArrayEquals(new String[] {"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd.getPropertiesFileNamePatterns());
     }
 
     @Test
@@ -116,7 +117,7 @@ public class XmlProjectDescriptorSerializerTest {
         Module m = modules.get(0);
         assertEquals("testmodule", m.getName());
         assertEquals("dependencies/test3/module/dependency-module?/dependency?.xls", m.getRulesRootPath().getPath());
-        assertArrayEquals(new String[] {"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"%lob%-%usState%", "Tests-*", "DataTables"}, pd1.getPropertiesFileNamePatterns());
     }
 
 }

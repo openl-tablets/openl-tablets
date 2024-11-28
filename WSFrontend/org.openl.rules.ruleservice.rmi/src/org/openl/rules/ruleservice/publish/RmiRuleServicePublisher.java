@@ -9,13 +9,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.publish.rmi.RmiEnhancerHelper;
 import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * DeploymentAdmin to expose services via HTTP.
@@ -76,7 +77,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             Registry registry = getRegistry();
             String rmiName = service.getRmiName() != null ? service.getRmiName()
-                                                          : URLHelper.processURL(service.getUrl());
+                    : URLHelper.processURL(service.getUrl());
 
             Remote rmiHandler;
             if (service.getRmiServiceClass() == null) {

@@ -1,0 +1,6 @@
+<project>
+    <name>Util Project</name>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
+</project>

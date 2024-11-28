@@ -414,7 +414,7 @@ public class Comparison {
             return false;
         }
         return x == null ||
-            (y != null && NumericStringComparator.INSTANCE.compare(x, y) < 0);
+                (y != null && NumericStringComparator.INSTANCE.compare(x, y) < 0);
     }
 
     public static boolean string_lt(String x, String y) {
@@ -422,7 +422,7 @@ public class Comparison {
             return false;
         }
         return x == null ||
-            (y != null && NumericStringComparator.INSTANCE.compare(x, y) < 0);
+                (y != null && NumericStringComparator.INSTANCE.compare(x, y) < 0);
     }
 
     public static boolean string_le(CharSequence x, CharSequence y) {
@@ -430,7 +430,7 @@ public class Comparison {
             return true;
         }
         return x == null
-            || (y != null && NumericStringComparator.INSTANCE.compare(x, y) <= 0);
+                || (y != null && NumericStringComparator.INSTANCE.compare(x, y) <= 0);
     }
 
     public static boolean string_le(String x, String y) {
@@ -438,7 +438,7 @@ public class Comparison {
             return true;
         }
         return x == null
-            || (y != null && NumericStringComparator.INSTANCE.compare(x, y) <= 0);
+                || (y != null && NumericStringComparator.INSTANCE.compare(x, y) <= 0);
     }
 
     public static boolean string_ge(CharSequence x, CharSequence y) {

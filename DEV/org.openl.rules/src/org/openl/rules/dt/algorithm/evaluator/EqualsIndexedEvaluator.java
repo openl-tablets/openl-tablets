@@ -14,7 +14,6 @@ import org.openl.rules.helpers.NumberUtils;
 
 /**
  * @author snshor
- *
  */
 public class EqualsIndexedEvaluator extends AEqualsIndexedEvaluator {
 

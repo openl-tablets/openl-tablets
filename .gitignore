@@ -11,6 +11,7 @@ syntax: glob
 *.iml
 *.iws
 *.ipr
+!.idea/codeStyles
 
 #exclude eclipse files
 .settings

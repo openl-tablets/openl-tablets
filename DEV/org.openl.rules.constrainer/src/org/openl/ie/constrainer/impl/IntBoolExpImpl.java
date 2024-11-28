@@ -1,6 +1,10 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Constraint;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntBoolExpConst;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -16,6 +20,7 @@ import org.openl.ie.constrainer.*;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A generic implementation of the IntBoolExp interface.
  */

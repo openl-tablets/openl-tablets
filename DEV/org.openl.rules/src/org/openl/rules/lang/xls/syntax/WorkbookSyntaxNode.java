@@ -13,8 +13,8 @@ public class WorkbookSyntaxNode extends NaryNode {
     private final TableSyntaxNode[] mergedTableParts;
 
     public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes,
-            TableSyntaxNode[] mergedTableParts,
-            XlsWorkbookSourceCodeModule module) {
+                              TableSyntaxNode[] mergedTableParts,
+                              XlsWorkbookSourceCodeModule module) {
         super(XlsNodeTypes.XLS_WORKBOOK.toString(), null, nodes, module);
         this.mergedTableParts = mergedTableParts;
     }

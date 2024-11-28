@@ -8,7 +8,7 @@
             <rules-root path="1rules/*.xlsx"/>
             <method-filter>
                 <includes>
-                    <value> * </value>
+                    <value>*</value>
                 </includes>
                 <excludes>
                     <value>^test 1</value>
@@ -17,7 +17,7 @@
             </method-filter>
         </module>
         <module>
-            <name>Module Name 2 </name>
+            <name>Module Name 2</name>
             <type>api</type>
             <rules-root path="2rules/*.xlsx"/>
             <method-filter>

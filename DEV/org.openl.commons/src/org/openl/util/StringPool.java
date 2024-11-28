@@ -6,11 +6,10 @@ import java.util.WeakHashMap;
 /**
  * A cache pool for strings. This util is a replacement for Java's String.intern() but it does not use Perm Gen. All
  * strings in this pool are weak referenced, so they can be garbage collected.
- *
+ * <p>
  * Note that this implementation is synchronized.
  *
  * @author Yury Mmolchan
- *
  */
 public final class StringPool {
     static final WeakHashMap<String, WeakReference<String>> STRING_POOL = new WeakHashMap<>(5000);

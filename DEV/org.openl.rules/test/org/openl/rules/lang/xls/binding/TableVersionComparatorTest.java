@@ -1,9 +1,10 @@
 package org.openl.rules.lang.xls.binding;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.table.properties.TableProperties;
 
 public class TableVersionComparatorTest {
@@ -12,7 +13,7 @@ public class TableVersionComparatorTest {
     private TableProperties first;
     private TableProperties second;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         comparator = TableVersionComparator.getInstance();
         first = new TableProperties();

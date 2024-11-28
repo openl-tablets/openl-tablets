@@ -8,7 +8,7 @@ import org.openl.types.impl.CompositeMethod;
 public class ObjectStorage implements IStorage<Object> {
 
     private final Object[] values;
-    private final Expr[] exprValues;
+    private Expr[] exprValues;
     private StorageInfo info;
 
     ObjectStorage(int size) {
@@ -80,6 +80,11 @@ public class ObjectStorage implements IStorage<Object> {
 
     public Object[] getValues() {
         return values;
+    }
+
+    @Override
+    public void removeExprs() {
+        this.exprValues = null;
     }
 
 }

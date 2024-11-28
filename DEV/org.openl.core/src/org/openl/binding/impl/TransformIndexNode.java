@@ -18,10 +18,10 @@ class TransformIndexNode extends ABoundNode {
     private final IOpenCast openCast;
 
     TransformIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode transformer,
-            ILocalVar tempVar,
-            IOpenCast openCast) {
+                       IBoundNode targetNode,
+                       IBoundNode transformer,
+                       ILocalVar tempVar,
+                       IOpenCast openCast) {
         super(syntaxNode, targetNode, transformer);
         this.tempVar = tempVar;
         this.targetNode = targetNode;

@@ -3,7 +3,7 @@ package org.openl.rules.rest.common.model;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /**
- * Field Validation Error model for handling Binding Exceptions (validation) in WebStudio REST API
+ * Field Validation Error model for handling Binding Exceptions (validation) in OpenL Studio REST API
  *
  * @author Vladyslav Pikus
  * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice

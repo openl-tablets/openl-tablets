@@ -8,20 +8,20 @@ public class TypeHelper {
     private static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
 
     public static final Set<String> DEFAULT_IMPORTS = Set.of("java.lang.Object",
-        "java.lang.Character",
-        "java.lang.Class",
-        "java.lang.Enum",
-        "java.lang.Float",
-        "java.lang.Long",
-        "java.lang.Short",
-        "java.lang.Double",
-        "java.lang.CharSequence",
-        "java.lang.Integer",
-        "java.lang.Byte",
-        "java.lang.Void");
+            "java.lang.Character",
+            "java.lang.Class",
+            "java.lang.Enum",
+            "java.lang.Float",
+            "java.lang.Long",
+            "java.lang.Short",
+            "java.lang.Double",
+            "java.lang.CharSequence",
+            "java.lang.Integer",
+            "java.lang.Byte",
+            "java.lang.Void");
 
     public static final Set<String> PRIMITIVES = Set
-        .of("byte", "short", "int", "long", "float", "double", "char", "boolean", "void");
+            .of("byte", "short", "int", "long", "float", "double", "char", "boolean", "void");
 
     protected TypeHelper() {
     }

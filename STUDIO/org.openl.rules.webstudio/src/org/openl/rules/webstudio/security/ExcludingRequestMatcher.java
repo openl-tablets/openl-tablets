@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.security;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.RequestMatcher;

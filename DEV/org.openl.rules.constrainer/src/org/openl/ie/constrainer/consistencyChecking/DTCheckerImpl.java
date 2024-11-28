@@ -5,13 +5,26 @@ package org.openl.ie.constrainer.consistencyChecking;
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
+ *
  * @author unascribed
  * @version 1.0
  */
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Constraint;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Goal;
+import org.openl.ie.constrainer.GoalAnd;
+import org.openl.ie.constrainer.GoalGenerate;
+import org.openl.ie.constrainer.GoalImpl;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntBoolExpConst;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
 
 public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
@@ -22,14 +35,14 @@ public class DTCheckerImpl implements DTChecker {
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
             if (data == null) {
                 throw new IllegalArgumentException(
-                    "DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : " +
-                        "cannot be created based on null data array.");
+                        "DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : " +
+                                "cannot be created based on null data array.");
             }
             _vars = vars;
             this.overrideAscending = overrideAscending;
             int nbRules = data.length;
             _rules = new IntBoolExp[nbRules];
-            java.util.Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
+            Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
             for (int i = 0; i < data.length; i++) {
                 int nbVars = data[i].length;
                 for (int j = 0; j < nbVars; j++) {

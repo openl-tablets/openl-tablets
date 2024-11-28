@@ -2,11 +2,12 @@ package org.openl.rules.rest.validation;
 
 import java.util.List;
 
-import org.openl.rules.rest.exception.ValidationException;
 import org.springframework.util.Assert;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
+
+import org.openl.rules.rest.exception.ValidationException;
 
 /**
  * Custom Bean Validation provider. This validator must be used in case of impossibility to define POJO argument in
@@ -27,7 +28,7 @@ public class BeanValidationProvider {
     /**
      * Invokes all bean validators. The following validators will not be executed if previous one returned error.
      *
-     * @param bean POJO bean to validate
+     * @param bean       POJO bean to validate
      * @param validators additional validators
      */
     public void validate(Object bean, Validator... validators) {

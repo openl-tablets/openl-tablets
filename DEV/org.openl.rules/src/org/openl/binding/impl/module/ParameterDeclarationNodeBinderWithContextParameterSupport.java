@@ -9,7 +9,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author Marat Kamalov
- *
  */
 public class ParameterDeclarationNodeBinderWithContextParameterSupport extends ParameterDeclarationNodeBinder {
 
@@ -18,7 +17,7 @@ public class ParameterDeclarationNodeBinderWithContextParameterSupport extends P
             IdentifierNode identifierNode = (IdentifierNode) syntaxNode.getChild(0);
             if (!"context".equals(identifierNode.getText())) {
                 BindHelper
-                    .processError("Illegal context parameter declaration.", syntaxNode.getChild(0), bindingContext);
+                        .processError("Illegal context parameter declaration.", syntaxNode.getChild(0), bindingContext);
             }
         } else {
             BindHelper.processError("Illegal context parameter declaration.", syntaxNode, bindingContext);
@@ -26,16 +25,16 @@ public class ParameterDeclarationNodeBinderWithContextParameterSupport extends P
     }
 
     protected IBoundNode makeParameterNode(ISyntaxNode node,
-            String name,
-            IOpenClass type,
-            IBindingContext bindingContext) {
+                                           String name,
+                                           IOpenClass type,
+                                           IBindingContext bindingContext) {
         if (node.getNumberOfChildren() > 2) {
             ISyntaxNode syntaxNode = node.getChild(2);
             if (syntaxNode.getNumberOfChildren() == 2) {
                 IdentifierNode contextPropertyIdentifierNode = (IdentifierNode) syntaxNode.getChild(1);
                 String contextProperty = contextPropertyIdentifierNode.getText();
                 String errorMessage = ContextPropertyBinderUtils
-                    .validateContextProperty(contextProperty, type, bindingContext);
+                        .validateContextProperty(contextProperty, type, bindingContext);
                 if (errorMessage != null) {
                     contextProperty = null;
                     BindHelper.processError(errorMessage, contextPropertyIdentifierNode, bindingContext);

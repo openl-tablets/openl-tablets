@@ -16,7 +16,6 @@ import org.openl.rules.calc.SpreadsheetResult;
  * Class that holds the information about the column that need to be extracted from spreadsheet table.
  *
  * @author Marat Kamalov
- *
  */
 @Deprecated
 public class ColumnToExtract {
@@ -46,7 +45,7 @@ public class ColumnToExtract {
     /**
      * Creates a ColumnToExtract with column name and expected type.
      *
-     * @param columnName column name
+     * @param columnName   column name
      * @param expectedType expected type
      */
     public ColumnToExtract(String columnName, Class<?> expectedType) {
@@ -62,12 +61,12 @@ public class ColumnToExtract {
      * Creates a ColumnToExtract with column name, property name and expected type. Property name is used for storing
      * value into row instance.
      *
-     * @param columnName column name
+     * @param columnName   column name
      * @param propertyName property name
      * @param expectedType expected type
      */
     public ColumnToExtract(String columnName, String propertyName, Class<?> expectedType) {
-        this(columnName, new String[] { propertyName }, new Class<?>[] { expectedType });
+        this(columnName, new String[]{propertyName}, new Class<?>[]{expectedType});
     }
 
     public ColumnToExtract(String columnName, String[] propertyNames, Class<?>[] expectedTypes, int nestedPriority) {
@@ -80,7 +79,7 @@ public class ColumnToExtract {
      * storing value into row instance. If value cannot be stored in row instance next property name and expected type
      * is used.
      *
-     * @param columnName column name
+     * @param columnName   column name
      * @param propertyName property name
      * @param expectedType expected type
      */

@@ -1,6 +1,13 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 
 /**
  * An implementation of the expression: <code>sum(IntExpArray)</code>. This implementation "remember and propagate"
@@ -57,7 +64,7 @@ public final class IntExpAddArray1 extends IntExpImpl {
 
     } // ~ ExpAddVectorObserver
 
-    static final private int[] event_map = { MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
+    static final private int[] event_map = {MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
             // REMOVE, REMOVE
     };
     private final IntExpArray _vars;

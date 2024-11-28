@@ -6,7 +6,8 @@
 
     <import resource="security/security-${user.mode}.xml"/>
 
-    <bean id="requestRejectedHandler" class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
+    <bean id="requestRejectedHandler"
+          class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
         <constructor-arg name="httpError" value="400"/>
     </bean>
 

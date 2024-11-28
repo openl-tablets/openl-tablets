@@ -1,12 +1,13 @@
 package org.openl.rules.types.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.MethodUtil;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OpenMethodDispatcher based on dispatcher table.
@@ -31,8 +32,8 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
             return openMethod.invoke(target, updateArguments(params, env, openMethod), env);
         } else {
             log.warn(
-                "Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
-                MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
+                    "Dispatcher table for methods group [{}] wasn't built correctly. Dispatching will be passed through the java code instead of dispatcher table.",
+                    MethodUtil.printMethod(getName(), getSignature().getParameterTypes()));
             return super.invoke(target, params, env);
         }
     }

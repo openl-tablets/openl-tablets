@@ -1,10 +1,18 @@
 package org.openl.rules.testmethod;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -17,32 +25,32 @@ public class RoundExpectedResultTest {
     private static final String FILE_NAME = "test/rules/testmethod/RoundExpectedResult.xls";
 
     private final Collection<String> successfulTests = Arrays.asList("MyM2Test",
-        "MyM3Test",
-        "MyM3Test2",
-        "MyM3Test3",
-        "MyM4Test",
-        "MyM4Test2",
-        "MyM4Test3",
-        "MyM5Test",
-        "MyM6Test",
-        "MyM6_60Test",
-        "MyM6_61Test",
-        "MyM6_62Test",
-        "MyM7Test",
-        "MyM7Test3",
-        "MyM8Test",
-        "MyM8Test2",
-        "MyM8Test3");
+            "MyM3Test",
+            "MyM3Test2",
+            "MyM3Test3",
+            "MyM4Test",
+            "MyM4Test2",
+            "MyM4Test3",
+            "MyM5Test",
+            "MyM6Test",
+            "MyM6_60Test",
+            "MyM6_61Test",
+            "MyM6_62Test",
+            "MyM7Test",
+            "MyM7Test3",
+            "MyM8Test",
+            "MyM8Test2",
+            "MyM8Test3");
 
     private final Collection<String> failedTests = Arrays.asList("MyM2Test2",
-        "MyM2Test3",
-        "MyM5Test2",
-        "MyM5Test3",
-        "MyM6_60Test2",
-        "MyM6_60Test3",
-        "MyM6_61Test2",
-        "MyM6_61Test3",
-        "MyM7Test2");
+            "MyM2Test3",
+            "MyM5Test2",
+            "MyM5Test3",
+            "MyM6_60Test2",
+            "MyM6_60Test3",
+            "MyM6_61Test2",
+            "MyM6_61Test3",
+            "MyM7Test2");
 
     private final Map<String, Collection<Integer>> partialSuccessTests = new HashMap<String, Collection<Integer>>() {
         {
@@ -58,7 +66,7 @@ public class RoundExpectedResultTest {
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
 
-        assertFalse("There are compilation errors in test", compiledOpenClass.hasErrors());
+        assertFalse(compiledOpenClass.hasErrors(), "There are compilation errors in test");
 
         IOpenClass openClass = compiledOpenClass.getOpenClass();
         Object target = openClass.newInstance(env);
@@ -70,14 +78,14 @@ public class RoundExpectedResultTest {
                 @SuppressWarnings("unchecked")
                 TestUnitsResults res = (TestUnitsResults) method.invoke(target, new Object[0], env);
                 if (successfulTests.contains(name)) {
-                    assertEquals("Test '" + name + "' must be successful", 0, res.getNumberOfFailures());
+                    assertEquals(0, res.getNumberOfFailures(), "Test '" + name + "' must be successful");
                 } else if (failedTests.contains(name)) {
-                    assertEquals("Test '" + name + "' must fail completely",
-                        res.getNumberOfTestUnits(),
-                        res.getNumberOfFailures());
+                    assertEquals(res.getNumberOfTestUnits(),
+                            res.getNumberOfFailures(),
+                            "Test '" + name + "' must fail completely");
                 } else {
                     Collection<Integer> successfulRows = partialSuccessTests.get(name);
-                    assertNotNull("Expectation of test '" + name + "' not described.", successfulRows);
+                    assertNotNull(successfulRows, "Expectation of test '" + name + "' not described.");
                     List<ITestUnit> testUnits = res.getTestUnits();
                     for (int i = 0; i < testUnits.size(); i++) {
                         if (successfulRows.contains(i)) {

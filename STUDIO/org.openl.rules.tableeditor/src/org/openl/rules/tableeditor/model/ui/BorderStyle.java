@@ -5,13 +5,13 @@ package org.openl.rules.tableeditor.model.ui;
 
 public class BorderStyle {
 
-    public static final BorderStyle NONE = new BorderStyle(1, "solid", new short[] { 0xBB, 0xBB, 0xDD });
+    public static final BorderStyle NONE = new BorderStyle(1, "solid", new short[]{0xBB, 0xBB, 0xDD});
 
     private int width;
 
     private String style = "none";
 
-    private short[] rgb = { 0, 0, 0 };
+    private short[] rgb = {0, 0, 0};
 
     public BorderStyle() {
     }

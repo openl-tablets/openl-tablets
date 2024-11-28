@@ -49,18 +49,18 @@ public final class XlsSheetCopier {
     /**
      * Copy content from {@code srcSheet} to {@code destSheet}. If {@code destSheet} has content, it will be erased
      *
-     * @param srcWorkbook source workbook
-     * @param srcSheet source sheet
+     * @param srcWorkbook  source workbook
+     * @param srcSheet     source sheet
      * @param destWorkbook destination workbook
-     * @param destSheet destination sheet
-     * @param formulas formulas to evaluate
+     * @param destSheet    destination sheet
+     * @param formulas     formulas to evaluate
      * @throws IOException if happened while copy
      */
     public static void copy(Workbook srcWorkbook,
-            Sheet srcSheet,
-            Workbook destWorkbook,
-            Sheet destSheet,
-            Collection<Cell> formulas) throws IOException {
+                            Sheet srcSheet,
+                            Workbook destWorkbook,
+                            Sheet destSheet,
+                            Collection<Cell> formulas) throws IOException {
         // prepare sheet
         removeAllRows(destSheet);
         // do full copy
@@ -70,7 +70,7 @@ public final class XlsSheetCopier {
     /**
      * Copy content from source sheet to destination sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      * @throws IOException if happened while copy
      */
@@ -114,7 +114,7 @@ public final class XlsSheetCopier {
     /**
      * Copy row from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyRow(Cursor src, Cursor dest) {
@@ -136,7 +136,7 @@ public final class XlsSheetCopier {
     /**
      * Copy cell from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyCell(Cursor src, Cursor dest) {
@@ -179,7 +179,7 @@ public final class XlsSheetCopier {
     /**
      * Copy cell styles from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyStyles(Cursor src, Cursor dest) {
@@ -219,7 +219,7 @@ public final class XlsSheetCopier {
     /**
      * Copy cell comment from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyComment(Cursor src, Cursor dest) {
@@ -254,7 +254,7 @@ public final class XlsSheetCopier {
     /**
      * Copy client anchor
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyClientAnchor(ClientAnchor src, ClientAnchor dest) {
@@ -272,7 +272,7 @@ public final class XlsSheetCopier {
     /**
      * Copy drawings from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void copyDrawings(Cursor src, Cursor dest) throws IOException {
@@ -294,10 +294,10 @@ public final class XlsSheetCopier {
         }
 
         Function<XSSFDrawing, Map<String, XSSFPicture>> pictureGroup = drawing -> drawing.getShapes()
-            .stream()
-            .filter(XSSFPicture.class::isInstance)
-            .map(XSSFPicture.class::cast)
-            .collect(Collectors.toMap(XSSFPicture::getShapeName, Function.identity()));
+                .stream()
+                .filter(XSSFPicture.class::isInstance)
+                .map(XSSFPicture.class::cast)
+                .collect(Collectors.toMap(XSSFPicture::getShapeName, Function.identity()));
 
         Map<String, XSSFPicture> pictures1 = pictureGroup.apply(srcDrawing);
         if (destDrawing == null) {
@@ -336,16 +336,16 @@ public final class XlsSheetCopier {
      */
     private static void deletePicture(XSSFPicture picture) {
         String id = Optional.ofNullable(picture.getCTPicture())
-            .map(CTPicture::getBlipFill)
-            .map(CTBlipFillProperties::getBlip)
-            .map(CTBlip::getEmbed)
-            .orElse(null);
+                .map(CTPicture::getBlipFill)
+                .map(CTBlipFillProperties::getBlip)
+                .map(CTBlip::getEmbed)
+                .orElse(null);
         XSSFDrawing drawing = picture.getDrawing();
         if (id != null) {
             PackagePart packagePart = drawing.getPackagePart();
             packagePart.removeRelationship(id);
             packagePart.getPackage()
-                .deletePartRecursive(drawing.getRelationPartById(id).getDocumentPart().getPackagePart().getPartName());
+                    .deletePartRecursive(drawing.getRelationPartById(id).getDocumentPart().getPackagePart().getPartName());
         }
 
         try (XmlCursor cursor = picture.getCTPicture().newCursor()) {
@@ -384,7 +384,7 @@ public final class XlsSheetCopier {
     /**
      * Copy picture from source sheet to dest sheet
      *
-     * @param src source
+     * @param src  source
      * @param dest destination
      */
     private static void createPicture(Cursor src, Cursor dest) {

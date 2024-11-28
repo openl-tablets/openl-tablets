@@ -27,14 +27,13 @@ import org.openl.types.IOpenMethod;
  * It is a common class for different sources module implementations.
  *
  * @author snshor
- *
  */
 public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Map of internal types. XLS document can have internal types defined using <code>Datatype</code> tables, e.g.
      * domain model.<br>
-     *
+     * <p>
      * Key: type name.<br>
      * Value: {@link IOpenClass} for datatype.
      */
@@ -42,10 +41,9 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     /**
      * Set of dependencies for current module.
-     *
+     * <p>
      * NOTE!!! Be careful when calling {@link CompiledOpenClass#getOpenClass()} as it throws errors when there are any
      * ones in {@link CompiledOpenClass}. Check if there are errors: {@link CompiledOpenClass#hasErrors()}
-     *
      */
     private Set<CompiledDependency> usingModules = new LinkedHashSet<>();
 
@@ -143,13 +141,13 @@ public class ModuleOpenClass extends ComponentOpenClass {
     }
 
     public boolean isDependencyModule(ModuleOpenClass module,
-            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+                                      IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         return isDependencyModuleRec(module, this, cache);
     }
 
     private static boolean isDependencyModuleRec(ModuleOpenClass module,
-            ModuleOpenClass inModule,
-            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+                                                 ModuleOpenClass inModule,
+                                                 IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         IdentityHashMap<ModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
         Boolean t = c.get(module);
         if (t != null) {
@@ -159,7 +157,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
             t = false;
             for (CompiledDependency compiledDependency : inModule.getDependencies()) {
                 if (compiledDependency.getCompiledOpenClass()
-                    .getOpenClassWithErrors() instanceof ModuleOpenClass && isDependencyModuleRec(module,
+                        .getOpenClassWithErrors() instanceof ModuleOpenClass && isDependencyModuleRec(module,
                         (ModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
                         cache)) {
                     t = true;

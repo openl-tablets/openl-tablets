@@ -1,9 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.model.SSEAlgorithm;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.model.ServerSideEncryption;
 
 import org.openl.config.PropertiesHolder;
 
@@ -45,8 +47,8 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         secretKey = properties.getProperty(secretKeyPath);
         sseAlgorithm = properties.getProperty(sseAlgorithmPath);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
-            .map(Integer::parseInt)
-            .orElse(null);
+                .map(Integer::parseInt)
+                .orElse(null);
     }
 
     public String getServiceEndpoint() {
@@ -73,12 +75,12 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         this.regionName = regionName;
     }
 
-    public Regions[] getAllRegions() {
-        return Regions.values();
+    public List<Region> getAllRegions() {
+        return Region.regions();
     }
 
-    public SSEAlgorithm[] getAllSseAlgorithms() {
-        return SSEAlgorithm.values();
+    public Set<ServerSideEncryption> getAllSseAlgorithms() {
+        return ServerSideEncryption.knownValues();
     }
 
     public String getAccessKey() {

@@ -4,7 +4,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.Parameter;
 
 public class UserInfoModel {
@@ -12,12 +11,12 @@ public class UserInfoModel {
     @Email(message = "{openl.constraints.user.email.format.message}")
     @Size(max = 254, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User e-mail", example = "test@test")
-    @JsonView({ GenericView.Full.class, View.Short.class })
+    @JsonView({GenericView.Full.class, View.Short.class})
     private String email;
 
     @Size(max = 64, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User display name", example = "John Doe")
-    @JsonView({ GenericView.Full.class, View.Short.class })
+    @JsonView({GenericView.Full.class, View.Short.class})
     private String displayName;
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")

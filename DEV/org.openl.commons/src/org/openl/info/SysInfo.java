@@ -55,8 +55,8 @@ public class SysInfo {
         fn.put("nonHeapMem.used", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed());
         fn.put("nonHeapMem.committed", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted());
         Supplier<Stream<GarbageCollectorMXBean>> activeGCs = () -> ManagementFactory.getGarbageCollectorMXBeans()
-            .stream()
-            .filter(MemoryManagerMXBean::isValid);
+                .stream()
+                .filter(MemoryManagerMXBean::isValid);
         fn.put("gc.count", activeGCs.get().mapToLong(GarbageCollectorMXBean::getCollectionCount).sum());
         fn.put("gc.time", activeGCs.get().mapToLong(GarbageCollectorMXBean::getCollectionTime).sum());
 

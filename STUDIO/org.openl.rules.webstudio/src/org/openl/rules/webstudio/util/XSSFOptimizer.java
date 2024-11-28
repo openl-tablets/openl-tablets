@@ -51,7 +51,7 @@ public final class XSSFOptimizer {
                 newStyleXfs.add(styleXf);
 
                 // Change xfId in <cellStyle xfId=""> if exists such named style
-                for (Iterator<CTCellStyle> iterator = cellStyleArray.iterator(); iterator.hasNext();) {
+                for (Iterator<CTCellStyle> iterator = cellStyleArray.iterator(); iterator.hasNext(); ) {
                     CTCellStyle style = iterator.next();
                     if (style.getXfId() == usedStyleXf) {
                         style.setXfId(newXfId);

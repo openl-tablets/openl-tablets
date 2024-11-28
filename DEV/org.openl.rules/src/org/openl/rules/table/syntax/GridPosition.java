@@ -12,7 +12,6 @@ import org.openl.util.text.TextInfo;
 
 /**
  * @author snshor
- *
  */
 public class GridPosition implements IPosition {
 

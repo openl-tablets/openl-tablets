@@ -1,11 +1,15 @@
 package org.openl.util;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.IntPredicate;
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by tsaltsevich on 5/3/2016.
@@ -23,81 +27,81 @@ public class StringUtilsTest {
     public void testSplit() {
         assertNull(StringUtils.split(null, ' '));
         assertNull(StringUtils.split(null, '*'));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("", '*'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a.b.c", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a..b.c", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a:b:c"}, StringUtils.split("a:b:c", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a b c", ' '));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a..b.c.", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("..a..b.c..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a.", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(".a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a.", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("..a..", '.'));
+        assertArrayEquals(new String[]{}, StringUtils.split("", '*'), "Returned array is not empty");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a.b.c", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a..b.c", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a:b:c"}, StringUtils.split("a:b:c", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a b c", ' '),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a..b.c.", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("..a..b.c..", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a..", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a.", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split(".a", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("..a", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("..a.", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("..a..", '.'), "Returned array is not valid");
 
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(" \t\r\n", '*'));
-        assertArrayEquals("Returned array is not empty",
-                new String[]{},
-                StringUtils.split(" \t\r\n *  * * \t\n", '*'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split(" a .b .c ", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split(" a . . b . c ", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a : b : c"},
-                StringUtils.split(" a : b : c ", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a b \t\r\nc", ' '));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a. .b.c .", '.'));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split(". . a..b.c..", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t..\n", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a\t", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\na", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a ", '.'));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(". a. ", '.'));
+        assertArrayEquals(new String[]{}, StringUtils.split(" \t\r\n", '*'), "Returned array is not empty");
+        assertArrayEquals(new String[]{},
+                StringUtils.split(" \t\r\n *  * * \t\n", '*'),
+                "Returned array is not empty");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split(" a .b .c ", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split(" a . . b . c ", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a : b : c"},
+                StringUtils.split(" a : b : c ", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a b \t\r\nc", ' '),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a. .b.c .", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split(". . a..b.c..", '.'),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a\t..\n", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a\t", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("\na", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("  a", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("  a ", '.'), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split(". a. ", '.'), "Returned array is not valid");
     }
 
     @Test
     public void testSplitWS() {
         assertNull(StringUtils.split(null));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split(""));
-        assertArrayEquals("Returned array is not empty", new String[]{}, StringUtils.split("  \n\r  \t \r\n  \t\t"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a b c"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a \tb\nc"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a:b:c"}, StringUtils.split("a:b:c"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.split("a\tb\rc"));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("a\n\nb c\n"));
-        assertArrayEquals("Returned array is not valid",
-                new String[]{"a", "b", "c"},
-                StringUtils.split("\t\ta  b c  "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a  "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("a "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split(" a"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("  a "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.split("\t a\n\r"));
+        assertArrayEquals(new String[]{}, StringUtils.split(""), "Returned array is not empty");
+        assertArrayEquals(new String[]{}, StringUtils.split("  \n\r  \t \r\n  \t\t"), "Returned array is not empty");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.split("a b c"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.split("a \tb\nc"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a:b:c"}, StringUtils.split("a:b:c"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.split("a\tb\rc"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("a\n\nb c\n"),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"},
+                StringUtils.split("\t\ta  b c  "),
+                "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a  "), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("a "), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split(" a"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("  a"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("  a "), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.split("\t a\n\r"), "Returned array is not valid");
     }
 
     @Test
@@ -105,326 +109,326 @@ public class StringUtilsTest {
         assertNull(StringUtils.toLines(null));
         assertNull(StringUtils.toLines(""));
         assertNull(StringUtils.toLines("\r\n\t "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.toLines("a"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a"}, StringUtils.toLines("\r\n\t  a\r\n\t "));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("a\r\nb\r\nc"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("\na\rb\nc\r"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "b", "c"}, StringUtils.toLines("\n\ra\r\tb \nc\n"));
-        assertArrayEquals("Returned array is not valid", new String[]{"a", "c"}, StringUtils.toLines("\r a\n\t\r \n c \n"));
+        assertArrayEquals(new String[]{"a"}, StringUtils.toLines("a"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a"}, StringUtils.toLines("\r\n\t  a\r\n\t "), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.toLines("a\r\nb\r\nc"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.toLines("\na\rb\nc\r"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "b", "c"}, StringUtils.toLines("\n\ra\r\tb \nc\n"), "Returned array is not valid");
+        assertArrayEquals(new String[]{"a", "c"}, StringUtils.toLines("\r a\n\t\r \n c \n"), "Returned array is not valid");
     }
 
     @Test
     public void testJoinObject() {
-        assertNull("Returned string is not valid", StringUtils.join(null, "*"));
-        assertEquals("Returned string is not valid", "", StringUtils.join(new Object[]{}, "*"));
-        assertEquals("Returned string is not valid", "null", StringUtils.join(new Object[]{null}, "*"));
-        assertEquals("Returned string is not valid", "null,null", StringUtils.join(new Object[]{null, null}, ","));
-        assertEquals("Returned string is not valid", "a--b--c", StringUtils.join(new Object[]{"a", "b", "c"}, "--"));
-        assertEquals("Returned string is not valid", "null,,a", StringUtils.join(new Object[]{null, "", "a"}, ","));
+        assertNull(StringUtils.join(null, "*"), "Returned string is not valid");
+        assertEquals("", StringUtils.join(new Object[]{}, "*"), "Returned string is not valid");
+        assertEquals("null", StringUtils.join(new Object[]{null}, "*"), "Returned string is not valid");
+        assertEquals("null,null", StringUtils.join(new Object[]{null, null}, ","), "Returned string is not valid");
+        assertEquals("a--b--c", StringUtils.join(new Object[]{"a", "b", "c"}, "--"), "Returned string is not valid");
+        assertEquals("null,,a", StringUtils.join(new Object[]{null, "", "a"}, ","), "Returned string is not valid");
     }
 
     @Test
     public void testIsEmpty() {
-        assertTrue("Returned value is false", StringUtils.isEmpty(null));
-        assertTrue("Returned value is false", StringUtils.isEmpty(""));
-        assertFalse("Returned value is true", StringUtils.isEmpty(" "));
-        assertFalse("Returned value is true", StringUtils.isEmpty("boo"));
-        assertFalse("Returned value is true", StringUtils.isEmpty("  boo  "));
+        assertTrue(StringUtils.isEmpty(null), "Returned value is false");
+        assertTrue(StringUtils.isEmpty(""), "Returned value is false");
+        assertFalse(StringUtils.isEmpty(" "), "Returned value is true");
+        assertFalse(StringUtils.isEmpty("boo"), "Returned value is true");
+        assertFalse(StringUtils.isEmpty("  boo  "), "Returned value is true");
     }
 
     @Test
     public void testIsNotEmpty() {
-        assertFalse("Returned value is true", StringUtils.isNotEmpty(null));
-        assertFalse("Returned value is true", StringUtils.isNotEmpty(""));
-        assertTrue("Returned value is false", StringUtils.isNotEmpty(" "));
-        assertTrue("Returned value is false", StringUtils.isNotEmpty("boo"));
-        assertTrue("Returned value is false", StringUtils.isNotEmpty("  boo  "));
+        assertFalse(StringUtils.isNotEmpty(null), "Returned value is true");
+        assertFalse(StringUtils.isNotEmpty(""), "Returned value is true");
+        assertTrue(StringUtils.isNotEmpty(" "), "Returned value is false");
+        assertTrue(StringUtils.isNotEmpty("boo"), "Returned value is false");
+        assertTrue(StringUtils.isNotEmpty("  boo  "), "Returned value is false");
     }
 
     @Test
     public void testIsBlank() {
-        assertTrue("Returned value is false", StringUtils.isBlank(null));
-        assertTrue("Returned value is false", StringUtils.isBlank(""));
-        assertTrue("Returned value is false", StringUtils.isBlank(" "));
-        assertFalse("Returned value is true", StringUtils.isBlank("boo"));
-        assertFalse("Returned value is true", StringUtils.isBlank("  boo  "));
-        assertTrue("Returned value is true", StringUtils.isBlank(CONTROLS_AND_SPACES));
+        assertTrue(StringUtils.isBlank(null), "Returned value is false");
+        assertTrue(StringUtils.isBlank(""), "Returned value is false");
+        assertTrue(StringUtils.isBlank(" "), "Returned value is false");
+        assertFalse(StringUtils.isBlank("boo"), "Returned value is true");
+        assertFalse(StringUtils.isBlank("  boo  "), "Returned value is true");
+        assertTrue(StringUtils.isBlank(CONTROLS_AND_SPACES), "Returned value is true");
     }
 
     @Test
     public void testIsNotBlank() {
-        assertFalse("Returned value is true", StringUtils.isNotBlank(null));
-        assertFalse("Returned value is true", StringUtils.isNotBlank(""));
-        assertFalse("Returned value is true", StringUtils.isNotBlank(" "));
-        assertTrue("Returned value is false", StringUtils.isNotBlank("boo"));
-        assertTrue("Returned value is false", StringUtils.isNotBlank("  boo  "));
-        assertFalse("Returned value is false", StringUtils.isNotBlank(CONTROLS_AND_SPACES));
+        assertFalse(StringUtils.isNotBlank(null), "Returned value is true");
+        assertFalse(StringUtils.isNotBlank(""), "Returned value is true");
+        assertFalse(StringUtils.isNotBlank(" "), "Returned value is true");
+        assertTrue(StringUtils.isNotBlank("boo"), "Returned value is false");
+        assertTrue(StringUtils.isNotBlank("  boo  "), "Returned value is false");
+        assertFalse(StringUtils.isNotBlank(CONTROLS_AND_SPACES), "Returned value is false");
     }
 
     @Test
     public void testContainsIgnoreCase() {
-        assertFalse("Returned value is true", StringUtils.containsIgnoreCase(null, ""));
-        assertFalse("Returned value is true", StringUtils.containsIgnoreCase("", null));
-        assertFalse("Returned value is true", StringUtils.containsIgnoreCase("abc", "z"));
-        assertFalse("Returned value is true", StringUtils.containsIgnoreCase("абя", "в"));
-        assertFalse("Returned value is true", StringUtils.containsIgnoreCase("abc", "Z"));
+        assertFalse(StringUtils.containsIgnoreCase(null, ""), "Returned value is true");
+        assertFalse(StringUtils.containsIgnoreCase("", null), "Returned value is true");
+        assertFalse(StringUtils.containsIgnoreCase("abc", "z"), "Returned value is true");
+        assertFalse(StringUtils.containsIgnoreCase("абя", "в"), "Returned value is true");
+        assertFalse(StringUtils.containsIgnoreCase("abc", "Z"), "Returned value is true");
 
-        assertTrue("Returned value is false", StringUtils.containsIgnoreCase("", ""));
-        assertTrue("Returned value is false", StringUtils.containsIgnoreCase("abc", ""));
-        assertTrue("Returned value is false", StringUtils.containsIgnoreCase("abc", "a"));
-        assertTrue("Returned value is false", StringUtils.containsIgnoreCase("абв", "б"));
-        assertTrue("Returned value is false", StringUtils.containsIgnoreCase("abc", "B"));
+        assertTrue(StringUtils.containsIgnoreCase("", ""), "Returned value is false");
+        assertTrue(StringUtils.containsIgnoreCase("abc", ""), "Returned value is false");
+        assertTrue(StringUtils.containsIgnoreCase("abc", "a"), "Returned value is false");
+        assertTrue(StringUtils.containsIgnoreCase("абв", "б"), "Returned value is false");
+        assertTrue(StringUtils.containsIgnoreCase("abc", "B"), "Returned value is false");
     }
 
     @Test
     public void testMatches() {
-        assertFalse("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), ""));
-        assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "1"));
-        assertTrue("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "2"));
-        assertFalse("Returned value is true", StringUtils.matches(Pattern.compile("\\d"), "12"));
+        assertFalse(StringUtils.matches(Pattern.compile("\\d"), ""), "Returned value is true");
+        assertTrue(StringUtils.matches(Pattern.compile("\\d"), "1"), "Returned value is true");
+        assertTrue(StringUtils.matches(Pattern.compile("\\d"), "2"), "Returned value is true");
+        assertFalse(StringUtils.matches(Pattern.compile("\\d"), "12"), "Returned value is true");
     }
 
     @Test
     public void testTrim() {
-        assertNull("Returned string is not valid", StringUtils.trim(null));
-        assertEquals("Returned string is not valid", "", StringUtils.trim(""));
-        assertEquals("Returned string is not valid", "", StringUtils.trim("     "));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trim("boo"));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trim("    boo    "));
-        assertEquals("Returned string is not valid", "bar", StringUtils.trim("     bar     "));
-        assertEquals("Returned string is not valid", "foo", StringUtils.trim(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
-        assertEquals("Returned string is not valid", "", StringUtils.trim(CONTROLS_AND_SPACES));
+        assertNull(StringUtils.trim(null), "Returned string is not valid");
+        assertEquals("", StringUtils.trim(""), "Returned string is not valid");
+        assertEquals("", StringUtils.trim("     "), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trim("boo"), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trim("    boo    "), "Returned string is not valid");
+        assertEquals("bar", StringUtils.trim("     bar     "), "Returned string is not valid");
+        assertEquals("foo", StringUtils.trim(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "), "Returned string is not valid");
+        assertEquals("", StringUtils.trim(CONTROLS_AND_SPACES), "Returned string is not valid");
     }
 
     @Test
     public void testTrimToNull() {
-        assertNull("Returned string is not valid", StringUtils.trimToNull(null));
-        assertNull("Returned string is not valid", StringUtils.trimToNull(""));
-        assertNull("Returned string is not valid", StringUtils.trimToNull("     "));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("boo"));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trimToNull("    boo    "));
-        assertEquals("Returned string is not valid", "bar", StringUtils.trimToNull("     bar     "));
-        assertEquals("Returned string is not valid", "foo", StringUtils.trimToNull(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
-        assertNull("Returned string is not valid", StringUtils.trimToNull(CONTROLS_AND_SPACES));
+        assertNull(StringUtils.trimToNull(null), "Returned string is not valid");
+        assertNull(StringUtils.trimToNull(""), "Returned string is not valid");
+        assertNull(StringUtils.trimToNull("     "), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trimToNull("boo"), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trimToNull("    boo    "), "Returned string is not valid");
+        assertEquals("bar", StringUtils.trimToNull("     bar     "), "Returned string is not valid");
+        assertEquals("foo", StringUtils.trimToNull(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "), "Returned string is not valid");
+        assertNull(StringUtils.trimToNull(CONTROLS_AND_SPACES), "Returned string is not valid");
     }
 
     @Test
     public void testTrimToEmpty() {
-        assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(null));
-        assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(""));
-        assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty("     "));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trimToEmpty("boo"));
-        assertEquals("Returned string is not valid", "boo", StringUtils.trimToEmpty("    boo    "));
-        assertEquals("Returned string is not valid", "bar", StringUtils.trimToEmpty("     bar     "));
-        assertEquals("Returned string is not valid", "foo", StringUtils.trimToEmpty(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "));
-        assertEquals("Returned string is not valid", "", StringUtils.trimToEmpty(CONTROLS_AND_SPACES));
+        assertEquals("", StringUtils.trimToEmpty(null), "Returned string is not valid");
+        assertEquals("", StringUtils.trimToEmpty(""), "Returned string is not valid");
+        assertEquals("", StringUtils.trimToEmpty("     "), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trimToEmpty("boo"), "Returned string is not valid");
+        assertEquals("boo", StringUtils.trimToEmpty("    boo    "), "Returned string is not valid");
+        assertEquals("bar", StringUtils.trimToEmpty("     bar     "), "Returned string is not valid");
+        assertEquals("foo", StringUtils.trimToEmpty(CONTROLS_AND_SPACES + "  foo" + CONTROLS_AND_SPACES + "   "), "Returned string is not valid");
+        assertEquals("", StringUtils.trimToEmpty(CONTROLS_AND_SPACES), "Returned string is not valid");
     }
 
     @Test
     public void testCapitalize() {
-        assertNull("Returned string is not valid", StringUtils.capitalize(null));
-        assertEquals("Returned string is not valid", "", StringUtils.capitalize(""));
-        assertEquals("Returned string is not valid", "Foo", StringUtils.capitalize("foo"));
-        assertEquals("Returned string is not valid", "FOo", StringUtils.capitalize("fOo"));
-        assertEquals("Returned string is not valid", "МУу", StringUtils.capitalize("мУу"));
+        assertNull(StringUtils.capitalize(null), "Returned string is not valid");
+        assertEquals("", StringUtils.capitalize(""), "Returned string is not valid");
+        assertEquals("Foo", StringUtils.capitalize("foo"), "Returned string is not valid");
+        assertEquals("FOo", StringUtils.capitalize("fOo"), "Returned string is not valid");
+        assertEquals("МУу", StringUtils.capitalize("мУу"), "Returned string is not valid");
     }
 
     @Test
     public void testUnCapitalize() {
-        assertNull("Returned string is not valid", StringUtils.uncapitalize(null));
-        assertEquals("Returned string is not valid", "", StringUtils.uncapitalize(""));
-        assertEquals("Returned string is not valid", "foo", StringUtils.uncapitalize("Foo"));
-        assertEquals("Returned string is not valid", "fOO", StringUtils.uncapitalize("FOO"));
-        assertEquals("Returned string is not valid", "муУ", StringUtils.uncapitalize("МуУ"));
+        assertNull(StringUtils.uncapitalize(null), "Returned string is not valid");
+        assertEquals("", StringUtils.uncapitalize(""), "Returned string is not valid");
+        assertEquals("foo", StringUtils.uncapitalize("Foo"), "Returned string is not valid");
+        assertEquals("fOO", StringUtils.uncapitalize("FOO"), "Returned string is not valid");
+        assertEquals("муУ", StringUtils.uncapitalize("МуУ"), "Returned string is not valid");
     }
 
     @Test
     public void testCamelToKebab() {
-        assertNull("Returned string is not valid", StringUtils.camelToKebab(null));
-        assertEquals("Returned string is not valid", "", StringUtils.camelToKebab(""));
-        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("FOO"));
-        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("Foo"));
-        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("foo"));
-        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("FooBar"));
-        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("fooBar"));
-        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("FOOBar"));
-        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("ABar"));
-        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBar"));
-        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBAR"));
+        assertNull(StringUtils.camelToKebab(null), "Returned string is not valid");
+        assertEquals("", StringUtils.camelToKebab(""), "Returned string is not valid");
+        assertEquals("foo", StringUtils.camelToKebab("FOO"), "Returned string is not valid");
+        assertEquals("foo", StringUtils.camelToKebab("Foo"), "Returned string is not valid");
+        assertEquals("foo", StringUtils.camelToKebab("foo"), "Returned string is not valid");
+        assertEquals("foo-bar", StringUtils.camelToKebab("FooBar"), "Returned string is not valid");
+        assertEquals("foo-bar", StringUtils.camelToKebab("fooBar"), "Returned string is not valid");
+        assertEquals("foo-bar", StringUtils.camelToKebab("FOOBar"), "Returned string is not valid");
+        assertEquals("a-bar", StringUtils.camelToKebab("ABar"), "Returned string is not valid");
+        assertEquals("a-bar", StringUtils.camelToKebab("aBar"), "Returned string is not valid");
+        assertEquals("a-bar", StringUtils.camelToKebab("aBAR"), "Returned string is not valid");
     }
 
     @Test
     public void testFirst() {
         IntPredicate tester = (int x) -> x == '!';
-        assertEquals( StringUtils.first(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length(), tester), -1);
-        assertEquals( StringUtils.first("",0,0, tester), -1);
-        assertEquals( StringUtils.first("",1,0, tester), -1);
-        assertEquals( StringUtils.first("",-1,1, tester), -1);
-        assertEquals( StringUtils.first("",0,-1, tester), -1);
+        assertEquals(StringUtils.first(CONTROLS_AND_SPACES, 0, CONTROLS_AND_SPACES.length(), tester), -1);
+        assertEquals(StringUtils.first("", 0, 0, tester), -1);
+        assertEquals(StringUtils.first("", 1, 0, tester), -1);
+        assertEquals(StringUtils.first("", -1, 1, tester), -1);
+        assertEquals(StringUtils.first("", 0, -1, tester), -1);
 
-        assertEquals( StringUtils.first("X",-1,1, tester), -1);
-        assertEquals( StringUtils.first("X",0,1, tester), -1);
+        assertEquals(StringUtils.first("X", -1, 1, tester), -1);
+        assertEquals(StringUtils.first("X", 0, 1, tester), -1);
 
-        assertEquals( StringUtils.first("XY",0,2, tester), -1);
-        assertEquals( StringUtils.first("XY",1,2, tester), -1);
-        assertEquals( StringUtils.first("XY",2,2, tester), -1);
+        assertEquals(StringUtils.first("XY", 0, 2, tester), -1);
+        assertEquals(StringUtils.first("XY", 1, 2, tester), -1);
+        assertEquals(StringUtils.first("XY", 2, 2, tester), -1);
 
-        assertEquals( StringUtils.first("!",0,0, tester), -1);
-        assertEquals( StringUtils.first("!",0,1, tester), 0);
-        assertEquals( StringUtils.first("!",1,0, tester), -1);
-        assertEquals( StringUtils.first("!",0,-1, tester), -1);
-        assertEquals( StringUtils.first("!",-1,2, tester), 0);
+        assertEquals(StringUtils.first("!", 0, 0, tester), -1);
+        assertEquals(StringUtils.first("!", 0, 1, tester), 0);
+        assertEquals(StringUtils.first("!", 1, 0, tester), -1);
+        assertEquals(StringUtils.first("!", 0, -1, tester), -1);
+        assertEquals(StringUtils.first("!", -1, 2, tester), 0);
 
-        assertEquals( StringUtils.first("X!",0,0, tester), -1);
-        assertEquals( StringUtils.first("X!",0,1, tester), -1);
-        assertEquals( StringUtils.first("X!",0,2, tester), 1);
-        assertEquals( StringUtils.first("X!",1,0, tester), -1);
-        assertEquals( StringUtils.first("X!",1,1, tester), -1);
-        assertEquals( StringUtils.first("X!",1,2, tester), 1);
-        assertEquals( StringUtils.first("X!",2,0, tester), -1);
-        assertEquals( StringUtils.first("X!",2,1, tester), -1);
-        assertEquals( StringUtils.first("X!",2,2, tester), -1);
-        assertEquals( StringUtils.first("X!",1,3, tester), 1);
-        assertEquals( StringUtils.first("X!",2,3, tester), -1);
+        assertEquals(StringUtils.first("X!", 0, 0, tester), -1);
+        assertEquals(StringUtils.first("X!", 0, 1, tester), -1);
+        assertEquals(StringUtils.first("X!", 0, 2, tester), 1);
+        assertEquals(StringUtils.first("X!", 1, 0, tester), -1);
+        assertEquals(StringUtils.first("X!", 1, 1, tester), -1);
+        assertEquals(StringUtils.first("X!", 1, 2, tester), 1);
+        assertEquals(StringUtils.first("X!", 2, 0, tester), -1);
+        assertEquals(StringUtils.first("X!", 2, 1, tester), -1);
+        assertEquals(StringUtils.first("X!", 2, 2, tester), -1);
+        assertEquals(StringUtils.first("X!", 1, 3, tester), 1);
+        assertEquals(StringUtils.first("X!", 2, 3, tester), -1);
 
-        assertEquals( StringUtils.first("!!!",0,3, tester), 0);
-        assertEquals( StringUtils.first("X!!",0,3, tester), 1);
-        assertEquals( StringUtils.first("XY!",0,3, tester), 2);
-        assertEquals( StringUtils.first("XYZ",0,3, tester), -1);
-        assertEquals( StringUtils.first("!YZ",0,3, tester), 0);
-        assertEquals( StringUtils.first("!!Z",0,3, tester), 0);
-        assertEquals( StringUtils.first("X!Z",0,3, tester), 1);
-        assertEquals( StringUtils.first("!Y!",0,3, tester), 0);
+        assertEquals(StringUtils.first("!!!", 0, 3, tester), 0);
+        assertEquals(StringUtils.first("X!!", 0, 3, tester), 1);
+        assertEquals(StringUtils.first("XY!", 0, 3, tester), 2);
+        assertEquals(StringUtils.first("XYZ", 0, 3, tester), -1);
+        assertEquals(StringUtils.first("!YZ", 0, 3, tester), 0);
+        assertEquals(StringUtils.first("!!Z", 0, 3, tester), 0);
+        assertEquals(StringUtils.first("X!Z", 0, 3, tester), 1);
+        assertEquals(StringUtils.first("!Y!", 0, 3, tester), 0);
     }
 
     @Test
     public void testLast() {
         IntPredicate tester = (int x) -> x == '!';
-        assertEquals( StringUtils.last(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length(), tester), -1);
-        assertEquals( StringUtils.last("",0,0, tester), -1);
-        assertEquals( StringUtils.last("",1,0, tester), -1);
-        assertEquals( StringUtils.last("",-1,1, tester), -1);
-        assertEquals( StringUtils.last("",0,-1, tester), -1);
+        assertEquals(StringUtils.last(CONTROLS_AND_SPACES, 0, CONTROLS_AND_SPACES.length(), tester), -1);
+        assertEquals(StringUtils.last("", 0, 0, tester), -1);
+        assertEquals(StringUtils.last("", 1, 0, tester), -1);
+        assertEquals(StringUtils.last("", -1, 1, tester), -1);
+        assertEquals(StringUtils.last("", 0, -1, tester), -1);
 
-        assertEquals( StringUtils.last("X",-1,1, tester), -1);
-        assertEquals( StringUtils.last("X",0,1, tester), -1);
+        assertEquals(StringUtils.last("X", -1, 1, tester), -1);
+        assertEquals(StringUtils.last("X", 0, 1, tester), -1);
 
-        assertEquals( StringUtils.last("XY",0,2, tester), -1);
-        assertEquals( StringUtils.last("XY",1,2, tester), -1);
-        assertEquals( StringUtils.last("XY",2,2, tester), -1);
+        assertEquals(StringUtils.last("XY", 0, 2, tester), -1);
+        assertEquals(StringUtils.last("XY", 1, 2, tester), -1);
+        assertEquals(StringUtils.last("XY", 2, 2, tester), -1);
 
-        assertEquals( StringUtils.last("!",0,0, tester), -1);
-        assertEquals( StringUtils.last("!",0,1, tester), 0);
-        assertEquals( StringUtils.last("!",1,0, tester), -1);
-        assertEquals( StringUtils.last("!",0,-1, tester), -1);
-        assertEquals( StringUtils.last("!",-1,2, tester), 0);
+        assertEquals(StringUtils.last("!", 0, 0, tester), -1);
+        assertEquals(StringUtils.last("!", 0, 1, tester), 0);
+        assertEquals(StringUtils.last("!", 1, 0, tester), -1);
+        assertEquals(StringUtils.last("!", 0, -1, tester), -1);
+        assertEquals(StringUtils.last("!", -1, 2, tester), 0);
 
-        assertEquals( StringUtils.last("X!",0,0, tester), -1);
-        assertEquals( StringUtils.last("X!",0,1, tester), -1);
-        assertEquals( StringUtils.last("X!",0,2, tester), 1);
-        assertEquals( StringUtils.last("X!",1,0, tester), -1);
-        assertEquals( StringUtils.last("X!",1,1, tester), -1);
-        assertEquals( StringUtils.last("X!",1,2, tester), 1);
-        assertEquals( StringUtils.last("X!",2,0, tester), -1);
-        assertEquals( StringUtils.last("X!",2,1, tester), -1);
-        assertEquals( StringUtils.last("X!",2,2, tester), -1);
-        assertEquals( StringUtils.last("X!",1,3, tester), 1);
-        assertEquals( StringUtils.last("X!",2,3, tester), -1);
+        assertEquals(StringUtils.last("X!", 0, 0, tester), -1);
+        assertEquals(StringUtils.last("X!", 0, 1, tester), -1);
+        assertEquals(StringUtils.last("X!", 0, 2, tester), 1);
+        assertEquals(StringUtils.last("X!", 1, 0, tester), -1);
+        assertEquals(StringUtils.last("X!", 1, 1, tester), -1);
+        assertEquals(StringUtils.last("X!", 1, 2, tester), 1);
+        assertEquals(StringUtils.last("X!", 2, 0, tester), -1);
+        assertEquals(StringUtils.last("X!", 2, 1, tester), -1);
+        assertEquals(StringUtils.last("X!", 2, 2, tester), -1);
+        assertEquals(StringUtils.last("X!", 1, 3, tester), 1);
+        assertEquals(StringUtils.last("X!", 2, 3, tester), -1);
 
-        assertEquals( StringUtils.last("!!!",0,3, tester), 2);
-        assertEquals( StringUtils.last("X!!",0,3, tester), 2);
-        assertEquals( StringUtils.last("XY!",0,3, tester), 2);
-        assertEquals( StringUtils.last("XYZ",0,3, tester), -1);
-        assertEquals( StringUtils.last("!YZ",0,3, tester), 0);
-        assertEquals( StringUtils.last("!!Z",0,3, tester), 1);
-        assertEquals( StringUtils.last("X!Z",0,3, tester), 1);
-        assertEquals( StringUtils.last("!Y!",0,3, tester), 2);
+        assertEquals(StringUtils.last("!!!", 0, 3, tester), 2);
+        assertEquals(StringUtils.last("X!!", 0, 3, tester), 2);
+        assertEquals(StringUtils.last("XY!", 0, 3, tester), 2);
+        assertEquals(StringUtils.last("XYZ", 0, 3, tester), -1);
+        assertEquals(StringUtils.last("!YZ", 0, 3, tester), 0);
+        assertEquals(StringUtils.last("!!Z", 0, 3, tester), 1);
+        assertEquals(StringUtils.last("X!Z", 0, 3, tester), 1);
+        assertEquals(StringUtils.last("!Y!", 0, 3, tester), 2);
     }
 
     @Test
     public void testFirstNonSpace() {
-        assertEquals( StringUtils.firstNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
-        assertEquals( StringUtils.firstNonSpace("",0,0), -1);
-        assertEquals( StringUtils.firstNonSpace("",1,0), -1);
-        assertEquals( StringUtils.firstNonSpace("",-1,1), -1);
-        assertEquals( StringUtils.firstNonSpace("",0,-1), -1);
-        assertEquals( StringUtils.firstNonSpace("X",-1,1), 0);
-        assertEquals( StringUtils.firstNonSpace("X",0,1), 0);
-        assertEquals( StringUtils.firstNonSpace("XY",0,2), 0);
-        assertEquals( StringUtils.firstNonSpace("XY",1,2), 1);
-        assertEquals( StringUtils.firstNonSpace("XY",2,2), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,0), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,1), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,2), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,3), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,4), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,5), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,6), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",1,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",2,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",3,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",4,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",5,7), 5);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,7), 6);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",7,7), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",7,6), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,6), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,5), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",5,4), -1);
-        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",4,3), -1);
-        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",0,10), -1);
-        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",1,9), -1);
-        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",-1,11), -1);
-        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",1,11), -1);
-        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",-1,9), -1);
-        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",1,11), -1);
-        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",1,12), 11);
-        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",0,11), 0);
-        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",0,0), -1);
-        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",12,12), -1);
+        assertEquals(StringUtils.firstNonSpace(CONTROLS_AND_SPACES, 0, CONTROLS_AND_SPACES.length()), -1);
+        assertEquals(StringUtils.firstNonSpace("", 0, 0), -1);
+        assertEquals(StringUtils.firstNonSpace("", 1, 0), -1);
+        assertEquals(StringUtils.firstNonSpace("", -1, 1), -1);
+        assertEquals(StringUtils.firstNonSpace("", 0, -1), -1);
+        assertEquals(StringUtils.firstNonSpace("X", -1, 1), 0);
+        assertEquals(StringUtils.firstNonSpace("X", 0, 1), 0);
+        assertEquals(StringUtils.firstNonSpace("XY", 0, 2), 0);
+        assertEquals(StringUtils.firstNonSpace("XY", 1, 2), 1);
+        assertEquals(StringUtils.firstNonSpace("XY", 2, 2), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 0), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 1), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 2), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 3), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 4), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 5), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 6), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 0, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 1, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 2, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 3, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 4, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 5, 7), 5);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 6, 7), 6);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 7, 7), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 7, 6), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 6, 6), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 6, 5), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 5, 4), -1);
+        assertEquals(StringUtils.firstNonSpace(" \b\t\r\nXY", 4, 3), -1);
+        assertEquals(StringUtils.firstNonSpace("   \b\t\r\n   ", 0, 10), -1);
+        assertEquals(StringUtils.firstNonSpace("   \b\t\r\n   ", 1, 9), -1);
+        assertEquals(StringUtils.firstNonSpace("   \b\t\r\n   ", -1, 11), -1);
+        assertEquals(StringUtils.firstNonSpace("   \b\t\r\n   ", 1, 11), -1);
+        assertEquals(StringUtils.firstNonSpace("   \b\t\r\n   ", -1, 9), -1);
+        assertEquals(StringUtils.firstNonSpace("X  \b\t\r\n    Y", 1, 11), -1);
+        assertEquals(StringUtils.firstNonSpace("X  \b\t\r\n    Y", 1, 12), 11);
+        assertEquals(StringUtils.firstNonSpace("X  \b\t\r\n    Y", 0, 11), 0);
+        assertEquals(StringUtils.firstNonSpace("X  \b\t\r\n    Y", 0, 0), -1);
+        assertEquals(StringUtils.firstNonSpace("X  \b\t\r\n    Y", 12, 12), -1);
     }
 
     @Test
     public void testLastNonSpace() {
-        assertEquals( StringUtils.lastNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
-        assertEquals( StringUtils.lastNonSpace("",0,0), -1);
-        assertEquals( StringUtils.lastNonSpace("",1,0), -1);
-        assertEquals( StringUtils.lastNonSpace("",-1,1), -1);
-        assertEquals( StringUtils.lastNonSpace("",0,-1), -1);
-        assertEquals( StringUtils.lastNonSpace("X",-1,1), 0);
-        assertEquals( StringUtils.lastNonSpace("X",0,1), 0);
-        assertEquals( StringUtils.lastNonSpace("XY",0,2), 1);
-        assertEquals( StringUtils.lastNonSpace("XY",1,2), 1);
-        assertEquals( StringUtils.lastNonSpace("XY",2,2), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,0), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,1), 0);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,2), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,3), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,4), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,5), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,6), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,7), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,7), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",2,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",3,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",4,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",5,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",6,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",7,7), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,5), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,2), 1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,1), -1);
-        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,0), -1);
-        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",0,10), -1);
-        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",1,9), -1);
-        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",-1,11), -1);
-        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",1,11), -1);
-        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",-1,9), -1);
-        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",1,11), -1);
-        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",1,12), 11);
-        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",0,11), 0);
-        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",0,0), -1);
-        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",12,12), -1);
+        assertEquals(StringUtils.lastNonSpace(CONTROLS_AND_SPACES, 0, CONTROLS_AND_SPACES.length()), -1);
+        assertEquals(StringUtils.lastNonSpace("", 0, 0), -1);
+        assertEquals(StringUtils.lastNonSpace("", 1, 0), -1);
+        assertEquals(StringUtils.lastNonSpace("", -1, 1), -1);
+        assertEquals(StringUtils.lastNonSpace("", 0, -1), -1);
+        assertEquals(StringUtils.lastNonSpace("X", -1, 1), 0);
+        assertEquals(StringUtils.lastNonSpace("X", 0, 1), 0);
+        assertEquals(StringUtils.lastNonSpace("XY", 0, 2), 1);
+        assertEquals(StringUtils.lastNonSpace("XY", 1, 2), 1);
+        assertEquals(StringUtils.lastNonSpace("XY", 2, 2), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 0), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 1), 0);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 2), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 3), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 4), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 5), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 6), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 0, 7), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 1, 7), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 2, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 3, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 4, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 5, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 6, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 7, 7), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 1, 5), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 1, 2), 1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 1, 1), -1);
+        assertEquals(StringUtils.lastNonSpace("XY \b\t\r\n", 1, 0), -1);
+        assertEquals(StringUtils.lastNonSpace("   \b\t\r\n   ", 0, 10), -1);
+        assertEquals(StringUtils.lastNonSpace("   \b\t\r\n   ", 1, 9), -1);
+        assertEquals(StringUtils.lastNonSpace("   \b\t\r\n   ", -1, 11), -1);
+        assertEquals(StringUtils.lastNonSpace("   \b\t\r\n   ", 1, 11), -1);
+        assertEquals(StringUtils.lastNonSpace("   \b\t\r\n   ", -1, 9), -1);
+        assertEquals(StringUtils.lastNonSpace("X  \b\t\r\n    Y", 1, 11), -1);
+        assertEquals(StringUtils.lastNonSpace("X  \b\t\r\n    Y", 1, 12), 11);
+        assertEquals(StringUtils.lastNonSpace("X  \b\t\r\n    Y", 0, 11), 0);
+        assertEquals(StringUtils.lastNonSpace("X  \b\t\r\n    Y", 0, 0), -1);
+        assertEquals(StringUtils.lastNonSpace("X  \b\t\r\n    Y", 12, 12), -1);
     }
 }

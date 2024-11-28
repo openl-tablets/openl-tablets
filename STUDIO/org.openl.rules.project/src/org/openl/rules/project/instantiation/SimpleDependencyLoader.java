@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
@@ -15,8 +18,6 @@ import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.validation.ValidationManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleDependencyLoader implements IDependencyLoader {
 
@@ -31,7 +32,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
         return ProjectExternalDependenciesHelper
-            .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
     }
 
     @Override
@@ -59,9 +60,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     public SimpleDependencyLoader(ProjectDescriptor project,
-            Module module,
-            boolean executionMode,
-            AbstractDependencyManager dependencyManager) {
+                                  Module module,
+                                  boolean executionMode,
+                                  AbstractDependencyManager dependencyManager) {
         this.project = Objects.requireNonNull(project, "project cannot be null");
         this.module = module;
         this.executionMode = executionMode;
@@ -111,18 +112,14 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         ClassLoader classLoader = buildClassLoader(dependencyManager);
         if (!isProjectLoader()) {
             rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
-                dependencyManager,
-                classLoader,
-                executionMode);
+                    dependencyManager,
+                    classLoader,
+                    executionMode);
         } else {
-            Collection<Module> modules = getModules();
-            if (modules.isEmpty()) {
-                throw new IllegalStateException("Expected at least one module in the project.");
-            }
             rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(getModules(),
-                dependencyManager,
-                classLoader,
-                executionMode);
+                    dependencyManager,
+                    classLoader,
+                    executionMode);
         }
 
         Map<String, Object> parameters = configureExternalParameters(dependencyManager);
@@ -134,8 +131,8 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             CompiledDependency compiledDependency = new CompiledDependency(dependency,
-                compiledOpenClass,
-                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
+                    compiledOpenClass,
+                    isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
                 onCompilationComplete(this, compiledDependency);
                 this.compiledDependency = compiledDependency;
@@ -156,7 +153,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,
-            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+                                                      AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
     }
 

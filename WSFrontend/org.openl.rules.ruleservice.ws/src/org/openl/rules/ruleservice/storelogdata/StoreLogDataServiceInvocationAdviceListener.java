@@ -2,13 +2,17 @@ package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
@@ -17,10 +21,7 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.openl.util.ClassUtils;
 
 @Component
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
@@ -30,11 +31,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     private StoreLogDataManager storeLogDataManager;
 
     public void process(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception lastOccurredException,
-            Instantiator postProcessAdvice,
-            Predicate<PrepareStoreLogData> predicate) {
+                        Object[] args,
+                        Object result,
+                        Exception lastOccurredException,
+                        Instantiator postProcessAdvice,
+                        Predicate<PrepareStoreLogData> predicate) {
 
         PrepareStoreLogData[] annotations = interfaceMethod.getAnnotationsByType(PrepareStoreLogData.class);
         Collection<Runnable> destroyFunctions = new ArrayList<>();
@@ -51,9 +52,9 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                         processAwareInterfaces(interfaceMethod, storeLogDataAdvice, cache, destroyFunctions);
                     } catch (Exception e) {
                         String msg = String.format(
-                            "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                            MethodUtil.printQualifiedMethodName(interfaceMethod),
-                            clazz.getTypeName());
+                                "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                                MethodUtil.printQualifiedMethodName(interfaceMethod),
+                                clazz.getTypeName());
                         log.error(msg, e);
                     }
                     if (storeLogDataAdvice != null) {
@@ -67,9 +68,9 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     }
 
     private void processAwareInterfaces(Method interfaceMethod,
-            StoreLogDataAdvice storeLogDataAdvice,
-            IdentityHashMap<Inject<?>, Object> cache,
-            Collection<Runnable> destroyFunctions) {
+                                        StoreLogDataAdvice storeLogDataAdvice,
+                                        IdentityHashMap<Inject<?>, Object> cache,
+                                        Collection<Runnable> destroyFunctions) {
         for (var storeLogDataService : storeLogDataManager.getServices()) {
             for (var inject : storeLogDataService.additionalInjects()) {
                 var annotationClass = inject.getAnnotationClass();
@@ -77,7 +78,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     var resource = cache.get(inject);
                     if (resource == null) {
                         var resource1 = inject(storeLogDataAdvice, annotationClass,
-                            e -> inject.getResource(interfaceMethod, e));
+                                e -> inject.getResource(interfaceMethod, e));
                         cache.put(inject, resource1);
                         if (resource1 != null) {
                             destroyFunctions.add(() -> inject.destroy(resource1));
@@ -85,10 +86,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     } else {
                         inject(storeLogDataAdvice, annotationClass, e -> resource);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    log.error("Failed to inject a resource through annotation '{}'",
-                        annotationClass.getTypeName(),
-                        e);
+                } catch (Exception e) {
+                    log.error("Failed to inject a resource through annotation '{}'", annotationClass.getTypeName(), e);
                 }
             }
         }
@@ -100,14 +99,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
         try {
             inject(storeLogDataAdvice, InjectObjectSerializer.class, e -> objectSerializer);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             log.error("Failed to inject a resource through @InjectObjectSerializer annotation.", e);
         }
     }
 
     private Object inject(Object target,
                           Class<? extends Annotation> annotationClass,
-                          Function<Annotation, Object> supplier) throws IllegalAccessException, InvocationTargetException {
+                          Function<Annotation, Object> supplier) throws Exception {
         if (annotationClass != null) {
             Class<?> cls = target.getClass();
             Object resource = null;
@@ -123,8 +122,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                             }
                             initialized = true;
                         }
-                        field.setAccessible(true);
-                        field.set(target, resource);
+                        ClassUtils.set(target, field.getName(), resource);
                     }
                 }
                 cls = cls.getSuperclass();
@@ -151,67 +149,67 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
 
     @Override
     public void beforeServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
-            Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception lastOccurredException,
-            Instantiator postProcessAdvice) {
+                                          Method interfaceMethod,
+                                          Object[] args,
+                                          Object result,
+                                          Exception lastOccurredException,
+                                          Instantiator postProcessAdvice) {
         if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                postProcessAdvice,
-                e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    args,
+                    result,
+                    lastOccurredException,
+                    postProcessAdvice,
+                    e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
 
     @Override
     public void afterServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
-            Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception lastOccurredException,
-            Instantiator postProcessAdvice) {
+                                         Method interfaceMethod,
+                                         Object[] args,
+                                         Object result,
+                                         Exception lastOccurredException,
+                                         Instantiator postProcessAdvice) {
         if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                postProcessAdvice,
-                e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
+                    args,
+                    result,
+                    lastOccurredException,
+                    postProcessAdvice,
+                    e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
 
     @Override
     public void beforeMethodInvocation(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception ex,
-            Instantiator postProcessAdvice) {
+                                       Object[] args,
+                                       Object result,
+                                       Exception ex,
+                                       Instantiator postProcessAdvice) {
         if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
-                args,
-                result,
-                ex,
-                postProcessAdvice,
-                e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
+                    args,
+                    result,
+                    ex,
+                    postProcessAdvice,
+                    e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
 
     @Override
     public void afterMethodInvocation(Method interfaceMethod,
-            Object[] args,
-            Object result,
-            Exception lastOccurredException,
-            Instantiator postProcessAdvice) {
+                                      Object[] args,
+                                      Object result,
+                                      Exception lastOccurredException,
+                                      Instantiator postProcessAdvice) {
         if (storeLogDataManager.isEnabled()) {
             process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                postProcessAdvice,
-                e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
+                    args,
+                    result,
+                    lastOccurredException,
+                    postProcessAdvice,
+                    e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
 

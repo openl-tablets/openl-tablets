@@ -1,25 +1,25 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.resolver;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Base64;
 import java.util.List;
-
+import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.stereotype.Component;
 
 /**
  * Resolves {@link AProject} from base64 projectId. It's used to remove duplicated code in Spring Controllers and make
@@ -48,6 +48,9 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
     @Override
     public RulesProject convert(String projectId) {
         var project = resolveProjectIdentity(projectId);
+        if (project == null) {
+            throw new NotFoundException("project.identifier.message");
+        }
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }
@@ -70,7 +73,26 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
         if (parts == -1) {
             throw new IllegalArgumentException("Invalid projectId: " + id);
         }
-        return getUserWorkspace().getProject(decoded.substring(0, parts), decoded.substring(parts + 1));
+        var repoId = decoded.substring(0, parts);
+        var projectName = decoded.substring(parts + 1);
+        var workspace = getUserWorkspace();
+        try {
+            return workspace.getProject(repoId, projectName);
+        } catch (ProjectException e) {
+            var repository = workspace.getDesignTimeRepository().getRepository(repoId);
+            if (repository != null && repository.supports().mappedFolders()) {
+                var mappedRepository = (FolderMapper) repository;
+                var businessName = mappedRepository.getBusinessName(projectName);
+                if (!Objects.equals(businessName, projectName)) {
+                    try {
+                        return workspace.getProject(repoId, businessName);
+                    } catch (ProjectException e1) {
+                        e.addSuppressed(e1);
+                    }
+                }
+            }
+            throw e;
+        }
     }
 
 }

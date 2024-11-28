@@ -1,8 +1,11 @@
 package org.openl.rules.datatype;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenClass;
@@ -18,7 +21,7 @@ public class DatatypeTableTest extends BaseOpenlBuilderHelper {
     @Test
     public void testCanAccessDatatype() {
         IOpenClass openClass = getCompiledOpenClass().getOpenClass();
-        assertNotNull("There is Driver datatype", openClass.findType("Driver"));
+        assertNotNull(openClass.findType("Driver"), "There is Driver datatype");
     }
 
     @Test

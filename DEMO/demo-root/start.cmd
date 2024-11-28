@@ -136,9 +136,6 @@ echo.
 @setlocal
 @pushd %~dp0
 
-@rem Apply security policy for demo
-@if exist demo-java.policy set JETTY_OPT=-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%SystemRoot%\Sun\Java\lib\ext
-
 @rem Init Default repository
 @if not defined OPENL_HOME (
   @if exist %userprofile%\Desktop\OpenL_Home (
@@ -153,7 +150,7 @@ echo.
   )
 )
 
-@set JAVA_OPTS=-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 %JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
+@set JAVA_OPTS=-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 %JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
 
 @echo ### Starting OpenL Tablets DEMO ...
 @echo Memory size:           "%_MEMORY%GBytes"
@@ -165,7 +162,7 @@ echo.
 @set TEMP=.\tmp
 @if not exist %TEMP% mkdir %TEMP%
 
-@title "OpenL WebStudio DEMO"
+@title "OpenL Studio DEMO"
 @start http://localhost:8080/
 %_JAVA% -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,jsp,ext,deploy
 

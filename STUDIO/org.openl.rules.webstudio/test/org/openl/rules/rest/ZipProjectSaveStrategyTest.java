@@ -1,5 +1,18 @@
 package org.openl.rules.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,10 +30,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.xml.bind.JAXBException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ChangesetType;
@@ -39,20 +54,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 
-import javax.xml.bind.JAXBException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class ZipProjectSaveStrategyTest {
 
     private static final String BASE_RULES_LOCATION = "DESIGN/";
@@ -63,10 +64,10 @@ public class ZipProjectSaveStrategyTest {
     private ArgumentCaptor<FileData> fileDataCaptor;
     private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
-    @Before
+    @BeforeEach
     public void setUp() throws JAXBException {
         this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
-        this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
+        this.fileDataCaptor = forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
         this.userManagementService = mock(UserManagementService.class);
@@ -83,20 +84,20 @@ public class ZipProjectSaveStrategyTest {
         when(zipFilterMock.accept(anyString())).thenReturn(Boolean.TRUE);
 
         saveStrategy = new ZipProjectSaveStrategy(designTimeRepositoryMock,
-            zipFilterMock,
-            zipCharsetDetectorMock,
-            userManagementService);
+                zipFilterMock,
+                zipCharsetDetectorMock,
+                userManagementService);
     }
 
     @Test
     public void testSaveMappedRepo() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "jsmith",
-            "Project 1",
-            "foo/Project 1",
-            "Bar",
-            false);
+                "jsmith",
+                "Project 1",
+                "foo/Project 1",
+                "Bar",
+                false);
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -120,11 +121,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepo2() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "jsmith",
-            "Project 1",
-            null,
-            "Bar",
-            false);
+                "jsmith",
+                "Project 1",
+                null,
+                "Bar",
+                false);
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -148,11 +149,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveNotFolderRepo() throws Exception {
         mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design2",
-            "jsmith",
-            "Project 1",
-            null,
-            null,
-            false);
+                "jsmith",
+                "Project 1",
+                null,
+                null,
+                false);
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         AtomicReference<InputStream> actualStream = captureStream(repo);
 
@@ -173,11 +174,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepoCustomPath() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "jsmith",
-            "Project 1",
-            "custom-name",
-            "Bar",
-            false);
+                "jsmith",
+                "Project 1",
+                "custom-name",
+                "Bar",
+                false);
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -198,7 +199,7 @@ public class ZipProjectSaveStrategyTest {
         assertEquals("custom-name", actualAddData.getInternalPath());
 
         FileItem descriptor = actualFileItems
-            .get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         ((ByteArrayInputStream) descriptor.getStream()).reset();
         assertProjectDescriptor(expectedRootFolder, "Project 1", descriptor);
     }
@@ -207,11 +208,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "jsmith",
-            "Project 2",
-            "custom-name",
-            "Bar",
-            false);
+                "jsmith",
+                "Project 2",
+                "custom-name",
+                "Bar",
+                false);
         Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -221,7 +222,7 @@ public class ZipProjectSaveStrategyTest {
 
         final String expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
         FileItem descriptor = actualFileItems
-            .remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
 
         assertSame(expected, expectedRootFolder, actualFileItems);
@@ -240,13 +241,13 @@ public class ZipProjectSaveStrategyTest {
     private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) throws Exception {
         assertNotNull(descriptor);
         assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
-            descriptor.getData().getName());
+                descriptor.getData().getName());
         assertEquals(expectedName, projectDescriptorSerializer.deserialize(descriptor.getStream()).getName());
     }
 
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
-            Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
+                Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
             Path root = fs.getPath("/");
             try (ZipInputStream actualZipStream = new ZipInputStream(actualStream)) {
                 ZipEntry ze;
@@ -256,11 +257,11 @@ public class ZipProjectSaveStrategyTest {
                         try (InputStream expectedStream = Files.newInputStream(expected)) {
                             if (!ze.getName().equals("rules.xml")) {
                                 assertTrue(
-                                    org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualZipStream));
+                                        org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualZipStream));
                             } else {
                                 // rules xml must be modified
                                 assertFalse(
-                                    org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualZipStream));
+                                        org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualZipStream));
                             }
                         }
                     }
@@ -270,10 +271,10 @@ public class ZipProjectSaveStrategyTest {
     }
 
     private static void assertSame(Path expectedArchive,
-            String expectedPrefix,
-            Map<String, FileItem> actualFileItems) throws IOException {
+                                   String expectedPrefix,
+                                   Map<String, FileItem> actualFileItems) throws IOException {
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(expectedArchive),
-            Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
+                Collections.singletonMap("encoding", StandardCharsets.UTF_8.displayName()))) {
             Path root = fs.getPath("/");
             actualFileItems.forEach((actualName, actualItem) -> {
                 assertTrue(actualName.startsWith(expectedPrefix));
@@ -281,7 +282,7 @@ public class ZipProjectSaveStrategyTest {
                 Path expected = root.resolve(actualFileName);
                 assertTrue(Files.exists(expected));
                 try (InputStream expectedStream = Files.newInputStream(expected);
-                        InputStream actualStream = actualItem.getStream()) {
+                     InputStream actualStream = actualItem.getStream()) {
                     if (!actualFileName.equals("rules.xml")) {
                         assertTrue(org.apache.commons.io.IOUtils.contentEquals(expectedStream, actualStream));
                     } else {
@@ -306,7 +307,7 @@ public class ZipProjectSaveStrategyTest {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                 IOUtils.copyAndClose(fileItem.getStream(), os);
                 actualFileItems.put(fileItem.getData().getName(),
-                    new FileItem(fileItem.getData(), new ByteArrayInputStream(os.toByteArray())));
+                        new FileItem(fileItem.getData(), new ByteArrayInputStream(os.toByteArray())));
             }
             return null;
         });
@@ -325,8 +326,8 @@ public class ZipProjectSaveStrategyTest {
     }
 
     private <T extends Repository> T mockDesignRepository(Class<T> tClass,
-            String repoName,
-            Consumer<FeaturesBuilder> featureConfig) throws IOException {
+                                                          String repoName,
+                                                          Consumer<FeaturesBuilder> featureConfig) throws IOException {
         T mockedRepo = mock(tClass);
         when(designTimeRepositoryMock.getRepository(repoName)).thenReturn(mockedRepo);
 

@@ -1,13 +1,13 @@
 package org.openl.rules.lang.xls.syntax;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -23,7 +23,7 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
         super(SRC);
     }
 
-    @Before
+    @BeforeEach
     public void getTables() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
@@ -53,6 +53,6 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     public void testHashCode() {
         // same hash codes for equal objects
         assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)).hashCode(),
-            new TableSyntaxNodeKey(driverAgeTypeTables.get(1)).hashCode());
+                new TableSyntaxNodeKey(driverAgeTypeTables.get(1)).hashCode());
     }
 }

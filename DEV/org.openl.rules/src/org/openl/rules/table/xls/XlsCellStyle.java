@@ -1,8 +1,16 @@
 package org.openl.rules.table.xls;
 
-import static org.openl.rules.table.xls.PoiExcelHelper.*;
+import static org.openl.rules.table.xls.PoiExcelHelper.getCellBorderColors;
+import static org.openl.rules.table.xls.PoiExcelHelper.getCellBorderStyles;
+import static org.openl.rules.table.xls.PoiExcelHelper.toRgb;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+
 import org.openl.rules.table.ui.ICellStyle;
 
 /**

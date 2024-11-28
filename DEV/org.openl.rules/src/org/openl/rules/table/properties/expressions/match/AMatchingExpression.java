@@ -18,7 +18,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
 
     public AMatchingExpression(String operationName, IMatchingExpression matchingExpression) {
         this.contextAttributeExpression = Objects.requireNonNull(matchingExpression,
-            "matchingExpression cannot be null");
+                "matchingExpression cannot be null");
         this.operationName = operationName;
     }
 

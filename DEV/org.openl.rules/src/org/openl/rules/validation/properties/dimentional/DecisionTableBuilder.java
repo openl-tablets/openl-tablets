@@ -17,15 +17,18 @@ import org.openl.types.NullOpenClass;
  * Creates the memory representation of DT table by POI.
  *
  * @author DLiauchuk
- *
  */
 public class DecisionTableBuilder {
-    /** number 5 - is a number of first development rows in table. */
+    /**
+     * number 5 - is a number of first development rows in table.
+     */
     static final int DECISION_TABLE_HEADER_ROWS_NUMBER = 5;
     static final int CONDITION_TITLE_ROW_INDEX = 4;
     static final int PARAMETER_DECLARATION_ROW_INDEX = 3;
     static final int CODE_EXPRESSION_ROW_INDEX = 2;
-    /** condition name always is the next row after header row. */
+    /**
+     * condition name always is the next row after header row.
+     */
     static final int COLUMN_TYPE_ROW_INDEX = 1;
     private String methodName;
     private List<IDecisionTableColumn> conditions;
@@ -39,11 +42,11 @@ public class DecisionTableBuilder {
         final IMethodSignature originalSignature = returnColumn.getOriginalSignature();
         final StringBuilder builder = new StringBuilder(64);
         builder.append(IXlsTableNames.DECISION_TABLE2)
-            .append(' ')
-            .append(returnColumn.getReturnType().getDisplayName(0))
-            .append(' ')
-            .append(tableName)
-            .append('(');
+                .append(' ')
+                .append(returnColumn.getReturnType().getDisplayName(0))
+                .append(' ')
+                .append(tableName)
+                .append('(');
 
         boolean prependComma = false;
         // add original parameters of the method

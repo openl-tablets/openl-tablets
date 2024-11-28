@@ -6,8 +6,8 @@ import org.openl.vm.IRuntimeEnv;
 
 interface IContextPropertyInjection {
     IRulesRuntimeContext inject(Object[] params,
-            IRuntimeEnv env,
-            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
-            IRulesRuntimeContext rulesRuntimeContext);
+                                IRuntimeEnv env,
+                                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
+                                IRulesRuntimeContext rulesRuntimeContext);
 
 }

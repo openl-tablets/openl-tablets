@@ -3,18 +3,18 @@ package org.openl.meta;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.meta.StringValue.StringValueAdapter;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.ArrayTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
@@ -44,13 +44,13 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
 
     public StringValue(String value) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' cannot be null");
+                "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo();
     }
 
     public StringValue(String value, String shortName, String fullName, IOpenSourceCodeModule source) {
         this.value = Objects.requireNonNull(value,
-            "Error initializing StringValue class. Parameter 'value' cannot be null");
+                "Error initializing StringValue class. Parameter 'value' cannot be null");
         metaInfo = new ValueMetaInfo(shortName, fullName, source);
     }
 
@@ -140,8 +140,8 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
-                    metaInfo.getDisplayName(IMetaInfo.LONG),
-                    new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
+                        metaInfo.getDisplayName(IMetaInfo.LONG),
+                        new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
                 this.metaInfo = valueMetaInfo;
             } catch (Exception e) {
                 LOG.debug("Failed to set meta info for StringValue '{}'", value, e);

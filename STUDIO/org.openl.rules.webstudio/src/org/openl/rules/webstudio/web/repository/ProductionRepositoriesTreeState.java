@@ -1,11 +1,26 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.richfaces.component.UITree;
+import org.richfaces.event.TreeSelectionChangeEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
@@ -13,22 +28,13 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
-import org.richfaces.component.UITree;
-import org.richfaces.event.TreeSelectionChangeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @Service
 @SessionScope
 public class ProductionRepositoriesTreeState {
+    private static final String SEPARATOR = "#";
     @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
@@ -42,8 +48,7 @@ public class ProductionRepositoriesTreeState {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    @Qualifier("productionRepositoryAclService")
-    private SimpleRepositoryAclService productionRepositoryAclService;
+    private RepositoryAclServiceProvider aclServiceProvider;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -52,6 +57,60 @@ public class ProductionRepositoriesTreeState {
     private TreeRepository root;
 
     private final IFilter<AProjectArtefact> filter = new AllFilter<>();
+
+    private static Collection<Deployment> getLastDeploymentProjects(Repository repository,
+                                                                    String deployPath) throws IOException {
+
+        Map<String, Deployment> latestDeployments = new HashMap<>();
+        Map<String, Integer> versionsList = new HashMap<>();
+
+        Collection<FileData> fileDatas;
+        if (repository.supports().folders()) {
+            // All deployments
+            fileDatas = repository.listFolders(deployPath);
+        } else {
+            // Projects inside all deployments
+            fileDatas = repository.list(deployPath);
+        }
+        for (FileData fileData : fileDatas) {
+            String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
+            int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
+
+            String deploymentName = deploymentFolderName;
+            int version = 0;
+            CommonVersionImpl commonVersion;
+            if (separatorPosition >= 0) {
+                deploymentName = deploymentFolderName.substring(0, separatorPosition);
+                version = Integer.parseInt(deploymentFolderName.substring(separatorPosition + 1));
+                commonVersion = new CommonVersionImpl(version);
+            } else {
+                commonVersion = new CommonVersionImpl(fileData.getVersion());
+            }
+            Integer previous = versionsList.put(deploymentName, version);
+            if (previous != null && previous > version) {
+                // rollback
+                versionsList.put(deploymentName, previous);
+            } else {
+                // put the latest deployment
+
+                String folderPath = deployPath + deploymentFolderName;
+                boolean folderStructure;
+                if (repository.supports().folders()) {
+                    folderStructure = !repository.listFolders(folderPath + "/").isEmpty();
+                } else {
+                    folderStructure = false;
+                }
+                Deployment deployment = new Deployment(repository,
+                        folderPath,
+                        deploymentName,
+                        commonVersion,
+                        folderStructure);
+                latestDeployments.put(deploymentName, deployment);
+            }
+        }
+
+        return latestDeployments.values();
+    }
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
@@ -70,9 +129,9 @@ public class ProductionRepositoriesTreeState {
         for (RepositoryConfiguration repoConfig : getRepositories()) {
             String prName = repoConfig.getName();
             TreeRepository productionRepository = new TreeRepository(prName,
-                prName,
-                filter,
-                UiConst.TYPE_PRODUCTION_REPOSITORY);
+                    prName,
+                    filter,
+                    UiConst.TYPE_PRODUCTION_REPOSITORY);
             productionRepository.setData(null);
 
             root.addChild(prName, productionRepository);
@@ -84,8 +143,8 @@ public class ProductionRepositoriesTreeState {
 
             for (AProjectFolder project : repoList) {
                 TreeProductionDProject tpdp = new TreeProductionDProject("" + project.getName().hashCode(),
-                    project.getName(),
-                    filter);
+                        project.getName(),
+                        filter);
                 tpdp.setData(project);
                 tpdp.setParent(productionRepository);
                 productionRepository.add(tpdp);
@@ -105,7 +164,7 @@ public class ProductionRepositoriesTreeState {
         try {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
             String deploymentsPath = productionRepositoryFactoryProxy.getBasePath(repoConfig.getConfigName());
-            return new ArrayList<>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
+            return new ArrayList<>(getLastDeploymentProjects(repository, deploymentsPath));
         } catch (Exception e) {
             return new ArrayList<>();
         }
@@ -114,7 +173,10 @@ public class ProductionRepositoriesTreeState {
 
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<>(DeploymentRepositoriesUtil
-            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService, AclPermission.VIEW));
+                .getRepositories(deploymentManager,
+                        propertyResolver,
+                        aclServiceProvider.getProdRepoAclService(),
+                        AclPermission.VIEW));
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }

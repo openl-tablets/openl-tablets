@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -7,11 +9,6 @@ import org.openl.rules.repository.git.WildcardBranchNameFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
-
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
 
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
     public void localRepositoryPath(FacesContext context, UIComponent toValidate, Object value) {
@@ -50,7 +47,7 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
             Pattern.compile(pattern);
         } catch (PatternSyntaxException patternSyntaxException) {
             WebStudioUtils.throwValidationError(
-                String.format("Branch name pattern '%s' is not valid regular expression.", value)
+                    String.format("Branch name pattern '%s' is not valid regular expression.", value)
             );
         }
     }
@@ -62,8 +59,8 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         if (clientId.endsWith(suffix)) {
             String prefix = clientId.substring(0, clientId.length() - suffix.length());
             String remoteRepository = context.getExternalContext()
-                .getRequestParameterMap()
-                .get(prefix + "gitRemoteRepository");
+                    .getRequestParameterMap()
+                    .get(prefix + "gitRemoteRepository");
             if ("on".equals(remoteRepository)) {
                 super.url(context, toValidate, value);
             }

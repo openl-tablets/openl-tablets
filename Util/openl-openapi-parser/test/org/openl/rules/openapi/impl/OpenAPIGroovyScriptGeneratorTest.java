@@ -1,12 +1,12 @@
 package org.openl.rules.openapi.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,8 +23,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.junit.Before;
-import org.junit.Test;
+import groovy.lang.GroovyClassLoader;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -38,14 +39,12 @@ import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
-import groovy.lang.GroovyClassLoader;
-
 public class OpenAPIGroovyScriptGeneratorTest {
 
     private OpenAPIModelConverter converter;
     private GroovyClassLoader groovyClassLoader;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         converter = new OpenAPIScaffoldingConverter();
         groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
@@ -79,8 +78,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/api/Todo", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/csv" }, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "text/html" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"text/csv"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/html"}, method1.getAnnotation(Produces.class).value());
         assertEquals(0, method1.getParameters()[0].getDeclaredAnnotations().length);
 
         Method method2 = interfaceClass.getDeclaredMethod("apiBla", Integer.class);
@@ -89,8 +88,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/Bla", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method2.getAnnotation(Produces.class).value());
         assertEquals(0, method2.getParameters()[0].getDeclaredAnnotations().length);
     }
 
@@ -111,8 +110,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/api/policyProxy2", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -123,8 +122,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(5, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/policyProxy3", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Produces.class).value());
         assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method2.getParameters()[0].getAnnotations().length);
@@ -137,8 +136,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(5, method3.getDeclaredAnnotations().length);
         assertNotNull(method3.getAnnotation(POST.class));
         assertEquals("/api/policyProxy", method3.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method3.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method3.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Produces.class).value());
         assertEquals("Policy", method3.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method3.getParameters()[0].getAnnotations().length);
@@ -149,8 +148,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method4.getDeclaredAnnotations().length);
         assertNotNull(method4.getAnnotation(POST.class));
         assertEquals("/api/doSomething", method4.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method4.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method4.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Produces.class).value());
 
         assertEquals(1, method4.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method4.getParameters()[0].getAnnotation(RulesType.class).value());
@@ -178,7 +177,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(GET.class));
         assertEquals("/pet/{petId}", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
         assertEquals("Pet", method1.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -209,8 +208,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(6, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/policyProxy", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
         // assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
 
@@ -226,7 +225,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     @Test
     public void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
+                .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
@@ -245,12 +244,12 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
         Method method1 = interfaceClass
-            .getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class, Boolean.class);
+                .getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class, Boolean.class);
         assertEquals(Integer.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/apiBla", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
         assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -267,8 +266,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/Todo", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method2.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
         assertEquals(0, method2.getParameters()[0].getAnnotations().length);
     }
 
@@ -297,15 +296,15 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/DiscountPercentage", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
         assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
     }
 
     @Test
     public void EPBDS_10962() throws Exception {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_generate.json");
+                .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_generate.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         GroovyScriptFile groovyScriptFile = generated.getAnnotationTemplateGroovyFile();
@@ -320,11 +319,11 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertNotNull(method1.getAnnotation(GET.class));
         assertEquals("/mySpr3/{double1}/{double2}/{double3}/{double4}", method1.getAnnotation(Path.class).value());
         assertNull(method1.getAnnotation(Consumes.class));
-        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
         assertEquals(1, method1.getParameters()[0].getDeclaredAnnotations().length);
 
         ProjectModel projectModel2 = converter
-            .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_nothingToGenerate.json");
+                .extractProjectModel("test.converter/paths/openapi_EPBDS-10962_nothingToGenerate.json");
 
         OpenAPIGeneratedClasses generated2 = new OpenAPIJavaClassGenerator(projectModel2).generate();
         assertNull(generated2.getAnnotationTemplateGroovyFile());
@@ -361,8 +360,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/getTestData1", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
         assertEquals("param0", method1.getParameters()[0].getAnnotation(Name.class).value());
         assertEquals(0, method1.getParameters()[1].getAnnotations().length);
@@ -402,15 +401,15 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/getPolicyData", method1.getAnnotation(Path.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "multipart/form-data" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"multipart/form-data"}, method1.getAnnotation(Consumes.class).value());
         assertEquals(0, method1.getParameters()[0].getAnnotations().length);
     }
 
     @Test
     public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
+                .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
         assertSetEquals(toSet(".+ getPolicyData\\(.*\\)"), projectModel.getIncludeMethodFilter());
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
@@ -433,8 +432,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/getPolicyData", method1.getAnnotation(Path.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "multipart/form-data" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"multipart/form-data"}, method1.getAnnotation(Consumes.class).value());
         assertEquals(0, method1.getParameters()[0].getAnnotations().length);
 
         Method method2 = interfaceClass.getDeclaredMethod("spr", Object.class);
@@ -443,8 +442,8 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/spr", method2.getAnnotation(Path.class).value());
         assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
         assertEquals(2, method2.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method2.getParameters()[0].getAnnotation(RulesType.class).value());
         assertEquals("policy", method2.getParameters()[0].getAnnotation(Name.class).value());
@@ -454,20 +453,20 @@ public class OpenAPIGroovyScriptGeneratorTest {
     @Test
     public void test_nameConflictTest() throws Exception {
         ProjectModel projectModel = converter
-            .extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
+                .extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
         assertSetEquals(toSet(".+ MyLovelySpreadsheet\\(.+\\)", ".+ Party\\(.+\\)"),
-            projectModel.getIncludeMethodFilter());
+                projectModel.getIncludeMethodFilter());
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> optionalVM = spreadsheetResultModels.stream()
-            .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
-            .findFirst();
+                .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
+                .findFirst();
         assertTrue(optionalVM.isPresent());
         SpreadsheetModel validationMessage = optionalVM.get();
         assertEquals(4, validationMessage.getSteps().size());
         assertEquals("SpreadsheetResult", validationMessage.getType());
         Optional<SpreadsheetModel> optionalParty = spreadsheetResultModels.stream()
-            .filter(spreadsheetModel -> spreadsheetModel.getName().equals("Party"))
-            .findFirst();
+                .filter(spreadsheetModel -> spreadsheetModel.getName().equals("Party"))
+                .findFirst();
         assertTrue(optionalParty.isPresent());
         SpreadsheetModel party = optionalParty.get();
         assertEquals("SpreadsheetResultMyLovelySpreadsheet[]", party.getType());
@@ -488,10 +487,10 @@ public class OpenAPIGroovyScriptGeneratorTest {
         assertEquals(4, validationMessageMethod.getDeclaredAnnotations().length);
         assertNotNull(validationMessageMethod.getAnnotation(POST.class));
         assertEquals("/Watch", validationMessageMethod.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" },
-            validationMessageMethod.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[] { "application/json" },
-            validationMessageMethod.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"},
+                validationMessageMethod.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"},
+                validationMessageMethod.getAnnotation(Consumes.class).value());
         assertEquals(1, validationMessageMethod.getParameters()[0].getAnnotations().length);
         assertEquals("Watch", validationMessageMethod.getParameters()[0].getAnnotation(RulesType.class).value());
     }
@@ -509,7 +508,7 @@ public class OpenAPIGroovyScriptGeneratorTest {
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
-        assertTrue("Interface must be public", (interfaceClass.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((interfaceClass.getModifiers() & Modifier.PUBLIC) != 0, "Interface must be public");
         assertEquals(expectedName, interfaceClass.getName());
     }
 
@@ -525,10 +524,10 @@ public class OpenAPIGroovyScriptGeneratorTest {
     }
 
     private static void assertJavaClass(String expectedName, Class<?> clazz) throws IllegalAccessException,
-                                                                             InstantiationException {
+            InstantiationException {
 
         assertFalse(clazz.isInterface());
-        assertTrue("Class must be public", (clazz.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((clazz.getModifiers() & Modifier.PUBLIC) != 0, "Class must be public");
         assertEquals(expectedName, clazz.getName());
         clazz.newInstance();// just for sure
     }

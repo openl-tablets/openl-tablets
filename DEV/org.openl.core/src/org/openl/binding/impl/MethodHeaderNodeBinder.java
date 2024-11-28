@@ -15,7 +15,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public class MethodHeaderNodeBinder extends ANodeBinder {
 
@@ -59,11 +58,11 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
         }
 
         OpenMethodHeader header = new OpenMethodHeader(methodName,
-            typeNode.getType(),
-            signature,
-            null,
-            typeLocation,
-            paramTypeLocations);
+                typeNode.getType(),
+                signature,
+                null,
+                typeLocation,
+                paramTypeLocations);
 
         return new MethodHeaderNode(node, header);
     }

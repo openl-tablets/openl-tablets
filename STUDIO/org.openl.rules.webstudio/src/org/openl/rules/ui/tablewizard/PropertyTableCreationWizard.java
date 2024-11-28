@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -32,7 +31,7 @@ import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.util.StringUtils;
 
-@GroupSequence({ PropertyTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({PropertyTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class PropertyTableCreationWizard extends TableCreationWizard {
 
     private PropertiesBean propertiesManager;
@@ -44,7 +43,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     private String categoryName;
 
     private List<SelectItem> scopeTypes = new ArrayList<>(
-        Arrays.asList(new SelectItem("Module"), new SelectItem("Category")));
+            Arrays.asList(new SelectItem("Module"), new SelectItem("Category")));
 
     private String categoryNameSelector = "destination";
 
@@ -70,8 +69,8 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
         Set<String> categories = getAllCategories();
         for (String categoryName : categories) {
             categoryList.add(new SelectItem(
-                // Replace new line by space
-                categoryName.replaceAll("[\r\n]", " ")));
+                    // Replace new line by space
+                    categoryName.replaceAll("[\r\n]", " ")));
         }
         return categoryList;
     }
@@ -99,8 +98,8 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
 
         for (String categoryName : categories) {
             specCategoryList.add(new SelectItem(
-                // Replace new line by space
-                categoryName.replaceAll("[\r\n]", " ")));
+                    // Replace new line by space
+                    categoryName.replaceAll("[\r\n]", " ")));
         }
         return specCategoryList;
     }
@@ -178,7 +177,7 @@ public class PropertyTableCreationWizard extends TableCreationWizard {
     public List<String> getPropertyNamesList() {
         List<String> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-            .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
+                .getDefaultDefinitionsByInheritanceLevel(InheritanceLevel.valueOf(scopeType.toUpperCase()));
         for (TablePropertyDefinition propDefinition : propDefinitions) {
             String propName = propDefinition.getName();
             List<String> exceptProperties = getExceptProperties();

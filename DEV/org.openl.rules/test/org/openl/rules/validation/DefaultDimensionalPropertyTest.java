@@ -1,6 +1,7 @@
 package org.openl.rules.validation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.BaseOpenlBuilderHelper;
 
 public class DefaultDimensionalPropertyTest extends BaseOpenlBuilderHelper {

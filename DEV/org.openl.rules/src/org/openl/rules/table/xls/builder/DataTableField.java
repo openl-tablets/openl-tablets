@@ -22,7 +22,7 @@ public abstract class DataTableField {
     /**
      * Create a field with a given technical name and business name
      *
-     * @param name technical name of a field
+     * @param name         technical name of a field
      * @param businessName business name of a field
      */
     public DataTableField(String name, String businessName) {

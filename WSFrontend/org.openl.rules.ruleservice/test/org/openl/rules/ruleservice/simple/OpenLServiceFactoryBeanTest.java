@@ -1,24 +1,19 @@
 package org.openl.rules.ruleservice.simple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import javax.annotation.Resource;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.uri=test-resources/RulesFrontendTest",
+@TestPropertySource(properties = {"production-repository.uri=test-resources/RulesFrontendTest",
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml" })
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml"})
 public class OpenLServiceFactoryBeanTest {
 
     @Autowired
@@ -78,9 +73,11 @@ public class OpenLServiceFactoryBeanTest {
         }
     }
 
-    @Test(expected = org.openl.rules.ruleservice.simple.MethodInvocationRuntimeException.class)
+    @Test
     public void testAbsentMethods() {
-        ruleService1.absent("X");
+        assertThrows(MethodInvocationRuntimeException.class, () -> {
+            ruleService1.absent("X");
+        });
     }
 
     @Test
@@ -95,9 +92,13 @@ public class OpenLServiceFactoryBeanTest {
 
     public interface ServiceInterface {
         String worldHello(int arg);
+
         String worldHello(Integer a, String s);
+
         String worldHello(String s);
+
         String absent(String s);
+
         String baseHello(int arg);
     }
 

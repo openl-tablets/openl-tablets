@@ -11,8 +11,14 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WO
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-
 import javax.faces.context.FacesContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -30,12 +36,6 @@ import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -63,13 +63,13 @@ public class SystemSettingsBean {
     private final RepositoryAclService designRepositoryAclService;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-            RepositoryFactoryProxy designRepositoryFactoryProxy,
-            RepositoryFactoryProxy productionRepositoryFactoryProxy,
-            DeploymentManager deploymentManager,
-            DesignTimeRepository designTimeRepository,
-            RepositoryTreeState repositoryTreeState,
-            PropertyResolver propertyResolver,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                              RepositoryFactoryProxy designRepositoryFactoryProxy,
+                              RepositoryFactoryProxy productionRepositoryFactoryProxy,
+                              DeploymentManager deploymentManager,
+                              DesignTimeRepository designTimeRepository,
+                              RepositoryTreeState repositoryTreeState,
+                              PropertyResolver propertyResolver,
+                              @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -90,7 +90,7 @@ public class SystemSettingsBean {
 
         try {
             deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(),
-                properties);
+                    properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -103,7 +103,7 @@ public class SystemSettingsBean {
                 if (configuration.getErrorMessage() != null) {
                     log.error(configuration.getErrorMessage());
                     WebStudioUtils.addErrorMessage(
-                        "Incorrect design repository configuration '" + configuration.getName() + "'. Fix the errors and try again.");
+                            "Incorrect design repository configuration '" + configuration.getName() + "'. Fix the errors and try again.");
                 }
             }
         } catch (Exception e) {
@@ -289,7 +289,7 @@ public class SystemSettingsBean {
             // settings (such as user.mode etc) not edited in this page
             // will be reverted too. We should revert only settings edited in Administration page
             properties
-                .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
+                    .revertProperties(AdministrationSettings.getAllSettings().toArray(StringUtils.EMPTY_STRING_ARRAY));
             saveSystemConfig();
             deployConfigRepositoryConfiguration.revert();
             productionRepositoryEditor.reload();
@@ -339,10 +339,10 @@ public class SystemSettingsBean {
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
 
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName,
-            properties,
-            accessType,
-            configurations,
-            repositoryMode);
+                properties,
+                accessType,
+                configurations,
+                repositoryMode);
         repoConfig.commit();
         return repoConfig;
     }

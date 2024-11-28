@@ -1,8 +1,8 @@
 package org.openl.rules.cmatch.test;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("Auxiliary enum")
+@Disabled("Auxiliary enum")
 public enum TestEnum {
     EIGHT,
     SEVEN,

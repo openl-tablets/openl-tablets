@@ -19,7 +19,7 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) nodeObject;
 
-        return new String[] { wb.getDisplayName(), wb.getUri(), wb.getUri() };
+        return new String[]{wb.getDisplayName(), wb.getUri(), wb.getUri()};
     }
 
     /**

@@ -3,11 +3,11 @@ package org.openl.spring.env;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.openl.util.StringUtils;
-
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
+
+import org.openl.util.StringUtils;
 
 public class RefPropertySource extends PropertySource<Object> {
 

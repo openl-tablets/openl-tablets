@@ -6,6 +6,7 @@
         "summary": "MyType getObject()",
         "description": "Rules method: org.openl.generated.beans.MyType getObject()",
         "operationId": "getObject",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "responses": {
           "204": {
             "description": "Successful operation"

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.openl.ICompileContext;
 import org.openl.binding.IBindingContext;
 import org.openl.message.OpenLMessagesUtils;
@@ -57,10 +58,10 @@ public class ValidationManager {
                     results.add(result);
                 } catch (Exception e) {
                     result = new ValidationResult(ValidationStatus.FAIL,
-                        Collections.singletonList(
-                            OpenLMessagesUtils.newErrorMessage(String.format("Failed to execute validator: %s. %s",
-                                validator.getClass().getTypeName(),
-                                ExceptionUtils.getRootCauseMessage(e)))));
+                            Collections.singletonList(
+                                    OpenLMessagesUtils.newErrorMessage(String.format("Failed to execute validator: %s. %s",
+                                            validator.getClass().getTypeName(),
+                                            ExceptionUtils.getRootCauseMessage(e)))));
                 }
                 results.add(result);
             }

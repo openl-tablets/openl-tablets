@@ -168,8 +168,8 @@
 
     <script>
         let openAPIModifiedInfo;
-        let modelModuleName;
-        let algorithmModuleName;
+        let modelModuleName1;
+        let algorithmModuleName1;
         let algorithmModulePath;
         let modelModulePath;
         let algorithmPathEditable = true;
@@ -199,14 +199,14 @@
             });
             let rulesModule = modules.find(module => module.type === RULES_TYPE);
             let modelsModule = modules.find(module => module.type === MODELS_TYPE);
-            modelModuleName = modelsModule ? modelsModule.name : openAPIModifiedInfo.modelModuleName;
-            algorithmModuleName = rulesModule ? rulesModule.name : openAPIModifiedInfo.algorithmModuleName;
+            modelModuleName1 = modelsModule ? modelsModule.name : openAPIModifiedInfo.modelModuleName;
+            algorithmModuleName1 = rulesModule ? rulesModule.name : openAPIModifiedInfo.algorithmModuleName;
             if (modelsModule) {
                 modelModulePath = modelsModule.path;
                 modelPathEditable = false;
             } else {
-                if (modelModuleName) {
-                    modelModulePath = DEFAULT_FOLDER + modelModuleName + DEFAULT_EXTENSION;
+                if (modelModuleName1) {
+                    modelModulePath = DEFAULT_FOLDER + modelModuleName1 + DEFAULT_EXTENSION;
                 } else {
                     modelModulePath = DEFAULT_MODEL_MODULE_PATH;
                 }
@@ -215,14 +215,14 @@
                 algorithmModulePath = rulesModule.path;
                 algorithmPathEditable = false;
             } else {
-                if (algorithmModuleName) {
-                    algorithmModulePath = DEFAULT_FOLDER + algorithmModuleName + DEFAULT_EXTENSION;
+                if (algorithmModuleName1) {
+                    algorithmModulePath = DEFAULT_FOLDER + algorithmModuleName1 + DEFAULT_EXTENSION;
                 } else {
                     algorithmModulePath = DEFAULT_ALGORITHM_MODULE_PATH;
                 }
             }
 
-            rerenderOpenAPIModulesSettings(importFormInfo.path, modelModuleName, algorithmModuleName, modelModulePath, algorithmModulePath);
+            rerenderOpenAPIModulesSettings(importFormInfo.path, modelModuleName1, algorithmModuleName1, modelModulePath, algorithmModulePath);
 
         }
 
@@ -232,11 +232,11 @@
             modulesSettings = new ModulesSettings();
 
             modulesSettings.fields.getOpenAPIPath().val(openAPIModifiedInfo.path);
-            modulesSettings.fields.getModelModuleName().val(modelModuleName);
-            modulesSettings.fields.getAlgorithmModuleName().val(algorithmModuleName);
+            modulesSettings.fields.getModelModuleName().val(modelModuleName1);
+            modulesSettings.fields.getAlgorithmModuleName().val(algorithmModuleName1);
 
-            modulesSettings.fields.getAlgorithmModuleDisplayName().text(algorithmModuleName);
-            modulesSettings.fields.getDataModuleDisplayName().text(modelModuleName);
+            modulesSettings.fields.getAlgorithmModuleDisplayName().text(algorithmModuleName1);
+            modulesSettings.fields.getDataModuleDisplayName().text(modelModuleName1);
 
             modulesSettings.fields.getDataDisplayPath().text(modelModulePath);
             modulesSettings.fields.getAlgoDisplayPath().text(algorithmModulePath);
@@ -463,8 +463,8 @@
         function reOpenEditOpenAPI() {
             editOpenAPI({
                 path: openAPIModifiedInfo.path,
-                modelModuleName: modelModuleName,
-                algorithmModuleName: algorithmModuleName
+                modelModuleName: modelModuleName1,
+                algorithmModuleName: algorithmModuleName1
             });
         }
 

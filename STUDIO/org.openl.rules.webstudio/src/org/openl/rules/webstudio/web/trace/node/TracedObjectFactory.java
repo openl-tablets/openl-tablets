@@ -20,10 +20,10 @@ import org.openl.vm.IRuntimeEnv;
 public class TracedObjectFactory {
 
     public static SimpleTracerObject getTracedObject(Object source,
-            Invokable method,
-            Object target,
-            Object[] params,
-            IRuntimeEnv env) {
+                                                     Invokable method,
+                                                     Object target,
+                                                     Object[] params,
+                                                     IRuntimeEnv env) {
         if (source instanceof OpenMethodDispatcher) {
             return OverloadedMethodChoiceTraceObject.create((OpenMethodDispatcher) source, params, env.getContext());
         } else if (source instanceof WeightAlgorithmExecutor) {
@@ -32,29 +32,29 @@ public class TracedObjectFactory {
             ColumnMatch columnMatch = (ColumnMatch) source;
             if (columnMatch.getAlgorithmExecutor() instanceof WeightAlgorithmExecutor) {
                 return new ATableTracerNode("wcmatch",
-                    "WCM",
-                    columnMatch,
-                    params,
-                    env == null ? null : env.getContext());
+                        "WCM",
+                        columnMatch,
+                        params,
+                        env == null ? null : env.getContext());
             } else {
                 return new ATableTracerNode("cmatch", "CM", columnMatch, params, env == null ? null : env.getContext());
             }
         } else if (source instanceof Algorithm) {
             return new ATableTracerNode("tbasic",
-                "Algorithm",
-                (Algorithm) source,
-                params,
-                env == null ? null : env.getContext());
+                    "Algorithm",
+                    (Algorithm) source,
+                    params,
+                    env == null ? null : env.getContext());
         } else if (source instanceof AlgorithmSubroutineMethod) {
             return new ATableTracerNode("tbasicMethod", "Algorithm Method", (AlgorithmSubroutineMethod) source, null);
         } else if (source instanceof DecisionTable) {
             return new DecisionTableTraceObject((DecisionTable) source, params, env == null ? null : env.getContext());
         } else if (source instanceof Spreadsheet) {
             return new ATableTracerNode("spreadsheet",
-                "SpreadSheet",
-                (Spreadsheet) source,
-                params,
-                env == null ? null : env.getContext());
+                    "SpreadSheet",
+                    (Spreadsheet) source,
+                    params,
+                    env == null ? null : env.getContext());
         } else if (source instanceof TableMethod) {
             return new MethodTableTraceObject((TableMethod) source, params, env == null ? null : env.getContext());
         } else if (method instanceof SpreadsheetCell) {
@@ -68,9 +68,9 @@ public class TracedObjectFactory {
                 return null;
             }
             TBasicOperationTraceObject operationTracer = new TBasicOperationTraceObject(operation.getSourceCode(),
-                nameForDebug);
+                    nameForDebug);
             operationTracer.setFieldValues(
-                (HashMap<String, Object>) ((TBasicContextHolderEnv) env).getTbasicTarget().getFieldValues());
+                    (HashMap<String, Object>) ((TBasicContextHolderEnv) env).getTbasicTarget().getFieldValues());
             return operationTracer;
         }
         return null;
@@ -90,7 +90,7 @@ public class TracedObjectFactory {
             trObj = tr;
         } else if (source instanceof OpenMethodDispatcher) {
             trObj = new DTRuleTracerLeaf(
-                new int[] { ((OpenMethodDispatcher) source).getCandidates().indexOf(args[0]) });
+                    new int[]{((OpenMethodDispatcher) source).getCandidates().indexOf(args[0])});
         } else {
             trObj = null;
         }

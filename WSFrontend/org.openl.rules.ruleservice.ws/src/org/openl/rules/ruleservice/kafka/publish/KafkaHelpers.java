@@ -24,8 +24,8 @@ public final class KafkaHelpers {
     }
 
     public static Method findMethodInService(OpenLService service,
-            String methodName,
-            String methodParameters) throws RuleServiceInstantiationException {
+                                             String methodName,
+                                             String methodParameters) throws RuleServiceInstantiationException {
         if (methodName == null) {
             throw new MethodNotFoundException("Method name is not found.");
         }
@@ -39,34 +39,34 @@ public final class KafkaHelpers {
         }
         if (cnt == 0) {
             throw new MethodNotFoundException(
-                String.format("Method with name '%s' is not found in the service class.", methodName));
+                    String.format("Method with name '%s' is not found in the service class.", methodName));
         } else if (cnt == 1 && methodParameters == null) {
             return method;
         } else if (cnt > 1 && methodParameters == null) {
             throw new AmbiguousMethodException(
-                String.format("Multiple methods with the same name '%s' is found in the service class.", methodName));
+                    String.format("Multiple methods with the same name '%s' is found in the service class.", methodName));
         } else {
             String[] methodParametersSplitted = KafkaHelpers.getMethodParameters(methodParameters);
             List<Method> methods = new ArrayList<>();
             for (Method m : service.getServiceClass().getMethods()) {
                 if (m.getName().equals(methodName) && isMethodParametersMatched(m.getParameterTypes(),
-                    methodParametersSplitted)) {
+                        methodParametersSplitted)) {
                     methods.add(m);
                 }
             }
             if (methods.isEmpty()) {
                 throw new MethodNotFoundException(
-                    String.format("Method with name '%s' and parameters '%s' is not found in the service class.",
-                        methodName,
-                        Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
+                        String.format("Method with name '%s' and parameters '%s' is not found in the service class.",
+                                methodName,
+                                Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
             } else {
                 if (methods.size() == 1) {
                     return methods.get(0);
                 } else {
                     throw new AmbiguousMethodException(String.format(
-                        "Multiple methods with the same name '%s' and parameters '%s' is found in the service class.",
-                        methodName,
-                        Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
+                            "Multiple methods with the same name '%s' and parameters '%s' is found in the service class.",
+                            methodName,
+                            Arrays.stream(methodParametersSplitted).collect(Collectors.joining(",", "[", "]"))));
                 }
             }
         }
@@ -78,7 +78,7 @@ public final class KafkaHelpers {
         }
         for (int i = 0; i < classTypes.length; i++) {
             if (!("*".equals(types[i]) || Objects.equals(classTypes[i].getSimpleName(), types[i]) || Objects
-                .equals(classTypes[i].getCanonicalName(), types[i]) || Objects.equals(classTypes[i].getName(),
+                    .equals(classTypes[i].getCanonicalName(), types[i]) || Objects.equals(classTypes[i].getName(),
                     types[i]) || Objects.equals(classTypes[i].getTypeName(), types[i]))) {
                 return false;
             }

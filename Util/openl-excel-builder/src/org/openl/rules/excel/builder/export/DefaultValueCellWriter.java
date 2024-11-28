@@ -10,11 +10,12 @@ import java.util.Date;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.Model;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DefaultValueCellWriter {
 
@@ -24,10 +25,10 @@ public class DefaultValueCellWriter {
     }
 
     public static void writeDefaultValueToCell(Model model,
-            FieldModel field,
-            Cell valueCell,
-            CellStyle dateStyle,
-            CellStyle dateTimeStyle) {
+                                               FieldModel field,
+                                               Cell valueCell,
+                                               CellStyle dateStyle,
+                                               CellStyle dateTimeStyle) {
         if (field.getDefaultValue() == null) {
             valueCell.setCellValue("");
         } else {
@@ -35,15 +36,15 @@ public class DefaultValueCellWriter {
                 setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
             } catch (ParseException e) {
                 LOGGER
-                    .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
+                        .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
             }
         }
     }
 
     private static void setDefaultValue(FieldModel model,
-            Cell valueCell,
-            CellStyle dateStyle,
-            CellStyle dateTimeStyle) throws ParseException {
+                                        Cell valueCell,
+                                        CellStyle dateStyle,
+                                        CellStyle dateTimeStyle) throws ParseException {
         Object defaultValue = model.getDefaultValue();
         String valueAsString = defaultValue.toString();
         switch (model.getType()) {

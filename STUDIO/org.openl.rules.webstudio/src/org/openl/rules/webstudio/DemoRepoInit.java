@@ -87,7 +87,7 @@ public class DemoRepoInit {
             try {
                 projectCreator.createRulesProject();
             } catch (ProjectException e) {
-                LOG.error("Project: {}. Message: {}", projectName, e.getMessage());
+                LOG.error("Project: {}. Message: {}", projectName, e.getMessage(), e);
                 return;
             }
             String technicalName = projectCreator.getCreatedProjectName();

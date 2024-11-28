@@ -20,7 +20,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * {@link IOpenClass} implementation, that adds restriction for instances of this class by {@link IDomain}
- *
  */
 public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private volatile StaticOpenClass staticOpenClass;
@@ -34,10 +33,10 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private final ModuleOpenClass module;
 
     public DomainOpenClass(String name,
-            IOpenClass baseClass,
-            IDomain<?> domain,
-            ModuleOpenClass module,
-            IMetaInfo metaInfo) {
+                           IOpenClass baseClass,
+                           IDomain<?> domain,
+                           ModuleOpenClass module,
+                           IMetaInfo metaInfo) {
         assert name != null;
         this.baseClass = baseClass;
         this.name = name;

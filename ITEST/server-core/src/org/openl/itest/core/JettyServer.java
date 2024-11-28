@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,8 +19,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
-
-import static org.junit.Assert.fail;
 
 /**
  * Simple wrapper for Jetty Server
@@ -50,7 +47,7 @@ public class JettyServer {
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
-                "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in WebStudio
+                "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
 
         this.server.setHandler(webAppContext);
     }
@@ -63,7 +60,7 @@ public class JettyServer {
         }
         try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
 
-            classPath.addAll( stream.map(Path::toString).collect(Collectors.toList()));
+            classPath.addAll(stream.map(Path::toString).collect(Collectors.toList()));
         } catch (IOException ignored) {
             // ignore
         }
@@ -133,7 +130,7 @@ public class JettyServer {
     /**
      * Starts Jetty Server and executes a set of http requests.
      */
-    public static void test(String profile, boolean waitUntilReady) throws Exception {
+    public static void test(String profile) throws Exception {
         Map<String, String> params = null;
         if (profile != null) {
             params = Map.of("spring.profiles.active", profile);
@@ -146,28 +143,12 @@ public class JettyServer {
         try {
             Locale.setDefault(Locale.US);
 
-            // set +2 as default
-            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+            // set -10 as default
+            TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
 
             jetty.server.start();
             try {
                 var httpClient = jetty.client();
-                if (waitUntilReady) {
-                    boolean ready = false;
-                    long started = System.currentTimeMillis();
-                    while (!ready && (started - System.currentTimeMillis()) < MAX_READINESS_WAIT_TIMEOUT_MS) {
-                        try {
-                            httpClient.getForObject("/admin/healthcheck/readiness", String.class, 200);
-                            ready = true;
-                        } catch (AssertionError ignored) {
-                            System.out.println("Not ready yet. Wait 500 ms and retry");
-                            TimeUnit.MILLISECONDS.sleep(500);
-                        }
-                    }
-                    if (!ready) {
-                        fail("Not Ready!");
-                    }
-                }
                 httpClient.test(testFolder);
             } finally {
                 jetty.stop();
@@ -176,10 +157,6 @@ public class JettyServer {
             Locale.setDefault(DEFAULT_LOCALE);
             TimeZone.setDefault(DEFAULT_TIMEZONE);
         }
-    }
-
-    public static void test(String profile) throws Exception {
-        test(profile, false);
     }
 
     public static void test() throws Exception {

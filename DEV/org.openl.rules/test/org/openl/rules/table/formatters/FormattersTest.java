@@ -1,22 +1,26 @@
 package org.openl.rules.table.formatters;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.util.formatters.IFormatter;
 
 public class FormattersTest {
 
     @Test
     public void testPrimitiveArray() {
-        int[] intMas = new int[] { 1, 2 };
+        int[] intMas = new int[]{1, 2};
         IFormatter formatter = FormattersManager.getFormatter(intMas.getClass());
         assertEquals("1,2", formatter.format(intMas));
     }
 
     @Test
     public void testMultiDimPrimitiveArray() {
-        double[][] doubleMas = new double[][] { new double[] { 1.27, 5.8987 }, new double[] { 45.345, 123.4578 } };
+        double[][] doubleMas = new double[][]{new double[]{1.27, 5.8987}, new double[]{45.345, 123.4578}};
         IFormatter formatter = FormattersManager.getFormatter(doubleMas.getClass());
         assertEquals("1.27,5.8987,45.345,123.4578", formatter.format(doubleMas));
     }

@@ -1,7 +1,12 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -14,8 +19,8 @@ public class EqualsIndex extends ARuleIndex {
     private final Map<Object, DecisionTableRuleNode> valueNodes;
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes,
-            Map<Object, DecisionTableRuleNode> valueNodes,
-            ConditionCasts conditionCasts) {
+                       Map<Object, DecisionTableRuleNode> valueNodes,
+                       ConditionCasts conditionCasts) {
         super(emptyOrFormulaNodes, conditionCasts);
         this.valueNodes = Objects.requireNonNull(valueNodes, "valueNodes cannot be null");
     }
@@ -74,7 +79,7 @@ public class EqualsIndex extends ARuleIndex {
             }
 
             DecisionTableRuleNodeBuilder builder = map.computeIfAbsent(value,
-                e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
+                    e -> new DecisionTableRuleNodeBuilder(emptyBuilder));
 
             builder.addRule(ruleN);
         }
@@ -83,8 +88,10 @@ public class EqualsIndex extends ARuleIndex {
             if (map == null) {
                 nodeMap = Collections.emptyMap();
             } else {
+                Map<List<Integer>, DecisionTableRuleNode> rulesToNode = new HashMap<>();
                 for (Map.Entry<Object, DecisionTableRuleNodeBuilder> element : map.entrySet()) {
-                    nodeMap.put(element.getKey(), element.getValue().makeNode());
+                    var node = rulesToNode.computeIfAbsent(element.getValue().getRules(), key -> element.getValue().makeNode());
+                    nodeMap.put(element.getKey(), node);
                 }
             }
             return new EqualsIndex(emptyBuilder.makeNode(), nodeMap, conditionCasts);

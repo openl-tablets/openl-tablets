@@ -39,7 +39,7 @@ final class JarArchiver extends SimpleFileVisitor<Path> {
      * stream.
      *
      * @param sourceDir a not empty directory for compressing.
-     * @param file a jar file.
+     * @param file      a jar file.
      * @throws IOException
      */
     static void archive(File sourceDir, File file) throws IOException {

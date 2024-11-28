@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.util.StringUtils;
+
 /**
  * Method description builder
  *
@@ -14,6 +16,8 @@ public class MethodDescriptionBuilder {
     private final String methodName;
     private final String returnType;
     private final List<TypeDescription> params = new ArrayList<>();
+    private final List<String> paramNames = new ArrayList<>();
+
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
     private MethodDescriptionBuilder(String methodName, String returnType) {
@@ -33,6 +37,11 @@ public class MethodDescriptionBuilder {
         return this;
     }
 
+    public MethodDescriptionBuilder addParameterName(String name) {
+        paramNames.add(Objects.requireNonNull(name, "Parameter name is null."));
+        return this;
+    }
+
     /**
      * Add new method annotation
      *
@@ -46,14 +55,15 @@ public class MethodDescriptionBuilder {
 
     /**
      * Build {@link MethodDescription} object
-     * 
+     *
      * @return instance of {@link MethodDescription}
      */
     public MethodDescription build() {
         return new MethodDescription(methodName,
-            returnType,
-            params.toArray(MethodDescription.NO_ARGS),
-            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+                returnType,
+                params.toArray(MethodDescription.NO_ARGS),
+                annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS),
+                paramNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
     }
 
     /**

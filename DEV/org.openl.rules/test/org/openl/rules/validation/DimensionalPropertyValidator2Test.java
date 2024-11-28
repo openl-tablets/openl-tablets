@@ -1,9 +1,12 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.validation.DimensionalPropertyValidator.OverlapState;
 
 public class DimensionalPropertyValidator2Test {
@@ -12,7 +15,7 @@ public class DimensionalPropertyValidator2Test {
     private OverlapState startState;
     private String[] vResult;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         validator = new DimensionalPropertyValidator();
         startState = OverlapState.UNKNOWN;
@@ -21,8 +24,8 @@ public class DimensionalPropertyValidator2Test {
 
     @Test
     public void test_loopInternal_UNKNOWN_overlapState() {
-        final String[] propA = new String[] { "A", "B", "C" };
-        final String[] propB = new String[] { "A", "B", "C" };
+        final String[] propA = new String[]{"A", "B", "C"};
+        final String[] propB = new String[]{"A", "B", "C"};
         final String key = "somekey";
 
         final OverlapState actual = validator.loopInternal(startState, vResult, key, propA, propB);
@@ -37,37 +40,37 @@ public class DimensionalPropertyValidator2Test {
 
     @Test
     public void test_loopInternal_INCLUDE_TO_A_overlapState() {
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "A", "B" });
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "B", "C" });
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "A" });
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "B" });
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "C" });
-        testIncludeToA("somekey", new String[] { "A", "B", "C" }, new String[] { "A", "C" });
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"A", "B"});
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"B", "C"});
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"A"});
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"B"});
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"C"});
+        testIncludeToA("somekey", new String[]{"A", "B", "C"}, new String[]{"A", "C"});
     }
 
     @Test
     public void test_loopInternal_INCLUDE_TO_B_overlapState() {
-        testIncludeToB("somekey", new String[] { "A", "B" }, new String[] { "A", "B", "C" });
-        testIncludeToB("somekey", new String[] { "B", "C" }, new String[] { "A", "B", "C" });
-        testIncludeToB("somekey", new String[] { "A" }, new String[] { "A", "B", "C" });
-        testIncludeToB("somekey", new String[] { "B" }, new String[] { "A", "B", "C" });
-        testIncludeToB("somekey", new String[] { "C" }, new String[] { "A", "B", "C" });
-        testIncludeToB("somekey", new String[] { "A", "C" }, new String[] { "A", "B", "C" });
+        testIncludeToB("somekey", new String[]{"A", "B"}, new String[]{"A", "B", "C"});
+        testIncludeToB("somekey", new String[]{"B", "C"}, new String[]{"A", "B", "C"});
+        testIncludeToB("somekey", new String[]{"A"}, new String[]{"A", "B", "C"});
+        testIncludeToB("somekey", new String[]{"B"}, new String[]{"A", "B", "C"});
+        testIncludeToB("somekey", new String[]{"C"}, new String[]{"A", "B", "C"});
+        testIncludeToB("somekey", new String[]{"A", "C"}, new String[]{"A", "B", "C"});
     }
 
     @Test
     public void test_loopInternal_NOT_OVERLAP_overlapState() {
-        testNotOverlap("somekey", new String[] { "A", "B", "C" }, new String[] { "D", "E", "F" });
+        testNotOverlap("somekey", new String[]{"A", "B", "C"}, new String[]{"D", "E", "F"});
     }
 
     @Test
     public void test_loopInternal_OVERLAP_overlapState() {
-        testOverlap("somekey", new String[] { "A", "B", "C" }, new String[] { "A", "E", "F" });
-        testOverlap("somekey", new String[] { "B", "C", "D" }, new String[] { "A", "B", "F" });
-        testOverlap("somekey", new String[] { "B", "C", "D" }, new String[] { "A", "B", "F" });
-        testOverlap("somekey", new String[] { "B", "C", "G" }, new String[] { "A", "F", "G" });
-        testOverlap("somekey", new String[] { "B", "C", "D" }, new String[] { "A", "B" });
-        testOverlap("somekey", new String[] { "A", "B" }, new String[] { "B", "C", "D" });
+        testOverlap("somekey", new String[]{"A", "B", "C"}, new String[]{"A", "E", "F"});
+        testOverlap("somekey", new String[]{"B", "C", "D"}, new String[]{"A", "B", "F"});
+        testOverlap("somekey", new String[]{"B", "C", "D"}, new String[]{"A", "B", "F"});
+        testOverlap("somekey", new String[]{"B", "C", "G"}, new String[]{"A", "F", "G"});
+        testOverlap("somekey", new String[]{"B", "C", "D"}, new String[]{"A", "B"});
+        testOverlap("somekey", new String[]{"A", "B"}, new String[]{"B", "C", "D"});
     }
 
     private void testIncludeToA(String key, String[] propA, final String[] propB) {

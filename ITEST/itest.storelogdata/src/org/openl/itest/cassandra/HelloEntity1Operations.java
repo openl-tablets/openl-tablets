@@ -2,10 +2,10 @@ package org.openl.itest.cassandra;
 
 import java.util.concurrent.CompletionStage;
 
+import com.datastax.oss.driver.api.core.CqlSession;
+
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
-
-import com.datastax.oss.driver.api.core.CqlSession;
 
 public class HelloEntity1Operations implements EntityOperations<HelloEntity1Dao, HelloEntity1> {
 

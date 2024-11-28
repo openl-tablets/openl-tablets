@@ -8,8 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.faces.model.SelectItem;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -28,22 +36,11 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Deployment controller.
@@ -83,16 +80,7 @@ public class DeploymentController {
     private Comments deployConfigRepoComments;
 
     @Autowired
-    @Qualifier("deployConfigRepositoryAclService")
-    private RepositoryAclService deployConfigRepositoryAclService;
-
-    @Autowired
-    @Qualifier("designRepositoryAclService")
-    private RepositoryAclService designRepositoryAclService;
-
-    @Autowired
-    @Qualifier("productionRepositoryAclService")
-    private SimpleRepositoryAclService productionRepositoryAclService;
+    private RepositoryAclServiceProvider aclServiceProvider;
 
     public void onPageLoad() {
         if (repositoryTreeState.getSelectedNode() == null) {
@@ -127,10 +115,10 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils
-                .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
-                    ProjectArtifactUtils.extractResourceName(project)));
+                    .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
+                            ProjectArtifactUtils.extractResourceName(project)));
             return null;
         }
         try {
@@ -139,10 +127,10 @@ public class DeploymentController {
             String businessName = projectToAdd.getBusinessName();
             String path = projectToAdd.getRealPath();
             ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(repositoryId,
-                businessName,
-                path,
-                projectBranch,
-                new CommonVersionImpl(version));
+                    businessName,
+                    path,
+                    projectBranch,
+                    new CommonVersionImpl(version));
             List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
             synchronized (project) {
                 items = null;
@@ -179,10 +167,10 @@ public class DeploymentController {
                 WebStudioUtils.addErrorMessage("Deployment configuration is not selected");
                 return null;
             }
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
-                    String.format("There is no permission for modifying '%s' deployment configuration.",
-                        ProjectArtifactUtils.extractResourceName(selectedProject)));
+                        String.format("There is no permission for modifying '%s' deployment configuration.",
+                                ProjectArtifactUtils.extractResourceName(selectedProject)));
                 return null;
             }
             synchronized (selectedProject) {
@@ -202,10 +190,10 @@ public class DeploymentController {
     public String open() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.VIEW))) {
                 WebStudioUtils
-                    .addErrorMessage(String.format("There is no permission for opening '%s' deployment configuration.",
-                        ProjectArtifactUtils.extractResourceName(selectedProject)));
+                        .addErrorMessage(String.format("There is no permission for opening '%s' deployment configuration.",
+                                ProjectArtifactUtils.extractResourceName(selectedProject)));
                 return null;
             }
             selectedProject.open();
@@ -221,10 +209,10 @@ public class DeploymentController {
     public String close() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.VIEW))) {
                 WebStudioUtils
-                    .addErrorMessage(String.format("There is no permission for closing '%s' deployment configuration.",
-                        ProjectArtifactUtils.extractResourceName(selectedProject)));
+                        .addErrorMessage(String.format("There is no permission for closing '%s' deployment configuration.",
+                                ProjectArtifactUtils.extractResourceName(selectedProject)));
                 return null;
             }
             selectedProject.close();
@@ -243,10 +231,10 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils
-                .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
-                    ProjectArtifactUtils.extractResourceName(project)));
+                    .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
+                            ProjectArtifactUtils.extractResourceName(project)));
             return null;
         }
         try {
@@ -267,29 +255,29 @@ public class DeploymentController {
         if (project != null) {
             if (project.getProjectDescriptors().isEmpty()) {
                 WebStudioUtils.addErrorMessage(
-                    String.format("Configuration '%s' should contain at least one project to be deployed.",
-                        project.getName()));
+                        String.format("Configuration '%s' should contain at least one project to be deployed.",
+                                project.getName()));
                 return null;
             }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
-            if (!productionRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
+            if (!aclServiceProvider.getProdRepoAclService().isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
-                    String.format("There is no permission for deploying to the '%s' repository.", repo.getName()));
+                        String.format("There is no permission for deploying to the '%s' repository.", repo.getName()));
                 return null;
             }
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
                 String message = String.format(
-                    "Configuration '%s' is successfully deployed with id '%s' to '%s' repository.",
-                    project.getName(),
-                    id.getName(),
-                    repo.getName());
+                        "Configuration '%s' is successfully deployed with id '%s' to '%s' repository.",
+                        project.getName(),
+                        id.getName(),
+                        repo.getName());
                 WebStudioUtils.addInfoMessage(message);
 
                 productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
                 String msg = String
-                    .format("Failed to deploy '%s' to '%s' repository.", project.getName(), repo.getName());
+                        .format("Failed to deploy '%s' to '%s' repository.", project.getName(), repo.getName());
                 LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -315,12 +303,12 @@ public class DeploymentController {
             UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
             for (ProjectDescriptor descriptor : descriptors) {
                 DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getRepositoryId(),
-                    descriptor.getProjectName(),
-                    descriptor.getPath(),
-                    descriptor.getProjectVersion());
+                        descriptor.getProjectName(),
+                        descriptor.getPath(),
+                        descriptor.getProjectVersion());
                 try {
                     RulesProject rulesProject = getRulesProject(workspace, item);
-                    if (!designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.EDIT))) {
+                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(rulesProject, List.of(AclPermission.EDIT))) {
                         item.setDisabled(true);
                     }
                 } catch (ProjectException e) {
@@ -347,9 +335,9 @@ public class DeploymentController {
         // Because of JSF this method can be invoked up to 24 times during 1 HTTP request.
         // That's why we must not refresh projects list every time, instead get cached projects only.
         Collection<RulesProject> workspaceProjects = workspace.getProjects(false)
-            .stream()
-            .filter(p -> repositoryId.equals(p.getRepository().getId()))
-            .collect(Collectors.toCollection(ArrayList::new));
+                .stream()
+                .filter(p -> repositoryId.equals(p.getRepository().getId()))
+                .collect(Collectors.toCollection(ArrayList::new));
         List<SelectItem> selectItems = new ArrayList<>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -410,7 +398,7 @@ public class DeploymentController {
     private ADeploymentProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {
-            if (deployConfigRepositoryAclService.isGranted(artefact, List.of(AclPermission.VIEW))) {
+            if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(artefact, List.of(AclPermission.VIEW))) {
                 return (ADeploymentProject) artefact;
             }
         }
@@ -433,11 +421,11 @@ public class DeploymentController {
                         project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState.refreshNode(
-                        repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(), treeNodeId));
+                            repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(), treeNodeId));
                 } catch (Exception e) {
                     LOG.error("Failed to open project '{}'.", item.getName(), e);
                     WebStudioUtils.addErrorMessage(
-                        String.format("Failed to open project '%s': %s", item.getName(), e.getMessage()));
+                            String.format("Failed to open project '%s': %s", item.getName(), e.getMessage()));
                 }
             }
             item.setSelected(false);
@@ -447,7 +435,7 @@ public class DeploymentController {
     }
 
     private RulesProject getRulesProject(UserWorkspace workspace,
-            DeploymentDescriptorItem deployment) throws ProjectException {
+                                         DeploymentDescriptorItem deployment) throws ProjectException {
         try {
             return workspace.getProject(deployment.getRepositoryId(), deployment.getName(), false);
         } catch (ProjectException e) {
@@ -473,8 +461,8 @@ public class DeploymentController {
     }
 
     private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project,
-            String projectName,
-            ProjectDescriptorImpl newItem) {
+                                                      String projectName,
+                                                      ProjectDescriptorImpl newItem) {
         List<ProjectDescriptor> newDescriptors = new ArrayList<>();
 
         for (ProjectDescriptor pd : project.getProjectDescriptors()) {
@@ -552,22 +540,22 @@ public class DeploymentController {
 
     public Collection<RepositoryConfiguration> getRepositories() {
         Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
-            deploymentManager,
-            propertyResolver,
-            productionRepositoryAclService,
-            AclPermission.VIEW,
-            AclPermission.EDIT);
+                deploymentManager,
+                propertyResolver,
+                aclServiceProvider.getProdRepoAclService(),
+                AclPermission.VIEW,
+                AclPermission.EDIT);
         return repositoryConfigurations.stream()
-            .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
-                deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
-            .collect(Collectors.toList());
+                .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
+                        deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
+                .collect(Collectors.toList());
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {
         Map<String, String> types = deploymentManager.getRepositoryConfigNames()
-            .stream()
-            .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
-            .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
+                .stream()
+                .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
+                .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
 
@@ -609,16 +597,15 @@ public class DeploymentController {
 
     public List<String> getProjectBranches() {
         try {
-            UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+            var dtRepo = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession()).getDesignTimeRepository();
 
-            Repository repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+            Repository repository = dtRepo.getRepository(repositoryId);
             if (!repository.supports().branches()) {
                 return Collections.emptyList();
             }
 
-            String rulesPath = workspace.getDesignTimeRepository().getRulesLocation();
-            List<String> branches = new ArrayList<>(
-                ((BranchRepository) repository).getBranches(rulesPath + projectName));
+            var project = dtRepo.getProject(repositoryId, projectName);
+            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(project.getFolderPath()));
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
                 branches.sort(String.CASE_INSENSITIVE_ORDER);

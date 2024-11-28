@@ -3,7 +3,9 @@ package org.openl.rules.ruleservice.core.interceptors.converters;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
@@ -18,8 +20,6 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceClassLoaderAware;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServiceMethodAfterReturningAdvice<T> implements IOpenClassAware, IOpenMemberAware, RulesDeployAware, ServiceClassLoaderAware {
 
@@ -55,7 +55,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
             synchronized (this) {
                 if (!initialized) {
                     PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
-                        .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
+                            .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
                     if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
                         spreadsheetResultBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
                     }
@@ -91,14 +91,13 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                     if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass || openClass instanceof CustomSpreadsheetResultOpenClass) {
                         Class<?> t = Map.class;
                         if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
-                            .getModule() != null) {
+                                .getModule() != null) {
                             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openClass;
                             t = spreadsheetResultOpenClass.getModule()
-                                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                .toCustomSpreadsheetResultOpenClass()
-                                .getBeanClass();
-                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
-                            .isGenerateBeanClass()) {
+                                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                    .toCustomSpreadsheetResultOpenClass()
+                                    .getBeanClass();
+                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                             t = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
                         }
                         if (dim > 0) {

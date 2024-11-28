@@ -1,13 +1,18 @@
 package org.openl.rules.calc;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.rules.TestUtils;
 
 public class AliasInSpreadsheetTest {
 
-    @Test(expected = OutsideOfValidDomainException.class)
+    @Test
     public void test() {
-        TestUtils.invoke("test/rules/calc1/AliasInSpreadsheet.xlsx", "test");
+        assertThrows(OutsideOfValidDomainException.class, () -> {
+            TestUtils.invoke("test/rules/calc1/AliasInSpreadsheet.xlsx", "test");
+        });
     }
 }

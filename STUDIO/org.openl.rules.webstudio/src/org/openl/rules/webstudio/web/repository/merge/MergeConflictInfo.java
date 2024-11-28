@@ -21,10 +21,10 @@ public class MergeConflictInfo {
     }
 
     public MergeConflictInfo(MergeConflictException exception,
-        RulesProject project,
-        String mergeBranchFrom,
-        String mergeBranchTo,
-        String currentBranch) {
+                             RulesProject project,
+                             String mergeBranchFrom,
+                             String mergeBranchTo,
+                             String currentBranch) {
         Objects.requireNonNull(mergeBranchFrom, "mergeBranchFrom must be initialized");
         Objects.requireNonNull(mergeBranchTo, "mergeBranchTo must be initialized");
         Objects.requireNonNull(currentBranch, "currentBranch must be initialized");

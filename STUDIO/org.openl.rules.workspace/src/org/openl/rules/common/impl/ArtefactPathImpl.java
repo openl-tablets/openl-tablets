@@ -52,7 +52,7 @@ public class ArtefactPathImpl implements ArtefactPath {
     protected void appendToSegments(String pathAsString) {
         int len = pathAsString.length();
         int pos = 0;
-        for (int end = 0; end < len;) {
+        for (int end = 0; end < len; ) {
             end = pathAsString.indexOf(SEGMENT_DELIMITER, pos);
             if (end < 0) {
                 end = len;
@@ -93,20 +93,24 @@ public class ArtefactPathImpl implements ArtefactPath {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<String> getSegments() {
         return segments;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getStringValue() {
         if (stringValue == null) {
             StringBuilder result = new StringBuilder();
 
             // All paths should be relative. See ArtefactPathImpl(String pathAsString) constructor
-            for (Iterator<String> i = segments.iterator(); i.hasNext();) {
+            for (Iterator<String> i = segments.iterator(); i.hasNext(); ) {
                 String segment = i.next();
                 result.append(segment);
 
@@ -140,13 +144,17 @@ public class ArtefactPathImpl implements ArtefactPath {
         return getStringValue().hashCode();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String segment(int index) {
         return segments.get(index);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int segmentCount() {
         return segments.size();

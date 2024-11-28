@@ -11,11 +11,12 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+
+import org.openl.util.FileUtils;
+import org.openl.util.ZipUtils;
 
 /**
  * Read only implementation of Jar Repository to support deploying of jars from classpath as it is without
@@ -91,7 +92,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
     }
 
     private Stream<Resource> getResources(String fileName) throws IOException {
-        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX  + fileName;
+        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
         return Stream.of(resourceResolver.getResources(locationPattern));
     }
 

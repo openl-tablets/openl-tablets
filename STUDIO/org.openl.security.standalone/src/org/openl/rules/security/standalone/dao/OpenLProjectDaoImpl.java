@@ -2,17 +2,17 @@ package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.springframework.transaction.annotation.Transactional;
 
 public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implements OpenLProjectDao {
     @Override
@@ -45,24 +45,24 @@ public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implemen
 
         Join<OpenLProject, Tag> tags = root.join("tags");
         criteria.select(tags)
-            .where(getSelectProjectPredicate(root, builder, repoId, projectPath));
+                .where(getSelectProjectPredicate(root, builder, repoId, projectPath));
         return getSession().createQuery(criteria).getResultList();
     }
 
     private Predicate[] getSelectProjectPredicate(Root<OpenLProject> root,
-            CriteriaBuilder cb,
-            String repoId,
-            String projectPath) {
-        return new Predicate[] { cb.equal(root.get("repositoryId"), repoId),
-                cb.equal(root.get("projectPath"), projectPath) };
+                                                  CriteriaBuilder cb,
+                                                  String repoId,
+                                                  String projectPath) {
+        return new Predicate[]{cb.equal(root.get("repositoryId"), repoId),
+                cb.equal(root.get("projectPath"), projectPath)};
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
         getSession().createNativeQuery("delete from OpenL_Projects where id = :id")
-            .setParameter("id", id)
-            .executeUpdate();
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     @Override
@@ -83,18 +83,18 @@ public class OpenLProjectDaoImpl extends BaseHibernateDao<OpenLProject> implemen
         var query = cb.createQuery(Long.class);
         var root = query.from(OpenLProject.class);
 
-        var tagsJoin = root.<OpenLProject, Tag> join("tags");
-        var tagTypeJoin = tagsJoin.<Tag, TagType> join("type");
+        var tagsJoin = root.<OpenLProject, Tag>join("tags");
+        var tagTypeJoin = tagsJoin.<Tag, TagType>join("type");
 
         Predicate[] tagPredicates = new Predicate[tags.size()];
         int i = 0;
         for (var entry : tags.entrySet()) {
             tagPredicates[i++] = cb.and(cb.equal(tagTypeJoin.get("name"), entry.getKey()),
-                cb.equal(tagsJoin.get("name"), entry.getValue()));
+                    cb.equal(tagsJoin.get("name"), entry.getValue()));
         }
 
         query.select(cb.countDistinct(tagsJoin))
-            .where(cb.and(getSelectProjectPredicate(root, cb, repoId, projectPath)), cb.or(tagPredicates));
+                .where(cb.and(getSelectProjectPredicate(root, cb, repoId, projectPath)), cb.or(tagPredicates));
 
         return session.createQuery(query).getSingleResult().equals((long) tags.size());
     }

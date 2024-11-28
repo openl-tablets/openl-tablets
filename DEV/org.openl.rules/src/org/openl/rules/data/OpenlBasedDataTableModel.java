@@ -17,7 +17,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class OpenlBasedDataTableModel implements ITableModel {
 

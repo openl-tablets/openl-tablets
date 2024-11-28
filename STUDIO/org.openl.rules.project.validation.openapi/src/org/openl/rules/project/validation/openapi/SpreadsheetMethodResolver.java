@@ -25,7 +25,7 @@ final class SpreadsheetMethodResolver {
         for (IOpenMethod method : context.getOpenClass().getMethods()) {
             if (method.getType() instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) method
-                    .getType();
+                        .getType();
                 cache.put(customSpreadsheetResultOpenClass.getBeanClass(), method);
             }
         }
@@ -53,7 +53,7 @@ final class SpreadsheetMethodResolver {
 
     public static IOpenField findSpreadsheetOpenField(Spreadsheet spreadsheet, IOpenField beanField) {
         Map<String, List<IOpenField>> beanFieldsMap = ((CustomSpreadsheetResultOpenClass) spreadsheet.getType())
-            .getBeanFieldsMap();
+                .getBeanFieldsMap();
         List<IOpenField> sprFields = beanFieldsMap.get(beanField.getName());
         IOpenField openFieldInSpr = null;
         for (IOpenField f : sprFields) {

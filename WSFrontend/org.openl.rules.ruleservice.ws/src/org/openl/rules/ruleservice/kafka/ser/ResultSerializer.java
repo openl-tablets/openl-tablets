@@ -1,15 +1,17 @@
 package org.openl.rules.ruleservice.kafka.ser;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import org.apache.kafka.common.serialization.Serializer;
-import org.openl.rules.ruleservice.core.OpenLService;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.common.serialization.Serializer;
+
+import org.openl.rules.ruleservice.core.OpenLService;
 
 public class ResultSerializer implements Serializer<Object> {
     private final ObjectMapper objectMapper;
-    private String encoding = "UTF8";
+    private Charset encoding = StandardCharsets.UTF_8;
 
     // Do not remove first argument. It is used by reflection.
     public ResultSerializer(OpenLService service, ObjectMapper objectMapper) {
@@ -23,7 +25,7 @@ public class ResultSerializer implements Serializer<Object> {
             encodingValue = configs.get("serializer.encoding");
         }
         if (encodingValue instanceof String) {
-            encoding = (String) encodingValue;
+            encoding = Charset.forName((String) encodingValue);
         }
     }
 
@@ -37,9 +39,5 @@ public class ResultSerializer implements Serializer<Object> {
         } catch (Exception e) {
             throw new SerializationException("Failed to write a result.", e);
         }
-    }
-
-    @Override
-    public void close() {
     }
 }

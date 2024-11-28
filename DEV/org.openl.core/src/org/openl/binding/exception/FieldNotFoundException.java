@@ -12,7 +12,6 @@ import org.openl.types.StaticOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class FieldNotFoundException extends OpenLCompilationException {
 
@@ -39,8 +38,8 @@ public class FieldNotFoundException extends OpenLCompilationException {
         sb.append(fieldName).append("' is not found");
         if (type != null) {
             sb.append(" in type '")
-                .append(type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName()
-                                                        : type.getName());
+                    .append(type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName()
+                            : type.getName());
         }
         sb.append("'.");
         return sb.toString();

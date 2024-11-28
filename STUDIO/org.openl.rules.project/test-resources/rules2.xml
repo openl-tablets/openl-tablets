@@ -1,10 +1,10 @@
 <project>
-	<id>test</id>
-	<name>test ?</name>
-	<modules>
-		<module>
-			<name>testmodule</name>
-			<rules-root path="excel/*.xls"/>
-		</module>	
-	</modules>
+    <id>test</id>
+    <name>test ?</name>
+    <modules>
+        <module>
+            <name>testmodule</name>
+            <rules-root path="excel/*.xls"/>
+        </module>
+    </modules>
 </project>

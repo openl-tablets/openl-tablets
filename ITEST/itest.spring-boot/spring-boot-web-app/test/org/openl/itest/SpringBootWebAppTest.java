@@ -2,15 +2,14 @@ package org.openl.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-@SpringBootTest(classes = { SpringBootWebApp.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {SpringBootWebApp.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SpringBootWebAppTest {
 
     @Autowired
@@ -25,14 +24,14 @@ public class SpringBootWebAppTest {
     @Test
     public void favicon() {
         byte[] response = restTemplate.getForObject("/favicon.ico", byte[].class);
-        assertThat(response).hasSize(1086);
+        assertThat(response).hasSize(15086);
     }
 
     @Test
     public void adminInfo() {
         String response = restTemplate.getForObject("/admin/ui/info", String.class);
         assertThat(response).contains(
-            "\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
+                "\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
     }
 
     @Test
@@ -56,7 +55,7 @@ public class SpringBootWebAppTest {
     @Test
     public void deployZipFromOpenLFolder() {
         String response = restTemplate
-            .postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
+                .postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
         assertThat(response).contains("Hello, John Smith");
     }
 

@@ -1,16 +1,17 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.FileData;
 
 public class HistoryForRevertedCommitTest {
@@ -19,7 +20,7 @@ public class HistoryForRevertedCommitTest {
 
     private GitRepository repo;
 
-    @Before
+    @BeforeEach
     public void setUp() throws GitAPIException, IOException {
         File gitRepo = new File(REPO_URI, ".git");
         if (!gitRepo.exists()) {
@@ -29,7 +30,7 @@ public class HistoryForRevertedCommitTest {
         repo = createRepository();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (repo != null) {
             repo.close();
@@ -97,7 +98,7 @@ public class HistoryForRevertedCommitTest {
     private GitRepository createRepository() {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(new File(REPO_URI).getAbsolutePath());
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         repo.setGcAutoDetach(false);
         repo.setBranch("main");
         repo.initialize();

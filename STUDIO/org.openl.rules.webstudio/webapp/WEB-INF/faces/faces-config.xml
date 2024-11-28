@@ -15,6 +15,6 @@
         <resource-bundle>
             <base-name>org.openl.rules.messages</base-name>
             <var>msg</var>
-       </resource-bundle>
+        </resource-bundle>
     </application>
 </faces-config>

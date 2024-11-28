@@ -34,6 +34,11 @@
                         <artifactId>java-driver-mapper-runtime</artifactId>
                         <version>${datastax.oss.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm-commons</artifactId>
+                        <version>${asm.version}</version>
+                    </dependency>
                 </dependencies>
             </plugin>
         </plugins>

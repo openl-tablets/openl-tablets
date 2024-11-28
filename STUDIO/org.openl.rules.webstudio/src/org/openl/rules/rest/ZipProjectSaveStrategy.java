@@ -20,9 +20,11 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -44,8 +46,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 @Component
 public class ZipProjectSaveStrategy {
@@ -57,9 +57,9 @@ public class ZipProjectSaveStrategy {
 
     @Inject
     public ZipProjectSaveStrategy(DesignTimeRepository designTimeRepository,
-            @Qualifier("zipFilter") PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector,
-            UserManagementService userManagementService) {
+                                  @Qualifier("zipFilter") PathFilter zipFilter,
+                                  ZipCharsetDetector zipCharsetDetector,
+                                  UserManagementService userManagementService) {
         this.designTimeRepository = designTimeRepository;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -69,29 +69,29 @@ public class ZipProjectSaveStrategy {
     public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException, JAXBException {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         UserInfo author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
-            .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
-            .orElse(new UserInfo(model.getAuthor()));
+                .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
+                .orElse(new UserInfo(model.getAuthor()));
         FileData projectData = new FileData();
         projectData.setName(designTimeRepository.getRulesLocation() + model.getProjectName());
         projectData.setComment(StringUtils.trimToEmpty(model.getComment()));
         projectData.setAuthor(author);
         if (repository.supports().mappedFolders()) {
             AdditionalData<FileMappingData> additionalData = new FileMappingData(projectData.getName(),
-                model.getFullPath());
+                    model.getFullPath());
             projectData.addAdditionalData(additionalData);
         }
         ProjectDescriptorNameAdaptor adaptor = new ProjectDescriptorNameAdaptor(model.getProjectName());
         Predicate<Path> filter = p -> zipFilter.accept(p.toString());
         Charset charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(zipArchive));
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(zipArchive),
-            Collections.singletonMap("encoding", charset.name()))) {
+                Collections.singletonMap("encoding", charset.name()))) {
 
             final Path root = fs.getPath("/");
             if (repository.supports().folders()) {
                 try (FileChangesFromFolder changes = new FileChangesFromFolder(root,
-                    projectData.getName(),
-                    filter,
-                    adaptor)) {
+                        projectData.getName(),
+                        filter,
+                        adaptor)) {
                     if (checkIfRequiredProjectDescriptorCreation(model, root)) {
                         FileItem descriptor = createVirtualProjectDescriptor(model, projectData.getName());
                         Iterable<FileItem> files = () -> concat(changes, Stream.of(descriptor)).iterator();
@@ -145,7 +145,7 @@ public class ZipProjectSaveStrategy {
         Path p = Paths.get(model.getFullPath());
         String folderName = p.getName(p.getNameCount() - 1).toString();
         return !folderName.equals(model.getProjectName()) && !Files
-            .exists(projectRoot.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                .exists(projectRoot.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
     }
 
     private static <T> Stream<T> concat(Iterable<T> a, Stream<T> b) {

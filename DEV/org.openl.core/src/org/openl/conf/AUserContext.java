@@ -27,7 +27,7 @@ public abstract class AUserContext implements IUserContext {
         IUserContext c = (IUserContext) obj;
 
         return Objects.equals(getUserClassLoader(), c.getUserClassLoader()) && Objects.equals(getUserHome(),
-            c.getUserHome());
+                c.getUserHome());
     }
 
     @Override

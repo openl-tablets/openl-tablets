@@ -1,7 +1,8 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 public class HiveOperationTest {
 
@@ -22,6 +23,6 @@ public class HiveOperationTest {
                 .lineSeparator() + "servicename text," + System
                 .lineSeparator() + "" + System.lineSeparator() + "PRIMARY KEY (id) ";
 
-        Assert.assertEquals(lines, HiveOperations.removeCommentsInStatement(linesWithComments));
+        assertEquals(lines, HiveOperations.removeCommentsInStatement(linesWithComments));
     }
 }

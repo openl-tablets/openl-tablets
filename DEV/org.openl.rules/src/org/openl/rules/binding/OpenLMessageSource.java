@@ -9,11 +9,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
@@ -94,7 +95,7 @@ public class OpenLMessageSource {
      * Follows the rules defined by {@link java.util.Locale#toString()}.
      *
      * @param basename the basename of the bundle
-     * @param locale the locale
+     * @param locale   the locale
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {

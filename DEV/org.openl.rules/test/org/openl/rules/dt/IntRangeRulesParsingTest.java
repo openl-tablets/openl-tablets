@@ -1,23 +1,22 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.dt.type.IntRangeAdaptor;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class IntRangeRulesParsingTest {
 
     private static Object instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create("test/rules/helpers/IntRangeTest.xlsx");
     }
@@ -81,24 +80,24 @@ public class IntRangeRulesParsingTest {
     @Test
     public void testtestRange() {
         assertEquals("rule1",
-            TestUtils.invoke(instance,
-                "ClassifyIncome",
-                new Class[] { String.class, short.class },
-                new Object[] { "Type 1", (short) -300 }));
+                TestUtils.invoke(instance,
+                        "ClassifyIncome",
+                        new Class[]{String.class, short.class},
+                        new Object[]{"Type 1", (short) -300}));
     }
 
     @Test
     public void testtestRange0() {
         assertEquals("rule3",
-            TestUtils.invoke(instance,
-                "ClassifyIncome",
-                new Class[] { String.class, short.class },
-                new Object[] { "Type 2", (short) -80 }));
+                TestUtils.invoke(instance,
+                        "ClassifyIncome",
+                        new Class[]{String.class, short.class},
+                        new Object[]{"Type 2", (short) -80}));
     }
 
     private Object invoke(String methodName, boolean param1, long param2) {
         return TestUtils
-            .invoke(instance, methodName, new Class[] { boolean.class, long.class }, new Object[] { param1, param2 });
+                .invoke(instance, methodName, new Class[]{boolean.class, long.class}, new Object[]{param1, param2});
     }
 
 }

@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
+
 import org.openl.gen.AnnotationDescription;
 import org.openl.gen.TypeDescription;
 
@@ -13,8 +14,8 @@ public class AnnotationTransformationHelper {
     }
 
     public static String transformAnnotation(AnnotationDescription annotation,
-            Character lineOpening,
-            Set<String> imports) {
+                                             Character lineOpening,
+                                             Set<String> imports) {
         StringBuilder annotationText;
         if (lineOpening == null) {
             annotationText = new StringBuilder();

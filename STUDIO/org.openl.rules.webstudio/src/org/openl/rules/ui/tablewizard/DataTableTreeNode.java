@@ -3,14 +3,14 @@ package org.openl.rules.ui.tablewizard;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
-import org.openl.rules.table.xls.builder.DataTableField;
 import org.richfaces.model.TreeNode;
+
+import org.openl.rules.table.xls.builder.DataTableField;
 
 /**
  * A tree node, containing description of Data Table's field columns
  *
  * @author NSamatov
- *
  */
 public class DataTableTreeNode implements TreeNode {
     private static final String SIMPLE = "simple";
@@ -25,7 +25,7 @@ public class DataTableTreeNode implements TreeNode {
      * Create instance of a node
      *
      * @param value description of a data table field
-     * @param root if true, then this node is root
+     * @param root  if true, then this node is root
      */
     public DataTableTreeNode(DataTableField value, boolean root) {
         this.value = value;

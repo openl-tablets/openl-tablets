@@ -1,18 +1,18 @@
 package org.openl.rules.project.xml;
 
-import org.openl.rules.project.model.MethodFilter;
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.OpenAPI;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
-
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 public class BaseProjectDescriptorSerializerTest {
 

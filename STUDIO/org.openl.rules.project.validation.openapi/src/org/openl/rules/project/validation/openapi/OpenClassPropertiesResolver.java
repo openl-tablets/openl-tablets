@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.util.ClassUtils;
-import org.openl.util.StringUtils;
-
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.util.ClassUtils;
+import org.openl.util.StringUtils;
 
 class OpenClassPropertiesResolver {
     private final Context context;
@@ -24,7 +24,7 @@ class OpenClassPropertiesResolver {
 
     private IOpenField resolveOpenFieldByPropertyName(IOpenClass openClass, String propertyName) {
         BeanPropertyDefinition beanPropertyDefinition = resolveOpenBeanPropertyDefinitionByPropertyName(openClass,
-            propertyName);
+                propertyName);
         if (beanPropertyDefinition != null) {
             String fieldName;
             if (beanPropertyDefinition.getAccessor() instanceof AnnotatedField) {
@@ -48,10 +48,10 @@ class OpenClassPropertiesResolver {
     }
 
     private BeanPropertyDefinition resolveOpenBeanPropertyDefinitionByPropertyName(IOpenClass openClass,
-            String propertyName) {
+                                                                                   String propertyName) {
         final BeanDescription beanDesc = context.getObjectMapper()
-            .getSerializationConfig()
-            .introspect(TypeFactory.defaultInstance().constructType(openClass.getInstanceClass()));
+                .getSerializationConfig()
+                .introspect(TypeFactory.defaultInstance().constructType(openClass.getInstanceClass()));
         for (BeanPropertyDefinition beanPropertyDefinition : beanDesc.findProperties()) {
             if (Objects.equals(propertyName, beanPropertyDefinition.getName())) {
                 return beanPropertyDefinition;

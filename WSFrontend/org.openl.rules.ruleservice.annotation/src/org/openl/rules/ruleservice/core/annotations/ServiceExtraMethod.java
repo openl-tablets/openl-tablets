@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
  * Annotation for notice method as extra service method.
  *
  * @author Marat Kamalov
- *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

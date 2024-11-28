@@ -13,9 +13,7 @@ import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
 
 /**
- *
  * @author Marat Kamalov
- *
  */
 public abstract class AbstractServiceClassEnhancerInstantiationStrategy implements RulesInstantiationStrategy {
 
@@ -67,17 +65,17 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
                     getOriginalInstantiationStrategy().setServiceClass(clazz);
                 } catch (Exception e) {
                     throw new OpenlNotCheckedException(
-                        "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
-                        e);
+                            "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
+                            e);
                 }
             } else {
                 throw new OpenlNotCheckedException(
-                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.");
+                        "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.");
             }
         } catch (ValidationServiceClassException e) {
             throw new OpenlNotCheckedException(
-                "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.",
-                e);
+                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.",
+                    e);
         }
     }
 
@@ -104,7 +102,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
                 proxyInterfaces.add(interfaceClass);
             }
         }
-        return proxyInterfaces.toArray(new Class<?>[] {});
+        return proxyInterfaces.toArray(new Class<?>[]{});
     }
 
     @Override
@@ -112,8 +110,8 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate(ignoreCompilationErrors);
             return ASMProxyFactory.newProxyInstance(getClassLoader(),
-                makeMethodHandler(originalInstance),
-                getProxyInterfaces(originalInstance));
+                    makeMethodHandler(originalInstance),
+                    getProxyInterfaces(originalInstance));
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(), e);
         }

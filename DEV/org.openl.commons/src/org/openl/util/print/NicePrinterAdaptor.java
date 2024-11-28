@@ -10,13 +10,18 @@ package org.openl.util.print;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
 
 import org.openl.util.ClassUtils;
 
 /**
  * @author snshor
- *
  */
 public class NicePrinterAdaptor {
 
@@ -44,7 +49,7 @@ public class NicePrinterAdaptor {
 
     }
 
-    private static final Class<?>[] primitiveClasses = { Integer.class,
+    private static final Class<?>[] primitiveClasses = {Integer.class,
             Double.class,
             Boolean.class,
             Character.class,
@@ -54,7 +59,7 @@ public class NicePrinterAdaptor {
             Short.class,
             String.class,
             Date.class,
-            Locale.class };
+            Locale.class};
 
     private static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
 

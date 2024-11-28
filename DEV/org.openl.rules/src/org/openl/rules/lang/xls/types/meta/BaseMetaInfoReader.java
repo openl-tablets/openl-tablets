@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
@@ -14,7 +17,6 @@ import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.helpers.ArraySplitter;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
@@ -27,8 +29,6 @@ import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements MetaInfoReader {
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
@@ -68,12 +68,12 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
 
     private static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-            .getName() + " = " + constantOpenField.getValueAsString();
+                .getName() + " = " + constantOpenField.getValueAsString();
         return new SimpleNodeUsage(start,
-            end,
-            description,
-            constantOpenField.getMemberMetaInfo().getSourceUrl(),
-            NodeType.OTHER);
+                end,
+                description,
+                constantOpenField.getMemberMetaInfo().getSourceUrl(),
+                NodeType.OTHER);
     }
 
     @Override
@@ -116,8 +116,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 }
                 if (!nodeUsages.isEmpty()) {
                     return cellMetaInfo != null ? new CellMetaInfo(cellMetaInfo.getDataType(),
-                        cellMetaInfo.isMultiValue(),
-                        nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                            cellMetaInfo.isMultiValue(),
+                            nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
                 }
             }
             return cellMetaInfo;

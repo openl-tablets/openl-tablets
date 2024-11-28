@@ -3,13 +3,14 @@ package org.openl.rules.webstudio.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.rest.tags.TagDTO;
 import org.openl.rules.rest.tags.TagTypeDTO;
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.dao.TagTypeDao;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
-import org.springframework.transaction.annotation.Transactional;
 
 public class TagTypeService {
 

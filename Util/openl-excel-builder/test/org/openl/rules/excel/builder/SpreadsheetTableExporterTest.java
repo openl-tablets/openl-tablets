@@ -1,7 +1,8 @@
 package org.openl.rules.excel.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
 import java.io.File;
@@ -15,8 +16,9 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -45,15 +47,15 @@ public class SpreadsheetTableExporterTest {
         StepModel integerStep = new StepModel("integerStep", "Integer", "=0");
         StepModel longStep = new StepModel("longStep", "Long", "=0L");
         resultModel
-            .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
+                .setSteps(Arrays.asList(doubleStep, stringStep, sprStep, booleanStep, dateStep, integerStep, longStep));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
-            false,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.singletonList(resultModel),
-            Collections.emptyList());
+                false,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.singletonList(resultModel),
+                Collections.emptyList());
 
         ExcelFileBuilder.generateProject(projectModel);
 
@@ -136,7 +138,7 @@ public class SpreadsheetTableExporterTest {
 
     }
 
-    @AfterClass
+    @AfterAll
     public static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();

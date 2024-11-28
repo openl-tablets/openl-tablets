@@ -13,9 +13,9 @@ try {
     assert childProjectZips.length == 1
 
     def childZip = new ZipFile(childProjectZips[0])
-    assert childZip.entries().findAll{ !it.directory && it.name == "rules.xml" }.size() == 1
-    assert childZip.entries().findAll{ !it.directory && it.name == "Project2-Main.xlsx" }.size() == 1
-    assert childZip.entries().findAll{ !it.directory && it.name.contains("-Test.xlsx")}.size() == 0
+    assert childZip.entries().findAll { !it.directory && it.name == "rules.xml" }.size() == 1
+    assert childZip.entries().findAll { !it.directory && it.name == "Project2-Main.xlsx" }.size() == 1
+    assert childZip.entries().findAll { !it.directory && it.name.contains("-Test.xlsx") }.size() == 0
 
     def parentProjectZips = new File(folder, 'openl-parent-project/target').listFiles(new FilenameFilter() {
         @Override
@@ -25,24 +25,24 @@ try {
     })
 
     assert parentProjectZips.length == 2
-    def rulesArchive = parentProjectZips.find{ it.name == "parent-project-0.0.0-deployment.zip"}
+    def rulesArchive = parentProjectZips.find { it.name == "parent-project-0.0.0-deployment.zip" }
     assert rulesArchive != null
 
     def deploymentZip = new ZipFile(rulesArchive)
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "deployment.yaml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "parent-project/rules.xml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "parent-project/Project1-Main.xlsx" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "child-dependency/rules.xml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "child-dependency/Project2-Main.xlsx" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name.contains("-Test.xlsx")}.size() == 0
+    assert deploymentZip.entries().findAll { !it.directory && it.name == "deployment.yaml" }.size() == 1
+    assert deploymentZip.entries().findAll { !it.directory && it.name == "parent-project/rules.xml" }.size() == 1
+    assert deploymentZip.entries().findAll { !it.directory && it.name == "parent-project/Project1-Main.xlsx" }.size() == 1
+    assert deploymentZip.entries().findAll { !it.directory && it.name == "child-dependency/rules.xml" }.size() == 1
+    assert deploymentZip.entries().findAll { !it.directory && it.name == "child-dependency/Project2-Main.xlsx" }.size() == 1
+    assert deploymentZip.entries().findAll { !it.directory && it.name.contains("-Test.xlsx") }.size() == 0
 
-    rulesArchive = parentProjectZips.find{ it.name == "parent-project-0.0.0.zip"}
+    rulesArchive = parentProjectZips.find { it.name == "parent-project-0.0.0.zip" }
     assert rulesArchive != null
 
     def parentZip = new ZipFile(rulesArchive)
-    assert parentZip.entries().findAll{ !it.directory && it.name == "rules.xml" }.size() == 1
-    assert parentZip.entries().findAll{ !it.directory && it.name == "Project1-Main.xlsx" }.size() == 1
-    assert parentZip.entries().findAll{ !it.directory && it.name.contains("-Test.xlsx")}.size() == 0
+    assert parentZip.entries().findAll { !it.directory && it.name == "rules.xml" }.size() == 1
+    assert parentZip.entries().findAll { !it.directory && it.name == "Project1-Main.xlsx" }.size() == 1
+    assert parentZip.entries().findAll { !it.directory && it.name.contains("-Test.xlsx") }.size() == 0
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
     assert lines.any { it.contains('Multiple deployment ................................ SUCCESS') }
@@ -52,7 +52,7 @@ try {
     assert lines.any { it.contains("Running 'spr' from module 'Parent-Test'...") }
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

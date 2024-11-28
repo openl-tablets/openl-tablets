@@ -1,6 +1,12 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import java.io.Serializable;
+
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Expression;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -19,9 +25,9 @@ import org.openl.ie.constrainer.*;
 
 /**
  * An abstract implementation of the observers used in expressions.
- *
+ * <p>
  * Any expression is a subject for other expressions and has an observers for its arguments.
- *
+ * <p>
  * ExpressionObserver maintains transformations between publisher event mask for the expression and subscriber event
  * mask for its arguments.
  */
@@ -29,7 +35,7 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * An interface for transforming publisher and subscriber masks.
      */
-    interface EventMap extends java.io.Serializable {
+    interface EventMap extends Serializable {
         /**
          * Transform publisher mask to subscriber mask.
          */
@@ -63,7 +69,7 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * Trivial event map.
      */
-    static final private int[] trival_event_map = { MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE };
+    static final private int[] trival_event_map = {MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE};
 
     // protected Expression _expression;
     private final EventMap _event_map;
@@ -96,9 +102,10 @@ public abstract class ExpressionObserver extends Observer {
     // return _event_map;
     // }
     //
+
     /**
      * Subscribes for the events from "exp" with a given "publishMask".
-     *
+     * <p>
      * This method will be initiated by any subscriber (constraint on this expression or other expression) which wants
      * to be notified about events presented by the "publishMask" (the constraint subscribes to these events).
      */

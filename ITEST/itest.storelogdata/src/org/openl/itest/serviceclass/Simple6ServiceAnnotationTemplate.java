@@ -24,7 +24,8 @@ public interface Simple6ServiceAnnotationTemplate {
     Simple6ResponseDTO getResponseById(@PathParam("id") String id);
 
     @ServiceExtraMethod(Simple6DoSomethingExtraMethodHandler.class)
-    @RulesType("DoSomething") // SpreadsheetResult custom class type
+    @RulesType("DoSomething")
+        // SpreadsheetResult custom class type
     Object DoSomethingExtra();
 
     @StoreLogDataToCassandra(value = HelloEntity6.class, sync = true)

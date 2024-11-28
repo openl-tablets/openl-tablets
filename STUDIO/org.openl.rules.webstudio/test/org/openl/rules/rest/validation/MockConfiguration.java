@@ -6,6 +6,14 @@ import static org.mockito.Mockito.when;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.openl.rules.rest.config.ValidationConfiguration;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
@@ -15,13 +23,6 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.rules.rest.validation")
@@ -71,8 +72,8 @@ public class MockConfiguration {
     @Bean
     public ZipCharsetDetector zipCharsetDetector() {
         return new ZipCharsetDetector(
-            new String[] { "IBM866", "IBM437", "IBM850", "windows-1252", "windows-1251", "windows-1250", "ISO-8859-1" },
-            zipFilter());
+                new String[]{"IBM866", "IBM437", "IBM850", "windows-1252", "windows-1251", "windows-1250", "ISO-8859-1"},
+                zipFilter());
     }
 
     @PostConstruct

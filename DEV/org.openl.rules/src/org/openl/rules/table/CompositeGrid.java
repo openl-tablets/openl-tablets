@@ -16,7 +16,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
  * Tables are composing one by one, without gaps.<br>
  *
  * @author snshor
- *
  */
 public class CompositeGrid extends AGrid {
 
@@ -25,7 +24,6 @@ public class CompositeGrid extends AGrid {
     /**
      * Regions on current grid, to which each grid table belongs to. So, the first gridTable belongs to first
      * mappedRegion
-     *
      */
     private IGridRegion[] mappedRegions;
 
@@ -50,10 +48,8 @@ public class CompositeGrid extends AGrid {
     }
 
     /**
-     *
-     * @param tables Tables to be composed.
+     * @param tables   Tables to be composed.
      * @param vertical see {@link #vertical}
-     *
      */
     public CompositeGrid(IGridTable[] tables, boolean vertical) {
         this.gridTables = tables;
@@ -171,7 +167,6 @@ public class CompositeGrid extends AGrid {
     /**
      * If there were merged regions on the source table grids, that were belonging to tables we need to move it to
      * current grid.
-     *
      */
     private void initMergedRegions() {
         List<IGridRegion> mergedRegionsList = new ArrayList<>();
@@ -271,7 +266,6 @@ public class CompositeGrid extends AGrid {
 
     /**
      * Initialize width and height of current grid. According to the compose direction.
-     *
      */
     private void initWidthAndHeight() {
         for (IGridTable gridTable : gridTables) {
@@ -328,7 +322,6 @@ public class CompositeGrid extends AGrid {
 
     /**
      * Handles the grid and coordinates of the cell in this grid.
-     *
      */
     protected static class Transform {
         /**

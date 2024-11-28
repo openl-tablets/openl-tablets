@@ -1,5 +1,8 @@
 package org.openl.rules.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.table.FormattedCell;
@@ -8,8 +11,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
 import org.openl.util.formatters.IFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class TableValueFilter extends AGridFilter {
 
@@ -37,7 +38,7 @@ class TableValueFilter extends AGridFilter {
         int relativeColumn = cell.getColumn() - startX;
         int relativeRow = cell.getRow() - startY;
         if (relativeColumn < 0 || relativeColumn >= table.getWidth() || relativeRow < 0 || relativeRow >= table
-            .getHeight()) {
+                .getHeight()) {
             // Sometimes the style of a cell outside of a table is retrieved to draw borders of a table, for such cells
             // value is empty - don't modify the cell, keep empty.
             return cell;
@@ -71,9 +72,9 @@ class TableValueFilter extends AGridFilter {
                     Logger log = LoggerFactory.getLogger(getClass());
                     log.debug(e.getMessage(), e);
                     cell.setFormattedValue(String.format(
-                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
-                        e.getClass().getName(),
-                        v.getClass().getName()));
+                            "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                            e.getClass().getName(),
+                            v.getClass().getName()));
                 }
             } else {
                 cell.setFormattedValue("null");

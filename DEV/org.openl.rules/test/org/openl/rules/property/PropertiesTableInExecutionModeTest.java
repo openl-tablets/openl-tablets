@@ -1,11 +1,16 @@
 package org.openl.rules.property;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collection;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.Severity;
 import org.openl.rules.enumeration.RegionsEnum;
@@ -36,13 +41,13 @@ public class PropertiesTableInExecutionModeTest {
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         assertEquals(1,
-            compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
-                                                                                                                    // validation
-                                                                                                                    // issue
-                                                                                                                    // for
-                                                                                                                    // Ranges.
+                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
+        // validation
+        // issue
+        // for
+        // Ranges.
         IOpenMethod method = compiledOpenClass.getOpenClassWithErrors()
-            .getMethod("hello1", new IOpenClass[] { JavaOpenClass.INT });
+                .getMethod("hello1", new IOpenClass[]{JavaOpenClass.INT});
         if (method != null) {
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             assertNotNull(tableProperties);
@@ -77,11 +82,11 @@ public class PropertiesTableInExecutionModeTest {
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
         assertEquals(1,
-            compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
-                                                                                                                    // validation
-                                                                                                                    // issue
-                                                                                                                    // for
-                                                                                                                    // Ranges.
+                compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
+        // validation
+        // issue
+        // for
+        // Ranges.
         Collection<IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         // properties table with name will be represented as field
         assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
@@ -90,7 +95,7 @@ public class PropertiesTableInExecutionModeTest {
         for (IOpenField field : fields) {
             if (field instanceof PropertiesOpenField) {
                 ITableProperties properties = (ITableProperties) field
-                    .get(compiledOpenClass.getOpenClassWithErrors().newInstance(env), env);
+                        .get(compiledOpenClass.getOpenClassWithErrors().newInstance(env), env);
                 String scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
             }

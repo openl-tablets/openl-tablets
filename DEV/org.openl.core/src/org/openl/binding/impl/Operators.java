@@ -11,7 +11,6 @@ import org.openl.rules.util.dates.DateInterval;
 
 /**
  * @author snshor
- *
  */
 @IgnoreVarargsMatching
 public class Operators {
@@ -800,12 +799,12 @@ public class Operators {
 
     public static Boolean or(Boolean x, Boolean y) {
         return Boolean.TRUE.equals(
-            x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : x == null || y == null ? null : Boolean.FALSE;
+                x) ? Boolean.TRUE : Boolean.TRUE.equals(y) ? Boolean.TRUE : x == null || y == null ? null : Boolean.FALSE;
     }
 
     public static Boolean and(Boolean x, Boolean y) {
         return Boolean.FALSE.equals(
-            x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
+                x) ? Boolean.FALSE : Boolean.FALSE.equals(y) ? Boolean.FALSE : x == null || y == null ? null : Boolean.TRUE;
     }
 
     // operator '%' implementations

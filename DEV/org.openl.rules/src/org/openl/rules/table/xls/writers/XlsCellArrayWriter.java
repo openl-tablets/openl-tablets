@@ -15,7 +15,7 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
     public void writeCellValue() {
         Object[] values = (Object[]) getValueToWrite();
         getCellToWrite().setCellValue(
-            StringUtils.join(Arrays.stream(values).map(e -> e == null ? StringUtils.EMPTY : e).toArray(), ","));
+                StringUtils.join(Arrays.stream(values).map(e -> e == null ? StringUtils.EMPTY : e).toArray(), ","));
     }
 
 }

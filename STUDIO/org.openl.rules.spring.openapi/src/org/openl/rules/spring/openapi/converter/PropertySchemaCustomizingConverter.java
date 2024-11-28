@@ -3,17 +3,17 @@ package org.openl.rules.spring.openapi.converter;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
-import org.openl.util.StringUtils;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.models.media.Schema;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
+import org.openl.util.StringUtils;
 
 /**
  * Schema customizer. The purpose of this class is to support {@link Deprecated}, {@link Parameter} annotations when

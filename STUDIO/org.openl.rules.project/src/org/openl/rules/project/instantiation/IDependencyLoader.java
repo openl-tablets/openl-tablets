@@ -8,7 +8,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Common interface for all dependency loaders.<br>
- *
  */
 public interface IDependencyLoader {
 

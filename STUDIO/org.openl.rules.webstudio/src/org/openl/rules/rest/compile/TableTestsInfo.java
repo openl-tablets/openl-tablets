@@ -1,9 +1,10 @@
 package org.openl.rules.rest.compile;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import org.openl.rules.webstudio.web.tableeditor.TableBean;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import org.openl.rules.webstudio.web.tableeditor.TableBean;
 
 public class TableTestsInfo {
 

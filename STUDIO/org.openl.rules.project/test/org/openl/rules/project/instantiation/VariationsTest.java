@@ -1,12 +1,16 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.util.Collections;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
@@ -15,21 +19,28 @@ import org.openl.rules.project.instantiation.variation.VariationInstantiationStr
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.variation.*;
+import org.openl.rules.variation.ArgumentReplacementVariation;
+import org.openl.rules.variation.DeepCloningVariation;
+import org.openl.rules.variation.JXPathVariation;
+import org.openl.rules.variation.NoVariation;
+import org.openl.rules.variation.Variation;
+import org.openl.rules.variation.VariationsFactory;
+import org.openl.rules.variation.VariationsPack;
+import org.openl.rules.variation.VariationsResult;
 
 public class VariationsTest {
     private static final String TEST_PROJECT_FOLDER = "test-resources/dependencies/test4/module/dependency-module1";
     private final ProjectResolver projectResolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy instantiationStrategy;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
         ProjectDescriptor project = projectResolver.resolve(tut4Folder);
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            true,
-            null);
+                null,
+                true,
+                null);
         instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), dependencyManager, true);
     }
 
@@ -37,20 +48,20 @@ public class VariationsTest {
     public void testEnhancement() throws Exception {
         // without interface
         VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(
-            instantiationStrategy);
+                instantiationStrategy);
         assertTrue(
-            VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(variationsEnhancer.getInstanceClass()));
+                VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(variationsEnhancer.getInstanceClass()));
         assertFalse(
-            VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
+                VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
 
         // with correct interface
         VariationInstantiationStrategyEnhancer variationsEnhancerWithInterface = new VariationInstantiationStrategyEnhancer(
-            instantiationStrategy);
+                instantiationStrategy);
         variationsEnhancerWithInterface.setServiceClass(EnhancedInterface.class);
         assertTrue(VariationInstantiationStrategyEnhancerHelper
-            .isDecoratedClass(variationsEnhancerWithInterface.getInstanceClass()));
+                .isDecoratedClass(variationsEnhancerWithInterface.getInstanceClass()));
         assertFalse(
-            VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
+                VariationInstantiationStrategyEnhancerHelper.isDecoratedClass(instantiationStrategy.getInstanceClass()));
 
         // with wrong interface
         // we use simple api instantiation strategy because wrapper
@@ -59,13 +70,13 @@ public class VariationsTest {
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.resolve(folder);
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            true,
-            null);
+                null,
+                true,
+                null);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
-            .get(0), dependencyManager, true);
+                .get(0), dependencyManager, true);
         VariationInstantiationStrategyEnhancer variationsEnhancerWithWrongInterface = new VariationInstantiationStrategyEnhancer(
-            instantiationStrategy);
+                instantiationStrategy);
         variationsEnhancerWithWrongInterface.setServiceClass(WrongEnhancedInterface.class);
         try {
             variationsEnhancerWithWrongInterface.instantiate();
@@ -92,41 +103,41 @@ public class VariationsTest {
     @Test
     public void testJXPathVariation() throws Exception {
         VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(
-            instantiationStrategy);
+                instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();
         VariationsResult<String> resultsDrivers = instance.driverAgeType(drivers[0],
-            new VariationsPack(new JXPathVariation("young", 0, "age", 18),
-                new JXPathVariation("senior", 0, "age", 71)));
+                new VariationsPack(new JXPathVariation("young", 0, "age", 18),
+                        new JXPathVariation("senior", 0, "age", 71)));
         assertTrue(resultsDrivers.getVariationFailures().isEmpty());
         assertEquals(resultsDrivers.getResultForVariation("young"), "Young Driver");
         assertEquals(resultsDrivers.getResultForVariation("senior"), "Senior Driver");
         assertEquals(resultsDrivers.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), "Standard Driver");
         Policy[] policies = instance.getPolicyProfile1();
         VariationsResult<SpreadsheetResult> resultsPolicies = instance.processPolicy(policies[0],
-            new VariationsPack(new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17),
-                new JXPathVariation("senior", 0, "drivers[name = 'Sara']/age", 88)));
+                new VariationsPack(new JXPathVariation("young", 0, "drivers[name = 'Sara']/age", 17),
+                        new JXPathVariation("senior", 0, "drivers[name = 'Sara']/age", 88)));
         assertEquals(3, resultsPolicies.getAllProcessedVariationIDs().length);
         assertTrue(resultsPolicies.getVariationFailures().isEmpty());
         assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"),
-            1390.0);
+                1390.0);
         assertEquals(resultsPolicies.getResultForVariation("senior").getFieldValue("$Value$Premium"),
-            1290.0);
+                1290.0);
         assertEquals(
-            resultsPolicies.getResultForVariation(NoVariation.ORIGINAL_CALCULATION).getFieldValue("$Value$Premium"),
-            1090.0);
+                resultsPolicies.getResultForVariation(NoVariation.ORIGINAL_CALCULATION).getFieldValue("$Value$Premium"),
+                1090.0);
     }
 
     @Test
     public void testArgumentReplacementVariation() throws Exception {
         VariationInstantiationStrategyEnhancer variationsEnhancer = new VariationInstantiationStrategyEnhancer(
-            instantiationStrategy);
+                instantiationStrategy);
         variationsEnhancer.setServiceClass(EnhancedInterface.class);
         EnhancedInterface instance = (EnhancedInterface) variationsEnhancer.instantiate();
         Driver[] drivers = instance.getDriverProfiles1();
         VariationsResult<String> variationsResult = instance.driverAgeType(drivers[0],
-            new VariationsPack(new ArgumentReplacementVariation("young", 0, drivers[1])));
+                new VariationsPack(new ArgumentReplacementVariation("young", 0, drivers[1])));
         assertTrue(variationsResult.getVariationFailures().isEmpty());
         assertEquals(variationsResult.getResultForVariation("young"), "Young Driver");
         assertEquals(variationsResult.getResultForVariation(NoVariation.ORIGINAL_CALCULATION), "Standard Driver");

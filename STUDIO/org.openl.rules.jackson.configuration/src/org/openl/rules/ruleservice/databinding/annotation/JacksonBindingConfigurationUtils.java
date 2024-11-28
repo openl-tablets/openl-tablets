@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 
 public final class JacksonBindingConfigurationUtils {
 
-    private static final Class<?>[] CONFIGURATION_ANNOTATIONS = { MixInClassFor.class, MixInClass.class };
+    private static final Class<?>[] CONFIGURATION_ANNOTATIONS = {MixInClassFor.class, MixInClass.class};
 
     private JacksonBindingConfigurationUtils() {
     }

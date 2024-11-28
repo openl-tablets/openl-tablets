@@ -1,23 +1,24 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.jupiter.api.Test;
 
-public class TestIntExpCard extends TestCase {
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
+
+public class TestIntExpCard {
 
     private final Constrainer C = new Constrainer("TestIntExpCard");
 
-    public static void main(String[] args) {
-        TestRunner.run(new TestSuite(TestIntExpCard.class));
-    }
-
-    public TestIntExpCard(String name) {
-        super(name);
-    }
-
+    @Test
     public void testAttachDetachObserver() {
         try {
             IntExpCard expcard = new IntExpCard(C, new IntExpArray(C, 10, 0, 5, "array"), 4);
@@ -73,6 +74,7 @@ public class TestIntExpCard extends TestCase {
         }
     } // end of testAttachDetachObserver
 
+    @Test
     public void testBindAll() {
         final int cardValue = 5;
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
@@ -97,6 +99,7 @@ public class TestIntExpCard extends TestCase {
         }
     }
 
+    @Test
     public void testIntExpCard() {
         try {
             IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
@@ -150,9 +153,10 @@ public class TestIntExpCard extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveIndex() {
         final int cardValue = 5;
-        final int[] indexToBeRemoved = { 0, 1 };
+        final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
@@ -191,9 +195,10 @@ public class TestIntExpCard extends TestCase {
         }
     }
 
+    @Test
     public void testRemoveUnbounds() {
         final int cardValue = 5;
-        final int[] indexToBeRemoved = { 0, 1 };
+        final int[] indexToBeRemoved = {0, 1};
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
         IntExpCard card = null;
         try {
@@ -258,6 +263,7 @@ public class TestIntExpCard extends TestCase {
 
     }
 
+    @Test
     public void testSetValue() {
         final int cardValue = 5;
         IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");

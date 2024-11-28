@@ -3,6 +3,7 @@ package org.openl.rules.dt.index;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.ARangeIndexEvaluator.IndexNode;
 import org.openl.rules.dt.type.IRangeAdaptor;
@@ -10,9 +11,9 @@ import org.openl.rules.dt.type.IRangeAdaptor;
 public class RangeDescIndex extends RangeAscIndex {
 
     public RangeDescIndex(DecisionTableRuleNode nextNode,
-            List<IndexNode> index,
-            IRangeAdaptor<IndexNode, ?> adaptor,
-            int[] emptyRules) {
+                          List<IndexNode> index,
+                          IRangeAdaptor<IndexNode, ?> adaptor,
+                          int[] emptyRules) {
         super(nextNode, index, adaptor, emptyRules);
     }
 

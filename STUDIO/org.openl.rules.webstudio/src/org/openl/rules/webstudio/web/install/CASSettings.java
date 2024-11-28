@@ -10,12 +10,12 @@ public final class CASSettings {
     private String groupsAttribute;
 
     public CASSettings(String webStudioUrl,
-            String casServerUrl,
-            String firstNameAttribute,
-            String secondNameAttribute,
-            String displayNameAttribute,
-            String emailAttribute,
-            String groupsAttribute) {
+                       String casServerUrl,
+                       String firstNameAttribute,
+                       String secondNameAttribute,
+                       String displayNameAttribute,
+                       String emailAttribute,
+                       String groupsAttribute) {
         this.webStudioUrl = webStudioUrl;
         this.casServerUrl = casServerUrl;
         this.firstNameAttribute = firstNameAttribute;

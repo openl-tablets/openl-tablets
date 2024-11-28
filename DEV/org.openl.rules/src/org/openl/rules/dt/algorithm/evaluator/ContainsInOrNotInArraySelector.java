@@ -16,11 +16,11 @@ public class ContainsInOrNotInArraySelector implements IIntSelector {
     private final BooleanTypeAdaptor adaptor;
 
     ContainsInOrNotInArraySelector(ICondition condition,
-            Object value,
-            Object target,
-            Object[] params,
-            BooleanTypeAdaptor adaptor,
-            IRuntimeEnv env) {
+                                   Object value,
+                                   Object target,
+                                   Object[] params,
+                                   BooleanTypeAdaptor adaptor,
+                                   IRuntimeEnv env) {
 
         this.condition = condition;
         this.value = value;

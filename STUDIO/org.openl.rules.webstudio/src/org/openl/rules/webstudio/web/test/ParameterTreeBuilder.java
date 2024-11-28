@@ -4,6 +4,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.richfaces.model.TreeNode;
+import org.richfaces.model.TreeNodeImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -26,10 +31,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.richfaces.model.TreeNode;
-import org.richfaces.model.TreeNodeImpl;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author DLiauchuk
@@ -39,9 +40,9 @@ import org.springframework.web.context.annotation.RequestScope;
 public class ParameterTreeBuilder {
     public static ParameterDeclarationTreeNode createNode(ParameterRenderConfig config) {
         ParameterDeclarationTreeNode customNode = getOpenLCustomNode(config.getType(),
-            config.getValue(),
-            config.getFieldNameInParent(),
-            config.getParent());
+                config.getValue(),
+                config.getFieldNameInParent(),
+                config.getParent());
         if (customNode != null) {
             return customNode;
         }
@@ -62,7 +63,7 @@ public class ParameterTreeBuilder {
 
     private static ParameterDeclarationTreeNode createBeanNode(ParameterRenderConfig config) {
         if (config.getType().getInstanceClass() != null && ClassUtils.isAssignable(config.getType().getInstanceClass(),
-            IRulesRuntimeContext.class)) {
+                IRulesRuntimeContext.class)) {
             return new ContextParameterTreeNode(config);
         }
         if (canInstantiate(config.getType())) {
@@ -79,12 +80,12 @@ public class ParameterTreeBuilder {
                 return createSimpleNode(config);
             } else {
                 UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(),
-                    config.getValue(),
-                    config.getType(),
-                    config.getParent());
+                        config.getValue(),
+                        config.getType(),
+                        config.getParent());
                 node.setWarnMessage(String.format(
-                    "Cannot instantiate a bean of type '%s'. Make sure that it has a default constructor.",
-                    config.getType().getDisplayName(INamedThing.SHORT)));
+                        "Cannot instantiate a bean of type '%s'. Make sure that it has a default constructor.",
+                        config.getType().getDisplayName(INamedThing.SHORT)));
                 return node;
             }
         }
@@ -115,8 +116,8 @@ public class ParameterTreeBuilder {
         IOpenClass fieldType = config.getType();
 
         if (parent == null || Utils.isCollection(parent.getType()) || parent.getType()
-            .getField(fieldName)
-            .isWritable()) {
+                .getField(fieldName)
+                .isWritable()) {
             return new SimpleParameterTreeNode(fieldName, value, fieldType, parent);
         } else {
             UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(fieldName, value, fieldType, parent);
@@ -126,9 +127,9 @@ public class ParameterTreeBuilder {
     }
 
     private static ParameterDeclarationTreeNode getOpenLCustomNode(IOpenClass fieldType,
-            Object value,
-            String fieldName,
-            ParameterDeclarationTreeNode parent) {
+                                                                   Object value,
+                                                                   String fieldName,
+                                                                   ParameterDeclarationTreeNode parent) {
         Class<?> instanceClass = fieldType.getInstanceClass();
         if (IntRange.class == instanceClass) {
             return new IntRangeDeclarationTreeNode(fieldName, value, fieldType, parent);
@@ -153,8 +154,8 @@ public class ParameterTreeBuilder {
                 return Utils.displayNameForCollection(fieldType, empty);
             } else if (!fieldType.isSimple()) {
                 ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-                    .keyField(param.getKeyField())
-                    .build();
+                        .keyField(param.getKeyField())
+                        .build();
 
                 return createBeanNode(config).getDisplayedValue();
             }
@@ -168,9 +169,9 @@ public class ParameterTreeBuilder {
 
         if (param != null) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
-                .keyField(param.getKeyField())
-                .requestId(requestId)
-                .build();
+                    .keyField(param.getKeyField())
+                    .requestId(requestId)
+                    .build();
             ParameterDeclarationTreeNode treeNode = createNode(config);
             root.addChild(param.getName(), treeNode);
         }
@@ -209,8 +210,8 @@ public class ParameterTreeBuilder {
             Object singlValue = value;
             if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
-                    .getAggregateInfo()
-                    .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                        .getAggregateInfo()
+                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
 
                 if (iterator.hasNext()) {
                     singlValue = iterator.next();
@@ -232,8 +233,8 @@ public class ParameterTreeBuilder {
             StringBuilder result = new StringBuilder();
             if (Utils.isCollection(((ParameterWithValueDeclaration) value).getType())) {
                 Iterator<Object> iterator = ((ParameterWithValueDeclaration) value).getType()
-                    .getAggregateInfo()
-                    .getIterator(((ParameterWithValueDeclaration) value).getValue());
+                        .getAggregateInfo()
+                        .getIterator(((ParameterWithValueDeclaration) value).getValue());
                 ProjectModel model = WebStudioUtils.getWebStudio().getModel();
                 while (iterator.hasNext()) {
                     Object singleValue = iterator.next();
@@ -243,7 +244,7 @@ public class ParameterTreeBuilder {
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(
-                            TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
+                                TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     } else if (singleValue instanceof SubGridTable) {
@@ -252,7 +253,7 @@ public class ParameterTreeBuilder {
                         MetaInfoReader metaInfoReader = model.getNode(gridTable.getUri()).getMetaInfoReader();
                         int numRows = HTMLRenderer.getMaxNumRowsToDisplay(gridTable);
                         HTMLRenderer.TableRenderer tableRenderer = new HTMLRenderer.TableRenderer(
-                            TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
+                                TableModel.initializeTableModel(gridTable, numRows, metaInfoReader));
 
                         result.append(tableRenderer.render(false, null, "testId", null)).append("<br/>");
                     }

@@ -21,7 +21,6 @@ import org.openl.types.java.JavaOpenMethod;
 
 /**
  * @author snshor
- *
  */
 public abstract class ADynamicClass extends AOpenClass {
 

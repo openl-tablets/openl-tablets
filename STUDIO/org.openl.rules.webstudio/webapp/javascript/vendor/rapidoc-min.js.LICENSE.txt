@@ -1,21 +1,20 @@
 /*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
  */
 
 /*!
  * https://github.com/Starcounter-Jack/JSON-Patch
- * (c) 2017 Joachim Wester
+ * (c) 2017-2021 Joachim Wester
  * MIT license
  */
 
 /*!
- * is-plain-object <https://github.com/jonschlinkert/is-plain-object>
- *
- * Copyright (c) 2014-2017, Jon Schlinkert.
- * Released under the MIT License.
+ * https://github.com/Starcounter-Jack/JSON-Patch
+ * (c) 2017-2022 Joachim Wester
+ * MIT licensed
  */
 
 /*!
@@ -25,7 +24,7 @@
  * Licensed under the MIT License.
  */
 
-/*! https://mths.be/punycode v1.3.2 by @mathias */
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
 
@@ -58,9 +57,8 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.3 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.8 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
-*
-/******/
+*/

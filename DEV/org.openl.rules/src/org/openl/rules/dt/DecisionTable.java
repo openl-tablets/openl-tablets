@@ -35,7 +35,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 @Executable
 public class DecisionTable extends ExecutableRulesMethod implements IDecisionTable {
@@ -212,12 +211,12 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
 
     public void bindTable(IBaseCondition[] conditionRows,
-            IBaseAction[] actionRows,
-            RuleRow ruleRow,
-            OpenL openl,
-            ModuleOpenClass module,
-            IBindingContext bindingContext,
-            int columns) throws Exception {
+                          IBaseAction[] actionRows,
+                          RuleRow ruleRow,
+                          OpenL openl,
+                          ModuleOpenClass module,
+                          IBindingContext bindingContext,
+                          int columns) throws Exception {
 
         this.conditionRows = conditionRows;
         this.actionRows = actionRows;
@@ -350,10 +349,10 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         }
 
         final Function<IBaseDecisionRow[], Stream<IBaseDecisionRow>> toStream = row -> Optional.ofNullable(row)
-            .map(Stream::of)
-            .orElseGet(Stream::empty);
+                .map(Stream::of)
+                .orElseGet(Stream::empty);
         Stream.concat(toStream.apply(actionRows), toStream.apply(conditionRows))
-            .forEach(IBaseDecisionRow::removeDebugInformation);
+                .forEach(IBaseDecisionRow::removeDebugInformation);
     }
 
     public List<DeferredChange> getDeferredChanges() {

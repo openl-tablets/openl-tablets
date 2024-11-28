@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -20,15 +21,13 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
-import javax.xml.bind.JAXBException;
-
 public class OpenAPIHelper {
 
     public static final String DEF_JAVA_CLASS_PATH = "classes";
 
     public InputStream generateAlgorithmsModule(final List<SpreadsheetModel> spreadsheetModels,
-            final List<DataModel> dataModels,
-            final EnvironmentModel environmentModel) throws IOException {
+                                                final List<DataModel> dataModels,
+                                                final EnvironmentModel environmentModel) throws IOException {
         try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
             byte[] sprBytes = sos.toByteArray();
@@ -45,9 +44,9 @@ public class OpenAPIHelper {
     }
 
     public ByteArrayInputStream editOrCreateRulesDeploy(final IRulesDeploySerializer serializer,
-            final ProjectModel projectModel,
-            final OpenAPIGeneratedClasses generated,
-            RulesDeploy exitingRulesDeploy) throws JAXBException, IOException {
+                                                        final ProjectModel projectModel,
+                                                        final OpenAPIGeneratedClasses generated,
+                                                        RulesDeploy exitingRulesDeploy) throws JAXBException, IOException {
         boolean fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {
@@ -60,7 +59,7 @@ public class OpenAPIHelper {
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
         rd.setProvideVariations(projectModel.areVariationsProvided());
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
-            rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
+            rd.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
         }
         return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
     }

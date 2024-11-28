@@ -3,11 +3,11 @@ package org.openl.itest.serviceclass;
 import java.util.List;
 import java.util.Map;
 
-import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
-
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.Row;
+
+import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 
 public class Simple6ServiceRetrieverBefore implements StoreLogDataAdvice {
 
@@ -23,5 +23,9 @@ public class Simple6ServiceRetrieverBefore implements StoreLogDataAdvice {
         if (!rows.isEmpty()) {
             values.put("responseTemp", rows.get(0).getString("response"));
         }
+    }
+
+    public void setCassandraSession(CqlSession cassandraSession) {
+        this.cassandraSession = cassandraSession;
     }
 }

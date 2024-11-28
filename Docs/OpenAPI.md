@@ -6,9 +6,6 @@ To change the output of openapi.json, in the working directory or root of the cl
 
 ```json
 {
-  "prettyPrint": false,
-  "sortOutput": true,
-  "cacheTTL": -1,
   "openAPI": {
     "info": {
       "version": "2.4.7",

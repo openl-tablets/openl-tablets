@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of the OR-execution of several subgoals. The goal GoalOr succeeds when one subgoal succeed. It
  * fails when all subgoals fail.

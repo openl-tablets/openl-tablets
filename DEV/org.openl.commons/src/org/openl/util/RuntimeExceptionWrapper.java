@@ -8,7 +8,6 @@ package org.openl.util;
 
 /**
  * @author snshor
- *
  */
 public class RuntimeExceptionWrapper {
 

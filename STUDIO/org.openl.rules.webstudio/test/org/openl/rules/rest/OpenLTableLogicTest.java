@@ -1,13 +1,14 @@
 package org.openl.rules.rest;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.model.Module;
@@ -31,7 +32,7 @@ public class OpenLTableLogicTest {
             TableSyntaxNodeAdapter tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
             if (((IOpenLTable) tableSyntaxNodeAdapter).getDisplayName().equals("HelloTest")) {
                 List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
-                    pm, false);
+                        pm, false);
                 assertEquals(3, targetTables.size());
                 assertEquals("Hello [state = AL]", targetTables.get(0).getName());
                 assertEquals("Hello [state = AZ]", targetTables.get(1).getName());

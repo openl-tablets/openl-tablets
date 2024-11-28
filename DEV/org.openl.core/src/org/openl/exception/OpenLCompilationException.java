@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeOpenlException;
@@ -20,9 +21,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private String sourceCode;
 
     public OpenLCompilationException(String message,
-            Throwable insideCause,
-            ILocation location,
-            IOpenSourceCodeModule source) {
+                                     Throwable insideCause,
+                                     ILocation location,
+                                     IOpenSourceCodeModule source) {
         super(message);
         this.insideCause = insideCause;
         this.location = location;

@@ -1,7 +1,10 @@
 package org.openl.rules.project.dependencies;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 
@@ -12,12 +15,12 @@ public class ProjectDependenciesImportAndClasspathTest {
     @Test
     public void test() throws Exception {
         ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
-            .setProject(SRC)
-            .setExecutionMode(false)
-            .setWorkspace(SRC_WORKSPACE)
-            .setProvideRuntimeContext(true)
-            .build();
-        Assert.assertNotNull(projectEngineFactory);
-        Assert.assertFalse(projectEngineFactory.getCompiledOpenClass().hasErrors());
+                .setProject(SRC)
+                .setExecutionMode(false)
+                .setWorkspace(SRC_WORKSPACE)
+                .setProvideRuntimeContext(true)
+                .build();
+        assertNotNull(projectEngineFactory);
+        assertFalse(projectEngineFactory.getCompiledOpenClass().hasErrors());
     }
 }

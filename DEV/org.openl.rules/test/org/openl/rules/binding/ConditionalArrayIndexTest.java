@@ -1,17 +1,18 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class ConditionalArrayIndexTest {
 
     private static Object instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create("test/rules/binding/ConditionalArrayIndexTest.xlsx");
     }
@@ -21,7 +22,7 @@ public class ConditionalArrayIndexTest {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[2], TestUtils.invoke(instance, "driverSelectOne", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectMany", (Object) drivers);
-        assertArrayEquals(new Object[] { drivers[1], drivers[2] }, selectManyResult);
+        assertArrayEquals(new Object[]{drivers[1], drivers[2]}, selectManyResult);
     }
 
     @Test
@@ -29,7 +30,7 @@ public class ConditionalArrayIndexTest {
         Object[] drivers = TestUtils.invoke(instance, "getTestDrivers");
         assertEquals(drivers[1], TestUtils.invoke(instance, "driverSelectOneLiteral", (Object) drivers));
         Object[] selectManyResult = TestUtils.invoke(instance, "driverSelectManyLiteral", (Object) drivers);
-        assertArrayEquals(new Object[] { drivers[1], drivers[2] }, selectManyResult);
+        assertArrayEquals(new Object[]{drivers[1], drivers[2]}, selectManyResult);
     }
 
     @Test

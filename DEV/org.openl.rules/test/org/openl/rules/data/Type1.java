@@ -2,8 +2,8 @@ package org.openl.rules.data;
 
 public class Type1 {
 
-    private java.lang.String name;
-    private java.lang.String value;
+    private String name;
+    private String value;
 
     public Type1() {
         super();
@@ -15,19 +15,19 @@ public class Type1 {
         this.value = value;
     }
 
-    public java.lang.String getValue() {
+    public String getValue() {
         return value;
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(java.lang.String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public void setValue(java.lang.String value) {
+    public void setValue(String value) {
         this.value = value;
     }
 

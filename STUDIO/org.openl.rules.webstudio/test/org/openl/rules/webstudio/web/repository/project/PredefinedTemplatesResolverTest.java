@@ -1,12 +1,12 @@
 package org.openl.rules.webstudio.web.repository.project;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author nsamatov, Yury Molchan.
@@ -34,7 +34,7 @@ public class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
     public void testGetProjectFiles() throws Exception {
         PredefinedTemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
         ProjectFile[] projectFiles = templatesResolver.getProjectFiles("examples",
-            "Example 3 - Auto Policy Calculation");
+                "Example 3 - Auto Policy Calculation");
         assertEquals(5, projectFiles.length);
         assertTrue(contains(projectFiles, "AutoPolicyCalculation.xlsx"));
         assertTrue(contains(projectFiles, "AutoPolicyTests.xlsx"));

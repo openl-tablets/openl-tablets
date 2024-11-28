@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
  * Resolves all OpenL projects in specified workspace folder

@@ -1,7 +1,6 @@
 package org.openl.security.oauth2;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,8 +32,8 @@ public class Oauth2LogoutSuccessHandler extends SecurityContextLogoutHandler imp
     /**
      * Causes a logout to be completed. Call logoutSuccessHandler.
      *
-     * @param request the HTTP request
-     * @param response the HTTP response
+     * @param request        the HTTP request
+     * @param response       the HTTP response
      * @param authentication the current principal details
      */
     @Override
@@ -43,7 +42,7 @@ public class Oauth2LogoutSuccessHandler extends SecurityContextLogoutHandler imp
         try {
             logoutHandler.onLogoutSuccess(request, response, authentication);
         } catch (IOException | ServletException e) {
-            log.warn(e.getMessage());
+            log.warn("", e);
         }
     }
 }

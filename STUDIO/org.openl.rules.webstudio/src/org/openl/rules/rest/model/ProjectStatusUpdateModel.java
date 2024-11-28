@@ -2,14 +2,13 @@ package org.openl.rules.rest.model;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.rest.model.converters.ProjectStatusDeserializer;
 import org.openl.util.StringUtils;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Model for updating project status
@@ -18,7 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class ProjectStatusUpdateModel {
 
-    @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "OPENED", "CLOSED" }))
+    @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"OPENED", "CLOSED"}))
     @JsonDeserialize(using = ProjectStatusDeserializer.class)
     private ProjectStatus status;
 

@@ -13,7 +13,6 @@ import org.openl.rules.validation.properties.dimentional.ADispatcherTableColumn;
  * Collect domains for all dimension properties.
  *
  * @author DLiauchuk
- *
  */
 public class DimensionPropertiesDomainsCollector {
 
@@ -73,8 +72,8 @@ public class DimensionPropertiesDomainsCollector {
             propertiesDomains.put(propNeedDomain, domainAdaptor);
             for (int i = 1; i <= arrayCollector.getNumberOfDomainElements(); i++) {
                 propertiesDomains.put(
-                    String.format("%s%s%s", propNeedDomain, ADispatcherTableColumn.LOCAL_PARAM_SUFFIX, i),
-                    domainAdaptor);
+                        String.format("%s%s%s", propNeedDomain, ADispatcherTableColumn.LOCAL_PARAM_SUFFIX, i),
+                        domainAdaptor);
             }
         }
     }
@@ -85,7 +84,7 @@ public class DimensionPropertiesDomainsCollector {
         if (gatheredDomain != null && !propertiesDomains.containsKey(key)) {
             if (propDef.getExpression() != null) {
                 propertiesDomains.put(propDef.getExpression().getMatchExpression().getContextAttribute(),
-                    gatheredDomain);
+                        gatheredDomain);
                 propertiesDomains.put(propName, gatheredDomain);
                 propertiesDomains.put(key, gatheredDomain);
             }
@@ -94,7 +93,7 @@ public class DimensionPropertiesDomainsCollector {
 
     private void applyCurrentDateDomain(IDomainAdaptor dateDomainAdaptor) {
         if (dateDomainAdaptor != null && !propertiesDomains
-            .containsKey(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM)) {
+                .containsKey(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM)) {
             propertiesDomains.put(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM, dateDomainAdaptor);
         }
     }

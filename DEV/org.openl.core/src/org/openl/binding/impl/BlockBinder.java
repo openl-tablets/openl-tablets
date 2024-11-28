@@ -10,7 +10,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public class BlockBinder extends ANodeBinder {
 

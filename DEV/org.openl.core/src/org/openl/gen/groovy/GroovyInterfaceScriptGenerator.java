@@ -20,7 +20,7 @@ public class GroovyInterfaceScriptGenerator {
 
     public GroovyInterfaceScriptGenerator(String nameWithPackage, List<MethodDescription> methods) {
         int lastDot = nameWithPackage.lastIndexOf(".");
-        String[] dividedName = { nameWithPackage.substring(0, lastDot), nameWithPackage.substring(lastDot + 1) };
+        String[] dividedName = {nameWithPackage.substring(0, lastDot), nameWithPackage.substring(lastDot + 1)};
         this.packageName = dividedName[0];
         this.name = dividedName[1];
         this.imports = collectImports(methods);
@@ -82,10 +82,10 @@ public class GroovyInterfaceScriptGenerator {
     private String writeInterface() {
         StringBuilder s = new StringBuilder("");
         s.append("package")
-            .append(" ")
-            .append(packageName)
-            .append(GroovyMethodWriter.LINE_SEPARATOR)
-            .append(GroovyMethodWriter.LINE_SEPARATOR);
+                .append(" ")
+                .append(packageName)
+                .append(GroovyMethodWriter.LINE_SEPARATOR)
+                .append(GroovyMethodWriter.LINE_SEPARATOR);
 
         for (String anImport : imports) {
             s.append("import").append(" ").append(anImport);
@@ -94,11 +94,11 @@ public class GroovyInterfaceScriptGenerator {
 
         s.append(GroovyMethodWriter.LINE_SEPARATOR);
         s.append("interface")
-            .append(" ")
-            .append(name)
-            .append(" ")
-            .append("{")
-            .append(GroovyMethodWriter.LINE_SEPARATOR);
+                .append(" ")
+                .append(name)
+                .append(" ")
+                .append("{")
+                .append(GroovyMethodWriter.LINE_SEPARATOR);
         if (writerChain != null) {
             writerChain.write(s, true, imports);
         }

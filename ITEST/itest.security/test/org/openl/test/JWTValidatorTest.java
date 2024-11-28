@@ -1,6 +1,7 @@
 package org.openl.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.itest.core.JettyServer;
 
 public class JWTValidatorTest {

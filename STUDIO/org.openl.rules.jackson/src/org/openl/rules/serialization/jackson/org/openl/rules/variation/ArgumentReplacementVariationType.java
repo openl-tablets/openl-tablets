@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public abstract class ArgumentReplacementVariationType {
     public ArgumentReplacementVariationType(@JsonProperty("variationID") String variationID,
-            @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,
-            @JsonProperty("valueToSet") Object valueToSet) {
+                                            @JsonProperty("updatedArgumentIndex") int updatedArgumentIndex,
+                                            @JsonProperty("valueToSet") Object valueToSet) {
     }
 }

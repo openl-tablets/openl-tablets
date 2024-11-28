@@ -11,9 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.openl.util.PropertiesUtils;
-
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.PropertiesUtils;
 
 /**
  * For internal usage only.
@@ -55,10 +55,10 @@ public final class OpenLVersion {
         source.put("openl.start.time", ZonedDateTime.now().toString());
         source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
         source.put("openl.start.hash",
-            new Random().ints(65, 91)
-                .limit(8)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString());
+                new Random().ints(65, 91)
+                        .limit(8)
+                        .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                        .toString());
         info = Collections.unmodifiableMap(source);
 
         props.clear();

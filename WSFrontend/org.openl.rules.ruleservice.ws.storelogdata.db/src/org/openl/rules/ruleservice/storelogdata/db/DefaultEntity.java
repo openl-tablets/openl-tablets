@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.storelogdata.db;
 
 import java.time.ZonedDateTime;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

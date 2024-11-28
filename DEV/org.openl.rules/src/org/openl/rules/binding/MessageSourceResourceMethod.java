@@ -19,7 +19,7 @@ import org.openl.vm.IRuntimeEnv;
  * Virtual method for getting messages from OpenL Rules.<br>
  * <br>
  * Example:<br>
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -39,7 +39,7 @@ public class MessageSourceResourceMethod implements IOpenMethod {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         Locale locale = Optional.ofNullable(((IRulesRuntimeContext) env.getContext()).getLocale()).orElse(Locale.US);
         var messageBundle = ((XlsModuleOpenClass) ((SimpleRulesRuntimeEnv) env).getTopClass()).getMessageSource()
-            .getMessageBundle(locale);
+                .getMessageBundle(locale);
         return messageBundle.msg((String) params[0], (Object[]) params[1]);
     }
 
@@ -86,6 +86,6 @@ public class MessageSourceResourceMethod implements IOpenMethod {
     @Override
     public IMethodSignature getSignature() {
         return new MethodSignature(new ParameterDeclaration(JavaOpenClass.STRING, "code"),
-            new ParameterDeclaration(JavaOpenClass.getOpenClass(Object[].class), "args"));
+                new ParameterDeclaration(JavaOpenClass.getOpenClass(Object[].class), "args"));
     }
 }

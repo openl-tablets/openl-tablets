@@ -1,9 +1,10 @@
 package org.openl.rules.dt.algorithm;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class OptimizedDTConditionBuildingTest {
@@ -15,10 +16,10 @@ public class OptimizedDTConditionBuildingTest {
 
     private DTConditionBuilding instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<DTConditionBuilding> engineFactory = new RulesEngineFactory<>(SRC,
-            DTConditionBuilding.class);
+                DTConditionBuilding.class);
 
         instance = engineFactory.newEngineInstance();
     }

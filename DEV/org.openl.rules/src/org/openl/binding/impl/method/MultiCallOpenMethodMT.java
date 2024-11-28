@@ -15,11 +15,11 @@ public class MultiCallOpenMethodMT extends MultiCallOpenMethod {
 
     @Override
     protected void invokeMethodAndSetResultToArray(Object target,
-            IRuntimeEnv env,
-            Object[] callParameters,
-            Object results,
-            int resultLength,
-            int index) {
+                                                   IRuntimeEnv env,
+                                                   Object[] callParameters,
+                                                   Object results,
+                                                   int resultLength,
+                                                   int index) {
         if (resultLength <= 1) {
             super.invokeMethodAndSetResultToArray(target, env, callParameters, results, resultLength, index);
         } else {

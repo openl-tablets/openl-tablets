@@ -12,7 +12,6 @@ import org.openl.types.IOpenField;
  * A class, containing description of Data Table's field columns (or variables)
  *
  * @author NSamatov
- *
  */
 public class DataTableUserDefinedTypeField extends DataTableField {
     private final IOpenClass type;
@@ -24,8 +23,8 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     /**
      * Create a field with a given generalized abstraction of a class and a field name
      *
-     * @param type generalized abstraction of a class
-     * @param name name technical name of a field
+     * @param type              generalized abstraction of a class
+     * @param name              name technical name of a field
      * @param predefinedChecker object that checks if a "type" is a predefined OpenL type such as IntRange etc
      */
     public DataTableUserDefinedTypeField(IOpenClass type, String name, PredefinedTypeChecker predefinedChecker) {
@@ -35,15 +34,15 @@ public class DataTableUserDefinedTypeField extends DataTableField {
     /**
      * Create a field with a given generalized abstraction of a class and a field name
      *
-     * @param type generalized abstraction of a class
-     * @param name name technical name of a field
-     * @param businessName business name of a field
+     * @param type              generalized abstraction of a class
+     * @param name              name technical name of a field
+     * @param businessName      business name of a field
      * @param predefinedChecker object that checks if a "type" is a predefined OpenL type such as IntRange etc
      */
     public DataTableUserDefinedTypeField(IOpenClass type,
-            String name,
-            String businessName,
-            PredefinedTypeChecker predefinedChecker) {
+                                         String name,
+                                         String businessName,
+                                         PredefinedTypeChecker predefinedChecker) {
         super(name, businessName);
         this.type = type;
         this.predefinedChecker = predefinedChecker;
@@ -100,7 +99,6 @@ public class DataTableUserDefinedTypeField extends DataTableField {
      * Utility interface that checks if a "type" is a predefined OpenL type such as IntRange etc
      *
      * @author NSamatov
-     *
      */
     public interface PredefinedTypeChecker {
         /**

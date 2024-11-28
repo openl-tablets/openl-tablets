@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -14,8 +17,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Aleh Bykhavets
@@ -73,7 +74,7 @@ public class DependencyChecker {
                 AProject project;
                 if (projectPath != null) {
                     project = designRepository
-                        .getProjectByPath(repositoryId, branch, projectPath, projectVersion.getVersionName());
+                            .getProjectByPath(repositoryId, branch, projectPath, projectVersion.getVersionName());
                 } else {
                     if (designRepository.hasProject(repositoryId, projectName)) {
                         project = designRepository.getProject(repositoryId, projectName, projectVersion);
@@ -124,7 +125,7 @@ public class DependencyChecker {
             // project with such name wasn't found in the repository
             if (item != null) {
                 item.setMessages(
-                    "Cannot find project <b>" + StringEscapeUtils.escapeHtml4(projectName) + "</b> in the repository.");
+                        "Cannot find project <b>" + StringEscapeUtils.escapeHtml4(projectName) + "</b> in the repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             }
             return false;
@@ -141,7 +142,7 @@ public class DependencyChecker {
                 // dependent project is absent
                 if (item != null) {
                     item.setMessages("Dependent project <b>" + StringEscapeUtils
-                        .escapeHtml4(dependentProject.getName()) + "</b> should be added too.");
+                            .escapeHtml4(dependentProject.getName()) + "</b> should be added too.");
                     item.setStyleForMessages(UiConst.STYLE_WARNING);
                 }
                 return false;

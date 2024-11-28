@@ -1,11 +1,9 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Locale;
 
-import org.openl.rules.rest.exception.RestRuntimeException;
-import org.openl.rules.rest.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -13,7 +11,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
-import org.springframework.web.bind.annotation.ResponseStatus;
+
+import org.openl.rules.rest.exception.RestRuntimeException;
+import org.openl.rules.rest.exception.ValidationException;
 
 public class AbstractConstraintValidatorTest {
 
@@ -24,9 +24,9 @@ public class AbstractConstraintValidatorTest {
     private MessageSource validationMessageSource;
 
     protected void assertFieldError(String expectedField,
-            String expectedMessage,
-            Object expectedRejectedValue,
-            FieldError actualError) {
+                                    String expectedMessage,
+                                    Object expectedRejectedValue,
+                                    FieldError actualError) {
 
         assertEquals(expectedField, actualError.getField());
         assertEquals(expectedRejectedValue, actualError.getRejectedValue());

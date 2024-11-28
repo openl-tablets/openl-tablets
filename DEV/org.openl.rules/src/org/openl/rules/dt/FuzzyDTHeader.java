@@ -4,7 +4,7 @@ import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 import org.openl.types.IOpenField;
 
 class FuzzyDTHeader extends DTHeader {
-    private static final int[] EMPTY_INDEXES = new int[] {};
+    private static final int[] EMPTY_INDEXES = new int[]{};
 
     private final IOpenField[] fieldsChain;
     private final String title;
@@ -13,18 +13,18 @@ class FuzzyDTHeader extends DTHeader {
     private final boolean returnDTHeader;
 
     FuzzyDTHeader(int methodParameterIndex,
-            String statement,
-            String title,
-            IOpenField[] fieldsChain,
-            int topColumn,
-            int column,
-            int row,
-            int width,
-            int widthForMerge,
-            FuzzyResult fuzzyResult,
-            boolean returnDTHeader,
-            boolean horizontal) {
-        super(new int[] { methodParameterIndex }, statement, column, row, width, widthForMerge, horizontal);
+                  String statement,
+                  String title,
+                  IOpenField[] fieldsChain,
+                  int topColumn,
+                  int column,
+                  int row,
+                  int width,
+                  int widthForMerge,
+                  FuzzyResult fuzzyResult,
+                  boolean returnDTHeader,
+                  boolean horizontal) {
+        super(new int[]{methodParameterIndex}, statement, column, row, width, widthForMerge, horizontal);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
@@ -33,16 +33,16 @@ class FuzzyDTHeader extends DTHeader {
     }
 
     FuzzyDTHeader(String statement,
-            String title,
-            IOpenField[] fieldsChain,
-            int topColumn,
-            int column,
-            int row,
-            int width,
-            int widthForMerge,
-            FuzzyResult fuzzyResult,
-            boolean returnDTHeader,
-            boolean horizontal) {
+                  String title,
+                  IOpenField[] fieldsChain,
+                  int topColumn,
+                  int column,
+                  int row,
+                  int width,
+                  int widthForMerge,
+                  FuzzyResult fuzzyResult,
+                  boolean returnDTHeader,
+                  boolean horizontal) {
         super(EMPTY_INDEXES, statement, column, row, width, widthForMerge, horizontal);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;

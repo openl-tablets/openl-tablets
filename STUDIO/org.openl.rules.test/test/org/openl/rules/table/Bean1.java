@@ -8,7 +8,6 @@ package org.openl.rules.table;
 
 /**
  * @author snshor
- *
  */
 public class Bean1 {
 

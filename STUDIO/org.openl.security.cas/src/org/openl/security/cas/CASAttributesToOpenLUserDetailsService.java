@@ -7,15 +7,16 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import org.jasig.cas.client.validation.Assertion;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertionUserDetailsService {
     private final String firstNameAttribute;
@@ -27,8 +28,8 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
     private final String displayNameAttribute;
 
     public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
-            Consumer<User> syncUserData,
-            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                  Consumer<User> syncUserData,
+                                                  BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
         this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
@@ -95,13 +96,13 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
         String username = assertion.getPrincipal().getName();
 
         SimpleUser simpleUser = SimpleUser.builder()
-            .setFirstName(firstName)
-            .setLastName(lastName)
-            .setUsername(username)
-            .setPrivileges(grantedAuthorities)
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .build();
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setUsername(username)
+                .setPrivileges(grantedAuthorities)
+                .setEmail(email)
+                .setDisplayName(displayName)
+                .build();
 
         syncUserData.accept(simpleUser);
 

@@ -1,12 +1,5 @@
 package org.openl.rules.spring.openapi.app031;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -14,6 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "greetings")
@@ -23,8 +22,8 @@ public class HelloController {
     @Operation(summary = "Default say hello", description = "Say hello response entity.", operationId = "sayHelloDefault", responses = {
             @ApiResponse(description = "Successful Operation", responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(oneOf = {
                     String.class,
-                    Integer.class }), examples = { @ExampleObject(name = "The String example", value = "Foo-bar"),
-                            @ExampleObject(name = "The Integer example", value = "4221") })) })
+                    Integer.class}), examples = {@ExampleObject(name = "The String example", value = "Foo-bar"),
+                    @ExampleObject(name = "The Integer example", value = "4221")}))})
     @Tag(name = "default")
     @GetMapping(value = "/hello")
     @Deprecated

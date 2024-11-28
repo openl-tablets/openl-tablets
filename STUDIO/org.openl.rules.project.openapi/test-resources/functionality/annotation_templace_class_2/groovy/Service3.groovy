@@ -1,10 +1,10 @@
-package org.openl.rules.project.openapi.test;
+package org.openl.rules.project.openapi.test
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import org.openl.rules.context.IRulesRuntimeContext
+import org.openl.rules.ruleservice.core.interceptors.RulesType
 
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import javax.ws.rs.POST
+import javax.ws.rs.Path
 
 @Path(value = "prefix")
 interface Service3 {

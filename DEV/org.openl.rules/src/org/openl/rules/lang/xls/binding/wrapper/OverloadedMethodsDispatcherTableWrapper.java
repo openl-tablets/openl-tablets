@@ -17,13 +17,13 @@ public final class OverloadedMethodsDispatcherTableWrapper extends AbstractOverl
     private IOpenClass type;
     private IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
-        this);
+            this);
     private final boolean externalMethodCall;
 
     public OverloadedMethodsDispatcherTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
-            OverloadedMethodsDispatcherTable delegate,
-            ContextPropertiesInjector contextPropertiesInjector,
-            boolean externalMethodCall) {
+                                                   OverloadedMethodsDispatcherTable delegate,
+                                                   ContextPropertiesInjector contextPropertiesInjector,
+                                                   boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;

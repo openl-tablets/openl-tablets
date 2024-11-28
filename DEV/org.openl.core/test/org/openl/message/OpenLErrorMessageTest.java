@@ -1,8 +1,9 @@
 package org.openl.message;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenlNotCheckedException;
@@ -18,11 +19,11 @@ public class OpenLErrorMessageTest {
         IOpenSourceCodeModule module2 = new StringSourceCodeModule("Module2", "uri2");
 
         OpenLErrorMessage e1 = new OpenLErrorMessage(
-            new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
+                new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
         OpenLErrorMessage e2 = new OpenLErrorMessage(
-            new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
+                new OpenLCompilationException("test", null, LocationUtils.createTextInterval(0, 3), module1));
         OpenLErrorMessage e3 = new OpenLErrorMessage(
-            new OpenLCompilationException("test", null, LocationUtils.createTextInterval(1, 4), module2));
+                new OpenLCompilationException("test", null, LocationUtils.createTextInterval(1, 4), module2));
         OpenLErrorMessage e4 = new OpenLErrorMessage(new OpenLRuntimeException("test"));
         OpenLErrorMessage e5 = new OpenLErrorMessage(new OpenlNotCheckedException("test"));
 

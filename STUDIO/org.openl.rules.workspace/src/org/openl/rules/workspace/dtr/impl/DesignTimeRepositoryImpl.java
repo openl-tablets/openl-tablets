@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -28,19 +31,17 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.RepositorySettingsAware;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * @author Aleh Bykhavets
@@ -67,16 +68,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
-    private PropertyResolver propertyResolver;
-    private RepositorySettings repositorySettings;
+    private final PropertyResolver propertyResolver;
+    private final RepositorySettings repositorySettings;
 
     private final List<String> exceptions = new ArrayList<>();
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
+    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver, RepositorySettings repositorySettings) {
         this.propertyResolver = propertyResolver;
-    }
-
-    public void setRepositorySettings(RepositorySettings repositorySettings) {
         this.repositorySettings = repositorySettings;
     }
 
@@ -91,7 +89,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             rulesLocation = getBasePath("design");
             String[] designRepositories = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES))
-                .split("\\s*,\\s*");
+                    .split("\\s*,\\s*");
             for (String repoId : designRepositories) {
 
                 Repository repository = createRepo(repoId, rulesLocation);
@@ -106,9 +104,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 repository.setListener(callback);
             }
             repositories = repositories.stream()
-                .filter(r -> Objects.nonNull(r.getName()))
-                .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+                    .filter(r -> Objects.nonNull(r.getName()))
+                    .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
 
             if (StringUtils.isNotBlank(propertyResolver.getProperty(PRODUCTION_REPOSITORIES))) {
                 deploymentConfigurationLocation = getBasePath(RepositoryMode.DEPLOY_CONFIG.getId());
@@ -125,11 +123,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
                     } else {
                         throw new RepositoryException(
-                            String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
+                                String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
                     }
                 } else {
                     deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
-                        deploymentConfigurationLocation);
+                            deploymentConfigurationLocation);
                 }
 
                 if (separateDeployConfigRepo) {
@@ -153,14 +151,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
-            if (repositorySettings != null) {
-                String setter = "setRepositorySettings";
-                try {
-                    Method setMethod = repo.getClass().getMethod(setter, RepositorySettings.class);
-                    setMethod.invoke(repo, repositorySettings);
-                } catch (NoSuchMethodException e) {
-                    LOG.debug(e.getMessage(), e);
-                }
+            if (repo instanceof RepositorySettingsAware) {
+                ((RepositorySettingsAware) repo).setRepositorySettings(repositorySettings);
             }
 
             String flatValue = propertyResolver.getProperty(repoPrefix + ".folder-structure.flat");
@@ -194,25 +186,25 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class[] { Repository.class },
-                (proxy, method, args) -> {
-                    final String methodName = method.getName();
-                    final Class<?> returnType = method.getReturnType();
-                    if (methodName.startsWith("set") && returnType == void.class) {
-                        return null;
-                    } else if ("supports".equals(methodName) && returnType == Features.class) {
-                        return new FeaturesBuilder(null).setVersions(false).build();
-                    } else if ("close".equals(methodName) && returnType == void.class && args == null) {
-                        return null;
-                    } else if ("getId".equals(methodName) && returnType == String.class) {
-                        return configName;
-                    }
-                    String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
-                    if ("getName".equals(methodName) && returnType == String.class) {
-                        return repoName;
-                    }
-                    throw new IllegalStateException(message);
-                });
+                    new Class[]{Repository.class},
+                    (proxy, method, args) -> {
+                        final String methodName = method.getName();
+                        final Class<?> returnType = method.getReturnType();
+                        if (methodName.startsWith("set") && returnType == void.class) {
+                            return null;
+                        } else if ("supports".equals(methodName) && returnType == Features.class) {
+                            return new FeaturesBuilder(null).setVersions(false).build();
+                        } else if ("close".equals(methodName) && returnType == void.class && args == null) {
+                            return null;
+                        } else if ("getId".equals(methodName) && returnType == String.class) {
+                            return configName;
+                        }
+                        String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
+                        if ("getName".equals(methodName) && returnType == String.class) {
+                            return repoName;
+                        }
+                        throw new IllegalStateException(message);
+                    });
         }
     }
 
@@ -260,9 +252,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 return cached;
             } else {
                 Optional<AProject> project = projects.values()
-                    .stream()
-                    .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
-                    .findFirst();
+                        .stream()
+                        .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                        .findFirst();
                 if (project.isPresent()) {
                     return project.get();
                 }
@@ -285,10 +277,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 try {
                     if (repository.supports().mappedFolders()) {
                         Optional<AProject> projectOptional = projects.values()
-                            .stream()
-                            .filter(
-                                p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
-                            .findFirst();
+                                .stream()
+                                .filter(
+                                        p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                                .findFirst();
                         if (projectOptional.isPresent()) {
                             String realPath = projectOptional.get().getRealPath();
                             projectPath = ((FolderMapper) repository).findMappedName(realPath);
@@ -329,9 +321,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public AProject getProjectByPath(String repositoryId,
-            String branch,
-            String path,
-            String version) throws IOException {
+                                     String branch,
+                                     String path,
+                                     String version) throws IOException {
         Collection<AProject> allProjects;
         synchronized (projects) {
             if (projectsRefreshNeeded) {
@@ -342,8 +334,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
 
         Optional<AProject> project = allProjects.stream()
-            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
-            .findFirst();
+                .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+                .findFirst();
         if (project.isPresent()) {
             Repository repository = project.get().getRepository();
             if (branch != null && repository.supports().branches()) {
@@ -386,11 +378,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             return projects.entrySet()
-                .stream()
-                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
-                .map(Map.Entry::getValue)
-                .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                    .map(Map.Entry::getValue)
+                    .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
         }
     }
 
@@ -446,8 +438,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             // Check business name
             return projects.values()
-                .stream()
-                .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
+                    .stream()
+                    .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
         }
     }
 
@@ -495,9 +487,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public Repository getRepository(String id) {
         return repositories.stream()
-            .filter(repository -> Objects.equals(id, repository.getId()))
-            .findFirst()
-            .orElse(null);
+                .filter(repository -> Objects.equals(id, repository.getId()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

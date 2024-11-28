@@ -2,21 +2,18 @@ package org.openl.rules.webstudio.web.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.testmethod.export.RulesResultExport;
-import org.openl.rules.testmethod.export.TestResultExport;
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringTool;
-import org.openl.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -28,13 +25,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.export.RulesResultExport;
+import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping("/test")
@@ -47,7 +46,7 @@ public class TestDownloadController {
     @GetMapping(value = "/testcase")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> download(
             @Parameter(description = "test.field.test-table-id") @RequestParam(value = Constants.REQUEST_PARAM_ID, required = false) String id,
             @Parameter(description = "test.field.test-range") @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
@@ -69,17 +68,17 @@ public class TestDownloadController {
     }
 
     private ResponseEntity<?> prepareResponse(HttpServletRequest request,
-            HttpServletResponse response,
-            String cookieName,
-            StreamingResponseBody streamingOutput) {
+                                              HttpServletResponse response,
+                                              String cookieName,
+                                              StreamingResponseBody streamingOutput) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         try {
             streamingOutput.writeTo(output);
             response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
-                .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
-                .body(output.toByteArray());
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
+                    .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
+                    .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to export results.";
             LOG.error(message, e);
@@ -92,12 +91,13 @@ public class TestDownloadController {
     @GetMapping(value = "/rule")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc")}, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
-            @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
-            @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+                                    @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
+                                    @RequestParam(Constants.SKIP_EMPTY_PARAMETERS) Boolean skipEmptyParameters,
+                                    @RequestParam(name="flattenParameters", defaultValue = "false") boolean flattenParameters,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response) {
         HttpSession session = request.getSession();
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
 
@@ -106,7 +106,7 @@ public class TestDownloadController {
         if (testSuite != null) {
             final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
             StreamingResponseBody streamingOutput = output -> new RulesResultExport()
-                .export(output, -1, skipEmptyParameters, results);
+                    .export(output, -1, skipEmptyParameters, flattenParameters, results);
             return prepareResponse(request, response, cookieName, streamingOutput);
         }
 

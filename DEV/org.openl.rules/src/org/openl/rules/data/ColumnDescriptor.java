@@ -31,7 +31,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class ColumnDescriptor {
 
@@ -56,12 +55,12 @@ public class ColumnDescriptor {
     private final boolean primaryKey; // true if current descriptor is PK
 
     public ColumnDescriptor(IOpenField field,
-            StringValue displayValue,
-            OpenL openl,
-            boolean constructor,
-            IdentifierNode[] fieldChainTokens,
-            int columnIdx,
-            boolean primaryKey) {
+                            StringValue displayValue,
+                            OpenL openl,
+                            boolean constructor,
+                            IdentifierNode[] fieldChainTokens,
+                            int columnIdx,
+                            boolean primaryKey) {
         this.field = field;
         this.displayValue = displayValue;
         this.openl = openl;
@@ -111,7 +110,7 @@ public class ColumnDescriptor {
         if (field instanceof FieldChain) {
             int fields = ((FieldChain) field).getFields().length;
             if (isPrimaryKey() && ((FieldChain) field)
-                .getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
+                    .getFields()[fields - 1] instanceof CollectionElementWithMultiRowField) {
                 fields += 1;
             } else if (valuesAnArray) {
                 return new ColumnGroupKey(fields, field.getName(), true);
@@ -139,8 +138,8 @@ public class ColumnDescriptor {
      * {@link #isConstructor()}).
      */
     public Object getLiteral(IOpenClass paramType,
-            ILogicalTable valuesTable,
-            OpenlToolAdaptor ota) throws SyntaxNodeException {
+                             ILogicalTable valuesTable,
+                             OpenlToolAdaptor ota) throws SyntaxNodeException {
 
         boolean isValuesAnArray = isValuesAnArray(paramType);
         valuesTable = LogicalTableHelper.make1ColumnTable(valuesTable);
@@ -150,11 +149,11 @@ public class ColumnDescriptor {
             paramType = aggregateType.getAggregateInfo().getComponentType(paramType);
             if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
                 return RuleRowHelper.loadCommaSeparatedParam(aggregateType,
-                    paramType,
-                    field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
-                    null,
-                    valuesTable,
-                    ota);
+                        paramType,
+                        field == null ? RuleRowHelper.CONSTRUCTOR : field.getName(),
+                        null,
+                        valuesTable,
+                        ota);
             } else {
                 return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
             }
@@ -191,9 +190,9 @@ public class ColumnDescriptor {
      * {@link #isConstructor()}). Support loading single value, array of values.
      */
     public Object populateLiteral(Object literal,
-            ILogicalTable valuesTable,
-            OpenlToolAdaptor toolAdapter,
-            IRuntimeEnv env, boolean allowsNullObject) throws SyntaxNodeException {
+                                  ILogicalTable valuesTable,
+                                  OpenlToolAdaptor toolAdapter,
+                                  IRuntimeEnv env, boolean allowsNullObject) throws SyntaxNodeException {
 
         if (field == null) {
             /*
@@ -251,11 +250,11 @@ public class ColumnDescriptor {
     }
 
     private void processWithMultiRowsSupport(Object literal,
-            ILogicalTable valuesTable,
-            OpenlToolAdaptor toolAdapter,
-            IRuntimeEnv env,
-            IOpenClass aggregateType,
-            IOpenClass paramType) throws SyntaxNodeException {
+                                             ILogicalTable valuesTable,
+                                             OpenlToolAdaptor toolAdapter,
+                                             IRuntimeEnv env,
+                                             IOpenClass aggregateType,
+                                             IOpenClass paramType) throws SyntaxNodeException {
 
         DatatypeArrayMultiRowElementContext datatypeArrayMultiRowElementContext =
                 (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
@@ -264,8 +263,8 @@ public class ColumnDescriptor {
             datatypeArrayMultiRowElementContext.setRow(i);
             Object res;
             ILogicalTable logicalTable = LogicalTableHelper
-                .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
-                .getSubtable(0, 0, 1, 1);
+                    .logicalTable(valuesTable.getSource().getSubtable(0, i, 1, i + 1))
+                    .getSubtable(0, 0, 1, 1);
             boolean isSame = false;
             if (valuesAnArray) {
                 res = getArrayValues(logicalTable, toolAdapter, aggregateType, paramType);
@@ -301,7 +300,7 @@ public class ColumnDescriptor {
         }
 
         return valuesAnArray ? getArrayValues(valuesTable, toolAdapter, aggregateType, paramType)
-                             : getSingleValue(valuesTable, toolAdapter, paramType);
+                : getSingleValue(valuesTable, toolAdapter, paramType);
     }
 
     boolean isSameValue(Object res, Object prevRes) {
@@ -329,30 +328,30 @@ public class ColumnDescriptor {
     }
 
     private Object getArrayValues(ILogicalTable valuesTable,
-            OpenlToolAdaptor ota,
-            IOpenClass aggregateType,
-            IOpenClass paramType) throws SyntaxNodeException {
+                                  OpenlToolAdaptor ota,
+                                  IOpenClass aggregateType,
+                                  IOpenClass paramType) throws SyntaxNodeException {
 
         if (valuesTable.getHeight() == 1 && valuesTable.getWidth() == 1) {
             String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();
             return RuleRowHelper
-                .loadCommaSeparatedParam(aggregateType, paramType, fieldName, null, valuesTable.getRow(0), ota);
+                    .loadCommaSeparatedParam(aggregateType, paramType, fieldName, null, valuesTable.getRow(0), ota);
         }
 
         return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
     }
 
     private Object getSingleValue(ILogicalTable logicalTable,
-            OpenlToolAdaptor toolAdapter,
-            IOpenClass paramType) throws SyntaxNodeException {
+                                  OpenlToolAdaptor toolAdapter,
+                                  IOpenClass paramType) throws SyntaxNodeException {
         String fieldName = field == null ? RuleRowHelper.CONSTRUCTOR : field.getName();
         return RuleRowHelper.loadSingleParam(paramType, fieldName, null, logicalTable, toolAdapter);
     }
 
     private Object loadMultiRowArray(ILogicalTable logicalTable,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass paramType,
-            IOpenClass aggregateType) throws SyntaxNodeException {
+                                     OpenlToolAdaptor openlAdaptor,
+                                     IOpenClass paramType,
+                                     IOpenClass aggregateType) throws SyntaxNodeException {
 
         // get height of table without empty cells at the end
         //

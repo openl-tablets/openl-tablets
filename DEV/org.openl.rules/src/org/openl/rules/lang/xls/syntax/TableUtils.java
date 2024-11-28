@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 import org.openl.util.StringTool;
 
 /**
@@ -17,10 +18,10 @@ public final class TableUtils {
 
     public static String makeTableId(String uri) {
         return Optional.ofNullable(uri)
-            .map(StringTool::decodeURL)
-            .map(TableUtils::toCellURI)
-            .map(DigestUtils::md5Hex)
-            .orElse(null);
+                .map(StringTool::decodeURL)
+                .map(TableUtils::toCellURI)
+                .map(DigestUtils::md5Hex)
+                .orElse(null);
     }
 
     /**

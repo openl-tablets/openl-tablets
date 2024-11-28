@@ -1,5 +1,9 @@
 package org.openl.rules.ruleservice.loader;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.IProjectFolder;
@@ -19,21 +26,11 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "production-repository.base.path=",
+@TestPropertySource(properties = {"production-repository.base.path=",
         "production-repository.factory = repo-jdbc",
-        "production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1" })
-@ContextConfiguration({ "classpath:openl-ruleservice-property-placeholder.xml",
-        "classpath:openl-ruleservice-datasource-beans.xml" })
+        "production-repository.uri = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1"})
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-property-placeholder.xml",
+        "classpath:openl-ruleservice-datasource-beans.xml"})
 public class RulesLoaderTest {
 
     @Autowired
@@ -44,73 +41,73 @@ public class RulesLoaderTest {
     @Test
     public void testSkipDeletedProjects() throws Exception {
         List<String> d0 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Collections.emptyList(), d0);
 
         // First version deploy
         updateProject(repository, "deployment1", "project1", false);
         List<String> d1 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Collections.singletonList("project1"), d1);
 
         updateProject(repository, "deployment1", "project2", false);
         List<String> d2 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Arrays.asList("project1", "project2"), d2);
 
         // Second version deploy
         updateProject(repository, "deployment1", "project1", true); // Delete
         List<String> d3 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Collections.singletonList("project2"), d3);
 
         updateProject(repository, "deployment1", "project2", false);
         List<String> d4 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Collections.singletonList("project2"), d4);
 
         updateProject(repository, "org.openl.tablets.tutorial4", "org.openl.tablets.tutorial4", false);
         List<String> d5 = ruleServiceLoader.getDeployments()
-            .stream()
-            .flatMap(d -> d.getProjects().stream())
-            .map(IProjectFolder::getName)
-            .sorted()
-            .collect(Collectors.toList());
+                .stream()
+                .flatMap(d -> d.getProjects().stream())
+                .map(IProjectFolder::getName)
+                .sorted()
+                .collect(Collectors.toList());
         assertEquals(Arrays.asList("org.openl.tablets.tutorial4", "project2"), d5);
 
         CommonVersion commonVersion = new CommonVersionImpl("1");
         Collection<Module> modules = ruleServiceLoader
-            .resolveModulesForProject("org.openl.tablets.tutorial4", commonVersion, "org.openl.tablets.tutorial4");
+                .resolveProject("org.openl.tablets.tutorial4", commonVersion, "org.openl.tablets.tutorial4").getModules();
         assertNotNull(modules);
-        assertTrue(modules.size() > 0);
+        assertFalse(modules.isEmpty());
         Module module = modules.iterator().next();
         assertEquals("Tutorial 4 - UServ Product Derby", module.getName());
     }
 
     private void updateProject(Repository repository,
-            String deploymentName,
-            String projectName,
-            boolean delete) throws IOException {
+                               String deploymentName,
+                               String projectName,
+                               boolean delete) throws IOException {
         FileData fileData = new FileData();
         String resource = deploymentName + "/" + projectName;
         fileData.setName(resource);
@@ -120,7 +117,7 @@ public class RulesLoaderTest {
             repository.delete(fileData);
         } else {
             InputStream str = RulesLoaderTest.class.getClassLoader()
-                .getResourceAsStream("openl-repository/deploy/" + resource);
+                    .getResourceAsStream("openl-repository/deploy/" + resource);
 
             repository.save(fileData, str != null ? str : new ByteArrayInputStream(new byte[0]));
         }

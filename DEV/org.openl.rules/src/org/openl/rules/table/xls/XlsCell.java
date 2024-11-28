@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import org.openl.rules.lang.xls.load.CellLoader;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -97,9 +98,9 @@ public class XlsCell implements ICell {
             return null;
         }
         Font font = gridModel.getSheetSource()
-            .getSheet()
-            .getWorkbook()
-            .getFontAt(cell.getCellStyle().getFontIndexAsInt());
+                .getSheet()
+                .getWorkbook()
+                .getFontAt(cell.getCellStyle().getFontIndexAsInt());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
@@ -256,7 +257,7 @@ public class XlsCell implements ICell {
 
     /**
      * @return date value if cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is formatted in excel as date.<br>
-     *         null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
+     * null is cell is of type {@link IGrid#CELL_TYPE_NUMERIC} and is not formatted in excel as date.<br>
      */
     @Override
     public Date getNativeDate() {

@@ -118,8 +118,8 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
         for (int i = 0; i < parameterCount; i++) {
             if (parameterKeys[i].size() > 1) {
                 List<IOpenMethod> conflictMethods = parameterKeys[i].stream()
-                    .map(ParameterKey::getMethod)
-                    .collect(Collectors.toList());
+                        .map(ParameterKey::getMethod)
+                        .collect(Collectors.toList());
                 for (int j = 0; j < conflictMethods.size() - 1; j++) {
                     for (int k = j + 1; k < conflictMethods.size(); k++) {
                         methodPairs.add(new MethodPairKey(conflictMethods.get(j), conflictMethods.get(k)));
@@ -131,9 +131,9 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
     }
 
     private void addWarnForMethods(IOpenMethod methodA,
-            IOpenMethod methodB,
-            Collection<OpenLMessage> messages,
-            String message) {
+                                   IOpenMethod methodB,
+                                   Collection<OpenLMessage> messages,
+                                   String message) {
         ISyntaxNode syntaxNodeA = ((IMemberMetaInfo) methodA).getSyntaxNode();
         ISyntaxNode syntaxNodeB = ((IMemberMetaInfo) methodB).getSyntaxNode();
         String signA = MethodUtil.printSignature(methodA, INamedThing.REGULAR);

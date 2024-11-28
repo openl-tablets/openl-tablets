@@ -24,7 +24,7 @@ public class ClassMinMaxMatcher<T extends Comparable<? super T>> implements IMat
     @Override
     @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
-        int result = Comparator.nullsFirst(Comparator.<T>naturalOrder()).compare((T)var, (T)checkValue);
+        int result = Comparator.nullsFirst(Comparator.<T>naturalOrder()).compare((T) var, (T) checkValue);
         return isMaxMode ? (result <= 0) : (result >= 0);
     }
 }

@@ -9,7 +9,7 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * This is a helper class to be used in {@link MethodCallerWrapper} implementations if additional details need to be
  * pass to a method implementation.
- *
+ * <p>
  * Missed details are put to the {@link ThreadLocal} variable and can be accessed via getMethodDetails method.
  */
 public class MethodDetailsMethodCaller extends MethodCallerDelegator {

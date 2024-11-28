@@ -4,8 +4,8 @@ class IntMappedStorage extends MappedStorage {
 
     private final int[] map;
 
-    IntMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
-        super(uniqueValues, info);
+    IntMappedStorage(int[] map, Object[] uniqueValues, IStorage storage, StorageInfo info) {
+        super(uniqueValues, storage, info);
         this.map = map;
     }
 

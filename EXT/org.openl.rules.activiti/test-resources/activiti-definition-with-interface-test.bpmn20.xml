@@ -1,32 +1,32 @@
 <definitions id="definitions" targetNamespace="http://activiti.org/bpmn20"
-	xmlns:activiti="http://activiti.org/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+             xmlns:activiti="http://activiti.org/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
 
-	<process id="openLTaskServiceTest" name="OpenL Task Service Process">
+    <process id="openLTaskServiceTest" name="OpenL Task Service Process">
 
-		<startEvent id="theStart" />
+        <startEvent id="theStart"/>
 
-		<sequenceFlow id='flow1' sourceRef='theStart' targetRef='openLServiceTask' />
+        <sequenceFlow id='flow1' sourceRef='theStart' targetRef='openLServiceTask'/>
 
-		<serviceTask id="openLServiceTask" name="OpenL Service Task"
-			activiti:class="org.openl.rules.activiti.SimpleOpenLServiceWithInterfaceTask">
-			<extensionElements>
-				<activiti:field name="resource">
-					<activiti:string>Tutorial 1 - Introduction to Decision Tables-1.zip
-					</activiti:string>
-				</activiti:field>
-			</extensionElements>
-		</serviceTask>
+        <serviceTask id="openLServiceTask" name="OpenL Service Task"
+                     activiti:class="org.openl.rules.activiti.SimpleOpenLServiceWithInterfaceTask">
+            <extensionElements>
+                <activiti:field name="resource">
+                    <activiti:string>Tutorial 1 - Introduction to Decision Tables-1.zip
+                    </activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
 
-		<sequenceFlow id='flow2' sourceRef='openLServiceTask'
-			targetRef='theTask' />
+        <sequenceFlow id='flow2' sourceRef='openLServiceTask'
+                      targetRef='theTask'/>
 
-		<userTask id='theTask' name='result task'/>
+        <userTask id='theTask' name='result task'/>
 
-		<sequenceFlow id='flow3' sourceRef='theTask'
-			targetRef='theEnd' />
+        <sequenceFlow id='flow3' sourceRef='theTask'
+                      targetRef='theEnd'/>
 
-		<endEvent id="theEnd" />
+        <endEvent id="theEnd"/>
 
-	</process>
+    </process>
 
 </definitions>

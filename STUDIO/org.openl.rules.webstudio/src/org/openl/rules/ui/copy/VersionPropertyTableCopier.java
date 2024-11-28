@@ -71,8 +71,8 @@ public class VersionPropertyTableCopier extends TableCopier {
         if (versionProperty == null) {
             // Property "version" is absent in base table
             versionProperty = new TablePropertyBuilder(VERSION_PROP_NAME,
-                TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME),
-                WebStudioFormats.getInstance())
+                    TablePropertyDefinitionUtils.getPropertyTypeByPropertyName(VERSION_PROP_NAME),
+                    WebStudioFormats.getInstance())
                     .displayName(TablePropertyDefinitionUtils.getPropertyDisplayName(VERSION_PROP_NAME))
                     .value(getOriginalVersion().toString())
                     .build();
@@ -88,7 +88,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         }
         if (newVersion.equals(getOriginalVersion().toString()) || isVersionExists(newVersion)) {
             WebStudioUtils.throwValidationError(
-                String.format("Table with '%s' version number already exists.", getVersion().getValue()));
+                    String.format("Table with '%s' version number already exists.", getVersion().getValue()));
         }
         super.doCopy();
         updateOriginalTable();
@@ -96,15 +96,15 @@ public class VersionPropertyTableCopier extends TableCopier {
 
     private boolean isVersionExists(Object newVersion) {
         return Arrays.stream(WebStudioUtils.getWebStudio().getModel().getTableSyntaxNodes())
-            .filter(Objects::nonNull)
-            .filter(node -> Optional.ofNullable(node.getMember())
-                .map(IOpenMember::getName)
-                .map(nodeName -> nodeName.equals(getTable().getName()))
-                .orElse(false))
-            .map(TableSyntaxNode::getTableProperties)
-            .map(ITableProperties::getVersion)
-            .filter(Objects::nonNull)
-            .anyMatch(v -> v.equals(newVersion));
+                .filter(Objects::nonNull)
+                .filter(node -> Optional.ofNullable(node.getMember())
+                        .map(IOpenMember::getName)
+                        .map(nodeName -> nodeName.equals(getTable().getName()))
+                        .orElse(false))
+                .map(TableSyntaxNode::getTableProperties)
+                .map(ITableProperties::getVersion)
+                .filter(Objects::nonNull)
+                .anyMatch(v -> v.equals(newVersion));
     }
 
     private void updateOriginalTable() {

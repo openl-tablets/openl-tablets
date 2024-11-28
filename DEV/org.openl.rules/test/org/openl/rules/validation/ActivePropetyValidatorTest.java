@@ -1,10 +1,11 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.BaseOpenlBuilderHelper;
@@ -20,15 +21,15 @@ public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
     @Test
     public void testOddActiveTable() {
         assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
-            ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE,
-            Severity.ERROR));
+                ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE,
+                Severity.ERROR));
     }
 
     @Test
     public void testNoActiveTable() {
         assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
-            ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE,
-            Severity.WARN));
+                ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE,
+                Severity.WARN));
     }
 
     private boolean isMessageOccured(Collection<OpenLMessage> messages, String message, Severity severity) {

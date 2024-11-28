@@ -6,7 +6,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * Parent for OpenL Java runtime exceptions.
- *
  */
 public class OpenlNotCheckedException extends RuntimeException implements OpenLException {
 
@@ -32,9 +31,9 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
     }
 
     public OpenlNotCheckedException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                    Throwable cause,
+                                    ILocation location,
+                                    IOpenSourceCodeModule sourceModule) {
         super(message, cause);
         this.location = location;
         if (sourceModule != null) {

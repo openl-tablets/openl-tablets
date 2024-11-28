@@ -1,9 +1,9 @@
 package org.openl.rules.ui.validation;
 
-import org.openl.util.TableNameChecker;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.openl.util.TableNameChecker;
 
 public class TableNameValidator implements ConstraintValidator<TableNameConstraint, String> {
 

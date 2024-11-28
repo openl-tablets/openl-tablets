@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.DataFormatter;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
@@ -38,7 +39,7 @@ public final class XlsDataFormatterFactory {
      * Determine formatter depending on type retrieved from Excel. Warning! Don't invoke this method from core. It can
      * be memory and time consuming operation. Formatting values only from UI is allowed.
      *
-     * @param cell formatting cell
+     * @param cell         formatting cell
      * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
@@ -58,9 +59,9 @@ public final class XlsDataFormatterFactory {
 
                 // Date
             } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
-                LocalDateTime.class) || ClassUtils.isAssignable(instanceClass, LocalDate.class) || ClassUtils
+                    LocalDateTime.class) || ClassUtils.isAssignable(instanceClass, LocalDate.class) || ClassUtils
                     .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
-                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+                    ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 formatter = getDateFormatter(cell);
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new ArrayFormatter(formatter, instanceClass);

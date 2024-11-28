@@ -109,7 +109,7 @@ try {
     assert new File(basedir, "target/openl-test-reports/TEST-OpenL.Complex Comparison.Pass3.xlsx").exists();
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 
 class PropertiesEngine {
     private final Logger log = LoggerFactory.getLogger(PropertiesEngine.class);

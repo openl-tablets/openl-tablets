@@ -1,8 +1,11 @@
 package org.openl.rules.table;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -14,9 +17,9 @@ public class TestTable {
     public void canRetrieveTestSuiteForIncorrectFieldArrayAccess() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
-            .setExecutionMode(false)
-            .setProject("test-resources/org/openl/rules/table")
-            .build();
+                .setExecutionMode(false)
+                .setProject("test-resources/org/openl/rules/table")
+                .build();
         CompiledOpenClass compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
@@ -25,7 +28,7 @@ public class TestTable {
         assertEquals(1, tests.length);
         assertEquals(1, compiledOpenClass.getAllMessages().size());
         assertEquals("Field '$Value$no_such_field' is not found.",
-            compiledOpenClass.getAllMessages().iterator().next().getSummary());
+                compiledOpenClass.getAllMessages().iterator().next().getSummary());
 
         TestSuiteMethod hiTest = (TestSuiteMethod) openClass.getMethod("hiTest", IOpenClass.EMPTY);
         assertNotNull(hiTest);

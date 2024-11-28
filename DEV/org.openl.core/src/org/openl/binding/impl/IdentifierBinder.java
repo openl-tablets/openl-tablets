@@ -21,7 +21,6 @@ import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- *
  * @author Yury Molchan
  */
 public class IdentifierBinder extends ANodeBinder {
@@ -74,8 +73,8 @@ public class IdentifierBinder extends ANodeBinder {
         if (nonStrictMatchBoundNode != null) {
             if (!node.getText().equals(nonStrictMatchBoundNode.getFieldName().replaceAll("\\s", ""))) {
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                    String.format("Case insensitive matching to '%s'.", nonStrictMatchBoundNode.getFieldName()),
-                    node));
+                        String.format("Case insensitive matching to '%s'.", nonStrictMatchBoundNode.getFieldName()),
+                        node));
             }
             return nonStrictMatchBoundNode;
         }
@@ -105,16 +104,16 @@ public class IdentifierBinder extends ANodeBinder {
             if (field != null) {
                 if (!fieldName.equals(field.getName().replaceAll("\\s", ""))) {
                     bindingContext.addMessage(OpenLMessagesUtils
-                        .newWarnMessage(String.format("Case insensitive matching to '%s'.", field.getName()), node));
+                            .newWarnMessage(String.format("Case insensitive matching to '%s'.", field.getName()), node));
                 }
             }
         }
 
         if (field == null) {
             throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
-                type.isStatic() ? "Static field" : "Field",
-                fieldName,
-                type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
+                    type.isStatic() ? "Static field" : "Field",
+                    fieldName,
+                    type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
         }
 
         IOpenClass t = field.getType();
@@ -139,16 +138,16 @@ public class IdentifierBinder extends ANodeBinder {
             if (field.isStatic()) {
                 if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
                     BindHelper.processWarn(
-                        String.format("Accessing to static field '%s' from non-static object of type '%s'.",
-                            field.getName(),
-                            target.getType().getName()),
-                        node,
-                        bindingContext);
+                            String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                                    field.getName(),
+                                    target.getType().getName()),
+                            node,
+                            bindingContext);
                 }
             } else {
                 return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
-                    field.getName(),
-                    target.getType().getName()), node, bindingContext);
+                        field.getName(),
+                        target.getType().getName()), node, bindingContext);
             }
         }
 
@@ -157,17 +156,17 @@ public class IdentifierBinder extends ANodeBinder {
     }
 
     private IOpenField selectFieldFromAmbiguous(AmbiguousFieldException ex,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                                                ISyntaxNode node,
+                                                IBindingContext bindingContext) {
         Collection<IOpenField> matchingFields = ex.getMatchingFields();
         if (matchingFields.stream().allMatch(e -> e instanceof OpenFieldDelegator)) {
             long arraysCount = matchingFields.stream()
-                .filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)
-                .count();
+                    .filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)
+                    .count();
             if (matchingFields.size() - arraysCount == 1) {
                 Optional<IOpenField> f = matchingFields.stream()
-                    .filter(e -> !(((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField))
-                    .findFirst();
+                        .filter(e -> !(((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField))
+                        .findFirst();
                 if (f.isPresent()) {
                     bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage(), node));
                     return f.get();
@@ -179,7 +178,7 @@ public class IdentifierBinder extends ANodeBinder {
 
     private static boolean isAllowOnlyStrictFieldMatch(IOpenClass type) {
         return type != null && type.getInstanceClass() != null && type.getInstanceClass()
-            .isAnnotationPresent(AllowOnlyStrictFieldMatchType.class);
+                .isAnnotationPresent(AllowOnlyStrictFieldMatchType.class);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

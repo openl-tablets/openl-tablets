@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IntRangeDomain;
@@ -27,12 +30,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.types.java.JavaOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableValidatedObject implements IDecisionTableValidatedObject, IConditionTransformer {
 
@@ -134,9 +134,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     @Override
     public Object transformLocalParameterValue(String name,
-            IBaseCondition condition,
-            Object value,
-            DecisionTableAnalyzer dtan) {
+                                               IBaseCondition condition,
+                                               Object value,
+                                               DecisionTableAnalyzer dtan) {
 
         if (value != null && value.getClass().isArray()) {
             int[] res = new int[Array.getLength(value)];
@@ -151,9 +151,9 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     public Object transformSingleLocalParameterValue(String name,
-            IBaseCondition condition,
-            Object value,
-            DecisionTableAnalyzer dtan) {
+                                                     IBaseCondition condition,
+                                                     Object value,
+                                                     DecisionTableAnalyzer dtan) {
 
         Object result = value;
         if (value instanceof IntRange) {

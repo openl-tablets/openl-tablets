@@ -7,10 +7,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openl.excel.parser.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.openl.excel.parser.AlignedValue;
+import org.openl.excel.parser.ExcelParseException;
+import org.openl.excel.parser.ExcelReader;
+import org.openl.excel.parser.ExcelUtils;
+import org.openl.excel.parser.MergedCell;
+import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
@@ -22,8 +38,6 @@ import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DOMReader implements ExcelReader {
     private static final Logger LOG = LoggerFactory.getLogger(DOMReader.class);

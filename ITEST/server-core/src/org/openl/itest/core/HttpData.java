@@ -1,28 +1,27 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.HttpURLConnection;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,44 +38,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class HttpData {
     static final ObjectMapper OBJECT_MAPPER;
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.*?)}");
 
     static {
         OBJECT_MAPPER = new ObjectMapper();
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        try {
-            // Add PATCH method to HttpURLConnection
-            // because it is not supported by default
-            Field methodsField = HttpURLConnection.class.getDeclaredField("methods");
-
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(methodsField, methodsField.getModifiers() & ~Modifier.FINAL);
-
-            methodsField.setAccessible(true);
-            String[] oldMethods = (String[]) methodsField.get(null);
-            Set<String> methodsSet = new LinkedHashSet<>(Arrays.asList(oldMethods));
-            methodsSet.add("PATCH");
-            methodsField.set(null, methodsSet.toArray(new String[0]));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static final Pattern NO_CONTENT_STATUS_PATTERN = Pattern.compile("HTTP/\\S+\\s+204(\\s.*)?");
     private static final Set<String> BLOB_TYPES = Stream.of("application/zip").collect(Collectors.toSet());
 
     private final String firstLine;
-    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private final Map<String, String> settings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
-    private final String resource;
     private String cookie;
 
-    private HttpData(String firstLine, Map<String, String> headers, byte[] body, String resource) {
+    private HttpData(String firstLine, Map<String, String> headers, byte[] body) {
         this.firstLine = firstLine;
-        this.resource = resource;
         this.headers.putAll(headers);
+        var settings = this.headers.subMap("X-OpenL-Test-", "X-OpenL-Test.");
+        this.settings.putAll(settings);
+        settings.clear();
         this.body = body;
+    }
+
+    String getSetting(String key) {
+        return settings.get("X-OpenL-Test-" + key);
     }
 
     private int getResponseCode() {
@@ -103,58 +91,54 @@ class HttpData {
         }
     }
 
-    static HttpData send(URL baseURL, String resource, String cookie) throws IOException {
-        HttpData httpData = readFile(resource);
-        if (httpData == null) {
-            throw new FileNotFoundException(resource);
-        }
-        if (httpData.headers.containsKey("Cookie")) {
-            cookie = null;
-        }
-        HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
-            httpData.getHttpMethod(),
-            cookie);
-        write(connection, httpData);
-        return readData(connection, resource);
+    static HttpData ok() {
+        return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
     }
 
-    private static HttpURLConnection openConnection(URL url, String httpMethod, String cookie) throws IOException {
-        URLConnection connection = url.openConnection();
-        if (cookie != null && !cookie.isEmpty()) {
-            connection.setRequestProperty("Cookie", cookie);
+    static HttpData send(URL baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
+        var request = HttpRequest.newBuilder()
+                .uri(URI.create(baseURL.toString() + httpData.getUrl()))
+                .method(httpData.getHttpMethod(), HttpRequest.BodyPublishers.ofByteArray(httpData.body))
+                .timeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.read"))))
+                .header("Host", "example.com");
+        httpData.headers.forEach((key, value) -> request.header(key, replacePlaceholders(value, localEnv)));
+
+        if (cookie != null && !cookie.isEmpty() && !httpData.headers.containsKey("Cookie")) {
+            request.header("Cookie", cookie);
         }
-        if (!(connection instanceof HttpURLConnection)) {
-            throw new IllegalStateException("HttpURLConnection required for [" + url + "] but got: " + connection);
-        }
-        connection.setConnectTimeout(Integer.parseInt(System.getProperty("http.timeout.connect")));
-        connection.setReadTimeout(Integer.parseInt(System.getProperty("http.timeout.read")));
-        connection.setDoInput(true);
-        ((HttpURLConnection) connection).setInstanceFollowRedirects("GET".equals(httpMethod));
-        connection.setDoOutput("POST".equals(httpMethod) || "PUT".equals(httpMethod) || "DELETE".equals(httpMethod) || "PATCH"
-                .equals(httpMethod));
-        ((HttpURLConnection) connection).setRequestMethod(httpMethod);
-        return (HttpURLConnection) connection;
+
+        var response = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
+                .build()
+                .sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join();
+        return readData(response);
     }
 
-    private static void write(HttpURLConnection connection, HttpData httpData) throws IOException {
-        httpData.headers.putIfAbsent("Content-Length", String.valueOf(httpData.body.length));
-        httpData.headers.putIfAbsent("Host", "example.com");
-        httpData.headers.forEach(connection::addRequestProperty);
-        connection.connect();
-        if (httpData.body.length != 0) {
-            try (OutputStream os = connection.getOutputStream()) {
-                os.write(httpData.body);
-            }
+    private static String replacePlaceholders(String text, Map<String, String> env) {
+        var matcher = PLACEHOLDER_PATTERN.matcher(text);
+
+        var result = new StringBuilder();
+        while (matcher.find()) {
+            String placeholder = matcher.group(1);
+            String replacement = env.get(placeholder);
+            matcher.appendReplacement(result, replacement);
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    void writeBodyTo(String responseFile) throws IOException {
+        try (var rf = new RandomAccessFile(responseFile, "rw")) {
+            while (!rf.readLine().isEmpty()) ; // find the first empty string
+            rf.setLength(rf.getFilePointer()); // truncate
+            rf.write(body); // append new body
         }
     }
 
-    void assertTo(HttpData expected) {
+    void assertTo(HttpData expected) throws Exception, AssertionError {
         try {
-            if (expected == null) {
-                assertEquals("Status code: ", 200, this.getResponseCode());
-                return;
-            }
-            assertEquals("Status code: ", expected.getResponseCode(), this.getResponseCode());
+            assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code: ");
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {
                 String headerName = r.getKey();
                 String value = r.getValue();
@@ -168,7 +152,7 @@ class HttpData {
             Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
                 // Binary encoding
-                for(String encoding : contentEncoding.split(",")) {
+                for (String encoding : contentEncoding.split(",")) {
                     if ("gzip".equals(encoding) || "x-gzip".equals(encoding)) {
                         // decode gzip bytes
                         decoder = decoder.andThen(HttpData::decodeGzipBytes);
@@ -203,12 +187,11 @@ class HttpData {
                     break;
                 default:
                     if (!new String(expected.body, StandardCharsets.ISO_8859_1).trim().equals("***")) {
-                        assertArrayEquals("Body: ", decoder.apply(expected.body), decoder.apply(this.body));
+                        assertArrayEquals(decoder.apply(expected.body), decoder.apply(this.body), "Body: ");
                     }
             }
         } catch (Exception | AssertionError ex) {
-            log(expected != null ? expected.resource : resource, firstLine, headers, body);
-            throw new RuntimeException(ex);
+            throw ex;
         }
     }
 
@@ -226,7 +209,7 @@ class HttpData {
         return out.toByteArray();
     }
 
-    static void log(String resourceName, String firstLine, Map<String, String> headers, byte[] body) {
+    void log(String resourceName) {
         try {
             System.err.println("--------------------");
             System.err.println(firstLine);
@@ -249,38 +232,22 @@ class HttpData {
         }
     }
 
-    private static HttpData readData(HttpURLConnection connection, String resource) throws IOException {
-        connection.getResponseCode();
-        InputStream input = connection.getErrorStream();
-        if (input == null) {
-            try {
-                input = connection.getInputStream();
-            } catch (IOException ignored) {
-
-            }
-        }
-        try {
-            String firstLine = connection.getHeaderField(0);
-            String cookie = null;
-            Map<String, String> headers = new HashMap<>();
-            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                if (entries.getKey() != null) {
-                    if (entries.getKey().equals("Set-Cookie")) {
-                        cookie = String.join("; ", entries.getValue());
-                    }
-                    headers.put(entries.getKey(), String.join(", ", entries.getValue()));
+    private static HttpData readData(HttpResponse<byte[]> connection) {
+        String firstLine = "HTTP/1.1 " + connection.statusCode();
+        String cookie = null;
+        Map<String, String> headers = new HashMap<>();
+        for (Map.Entry<String, List<String>> entries : connection.headers().map().entrySet()) {
+            if (entries.getKey() != null) {
+                if (entries.getKey().equalsIgnoreCase("Set-Cookie")) {
+                    cookie = String.join("; ", entries.getValue());
                 }
-            }
-
-            byte[] body = input != null ? input.readAllBytes() : new byte[0];
-            HttpData httpData = new HttpData(firstLine, headers, body, resource);
-            httpData.setCookie(cookie);
-            return httpData;
-        } finally {
-            if (input != null) {
-                input.close();
+                headers.put(entries.getKey(), String.join(", ", entries.getValue()));
             }
         }
+
+        HttpData httpData = new HttpData(firstLine, headers, connection.body());
+        httpData.setCookie(cookie);
+        return httpData;
     }
 
     private static HttpData readData(InputStream input, String resource) throws IOException {
@@ -353,7 +320,7 @@ class HttpData {
             body = input.readAllBytes();
         }
 
-        return new HttpData(firstLine, headers, body, resource);
+        return new HttpData(firstLine, headers, body);
     }
 
     private static InputStream getStream(String fileRes) {

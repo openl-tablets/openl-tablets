@@ -1,8 +1,8 @@
 package org.openl.rules.project.xml.v5_17;
 
-import org.openl.rules.project.model.v5_17.PublisherType_v5_17;
-
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.openl.rules.project.model.v5_17.PublisherType_v5_17;
 
 public class PublisherTypeXmlAdapter_v5_17 extends XmlAdapter<String, PublisherType_v5_17> {
     @Override

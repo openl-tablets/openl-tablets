@@ -10,8 +10,8 @@ import org.openl.rules.project.model.ProjectDescriptor;
 final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
 
     public RuleServiceDependencyLoader(ProjectDescriptor project,
-            Module module,
-            RuleServiceDependencyManager dependencyManager) {
+                                       Module module,
+                                       RuleServiceDependencyManager dependencyManager) {
         super(project, module, true, dependencyManager);
     }
 
@@ -30,7 +30,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
             } finally {
                 if (compiledDependency == null) {
                     ruleServiceDeploymentRelatedDependencyManager
-                        .compilationCompleted(this, false);
+                            .compilationCompleted(this, false);
                 }
             }
         } else {

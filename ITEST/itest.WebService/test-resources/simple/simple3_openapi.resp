@@ -600,27 +600,6 @@ Content-Type: application/json
           },
           "Value_Step12": {
             "type": "boolean"
-          },
-          "RowNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "ColumnNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "TableDetails": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         }
       },
@@ -756,27 +735,6 @@ Content-Type: application/json
           "AAA": {
             "type": "number",
             "format": "double"
-          },
-          "RowNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "ColumnNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "TableDetails": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           }
         }
       },

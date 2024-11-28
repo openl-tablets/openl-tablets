@@ -1,12 +1,12 @@
 package org.openl.rules.maven;
 
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.rules.testmethod.export.TestResultExport;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.export.TestResultExport;
 
 class XlsxReportWriter {
     private final File dir;

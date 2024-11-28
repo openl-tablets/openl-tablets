@@ -2,8 +2,9 @@ package org.openl.spring.env;
 
 import java.util.prefs.Preferences;
 
-import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertySource;
+
+import org.openl.util.StringUtils;
 
 /**
  * Properties stored in a hierarchical collection of preference data using Preferences API. See

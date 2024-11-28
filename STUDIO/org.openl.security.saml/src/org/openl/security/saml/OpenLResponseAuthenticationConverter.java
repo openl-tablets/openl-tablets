@@ -10,12 +10,6 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.User;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSString;
@@ -30,6 +24,13 @@ import org.springframework.security.saml2.provider.service.authentication.OpenSa
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.w3c.dom.Node;
 
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.User;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
+
 /**
  * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
  *
@@ -42,8 +43,8 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
-             Consumer<User> syncUserData,
-             BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
+                                                Consumer<User> syncUserData,
+                                                BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
         this.syncUserData = syncUserData;
         this.privilegeMapper = privilegeMapper;
@@ -51,7 +52,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
 
     /**
      * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
-     * 
+     *
      * @param responseToken ResponseToken from the IDP
      * @return Saml2Authentication
      */
@@ -135,13 +136,13 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
             }
 
             return SimpleUser.builder()
-                .setFirstName(getAttributeAsString(firstNameAttribute))
-                .setLastName(getAttributeAsString(lastNameAttribute))
-                .setUsername(StringUtils.isBlank(usernameAttribute) ? username : getAttributeAsString(usernameAttribute))
-                .setPrivileges(grantedAuthorities)
-                .setEmail(getAttributeAsString(emailAttribute))
-                .setDisplayName(getAttributeAsString(displayNameAttribute))
-                .build();
+                    .setFirstName(getAttributeAsString(firstNameAttribute))
+                    .setLastName(getAttributeAsString(lastNameAttribute))
+                    .setUsername(StringUtils.isBlank(usernameAttribute) ? username : getAttributeAsString(usernameAttribute))
+                    .setPrivileges(grantedAuthorities)
+                    .setEmail(getAttributeAsString(emailAttribute))
+                    .setDisplayName(getAttributeAsString(displayNameAttribute))
+                    .build();
         }
 
         private String getAttributeAsString(String key) {

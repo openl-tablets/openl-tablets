@@ -10,7 +10,6 @@ import org.openl.types.IMethodCaller;
  * The <code>OpenLEvaluationOperation</code> class describes operation which has expression which must be calculated.
  *
  * @author User
- *
  */
 public abstract class OpenLEvaluationOperation extends RuntimeOperation {
     private final IMethodCaller openLStatement;
@@ -19,7 +18,6 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
      * Create an instance of <code>OpenLEvaluationOperation</code>.
      *
      * @param openLStatement Expression which result must be calculated.
-     *
      */
     public OpenLEvaluationOperation(IMethodCaller openLStatement) {
         this.openLStatement = openLStatement;
@@ -36,7 +34,7 @@ public abstract class OpenLEvaluationOperation extends RuntimeOperation {
 
         if (openLStatement != null) {
             resultValue = openLStatement
-                .invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
+                    .invoke(environment.getTbasicTarget(), environment.getTbasicParams(), environment);
         }
 
         return resultValue;

@@ -10,7 +10,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public final class AssignNode extends MethodBoundNode {
     private final IOpenCast cast;
@@ -19,7 +18,7 @@ public final class AssignNode extends MethodBoundNode {
 
     /**
      * target = source - simple assign.
-     *
+     * <p>
      * target += source - assign with operation through method.
      */
     AssignNode(ISyntaxNode syntaxNode, IBoundNode target, IBoundNode source, IMethodCaller method, IOpenCast cast) {
@@ -35,7 +34,7 @@ public final class AssignNode extends MethodBoundNode {
         if (boundMethod != null) {
             Object targetValue = target.evaluate(env);
 
-            res = BinaryOpNode.evaluateBinaryMethod(env, new Object[] { targetValue, res }, boundMethod);
+            res = BinaryOpNode.evaluateBinaryMethod(env, new Object[]{targetValue, res}, boundMethod);
         }
 
         res = cast == null ? res : cast.convert(res);

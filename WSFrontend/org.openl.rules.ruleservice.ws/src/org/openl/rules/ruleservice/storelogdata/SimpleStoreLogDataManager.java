@@ -21,8 +21,8 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
         this.storeLogDataServices = storeLogDataServices;
         this.enabled = !storeLogDataServices.isEmpty();
         storeLogDataServices.stream()
-            .map(x -> x.getClass().getTypeName())
-            .forEach(x -> log.info("Store log data service '{}' is used.", x));
+                .map(x -> x.getClass().getTypeName())
+                .forEach(x -> log.info("Store log data service '{}' is used.", x));
     }
 
     public Collection<StoreLogDataService> getServices() {

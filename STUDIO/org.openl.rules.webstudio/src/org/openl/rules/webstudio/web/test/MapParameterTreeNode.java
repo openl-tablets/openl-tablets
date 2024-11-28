@@ -1,11 +1,17 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.ListIterator;
+import java.util.Map;
 
-import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.types.java.JavaOpenClass;
 
 public class MapParameterTreeNode extends CollectionParameterTreeNode {
     private final Logger log = LoggerFactory.getLogger(MapParameterTreeNode.class);
@@ -55,7 +61,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
 
         ParameterDeclarationTreeNode node = createNode(null, value);
         ListIterator<ParameterDeclarationTreeNode> iterator = new ArrayList<>(childrenMap.values())
-            .listIterator(nextChildNum);
+                .listIterator(nextChildNum);
         if (iterator.hasPrevious()) {
             ParameterDeclarationTreeNode lastChild = iterator.previous();
             ParameterDeclarationTreeNode lastKey = lastChild.getChild("key");
@@ -79,7 +85,7 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
 
     @Override
     public void removeChild(ParameterDeclarationTreeNode toDelete) {
-        for (Iterator<ParameterDeclarationTreeNode> iterator = getChildren().iterator(); iterator.hasNext();) {
+        for (Iterator<ParameterDeclarationTreeNode> iterator = getChildren().iterator(); iterator.hasNext(); ) {
             ParameterDeclarationTreeNode node = iterator.next();
             if (node == toDelete) {
                 Entry value = (Entry) node.getValue();
@@ -99,8 +105,8 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
         Entry element = new Entry(getMap(), key, value);
 
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(
-            JavaOpenClass.getOpenClass(element.getClass()),
-            element).keyField(config.getKeyField())
+                JavaOpenClass.getOpenClass(element.getClass()),
+                element).keyField(config.getKeyField())
                 .parent(this)
                 .requestId(config.getRequestId())
                 .build();

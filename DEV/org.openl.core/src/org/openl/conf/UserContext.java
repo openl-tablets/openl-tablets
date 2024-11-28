@@ -18,7 +18,6 @@ import org.openl.OpenL;
  * The class is designed as immutable, but not immutable because contains ClassLoader.
  *
  * @author snshor
- *
  */
 public final class UserContext extends AUserContext {
 
@@ -91,8 +90,8 @@ public final class UserContext extends AUserContext {
         IOpenLConfiguration configuration = configurations.get(name);
         if (configuration != null) {
             throw new OpenLConfigurationException(String.format("The configuration %s already exists", name),
-                null,
-                null);
+                    null,
+                    null);
         }
         configurations.put(name, oplc);
     }

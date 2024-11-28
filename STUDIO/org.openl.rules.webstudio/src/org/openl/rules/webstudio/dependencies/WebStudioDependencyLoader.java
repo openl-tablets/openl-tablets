@@ -24,8 +24,8 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     private final WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceRelatedDependencyManager;
 
     public WebStudioDependencyLoader(ProjectDescriptor project,
-            Module module,
-            WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
+                                     Module module,
+                                     WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
         super(project, module, false, dependencyManager);
         this.webStudioWorkspaceRelatedDependencyManager = dependencyManager;
     }
@@ -47,7 +47,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
             String message = String
-                .format("Failed to load dependent module '%s': %s", getDependency(), openLMessage.getSummary());
+                    .format("Failed to load dependent module '%s': %s", getDependency(), openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
@@ -56,8 +56,8 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
         try {
             return new CompiledDependency(getDependency(),
-                new CompiledOpenClass(NullOpenClass.the, messages),
-                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
+                    new CompiledOpenClass(NullOpenClass.the, messages),
+                    isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -67,7 +67,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         super.onCompilationComplete(dependencyLoader, compiledDependency);
         webStudioWorkspaceRelatedDependencyManager.fireOnCompilationCompleteListeners(dependencyLoader,
-            compiledDependency);
+                compiledDependency);
     }
 
     @Override
@@ -80,7 +80,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     protected CompiledDependency compileDependency() throws OpenLCompilationException {
         try {
             LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(
-                ((WebStudioWorkspaceRelatedDependencyManager) getDependencyManager()).isCanUnload());
+                    ((WebStudioWorkspaceRelatedDependencyManager) getDependencyManager()).isCanUnload());
             WorkbookLoaders.setCurrentFactory(factory);
             return super.compileDependency();
         } finally {

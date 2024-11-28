@@ -73,19 +73,19 @@
                          -->
                             <div class="field-description">
                                 <p class="user-mode-demo">An internal user database with a predefined list of users will be used. All changes in the database will be lost after the application restart. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder.</p>
-                                <p class="user-mode-single">Only the currently logged in user can run OpenL Tablets WebStudio. All user projects will be located in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
-                                <p class="user-mode-multi">Multiple users can run OpenL Tablets WebStudio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed in OpenL Tablets WebStudio.</p>
-                                <p class="user-mode-ad">Multiple users can run OpenL Tablets WebStudio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
-                                <p class="user-mode-cas">Multiple users can run OpenL Tablets WebStudio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Central Authentication Service (CAS)server will be used to authenticate and manage user credentials.</p>
-                                <p class="user-mode-saml">Multiple users can run OpenL Tablets WebStudio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Security Assertion Markup Language (SAML)supporting identity provider server will be used to authenticate and manage user credentials.</p>
-                                <p class="user-mode-oauth2">Multiple users can run OpenL Tablets WebStudio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Open Authorization (OAuth2) supporting identity provider server will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-single">Only the currently logged in user can run OpenL Studio. All user projects will be located in the root of the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace' directory.</p>
+                                <p class="user-mode-multi">Multiple users can run OpenL Studio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. User credentials are managed in OpenL Studio.</p>
+                                <p class="user-mode-ad">Multiple users can run OpenL Studio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. Active Directory will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-cas">Multiple users can run OpenL Studio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Central Authentication Service (CAS)server will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-saml">Multiple users can run OpenL Studio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Security Assertion Markup Language (SAML)supporting identity provider server will be used to authenticate and manage user credentials.</p>
+                                <p class="user-mode-oauth2">Multiple users can run OpenL Studio using their unique user names. User projects will be located in the '#{installWizard.workingDir}#{installWizard.folderSeparator}user-workspace#{installWizard.folderSeparator}USERNAME' folder. The Open Authorization (OAuth2) supporting identity provider server will be used to authenticate and manage user credentials.</p>
                             </div>
                         </div>
                     </div>
                     <div class="wizard-block" id="adBlock">
                         <h3>Configure Active Directory:
                             <div class="field-description">
-                                <p>Set up an Active Directory to use for managing users in OpenL Tablets WebStudio.<br/>
+                                <p>Set up an Active Directory to use for managing users in OpenL Studio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -182,7 +182,7 @@
                     <div class="wizard-block" id="casBlock">
                         <h3>Configure CAS:
                             <div class="field-description">
-                                <p>Set up a CAS to use for managing users in OpenL Tablets WebStudio.<br/>
+                                <p>Set up a CAS to use for managing users in OpenL Studio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -198,7 +198,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">WebStudio server URL:</label></td>
+                                    <td><label class="required">OpenL Studio server URL:</label></td>
                                     <td>
                                         <h:inputText id="casWebStudioUrl"
                                                      value="#{installWizard.casSettings.webStudioUrl}" size="40"
@@ -254,7 +254,7 @@
                     <div class="wizard-block" id="samlBlock">
                         <h3>Configure SAML:
                             <div class="field-description">
-                                <p>Set up SAML to use for managing users in OpenL Tablets WebStudio.<br/>
+                                <p>Set up SAML to use for managing users in OpenL Studio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>
@@ -344,7 +344,7 @@
                     <div class="wizard-block" id="oauth2Block">
                         <h3>Configure OAuth2:
                             <div class="field-description">
-                                <p>Set up OAuth2 to manage users in OpenL Tablets WebStudio.<br/>
+                                <p>Set up OAuth2 to manage users in OpenL Studio.<br/>
                                     If necessary, contact your system administrator.</p>
                             </div>
                         </h3>
@@ -443,7 +443,7 @@
                     <div class="wizard-block" id="internalGroupsBlock">
                         <h3>Configure initial users:
                             <div class="field-description">
-                                <p>Add a list of comma-separated users with administrator privileges and decide whether to grant view access for OpenL Tablets WebStudio to the newly created users.</p>
+                                <p>Add a list of comma-separated users with administrator privileges and decide whether to grant view access for OpenL Studio to the newly created users.</p>
                             </div>
                         </h3>
                         <div>
@@ -478,7 +478,7 @@
                     <div class="wizard-block" id="dbBlock">
                         <h3>Configure database:
                             <div class="field-description">
-                                <p>Set up a database to be used for managing users in OpenL Tablets WebStudio.<br/>
+                                <p>Set up a database to be used for managing users in OpenL Studio.<br/>
                                     Please contact your System Administrator for this information if necessary.</p>
                             </div>
                         </h3>

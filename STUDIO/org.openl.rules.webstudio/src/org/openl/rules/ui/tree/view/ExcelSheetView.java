@@ -1,6 +1,11 @@
 package org.openl.rules.ui.tree.view;
 
-import org.openl.rules.ui.tree.*;
+import org.openl.rules.ui.tree.BaseTableTreeNodeBuilder;
+import org.openl.rules.ui.tree.OpenMethodInstancesGroupTreeNodeBuilder;
+import org.openl.rules.ui.tree.TableInstanceTreeNodeBuilder;
+import org.openl.rules.ui.tree.TableVersionTreeNodeBuilder;
+import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 
 public class ExcelSheetView extends ExcelSheetProfile implements RulesTreeView {
 
@@ -8,7 +13,7 @@ public class ExcelSheetView extends ExcelSheetProfile implements RulesTreeView {
             new WorksheetTreeNodeBuilder(),
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
-            new TableVersionTreeNodeBuilder() };
+            new TableVersionTreeNodeBuilder()};
 
     @Override
     @SuppressWarnings("unchecked")

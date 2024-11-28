@@ -15,7 +15,6 @@ import org.openl.types.IOpenMethod;
  * Builds dispatcher decision table for each {@link MatchingOpenMethodDispatcher} in ModuleOpenClass.
  *
  * @author DLiauchuk
- *
  */
 public class DispatcherTablesBuilder {
 
@@ -55,8 +54,8 @@ public class DispatcherTablesBuilder {
 
     public void build(MatchingOpenMethodDispatcher dispatcher) {
         TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(rulesModuleBindingContext,
-            moduleOpenClass,
-            dispatcher).build();
+                moduleOpenClass,
+                dispatcher).build();
         if (tsn != null) {
             XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
             xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);

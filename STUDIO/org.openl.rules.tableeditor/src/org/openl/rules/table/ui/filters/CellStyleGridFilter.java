@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ui.CellStyle;
 import org.openl.rules.table.ui.ICellStyle;
@@ -50,7 +51,7 @@ public class CellStyleGridFilter extends AGridFilter {
 
     public CellStyleGridFilter createUpperRowBorderFilter() {
         IGridSelector upperRowSelector = (col,
-                row) -> getGridSelector().selectCoords(col, row + 1) && !getGridSelector().selectCoords(col, row);
+                                          row) -> getGridSelector().selectCoords(col, row + 1) && !getGridSelector().selectCoords(col, row);
 
         BorderStyle[] bottomBorderStyle = new BorderStyle[4];
         bottomBorderStyle[ICellStyle.BOTTOM] = BorderStyle.NONE;
@@ -59,14 +60,14 @@ public class CellStyleGridFilter extends AGridFilter {
         bottomRGB[ICellStyle.BOTTOM] = borderRGB[ICellStyle.TOP];
 
         return new Builder().setSelector(upperRowSelector)
-            .setBorderStyle(bottomBorderStyle)
-            .setBorderRGB(bottomRGB)
-            .build();
+                .setBorderStyle(bottomBorderStyle)
+                .setBorderRGB(bottomRGB)
+                .build();
     }
 
     public CellStyleGridFilter createLefterColumnBorderFilter() {
         IGridSelector upperRowSelector = (col,
-                row) -> getGridSelector().selectCoords(col + 1, row) && !getGridSelector().selectCoords(col, row);
+                                          row) -> getGridSelector().selectCoords(col + 1, row) && !getGridSelector().selectCoords(col, row);
 
         BorderStyle[] bottomBorderStyle = new BorderStyle[4];
         bottomBorderStyle[ICellStyle.RIGHT] = BorderStyle.NONE;
@@ -75,9 +76,9 @@ public class CellStyleGridFilter extends AGridFilter {
         bottomRGB[ICellStyle.RIGHT] = borderRGB[ICellStyle.LEFT];
 
         return new Builder().setSelector(upperRowSelector)
-            .setBorderStyle(bottomBorderStyle)
-            .setBorderRGB(bottomRGB)
-            .build();
+                .setBorderStyle(bottomBorderStyle)
+                .setBorderRGB(bottomRGB)
+                .build();
     }
 
     public static class Builder {

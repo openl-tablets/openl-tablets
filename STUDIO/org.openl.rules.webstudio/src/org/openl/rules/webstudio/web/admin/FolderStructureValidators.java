@@ -1,12 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.IOException;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.util.SystemReader;
+
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;

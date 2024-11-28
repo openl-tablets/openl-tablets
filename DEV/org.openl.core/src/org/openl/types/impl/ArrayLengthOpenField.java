@@ -15,7 +15,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public abstract class ArrayLengthOpenField implements IOpenField {
     @Override

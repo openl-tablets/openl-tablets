@@ -13,9 +13,9 @@ import org.openl.vm.Tracer;
 public final class ServiceMT {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
-        new WorkerThreadFactory(),
-        null,
-        false);
+            new WorkerThreadFactory(),
+            null,
+            false);
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
@@ -32,8 +32,8 @@ public final class ServiceMT {
         }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         RunnableRecursiveAction action = new RunnableRecursiveAction(runnable,
-            simpleRulesRuntimeEnv,
-            Thread.currentThread().getContextClassLoader());
+                simpleRulesRuntimeEnv,
+                Thread.currentThread().getContextClassLoader());
         simpleRulesRuntimeEnv.pushAction(action);
         if (simpleRulesRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
             action.fork();

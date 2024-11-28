@@ -1,10 +1,15 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Domain;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 
 //
 //: DomainImpl.java
 //
+
 /**
  * An implementation of the Domain interface that supports plain domain. This implementation keeps only min/max values.
  *
@@ -84,7 +89,7 @@ public class DomainImpl implements Domain {
 
     /**
      * Does nothing
-     *
+     * <p>
      * added by SV 20.01.03
      *
      * @param min

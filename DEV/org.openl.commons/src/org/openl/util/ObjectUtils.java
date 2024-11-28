@@ -14,9 +14,9 @@ public class ObjectUtils {
 
     /**
      * Converts a string to the value of the given type.
-     * 
+     *
      * @param value an input string for conversion to an object value.
-     * @param type a type of the result.
+     * @param type  a type of the result.
      * @return an object value of the given type.
      */
     public static Object convert(String value, Class<?> type) {
@@ -53,15 +53,15 @@ public class ObjectUtils {
                             return constructor.newInstance(value);
                         } catch (NoSuchMethodException e2) {
                             throw new IllegalArgumentException(String.format(
-                                "Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.",
-                                type.getTypeName()), e2);
+                                    "Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.",
+                                    type.getTypeName()), e2);
                         }
                     }
                 }
             } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                 throw new IllegalArgumentException(
-                    String.format("Cannot convert '%s' string to '%s' type", value, type.getTypeName()),
-                    e);
+                        String.format("Cannot convert '%s' string to '%s' type", value, type.getTypeName()),
+                        e);
             }
         }
     }

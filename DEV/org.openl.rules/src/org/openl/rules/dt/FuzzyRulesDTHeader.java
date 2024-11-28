@@ -1,10 +1,11 @@
 package org.openl.rules.dt;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 
 public class FuzzyRulesDTHeader extends DTHeader {
-    private static final int[] EMPTY_INDEXES = new int[] {};
+    private static final int[] EMPTY_INDEXES = new int[]{};
 
     private final String title;
     private final FuzzyResult fuzzyResult;

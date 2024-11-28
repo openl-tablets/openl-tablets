@@ -7,13 +7,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE)

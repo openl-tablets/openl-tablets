@@ -1,9 +1,11 @@
 package org.openl.types.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.types.java.JavaOpenClass;
 
 public class ParametersDeclarationTest {
@@ -12,7 +14,7 @@ public class ParametersDeclarationTest {
     ParameterDeclaration paramDecl2;
     ParameterDeclaration paramDecl3;
 
-    @Before
+    @BeforeEach
     public void init() {
         String name1 = "paramDeclaration1";
         String name2 = "paramDeclaration3";

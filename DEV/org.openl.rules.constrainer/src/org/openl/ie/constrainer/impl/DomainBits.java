@@ -2,7 +2,11 @@ package org.openl.ie.constrainer.impl;
 
 import java.util.Arrays;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Domain;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -21,6 +25,7 @@ import org.openl.ie.constrainer.*;
 //
 //: DomainBits.java
 //
+
 /**
  * An implementation of the Domain interface as a bit field.
  *
@@ -136,7 +141,7 @@ public final class DomainBits extends DomainImpl {
 
     String printIntervals() {
         StringBuilder buf = new StringBuilder();
-        for (int i = _min; i <= _max;) {
+        for (int i = _min; i <= _max; ) {
             if (i != _min) {
                 buf.append(" ");
             }
@@ -325,7 +330,7 @@ public final class DomainBits extends DomainImpl {
         }
         boolean sample = _bits[i - _initial_min];
 
-        for (int j = i;; ++j) {
+        for (int j = i; ; ++j) {
             if (j > _max || _bits[j - _initial_min] != sample) {
                 return j;
             }

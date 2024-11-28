@@ -6,7 +6,6 @@ import org.openl.rules.diff.hierarchy.Projection;
  * Element in a Diff Tree that corresponds to particular comparing data.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface DiffElement {
     /**

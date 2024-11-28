@@ -22,8 +22,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.util.ParserUtils;
-import org.openl.util.TableNameChecker;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.FieldMetaInfo;
@@ -31,7 +29,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.TableNameChecker;
 
 public class ConstantsTableBoundNode implements IMemberBoundNode {
 
@@ -43,9 +43,9 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
     ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
-            XlsModuleOpenClass moduleOpenClass,
-            ILogicalTable table,
-            OpenL openl) {
+                            XlsModuleOpenClass moduleOpenClass,
+                            ILogicalTable table,
+                            OpenL openl) {
         this.tableSyntaxNode = syntaxNode;
         this.moduleOpenClass = moduleOpenClass;
         this.table = table;
@@ -137,7 +137,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                         objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                     }
                 } catch (RuntimeException e) {
-                String message = String.format("Cannot parse cell value '%s'.", value);
+                    String message = String.format("Cannot parse cell value '%s'.", value);
                     BindHelper.processError(message, e, defaultValueSrc, cxt);
                 }
             }
@@ -145,16 +145,16 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
         try {
             FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
-                constantName,
-                tableSyntaxNode,
-                tableSyntaxNode.getUri());
+                    constantName,
+                    tableSyntaxNode,
+                    tableSyntaxNode.getUri());
 
             ConstantOpenField constantField = new ConstantOpenField(constantName,
-                objectValue,
-                value,
-                constantType,
-                moduleOpenClass,
-                fieldMetaInfo);
+                    objectValue,
+                    value,
+                    constantType,
+                    moduleOpenClass,
+                    fieldMetaInfo);
 
             moduleOpenClass.addField(constantField);
 

@@ -357,8 +357,8 @@
             $j('#groupsTable').trigger('refresh');
 
 
-            $j("#privilegesTable input[name=group]").live("change", function (e) {
-                var role = $j(e.target).val();
+            $j(document).on("change", "#privilegesTable input[name=group]", function (e) {
+                var role = $j(this).val();
                 if (this.checked) {
                     checkPrivilegesByGroup(role);
                 } else {
@@ -366,10 +366,10 @@
                 }
             });
 
-            $j("#privilegesTable input[name=privilege]").live("change", function (e) {
+            $j(document).on("change", "#privilegesTable input[name=privilege]", function (e) {
                 if (!this.checked) {
-                    var privilege = $j(e.target).val();
-                    // deselect group contains given privelege
+                    var privilege = $j(this).val(); // Using 'this' for direct element access
+                    // Deselect group contains given privilege
                     $j("input[name=group]:checked").each(function () {
                         var role = $j(this).val();
                         if ($j.inArray(privilege, groups[role].allPrivileges) !== -1) {

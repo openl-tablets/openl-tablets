@@ -37,7 +37,7 @@ try {
     })
 
     assert parentProjectZips.length == 2
-    def rulesArchive = parentProjectZips.find{ it.name == "openl-parent-project-0.0.0-deployment.zip"}
+    def rulesArchive = parentProjectZips.find { it.name == "openl-parent-project-0.0.0-deployment.zip" }
     assert rulesArchive != null
 
     new ZipFile(rulesArchive).withCloseable { closeable ->
@@ -58,7 +58,7 @@ try {
         assert zf.entries().findAll { !it.directory }.size() == 9
     }
 
-    rulesArchive = parentProjectZips.find{ it.name == "openl-parent-project-0.0.0.zip"}
+    rulesArchive = parentProjectZips.find { it.name == "openl-parent-project-0.0.0.zip" }
     assert rulesArchive != null
 
     new ZipFile(rulesArchive).withCloseable { closeable ->
@@ -82,7 +82,7 @@ try {
     assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-parent-project\' artifact') }
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

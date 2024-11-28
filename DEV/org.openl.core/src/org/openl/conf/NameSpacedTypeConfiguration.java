@@ -16,7 +16,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class NameSpacedTypeConfiguration extends AConfigurationElement {
 

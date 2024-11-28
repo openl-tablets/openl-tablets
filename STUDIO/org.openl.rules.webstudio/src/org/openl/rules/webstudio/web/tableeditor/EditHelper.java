@@ -2,14 +2,15 @@ package org.openl.rules.webstudio.web.tableeditor;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class EditHelper {
 
@@ -17,12 +18,12 @@ public final class EditHelper {
     }
 
     public static boolean updateSystemProperties(IOpenLTable table,
-            TableEditorModel tableEditorModel,
-            String userMode) {
+                                                 TableEditorModel tableEditorModel,
+                                                 String userMode) {
         boolean result = true;
         if (table.isCanContainProperties()) {
             List<TablePropertyDefinition> systemPropertiesDefinitions = TablePropertyDefinitionUtils
-                .getSystemProperties();
+                    .getSystemProperties();
             for (TablePropertyDefinition systemProperty : systemPropertiesDefinitions) {
                 result = updateSystemValue(tableEditorModel, systemProperty, userMode);
             }
@@ -31,8 +32,8 @@ public final class EditHelper {
     }
 
     private static boolean updateSystemValue(TableEditorModel editorModel,
-            TablePropertyDefinition systemProperty,
-            String userMode) {
+                                             TablePropertyDefinition systemProperty,
+                                             String userMode) {
         final Logger log = LoggerFactory.getLogger(EditHelper.class);
         boolean result = false;
         String systemValueDescriptor = systemProperty.getSystemValueDescriptor();
@@ -51,8 +52,8 @@ public final class EditHelper {
                     }
                 } catch (Exception e) {
                     String message = String.format("Cannot update system property '%s' with value '%s'",
-                        systemProperty.getName(),
-                        systemValue);
+                            systemProperty.getName(),
+                            systemValue);
                     log.error(message, e);
                     throw new IllegalStateException(message, e);
                 }

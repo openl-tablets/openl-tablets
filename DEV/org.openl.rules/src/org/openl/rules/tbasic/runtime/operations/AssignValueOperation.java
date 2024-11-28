@@ -11,7 +11,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  * The <code>AssignValueOperation</code> class describes operation which creates new variable.
  *
  * @author User
- *
  */
 public class AssignValueOperation extends RuntimeOperation {
 

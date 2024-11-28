@@ -3,12 +3,18 @@ package org.openl.rules.repository.db;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang3.text.StrSubstitutor;
-import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.IOUtils;
 
 final class Settings {
     private final Logger log = LoggerFactory.getLogger(Settings.class);

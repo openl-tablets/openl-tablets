@@ -8,6 +8,7 @@ import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
 import org.activiti.engine.repository.ProcessDefinition;
+
 import org.openl.rules.activiti.util.ReflectionUtils;
 import org.openl.rules.activiti.util.ResourceUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -64,16 +65,16 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
         ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
 
         File projectWorkspace = ResourceUtils.prepareDeploymentOpenLResource(processDefinition.getDeploymentId(),
-            resourceValue);
+                resourceValue);
 
         boolean isProvideRuntimeContext = isProvideRuntimeContext(execution);
 
         SimpleProjectEngineFactoryBuilder<T> simpleProjectEngineFactoryBuilder =
                 new SimpleProjectEngineFactoryBuilder<T>()
-                    .setExecutionMode(true)
-                    .setProject(projectWorkspace.getCanonicalPath())
-                    .setWorkspace(projectWorkspace.getCanonicalPath())
-                    .setProvideRuntimeContext(isProvideRuntimeContext);
+                        .setExecutionMode(true)
+                        .setProject(projectWorkspace.getCanonicalPath())
+                        .setWorkspace(projectWorkspace.getCanonicalPath())
+                        .setProvideRuntimeContext(isProvideRuntimeContext);
 
         if (interfaceClass != null && interfaceClass != Object.class) {
             simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);

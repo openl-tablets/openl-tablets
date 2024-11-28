@@ -94,23 +94,23 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         if (boundNodesCount != n) {
-            return new IBoundNode[] { makeErrorNode("Cannot bind a node.", parentNode, bindingContext) };
+            return new IBoundNode[]{makeErrorNode("Cannot bind a node.", parentNode, bindingContext)};
         }
 
         return children;
     }
 
     public static IBoundNode[] bindTypeChildren(ISyntaxNode parentNode,
-            IBindingContext bindingContext,
-            IOpenClass type) {
+                                                IBindingContext bindingContext,
+                                                IOpenClass type) {
         return bindTypeChildren(parentNode, bindingContext, type, 0, parentNode.getNumberOfChildren());
     }
 
     public static IBoundNode[] bindTypeChildren(ISyntaxNode parentNode,
-            IBindingContext bindingContext,
-            IOpenClass type,
-            int from,
-            int to) {
+                                                IBindingContext bindingContext,
+                                                IOpenClass type,
+                                                int from,
+                                                int to) {
 
         int n = to - from;
 
@@ -151,8 +151,8 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     private static IBoundNode convertType(IBoundNode node,
-            IBindingContext bindingContext,
-            IOpenClass type) throws TypeCastException {
+                                          IBindingContext bindingContext,
+                                          IOpenClass type) throws TypeCastException {
 
         IOpenCast cast = getCast(node, type, bindingContext);
 
@@ -164,15 +164,15 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IOpenCast getCast(IBoundNode node,
-            IOpenClass to,
-            IBindingContext bindingContext) throws TypeCastException {
+                                    IOpenClass to,
+                                    IBindingContext bindingContext) throws TypeCastException {
         return getCast(node, to, bindingContext, true);
     }
 
     public static IOpenCast getCast(IBoundNode node,
-            IOpenClass to,
-            IBindingContext bindingContext,
-            boolean implicitOnly) throws TypeCastException {
+                                    IOpenClass to,
+                                    IBindingContext bindingContext,
+                                    boolean implicitOnly) throws TypeCastException {
         IOpenClass from = node.getType();
 
         if (from == null) {
@@ -214,7 +214,7 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     protected static IOpenClass getType(ISyntaxNode node,
-            IBindingContext bindingContext) throws ClassNotFoundException {
+                                        IBindingContext bindingContext) throws ClassNotFoundException {
         if ("type.name".equals(node.getType())) {
             String typeName = node.getText();
             IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
@@ -233,8 +233,8 @@ public abstract class ANodeBinder implements INodeBinder {
                 if (typesToCombine[i] == null) {
                     allTypesFound = false;
                     BindHelper.processError(new ClassNotFoundException(MessageUtils.getTypeNotFoundMessage(typeName)),
-                        childNode,
-                        bindingContext);
+                            childNode,
+                            bindingContext);
                 } else {
                     BindHelper.checkOnDeprecation(childNode, bindingContext, typesToCombine[i]);
                 }
@@ -262,8 +262,8 @@ public abstract class ANodeBinder implements INodeBinder {
      */
     @Override
     public IBoundNode bindTarget(ISyntaxNode node,
-            IBindingContext bindingContext,
-            IBoundNode targetNode) throws Exception {
+                                 IBindingContext bindingContext,
+                                 IBoundNode targetNode) throws Exception {
         return makeErrorNode("This node does not support target binding.", node, bindingContext);
     }
 

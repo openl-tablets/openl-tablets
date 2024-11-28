@@ -5,7 +5,6 @@ package org.openl.rules.ruleservice.core;
  * instantiated objects from ServiceDescriptions.
  *
  * @author Marat Kamalov
- *
  */
 public interface RuleServiceInstantiationFactory {
 

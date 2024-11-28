@@ -18,7 +18,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
 

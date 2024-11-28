@@ -21,10 +21,10 @@ public class SetBorderStyleAction extends AUndoableCellAction {
     }
 
     public SetBorderStyleAction(int col,
-            int row,
-            ICellStyle newCellStyle,
-            boolean clearCell,
-            MetaInfoWriter metaInfoWriter) {
+                                int row,
+                                ICellStyle newCellStyle,
+                                boolean clearCell,
+                                MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);
         this.col = col;
         this.row = row;

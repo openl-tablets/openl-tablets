@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -18,9 +19,27 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
-import org.openl.rules.table.*;
-import org.openl.rules.table.actions.*;
+import org.openl.rules.table.CellKey;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.GridTool;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
+import org.openl.rules.table.actions.IUndoableAction;
+import org.openl.rules.table.actions.IUndoableGridTableAction;
+import org.openl.rules.table.actions.UndoableActions;
+import org.openl.rules.table.actions.UndoableCompositeAction;
+import org.openl.rules.table.actions.UndoableEditTableAction;
+import org.openl.rules.table.actions.UndoableInsertColumnsAction;
+import org.openl.rules.table.actions.UndoableInsertRowsAction;
+import org.openl.rules.table.actions.UndoableRemoveMergedColumnsAction;
+import org.openl.rules.table.actions.UndoableRemoveMergedRowsAction;
+import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.actions.style.SetAlignmentAction;
 import org.openl.rules.table.actions.style.SetFillColorAction;
 import org.openl.rules.table.actions.style.SetIndentAction;
@@ -124,18 +143,18 @@ public class TableEditorModel {
 
     public synchronized void insertColumns(int nCols, int beforeCol, int row) {
         IUndoableGridTableAction insertColumnsAction = new UndoableInsertColumnsAction(nCols,
-            beforeCol,
-            row,
-            getMetaInfoWriter());
+                beforeCol,
+                row,
+                getMetaInfoWriter());
         insertColumnsAction.doAction(gridTable);
         actions.addNewAction(insertColumnsAction);
     }
 
     public synchronized void insertRows(int nRows, int beforeRow, int col) {
         IUndoableGridTableAction insertRowsAction = new UndoableInsertRowsAction(nRows,
-            beforeRow,
-            col,
-            getMetaInfoWriter());
+                beforeRow,
+                col,
+                getMetaInfoWriter());
         insertRowsAction.doAction(gridTable);
         actions.addNewAction(insertRowsAction);
     }
@@ -147,26 +166,26 @@ public class TableEditorModel {
     }
 
     public synchronized void removeRows(int nRows, int startRow, int col) {
-        IUndoableGridTableAction removeRowsAction = new UndoableRemoveRowsAction(nRows,
-            startRow,
-            col,
-            getMetaInfoWriter());
+        IUndoableGridTableAction removeRowsAction = new UndoableRemoveMergedRowsAction(nRows,
+                startRow,
+                col,
+                getMetaInfoWriter());
         removeRowsAction.doAction(gridTable);
         actions.addNewAction(removeRowsAction);
     }
 
     public synchronized void removeColumns(int nCols, int startCol, int row) {
-        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveColumnsAction(nCols,
-            startCol,
-            row,
-            getMetaInfoWriter());
+        IUndoableGridTableAction removeColumnsAction = new UndoableRemoveMergedColumnsAction(nCols,
+                startCol,
+                row,
+                getMetaInfoWriter());
         removeColumnsAction.doAction(gridTable);
         actions.addNewAction(removeColumnsAction);
     }
 
     /**
      * @return New table id on the sheet where it was saved. It is needed for tables that were moved to new place during
-     *         adding new rows and columns on editing. We need to know new destination of the table.
+     * adding new rows and columns on editing. We need to know new destination of the table.
      */
     public synchronized String save() throws IOException {
         XlsSheetGridModel xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
@@ -266,26 +285,26 @@ public class TableEditorModel {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }
             if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1) || !UndoableInsertColumnsAction
-                .canInsertColumns(gridTable, nColsToInsert)) {
+                    .canInsertColumns(gridTable, nColsToInsert)) {
                 createdActions.add(UndoableEditTableAction.moveTable(fullTable, metaInfoWriter));
             }
             GridRegionAction allTable = new GridRegionAction(fullTableRegion,
-                UndoableEditTableAction.ROWS,
-                UndoableEditTableAction.INSERT,
-                ActionType.EXPAND,
-                1);
+                    UndoableEditTableAction.ROWS,
+                    UndoableEditTableAction.INSERT,
+                    ActionType.EXPAND,
+                    1);
             allTable.doAction(gridTable);
             createdActions.add(allTable);
             if (isBusinessView()) {
                 GridRegionAction displayedTable = new GridRegionAction(gridTable
-                    .getRegion(), UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
+                        .getRegion(), UndoableEditTableAction.ROWS, UndoableEditTableAction.INSERT, ActionType.MOVE, 1);
                 displayedTable.doAction(gridTable);
                 createdActions.add(displayedTable);
             }
         }
 
         IUndoableGridTableAction action = GridTool
-            .insertProp(fullTableRegion, gridTable.getGrid(), name, value, metaInfoWriter);
+                .insertProp(fullTableRegion, gridTable.getGrid(), name, value, metaInfoWriter);
         if (action != null) {
             action.doAction(gridTable);
             createdActions.add(action);
@@ -344,9 +363,9 @@ public class TableEditorModel {
     public synchronized void setAlignment(int row, int col, HorizontalAlignment alignment) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetAlignmentAction(region.getLeft() + col,
-            region.getTop() + row,
-            alignment,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                alignment,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -354,9 +373,9 @@ public class TableEditorModel {
     public synchronized void setIndent(int row, int col, int indent) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetIndentAction(region.getLeft() + col,
-            region.getTop() + row,
-            indent,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                indent,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -364,9 +383,9 @@ public class TableEditorModel {
     public synchronized void setFillColor(int row, int col, short[] color) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetFillColorAction(region.getLeft() + col,
-            region.getTop() + row,
-            color,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                color,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -374,9 +393,9 @@ public class TableEditorModel {
     public synchronized void setFontBold(int row, int col, boolean bold) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetBoldAction(region.getLeft() + col,
-            region.getTop() + row,
-            bold,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                bold,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -384,9 +403,9 @@ public class TableEditorModel {
     public synchronized void setFontItalic(int row, int col, boolean italic) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetItalicAction(region.getLeft() + col,
-            region.getTop() + row,
-            italic,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                italic,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -394,9 +413,9 @@ public class TableEditorModel {
     public synchronized void setFontUnderline(int row, int col, boolean underlined) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetUnderlineAction(region.getLeft() + col,
-            region.getTop() + row,
-            underlined,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                underlined,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }
@@ -404,9 +423,9 @@ public class TableEditorModel {
     public synchronized void setFontColor(int row, int col, short[] color) {
         IGridRegion region = getOriginalTableRegion();
         IUndoableGridTableAction ua = new SetColorAction(region.getLeft() + col,
-            region.getTop() + row,
-            color,
-            getMetaInfoWriter());
+                region.getTop() + row,
+                color,
+                getMetaInfoWriter());
         ua.doAction(gridTable);
         actions.addNewAction(ua);
     }

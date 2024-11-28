@@ -10,7 +10,6 @@ import org.openl.base.INamedThing;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenMember extends INamedThing {
     IOpenClass getType();

@@ -13,6 +13,7 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
@@ -31,43 +32,49 @@ import org.openl.util.text.TextInfo;
  *
  * @author PUdalau
  */
-public abstract class AExecutableNodeBinder extends AXlsTableBinder {
+public abstract class AExecutableNodeBinder<T extends IMemberBoundNode> extends AXlsTableBinder {
 
     @Override
-    public IMemberBoundNode preBind(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass module) throws Exception {
+    public T preBind(TableSyntaxNode tableSyntaxNode,
+                                    OpenL openl,
+                                    RulesModuleBindingContext bindingContext,
+                                    XlsModuleOpenClass module) throws Exception {
 
         OpenMethodHeader header = createHeader(tableSyntaxNode, openl, bindingContext);
         header.setDeclaringClass(module);
 
         checkForDuplicates(tableSyntaxNode, bindingContext, header);
 
-        return createNode(tableSyntaxNode, openl, header, module);
+        T node = createNode(tableSyntaxNode, openl, header, module, bindingContext);
+        if (!bindingContext.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(createMetaInfoReader(node));
+        }
+        return node;
     }
 
+    protected abstract MetaInfoReader createMetaInfoReader(T node);
+
     public IOpenSourceCodeModule createHeaderSource(TableSyntaxNode tableSyntaxNode,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+                                                    IBindingContext bindingContext) throws SyntaxNodeException {
         IGridTable table = tableSyntaxNode.getGridTable();
         IOpenSourceCodeModule source = new GridCellSourceCodeModule(table, bindingContext);
 
         return new SubTextSourceCodeModule(source,
-            tableSyntaxNode.getHeader()
-                .getHeaderToken()
-                .getSourceLocation()
-                .getEnd()
-                .getAbsolutePosition(new TextInfo(source.getCode())));
+                tableSyntaxNode.getHeader()
+                        .getHeaderToken()
+                        .getSourceLocation()
+                        .getEnd()
+                        .getAbsolutePosition(new TextInfo(source.getCode())));
     }
 
     public OpenMethodHeader createHeader(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
+                                         OpenL openl,
+                                         RulesModuleBindingContext bindingContext) throws SyntaxNodeException {
         try {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
             IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
             OpenMethodHeader methodHeader = (OpenMethodHeader) OpenLManager
-                .makeMethodHeader(openl, headerSource, bindingContext);
+                    .makeMethodHeader(openl, headerSource, bindingContext);
             if (methodHeader == null) {
                 throw SyntaxNodeExceptionUtils.createError("Invalid method header.", tableSyntaxNode);
             }
@@ -77,14 +84,15 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
     }
 
-    protected abstract IMemberBoundNode createNode(TableSyntaxNode tsn,
-            OpenL openl,
-            OpenMethodHeader header,
-            XlsModuleOpenClass module);
+    protected abstract T createNode(TableSyntaxNode tsn,
+                                    OpenL openl,
+                                    OpenMethodHeader header,
+                                    XlsModuleOpenClass module,
+                                    IBindingContext context);
 
     private void checkForDuplicates(TableSyntaxNode tableSyntaxNode,
-            RulesModuleBindingContext bindingContext,
-            OpenMethodHeader header) throws DuplicatedTableException {
+                                    RulesModuleBindingContext bindingContext,
+                                    OpenMethodHeader header) throws DuplicatedTableException {
 
         String key = makeKey(tableSyntaxNode, header);
 
@@ -99,9 +107,9 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
      * Makes table key.
      *
      * @param tableSyntaxNode table syntax node for key generation.
-     * @param header header for executable table syntax node with its signature
+     * @param header          header for executable table syntax node with its signature
      * @return key to check uniqueness of table syntax node(generated by table name, arguments types, dimensional
-     *         properties and version)
+     * properties and version)
      */
     private String makeKey(TableSyntaxNode tableSyntaxNode, OpenMethodHeader header) {
 

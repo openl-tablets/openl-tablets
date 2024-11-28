@@ -16,7 +16,7 @@ import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.types.IOpenField;
 
-public abstract class BaseExport {
+abstract class BaseExport {
     static final int FIRST_COLUMN = 1;
     static final int FIRST_ROW = 2;
     static final int SPACE_BETWEEN_RESULTS = 3;

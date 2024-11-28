@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of a {@link Goal} that sets the minimal value of the integer variable.
  */

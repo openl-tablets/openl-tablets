@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -15,13 +17,14 @@ package org.openl.ie.constrainer;
  */
 ///////////////////////////////////////////////////////////////////////////////
 //import java.util.Set;
+
 /**
  * An interface for the domain of the constrained integer variable. Domain is a set of the possible values of the
  * constrained variables.
  *
  * @see IntVar
  */
-public interface Domain extends java.io.Serializable {
+public interface Domain extends Serializable {
     /**
      * Returns a constrainer that owns this domain.
      */

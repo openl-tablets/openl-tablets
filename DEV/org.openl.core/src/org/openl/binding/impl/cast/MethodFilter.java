@@ -9,7 +9,7 @@ import org.openl.types.java.JavaOpenMethod;
  * with @{@link MethodSearchTuner} with non default implementation for method filter can add addition logic to the
  * method search algorithms to skip method matching with used method parameter types. For example, if we don't want to
  * link the method with empty varargs variables.
- *
+ * <p>
  * This filter removed the method from method search algorithms if predicate method return false.
  */
 public interface MethodFilter {

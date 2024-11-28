@@ -6,8 +6,8 @@ To run OpenL Tablets Rule Services with enabled OpenTelemetry, use the following
 
 ```bash
 docker run --rm -p 8080:8080 \
-    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4317 \
-    opentablets/ws
+    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://host.docker.internal:4318 \
+    openltablets/ws
 ```
 
 This minimal configuration allows logging both OpenL rules execution and default metrics, such as DB queries, HTTP networking, and Kafka messaging.
@@ -20,7 +20,7 @@ In this case, it is reasonable to disable tracing of OpenL rules execution by de
 
 ```bash
 docker run --rm -p 8080:8080 \
-    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://172.17.0.1:4317 \
+    -e OTEL_EXPORTER_OTLP_ENDPOINT=http://172.17.0.1:4318 \
     -e OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false \
-    opentablets/ws
+    openltablets/ws
 ```

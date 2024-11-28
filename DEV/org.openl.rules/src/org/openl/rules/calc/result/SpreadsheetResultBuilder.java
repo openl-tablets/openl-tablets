@@ -7,7 +7,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
  * Builder is used when return type of the spreadsheet table is {@link SpreadsheetResult}.
- *
  */
 public class SpreadsheetResultBuilder implements IResultBuilder {
 
@@ -18,13 +17,11 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
         final Spreadsheet spreadsheet = result.getSpreadsheet();
 
         SpreadsheetResult spreadsheetResult = new SpreadsheetResult(resultValues,
-            spreadsheet.getRowNames(),
-            spreadsheet.getColumnNames(),
-            spreadsheet.getRowNamesForResultModel(),
-            spreadsheet.getColumnNamesForResultModel(),
-            spreadsheet.getFieldsCoordinates());
-
-        spreadsheetResult.setTableStructureDetails(spreadsheet.isTableStructureDetails());
+                spreadsheet.getRowNames(),
+                spreadsheet.getColumnNames(),
+                spreadsheet.getRowNamesForResultModel(),
+                spreadsheet.getColumnNamesForResultModel(),
+                spreadsheet.getFieldsCoordinates());
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
         if (tsn != null) {

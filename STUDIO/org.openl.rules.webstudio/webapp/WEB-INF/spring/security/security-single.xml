@@ -49,14 +49,7 @@
     </bean>
 
     <!-- Allow unrestricted access  -->
-    <bean id="accessDecisionManager" class="org.springframework.security.access.AccessDecisionManager">
-        <lookup-method name="decide" bean="voidValue"/>
-        <lookup-method name="supports" bean="trueValue"/>
-    </bean>
-    <bean id="voidValue" class="java.lang.Void"/>
-    <bean id="trueValue" class="java.lang.Boolean" factory-method="valueOf">
-        <constructor-arg value="true"/>
-    </bean>
+    <bean id="accessDecisionManager" class="org.openl.rules.webstudio.AlwaysGrantAccessDecisionManager"/>
 
     <bean id="securityMetadataSource"
           class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
@@ -67,15 +60,6 @@
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource" ref="securityMetadataSource"/>
     </bean>
-
-    <bean name="designRepositoryAclService"
-          class="org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl"/>
-
-    <bean name="deployConfigRepositoryAclService"
-          class="org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl"/>
-
-    <bean name="productionRepositoryAclService"
-          class="org.openl.security.acl.repository.DisabledSimpleRepositoryAclServiceImpl"/>
 
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg value="/"/>

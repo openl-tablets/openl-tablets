@@ -11,7 +11,6 @@ import org.openl.runtime.IRuntimeContext;
 
 /**
  * @author snshor
- *
  */
 public interface IRuntimeEnv {
     Object[] getLocalFrame();

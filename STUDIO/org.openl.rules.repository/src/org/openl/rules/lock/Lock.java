@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.PropertiesUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Shareable, file based locking system.
@@ -60,9 +60,9 @@ public class Lock {
             }
         } catch (Exception e) {
             LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
-                lockPath,
-                e.getClass().getName(),
-                e.getMessage());
+                    lockPath,
+                    e.getClass().getName(),
+                    e.getMessage());
         } finally {
             if (!lockAcquired) {
                 // Delete because of it loos lock
@@ -210,14 +210,14 @@ public class Lock {
                 Path anotherName = file.toPath().getFileName();
                 FileTime another = Files.getLastModifiedTime(file.toPath());
                 if (current.compareTo(
-                    another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
+                        another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
                     return false;
                 }
             }
         } catch (IOException e) {
             return false;
         }
-        Files.move(lock, lockPath.resolve(READY_LOCK));
+        Files.move(lock, lockPath.resolve(READY_LOCK)); // FIXME: sometimes it pass incorrectly
         return true;
     }
 

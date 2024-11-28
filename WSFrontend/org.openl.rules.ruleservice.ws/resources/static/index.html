@@ -5,18 +5,23 @@
     <title>OpenL Tablets Rule Services</title>
     <script type="text/javascript">
         var path = location.pathname;
-        if (path.lastIndexOf('/') !== (path.length - 1)) { /* endWith does not work under IE 10 */
+        if (!path.endsWith('/') && !path.endsWith(".html")) {
             document.write("<base href='" + path + "/' />");
             history.replaceState(null, null, path + '/');
         }
     </script>
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+
+    <link rel="icon" href="favicon.ico?v=service" sizes="48x48"/>
+    <link rel="icon" href="favicon.svg?v=service" sizes="any" type="image/svg+xml"/>
+    <link rel="apple-touch-icon" href="apple-touch-icon.png?v=service"/>
+    <link rel="manifest" href="site.webmanifest?v=service"/>
+
     <style>
         body {
             margin: 0;
             color: #444;
             font-family: verdana, helvetica, arial, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         h2 {
@@ -28,8 +33,9 @@
 
         h3 {
             font-weight: normal;
-            font-size: 14px;
-            display: inline;
+            font-size: 13px;
+            display: inline-block;
+            margin: 2px;
         }
 
         a {
@@ -37,21 +43,46 @@
         }
 
         #header {
-            border-bottom: 1px solid #ccc;
+
+            padding: 7px 0;
+            position: fixed;
+            z-index: 1;
+            background: white;
+            width: 100%;
+        }
+
+        #title {
             font-family: georgia, verdana, helvetica, arial, sans-serif;
             font-size: 20px;
             color: #777;
-            padding: 11px 15px;
+            display: inline-block;
+            background-image: url("favicon.svg?v=service");
+            background-size: 28px;
+            background-repeat: no-repeat;
+            padding: 4px 16px 4px 40px;
+            margin: 0 0 5px 16px;
+            height: 24px;
+        }
+
+        .deploy-button {
+            padding: 6px 6px 6px 26px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3 0 3 3 0 3 0 5 3 5 3 8 5 8 5 5 8 5 8 3 5 3 5 0Z' fill='gray'/%3E%3C/svg%3E");
+            background-position: 4px;
+            background-repeat: no-repeat;
+            background-size: 18px;
+            border-radius: 8px;
+            margin-left: 30px;
+        }
+
+        .deploy-disabled .forDeploy {
+            display: none;
         }
 
         #main {
-            padding: 0 20px 40px;
+            padding: 75px 10px 40px;
             color: #444;
             white-space: nowrap;
-        }
-
-        #main a {
-            margin-right: 10px;
+            counter-reset: index;
         }
 
         #footer {
@@ -100,104 +131,196 @@
             color: #666;
         }
 
-        .note {
-            color: #9a9a9a;
-            font-size: 10px;
-            margin: 3px 0;
-        }
-
-        #main > div {
+        .row {
             border-bottom: #cccccc dotted 1px;
-            padding: 10px 0;
-
+            padding: 2px 0;
         }
 
-        #main > div:last-child {
+        .row:last-child {
             border: 0;
         }
 
+        .row:hover {
+            background-color: #f8f8f8;
+        }
+
+        .row::before {
+            counter-increment: index;
+            content: counter(index);
+            min-width: 20px;
+            display: inline-block;
+            text-align: right;
+            color: gray;
+            padding-right: 5px;
+        }
+
+        .right-block {
+            display: inline-block;
+            position: absolute;
+            right: 16px;
+        }
+
+        .right-block form {
+            display: inline;
+        }
+
+        .hideNonImportant .row:not(.service-RESTFUL).status-deployed {
+            display: none;
+        }
+
+        .manifest,
+        .urls {
+            margin-left: 10px;
+        }
+
+        .urls-RESTFUL {
+            display: none;
+        }
+
+        .urls[href="null"],
+        .row:not(.service-RESTFUL) .swagger-ui {
+            pointer-events: none;
+            cursor: default;
+            text-decoration: none;
+            color: black;
+        }
+
+        .row:not(.hasManifest) .manifest {
+            display: none;
+        }
+
+        .time {
+            color: #9a9a9a;
+            padding: 0 8px;
+            display: inline-block;
+            min-width: 135px;
+            text-align: right;
+        }
+
+        .delete-button,
         .download-button {
-            float: right;
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin: 3px;
+            padding: 0;
+            border: none;
+            background-color: inherit;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+        }
+
+        .download-button {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath d='M3 0 3 5 1 5 4 8 7 5 5 5 5 0Z' fill='gray'/%3E%3C/svg%3E");
         }
 
         .delete-button {
-            float: right;
-            margin-left: 5px;
-        }
-
-        .deploy-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50px;
-            margin: 0 auto;
-            display: block;
-        }
-
-        .deploy-button:hover {
-            animation-name: heartbeat;
-            animation-timing-function: easy;
-            animation-iteration-count: infinite;
-            animation-duration: 750ms;
-            animation-delay: 3s;
-        }
-
-        @keyframes heartbeat {
-            0%   {width: 100px;}
-            10%  {width: 300px;height: 300px;background-color: red;}
-            20%  {width: 200px;height: 200px;}
-            30%  {width: 220px;height: 220px;background-color: inherit;}
-            100% {width: 100px;border-radius: 150px;}
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 500'%3E%3Cpath d='M140 0c-17 0-30 14-30 30l0 20-100 0a1 1 90 000 20l11 0 36 405c1 14 13 25 27 25l192 0c14 0 26-11 27-25l36-405 11 0a1 1 90 000-20l-100 0 0-20c0-17-14-30-30-30zm80 20c6 0 10 4 10 10l0 20-100 0 0-20c0-6 4-10 10-10zm-180 50 280 0-36 403c0 4-4 7-7 7l-190 0c-3 0-7-3-7-7zm90 40a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0zm60 0a1 1 90 00-20 0l0 330a1 1 90 0020 0z' fill='gray'/%3E%3C/svg%3E");
         }
 
         .icon {
-            cursor: pointer;
             font-size: 16px;
             padding-right: 5px;
         }
 
-        .deployed:before {
+        .status-deployed .icon:before {
             content: "✔";
             color: #00C000;
         }
 
-        .failed:before {
+        .status-failed .icon:before {
+            cursor: pointer;
             content: "✘";
             color: #C00000;
         }
 
-        .expand ~ .info {
+        .expand ~ .errors {
             display: block;
         }
 
-        .info {
+        .errors {
             margin-top: 2px;
             display: none;
         }
-
-        .info > li {
-            margin-top: 2px;
-            font-size: 11px;
-        }
-
-
     </style>
 </head>
 
-<body>
-<div id="header">OpenL Tablets Rule Services</div>
-<div id="main"></div>
+<body class="deploy-disabled">
+<div id="header" style="display: none">
+    <div id="title"></div>
+    <input id='file-input' type='file' name='name' style='display: none;'/>
+    <div class="right-block">
+        Show all deployments: <input type="checkbox" id="showAll" checked="checked" onchange="showAll(this.checked)" style="margin-top: 10px;"/>
+        <button type='button' onclick='uploadProject()' class='deploy-button forDeploy'>Deploy</button>
+    </div>
+    <div style="font-size: 13px; font-weight: bold; color: grey; background-color: white; padding-top: 6px; border-top: 1px solid #ccc;">
+        <div style="display: inline-block">
+            <span style="padding: 0 23px;">#</span>
+            <span>Service Name</span>
+        </div>
+        <div class="right-block">
+            <span style="padding-right: 30px;">Services & Links</span>
+            <span style="padding-right: 40px;">Start Time</span>
+            <span class="forDeploy">Actions</span>
+        </div>
+    </div>
+</div>
+<div id="main" style="display: none;">
+<div class="row ${row-classes}">
+    <span class="icon collapse" data-uri="admin/services/${servicePathURI}/errors"></span>
+    <h3><a href="swagger-ui.html?urls.primaryName=${serviceNameURI}" class="swagger-ui">${serviceText}</a></h3>
+    <div class="right-block">
+        ${urls}
+        <a href="admin/services/${servicePathURI}/MANIFEST.MF" class="manifest">MANIFEST.MF</a>
+        <span class="time">${startedAt}</span>
+        <div style="display: inline-block; padding-top: 4px;">&nbsp;</div>
+        <form method="get" action="admin/deploy/${deploymentNameURI}.zip">
+            <button type='deploy' class='download-button forDeploy' title='Download'>&nbsp;</button>
+        </form>
+        <button type="button" class="delete-button forDeploy" title="Delete"
+                data-uri="admin/deploy/${deploymentNameURI}">&nbsp;
+        </button>
+    </div>
+    <div class="errors"></div>
+</div>
+</div>
 <div id="footer" style="display: none;">
     <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
-    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Installation%20Guide.pdf" title="Installation Guide">Installation Guide</a>
-    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Rule%20Services%20Usage%20and%20Customization%20Guide.pdf" title="Rule Services Usage and Customization Guide">Customization Guide</a>
+    <a class="link" target="_blank"
+       href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Installation%20Guide.pdf"
+       title="Installation Guide">Installation Guide</a>
+    <a class="link" target="_blank"
+       href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Rule%20Services%20Usage%20and%20Customization%20Guide.pdf"
+       title="Rule Services Usage and Customization Guide">Customization Guide</a>
     <span class="copyright">© ${year}</span>
     <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
     <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
     <a class="version" href="${url}/release-notes?ver=${version}" target="_blank" title="Built on ${buildDate}">v${version}</a>
+    <a class="link" target="_blank" href="admin/info/sys.json" style="float: right">System Info</a>
 </div>
 <script>
     // <![CDATA[
     "use strict";
+    const mainBlock = document.getElementById("main");
+    const template = mainBlock.innerHTML;
+    mainBlock.innerHTML = "";
+
+    function showAll(value) {
+        if (value) {
+            mainBlock.classList.remove("hideNonImportant")
+        } else {
+            mainBlock.classList.add("hideNonImportant")
+        }
+        localStorage.hideNonImportant = !value; // Store checkbox state in the Web storage
+    }
+
+    window.addEventListener('load', function() {
+        // Restore checkbox state after the page is opened after closing
+        let ch = localStorage['hideNonImportant'] !== "true";
+        showAll(ch);
+        document.getElementById("showAll").checked = ch;
+    });
 
     // Get JSON of available services
     var xmlhttp = new XMLHttpRequest();
@@ -205,7 +328,9 @@
 
     xmlhttp.onload = function () {
         var servicesResponse = JSON.parse(this.response);
-        renderVersion(servicesResponse);
+        document.body.className = servicesResponse.deployerEnabled ? "deploy-enabled" : "deploy-disabled";
+        mainBlock.innerHTML = '';
+        renderHeaderAndFooter(servicesResponse);
         renderServices(servicesResponse);
     };
 
@@ -214,45 +339,29 @@
     addMainBlockEventListener();
 
     function addMainBlockEventListener() {
-        var mainBlock = document.getElementById("main");
         mainBlock.addEventListener('click', function (event) {
-            var button = event.target || event.srcElement;
-            var serviceData = button.parentElement.dataset;
+            var button = event.target;
             //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
             //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
-            var serviceName = encodeURI(serviceData.serviceName);
-            if (button.classList.contains("collapse")) {
+            if (button.classList.contains("collapse") && button.parentElement.classList.contains("status-failed")) {
                 // Expand the node
-                var childArray = button.parentElement.childNodes
-                var target = childArray[2];
-                var fun;
-                var data;
-                if (serviceData.serviceStatus === "FAILED") {
-                    fun = function (error) {
-                        return "<pre>" + error + "</pre>";
-                    };
-                    data = "/errors";
-                } else {
-                    fun = function (method) {
-                        return "<li>" + method.returnType + " <b>" + method.name + "</b> (" + method.paramTypes.join(", ") + ")</li>";
-                    };
-                    data = "/methods";
-                }
-
+                let infoBlock = button.parentElement.getElementsByClassName("errors").item(0);
                 var xmlHttpMethods = new XMLHttpRequest();
                 xmlHttpMethods.onload = function () {
-                    var methods = JSON.parse(this.response);
-                    target.innerHTML = methods.map(fun).join("");
+                    var errors = JSON.parse(this.response);
+                    infoBlock.innerHTML = errors.map(function (x) {
+                        return "<pre>" + x + "</pre>"
+                    }).join("");
                 };
-                xmlHttpMethods.open("GET", "admin/services/" + serviceName + data, true);
+                xmlHttpMethods.open("GET", button.dataset.uri, true);
                 xmlHttpMethods.send();
 
                 button.classList.replace("collapse", "expand");
             } else if (button.classList.contains("expand")) {
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
-            } else if (button.className === "delete-button") {
-                deleteProject(serviceData.deploymentName);
+            } else if (button.classList.contains("delete-button")) {
+                deleteProject(button.dataset.uri);
             }
         })
     }
@@ -261,57 +370,49 @@
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
         var services = servicesResponse.services;
-        var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             services.sort((a, b) => {
                 let aSp = a.servicePath.toUpperCase().split("/");
                 let bSp = b.servicePath.toUpperCase().split("/");
                 return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
             });
-            mainBlock.innerHTML = "<h2>Available services:</h2>";
+
             services.forEach(function (service) {
-                var html = createServiceHtml(service, deployerEnabled);
-                var el = document.createElement("DIV");
-                el.dataset.serviceName = service.servicePath;
-                el.dataset.serviceStatus = service.status;
-                el.dataset.servicePath = service.servicePath;
-                el.dataset.deploymentName = encodeURI(service.deploymentName);
-                el.innerHTML = html;
-                mainBlock.appendChild(el);
+                let html = createServiceHtml(template, service);
+                mainBlock.insertAdjacentHTML('beforeend', html);
             });
         } else {
             mainBlock.innerHTML = "<h2>There are no available services</h2>";
         }
-        if (deployerEnabled) {
-            var el = document.createElement("DIV");
-            var html = createServiceButtons();
-            el.innerHTML = html;
-            mainBlock.appendChild(el);
-        }
+        mainBlock.style.display = "";
     }
 
-    function renderVersion(servicesResponse) {
+    function renderHeaderAndFooter(servicesResponse) {
         var buildDate = servicesResponse.buildDate;
         var footerBlock = document.getElementById("footer");
         var html = footerBlock.innerHTML
             .replaceAll("${url}", servicesResponse.url)
             .replaceAll("${email}", servicesResponse.email)
             .replaceAll("${buildDate}", buildDate)
-            .replaceAll("${year}", buildDate.substr(0,4))
+            .replaceAll("${year}", buildDate.substring(0, 4))
             .replaceAll("${version}", servicesResponse.version)
             .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
         footerBlock.innerHTML = html;
+        document.getElementById("title").innerText = servicesResponse.appTitle;
+        document.title = servicesResponse.appTitle;
         footerBlock.style.display = "";
+        document.getElementById("header").style.display = "";
+
     }
 
-    function deleteProject(servicePath) {
-        if (confirm("Are you sure you want to delete this project?")) {
+    function deleteProject(deploymentUri) {
+        if (confirm("Are you sure you want to delete a deployment?")) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "admin/deploy/" + servicePath, true);
+            xhr.open("DELETE", deploymentUri, true);
             xhr.send();
         }
     }
@@ -342,46 +443,32 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service, deployerEnabled) {
-        var html = "";
-        // Name
-        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.servicePath + "</h3>";
+    function createServiceHtml(template, service) {
+        let deploymentName = service.deploymentName;
+        let serviceText = (service.servicePath === (deploymentName + "/" + deploymentName)) ? deploymentName : service.servicePath;
 
-        // Some useful info
-        html += "<ul class='info'></ul>";
+        var classes = "status-" + service.status.toLowerCase();
+        if (service.hasManifest) {
+            classes += " hasManifest";
+        }
 
-        // Date and time
-        html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
+        var urlsHtml = "";
         // URLs
         var urls = service.urls;
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
-            if (name === "RESTFUL") {
-                html += "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>Swagger UI</a>";
-                html += "<a href='" + url + "/openapi.json'\>OpenAPI.JSON</a>";
-                html += "<a href='" + url + "/openapi.yaml'\>OpenAPI.YAML</a>";
-            } else if (url == null) {
-                html += "<span>" + name + "&nbsp;&nbsp;</span>";
-            } else {
-                html += "<a href='" + url + "'\>" + name + "</a>";
-            }
+            urlsHtml += "<a href='" + url + "' class='urls urls-" + name + "'\>" + name + "</a> ";
+            classes += " service-" + name;
         });
-        if (service.hasManifest) {
-            html += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
-        }
-        if (deployerEnabled) {
-            html += "&nbsp";
-            html += "<button type='button' class='delete-button'>Delete</button>";
-            html += "<a href='admin/deploy/" + encodeURI(service.deploymentName) + ".zip' class='download-button'\>Download</a>";
-        }
 
-        return html;
-    }
+        var html = template.replaceAll("${row-classes}", classes)
+            .replaceAll("${serviceText}", serviceText)
+            .replaceAll("${serviceNameURI}", encodeURIComponent(service.name))
+            .replaceAll("${servicePathURI}", encodeURI(service.servicePath))
+            .replaceAll("${startedAt}", new Date(service.startedTime).toLocaleString())
+            .replaceAll("${urls}", urlsHtml)
+            .replaceAll("${deploymentNameURI}", encodeURI(deploymentName));
 
-    function createServiceButtons() {
-        var html = "";
-        html += "<input id='file-input' type='file' name='name' style='display: none;'/>";
-        html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
         return html;
     }
 

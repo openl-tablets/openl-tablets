@@ -11,7 +11,6 @@ import org.openl.util.ClassUtils;
 /**
  * Test units results for the test table. Consist of the test suit method itself. And a number of test units that were
  * represented in test table.
- *
  */
 public class TestUnitsResults implements INamedThing {
 
@@ -73,7 +72,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfFailures() {
-        if(testedRulesHaveErrors){
+        if (testedRulesHaveErrors) {
             return getTestSuite().getTests().length;
         }
         int cnt = 0;
@@ -139,7 +138,7 @@ public class TestUnitsResults implements INamedThing {
 
     public boolean isSpreadsheetResultTester() {
         return ClassUtils.isAssignable(testSuite.getTestedMethod().getType().getInstanceClass(),
-            SpreadsheetResult.class);
+                SpreadsheetResult.class);
     }
 
     public boolean isRunmethod() {
@@ -152,8 +151,8 @@ public class TestUnitsResults implements INamedThing {
         for (int i = 0; i < columnDisplayNames.length; i++) {
             TestSuiteMethod testSuiteMethod = testSuite.getTestSuiteMethod();
             String displayName = testSuiteMethod == null ? null
-                                                         : testSuiteMethod
-                                                             .getColumnDisplayName(columnTechnicalNames[i]);
+                    : testSuiteMethod
+                    .getColumnDisplayName(columnTechnicalNames[i]);
             if (displayName != null) {
                 columnDisplayNames[i] = displayName;
             } else {

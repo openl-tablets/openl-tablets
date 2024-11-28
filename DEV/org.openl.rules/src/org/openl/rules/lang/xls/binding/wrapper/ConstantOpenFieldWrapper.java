@@ -9,7 +9,7 @@ import org.openl.vm.IRuntimeEnv;
 public class ConstantOpenFieldWrapper extends ConstantOpenField {
     static {
         WrapperValidation.validateWrapperClass(ConstantOpenFieldWrapper.class,
-            ConstantOpenFieldWrapper.class.getSuperclass());
+                ConstantOpenFieldWrapper.class.getSuperclass());
     }
 
     private final ConstantOpenField delegate;

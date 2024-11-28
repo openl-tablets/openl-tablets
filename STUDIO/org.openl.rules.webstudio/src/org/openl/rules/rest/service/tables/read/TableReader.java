@@ -36,12 +36,12 @@ public abstract class TableReader<T extends TableView, R extends TableView.Build
         var type = XlsNodeTypes.getEnumByValue(openLTable.getType());
         var header = tsn.getHeader();
         builder.id(openLTable.getId())
-            .kind(OpenLTableUtils.getTableTypeItems().get(type.toString()))
-            .name(TableSyntaxNodeUtils.str2name(header.getSourceString(), type));
+                .kind(OpenLTableUtils.getTableTypeItems().get(type.toString()))
+                .name(TableSyntaxNodeUtils.str2name(header.getSourceString(), type));
         Optional.ofNullable(openLTable.getProperties())
-            .map(ITableProperties::getTableProperties)
-            .map(Map::copyOf)
-            .ifPresent(builder::properties);
+                .map(ITableProperties::getTableProperties)
+                .map(Map::copyOf)
+                .ifPresent(builder::properties);
     }
 
 }

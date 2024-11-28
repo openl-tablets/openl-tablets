@@ -50,12 +50,12 @@ public class IfNodeBinder extends ANodeBinder {
     }
 
     protected IBoundNode buildIfElseNode(ISyntaxNode node,
-            IBindingContext bindingContext,
-            IBoundNode conditionNode,
-            IBoundNode thenNode,
-            IOpenClass type,
-            IBoundNode elseNode,
-            IOpenClass elseType) {
+                                         IBindingContext bindingContext,
+                                         IBoundNode conditionNode,
+                                         IBoundNode thenNode,
+                                         IOpenClass type,
+                                         IBoundNode elseNode,
+                                         IOpenClass elseType) {
         CastToWiderType castToWiderType = CastToWiderType.create(bindingContext, type, elseType);
 
         type = castToWiderType.getWiderType();

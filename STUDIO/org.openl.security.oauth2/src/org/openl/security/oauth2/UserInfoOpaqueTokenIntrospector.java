@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
 import org.springframework.cache.Cache;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
@@ -30,6 +28,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.SimpleUser;
+
 /**
  * Extends {@link SpringOpaqueTokenIntrospector} to create a {@link SimpleUser} based on {@link OAuth2User}.
  */
@@ -43,17 +44,17 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
     private final Cache userInfoCache;
 
     private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
-        OidcUserService.createDefaultClaimTypeConverters());
+            OidcUserService.createDefaultClaimTypeConverters());
 
     public UserInfoOpaqueTokenIntrospector(String introspectionUri,
-            ClientRegistration clientRegistration,
-            Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
-            PropertyResolver propertyResolver,
-            Cache cache) {
+                                           ClientRegistration clientRegistration,
+                                           Converter<Map<String, Object>, SimpleUser> userInfoClaimsConverter,
+                                           PropertyResolver propertyResolver,
+                                           Cache cache) {
 
         this.delegate = new SpringOpaqueTokenIntrospector(introspectionUri,
-            clientRegistration.getClientId(),
-            clientRegistration.getClientSecret());
+                clientRegistration.getClientId(),
+                clientRegistration.getClientSecret());
         this.clientRegistration = clientRegistration;
         this.userInfoClaimsConverter = userInfoClaimsConverter;
         this.propertyResolver = propertyResolver;
@@ -66,9 +67,9 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 
         var tokenHash = getTokenHash(token);
         var userCacheValue = Optional.ofNullable(userInfoCache.get(tokenHash))
-            .map(Cache.ValueWrapper::get)
-            .map(UserCacheValue.class::cast)
-            .orElse(null);
+                .map(Cache.ValueWrapper::get)
+                .map(UserCacheValue.class::cast)
+                .orElse(null);
         if (userCacheValue == null) {
             var userRequest = new OAuth2UserRequest(clientRegistration, createAccessToken(token, authorized));
             var loadedUser = userService.loadUser(userRequest);
@@ -79,8 +80,8 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
         }
 
         return new DefaultOAuth2User(userCacheValue.privileges,
-            userCacheValue.userAttributes,
-            propertyResolver.getProperty("security.oauth2.attribute.username"));
+                userCacheValue.userAttributes,
+                propertyResolver.getProperty("security.oauth2.attribute.username"));
     }
 
     private OAuth2AccessToken createAccessToken(String token, OAuth2AuthenticatedPrincipal authorized) {

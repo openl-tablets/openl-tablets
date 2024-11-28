@@ -8,7 +8,6 @@ import org.openl.rules.table.IWritableGrid;
 
 /**
  * @author snshor
- *
  */
 public class UndoableClearAction extends AUndoableCellAction {
 

@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.OpenlTableWriter;
 import org.openl.rules.excel.builder.template.TableStyle;
@@ -40,9 +41,9 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
 
     public void addMergedHeader(Sheet sheet, Cursor cursor, CellStyle style, CellRangeSettings cellRangeSettings) {
         CellRangeAddress mergedRegion = new CellRangeAddress(cursor.getRow(),
-            cursor.getRow() + cellRangeSettings.getHeight(),
-            cursor.getColumn(),
-            cursor.getColumn() + cellRangeSettings.getWidth());
+                cursor.getRow() + cellRangeSettings.getHeight(),
+                cursor.getColumn(),
+                cursor.getColumn() + cellRangeSettings.getWidth());
         if (cellRangeSettings.getHeight() > 0 || cellRangeSettings.getWidth() > 0) {
             sheet.addMergedRegionUnsafe(mergedRegion);
         }

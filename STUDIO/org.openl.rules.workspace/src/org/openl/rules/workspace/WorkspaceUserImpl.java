@@ -6,9 +6,7 @@ import java.util.function.Function;
 import org.openl.rules.repository.api.UserInfo;
 
 /**
- *
  * @author Aleh Bykhavets
- *
  */
 public class WorkspaceUserImpl implements WorkspaceUser {
 

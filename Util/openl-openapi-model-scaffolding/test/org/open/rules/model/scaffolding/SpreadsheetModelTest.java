@@ -1,14 +1,15 @@
 package org.open.rules.model.scaffolding;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -138,17 +139,17 @@ public class SpreadsheetModelTest {
     @Test
     public void testSprWithPathInfo() {
         PathInfo xyzInfo = new PathInfo("/xyz",
-            "xyz",
-            PathInfo.Operation.GET,
-            new TypeInfo(String.class),
-            "application/json",
-            "text/plain");
+                "xyz",
+                PathInfo.Operation.GET,
+                new TypeInfo(String.class),
+                "application/json",
+                "text/plain");
         PathInfo xyInfo = new PathInfo("/xyz/xy/{far}",
-            "xyzxy",
-            PathInfo.Operation.GET,
-            new TypeInfo(String.class),
-            "application/json",
-            "text/plain");
+                "xyzxy",
+                PathInfo.Operation.GET,
+                new TypeInfo(String.class),
+                "application/json",
+                "text/plain");
 
         SpreadsheetModel spr = new SpreadsheetModel();
         spr.setName(SPR_NAME);

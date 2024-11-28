@@ -3,13 +3,14 @@ package org.openl.rules.rest.service.tables.read;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.VocabularyValueView;
 import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.rest.service.tables.write.VocabularyTableWriter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads {@code Vocabulary} table to {@link VocabularyView} model.
@@ -27,11 +28,13 @@ public class VocabularyTableReader extends EditableTableReader<VocabularyView, V
     protected void initialize(VocabularyView.Builder builder, IOpenLTable openLTable) {
         super.initialize(builder, openLTable);
         var tsn = openLTable.getSyntaxNode();
+        var metaInfoReader = tsn.getMetaInfoReader();
         var table = tsn.getTableBody();
         List<VocabularyValueView> values = new ArrayList<>();
         for (int row = 0; row < table.getHeight(); row++) {
             var cell = table.getCell(0, row);
-            values.add(VocabularyValueView.builder().value(cell.getObjectValue()).build());
+            var cellValue = getCellValue(cell, metaInfoReader);
+            values.add(VocabularyValueView.builder().value(cellValue).build());
         }
         var header = tsn.getHeader();
         builder.values(values).type(getVocabularyType(header.getSourceString()));

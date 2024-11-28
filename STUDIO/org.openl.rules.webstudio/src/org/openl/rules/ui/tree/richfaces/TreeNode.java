@@ -27,13 +27,13 @@ public class TreeNode extends TreeNodeImpl {
     }
 
     public TreeNode(boolean isLeaf,
-            String name,
-            String title,
-            String url,
-            int state,
-            int numErrors,
-            String type,
-            boolean active) {
+                    String name,
+                    String title,
+                    String url,
+                    int state,
+                    int numErrors,
+                    String type,
+                    boolean active) {
         this(isLeaf);
         this.name = name;
         this.title = title;

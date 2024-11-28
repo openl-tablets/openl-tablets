@@ -1,13 +1,13 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.openl.rules.security.standalone.persistence.Tag;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.openl.rules.security.standalone.persistence.Tag;
 
 public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
@@ -29,9 +29,9 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         Root<Tag> u = criteria.from(Tag.class);
         // Case insensitive
         criteria.select(u)
-            .where(builder.and(builder.equal(u.get("type").get("id"), tagTypeId),
-                builder.equal(builder.lower(u.get("name")), name.toLowerCase())))
-            .distinct(true);
+                .where(builder.and(builder.equal(u.get("type").get("id"), tagTypeId),
+                        builder.equal(builder.lower(u.get("name")), name.toLowerCase())))
+                .distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
@@ -43,8 +43,8 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .orderBy(builder.asc(builder.upper(root.get("type").get("name"))),
-                builder.asc(builder.upper(root.get("name"))));
+                .orderBy(builder.asc(builder.upper(root.get("type").get("name"))),
+                        builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -55,8 +55,8 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .where(builder.and(builder.equal(root.get("type").get("name"), tagType)))
-            .orderBy(builder.asc(builder.upper(root.get("name"))));
+                .where(builder.and(builder.equal(root.get("type").get("name"), tagType)))
+                .orderBy(builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -67,8 +67,8 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase()),
-                builder.equal(builder.lower(root.get("name")), tagName.toLowerCase())));
+                .where(builder.and(builder.equal(builder.lower(root.get("type").get("name")), tagType.toLowerCase()),
+                        builder.equal(builder.lower(root.get("name")), tagName.toLowerCase())));
         final List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
@@ -77,7 +77,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
     @Override
     public boolean deleteById(Long id) {
         return getSession().createNativeQuery("delete from OpenL_Tags where id = :id")
-            .setParameter("id", id)
-            .executeUpdate() > 0;
+                .setParameter("id", id)
+                .executeUpdate() > 0;
     }
 }

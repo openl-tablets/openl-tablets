@@ -49,7 +49,7 @@ try {
     assert lines.any { it =~ /Run tests using \d+ threads/ }
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

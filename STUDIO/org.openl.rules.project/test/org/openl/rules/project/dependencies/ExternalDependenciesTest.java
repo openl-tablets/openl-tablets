@@ -1,11 +1,12 @@
 package org.openl.rules.project.dependencies;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.Method;
 import java.util.Calendar;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -17,9 +18,9 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies1() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test1/module")
-            .setExecutionMode(false)
-            .build();
+                .setProject("test-resources/dependencies/test1/module")
+                .setExecutionMode(false)
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
 
@@ -32,9 +33,9 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies2() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test2/module")
-            .setExecutionMode(false)
-            .build();
+                .setProject("test-resources/dependencies/test2/module")
+                .setExecutionMode(false)
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Object instance = factory.newInstance();
@@ -62,10 +63,10 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies3() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test3/module")
-            .setExecutionMode(false)
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject("test-resources/dependencies/test3/module")
+                .setExecutionMode(false)
+                .setProvideRuntimeContext(true)
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Object instance = factory.newInstance();
@@ -100,11 +101,11 @@ public class ExternalDependenciesTest {
     @Test
     public void testDependencies4() throws Exception {
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/test4/module/main")
-            .setWorkspace("test-resources/dependencies/test4/module")
-            .setExecutionMode(false)
-            .setProvideRuntimeContext(true)
-            .build();
+                .setProject("test-resources/dependencies/test4/module/main")
+                .setWorkspace("test-resources/dependencies/test4/module")
+                .setExecutionMode(false)
+                .setProvideRuntimeContext(true)
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Object instance = factory.newInstance();
@@ -122,7 +123,7 @@ public class ExternalDependenciesTest {
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) res;
         assertEquals("Eligible", spreadsheetResult.getFieldValue("$Value$Eligibility"));
         assertEquals(-20.0, spreadsheetResult.getFieldValue("$Value$Score"));
-        assertEquals(2270.0,spreadsheetResult.getFieldValue("$Value$Premium"));
+        assertEquals(2270.0, spreadsheetResult.getFieldValue("$Value$Premium"));
 
         // Creating current date value
         Calendar calendar = Calendar.getInstance();

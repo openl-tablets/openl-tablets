@@ -14,7 +14,6 @@ import org.openl.syntax.code.IParsedCode;
  * engine.
  *
  * @author snshor
- *
  */
 public interface IOpenParser {
 

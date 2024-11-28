@@ -5,7 +5,6 @@ package org.openl.rules.validator;
 
 /**
  * @author snshor
- *
  */
 public interface IValidatedObject {
 

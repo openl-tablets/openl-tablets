@@ -2,6 +2,7 @@ package org.openl.rules.excel.builder.template;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.NameValueRowStyle;
 
@@ -16,15 +17,15 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
     private final CellStyle dateTimeFieldStyle;
 
     public SpreadsheetTableStyleImpl(RichTextString headerTextTemplate,
-            CellStyle headerStyle,
-            CellRangeSettings headerSettings,
-            NameValueRowStyle headerRowStyle,
-            String stepHeaderText,
-            String valueHeaderText,
-            NameValueRowStyle rowStyle,
-            NameValueRowStyle lastRowStyle,
-            CellStyle dateFieldStyle,
-            CellStyle dateTimeFieldStyle) {
+                                     CellStyle headerStyle,
+                                     CellRangeSettings headerSettings,
+                                     NameValueRowStyle headerRowStyle,
+                                     String stepHeaderText,
+                                     String valueHeaderText,
+                                     NameValueRowStyle rowStyle,
+                                     NameValueRowStyle lastRowStyle,
+                                     CellStyle dateFieldStyle,
+                                     CellStyle dateTimeFieldStyle) {
         super(headerTextTemplate, headerStyle, headerSettings);
         this.headerRowStyle = headerRowStyle;
         this.stepHeaderText = stepHeaderText;

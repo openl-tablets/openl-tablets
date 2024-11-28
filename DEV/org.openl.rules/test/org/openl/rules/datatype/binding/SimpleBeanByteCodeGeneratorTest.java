@@ -1,6 +1,9 @@
 package org.openl.rules.datatype.binding;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -9,13 +12,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.util.ClassUtils;
 
 public class SimpleBeanByteCodeGeneratorTest {
 
@@ -136,11 +140,11 @@ public class SimpleBeanByteCodeGeneratorTest {
         Method equalsMethod = null, setFirstField = null;
         Boolean isEqual = false;
         try {
-            instance1 = clazz.newInstance();
-            instance2 = clazz.newInstance();
+            instance1 = clazz.getDeclaredConstructor().newInstance();
+            instance2 = clazz.getDeclaredConstructor().newInstance();
             equalsMethod = clazz.getMethod("equals", Object.class);
             setFirstField = clazz.getMethod("setFirstField", String.class);
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
+            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -150,7 +154,7 @@ public class SimpleBeanByteCodeGeneratorTest {
         try {
             assertNotNull(setFirstField);
             setFirstField.invoke(instance1, "TestValue");
-            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
+            isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[]{instance2});
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -159,14 +163,14 @@ public class SimpleBeanByteCodeGeneratorTest {
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
         ClassLoader simpleClassLoader = new OpenLClassLoader(
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleClassLoader);
             JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(className);
             beanBuilder.addFields(fields);
             byte[] byteCode = beanBuilder.byteCode();
-            return ClassUtils.defineClass(className, byteCode, simpleClassLoader);
+            return ClassLoaderUtils.defineClass(className, byteCode, simpleClassLoader);
         } catch (Exception e) {
             fail();
             return null;

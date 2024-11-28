@@ -1,6 +1,10 @@
 package org.openl.rules.webstudio.web;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.richfaces.component.UIRepeat;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+
 import org.openl.exception.OpenLException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -14,9 +18,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
-import org.richfaces.component.UIRepeat;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 @Service
 @RequestScope
@@ -152,7 +153,7 @@ public class MessagesBean {
         }
 
         if (pend != 0) {
-            return new String[] { code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend) };
+            return new String[]{code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend)};
         }
 
         return new String[0];

@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Project",
+    "modifiedBy": "OpenL Admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "revision": "*",
+    "id": "ZGVzaWduLWZsYXQ6UHJvamVjdA==",
+    "status": "CLOSED",
+    "comment": "Project Project is created.",
+    "repository": "design-flat"
+  }, {
+  "name": "ProjectUser1",
+  "modifiedBy": "User User1",
+  "modifiedAt": "*",
+  "branch": "master",
+  "revision": "*",
+  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIx",
+  "status": "CLOSED",
+  "comment": "Project ProjectUser1 is created.",
+  "repository": "design-flat"
+}
+]

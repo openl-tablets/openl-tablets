@@ -4,10 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 public class WebStudioValidationUtils {
 
@@ -36,9 +37,9 @@ public class WebStudioValidationUtils {
                         validateIsWritable(directory);
                     } else {
                         WebStudioUtils.throwValidationError(String.format(
-                            "There is not enough access rights for installing '%s' into the folder: '%s'.",
-                            directoryType,
-                            dirPath));
+                                "There is not enough access rights for installing '%s' into the folder: '%s'.",
+                                directoryType,
+                                dirPath));
                     }
                 } else {
                     WebStudioUtils.throwValidationError(String.format("'%s' is not a folder.", dirPath));
@@ -93,7 +94,7 @@ public class WebStudioValidationUtils {
      * Deletes the folder which was created for validating folder permissions
      *
      * @param existingFolder folder which already exists on file system
-     * @param studioFolder folder were studio will be installed
+     * @param studioFolder   folder were studio will be installed
      */
     private static void deleteFolder(File existingFolder, File studioFolder) {
         if (studioFolder.exists() && !studioFolder.delete()) {

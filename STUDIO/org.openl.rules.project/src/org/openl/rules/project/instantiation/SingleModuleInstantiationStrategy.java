@@ -23,15 +23,15 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     private final Module module;
 
     public SingleModuleInstantiationStrategy(Module module,
-            IDependencyManager dependencyManager,
-            boolean executionMode) {
+                                             IDependencyManager dependencyManager,
+                                             boolean executionMode) {
         this(module, dependencyManager, null, executionMode);
     }
 
     public SingleModuleInstantiationStrategy(Module module,
-            IDependencyManager dependencyManager,
-            ClassLoader classLoader,
-            boolean executionMode) {
+                                             IDependencyManager dependencyManager,
+                                             ClassLoader classLoader,
+                                             boolean executionMode) {
         super(executionMode, dependencyManager, classLoader);
         this.module = module;
     }

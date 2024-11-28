@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * This annotation is used when custom API error model is defined in rules. This annotation must be added on service
  * class interface Usage:
- * 
+ *
  * <pre>
  * {@code
  * import org.openl.generated.beans.MyError
@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
  * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE })
+@Target({ElementType.TYPE})
 public @interface ApiErrors {
 
     Class<?>[] value();

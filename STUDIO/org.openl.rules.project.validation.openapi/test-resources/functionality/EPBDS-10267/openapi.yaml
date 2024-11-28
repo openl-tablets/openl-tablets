@@ -3,8 +3,8 @@ info:
   title: std-plan-configuration
   version: 1.0.0
 servers:
-- url: /webservice/std-plan-configuration
-  variables: {}
+  - url: /webservice/std-plan-configuration
+    variables: { }
 paths:
   /Behavior:
     post:
@@ -275,12 +275,12 @@ components:
         type:
           type: string
           enum:
-          - USER_ERROR
-          - RULES_RUNTIME
-          - COMPILATION
-          - SYSTEM
-          - BAD_REQUEST
-          - VALIDATION
+            - USER_ERROR
+            - RULES_RUNTIME
+            - COMPILATION
+            - SYSTEM
+            - BAD_REQUEST
+            - VALIDATION
         details:
           type: array
           items:
@@ -291,47 +291,47 @@ components:
         name: ApplicabilityBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/Behavior'
-      - type: object
-        properties:
-          applicabilityType:
-            type: string
+        - $ref: '#/components/schemas/Behavior'
+        - type: object
+          properties:
+            applicabilityType:
+              type: string
     AttributeBehavior:
       type: object
       xml:
         name: AttributeBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/Behavior'
+        - $ref: '#/components/schemas/Behavior'
     AttributeValidationBehavior:
       type: object
       xml:
         name: AttributeValidationBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          level:
-            type: string
-            default: Error
-          code:
-            type: string
-          message:
-            type: string
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            level:
+              type: string
+              default: Error
+            code:
+              type: string
+            message:
+              type: string
     AvailabilityBehavior:
       type: object
       xml:
         name: AvailabilityBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeValidationBehavior'
-      - type: object
-        properties:
-          availabilityType:
-            type: string
-          availableValue:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - type: object
+          properties:
+            availabilityType:
+              type: string
+            availableValue:
+              $ref: '#/components/schemas/Expr'
     Behavior:
       type: object
       properties:
@@ -375,11 +375,11 @@ components:
         name: CategoryBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/Behavior'
-      - type: object
-        properties:
-          category:
-            type: string
+        - $ref: '#/components/schemas/Behavior'
+        - type: object
+          properties:
+            category:
+              type: string
     DataItem:
       type: object
       properties:
@@ -404,22 +404,22 @@ components:
         name: DefaultValueBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          defaultValue:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            defaultValue:
+              $ref: '#/components/schemas/Expr'
     EnabledBehavior:
       type: object
       xml:
         name: EnabledBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          enabled:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            enabled:
+              $ref: '#/components/schemas/Expr'
     Expr:
       type: object
       properties:
@@ -441,26 +441,26 @@ components:
         name: MandatoryBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeValidationBehavior'
-      - type: object
-        properties:
-          mandatory:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - type: object
+          properties:
+            mandatory:
+              $ref: '#/components/schemas/Expr'
     MinMaxBehavior:
       type: object
       xml:
         name: MinMaxBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeValidationBehavior'
-      - type: object
-        properties:
-          min:
-            $ref: '#/components/schemas/Expr'
-          max:
-            $ref: '#/components/schemas/Expr'
-          increment:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - type: object
+          properties:
+            min:
+              $ref: '#/components/schemas/Expr'
+            max:
+              $ref: '#/components/schemas/Expr'
+            increment:
+              $ref: '#/components/schemas/Expr'
     Money:
       type: object
       properties:
@@ -481,35 +481,35 @@ components:
         name: RefreshBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          refresh:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            refresh:
+              $ref: '#/components/schemas/Expr'
     RelationshipBehavior:
       type: object
       xml:
         name: RelationshipBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/Behavior'
-      - type: object
-        properties:
-          relationshipType:
-            type: string
-          linkedEntityName:
-            type: string
+        - $ref: '#/components/schemas/Behavior'
+        - type: object
+          properties:
+            relationshipType:
+              type: string
+            linkedEntityName:
+              type: string
     ResetValueBehavior:
       type: object
       xml:
         name: ResetValueBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          resetValue:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            resetValue:
+              $ref: '#/components/schemas/Expr'
     ValidationResult:
       type: object
       properties:
@@ -604,13 +604,13 @@ components:
         name: ValueListBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeValidationBehavior'
-      - type: object
-        properties:
-          valueListItems:
-            type: array
-            items:
-              $ref: '#/components/schemas/ValueListItem'
+        - $ref: '#/components/schemas/AttributeValidationBehavior'
+        - type: object
+          properties:
+            valueListItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/ValueListItem'
     ValueListItem:
       type: object
       properties:
@@ -636,11 +636,11 @@ components:
         name: VisibleBehavior
         namespace: http://beans.generated.openl.org
       allOf:
-      - $ref: '#/components/schemas/AttributeBehavior'
-      - type: object
-        properties:
-          visible:
-            $ref: '#/components/schemas/Expr'
+        - $ref: '#/components/schemas/AttributeBehavior'
+        - type: object
+          properties:
+            visible:
+              $ref: '#/components/schemas/Expr'
     BehaviorRequest:
       type: object
       properties:

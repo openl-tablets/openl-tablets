@@ -13,7 +13,6 @@ import org.openl.source.impl.URLSourceCodeModule;
 
 /**
  * Searches for includes.
- *
  */
 public class IncludeSearcher {
 

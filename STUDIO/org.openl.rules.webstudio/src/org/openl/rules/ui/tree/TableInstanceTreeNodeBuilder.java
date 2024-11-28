@@ -10,7 +10,6 @@ import org.openl.types.impl.MethodKey;
 
 /**
  * Builds tree node for table instance.
- *
  */
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
@@ -23,7 +22,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
 
         return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary(),
-            WebStudioFormats.getInstance());
+                WebStudioFormats.getInstance());
     }
 
     /**
@@ -54,17 +53,17 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     @Override
     public boolean isUnique(TableSyntaxNode tsn) {
         return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType()) || XlsNodeTypes.XLS_DATATYPE.toString()
-            .equals(tsn.getType()) || XlsNodeTypes.XLS_DATA.toString()
+                .equals(tsn.getType()) || XlsNodeTypes.XLS_DATA.toString()
                 .equals(tsn.getType()) || XlsNodeTypes.XLS_TEST_METHOD.toString()
-                    .equals(tsn.getType()) || XlsNodeTypes.XLS_ENVIRONMENT.toString()
-                        .equals(tsn.getType()) || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These
-        // tables
-        // don't have
-        // versions
-        // and cannot
-        // be grouped
+                .equals(tsn.getType()) || XlsNodeTypes.XLS_ENVIRONMENT.toString()
+                .equals(tsn.getType()) || XlsNodeTypes.XLS_OTHER.toString().equals(tsn.getType()) // These
+                // tables
+                // don't have
+                // versions
+                // and cannot
+                // be grouped
                 || tsn.getMember() == null; // When table contains syntax errors and cannot be grouped with other
-                                            // tables.
+        // tables.
     }
 
     @Override

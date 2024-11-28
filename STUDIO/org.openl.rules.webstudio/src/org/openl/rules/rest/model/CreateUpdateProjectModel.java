@@ -1,10 +1,10 @@
 package org.openl.rules.rest.model;
 
+import javax.validation.constraints.NotBlank;
+
 import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.rules.rest.validation.ProjectNameConstraint;
 import org.openl.util.StringUtils;
-
-import javax.validation.constraints.NotBlank;
 
 public class CreateUpdateProjectModel {
 
@@ -23,11 +23,11 @@ public class CreateUpdateProjectModel {
     private final boolean overwrite;
 
     public CreateUpdateProjectModel(String repoName,
-            String author,
-            String projectName,
-            String path,
-            String comment,
-            boolean overwrite) {
+                                    String author,
+                                    String projectName,
+                                    String path,
+                                    String comment,
+                                    boolean overwrite) {
         this.repoName = repoName;
         this.author = author;
         this.projectName = projectName;

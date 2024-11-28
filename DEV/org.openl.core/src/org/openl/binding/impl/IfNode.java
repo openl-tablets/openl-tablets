@@ -26,10 +26,10 @@ public class IfNode extends ABoundNode {
     }
 
     IfNode(ISyntaxNode syntaxNode,
-            IBoundNode conditionNode,
-            IBoundNode thenNode,
-            IBoundNode elseNode,
-            IOpenClass type) {
+           IBoundNode conditionNode,
+           IBoundNode thenNode,
+           IBoundNode elseNode,
+           IOpenClass type) {
         super(syntaxNode, conditionNode, thenNode, elseNode);
         this.conditionNode = conditionNode;
         this.thenNode = thenNode;

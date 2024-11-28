@@ -5,6 +5,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
@@ -27,8 +30,6 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ParsedGrid extends AGrid {
     private final Logger log = LoggerFactory.getLogger(ParsedGrid.class);
@@ -48,10 +49,10 @@ public class ParsedGrid extends AGrid {
     private transient TableStyles currentTableStyles;
 
     ParsedGrid(String workbookPath,
-            XlsSheetSourceCodeModule sheetSource,
-            SheetDescriptor sheet,
-            Object[][] cells,
-            boolean use1904Windowing) {
+               XlsSheetSourceCodeModule sheetSource,
+               SheetDescriptor sheet,
+               Object[][] cells,
+               boolean use1904Windowing) {
         this.workbookPath = workbookPath;
         this.cells = cells;
         this.sheetSource = sheetSource;
@@ -150,9 +151,9 @@ public class ParsedGrid extends AGrid {
         for (CellRowCol start : startPoints) {
             CellRowCol end = findBottomRight(start.row, start.col);
             GridRegion region = new GridRegion(getFirstRowNum() + start.row,
-                getFirstColNum() + start.col,
-                getFirstRowNum() + end.row,
-                getFirstColNum() + end.col);
+                    getFirstColNum() + start.col,
+                    getFirstRowNum() + end.row,
+                    getFirstColNum() + end.col);
             regions.add(region);
             regionsPool.add(region);
         }

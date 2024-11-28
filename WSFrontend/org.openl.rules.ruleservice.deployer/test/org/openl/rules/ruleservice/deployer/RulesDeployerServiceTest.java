@@ -1,5 +1,20 @@
 package org.openl.rules.ruleservice.deployer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,10 +31,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -28,21 +44,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@Ignore
+@Disabled
 public class RulesDeployerServiceTest {
 
     private static final String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
@@ -56,11 +58,11 @@ public class RulesDeployerServiceTest {
     private ArgumentCaptor<InputStream> streamCaptor;
     private ArgumentCaptor<FileChangesFromZip> fileChangesFromZipCaptor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
-        fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
-        streamCaptor = ArgumentCaptor.forClass(InputStream.class);
-        fileChangesFromZipCaptor = ArgumentCaptor.forClass(FileChangesFromZip.class);
+        fileDataCaptor = forClass(FileData.class);
+        streamCaptor = forClass(InputStream.class);
+        fileChangesFromZipCaptor = forClass(FileChangesFromZip.class);
     }
 
     private <T extends Repository> void init(Class<T> repo, boolean local) throws IOException {
@@ -87,7 +89,7 @@ public class RulesDeployerServiceTest {
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
         verify(mockedDeployRepo, times(1))
-            .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
+                .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
         assertNotNull(fileChangesFromZipCaptor.getValue());
         assertNotNull(fileDataCaptor.getValue());
     }
@@ -121,7 +123,7 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     @Test
@@ -158,7 +160,7 @@ public class RulesDeployerServiceTest {
         final FileData actualFileData = fileDataCaptor.getValue();
         assertNotNull(actualFileData);
         assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
-        assertTrue("Content size must be greater thar 0", actualFileData.getSize() > 0);
+        assertTrue(actualFileData.getSize() > 0, "Content size must be greater thar 0");
         assertEquals(expectedName, actualFileData.getName());
     }
 
@@ -171,7 +173,7 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     @Test
@@ -179,9 +181,9 @@ public class RulesDeployerServiceTest {
         init(Repository.class, false);
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
-            .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
+                .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
         when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
-            .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
+                .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"), output);
         Map<String, byte[]> entries = unzip(new ByteArrayInputStream(output.toByteArray()));
@@ -196,7 +198,7 @@ public class RulesDeployerServiceTest {
     public void testRead2() throws IOException {
         init(Repository.class, false);
         when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2"))
-            .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
+                .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         deployer.read("project2", toSet("project2/project2"), output);
         final byte[] actualBytes = output.toByteArray();
@@ -276,12 +278,12 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-            actualFileItems);
+                actualFileItems);
     }
 
     private List<FileItem> catchDeployFileItems() throws IOException {
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<List<FileItem>> captor = ArgumentCaptor.forClass(listClass);
+        ArgumentCaptor<List<FileItem>> captor = forClass(listClass);
 
         verify(mockedDeployRepo, times(1)).save(captor.capture());
         return captor.getValue();
@@ -290,8 +292,8 @@ public class RulesDeployerServiceTest {
     private FileData catchDeployFolders() throws IOException {
         Class<FileData> fileDataClass = FileData.class;
         Class<List<FileItem>> listClass = (Class) List.class;
-        ArgumentCaptor<FileData> captor1 = ArgumentCaptor.forClass(fileDataClass);
-        ArgumentCaptor<List<FileItem>> captor2 = ArgumentCaptor.forClass(listClass);
+        ArgumentCaptor<FileData> captor1 = forClass(fileDataClass);
+        ArgumentCaptor<List<FileItem>> captor2 = forClass(listClass);
 
         verify((Repository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
         return captor1.getValue();
@@ -305,7 +307,7 @@ public class RulesDeployerServiceTest {
             final FileData actualFileData = actualFileItem.getData();
             assertNotNull(actualFileData);
             assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
-            assertTrue("Content size must be greater than 0", actualFileData.getSize() > 0);
+            assertTrue(actualFileData.getSize() > 0, "Content size must be greater than 0");
             if (namesToVerify.contains(actualFileData.getName())) {
                 namesToVerify.remove(actualFileData.getName());
             } else {

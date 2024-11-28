@@ -3,8 +3,7 @@ package org.openl.rules.security.standalone.persistence;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -59,9 +58,9 @@ public class OpenLProject implements Serializable {
         this.projectPath = projectPath;
     }
 
-    @ManyToMany(targetEntity = Tag.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Project_Tags", joinColumns = { @JoinColumn(name = "project_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "tag_id") })
+    @ManyToMany(targetEntity = Tag.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(name = "OpenL_Project_Tags", joinColumns = {@JoinColumn(name = "project_id")}, inverseJoinColumns = {
+            @JoinColumn(name = "tag_id")})
     public List<Tag> getTags() {
         return tags;
     }

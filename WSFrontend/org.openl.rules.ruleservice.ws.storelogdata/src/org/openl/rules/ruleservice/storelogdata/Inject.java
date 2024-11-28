@@ -16,8 +16,8 @@ public class Inject<R> {
     }
 
     public Inject(Class<? extends Annotation> annotationClass,
-            BiFunction<Method, Annotation, R> resourceFunction,
-            Consumer<R> destroyFunction) {
+                  BiFunction<Method, Annotation, R> resourceFunction,
+                  Consumer<R> destroyFunction) {
         this.annotationClass = Objects.requireNonNull(annotationClass);
         this.resourceFunction = Objects.requireNonNull(resourceFunction);
         this.destroyFunction = destroyFunction;

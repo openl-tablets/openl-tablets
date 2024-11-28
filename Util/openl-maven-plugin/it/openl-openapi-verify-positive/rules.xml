@@ -1,9 +1,9 @@
 <project>
-  <name>verify-openapi-positive</name>
-  <modules>
-    <module>
-      <name>Main</name>
-      <rules-root path="Main.xlsx"/>
-    </module>
-  </modules>
+    <name>verify-openapi-positive</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+    </modules>
 </project>

@@ -19,7 +19,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class LocalFrameBuilder {
     private static class LocalVar implements ILocalVar {
@@ -199,7 +198,7 @@ public class LocalFrameBuilder {
             for (ILocalVar var : frame) {
                 String s1 = var.getNamespace();
                 if ((strictMatch && var.getName().equals(varname) || !strictMatch && var.getName()
-                    .equalsIgnoreCase(varname)) && (Objects.equals(s1, namespace))) {
+                        .equalsIgnoreCase(varname)) && (Objects.equals(s1, namespace))) {
                     return var;
                 }
             }

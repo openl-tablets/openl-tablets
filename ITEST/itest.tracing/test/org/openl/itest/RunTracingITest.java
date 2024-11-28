@@ -2,8 +2,8 @@ package org.openl.itest;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -31,12 +31,11 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.StdErr;
+import org.junitpioneer.jupiter.StdIo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -48,18 +47,15 @@ import org.openl.itest.core.JettyServer;
 
 public class RunTracingITest {
 
-    @Rule
-    public final SystemErrRule console = new SystemErrRule().enableLog();
-
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
 
     private static JettyServer server;
     private static HttpClient client;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:7.5.0")).withKraft();
+            DockerImageName.parse("confluentinc/cp-kafka:latest")).withKraft();
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
@@ -68,7 +64,7 @@ public class RunTracingITest {
         client = server.client();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
         try {
@@ -78,13 +74,9 @@ public class RunTracingITest {
         }
     }
 
-    @Before
-    public void prepare() {
-        console.clearLog();
-    }
-
     @Test
-    public void testKafkaServiceSpan() throws InterruptedException {
+    @StdIo
+    public void testKafkaServiceSpan(StdErr stdOut) throws Exception {
         try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
             consumer.subscribe(Collections.singletonList("hello-out-topic"));
             producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
@@ -94,22 +86,26 @@ public class RunTracingITest {
             });
             consumer.unsubscribe();
         }
+        Thread.sleep(500);
+        var log = stdOut.capturedString();
 
-        checkOpenLMethodsSpans("Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
+        checkOpenLMethodsSpans(log, "Hello", "hello-in-topic publish", "openl-rules-opentelemetry", "io.opentelemetry.kafka-clients");
     }
 
     @Test
-    public void testRESTServiceSpans() throws InterruptedException {
+    @StdIo
+    public void testRESTServiceSpans(StdErr stdOut) throws Exception {
         client.send("simple1.tracing.rest.post");
 
-        checkOpenLMethodsSpans("Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.http-url-connection");
+        Thread.sleep(500);
+        var log = stdOut.capturedString();
+        checkOpenLMethodsSpans(log, "Hello", "POST", "openl-rules-opentelemetry", "io.opentelemetry.java-http-client");
     }
 
-    private void checkOpenLMethodsSpans(String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) throws InterruptedException {
-        Thread.sleep(100); // Waiting logs due async deferred output
+    private void checkOpenLMethodsSpans(String log, String expectedOpenLMethodSpanName, String expectedRootSpanName, String expectedScope, String expectedParentScope) {
         ObjectMapper objectMapper = new ObjectMapper();
         List<ObjectNode> spanJsons;
-        var allSpans = console.getLog().lines()
+        var allSpans = log.lines()
                 .filter(line -> line.contains("OtlpJsonLoggingSpanExporter"))
                 .map(s -> s.substring(s.indexOf('{')))
                 .flatMap(s -> {

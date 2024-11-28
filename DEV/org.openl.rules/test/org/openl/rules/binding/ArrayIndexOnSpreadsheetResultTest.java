@@ -1,8 +1,9 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.testmethod.TestUnitsResults;
 
@@ -14,7 +15,7 @@ public class ArrayIndexOnSpreadsheetResultTest {
     public void testUserExceptionSupport1() {
         ITest instance = TestUtils.create(FILE_NAME, ITest.class);
         TestUnitsResults result = instance.findEmployeeClassPremiumTest();
-        assertEquals("Number of failures", 0, result.getNumberOfFailures());
+        assertEquals(0, result.getNumberOfFailures(), "Number of failures");
     }
 
     public interface ITest {

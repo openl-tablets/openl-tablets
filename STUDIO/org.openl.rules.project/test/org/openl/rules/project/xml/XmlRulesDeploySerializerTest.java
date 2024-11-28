@@ -1,16 +1,17 @@
 package org.openl.rules.project.xml;
 
-import org.junit.Test;
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.project.model.WildcardPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.project.model.WildcardPattern;
 
 public class XmlRulesDeploySerializerTest {
 
@@ -57,14 +58,14 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setProvideRuntimeContext(false);
         rulesDeploy.setProvideVariations(true);
         rulesDeploy.setLazyModulesForCompilationPatterns(
-                new WildcardPattern[] { new WildcardPattern("some1*"),
-                        new WildcardPattern("some2*") });
+                new WildcardPattern[]{new WildcardPattern("some1*"),
+                        new WildcardPattern("some2*")});
         rulesDeploy.setInterceptingTemplateClassName(String.class.getName());
         rulesDeploy.setAnnotationTemplateClassName(String.class.getName());
         rulesDeploy.setServiceClass(String.class.getName());
         rulesDeploy.setUrl("someURL");
         rulesDeploy.setVersion("v1");
-        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { PublisherType.WEBSERVICE });
+        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{PublisherType.WEBSERVICE});
         rulesDeploy.setGroups("group1,group2");
         rulesDeploy.setRmiName("rmiName");
         Map<String, Object> configuration = new HashMap<>();

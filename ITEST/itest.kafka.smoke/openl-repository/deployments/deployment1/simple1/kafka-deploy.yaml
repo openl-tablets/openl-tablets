@@ -1,4 +1,3 @@
- 
 methods:
   - method.name: Hello
     in.topic.name: hello-in-topic

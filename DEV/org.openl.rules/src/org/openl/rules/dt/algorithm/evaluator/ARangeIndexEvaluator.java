@@ -24,8 +24,8 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     final int nparams;
 
     ARangeIndexEvaluator(IRangeAdaptor<Object, ? extends Comparable<Object>> rangeAdaptor,
-            int nparams,
-            ConditionCasts conditionCasts) {
+                         int nparams,
+                         ConditionCasts conditionCasts) {
         super(conditionCasts);
         this.rangeAdaptor = rangeAdaptor;
         this.nparams = nparams;
@@ -41,9 +41,9 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
         IOpenSourceCodeModule conditionSource = condition.getSourceCodeModule();
 
         String code = params.length == 2 ? String.format("%1$s<=(%2$s) && (%2$s) < %3$s",
-            params[0].getName(),
-            conditionSource.getCode(),
-            params[1].getName()) : String.format("%1$s.contains(%2$s)", params[0].getName(), conditionSource.getCode());
+                params[0].getName(),
+                conditionSource.getCode(),
+                params[1].getName()) : String.format("%1$s.contains(%2$s)", params[0].getName(), conditionSource.getCode());
         return new StringSourceCodeModule(code, conditionSource.getUri());
     }
 

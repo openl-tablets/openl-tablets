@@ -20,7 +20,7 @@ public class LessThanConstraint extends AbstractConstraint {
     private Object[] parseParams() {
         String[] mathes = getValue().replaceAll("\\s", "").split(CONSTRAINT_KEY);
         if (mathes.length > 1) {
-            return new String[] { mathes[1] };
+            return new String[]{mathes[1]};
         }
         return StringUtils.EMPTY_STRING_ARRAY;
     }

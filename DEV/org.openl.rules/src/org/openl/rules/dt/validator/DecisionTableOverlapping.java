@@ -8,7 +8,6 @@ import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableOverlapping {
 
@@ -21,8 +20,8 @@ public class DecisionTableOverlapping {
     }
 
     public DecisionTableOverlapping(int[] rulesIndexes,
-            ArrayOfNamedValues value,
-            Overlapping.OverlappingStatus status) {
+                                    ArrayOfNamedValues value,
+                                    Overlapping.OverlappingStatus status) {
         this.rulesIndexes = rulesIndexes;
         this.value = value;
         this.status = status;
@@ -41,20 +40,20 @@ public class DecisionTableOverlapping {
         switch (status) {
             case BLOCK:
                 return String.format("Rule #%d completely blocks rule #%d. For example: %s",
-                    rulesIndexes[0],
-                    rulesIndexes[1],
-                    value.toString());
+                        rulesIndexes[0],
+                        rulesIndexes[1],
+                        value.toString());
             case PARTIAL:
                 return String.format("Rule #%d partially overlaps with rule #%d. For example:  %s",
-                    rulesIndexes[0],
-                    rulesIndexes[1],
-                    value.toString());
+                        rulesIndexes[0],
+                        rulesIndexes[1],
+                        value.toString());
 
             case OVERRIDE:
                 return String.format("Rule #%d overrides rule #%d. For example: %s",
-                    rulesIndexes[1],
-                    rulesIndexes[0],
-                    value.toString());
+                        rulesIndexes[1],
+                        rulesIndexes[0],
+                        value.toString());
         }
         return String.format("Rules with # %s overlap for values: %s", asString(rulesIndexes), value.toString());
     }

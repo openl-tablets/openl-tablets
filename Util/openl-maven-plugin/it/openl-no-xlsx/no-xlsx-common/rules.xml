@@ -1,0 +1,6 @@
+<project>
+    <name>no-xlsx-common</name>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
+</project>

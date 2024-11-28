@@ -1,13 +1,14 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
@@ -17,77 +18,35 @@ public class RunFileRepoRestRulesDeploymentTest {
     private static JettyServer server;
     private static HttpClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = JettyServer.start("file");
         client = server.client();
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
     }
 
     @Test
     public void testDeployRules() {
-        client.send("ui-info.get");
-        client.send("admin_services_no_services.json.get");
-        client.send("deployed-rules_hello_not_found.post");
+        client.test("test-resources/deploy-single");
+    }
 
-        client.send("rules-to-deploy.deploy.post");
-        client.send("deployed-rules_services.get");
-        client.send("deployed-rules_methods.get");
-        client.send("rules-to-deploy.download.get");
-        client.send("deployed-rules_hello.post");
-
-        // should be always redeployed
-        client.send("rules-to-deploy_v2.deploy.post");
-        client.send("deployed-rules_services.get");
-        client.send("deployed-rules_methods.get");
-        client.send("deployed-rules_ui-info.get");
-        client.send("deployed-rules_hello_2.post");
-
-        client.send("rules-to-deploy-failed.deploy.post");
-        client.send("deployed-rules_services_failed.get");
-        client.send("deployed-rules_errors.get");
-        client.send("deployed-rules_manifest.get");
-
-        client.send("deployed-rules.delete");
-        client.send("admin_services_no_services.json.get");
-
-        client.send("empty_project.deploy.post");
-        client.send("admin_services_no_services.json.get");
+    @Test
+    public void testDeployVersion() {
+        client.test("test-resources/deploy-version");
     }
 
     @Test
     public void testDeployRules_multipleDeployment() {
-        client.send("admin_services_no_services.json.get");
-
-        client.send("multiple-deployment_v1.deploy.post");
-        client.send("yaml_project_services.get");
-        client.send("project1_methods.get");
-        client.send("yaml_project_project2_methods.get");
-        client.send("project1_sayHello.post");
-        client.send("multiple-deployment_v1.download.get");
-
-        // should be updated
-        client.send("multiple-deployment_v2.deploy.post");
-        client.send("project1_sayHello_2.post");
-        client.send("multiple-deployment_v2.download.get");
-
-        client.send("yaml_project_all.delete");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/deploy-multi");
     }
 
     @Test
     public void testMissingServiceMethods() {
-        client.send("admin_services_no_services.json.get");
-        client.send("missing-service_methods.get");
-        client.send("missing-service.delete");
-        client.send("missing-service.get");
-        client.send("missing-service_errors.get");
-        client.send("missing-service_manifest.get");
-        client.send("admin_services_no_services.json.get");
+        client.test("test-resources/missing-service");
     }
 
     @Test
@@ -116,7 +75,7 @@ public class RunFileRepoRestRulesDeploymentTest {
     }
 
     @Test
-    @Ignore("Check EPBDS-10940 issue")
+    @Disabled("Check EPBDS-10940 issue")
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
 
@@ -127,7 +86,7 @@ public class RunFileRepoRestRulesDeploymentTest {
         executor.start();
 
         AsyncExecutor deployers = AsyncExecutor.start(() -> client.send("EPBDS-8758/doSomething_v2.deploy.post"),
-            () -> client.send("EPBDS-8758/doSomething_v3.deploy.post"));
+                () -> client.send("EPBDS-8758/doSomething_v3.deploy.post"));
 
         TimeUnit.SECONDS.sleep(1);
         boolean deployErrors = deployers.stop();

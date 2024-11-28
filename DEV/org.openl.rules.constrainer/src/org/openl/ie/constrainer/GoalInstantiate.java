@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -14,6 +16,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of a {@link Goal} that instaintiates the constraint integer variable.
  * <p>
@@ -24,13 +27,12 @@ package org.openl.ie.constrainer;
  * GoalInstantiate can use both recursive and non-recursive search algorithms. Recursive implementation iterates the
  * domain looking for a value that can be assigned to a variable by GoalSetValue. Non-recursive implementations invokes
  * GoalSetValue ones and removes the given value if it fails.
- *
  */
 public class GoalInstantiate extends GoalImpl {
     /**
      * An internal interface for the instantiation of the variable.
      */
-    interface Impl extends java.io.Serializable {
+    interface Impl extends Serializable {
         /**
          * Instantiate variable with a chosen_value.
          */

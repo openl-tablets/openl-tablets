@@ -3,9 +3,10 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 
 public class CassandraEntitySaver {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraEntitySaver.class);

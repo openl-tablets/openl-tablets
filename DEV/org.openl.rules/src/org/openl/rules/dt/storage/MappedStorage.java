@@ -1,12 +1,16 @@
 package org.openl.rules.dt.storage;
 
+import org.openl.rules.dt.Expr;
+
 abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
     private final Object[] uniqueValues;
+    private IStorage storage;
 
-    MappedStorage(Object[] uniqueValues, StorageInfo info) {
+    MappedStorage(Object[] uniqueValues, IStorage storage, StorageInfo info) {
         super(info);
         this.uniqueValues = uniqueValues;
+        this.storage = storage;
     }
 
     @Override
@@ -31,4 +35,13 @@ abstract class MappedStorage extends ReadOnlyStorage<Object> {
         return uniqueValues[mapIndex(index)] == IStorage.StorageType.ELSE;
     }
 
+    @Override
+    public Expr getExprValue(int index) {
+        return storage.getExprValue(index);
+    }
+
+    @Override
+    public void removeExprs() {
+        this.storage = null;
+    }
 }

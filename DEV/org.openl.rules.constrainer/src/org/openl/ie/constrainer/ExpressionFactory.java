@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An interface for the expression factory.
  */
@@ -25,7 +26,7 @@ public interface ExpressionFactory extends Undoable {
 
     /**
      * Returns new or cached expression of the required class, arguments and argument types. Better performance than
-     * {@link #getExpression(Class,Object[])}.
+     * {@link #getExpression(Class, Object[])}.
      */
     Expression getExpression(Class clazz, Object[] args, Class[] types);
 

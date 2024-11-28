@@ -30,9 +30,9 @@ import org.openl.util.StringUtils;
  */
 public final class RepositoryUtils {
     public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = Comparator
-        .comparing(AProjectArtefact::isFolder)
-        .reversed()
-        .thenComparing(AProjectArtefact::getName);
+            .comparing(AProjectArtefact::isFolder)
+            .reversed()
+            .thenComparing(AProjectArtefact::getName);
 
     private RepositoryUtils() {
     }
@@ -60,11 +60,11 @@ public final class RepositoryUtils {
     }
 
     public static void archive(Repository folderRepository,
-            String rulesPath,
-            String projectName,
-            String version,
-            OutputStream out,
-            Manifest manifest) throws IOException {
+                               String rulesPath,
+                               String projectName,
+                               String version,
+                               OutputStream out,
+                               Manifest manifest) throws IOException {
         ZipOutputStream zipOutputStream = null;
         try {
             zipOutputStream = new DeploymentOutputStream(out, manifest);
@@ -96,17 +96,17 @@ public final class RepositoryUtils {
 
     /**
      * Includes generated manifest to the first position of deployed archive. The old manifest file will be skipped
-     * 
-     * @param in project input stream
-     * @param out target output stream
+     *
+     * @param in       project input stream
+     * @param out      target output stream
      * @param manifest manifest file to include
      * @throws IOException
      */
     public static void includeManifestAndRepackArchive(InputStream in,
-            OutputStream out,
-            Manifest manifest) throws IOException {
+                                                       OutputStream out,
+                                                       Manifest manifest) throws IOException {
         try (ZipInputStream zipIn = new ZipInputStream(in);
-                ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
+             ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
             byte[] buffer = new byte[64 * 1024];
             ZipEntry entry = zipIn.getNextEntry();
             while (entry != null) {
@@ -122,9 +122,9 @@ public final class RepositoryUtils {
     }
 
     static Repository getRepositoryForVersion(Repository folderRepo,
-            String rulesPath,
-            String projectName,
-            String version) throws IOException {
+                                              String rulesPath,
+                                              String projectName,
+                                              String version) throws IOException {
         String srcProjectPath = rulesPath + projectName + "/";
         if (folderRepo.supports().branches()) {
             BranchRepository branchRepository = (BranchRepository) folderRepo;
@@ -151,7 +151,7 @@ public final class RepositoryUtils {
 
     /**
      * Build project version using the following pattern {@code %modifiedBy%-%modifiedAt:yyyy-MM-dd_HH-mm-ss%}
-     * 
+     *
      * @param fileData project file data
      * @return project version
      */

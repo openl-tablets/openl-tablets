@@ -1,8 +1,9 @@
 package org.openl.rules.ui.tablewizard.util;
 
+import org.richfaces.json.JSONObject;
+
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.richfaces.json.JSONObject;
 
 public class CellStyleManager {
     private final CellStyleCreator styleFactory;

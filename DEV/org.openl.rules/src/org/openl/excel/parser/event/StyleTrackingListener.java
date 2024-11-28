@@ -10,6 +10,7 @@ import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.FormatRecord;
+import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 
 public class StyleTrackingListener implements HSSFListener {
@@ -23,7 +24,7 @@ public class StyleTrackingListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         if (record instanceof FormatRecord) {
             FormatRecord fr = (FormatRecord) record;
             customFormats.put(fr.getIndexCode(), fr);
@@ -46,7 +47,7 @@ public class StyleTrackingListener implements HSSFListener {
 
         String format;
         if (formatIndex >= HSSFDataFormat.getNumberOfBuiltinBuiltinFormats() || customFormats
-            .get(formatIndex) != null) {
+                .get(formatIndex) != null) {
             format = customFormats.get(formatIndex).getFormatString();
         } else {
             format = HSSFDataFormat.getBuiltinFormat((short) formatIndex);
@@ -58,7 +59,6 @@ public class StyleTrackingListener implements HSSFListener {
      * Returns the index of the format string, used by your cell, or -1 if none found
      *
      * @param cell the cell
-     *
      * @return the index of the format string
      */
     public int getFormatIndex(CellValueRecordInterface cell) {

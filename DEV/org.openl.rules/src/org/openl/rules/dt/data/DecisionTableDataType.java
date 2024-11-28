@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
@@ -36,6 +37,8 @@ import org.openl.types.IParameterDeclaration;
  */
 
 public class DecisionTableDataType extends ComponentOpenClass {
+
+    public static String EXPR_FIELD_NAME = SpreadsheetStructureBuilder.DOLLAR_SIGN + "Expr";
 
     private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
     private final Map<String, List<IOpenField>> nonConflictConditionParamNamesNonStrictMatch = new HashMap<>();
@@ -86,8 +89,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 return f;
             } else {
                 List<IOpenField> decisionRowFields = conditionParameterFields.stream()
-                    .filter(e -> e instanceof DecisionRowField)
-                    .collect(Collectors.toList());
+                        .filter(e -> e instanceof DecisionRowField)
+                        .collect(Collectors.toList());
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
@@ -106,8 +109,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
         if (f != null) {
             nonConflictConditionParamNames.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
             nonConflictConditionParamNamesNonStrictMatch
-                .computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
-                .add(f);
+                    .computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
+                    .add(f);
         }
     }
 

@@ -1,25 +1,23 @@
 package org.openl.rules.ruleservice.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
 @TestPropertySource(properties = {
         "production-repository.uri=test-resources/RuleServiceDeploymentRelatedDependencyManagerTest",
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
-@ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
+@SpringJUnitConfig(locations = {"classpath:openl-ruleservice-beans.xml"})
 public class RuleServiceDeploymentRelatedDependencyManagerTest {
 
     @Autowired
@@ -32,38 +30,38 @@ public class RuleServiceDeploymentRelatedDependencyManagerTest {
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"))
-                .contains("project1"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"))
+                        .contains("project1"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"))
-                .contains("javabean"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"))
+                        .contains("javabean"));
         assertEquals("project1javabean1",
-            frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"));
+                frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printJavaBean"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"))
-                .contains("project1"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"))
+                        .contains("project1"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"))
-                .contains("datatype"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"))
+                        .contains("datatype"));
         assertEquals("project1datatypefalse",
-            frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"));
+                frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project1", "printDatatype"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"))
-                .contains("project2"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"))
+                        .contains("project2"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"))
-                .contains("javabean"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"))
+                        .contains("javabean"));
         assertEquals("project2javabean1.0",
-            frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"));
+                frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printJavaBean"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"))
-                .contains("project2"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"))
+                        .contains("project2"));
         assertTrue(
-            ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"))
-                .contains("datatype"));
+                ((String) frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"))
+                        .contains("datatype"));
         assertEquals("project2datatypefalse",
-            frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"));
+                frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_project2", "printDatatype"));
         assertEquals("project2javabean1.0",
-            frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_multimodule", "printJavaBeanSecond"));
+                frontend.execute("RuleServiceDeploymentRelatedDependencyManagerTest_multimodule", "printJavaBeanSecond"));
     }
 }

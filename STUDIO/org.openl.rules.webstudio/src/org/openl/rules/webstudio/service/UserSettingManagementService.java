@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.service;
 
+import java.util.Objects;
+
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.security.standalone.dao.UserSettingDao;
 import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.PropertyResolver;
-
-import java.util.Objects;
 
 public class UserSettingManagementService {
 
@@ -35,7 +36,7 @@ public class UserSettingManagementService {
         String value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
-                "Cannot cast null to Boolean. The default value for the \" + key + \" property might be missing.");
+                    "Cannot cast null to Boolean. The default value for the \" + key + \" property might be missing.");
         }
 
         return Boolean.parseBoolean(value);
@@ -45,7 +46,7 @@ public class UserSettingManagementService {
         String value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
-                "Cannot cast null to int. Probably default value for property " + key + " is absent.");
+                    "Cannot cast null to int. Probably default value for property " + key + " is absent.");
         }
 
         return Integer.parseInt(value);

@@ -11,11 +11,12 @@ import org.apache.poi.ss.formula.SharedFormula;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.openl.rules.table.IGridRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
+
+import org.openl.rules.table.IGridRegion;
 
 public class StyleIndexHandler extends DefaultHandler {
     private final Logger log = LoggerFactory.getLogger(StyleIndexHandler.class);
@@ -57,8 +58,8 @@ public class StyleIndexHandler extends DefaultHandler {
             sharedFormulaIndex = attributes.getValue("si");
             sharedFormulaRef = attributes.getValue("ref");
             if (IGridRegion.Tool.contains(tableRegion,
-                current.getColumn(),
-                current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
+                    current.getColumn(),
+                    current.getRow()) || sharedFormulaIndex != null && sharedFormulaRef != null) {
                 readFormula = true;
             }
         }
@@ -77,7 +78,7 @@ public class StyleIndexHandler extends DefaultHandler {
             readFormula = false;
             if (sharedFormulaIndex != null && sharedFormulaRef != null) {
                 sharedFormulas.put(sharedFormulaIndex,
-                    new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
+                        new SharedFormulaDefinition(formula.toString(), sharedFormulaRef));
             }
             if (IGridRegion.Tool.contains(tableRegion, current.getColumn(), current.getRow())) {
                 try {
@@ -107,10 +108,10 @@ public class StyleIndexHandler extends DefaultHandler {
 
         SharedFormula sf = new SharedFormula(SpreadsheetVersion.EXCEL2007);
         Ptg[] parsedTokens = FormulaParser.parse(formulaDefinition
-            .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
+                .getValue(), formulaParsingWorkbook, FormulaType.CELL, sheetIndex, current.getRow());
         Ptg[] convertedTokens = sf.convertSharedFormulas(parsedTokens,
-            current.getRow() - ref.getFirstRow(),
-            current.getColumn() - ref.getFirstColumn());
+                current.getRow() - ref.getFirstRow(),
+                current.getColumn() - ref.getFirstColumn());
         // Formulas with links to other workbooks are not supported
         return FormulaRenderer.toFormulaString(null, convertedTokens);
     }

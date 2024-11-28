@@ -1,10 +1,11 @@
 package org.openl.security.acl;
 
-import org.openl.security.acl.permission.AclPermission;
 import org.springframework.security.acls.domain.AuditLogger;
 import org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Permission;
+
+import org.openl.security.acl.permission.AclPermission;
 
 public class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
     public MaskPermissionGrantingStrategy(AuditLogger auditLogger) {

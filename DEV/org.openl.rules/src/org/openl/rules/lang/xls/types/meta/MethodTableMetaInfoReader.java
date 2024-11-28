@@ -25,7 +25,7 @@ public class MethodTableMetaInfoReader extends AMethodMetaInfoReader<MethodTable
             ICell cell = body.getCell(0, i);
             if (isNeededCell(cell, row, col)) {
                 List<CellMetaInfo> metaInfoList = MetaInfoReaderUtils.getMetaInfo(getSourceCodeModule(body),
-                    ((TableMethod) getBoundNode().getMethod()).getCompositeMethod());
+                        ((TableMethod) getBoundNode().getMethod()).getCompositeMethod());
 
                 return metaInfoList.get(i);
             }

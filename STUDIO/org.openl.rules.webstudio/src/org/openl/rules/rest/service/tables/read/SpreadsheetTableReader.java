@@ -2,10 +2,10 @@ package org.openl.rules.rest.service.tables.read;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SpreadsheetCellView;
 import org.openl.rules.rest.model.tables.SpreadsheetColumnView;
 import org.openl.rules.rest.model.tables.SpreadsheetRowView;
@@ -13,7 +13,6 @@ import org.openl.rules.rest.model.tables.SpreadsheetView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads legacy {@code Spreadsheet} table to {@link SpreadsheetView} model.
@@ -37,6 +36,7 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        var metaInfoReader = tsn.getMetaInfoReader();
         var tableBody = tsn.getTableBody();
         int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
@@ -58,7 +58,8 @@ public class SpreadsheetTableReader extends ExecutableTableReader<SpreadsheetVie
         SpreadsheetCellView[][] cells = new SpreadsheetCellView[height - 1][width - 1];
         for (int row = 1; row < height; row++) {
             for (int col = 1; col < width; col++) {
-                var cellBuilder = SpreadsheetCellView.builder().value(tableBody.getCell(col, row).getObjectValue());
+                var cellValue = getCellValue(tableBody.getCell(col, row), metaInfoReader);
+                var cellBuilder = SpreadsheetCellView.builder().value(cellValue);
                 cells[row - 1][col - 1] = cellBuilder.build();
             }
         }

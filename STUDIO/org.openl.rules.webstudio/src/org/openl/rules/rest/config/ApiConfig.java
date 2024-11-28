@@ -2,7 +2,10 @@ package org.openl.rules.rest.config;
 
 import java.util.List;
 
-import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -28,18 +31,16 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.openl.rules.serialization.ExtendedStdDateFormat;
+import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 
 /**
- * Spring WebStudio API Configuration
+ * Spring OpenL Studio API Configuration
  *
  * @author Vladyslav Pikus
  */
 @Configuration
-@Import({ ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class })
+@Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
 @EnableWebMvc
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
@@ -81,8 +82,9 @@ public class ApiConfig implements WebMvcConfigurer {
     public ObjectMapper objectMapper() {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule())
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         return mapper;
     }
 

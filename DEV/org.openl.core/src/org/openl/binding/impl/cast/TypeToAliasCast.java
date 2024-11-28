@@ -8,7 +8,7 @@ import org.openl.util.DomainUtils;
 
 /**
  * Class provides feature to convert alias data type to underlying type.
- *
+ * <p>
  * Alias data type is special type in OpenL engine. This type used by engine as helpful mechanism to provide for users
  * ability to use types with predefined values. For example, person age is int value, but it cannot be negative. For
  * this reason user can define alias type Age with underlying type IntRange and define appropriate values for age field
@@ -76,10 +76,10 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
         // appropriate message.
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(
-                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                    from,
-                    toClass.getName(),
-                    DomainUtils.toString(domain)));
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            from,
+                            toClass.getName(),
+                            DomainUtils.toString(domain)));
         }
 
         // Return object as a converted value.

@@ -1,8 +1,9 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2ShortConvertorTest {
 
@@ -20,22 +21,28 @@ public class String2ShortConvertorTest {
         assertEquals(Short.MIN_VALUE, result);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertPositiveOverflow() {
-        String2ShortConvertor converter = new String2ShortConvertor();
-        converter.parse("32768", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2ShortConvertor converter = new String2ShortConvertor();
+            converter.parse("32768", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertNegativeOverflow() {
-        String2ShortConvertor converter = new String2ShortConvertor();
-        converter.parse("-32769", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2ShortConvertor converter = new String2ShortConvertor();
+            converter.parse("-32769", null);
+        });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testConvertNonInteger() {
-        String2ShortConvertor converter = new String2ShortConvertor();
-        converter.parse("1.3", null);
+        assertThrows(NumberFormatException.class, () -> {
+            String2ShortConvertor converter = new String2ShortConvertor();
+            converter.parse("1.3", null);
+        });
     }
 
 }

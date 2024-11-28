@@ -1,11 +1,12 @@
 package org.openl.excel.parser.sax;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.FolderUtils;
@@ -16,7 +17,7 @@ public class SheetOptimizationTest {
     @Test
     public void readFileWithBigSheets() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
-            .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
+                .create(FolderUtils.getResourcesFolder() + "big-sheet.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(1, sheets.size());
 
@@ -32,7 +33,7 @@ public class SheetOptimizationTest {
     @Test
     public void mergedCells() {
         ExcelReader reader = ExcelReaderFactory.sequentialFactory()
-            .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
+                .create(FolderUtils.getResourcesFolder() + "sheet-optimization.xlsx");
         List<? extends SheetDescriptor> sheets = reader.getSheets();
         assertEquals(3, sheets.size());
 

@@ -23,7 +23,7 @@ public final class CastsLinkageCast implements IOpenCast {
         List<IOpenCast> openCasts = new ArrayList<>();
         for (IOpenCast cast : casts) {
             if (cast instanceof JavaUpCast && !openCasts.isEmpty() && openCasts
-                .get(openCasts.size() - 1) instanceof JavaBoxingCast) {
+                    .get(openCasts.size() - 1) instanceof JavaBoxingCast) {
                 openCasts.set(openCasts.size() - 1, JavaBoxingUpCast.getInstance());
             } else {
                 openCasts.add(cast);

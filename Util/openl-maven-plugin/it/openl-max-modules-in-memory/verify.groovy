@@ -11,7 +11,7 @@ try {
     assert logs.contains("Dependency 'OpenL Rules Simple Project/TestRules2' is reset.")
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

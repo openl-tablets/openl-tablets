@@ -73,17 +73,17 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
             if (Arrays.stream(declaredClasses).allMatch(e -> e instanceof CustomSpreadsheetResultOpenClass)) {
                 Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = Arrays
-                    .stream(declaredClasses)
-                    .map(CustomSpreadsheetResultOpenClass.class::cast)
-                    .flatMap(
-                        e -> e instanceof CombinedSpreadsheetResultOpenClass ? ((CombinedSpreadsheetResultOpenClass) e)
-                            .getCombinedTypes()
-                            .stream() : Stream.of(e))
-                    .collect(Collectors.toList());
+                        .stream(declaredClasses)
+                        .map(CustomSpreadsheetResultOpenClass.class::cast)
+                        .flatMap(
+                                e -> e instanceof CombinedSpreadsheetResultOpenClass ? ((CombinedSpreadsheetResultOpenClass) e)
+                                        .getCombinedTypes()
+                                        .stream() : Stream.of(e))
+                        .collect(Collectors.toList());
                 Map<IOpenClass, List<CustomSpreadsheetResultOpenClass>> groupedByTypes = customSpreadsheetResultOpenClasses
-                    .stream()
-                    .filter(e -> e.getField(boundField.getName()) != null)
-                    .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
+                        .stream()
+                        .filter(e -> e.getField(boundField.getName()) != null)
+                        .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
                 StringBuilder classNames = new StringBuilder();
                 if (groupedByTypes.keySet().size() > 1) {
                     for (Map.Entry<IOpenClass, List<CustomSpreadsheetResultOpenClass>> e : groupedByTypes.entrySet()) {
@@ -92,10 +92,10 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                     }
                 }
                 description = MethodUtil.printType(boundField.getDeclaringClass()) + classNames + "\n" + MethodUtil
-                    .printType(boundField.getType()) + " " + boundField.getName();
+                        .printType(boundField.getType()) + " " + boundField.getName();
             } else {
                 description = MethodUtil.printType(boundField.getDeclaringClass()) + "\n" + MethodUtil
-                    .printType(boundField.getType()) + " " + boundField.getName();
+                        .printType(boundField.getType()) + " " + boundField.getName();
             }
             syntaxNode = getIdentifierSyntaxNode(syntaxNode);
             IMetaInfo metaInfo = type.getMetaInfo();
@@ -119,23 +119,23 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         } else if (type instanceof XlsModuleOpenClass && boundField instanceof ConstantOpenField) {
             ConstantOpenField constantOpenField = (ConstantOpenField) boundField;
             description = MethodUtil.printType(boundField.getType()) + " " + boundField
-                .getName() + " = " + constantOpenField.getValueAsString();
+                    .getName() + " = " + constantOpenField.getValueAsString();
             uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
         } else if (boundField instanceof DependencyVar) {
             DependencyVar dependencyVar = (DependencyVar) boundField;
             description = (DependencyType.PROJECT
-                .equals(dependencyVar.getDependencyType()) ? "Project '" : "Module '") + dependencyVar.getName() + "'";
+                    .equals(dependencyVar.getDependencyType()) ? "Project '" : "Module '") + dependencyVar.getName() + "'";
             if (DependencyType.MODULE.equals(dependencyVar.getDependencyType())) {
                 uri = dependencyVar.getType().getMetaInfo().getSourceUrl();
             }
         } else if (boundField instanceof ConditionOrActionParameterField) {
             ConditionOrActionParameterField conditionOrActionParameterField = (ConditionOrActionParameterField) boundField;
             description = "Parameter of " + conditionOrActionParameterField.getConditionOrAction()
-                .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
+                    .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
         } else if (boundField instanceof ConditionOrActionDirectParameterField) {
             ConditionOrActionDirectParameterField conditionOrActionDirectParameterField = (ConditionOrActionDirectParameterField) boundField;
             description = "Parameter of " + conditionOrActionDirectParameterField.getConditionOrAction()
-                .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
+                    .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
         } else if (boundField instanceof DTColumnsDefinitionField) {
             DTColumnsDefinitionField dtColumnsDefinitionField = (DTColumnsDefinitionField) boundField;
             DTColumnsDefinition dtColumnsDefinition = dtColumnsDefinitionField.getDtColumnsDefinition();
@@ -146,7 +146,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                 columnType = dtColumnsDefinition.isAction() ? "action" : "return";
             }
             description = "External " + columnType + " parameter" + "\n" + MethodUtil
-                .printType(boundField.getType()) + " " + boundField.getName();
+                    .printType(boundField.getType()) + " " + boundField.getName();
             uri = dtColumnsDefinition.getUri();
         } else {
             IMetaInfo metaInfo = type.getMetaInfo();

@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.openl.rules.spring.openapi.OpenApiUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,17 +16,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.core.util.ReflectionUtils;
-import io.swagger.v3.oas.annotations.Operation;
+import org.openl.rules.spring.openapi.OpenApiUtils;
 
 /**
  * Information holder for methods of Spring REST Controllers
  */
 public class MethodInfo {
 
-    public static final String[] ALL_MEDIA_TYPES = new String[] { MediaType.ALL_VALUE };
+    public static final String[] ALL_MEDIA_TYPES = new String[]{MediaType.ALL_VALUE};
 
     private final HandlerMethod handler;
     private final RequestMethod requestMethod;
@@ -50,7 +49,7 @@ public class MethodInfo {
         return handler;
     }
 
-    public io.swagger.v3.oas.annotations.Operation getOperationAnnotation() {
+    public Operation getOperationAnnotation() {
         return operationAnnotation;
     }
 
@@ -96,14 +95,14 @@ public class MethodInfo {
 
     public boolean isFormRequest() {
         return consumes.length == 1 && (MediaType.APPLICATION_FORM_URLENCODED_VALUE
-            .equals(consumes[0]) || MediaType.MULTIPART_FORM_DATA_VALUE.equals(consumes[0]));
+                .equals(consumes[0]) || MediaType.MULTIPART_FORM_DATA_VALUE.equals(consumes[0]));
     }
 
     public static class Builder {
 
         private static final Function<Set<MediaType>, String[]> MEDIA_TYPES_TO_ARRAY = set -> set.stream()
-            .map(Object::toString)
-            .toArray(String[]::new);
+                .map(Object::toString)
+                .toArray(String[]::new);
 
         private final HandlerMethod handler;
         private final String[] produces;
@@ -128,14 +127,14 @@ public class MethodInfo {
             }
 
             httpStatus = Optional.ofNullable(handler.getMethodAnnotation(ResponseStatus.class))
-                .map(ResponseStatus::value)
-                .orElse(null);
+                    .map(ResponseStatus::value)
+                    .orElse(null);
         }
 
         public static Builder from(HandlerMethod handler, RequestMappingInfo mappingInfo) {
             return new Builder(handler,
-                MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
-                MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
+                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getProducesCondition().getProducibleMediaTypes()),
+                    MEDIA_TYPES_TO_ARRAY.apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes()));
         }
 
         public Builder requestMethod(RequestMethod requestMethod) {

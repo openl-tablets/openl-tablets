@@ -75,7 +75,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
 
                 if (method instanceof CompositeMethod) {
                     List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
-                        .getNodeUsages((CompositeMethod) method, stringValue, from);
+                            .getNodeUsages((CompositeMethod) method, stringValue, from);
                     nodeUsages.addAll(parsedNodeUsages);
                 }
             }

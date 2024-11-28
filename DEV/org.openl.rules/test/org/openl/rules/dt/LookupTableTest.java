@@ -1,9 +1,10 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class LookupTableTest {
@@ -24,7 +25,7 @@ public class LookupTableTest {
 
     private ILookupTableTest instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<ILookupTableTest> engineFactory = new RulesEngineFactory<>(SRC, ILookupTableTest.class);
 
@@ -46,15 +47,15 @@ public class LookupTableTest {
     @Test
     public void testMergedVerticalCondWithRuleCol() {
         Double result = instance
-            .getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Minsk", "Porche", "911 Targa 4");
+                .getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90401, result.intValue());
         result = instance.getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Vitebsk", "Porche", "911 Targa 4");
         assertEquals(90402, result.intValue());
 
         result = instance.getCarPriceMergedVerticalCondWithRuleCol("GreatBritain",
-            "Wales",
-            "Audi",
-            "2009 Audi R8 4.2 quattro 6-Speed Manual");
+                "Wales",
+                "Audi",
+                "2009 Audi R8 4.2 quattro 6-Speed Manual");
         assertEquals(112501, result.intValue());
 
     }
@@ -67,7 +68,7 @@ public class LookupTableTest {
         assertEquals(90402, result.intValue());
 
         result = instance
-            .getCarPriceMergedVerticalCond("GreatBritain", "Wales", "Audi", "2009 Audi R8 4.2 quattro 6-Speed Manual");
+                .getCarPriceMergedVerticalCond("GreatBritain", "Wales", "Audi", "2009 Audi R8 4.2 quattro 6-Speed Manual");
         assertEquals(112502, result.intValue());
     }
 

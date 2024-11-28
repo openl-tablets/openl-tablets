@@ -7,11 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -26,8 +28,6 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LaunchFileServlet extends HttpServlet {
 
@@ -49,7 +49,7 @@ public class LaunchFileServlet extends HttpServlet {
             InetAddress addr = InetAddress.getByName(ip);
             return addr != null && addr.isLoopbackAddress();
         } catch (UnknownHostException e) {
-            Logger log = LoggerFactory.getLogger(WebTool.class);
+            Logger log = LoggerFactory.getLogger(LaunchFileServlet.class);
             log.info("Cannot check '{}'.", ip, e);
             return false;
         }
@@ -111,10 +111,10 @@ public class LaunchFileServlet extends HttpServlet {
             try {
                 String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
                 ExcelLauncher.launch(excelScriptPath,
-                    parser.getWbPath(),
-                    parser.getWbName(),
-                    parser.getWsName(),
-                    parser.getRange());
+                        parser.getWbPath(),
+                        parser.getWbName(),
+                        parser.getWsName(),
+                        parser.getRange());
 
                 return;
             } catch (Exception e) {
@@ -126,7 +126,7 @@ public class LaunchFileServlet extends HttpServlet {
         if (Files.isRegularFile(pathToFile)) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition",
-                WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
+                    WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
 
             try (var in = Files.newInputStream(pathToFile); var out = response.getOutputStream()) {
                 in.transferTo(out);

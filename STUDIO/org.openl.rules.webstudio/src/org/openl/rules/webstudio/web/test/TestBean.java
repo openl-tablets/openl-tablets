@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
@@ -26,13 +31,9 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 /**
- * Request scope managed bean providing logic for 'Run Tests' page of WebStudio.
+ * Request scope managed bean providing logic for 'Run Tests' page of OpenL Studio.
  */
 @Service
 @RequestScope
@@ -41,9 +42,9 @@ public class TestBean {
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
     private static final Comparator<TestUnitsResults> TEST_COMPARATOR = Comparator
-        .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures)
-            .reversed()
-            .thenComparing(TestUnitsResults::getName));
+            .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures)
+                    .reversed()
+                    .thenComparing(TestUnitsResults::getName));
 
     private final WebStudio studio;
     private TestUnitsResults[] ranResults;
@@ -130,7 +131,7 @@ public class TestBean {
     private void initComplexResult() {
         showComplexResult = studio.isShowComplexResult();
         String isShowComplexResultParameter = WebStudioUtils
-            .getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
+                .getRequestParameter(Constants.REQUEST_PARAM_COMPLEX_RESULT);
         if (isShowComplexResultParameter != null) {
             showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
@@ -138,7 +139,7 @@ public class TestBean {
 
     private void initOnlyCurrentModule() {
         currentOpenedModule = Boolean
-            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         waitForProjectCompilation = !currentOpenedModule && studio.getModel().isCompilationInProgress();
     }
@@ -237,7 +238,7 @@ public class TestBean {
 
     public String getFormattedSpreadsheetResult(SpreadsheetResult spreadsheetResult) {
         return spreadsheetResult == null ? ""
-                                         : ObjectViewer.displaySpreadsheetResult(spreadsheetResult
+                : ObjectViewer.displaySpreadsheetResult(spreadsheetResult
         );
     }
 
@@ -249,7 +250,7 @@ public class TestBean {
                 SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer
-                    .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
+                        .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -371,12 +372,12 @@ public class TestBean {
 
     public boolean isTest() {
         return StringUtils
-            .isNotBlank(uri) && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
+                .isNotBlank(uri) && WebStudioUtils.getProjectModel().getMethod(uri) instanceof TestSuiteMethod;
     }
 
     public boolean isExpired() {
         return StringUtils.isNotBlank(
-            uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation() && !currentOpenedModule;
+                uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation() && !currentOpenedModule;
     }
 
     public int getTestsPerPage() {

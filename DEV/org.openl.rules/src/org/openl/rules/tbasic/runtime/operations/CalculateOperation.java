@@ -12,7 +12,6 @@ import org.openl.types.IMethodCaller;
  * The <code>CalculateOperation</code> class describes simple class which calculates some expression.
  *
  * @author User
- *
  */
 public class CalculateOperation extends OpenLEvaluationOperation {
 

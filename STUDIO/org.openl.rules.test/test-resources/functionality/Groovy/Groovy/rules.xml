@@ -1,0 +1,17 @@
+<project>
+    <name>Main Project</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Util Project</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
+</project>

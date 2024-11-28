@@ -6,14 +6,19 @@ package org.openl.rules.webstudio.web.trace;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.webstudio.web.trace.node.*;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.rules.webstudio.web.trace.node.SimpleTracerObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TracedObjectFactory;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Yury Molchan
@@ -67,10 +72,10 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected <T, E extends IRuntimeEnv, R> R doInvoke(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                       T target,
+                                                       Object[] params,
+                                                       E env,
+                                                       Object source) {
         if (!isOn()) {
             // Skip if tracing is switched off
             return executor.invoke(target, params, env);
@@ -152,10 +157,10 @@ public final class TreeBuildTracer extends Tracer {
 
     @Override
     protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                                 T target,
+                                                                 Object[] params,
+                                                                 E env,
+                                                                 Object source) {
         if (!isOn()) {
             return;
         }

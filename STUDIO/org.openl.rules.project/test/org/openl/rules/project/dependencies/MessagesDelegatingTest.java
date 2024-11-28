@@ -1,7 +1,7 @@
 package org.openl.rules.project.dependencies;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,8 +9,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.DependencyType;
@@ -34,14 +35,14 @@ public class MessagesDelegatingTest {
     private ProjectDescriptor project;
     private SimpleDependencyManager dependencyManager;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         File rulesFolder = new File("test-resources/modules_with_errors/");
         project = ProjectResolver.getInstance().resolve(rulesFolder);
         dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            Thread.currentThread().getContextClassLoader(),
-            false,
-            null);
+                Thread.currentThread().getContextClassLoader(),
+                false,
+                null);
     }
 
     private Module findModuleByName(String moduleName) {
@@ -55,7 +56,7 @@ public class MessagesDelegatingTest {
 
     private static IDependency getDependencyForModule(String moduleName) {
         return new Dependency(DependencyType.MODULE,
-            new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
+                new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
     }
 
     private CompiledOpenClass getCompiledOpenClassForModule(String moduleName) throws Exception {
@@ -86,20 +87,20 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules4"));
         forGrouping.add(findModuleByName("Rules5"));
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            true,
-            null);
+                null,
+                true,
+                null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
-            dependencyManager,
-            true);
+                dependencyManager,
+                true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
-        assertFalse("During compilation DuplicatedMethodException must not be thrown",
-            hasDuplicatedMethodException(compiledMultiModule));
+        assertFalse(hasDuplicatedMethodException(compiledMultiModule),
+                "During compilation DuplicatedMethodException must not be thrown");
     }
 
     @Test
@@ -110,27 +111,27 @@ public class MessagesDelegatingTest {
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules6"));
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
-            null,
-            true,
-            null);
+                null,
+                true,
+                null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(forGrouping,
-            dependencyManager,
-            true);
+                dependencyManager,
+                true);
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
             compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
-        assertTrue("During compilation DuplicatedMethodException must be thrown",
-            hasDuplicatedMethodException(compiledMultiModule));
+        assertTrue(hasDuplicatedMethodException(compiledMultiModule),
+                "During compilation DuplicatedMethodException must be thrown");
     }
 
     private boolean hasDuplicatedMethodException(CompiledOpenClass compiledOpenClass) {
         boolean hasDuplicatedMethodException = false;
 
         Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
-            .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR);
+                .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR);
         for (OpenLMessage error : errorMessages) {
             if (error instanceof OpenLErrorMessage) {
                 Throwable cause = ((OpenLErrorMessage) error).getError().getCause();

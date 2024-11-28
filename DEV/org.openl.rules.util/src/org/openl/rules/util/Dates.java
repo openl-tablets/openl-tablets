@@ -14,9 +14,9 @@ import org.openl.rules.util.dates.DateInterval.Unit;
 
 /**
  * A set of util methods to work with dates.
- *
+ * <p>
  * Note: Days and months begin from 1 (not like in Java from 0). Years begin from 0000.
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan, Vladyslav Pikus
@@ -92,7 +92,8 @@ public final class Dates {
      * Converts a string to a date using a default pattern. The default pattern is system and setting dependent.
      */
     public static Date toDate(String str) {
-        return toDate(str, "MM/dd/yy");
+        var isoDate = toDate(str, "yyyy-MM-dd");
+        return isoDate != null ? isoDate : toDate(str, "MM/dd/yy");
     }
 
     /**
@@ -238,8 +239,8 @@ public final class Dates {
      * Calculate difference between two dates
      *
      * @param startDate start date
-     * @param endDate end date
-     * @param unitName method type
+     * @param endDate   end date
+     * @param unitName  method type
      * @return difference between two dates
      */
     public static Double dateDif(Date startDate, Date endDate, String unitName) {

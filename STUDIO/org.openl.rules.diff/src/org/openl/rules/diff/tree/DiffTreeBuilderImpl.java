@@ -1,6 +1,12 @@
 package org.openl.rules.diff.tree;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.openl.rules.diff.differs.ProjectionDiffer;
 import org.openl.rules.diff.hierarchy.Projection;
@@ -14,7 +20,7 @@ public class DiffTreeBuilderImpl implements DiffTreeBuilder {
 
     @Override
     public DiffTreeNode compare(Projection p1, Projection p2) {
-        return compare(new Projection[] { p1, p2 });
+        return compare(new Projection[]{p1, p2});
     }
 
     @Override

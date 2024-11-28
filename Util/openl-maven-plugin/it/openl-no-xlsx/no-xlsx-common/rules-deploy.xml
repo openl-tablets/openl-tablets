@@ -1,0 +1,4 @@
+<rules-deploy>
+    <!-- Do not publish this project -->
+    <publishers/>
+</rules-deploy>

@@ -1,9 +1,10 @@
 package org.openl.rules.ui.tablewizard;
 
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 /**
  * @author Aliaksandr Antonik.

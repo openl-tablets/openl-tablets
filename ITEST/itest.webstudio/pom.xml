@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.webstudio</artifactId>
@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>com.icegreen</groupId>
-            <artifactId>greenmail-junit4</artifactId>
+            <artifactId>greenmail-junit5</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

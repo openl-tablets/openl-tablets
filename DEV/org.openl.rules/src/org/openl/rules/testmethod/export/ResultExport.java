@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
 import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestStatus;
@@ -18,18 +19,19 @@ import org.openl.rules.testmethod.TestUnitsResults;
 public abstract class ResultExport extends BaseExport {
 
     public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
-        export(outputStream, testsPerPage, true, results);
+        export(outputStream, testsPerPage, true, false, results);
     }
 
     public void export(OutputStream outputStream,
-            int testsPerPage,
-            Boolean skipEmptyParameters,
-            TestUnitsResults... results) throws IOException {
+                       int testsPerPage,
+                       Boolean skipEmptyParameters,
+                       boolean flattenParameters,
+                       TestUnitsResults... results) throws IOException {
         List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
         SXSSFWorkbook tempWorkbook = null;
         try (var workbook = tempWorkbook = new SXSSFWorkbook()) {
             styles = new Styles(workbook);
-            ParameterExport parameterExport = new ParameterExport(styles);
+            var parameterExport = flattenParameters ? new FlattenParameterExport(styles) : new ParameterExport(styles);
 
             SXSSFSheet sheet = workbook.createSheet("Result " + 1);
             listsWithResults.add(new ArrayList<>());

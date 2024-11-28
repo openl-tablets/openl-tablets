@@ -21,7 +21,6 @@ import org.openl.util.CollectionUtils;
 
 /**
  * @author snshor
- *
  */
 public class StaticClassLibrary implements IOpenLibrary {
 

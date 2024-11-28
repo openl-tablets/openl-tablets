@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenL Tablets WebStudio API",
+    "title": "OpenL Studio API",
     "version": "*"
   },
   "servers": [
@@ -1175,10 +1175,9 @@ Content-Type: application/json
           "200":{
             "description": "***",
             "content":{
-              "text/plain":{
+              "text/plain;charset=UTF-8":{
                 "schema":{
-                  "type":"string",
-                  "format":"binary"
+                  "type":"string"
                 }
               }
             }

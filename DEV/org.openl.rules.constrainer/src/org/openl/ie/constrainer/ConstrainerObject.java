@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -18,9 +20,8 @@ package org.openl.ie.constrainer;
 /**
  * An interface for constrainer object. Constrained variables, expressions, constraints, and goals implement that
  * interface.
- *
  */
-public interface ConstrainerObject extends java.io.Serializable {
+public interface ConstrainerObject extends Serializable {
     /**
      * Returns the constrainer the object belongs to. Constrainer object belongs to one and only one constrainer.
      *

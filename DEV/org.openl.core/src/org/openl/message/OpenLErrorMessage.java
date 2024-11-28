@@ -10,7 +10,6 @@ import org.openl.util.StringUtils;
 /**
  * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link OpenLException}
  * object as source of message.
- *
  */
 public class OpenLErrorMessage extends OpenLMessage {
 

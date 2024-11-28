@@ -1,9 +1,9 @@
 package org.openl.itest.core.worker;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -11,14 +11,14 @@ import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TaskSchedulerTest {
 
     private TaskScheduler scheduler;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         scheduler = new TaskScheduler();
     }
@@ -65,7 +65,7 @@ public class TaskSchedulerTest {
             threadCaptor.await(1);
             fail("Must be executed only once!");
         } catch (AssertionError e) {
-            assertEquals("Each thread must be executed at least '2' times", e.getMessage());
+            assertEquals("Each thread must be executed at least '2' times ==> expected: <true> but was: <false>", e.getMessage());
             verify(command1, times(1)).run();
             assertFalse(errors);
         }

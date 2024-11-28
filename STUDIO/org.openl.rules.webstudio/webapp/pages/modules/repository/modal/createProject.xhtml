@@ -798,7 +798,8 @@
         var checkedCount = 0;
 
         function checkCreateOnTemplatePanel() {
-            if ($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val() !== "none") {
+            var selectedRepo = $j("#createProjectFormTempl\\:repositoryTemplate").val();
+            if ($j("#createProjectFormTempl\\:projectName").val() && selectedRepo && selectedRepo !== "none") {
                 enableCreateButton(true, #{rich:element("sbtTemplatesBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("sbtTemplatesBtn")});
@@ -806,7 +807,8 @@
         }
 
         function checkCreateOnExcelPanel() {
-            if (excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val() !== "none") {
+            var selectedRepo = $j("#createProjectFormFiles\\:repositoryExcel").val();
+            if (excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && selectedRepo && selectedRepo !== "none") {
                 enableCreateButton(true, #{rich:element("sbtFilesBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("sbtFilesBtn")});
@@ -814,7 +816,8 @@
         }
 
         function checkCreateOnZipPanel() {
-            if (zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val() !== "none") {
+            var selectedRepo = $j("#uploadProjectForm\\:repositoryZip").val();
+            if (zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && selectedRepo && selectedRepo !== "none") {
                 enableCreateButton(true, #{rich:element("sbtZipsBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("sbtZipsBtn")});
@@ -870,7 +873,7 @@
                 algorithmsPathDefined = !!getOpenAPIAlgorithmsFilePath().val().trim();
             }
             let pathsDefined = modelsPathDefined && algorithmsPathDefined;
-            if (openApiFileUploaded && getOpenAPIProjectName().val() && moduleNamesAreDefined && pathsDefined && getOpenAPIRepository().val() !== "none") {
+            if (openApiFileUploaded && getOpenAPIProjectName().val() && moduleNamesAreDefined && pathsDefined && getOpenAPIRepository().val() && getOpenAPIRepository().val() !== "none") {
                 enableCreateButton(true, #{rich:element("submitOpenAPIFileBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("submitOpenAPIFileBtn")});
@@ -878,7 +881,8 @@
         }
 
         function checkCreateWorkspacePanel() {
-            if (checkedCount !== 0 && $j("#repositoryLocal").val() !== "none") {
+            var localRepoValue = $j("#repositoryLocal").val();
+            if (checkedCount !== 0 && localRepoValue && localRepoValue !== "none") {
                 enableCreateButton(true, #{rich:element("sbtWorkspaceBtn")});
             } else {
                 enableCreateButton(false, #{rich:element("sbtWorkspaceBtn")});
@@ -886,7 +890,8 @@
         }
 
         function checkImportRepoPanel() {
-            if ($j("#importFromRepoForm\\:repositoryImport").val() !== "none") {
+            var selectedRepo = $j("#importFromRepoForm\\:repositoryImport").val();
+            if (selectedRepo && selectedRepo !== "none") {
                 enableCreateButton(true, #{rich:element("importFromRepoForm:sbtRepo")});
             } else {
                 enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});

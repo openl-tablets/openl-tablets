@@ -5,6 +5,7 @@ import java.util.Map;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+
 import org.openl.gen.FieldDescription;
 
 /**
@@ -18,8 +19,8 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
 
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
-     *            (e.g. <code>my/test/TestClass</code>)
-     * @param allFields collection of fields for current class and parent`s ones.
+     *                            (e.g. <code>my/test/TestClass</code>)
+     * @param allFields           collection of fields for current class and parent`s ones.
      */
     public ToStringWriter(String beanNameWithPackage, Map<String, FieldDescription> allFields) {
         super(beanNameWithPackage, null, allFields);
@@ -62,10 +63,10 @@ public class ToStringWriter extends DefaultBeanByteCodeWriter {
 
         // return
         methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-            "java/lang/StringBuilder",
-            "toString",
-            "()Ljava/lang/String;",
-            false);
+                "java/lang/StringBuilder",
+                "toString",
+                "()Ljava/lang/String;",
+                false);
         methodVisitor.visitInsn(Opcodes.ARETURN);
         methodVisitor.visitMaxs(0, 0);
     }

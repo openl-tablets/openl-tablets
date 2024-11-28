@@ -1,6 +1,7 @@
 package org.openl.itest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.itest.core.JettyServer;
 
 public class RunUnpackClasspathZipTest {
@@ -12,7 +13,7 @@ public class RunUnpackClasspathZipTest {
 
     @Test
     public void testDeployToRemoteRepoFromClasspath() throws Exception {
-        JettyServer.test("remote", true);
+        JettyServer.test("remote");
     }
 
 }

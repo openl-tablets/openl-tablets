@@ -29,7 +29,7 @@
             </plugins>
         </pluginManagement>
     </build>
-    
+
     <modules>
         <module>openl-child-dependency</module>
         <module>openl-parent-project</module>

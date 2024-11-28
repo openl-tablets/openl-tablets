@@ -3,6 +3,7 @@ package org.openl.excel.grid;
 import java.util.Date;
 
 import org.apache.poi.ss.usermodel.DateUtil;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;

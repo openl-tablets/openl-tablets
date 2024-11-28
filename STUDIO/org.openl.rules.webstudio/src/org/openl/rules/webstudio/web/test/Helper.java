@@ -1,11 +1,12 @@
 package org.openl.rules.webstudio.web.test;
 
-import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.util.formatters.IFormatter;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 import org.springframework.stereotype.Service;
+
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.table.formatters.FormattersManager;
+import org.openl.util.formatters.IFormatter;
 
 /**
  * A helper class which contains utility methods.
@@ -33,7 +34,7 @@ public final class Helper {
     public String formatText(Object value, boolean showRealNumbers) {
         if (value instanceof Number) {
             IFormatter formatter = FormattersManager.getFormatter(value.getClass(),
-                showRealNumbers ? FormattersManager.DEFAULT_NUMBER_FORMAT : null);
+                    showRealNumbers ? FormattersManager.DEFAULT_NUMBER_FORMAT : null);
             return formatter.format(value);
         } else {
             return format(value);

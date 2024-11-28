@@ -34,7 +34,6 @@ import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
- *
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
 
@@ -119,7 +118,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             for (JavaCastComponent component : components) {
                 CastFactory castFactory = component.getCastFactory(configurationContext);
                 Iterable<IOpenMethod> methods = castFactory.getMethodFactory()
-                    .methods(CastFactory.AUTO_CAST_METHOD_NAME);
+                        .methods(CastFactory.AUTO_CAST_METHOD_NAME);
                 for (IOpenMethod method : methods) {
                     allMethods.add(method);
                 }
@@ -171,20 +170,20 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IMethodCaller getMethodCaller(String namespace,
-            String name,
-            IOpenClass[] params,
-            ICastFactory casts) throws AmbiguousMethodException {
+                                         String name,
+                                         IOpenClass[] params,
+                                         ICastFactory casts) throws AmbiguousMethodException {
 
         IOpenMethod[] mcs = getMethods(namespace, name);
 
         return MethodSearch
-            .findMethod(name, params, casts, Arrays.asList(mcs), ISyntaxConstants.THIS_NAMESPACE.equals(namespace));
+                .findMethod(name, params, casts, Arrays.asList(mcs), ISyntaxConstants.THIS_NAMESPACE.equals(namespace));
     }
 
     @Override
     public IOpenMethod[] getMethods(String namespace, String name) {
         IOpenMethod[] mcs = methodFactory == null ? IOpenMethod.EMPTY_ARRAY
-                                                  : methodFactory.getMethods(namespace, name, configurationContext);
+                : methodFactory.getMethods(namespace, name, configurationContext);
         IOpenMethod[] pmcs = parent == null ? IOpenMethod.EMPTY_ARRAY : parent.getMethods(namespace, name);
 
         // Shadowing
@@ -278,8 +277,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null
-                                                 : methodFactory
-                                                     .getVar(namespace, name, configurationContext, strictMatch);
+                : methodFactory
+                .getVar(namespace, name, configurationContext, strictMatch);
         if (field != null) {
             return field;
         }

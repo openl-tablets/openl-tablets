@@ -12,25 +12,25 @@ public class ArrayConditionBuilder extends AConditionBuilder {
     @Override
     protected void writeColumnType(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex,
-            rowStartIndex + DecisionTableBuilder.COLUMN_TYPE_ROW_INDEX,
-            getCondition().getColumnType() + getConditionNumber());
+                rowStartIndex + DecisionTableBuilder.COLUMN_TYPE_ROW_INDEX,
+                getCondition().getColumnType() + getConditionNumber());
 
         mergeArrayCells(sheet,
-            DecisionTableBuilder.COLUMN_TYPE_ROW_INDEX,
-            columnStartIndex,
-            getCondition().getNumberOfLocalParameters());
+                DecisionTableBuilder.COLUMN_TYPE_ROW_INDEX,
+                columnStartIndex,
+                getCondition().getNumberOfLocalParameters());
     }
 
     @Override
     protected void writeCodeExpression(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex,
-            rowStartIndex + DecisionTableBuilder.CODE_EXPRESSION_ROW_INDEX,
-            getCondition().getCodeExpression());
+                rowStartIndex + DecisionTableBuilder.CODE_EXPRESSION_ROW_INDEX,
+                getCondition().getCodeExpression());
 
         mergeArrayCells(sheet,
-            DecisionTableBuilder.CODE_EXPRESSION_ROW_INDEX,
-            columnStartIndex,
-            getCondition().getNumberOfLocalParameters());
+                DecisionTableBuilder.CODE_EXPRESSION_ROW_INDEX,
+                columnStartIndex,
+                getCondition().getNumberOfLocalParameters());
     }
 
     @Override
@@ -40,8 +40,8 @@ public class ArrayConditionBuilder extends AConditionBuilder {
         final String parameterDeclaration = condition.getParameterDeclaration();
         for (int i = 1; i <= numberOfLocalParameters; i++) {
             sheet.setCellValue(columnStartIndex,
-                rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX,
-                parameterDeclaration + i);
+                    rowStartIndex + DecisionTableBuilder.PARAMETER_DECLARATION_ROW_INDEX,
+                    parameterDeclaration + i);
 
             columnStartIndex++;
         }
@@ -50,13 +50,13 @@ public class ArrayConditionBuilder extends AConditionBuilder {
     @Override
     protected void writeTitle(IWritableGrid sheet, int columnStartIndex, int rowStartIndex) {
         sheet.setCellValue(columnStartIndex,
-            rowStartIndex + DecisionTableBuilder.CONDITION_TITLE_ROW_INDEX,
-            getCondition().getTitle());
+                rowStartIndex + DecisionTableBuilder.CONDITION_TITLE_ROW_INDEX,
+                getCondition().getTitle());
 
         mergeArrayCells(sheet,
-            DecisionTableBuilder.CONDITION_TITLE_ROW_INDEX,
-            columnStartIndex,
-            getCondition().getNumberOfLocalParameters());
+                DecisionTableBuilder.CONDITION_TITLE_ROW_INDEX,
+                columnStartIndex,
+                getCondition().getNumberOfLocalParameters());
     }
 
     @Override
@@ -65,8 +65,8 @@ public class ArrayConditionBuilder extends AConditionBuilder {
         for (int i = 0; i < numberOfRules; i++) {
             for (int j = 0; j < getCondition().getNumberOfLocalParameters(); j++) {
                 sheet.setCellValue(columnStartIndex,
-                    i + rowStartIndex + DecisionTableBuilder.DECISION_TABLE_HEADER_ROWS_NUMBER,
-                    getCondition().getRuleValue(i, columnStartIndex - startCol));
+                        i + rowStartIndex + DecisionTableBuilder.DECISION_TABLE_HEADER_ROWS_NUMBER,
+                        getCondition().getRuleValue(i, columnStartIndex - startCol));
 
                 columnStartIndex++;
             }

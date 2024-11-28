@@ -1,38 +1,37 @@
 package org.openl.rules.rest.resolver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.function.Consumer;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.openl.rules.repository.api.Offset;
-import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.resolver.test.PaginationTestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { MockConfiguration.class, PageValueArgumentResolverTest.TestConfig.class })
+import org.openl.rules.repository.api.Offset;
+import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.rules.rest.resolver.test.PaginationTestController;
+
+@SpringJUnitConfig(classes = {MockConfiguration.class, PageValueArgumentResolverTest.TestConfig.class})
 @WebAppConfiguration
 public class PageValueArgumentResolverTest {
 
@@ -44,14 +43,14 @@ public class PageValueArgumentResolverTest {
 
     private ArgumentCaptor<Pageable> pageableCaptor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+        pageableCaptor = forClass(Pageable.class);
     }
 
-    @After
-    public void reset() {
-        Mockito.reset(pageableConsumer);
+    @AfterEach
+    public void restore() {
+        reset(pageableConsumer);
     }
 
     @Test
@@ -65,8 +64,8 @@ public class PageValueArgumentResolverTest {
     @Test
     public void testBadRequest() throws Exception {
         var mockMvcResult = mockMvc
-            .perform(get("/pagination-test/pageOrOffset").queryParam("page", "100").queryParam("offset", "11"))
-            .andReturn();
+                .perform(get("/pagination-test/pageOrOffset").queryParam("page", "100").queryParam("offset", "11"))
+                .andReturn();
         BadRequestException error = (BadRequestException) mockMvcResult.getResolvedException();
         assertNotNull(error);
         assertEquals("openl.error.400.invalid.pageable.query.message", error.getErrorCode());

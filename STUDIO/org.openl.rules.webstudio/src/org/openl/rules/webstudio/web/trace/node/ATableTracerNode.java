@@ -1,9 +1,10 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.runtime.IRuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.runtime.IRuntimeContext;
 
 public class ATableTracerNode extends SimpleTracerObject {
     private static final Logger LOG = LoggerFactory.getLogger(ATableTracerNode.class);
@@ -17,18 +18,17 @@ public class ATableTracerNode extends SimpleTracerObject {
     }
 
     ATableTracerNode(String type,
-            String prefix,
-            ExecutableRulesMethod method,
-            Object[] params,
-            IRuntimeContext context) {
+                     String prefix,
+                     ExecutableRulesMethod method,
+                     Object[] params,
+                     IRuntimeContext context) {
         super(type);
         this.prefix = prefix;
         this.method = method;
-        CachingArgumentsCloner cloner = CachingArgumentsCloner.getInstance();
         if (params != null) {
             Object[] clonedParams;
             try {
-                clonedParams = cloner.deepClone(params);
+                clonedParams = CachingArgumentsCloner.<Object[]>getInstance().clone(params);
             } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
                 LOG.debug("Ignored error: ", e);

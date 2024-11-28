@@ -192,18 +192,18 @@ public abstract class RepositorySettings {
 
     protected void revert(PropertiesHolder properties) {
         properties.revertProperties(USE_CUSTOM_COMMENTS,
-            COMMENT_VALIDATION_PATTERN,
-            INVALID_COMMENT_MESSAGE,
-            COMMENT_TEMPLATE,
-            COMMENT_TEMPLATE_OLD,
-            DEFAULT_COMMENT_SAVE,
-            DEFAULT_COMMENT_CREATE,
-            DEFAULT_COMMENT_ARCHIVE,
-            DEFAULT_COMMENT_RESTORE,
-            DEFAULT_COMMENT_ERASE,
-            DEFAULT_COMMENT_COPIED_FROM,
-            DEFAULT_COMMENT_RESTORED_FROM,
-            BASE_PATH);
+                COMMENT_VALIDATION_PATTERN,
+                INVALID_COMMENT_MESSAGE,
+                COMMENT_TEMPLATE,
+                COMMENT_TEMPLATE_OLD,
+                DEFAULT_COMMENT_SAVE,
+                DEFAULT_COMMENT_CREATE,
+                DEFAULT_COMMENT_ARCHIVE,
+                DEFAULT_COMMENT_RESTORE,
+                DEFAULT_COMMENT_ERASE,
+                DEFAULT_COMMENT_COPIED_FROM,
+                DEFAULT_COMMENT_RESTORED_FROM,
+                BASE_PATH);
         load(properties);
     }
 

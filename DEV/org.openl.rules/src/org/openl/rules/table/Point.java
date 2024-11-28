@@ -2,7 +2,6 @@ package org.openl.rules.table;
 
 /**
  * Handles two coordinates: column number and row number.
- *
  */
 public abstract class Point {
 

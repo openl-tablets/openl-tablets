@@ -4,21 +4,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.openl.rules.rest.SecurityChecker;
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.exception.ConflictException;
-import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.standalone.persistence.Tag;
-import org.openl.rules.security.standalone.persistence.TagType;
-import org.openl.rules.webstudio.service.TagService;
-import org.openl.rules.webstudio.service.TagTypeService;
-import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.util.StringUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,12 +26,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.openl.rules.rest.SecurityChecker;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.rest.model.GenericView;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.standalone.persistence.Tag;
+import org.openl.rules.security.standalone.persistence.TagType;
+import org.openl.rules.webstudio.service.TagService;
+import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.util.StringUtils;
 
 @RestController
 @RequestMapping(value = "/admin/tag-config")
@@ -92,7 +90,7 @@ public class TagConfigController {
     @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
     public ResponseEntity<Void> addTagType(@JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO,
-            HttpServletRequest request) {
+                                           HttpServletRequest request) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
     }
 
@@ -106,10 +104,10 @@ public class TagConfigController {
     }
 
     private ResponseEntity<Void> addOrUpdateTagType(final Long id,
-            final String name,
-            final Boolean nullable,
-            final Boolean extensible,
-            final HttpServletRequest request) {
+                                                    final String name,
+                                                    final Boolean nullable,
+                                                    final Boolean extensible,
+                                                    final HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
@@ -174,9 +172,9 @@ public class TagConfigController {
     }
 
     private ResponseEntity<Void> addOrUpdateTag(final Long tagTypeId,
-            final Long tagId,
-            final String name,
-            HttpServletRequest request) {
+                                                final Long tagId,
+                                                final String name,
+                                                HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;

@@ -28,7 +28,7 @@ final class MethodBasedCast implements IOpenCast {
             // to avoid ambiguous method call and choose a right methods
             return destType.nullObject();
         }
-        Object[] params = new Object[] { from, nullObject };
+        Object[] params = new Object[]{from, nullObject};
         return caller.invoke(null, params, null);
     }
 

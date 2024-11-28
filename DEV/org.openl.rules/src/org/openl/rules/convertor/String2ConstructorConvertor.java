@@ -21,8 +21,8 @@ class String2ConstructorConvertor<T> implements IString2DataConvertor<T> {
                     m = clazz.getDeclaredMethod("parse", CharSequence.class);
                 } catch (NoSuchMethodException ex) {
                     throw new IllegalArgumentException(String.format(
-                        "Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.",
-                        clazz.getTypeName()), ex);
+                            "Neither public constructor '%s(String s)', nor public static method 'valueOf(String s)', nor public static method 'parse(CharSequence s)' is not found.",
+                            clazz.getTypeName()), ex);
                 }
             }
         }

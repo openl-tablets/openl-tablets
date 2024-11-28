@@ -40,7 +40,7 @@ public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
     protected abstract void writeTitle(IWritableGrid gridModel, int columnStartIndex, int rowStartIndex);
 
     protected abstract void writeRuleValue(IWritableGrid gridModel,
-            int numberOfRules,
-            int columnStartIndex,
-            int rowStartIndex);
+                                           int numberOfRules,
+                                           int columnStartIndex,
+                                           int rowStartIndex);
 }

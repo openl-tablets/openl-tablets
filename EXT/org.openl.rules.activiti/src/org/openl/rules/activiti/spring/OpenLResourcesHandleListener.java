@@ -13,15 +13,15 @@ public class OpenLResourcesHandleListener implements ActivitiEventListener {
         if (event instanceof ActivitiEntityEvent) {
             Object entity = ((ActivitiEntityEvent) event).getEntity();
             if (entity instanceof ResourceEntity && (event.getType().equals(ActivitiEventType.ENTITY_UPDATED) || event
-                .getType()
-                .equals(ActivitiEventType.ENTITY_DELETED))) {
+                    .getType()
+                    .equals(ActivitiEventType.ENTITY_DELETED))) {
                 ResourceEntity resourceEntity = (ResourceEntity) entity;
                 OpenLRulesHelper.getInstance().clear(resourceEntity.getDeploymentId(), resourceEntity.getName());
             }
 
             if (entity instanceof DeploymentEntity && (event.getType().equals(ActivitiEventType.ENTITY_UPDATED) || event
-                .getType()
-                .equals(ActivitiEventType.ENTITY_DELETED))) {
+                    .getType()
+                    .equals(ActivitiEventType.ENTITY_DELETED))) {
                 DeploymentEntity resourceEntity = (DeploymentEntity) entity;
                 OpenLRulesHelper.getInstance().clear(resourceEntity.getId());
             }

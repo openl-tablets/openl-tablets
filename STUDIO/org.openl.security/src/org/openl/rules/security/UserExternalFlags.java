@@ -56,7 +56,7 @@ public class UserExternalFlags {
 
     /**
      * Initialize feature builder using custom feature flags
-     * 
+     *
      * @param features feature flags
      * @return builder object
      */
@@ -82,9 +82,8 @@ public class UserExternalFlags {
         private final boolean defaultState;
 
         /**
-         *
          * @param defaultState default feature state
-         * @param pos 0 <= bit number < 32.
+         * @param pos          0 <= bit number < 32.
          */
         Feature(boolean defaultState, int pos) {
             this.defaultState = defaultState;
@@ -93,7 +92,7 @@ public class UserExternalFlags {
 
         /**
          * Return mask for given feature. The value is always 2 power N. Where 0 <= N < 32
-         * 
+         *
          * @return feature mask
          */
         public int getMask() {
@@ -102,7 +101,7 @@ public class UserExternalFlags {
 
         /**
          * Default feature state. {@code true} if enabled
-         * 
+         *
          * @return {@code true} or {@code false}
          */
         public boolean getDefaultState() {
@@ -111,7 +110,7 @@ public class UserExternalFlags {
 
         /**
          * Check if current feature is enabled in flags or not.
-         * 
+         *
          * @param flags flags of features
          * @return {@code true} if enabled otherwise {@code false}
          */
@@ -142,7 +141,7 @@ public class UserExternalFlags {
         /**
          * Apply feature state
          *
-         * @param f feature to apply
+         * @param f     feature to apply
          * @param state {@code true} if enabled otherwise {@code false}
          * @return the same builder instance
          */
@@ -182,7 +181,7 @@ public class UserExternalFlags {
 
         /**
          * Make new instance of {@link UserExternalFlags}
-         * 
+         *
          * @return new instance of {@link UserExternalFlags}
          */
         public UserExternalFlags build() {

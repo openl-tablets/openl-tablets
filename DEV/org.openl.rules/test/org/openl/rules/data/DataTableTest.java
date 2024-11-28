@@ -1,21 +1,22 @@
 package org.openl.rules.data;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.message.OpenLMessage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 /**
- *
  * @author DLiauchuk
- *
  */
 public class DataTableTest extends BaseOpenlBuilderHelper {
 
@@ -169,6 +170,6 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         Collection<OpenLMessage> messages = getCompiledOpenClass().getAllMessages();
         assertEquals(1, messages.size());
         assertEquals("Cannot parse cell value '1 < 2'. Expected value of type 'ClassForStringConstructorLoadingTests'.",
-            messages.iterator().next().getSummary());
+                messages.iterator().next().getSummary());
     }
 }

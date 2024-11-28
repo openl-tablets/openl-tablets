@@ -6,7 +6,9 @@ import org.openl.rules.common.ProjectException;
 public interface IProjectFolder extends IProjectArtefact {
 
     String getFolderPath();
+
     IProjectArtefact getArtefact(String name) throws ProjectException;
+
     ArtefactPath getArtefactPath();
 
 }

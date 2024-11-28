@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
@@ -88,7 +89,7 @@ public class OpenLMessagesUtils {
     }
 
     public static Collection<OpenLMessage> filterMessagesBySeverity(Collection<OpenLMessage> messages,
-            Severity severity) {
+                                                                    Severity severity) {
         Map<Severity, Collection<OpenLMessage>> groupedMessagesMap = groupMessagesBySeverity(messages);
         Collection<OpenLMessage> groupedMessages = groupedMessagesMap.get(severity);
 

@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.table.ILogicalTable;
 
@@ -37,7 +38,7 @@ public class RuleRow {
         }
         try {
             ILogicalTable valueCell = table
-                .getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
+                    .getSubtable(col + IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, row, 1, 1);
             String ruleName = valueCell.getSource().getCell(0, 0).getStringValue();
             if (ruleName == null) {
                 ruleName = StringUtils.EMPTY;

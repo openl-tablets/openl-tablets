@@ -11,11 +11,12 @@ package org.openl.rules.serialization.jackson.groovy.lang;
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import groovy.lang.MetaClass;
 
 public interface GroovyObject {
     @JsonIgnore
-    groovy.lang.MetaClass getMetaClass();
+    MetaClass getMetaClass();
 
     @JsonIgnore
-    void setMetaClass(groovy.lang.MetaClass metaClass);
+    void setMetaClass(MetaClass metaClass);
 }

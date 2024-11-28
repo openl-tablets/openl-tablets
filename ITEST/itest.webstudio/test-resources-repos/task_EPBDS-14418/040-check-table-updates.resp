@@ -1,0 +1,18 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "id": "8287c6a7f29260729d75478d51f5c9b9",
+  "kind": "Datatype",
+  "name": "Foo",
+  "fields": [
+    {
+      "name": "prop1",
+      "type": "String"
+    }, {
+      "name": "prop2",
+      "type": "String"
+    }
+  ]
+}

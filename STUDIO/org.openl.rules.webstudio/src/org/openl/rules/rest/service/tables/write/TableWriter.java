@@ -79,14 +79,14 @@ public abstract class TableWriter<T extends TableView> {
                     nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
                 }
                 if (!UndoableInsertRowsAction.canInsertRows(originalTable, 1) || !UndoableInsertColumnsAction
-                    .canInsertColumns(originalTable, nColsToInsert)) {
+                        .canInsertColumns(originalTable, nColsToInsert)) {
                     actions.add(UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter()));
                 }
                 GridRegionAction allTable = new GridRegionAction(originalRegion,
-                    UndoableEditTableAction.ROWS,
-                    UndoableEditTableAction.INSERT,
-                    GridRegionAction.ActionType.EXPAND,
-                    1);
+                        UndoableEditTableAction.ROWS,
+                        UndoableEditTableAction.INSERT,
+                        GridRegionAction.ActionType.EXPAND,
+                        1);
                 allTable.doAction(originalTable);
                 actions.add(allTable);
             }
@@ -106,8 +106,8 @@ public abstract class TableWriter<T extends TableView> {
      * Creates or updates cell in the table.
      *
      * @param gridTable table to update
-     * @param cellKey relative cell coordinates
-     * @param value new cell value
+     * @param cellKey   relative cell coordinates
+     * @param value     new cell value
      */
     protected void createOrUpdateCell(IGridTable gridTable, CellKey cellKey, Object value) {
         List<IUndoableGridTableAction> actions = new ArrayList<>();
@@ -159,14 +159,14 @@ public abstract class TableWriter<T extends TableView> {
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
         int startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
-        var action = new UndoableRemoveRowsAction(nRows, startRow0, 0, getMetaInfoWriter());
+        var action = new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter());
         action.doAction(gridTable);
         actionsQueue.addNewAction(action);
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
         int startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
-        var action = new UndoableRemoveColumnsAction(nCols, startCol0, 0, getMetaInfoWriter());
+        var action = new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter());
         action.doAction(gridTable);
         actionsQueue.addNewAction(action);
     }

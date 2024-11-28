@@ -30,8 +30,8 @@ public class RestRuntimeException extends RuntimeException {
 
     public HttpStatus getHttpStatus() {
         return Optional.ofNullable(AnnotationUtils.findAnnotation(getClass(), ResponseStatus.class))
-            .map(ResponseStatus::code)
-            .orElse(null);
+                .map(ResponseStatus::code)
+                .orElse(null);
     }
 
     public String getErrorCode() {

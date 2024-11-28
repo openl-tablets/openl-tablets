@@ -3,11 +3,16 @@ package org.openl.rules.testmethod.export;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.types.java.JavaOpenClass;
 
 public class FieldDescriptorTest {
@@ -19,8 +24,11 @@ public class FieldDescriptorTest {
     private static final B B2 = new B("id2", A3);
     private static final B B3 = new B("id3", A1, A2, A3);
 
+    private static final C C1 = new C(new A("name1"), new A("name1"));
+
     private final JavaOpenClass aType = JavaOpenClass.getOpenClass(A.class);
     private final JavaOpenClass bType = JavaOpenClass.getOpenClass(B.class);
+    private final JavaOpenClass cType = JavaOpenClass.getOpenClass(C.class);
 
     @Test
     public void commonCases() {
@@ -30,7 +38,7 @@ public class FieldDescriptorTest {
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), asList(1, 2, 3), true));
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int[].class), asList(1, 2, 3), true));
         assertNull(
-            FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3), true));
+                FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3), true));
 
         descriptors = FieldDescriptor.nonEmptyFields(aType, emptyList(), true);
         assertNotNull(descriptors);
@@ -63,6 +71,22 @@ public class FieldDescriptorTest {
         assertNull(children.get(0).getChildren());
         assertEquals("values", children.get(1).getField().getName());
         assertNull(children.get(1).getChildren());
+
+        descriptors = FieldDescriptor.nonEmptyFields(cType, List.of(C1), true);
+        assertNotNull(descriptors);
+        assertEquals(2, descriptors.size());
+        assertEquals("filed1", descriptors.get(0).getField().getName());
+        children = descriptors.get(0).getChildren();
+        assertNotNull(children);
+        assertEquals(1, children.size());
+        assertEquals("name", children.get(0).getField().getName());
+        assertNull(children.get(0).getChildren());
+        assertEquals("filed2", descriptors.get(1).getField().getName());
+        children = descriptors.get(1).getChildren();
+        assertNotNull(children);
+        assertEquals(1, children.size());
+        assertEquals("name", children.get(0).getField().getName());
+        assertNull(children.get(0).getChildren());
     }
 
     @Test

@@ -1,0 +1,11 @@
+POST /EPBDS-9581/EPBDS-9581/proxyCustomer HTTP/1.1
+Content-Type: application/json
+
+{
+  "cusomerID": "ID",
+  "gender": "male",
+  "dob": "2014-07-13T23:20:16",
+  "privateField" : 10,
+  "dob_s": "none",
+  "genderCd": "female"
+}

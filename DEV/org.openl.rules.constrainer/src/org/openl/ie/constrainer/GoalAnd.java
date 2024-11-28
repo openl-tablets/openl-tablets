@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A goal can be defined in terms of it's subgoals. <code>Class GoalAnd</code> makes it possible to create a goal
  * composed of a sequence (up to six) of other goals. To overcome the restriction of six goals imposed by it's
@@ -25,10 +26,9 @@ package org.openl.ie.constrainer;
  *    tempGoal = new GoalAnd(tempGoal, goalsArray.get(i));
  * }
  * </pre>
- *
+ * <p>
  * GoalAnd pushes all it's subgoals to the execution stack. It succeeds if and only if all it's subgoals succeed. In
  * that case it returns null otherwise it generates an exception of type Failure.
- *
  */
 public class GoalAnd extends GoalImpl {
     private final Goal _g1;

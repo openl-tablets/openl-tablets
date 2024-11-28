@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.filter;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -31,8 +30,8 @@ public class RedirectFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException {
+                         ServletResponse servletResponse,
+                         FilterChain filterChain) throws IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         String redirectUrl = request.getContextPath() + redirectPage;

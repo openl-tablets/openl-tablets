@@ -23,7 +23,7 @@ public class TwoDimensionDecisionTableTransformer implements CoordinatesTransfor
     private final int dtHeaderHeight;
 
     /**
-     * @param entireTable The entire table with two dimensions(WITHOUT a header).
+     * @param entireTable       The entire table with two dimensions(WITHOUT a header).
      * @param lookupValuesTable The "values subtable"
      */
     TwoDimensionDecisionTableTransformer(IGridTable entireTable, IGridTable lookupValuesTable, int retTableWidth) {

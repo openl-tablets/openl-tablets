@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 /**
  * A set of util methods to work with booleans.
- *
+ * <p>
  * {@link #and(Boolean[])} and {@link #or(Boolean[])} methods also handle null values:
  * <ul>
  * <li>null & null = null</li>
@@ -15,7 +15,7 @@ import java.math.BigInteger;
  * <li>null | false = null</li>
  * </ul>
  * where null is unknown value (state).
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan
@@ -413,7 +413,7 @@ public final class Booleans {
                 final char ch0 = str.charAt(0);
                 final char ch1 = str.charAt(1);
                 if ((ch0 == 'o' || ch0 == 'O')
-                    && (ch1 == 'n' || ch1 == 'N')) {
+                        && (ch1 == 'n' || ch1 == 'N')) {
                     return Boolean.TRUE;
                 }
                 if ((ch0 == 'n' || ch0 == 'N')

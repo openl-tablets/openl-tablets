@@ -4,10 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.message.OpenLMessage;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
+
+import org.openl.message.OpenLMessage;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 @Service
 @RequestScope
@@ -30,9 +31,9 @@ public class ShowMessageBean {
         Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
 
         return moduleMessages.stream()
-            .filter(m -> m.getId() == openLMessageId)
-            .findFirst()
-            .map(Collections::singletonList)
-            .orElse(Collections.emptyList());
+                .filter(m -> m.getId() == openLMessageId)
+                .findFirst()
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
     }
 }

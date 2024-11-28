@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
+
 import org.openl.ie.constrainer.EventOfInterest;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntVar;
@@ -10,7 +12,7 @@ import org.openl.ie.tools.ReusableFactory;
 /**
  * An implementation of the history for the integer domain.
  */
-public final class IntDomainHistory implements java.io.Serializable {
+public final class IntDomainHistory implements Serializable {
 
     /**
      * An implementation of the event about change in the integer domain.
@@ -195,7 +197,7 @@ public final class IntDomainHistory implements java.io.Serializable {
 
     /**
      * The function stores range removal from Int domain.
-     *
+     * <p>
      * added by SV 20.01.03 to support removeRangeInternal in IntVarImpl
      *
      * @param range_min

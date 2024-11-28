@@ -14,9 +14,11 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 import org.openl.ie.tools.ReusableImpl;
 
 //: EventOfInterest.java
+
 /**
  * Class EventOfInterest is a base class for different events used by constraint observers.
  *
@@ -33,7 +35,7 @@ public abstract class EventOfInterest extends ReusableImpl implements EventOfInt
     /**
      * The names of the events.
      */
-    private static final String[] names = { "VALUE", "MIN", "MAX", "REMOVE" };
+    private static final String[] names = {"VALUE", "MIN", "MAX", "REMOVE"};
 
     /**
      * Returns true if this event is MAX event.

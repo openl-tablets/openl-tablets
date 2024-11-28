@@ -86,9 +86,9 @@
 
         <script>
             //<![CDATA[
-                const $jq = jQuery.noConflict();
-                let messageId = -1;
-                let messageIndex = -1;
+                var $jq = jQuery.noConflict();
+                var messageId = -1;
+                var messageIndex = -1;
 
                 $jq('#progress-info-panel').off('refresh').on('refresh', function (e, state) {
                     //Hide progressbar and continue cycle in case if we closed current module or project but not opened another.

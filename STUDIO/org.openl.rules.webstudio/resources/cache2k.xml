@@ -19,6 +19,7 @@
         </cache>
         <cache>
             <name>userInfoOAuth2Cache</name>
+            <entryCapacity>100</entryCapacity>
             <expireAfterWrite>30m</expireAfterWrite>
         </cache>
     </caches>

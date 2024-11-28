@@ -9,7 +9,6 @@ import org.openl.util.StringUtils;
  * Ectractor for folder name paths from the top root folder.
  *
  * @author DLiauchuk
- *
  */
 public class RootFolderExtractor {
     private final Set<String> folderNames;
@@ -40,11 +39,10 @@ public class RootFolderExtractor {
     /**
      * Extracs the folder from the root folder(if exists).
      *
-     *
      * @param folderName folder name to be extracted from the root folder.
      * @return extracted folder name from the root folder.<br>
-     *         E.g. folderName: <code>org/package/sources/</code>. if the root folder is <code>org</code>, the result
-     *         will be <code>package/sources/</code>.
+     * E.g. folderName: <code>org/package/sources/</code>. if the root folder is <code>org</code>, the result
+     * will be <code>package/sources/</code>.
      */
     public String extractFromRootFolder(String folderName) {
         String result = null;

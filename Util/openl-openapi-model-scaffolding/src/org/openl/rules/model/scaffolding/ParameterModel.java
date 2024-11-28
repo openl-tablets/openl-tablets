@@ -51,7 +51,7 @@ public class ParameterModel implements InputParameter {
         }
         ParameterModel that = (ParameterModel) o;
         return Objects.equals(type, that.type) && Objects.equals(formattedName, that.formattedName) && Objects
-            .equals(originalName, that.originalName) && in == that.in;
+                .equals(originalName, that.originalName) && in == that.in;
     }
 
     @Override

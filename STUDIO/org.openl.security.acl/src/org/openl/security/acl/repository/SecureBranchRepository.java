@@ -90,7 +90,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
             if (simpleRepositoryAclService
-                .isGranted(getId(), fileItem.getData().getName(), List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+                    .isGranted(getId(), fileItem.getData().getName(), List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
                 throw new AccessDeniedException("There is no permission for merging changes to a branch.");
             }
         }
@@ -109,9 +109,9 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
 
     @Override
     public List<FileData> listHistory(String name,
-            String globalFilter,
-            boolean techRevs,
-            Pageable pageable) throws IOException {
+                                      String globalFilter,
+                                      boolean techRevs,
+                                      Pageable pageable) throws IOException {
         return branchRepository.listHistory(name, globalFilter, techRevs, pageable);
     }
 }

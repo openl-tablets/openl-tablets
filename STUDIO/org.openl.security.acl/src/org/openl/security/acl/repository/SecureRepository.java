@@ -16,16 +16,22 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.security.acl.permission.AclPermission;
 
-public class SecureRepository implements Repository {
+public class SecureRepository implements Repository, RepositoryDelegate {
     private final Repository repository;
     protected final SimpleRepositoryAclService simpleRepositoryAclService;
 
     public SecureRepository(Repository repository, SimpleRepositoryAclService simpleRepositoryAclService) {
         this.repository = Objects.requireNonNull(repository, "repository cannot be null");
         this.simpleRepositoryAclService = Objects.requireNonNull(simpleRepositoryAclService,
-            "simpleRepositoryAclService cannot be null");
+                "simpleRepositoryAclService cannot be null");
+    }
+
+    @Override
+    public Repository getOriginal() {
+        return repository;
     }
 
     @Override
@@ -41,14 +47,16 @@ public class SecureRepository implements Repository {
     @Override
     public List<FileData> list(String path) throws IOException {
         return repository.list(path)
-            .stream()
-            .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
+                .collect(Collectors.toList());
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        checkReadPermission(name);
+        // Checking permissions here is a problem for
+        // org.openl.rules.workspace.uw.impl.UserWorkspaceImpl.uploadLocalProject method
+        // checkReadPermission(name);
         return repository.check(name);
     }
 
@@ -68,7 +76,7 @@ public class SecureRepository implements Repository {
         if (repository.check(name) != null) {
             if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
                 throw new AccessDeniedException(
-                    String.format("There is no permission for modifying '%s' in '%s' repository.", name, getName()));
+                        String.format("There is no permission for modifying '%s' in '%s' repository.", name, getName()));
             }
         } else {
             checkCreatePermissions(name);
@@ -78,29 +86,29 @@ public class SecureRepository implements Repository {
     protected void checkCreatePermissions(String name) throws IOException {
         if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_CREATE))) {
             throw new AccessDeniedException(
-                String.format("There is no permission for creating '%s' in '%s' repository.", name, getName()));
+                    String.format("There is no permission for creating '%s' in '%s' repository.", name, getName()));
         }
     }
 
     protected void checkReadPermission(String name) throws IOException {
         if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             throw new AccessDeniedException(
-                String.format("There is no permission for reading '%s' from '%s' repository.", name, getName()));
+                    String.format("There is no permission for reading '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeletePermission(String name) throws IOException {
         if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
             throw new AccessDeniedException(
-                String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
+                    String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeleteHistoryPermission(String name) throws IOException {
         if (!simpleRepositoryAclService
-            .isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE_HISTORY))) {
+                .isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE_HISTORY))) {
             throw new AccessDeniedException(
-                String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
+                    String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 

@@ -1,7 +1,5 @@
 package org.openl.rules.dt.storage;
 
-import org.openl.rules.dt.Expr;
-
 public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
     private final StorageInfo info;
@@ -32,10 +30,6 @@ public abstract class ReadOnlyStorage<T> implements IStorage<T> {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public Expr getExprValue(int index) {
-        return null;
-    }
 
     @Override
     public StorageInfo getInfo() {

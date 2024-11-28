@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
@@ -14,13 +15,11 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
-import javax.xml.bind.JAXBException;
-
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
-        Pattern.DOTALL);
+            Pattern.DOTALL);
     private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern
-        .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
+            .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
 
     private final RulesDeploySerializerFactory serializerFactory;
 
@@ -74,7 +73,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
             public String serialize(RulesDeploy source) throws JAXBException, IOException {
                 // We process the "configuration" field ourself
                 return serializer.serialize(source)
-                        .replaceAll("<configuration>[\\s\\S]*?</configuration>","")
+                        .replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
                         .replaceAll("(?m)^[ \t]*\r?\n", "");
             }
         };

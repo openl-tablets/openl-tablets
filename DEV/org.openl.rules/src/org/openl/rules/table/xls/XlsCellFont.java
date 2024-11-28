@@ -2,6 +2,7 @@ package org.openl.rules.table.xls;
 
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
+
 import org.openl.rules.table.ui.ICellFont;
 
 public class XlsCellFont implements ICellFont {

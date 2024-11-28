@@ -18,11 +18,11 @@ public class ConstantOpenField extends AOpenField {
     }
 
     public ConstantOpenField(String name,
-            Object value,
-            String valueAsString,
-            IOpenClass type,
-            ModuleOpenClass declaringClass,
-            IMemberMetaInfo memberMetaInfo) {
+                             Object value,
+                             String valueAsString,
+                             IOpenClass type,
+                             ModuleOpenClass declaringClass,
+                             IMemberMetaInfo memberMetaInfo) {
         super(name, type);
         this.declaringClass = declaringClass;
         this.value = value;

@@ -21,11 +21,10 @@ import org.openl.types.IOpenField;
  * Binding context for different Openl components.<br>
  * Handles {@link ComponentOpenClass} for which binding is performed.<br>
  * And a map of internal types that are found during binding.<br>
- *
+ * <p>
  * Was created by extracting functionality from {@link ModuleBindingContext} of 20192 revision.
  *
  * @author DLiauchuk
- *
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 
@@ -81,8 +80,8 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace,
-            String methodName,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+                                          String methodName,
+                                          IOpenClass[] parTypes) throws AmbiguousMethodException {
 
         IMethodCaller imc = null;
         if (ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
@@ -132,7 +131,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
         }
         if (isComponentSpecificOpenClass(componentOpenClass)) {
             IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE,
-                componentOpenClass.getName());
+                    componentOpenClass.getName());
             if (thisContextOpenClass != null) {
                 return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
             }

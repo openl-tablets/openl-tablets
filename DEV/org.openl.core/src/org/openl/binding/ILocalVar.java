@@ -10,7 +10,6 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
  */
 public interface ILocalVar extends IOpenField {
 

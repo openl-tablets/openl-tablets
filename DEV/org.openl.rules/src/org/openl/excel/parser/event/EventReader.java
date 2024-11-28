@@ -1,6 +1,7 @@
 package org.openl.excel.parser.event;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class EventReader implements ExcelReader {
             listener.process(fileName);
 
             return listener.getTableStyles();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }
@@ -69,7 +70,7 @@ public class EventReader implements ExcelReader {
             WorkbookListener workbookListener = new WorkbookListener();
             workbookListener.process(fileName);
             this.listener = workbookListener;
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             throw new ExcelParseException(e);
         }
     }

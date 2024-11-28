@@ -10,12 +10,13 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.ResourceUtils;
+
+import org.openl.util.StringTool;
 
 /**
  * Workaround for WebSphere Sometimes URL for a file inside the jar file becomes url-encoded ("Empty%20Project" instead
@@ -26,12 +27,12 @@ import org.springframework.util.ResourceUtils;
  * @author NSamatov
  */
 final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePatternResolver {
-    private static final Logger LOG = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EncodedJarPathResourcePatternResolver.class);
 
     @Override
     protected Set<Resource> doFindPathMatchingJarResources(Resource rootDirResource,
-            URL rootDirURL,
-            String subPattern) throws IOException {
+                                                           URL rootDirURL,
+                                                           String subPattern) throws IOException {
         URLConnection con = rootDirResource.getURL().openConnection();
         JarFile jarFile;
         String jarFileUrl;
@@ -74,7 +75,7 @@ final class EncodedJarPathResourcePatternResolver extends PathMatchingResourcePa
                 rootEntryPath = rootEntryPath + "/";
             }
             Set<Resource> result = new LinkedHashSet<>(8);
-            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements();) {
+            for (Enumeration<JarEntry> entries = jarFile.entries(); entries.hasMoreElements(); ) {
                 JarEntry entry = entries.nextElement();
                 String entryPath = entry.getName();
                 if (entryPath.startsWith(rootEntryPath)) {

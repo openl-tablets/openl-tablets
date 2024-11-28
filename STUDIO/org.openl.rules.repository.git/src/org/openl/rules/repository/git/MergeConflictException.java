@@ -15,10 +15,10 @@ public class MergeConflictException extends IOException {
     private final Map<String, WorkbookDiffResult> toAutoResolve;
 
     public MergeConflictException(Map<String, String> diffs,
-            String baseCommit,
-            String yourCommit,
-            String theirCommit,
-            Map<String, WorkbookDiffResult> toAutoResolve) {
+                                  String baseCommit,
+                                  String yourCommit,
+                                  String theirCommit,
+                                  Map<String, WorkbookDiffResult> toAutoResolve) {
         this.baseCommit = baseCommit;
         this.yourCommit = yourCommit;
         this.theirCommit = theirCommit;

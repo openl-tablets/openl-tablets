@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -15,16 +15,15 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>
+        <surefire.argLine.opts>
             -javaagent:${project.build.directory}/opentelemetry-javaagent.jar
-            -Xms64m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=128m
             -Dotel.metrics.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.traces.exporter=logging-otlp <!-- JSON output format -->
             -Dotel.logs.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.bsp.schedule.delay=0 <!-- For rapidly output to the console -->
             -Dotel.service.name=RulerService-Test
             -Dotel.javaagent.extensions=../../Util/openl-rules-opentelemetry/target/openl-rules-opentelemetry.jar
-        </surefire.argLine>
+        </surefire.argLine.opts>
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
@@ -85,13 +84,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>kafka</artifactId>
+            <!-- requires for testcontainers due absent transitive dependency -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

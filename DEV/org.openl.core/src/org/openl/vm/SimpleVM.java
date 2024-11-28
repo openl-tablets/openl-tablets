@@ -17,7 +17,6 @@ import org.openl.runtime.IRuntimeContext;
 
 /**
  * @author snshor
- *
  */
 public class SimpleVM implements IOpenVM {
 

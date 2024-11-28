@@ -1,8 +1,8 @@
 package org.openl.rules.project.instantiation;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RangeParserDoubleMultithreadingTest {
 
@@ -38,8 +38,8 @@ public class RangeParserDoubleMultithreadingTest {
     private void rangeParserDoubleWithBracket() throws Exception {
         SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<DoubleRange> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
         SimpleProjectEngineFactory<DoubleRange> factory = builder.setProject("test-resources/concurrency-test")
-            .setInterfaceClass(DoubleRange.class)
-            .build();
+                .setInterfaceClass(DoubleRange.class)
+                .build();
 
         DoubleRange instance = factory.newInstance();
 
@@ -199,7 +199,7 @@ public class RangeParserDoubleMultithreadingTest {
         assertEquals(154.0, instance.CupCapAdj(-902));
     }
 
-    private interface DoubleRange {
+    public interface DoubleRange {
         Double CupCapAdj(double expPremDDIFF);
     }
 }

@@ -2,6 +2,9 @@ package org.openl.rules.table;
 
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ui.CellFont;
 import org.openl.rules.table.ui.CellStyle;
@@ -9,8 +12,6 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor

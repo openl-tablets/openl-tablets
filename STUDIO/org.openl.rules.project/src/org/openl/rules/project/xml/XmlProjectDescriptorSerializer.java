@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
-
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
@@ -18,7 +17,7 @@ import org.openl.util.CollectionUtils;
  * Project Descriptor serializer/deserializer.
  * <p>
  * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained: 1) from each project
- * settings (stored inside ".settings" folder) 2) from openl.compatibility.version property of WebStudio configuration.
+ * settings (stored inside ".settings" folder) 2) from openl.compatibility.version property of OpenL Studio configuration.
  * Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory instead.
  */
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
@@ -35,7 +34,6 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     /**
      * Create Project Descriptor Serializer Note: consider using ProjectDescriptorSerializerFactory instead.
-     *
      */
     public XmlProjectDescriptorSerializer() {
         jaxbSerializer = new JAXBSerializer(ProjectDescriptor.class);
@@ -96,7 +94,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
         for (Module module : descriptor.getModules()) {
             if (module.getWebstudioConfiguration() != null && Boolean.FALSE
-                .equals(module.getWebstudioConfiguration().isCompileThisModuleOnly())) {
+                    .equals(module.getWebstudioConfiguration().isCompileThisModuleOnly())) {
                 module.setWebstudioConfiguration(null);
             }
         }

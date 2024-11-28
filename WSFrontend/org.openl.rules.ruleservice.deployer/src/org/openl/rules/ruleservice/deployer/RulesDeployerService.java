@@ -28,6 +28,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
@@ -42,8 +45,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
@@ -69,7 +70,7 @@ public class RulesDeployerService implements Closeable {
             this.baseDeployPath = "";
         } else {
             this.baseDeployPath = baseDeployPath.isEmpty() || baseDeployPath.endsWith("/") ? baseDeployPath
-                                                                                           : baseDeployPath + "/";
+                    : baseDeployPath + "/";
         }
     }
 
@@ -98,10 +99,10 @@ public class RulesDeployerService implements Closeable {
     /**
      * Deploys or redeploys target zip input stream
      *
-     * @param name original ZIP file name
-     * @param in zip input stream
+     * @param name           original ZIP file name
+     * @param in             zip input stream
      * @param ignoreIfExists if deployment was exist before and overridable is false, it will not be deployed, if true,
-     *            it will be overridden.
+     *                       it will be overridden.
      */
     public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException {
         Path archiveTmp = Files.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
@@ -148,9 +149,9 @@ public class RulesDeployerService implements Closeable {
             final String fullDeployPath = baseDeployPath + deployPath;
             try {
                 if (Optional.ofNullable(deployRepo.check(fullDeployPath))
-                    .map(FileData::getSize)
-                    .filter(size -> size > FileData.UNDEFINED_SIZE)
-                    .isPresent()) {
+                        .map(FileData::getSize)
+                        .filter(size -> size > FileData.UNDEFINED_SIZE)
+                        .isPresent()) {
                     FileItem archive = deployRepo.read(fullDeployPath);
                     if (archive != null) {
                         IOUtils.copyAndClose(archive.getStream(), output);
@@ -164,7 +165,7 @@ public class RulesDeployerService implements Closeable {
             final boolean isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
 
             final String basePath = (isMultiProject ? fullDeployPath
-                                                    : baseDeployPath + projectsPath.iterator().next()) + "/";
+                    : baseDeployPath + projectsPath.iterator().next()) + "/";
             List<FileData> files = deployRepo.list(basePath);
             try (ZipOutputStream target = new ZipOutputStream(output)) {
                 for (FileData fileData : files) {
@@ -179,10 +180,13 @@ public class RulesDeployerService implements Closeable {
         } else {
             if (projectsPath.size() == 1) {
                 IOUtils.copyAndClose(deployRepo.read(baseDeployPath + projectsPath.iterator().next()).getStream(),
-                    output);
+                        output);
                 return;
             }
             try (ZipOutputStream target = new ZipOutputStream(output)) {
+                target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
+                target.write("name: ".getBytes());
+                target.write(deployPath.getBytes());
                 for (String projectPath : projectsPath) {
                     final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
                     final String fullDeployPath = baseDeployPath + projectPath;
@@ -203,7 +207,7 @@ public class RulesDeployerService implements Closeable {
 
     private boolean hasDeploymentDescriptor(String deployPath) throws IOException {
         return deployRepo.check(deployPath + "/" + DeploymentDescriptor.YAML.getFileName()) != null || deployRepo
-            .check(deployPath + "/" + DeploymentDescriptor.XML.getFileName()) != null;
+                .check(deployPath + "/" + DeploymentDescriptor.XML.getFileName()) != null;
     }
 
     /**
@@ -232,8 +236,8 @@ public class RulesDeployerService implements Closeable {
     }
 
     private void deployInternal(Path pathToArchive,
-            String originalName,
-            boolean ignoreIfExists) throws IOException {
+                                String originalName,
+                                boolean ignoreIfExists) throws IOException {
         validateSignature(pathToArchive);
         if (originalName != null) {
             // For some reason Java doesn't allow trailing whitespace in folder names
@@ -245,14 +249,14 @@ public class RulesDeployerService implements Closeable {
                 deployRegularProject(pathToArchive, originalName, ignoreIfExists, root);
             } else {
                 String deploymentName = Stream
-                    .of(DeploymentDescriptor.XML.getFileName(), DeploymentDescriptor.YAML.getFileName())
-                    .map(root::resolve)
-                    .filter(Files::exists)
-                    .filter(Files::isRegularFile)
-                    .map(RulesDeployerService::getDeploymentName)
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+                        .of(DeploymentDescriptor.XML.getFileName(), DeploymentDescriptor.YAML.getFileName())
+                        .map(root::resolve)
+                        .filter(Files::exists)
+                        .filter(Files::isRegularFile)
+                        .map(RulesDeployerService::getDeploymentName)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null);
                 if (StringUtils.isBlank(deploymentName)) {
                     deploymentName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
                 }
@@ -262,9 +266,9 @@ public class RulesDeployerService implements Closeable {
     }
 
     private void deployMultiProject(Path pathToArchive,
-            boolean ignoreIfExists,
-            Path root,
-            String deploymentName) throws IOException {
+                                    boolean ignoreIfExists,
+                                    Path root,
+                                    String deploymentName) throws IOException {
 
         if (deployRepo.supports().folders()) {
             if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
@@ -297,7 +301,7 @@ public class RulesDeployerService implements Closeable {
                 for (Path folder : folders) {
                     String folderName = folder.getFileName().toString();
                     Optional<FileData> fileData = createFileData(folder, deploymentName, folderName, ignoreIfExists);
-                    if (!fileData.isPresent()) {
+                    if (fileData.isEmpty()) {
                         continue;
                     }
                     Path tmp = Files.createTempFile(folderName, ".zip");
@@ -334,9 +338,9 @@ public class RulesDeployerService implements Closeable {
     }
 
     private void deployRegularProject(Path pathToArchive,
-            String originalName,
-            boolean ignoreIfExists,
-            Path root) throws IOException {
+                                      String originalName,
+                                      boolean ignoreIfExists,
+                                      Path root) throws IOException {
 
         String projectName = getProjectDescriptor(root).map(f -> {
             try (InputStream in = Files.newInputStream(f)) {
@@ -376,10 +380,10 @@ public class RulesDeployerService implements Closeable {
         } else {
             try (InputStream fileStream = Files.newInputStream(deploymentDescriptor)) {
                 return Optional.ofNullable(YamlMapperFactory.getYamlMapper().readValue(fileStream, Map.class))
-                    .map(prop -> prop.get("name"))
-                    .map(Object::toString)
-                    .filter(StringUtils::isNotBlank)
-                    .orElse(null);
+                        .map(prop -> prop.get("name"))
+                        .map(Object::toString)
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(null);
             } catch (IOException e) {
                 LOG.debug(e.getMessage(), e);
                 return null;
@@ -388,21 +392,21 @@ public class RulesDeployerService implements Closeable {
     }
 
     private Optional<FileData> createFileData(Path root,
-            String deploymentName,
-            String projectName,
-            boolean ignoreIfExists) throws IOException {
+                                              String deploymentName,
+                                              String projectName,
+                                              boolean ignoreIfExists) throws IOException {
         Optional<String> apiVersion = Optional.of(RULES_DEPLOY_XML)
-            .map(root::resolve)
-            .filter(Files::isRegularFile)
-            .map(f -> {
-                try (InputStream in = Files.newInputStream(f)) {
-                    return DeploymentUtils.getApiVersion(in);
-                } catch (IOException e) {
-                    LOG.debug(e.getMessage(), e);
-                    return null;
-                }
-            })
-            .filter(StringUtils::isNotBlank);
+                .map(root::resolve)
+                .filter(Files::isRegularFile)
+                .map(f -> {
+                    try (InputStream in = Files.newInputStream(f)) {
+                        return DeploymentUtils.getApiVersion(in);
+                    } catch (IOException e) {
+                        LOG.debug(e.getMessage(), e);
+                        return null;
+                    }
+                })
+                .filter(StringUtils::isNotBlank);
 
         if (apiVersion.isPresent()) {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion.get();

@@ -1,13 +1,16 @@
 package org.openl.rules.dt.index;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.element.ConditionCasts;
 
 /**
  * @author snshor
- *
  */
 public abstract class ARuleIndex implements IRuleIndex {
 

@@ -1,11 +1,12 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NumberUtilsTest {
 
@@ -20,24 +21,28 @@ public class NumberUtilsTest {
         assertEquals(0, NumberUtils.getScale(Double.NEGATIVE_INFINITY));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testGetDoubleScaleNull() {
-        NumberUtils.getScale(null);
+        assertThrows(NullPointerException.class, () -> {
+            NumberUtils.getScale(null);
+        });
     }
 
     @Test
     public void testGetNumberScale() {
-        assertEquals(3, NumberUtils.getScale(new Double(12.678)));
-        assertEquals(0, NumberUtils.getScale(new Integer(12)));
-        assertEquals(0, NumberUtils.getScale(new Integer(0)));
+        assertEquals(3, NumberUtils.getScale(Double.valueOf(12.678)));
+        assertEquals(0, NumberUtils.getScale(Integer.valueOf(12)));
+        assertEquals(0, NumberUtils.getScale(Integer.valueOf(0)));
 
         assertEquals(0, NumberUtils.getScale((Number) Double.NaN));
         assertEquals(0, NumberUtils.getScale((Number) Double.NEGATIVE_INFINITY));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testGetNumberScaleNull() {
-        NumberUtils.getScale((Number) null);
+        assertThrows(NullPointerException.class, () -> {
+            NumberUtils.getScale((Number) null);
+        });
     }
 
     @Test

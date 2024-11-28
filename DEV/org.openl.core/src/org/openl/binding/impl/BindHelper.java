@@ -44,9 +44,9 @@ public final class BindHelper {
     }
 
     public static void processError(String message,
-            Throwable ex,
-            ISyntaxNode syntaxNode,
-            IBindingContext bindingContext) {
+                                    Throwable ex,
+                                    ISyntaxNode syntaxNode,
+                                    IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, syntaxNode);
         bindingContext.addError(error);
     }
@@ -57,9 +57,9 @@ public final class BindHelper {
     }
 
     public static void processError(String message,
-            Throwable ex,
-            IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+                                    Throwable ex,
+                                    IOpenSourceCodeModule source,
+                                    IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, null, source);
         bindingContext.addError(error);
     }
@@ -75,24 +75,24 @@ public final class BindHelper {
     }
 
     private static final Collection<String> EQUAL_OPERATORS = Collections
-        .unmodifiableCollection(Arrays.asList("op.binary.eq",
-            "op.binary.strict_eq",
-            "op.binary.le",
-            "op.binary.strict_le",
-            "op.binary.ge",
-            "op.binary.strict_ge"));
+            .unmodifiableCollection(Arrays.asList("op.binary.eq",
+                    "op.binary.strict_eq",
+                    "op.binary.le",
+                    "op.binary.strict_le",
+                    "op.binary.ge",
+                    "op.binary.strict_ge"));
     private static final Collection<String> NOT_EQUAL_OPERATORS = Collections
-        .unmodifiableCollection(Arrays.asList("op.binary.ne",
-            "op.binary.strict_ne",
-            "op.binary.lt",
-            "op.binary.strict_lt",
-            "op.binary.gt",
-            "op.binary.strict_gt"));
+            .unmodifiableCollection(Arrays.asList("op.binary.ne",
+                    "op.binary.strict_ne",
+                    "op.binary.lt",
+                    "op.binary.strict_lt",
+                    "op.binary.gt",
+                    "op.binary.strict_gt"));
 
     /**
      * Checks the condition expression.
      *
-     * @param conditionNode Bound node that represents condition expression.
+     * @param conditionNode  Bound node that represents condition expression.
      * @param bindingContext Binding context.
      * @return <code>conditionNode</code> in case it is correct, and {@link ErrorBoundNode} in case condition is wrong.
      */
@@ -100,8 +100,8 @@ public final class BindHelper {
         if (conditionNode != null && !isBooleanType(conditionNode.getType())) {
             if (conditionNode.getType() != NullOpenClass.the) {
                 BindHelper.processError("Expected boolean type for condition.",
-                    conditionNode.getSyntaxNode(),
-                    bindingContext);
+                        conditionNode.getSyntaxNode(),
+                        bindingContext);
             }
             return new ErrorBoundNode(conditionNode.getSyntaxNode());
         } else {
@@ -118,14 +118,14 @@ public final class BindHelper {
             Method javaMethod = ((JavaOpenMethod) caller).getJavaMethod();
             if (isDeprecated(javaMethod)) {
                 String msg = String.format("DEPRECATED '%s' function will be removed in the next version.",
-                    javaMethod.getName());
+                        javaMethod.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof JavaOpenConstructor) {
             Constructor<?> constr = ((JavaOpenConstructor) caller).getJavaConstructor();
             if (isDeprecated(constr)) {
                 String msg = String.format("DEPRECATED '%s' constructor will be removed in the next version.",
-                    constr.getName());
+                        constr.getName());
                 processWarn(msg, node, context);
             }
         } else if (caller instanceof CastingMethodCaller) {
@@ -140,7 +140,7 @@ public final class BindHelper {
             Class<?> javaClass = aClass.getInstanceClass();
             if (javaClass.isAnnotationPresent(Deprecated.class)) {
                 String msg = String.format("DEPRECATED '%s' class will be removed in the next version.",
-                    javaClass.getTypeName());
+                        javaClass.getTypeName());
                 processWarn(msg, node, context);
             }
         } else if (aClass != null && aClass.isArray()) {
@@ -153,20 +153,20 @@ public final class BindHelper {
             Field javaField = ((JavaOpenField) field).getJavaField();
             if (isDeprecated(javaField)) {
                 String msg = String.format("DEPRECATED '%s' field will be removed in the next version.",
-                    javaField.getName());
+                        javaField.getName());
                 processWarn(msg, node, context);
             }
         } else if (field instanceof ArrayLengthOpenField) {
             processWarn(
-                "DEPRECATED 'length' field for arrays will be removed in the next version. " + "Use length() function instead.",
-                node,
-                context);
+                    "DEPRECATED 'length' field for arrays will be removed in the next version. " + "Use length() function instead.",
+                    node,
+                    context);
         }
     }
 
     private static <T extends Member & AnnotatedElement> boolean isDeprecated(T javaField) {
         return javaField.isAnnotationPresent(Deprecated.class) || javaField.getDeclaringClass()
-            .isAnnotationPresent(Deprecated.class);
+                .isAnnotationPresent(Deprecated.class);
     }
 
     private static void checkForSameLeftAndRightExpression(IBoundNode conditionNode, IBindingContext bindingContext) {
@@ -216,7 +216,7 @@ public final class BindHelper {
      *
      * @param type {@link IOpenClass} instance
      * @return <code>true</code> if given type equals {@link JavaOpenClass#BOOLEAN} or
-     *         JavaOpenClass.getOpenClass(Boolean.class); otherwise - <code>false</code>
+     * JavaOpenClass.getOpenClass(Boolean.class); otherwise - <code>false</code>
      */
     private static boolean isBooleanType(IOpenClass type) {
         return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;

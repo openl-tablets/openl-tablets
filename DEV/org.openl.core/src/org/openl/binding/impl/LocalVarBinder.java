@@ -17,16 +17,15 @@ import org.openl.types.IOpenClass;
 
 /**
  * @author snshor
- *
  */
 public class LocalVarBinder extends ANodeBinder {
 
     public static IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
-            String name,
-            ISyntaxNode initializationNode,
-            IOpenClass varType,
-            IBindingContext bindingContext,
-            boolean implyExpressionType) {
+                                                           String name,
+                                                           ISyntaxNode initializationNode,
+                                                           IOpenClass varType,
+                                                           IBindingContext bindingContext,
+                                                           boolean implyExpressionType) {
         IBoundNode init = null;
 
         if (initializationNode != null) {
@@ -63,7 +62,7 @@ public class LocalVarBinder extends ANodeBinder {
             } else {
                 String name = child.getChild(0).getText();
                 boundNodes
-                    .add(createLocalVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext, false));
+                        .add(createLocalVarDeclarationNode(child, name, child.getChild(1), varType, bindingContext, false));
             }
         }
 

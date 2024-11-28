@@ -1,40 +1,38 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.webstudio.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Map;
 
+import net.ttddyy.dsproxy.QueryCount;
+import net.ttddyy.dsproxy.QueryCountHolder;
 import org.flywaydb.core.Flyway;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.config.TagsConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import net.ttddyy.dsproxy.QueryCount;
-import net.ttddyy.dsproxy.QueryCountHolder;
 
 /**
  * Project Tags Service Test
  *
  * @author Vladyslav Pikus
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {DBTestConfiguration.class, TagsConfiguration.class})
-@TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1", "db.user =", "db.password =" })
+@SpringJUnitConfig(classes = {DBTestConfiguration.class, TagsConfiguration.class})
+@TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
+        "db.user =",
+        "db.password =",
+        "db.maximumPoolSize = 3"})
 public class OpenLProjectServiceTest {
 
     @Autowired
@@ -48,7 +46,7 @@ public class OpenLProjectServiceTest {
     @Qualifier("flywayDBReset")
     private Flyway flywayDBReset;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // Reset all changes where done while testing
         flywayDBReset.clean();

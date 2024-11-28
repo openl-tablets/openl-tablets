@@ -17,6 +17,7 @@ package org.openl.ie.constrainer;
 //
 //: IntExp.java
 //
+
 /**
  * An interface for the constrained integer expression. Any arithmetic operation where the operands are the integer
  * variables/expressions returns the integer expression.
@@ -31,7 +32,7 @@ public interface IntExp extends Expression {
     interface IntDomainIterator {
         /**
          * Processes each value contained within domain one by one (by convention from lowest to highest value).
-         *
+         * <p>
          * It should return <code>false</code> to stop iteration or <code>true</code> to continue.
          *
          * @see IntExp#iterateDomain
@@ -198,13 +199,11 @@ public interface IntExp extends Expression {
      *
      * @return the value of this expresion.
      * @throws Failure if this expresionis not bound.
-     *
      * @see #bound
      */
     int value() throws Failure;
 
     /**
-     *
      * @return value without checking bound(); should be called only after the caller checked the bounds already
      */
     int valueUnsafe();

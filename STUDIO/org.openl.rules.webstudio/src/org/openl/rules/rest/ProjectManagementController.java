@@ -4,8 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.xml.bind.JAXBException;
+
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -23,24 +38,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,24 +49,21 @@ public class ProjectManagementController {
     private final ProjectDeploymentService projectDeploymentService;
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
-    private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
+    private final RepositoryAclServiceProvider aclServiceProvider;
     private final WorkspaceProjectService projectService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
-            ProjectDeploymentService projectDeploymentService,
-            DeploymentManager deploymentManager,
-            ProjectStateValidator projectStateValidator,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
-            WorkspaceProjectService projectService) {
+                                       ProjectDeploymentService projectDeploymentService,
+                                       DeploymentManager deploymentManager,
+                                       ProjectStateValidator projectStateValidator,
+                                       RepositoryAclServiceProvider aclServiceProvider,
+                                       WorkspaceProjectService projectService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
-        this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.aclServiceProvider = aclServiceProvider;
         this.projectService = projectService;
     }
 
@@ -94,18 +89,18 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
             info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
-                .stream()
-                .map(ProjectInfo::new)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(ProjectInfo::new)
+                    .collect(Collectors.toList());
             info.dependencies = projectDependencyResolver.getProjectDependencies(project)
-                .stream()
-                .map(ProjectInfo::new)
-                .collect(Collectors.toList());
+                    .stream()
+                    .map(ProjectInfo::new)
+                    .collect(Collectors.toList());
             return info;
         } catch (ProjectException | JAXBException e) {
             throw new NotFoundException("project.message", name);
@@ -115,16 +110,16 @@ public class ProjectManagementController {
     /**
      * Returns deployment items for selected project.
      *
-     * @param repo repository where the project is located.
-     * @param name project name.
+     * @param repo           repository where the project is located.
+     * @param name           project name.
      * @param deployRepoName name of deploy repository.
      * @return project info.
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/deployments/{deploy-repo-name}")
     @Hidden
     public List<DeploymentProjectItem> getDeploymentItems(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @PathVariable("deploy-repo-name") String deployRepoName) {
+                                                          @PathVariable("proj-name") String name,
+                                                          @PathVariable("deploy-repo-name") String deployRepoName) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             return projectDeploymentService.getDeploymentProjectItems(project, deployRepoName);
@@ -163,8 +158,8 @@ public class ProjectManagementController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Hidden
     public void open(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies) {
+                     @PathVariable("proj-name") String name,
+                     @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies) {
         var webstudio = getWebStudio();
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
@@ -180,18 +175,18 @@ public class ProjectManagementController {
     /**
      * Deploy the selected project
      *
-     * @param repo repository where the project is located.
-     * @param name project name.
+     * @param repo           repository where the project is located.
+     * @param name           project name.
      * @param deployRepoName repository name where to deploy the project.
-     * @param items items to deploy.
+     * @param items          items to deploy.
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/deploy")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Hidden
     public void deploy(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam("deploy-repo-name") String deployRepoName,
-            @RequestBody String[] items) {
+                       @PathVariable("proj-name") String name,
+                       @RequestParam("deploy-repo-name") String deployRepoName,
+                       @RequestBody String[] items) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!projectStateValidator.canDeploy(project)) {
@@ -201,15 +196,15 @@ public class ProjectManagementController {
                 throw new ConflictException("project.deploy.conflict.message");
             }
             List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
-                .getDeploymentProjectItems(project, repo.getId());
+                    .getDeploymentProjectItems(project, repo.getId());
             List<ADeploymentProject> deploymentProjectsToDeploy = new ArrayList<>();
             for (String item : items) {
                 Optional<DeploymentProjectItem> deploymentProjectItem = deploymentProjectItems.stream()
-                    .filter(p -> p.getName().equals(item))
-                    .findFirst();
+                        .filter(p -> p.getName().equals(item))
+                        .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
-                    if (!deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
+                    if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
                         throw new SecurityException();
                     }
                     deploymentProjectsToDeploy.add(deploymentProject);
@@ -232,20 +227,20 @@ public class ProjectManagementController {
     @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/delete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
     public void delete(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam(value = "comment", required = false) final String comment) {
+                       @PathVariable("proj-name") String name,
+                       @RequestParam(value = "comment", required = false) final String comment) {
         // FIXME request body is not allowed for DELETE method.
         // see: https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5
         // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE
         // request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {
                 if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
-                    .isLocalOnly()) {
+                        .isLocalOnly()) {
                     throw new ConflictException("project.delete.branch.message");
                 }
                 if (project.isLocked() || project.isLockedByMe()) {
@@ -269,18 +264,18 @@ public class ProjectManagementController {
     @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/erase", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
     public void erase(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name,
-            @RequestParam(value = "comment", required = false) final String comment) {
+                      @PathVariable("proj-name") String name,
+                      @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ERASE))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.ERASE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {
                 throw new ConflictException("project.erase.message");
             }
             project.erase(getUserWorkspace().getUser(), comment);
-            designRepositoryAclService.deleteAcl(project);
+            aclServiceProvider.getDesignRepoAclService().deleteAcl(project);
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+
 import org.openl.gen.writers.DefaultValue;
 import org.openl.util.StringUtils;
 
@@ -26,38 +27,38 @@ public class FieldDescription {
     }
 
     public FieldDescription(String typeName,
-            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
-            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
+                            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
+                            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this.typeDescription = new TypeDescription(typeName);
         this.fieldVisitorWriters = fieldVisitorWriters;
         this.getterVisitorWriters = getterVisitorWriters;
     }
 
     public FieldDescription(String typeName,
-            Object defaultValue,
-            String defaultValueAsString,
-            String contextPropertyName,
-            boolean isTransient) {
+                            Object defaultValue,
+                            String defaultValueAsString,
+                            String contextPropertyName,
+                            boolean isTransient) {
         this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null, isTransient);
     }
 
     public FieldDescription(String typeName,
-            Object defaultValue,
-            String defaultValueAsString,
-            String contextPropertyName,
-            String xmlName,
-            boolean isTransient) {
+                            Object defaultValue,
+                            String defaultValueAsString,
+                            String contextPropertyName,
+                            String xmlName,
+                            boolean isTransient) {
         this(typeName, defaultValue, defaultValueAsString, contextPropertyName, xmlName, isTransient, null, null);
     }
 
     public FieldDescription(String typeName,
-            Object defaultValue,
-            String defaultValueAsString,
-            String contextPropertyName,
-            String xmlName,
-            boolean isTransient,
-            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
-            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
+                            Object defaultValue,
+                            String defaultValueAsString,
+                            String contextPropertyName,
+                            String xmlName,
+                            boolean isTransient,
+                            Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
+                            Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this(typeName, fieldVisitorWriters, getterVisitorWriters);
         this.defaultValueAsString = defaultValueAsString;
         this.defaultValue = defaultValue;

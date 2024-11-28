@@ -1,5 +1,3 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.service;
 
 import java.nio.charset.StandardCharsets;
@@ -13,18 +11,16 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.model.ProjectLockInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.webstudio.service.OpenLProjectService;
-import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
@@ -39,7 +35,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
 
     private static final Predicate<AProject> ALL_PROJECTS = project -> true;
 
-    private static final String PROJECT_ID_SEPARATOR = ":";
+    protected static final String PROJECT_ID_SEPARATOR = ":";
 
     protected final RepositoryAclService designRepositoryAclService;
     private final OpenLProjectService projectService;
@@ -53,12 +49,12 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     @Nonnull
     public List<ProjectViewModel> getProjects(ProjectCriteriaQuery query) {
         var criteriaFilter = buildFilterCriteria(query)
-            .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
-            .and(buildTagsFilterCriteria(query));
+                .and(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
+                .and(buildTagsFilterCriteria(query));
         return getProjects0(query).filter(criteriaFilter)
-            .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
-            .map(this::mapProjectResponse)
-            .collect(Collectors.toList());
+                .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
+                .map(this::mapProjectResponse)
+                .collect(Collectors.toList());
     }
 
     @Nonnull
@@ -71,7 +67,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         Predicate<AProject> filter = ALL_PROJECTS;
         if (!query.getTags().isEmpty()) {
             filter = project -> projectService
-                .isProjectHasTags(project.getRepository().getId(), project.getRealPath(), query.getTags());
+                    .isProjectHasTags(project.getRepository().getId(), project.getRealPath(), query.getTags());
         }
         return filter;
     }
@@ -81,18 +77,25 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     protected ProjectViewModel mapProjectResponse(T src) {
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
-            .name(src.getBusinessName())
-            .id(buildProjectId(repository.getId(), src.getName()))
-            .repository(repository.getId());
+                .name(src.getBusinessName())
+                .id(buildProjectId(repository.getId(), resolveProjectName(src)))
+                .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
             Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).ifPresent(builder::modifiedBy);
             Optional.ofNullable(fileData.getModifiedAt())
-                .map(Date::toInstant)
-                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-                .ifPresent(builder::modifiedAt);
+                    .map(Date::toInstant)
+                    .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+                    .ifPresent(builder::modifiedAt);
             Optional.ofNullable(fileData.getVersion()).ifPresent(builder::revision);
             Optional.ofNullable(fileData.getComment()).ifPresent(builder::comment);
+        }
+        if (!src.isOpenedForEditing() && src.isLocked()) {
+            var lockInfo = src.getLockInfo();
+            builder.lockInfo(ProjectLockInfo.builder()
+                    .lockedBy(lockInfo.getLockedBy())
+                    .lockedAt(ZonedDateTime.ofInstant(lockInfo.getLockedAt(), ZoneId.systemDefault()))
+                    .build());
         }
         var designRepository = repository;
         if (src instanceof UserWorkspaceProject) {
@@ -106,7 +109,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             }
         }
 
-        if (designRepository.supports().mappedFolders()) {
+        if (designRepository != null && designRepository.supports().mappedFolders()) {
             var path = src.getRealPath().replace('\\', '/');
             builder.path(path);
         }
@@ -122,6 +125,10 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
     private String buildProjectId(String repositoryId, String projectName) {
         var rawProjectId = repositoryId + PROJECT_ID_SEPARATOR + projectName;
         return Base64.getEncoder().encodeToString(rawProjectId.getBytes(StandardCharsets.UTF_8));
+    }
+
+    protected String resolveProjectName(T src) {
+        return src.getName();
     }
 
 }

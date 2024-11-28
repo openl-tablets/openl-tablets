@@ -1,16 +1,5 @@
 package org.openl.security.saml;
 
-import org.openl.util.StringUtils;
-import org.opensaml.security.x509.X509Support;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
-import org.springframework.security.saml2.core.Saml2X509Credential;
-import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.security.KeyFactory;
@@ -21,6 +10,18 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Iterator;
+
+import org.opensaml.security.x509.X509Support;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.saml2.core.Saml2X509Credential;
+import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
+
+import org.openl.util.StringUtils;
 
 /**
  * Lazy RelyingPartyRegistration initialization, for the case when IDP is not available for some reason.
@@ -52,12 +53,12 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
             RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
-                .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
-                .registrationId("webstudio")
-                .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
-                .entityId(propertyResolver.getProperty("security.saml.entity-id"))
-                .signingX509Credentials(c -> c.add(signing))
-                .decryptionX509Credentials(c -> c.add(decryption));
+                    .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
+                    .registrationId("webstudio")
+                    .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
+                    .entityId(propertyResolver.getProperty("security.saml.entity-id"))
+                    .signingX509Credentials(c -> c.add(signing))
+                    .decryptionX509Credentials(c -> c.add(decryption));
 
             // Override certificate from the Metadata XML to prevent MITM attack.
             String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
@@ -76,13 +77,14 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
 
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("", e);
         }
     }
 
     /**
      * Returns the relying party registration identified by the provided.
      * Initializes RelyingPartyRegistration if it has not been created yet.
+     *
      * @param id the registration identifier
      * @return the {@link RelyingPartyRegistration} if found, otherwise {@code null}
      */
@@ -97,6 +99,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     /**
      * Returns an iterator over elements of type {@code T}.
      * Initializes RelyingPartyRegistration if it has not been created yet.
+     *
      * @return an Iterator.
      */
     @Override

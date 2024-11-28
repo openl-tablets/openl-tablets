@@ -3,7 +3,7 @@
     <modules>
         <module>
             <name>testmodule</name>
-            <rules-root path="dependencies/test3/module/dependency-module?/dependency?.xls" />
+            <rules-root path="dependencies/test3/module/dependency-module?/dependency?.xls"/>
         </module>
     </modules>
 

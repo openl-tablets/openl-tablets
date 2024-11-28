@@ -7,7 +7,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -17,10 +16,10 @@ public class ColumnMatchBoundNode extends AMethodBasedNode {
     private final IOpenSourceCodeModule nameOfAlgorithm;
 
     public ColumnMatchBoundNode(TableSyntaxNode tsn,
-            OpenL openl,
-            IOpenMethodHeader header,
-            ModuleOpenClass module,
-            IOpenSourceCodeModule nameOfAlgorithm) {
+                                OpenL openl,
+                                IOpenMethodHeader header,
+                                ModuleOpenClass module,
+                                IOpenSourceCodeModule nameOfAlgorithm) {
         super(tsn, openl, header, module);
 
         this.nameOfAlgorithm = nameOfAlgorithm;
@@ -33,10 +32,6 @@ public class ColumnMatchBoundNode extends AMethodBasedNode {
 
     @Override
     public void finalizeBind(IBindingContext cxt) throws Exception {
-        if (!cxt.isExecutionMode()) {
-            getTableSyntaxNode().setMetaInfoReader(new ColumnMatchMetaInfoReader(this));
-        }
-
         super.finalizeBind(cxt);
         ColumnMatchBuilder builder = new ColumnMatchBuilder(cxt, getColumnMatch(), getTableSyntaxNode());
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();

@@ -21,9 +21,9 @@ public final class TableSyntaxNodeUtils {
     }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode,
-            int i,
-            OverloadedMethodsDictionary dictionary,
-            Formats formats) {
+                                                int i,
+                                                OverloadedMethodsDictionary dictionary,
+                                                Formats formats) {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
 
@@ -37,7 +37,7 @@ public final class TableSyntaxNodeUtils {
 
         if (name == null) {
             name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(),
-                tableSyntaxNode.getNodeType());
+                    tableSyntaxNode.getNodeType());
         }
 
         if (display == null) {
@@ -48,7 +48,7 @@ public final class TableSyntaxNodeUtils {
         String dimensionInfo = StringUtils.EMPTY;
 
         if (dictionary != null && tableProperties != null && tableSyntaxNode
-            .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
+                .getMember() instanceof IOpenMethod && dictionary.contains((IOpenMethod) tableSyntaxNode.getMember())) {
 
             if (dictionary.getAllMethodOverloads((IOpenMethod) tableSyntaxNode.getMember()).size() > 1) {
                 // Add dimension properties info only if there are more than one table in dictionary.
@@ -69,7 +69,7 @@ public final class TableSyntaxNodeUtils {
                     if (StringUtils.isNotEmpty(value)) {
                         String propertyInfo = dimensionalPropertyName + "=" + value;
                         dimensionInfo = dimensionInfo + (StringUtils.isEmpty(dimensionInfo) ? StringUtils.EMPTY
-                                                                                            : ", ") + propertyInfo;
+                                : ", ") + propertyInfo;
                     }
                 }
             }
@@ -79,7 +79,7 @@ public final class TableSyntaxNodeUtils {
             sfx = sfx + " [" + dimensionInfo + "]";
         }
 
-        return new String[] { name + sfx, display + sfx, display + sfx };
+        return new String[]{name + sfx, display + sfx, display + sfx};
     }
 
     // TODO: refactor
@@ -97,7 +97,7 @@ public final class TableSyntaxNodeUtils {
             }
         } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
             // Get the second word
-            var first  = StringUtils.firstNonSpace(resultName, 0, resultName.length()); // the first token
+            var first = StringUtils.firstNonSpace(resultName, 0, resultName.length()); // the first token
             first = StringUtils.first(resultName, first, resultName.length(), StringUtils::isSpaceOrControl); // space
             first = StringUtils.firstNonSpace(resultName, first, resultName.length()); // the second token
             var last = StringUtils.first(resultName, first, resultName.length(), StringUtils::isSpaceOrControl); // space
@@ -109,13 +109,13 @@ public final class TableSyntaxNodeUtils {
             }
         } else {
             // Get the last word except method arguments
-            var last = StringUtils.first(resultName,0, resultName.length(), x -> x == '('); // arguments
+            var last = StringUtils.first(resultName, 0, resultName.length(), x -> x == '('); // arguments
             if (last < 0) {
                 last = resultName.length();
             }
             last = StringUtils.lastNonSpace(resultName, 0, last) + 1;
             var first = StringUtils.last(resultName, 0, last, StringUtils::isSpaceOrControl);
-            resultName = resultName.substring(first+1, last);
+            resultName = resultName.substring(first + 1, last);
         }
 
         return resultName.trim();

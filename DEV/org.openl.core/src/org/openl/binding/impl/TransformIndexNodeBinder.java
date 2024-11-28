@@ -17,11 +17,11 @@ public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
     protected IBoundNode createBoundNode(ISyntaxNode node,
-            IBoundNode targetNode,
-            IBoundNode expressionNode,
-            ILocalVar localVar,
-            IOpenCast openCast,
-            IBindingContext bindingContext) {
+                                         IBoundNode targetNode,
+                                         IBoundNode expressionNode,
+                                         ILocalVar localVar,
+                                         IOpenCast openCast,
+                                         IBindingContext bindingContext) {
         if (expressionNode.getType() == NullOpenClass.the) {
             String message = "Null cannot be used as expression for array index operator.";
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);

@@ -1,0 +1,9 @@
+PUT /rest/projects/ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==/tables/a9b205cbc833c511accabda0c39a87c8 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Hello"
+}

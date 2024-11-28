@@ -9,9 +9,7 @@ import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
- *
  * Key for IOpenMethod.
- *
  */
 public final class MethodKey {
     private final String name;
@@ -56,7 +54,7 @@ public final class MethodKey {
         for (int i = 0; i < originalParams.length; i++) {
             if (originalParams[i] instanceof JavaOpenClass) {
                 CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
-                    .getAnnotation(CustomJavaOpenClass.class);
+                        .getAnnotation(CustomJavaOpenClass.class);
                 if (customJavaOpenClass == null || !customJavaOpenClass.normalize()) {
                     continue;
                 }
@@ -83,7 +81,7 @@ public final class MethodKey {
             } else {
                 if (param instanceof JavaOpenClass) {
                     CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
-                        .getAnnotation(CustomJavaOpenClass.class);
+                            .getAnnotation(CustomJavaOpenClass.class);
                     if (customJavaOpenClass != null && customJavaOpenClass.normalize()) {
                         normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
                     }

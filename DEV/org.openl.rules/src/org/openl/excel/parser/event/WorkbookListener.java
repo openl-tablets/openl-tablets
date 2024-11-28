@@ -23,20 +23,22 @@ import org.apache.poi.hssf.record.LabelSSTRecord;
 import org.apache.poi.hssf.record.MergeCellsRecord;
 import org.apache.poi.hssf.record.NumberRecord;
 import org.apache.poi.hssf.record.RKRecord;
+import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.ParserDateUtil;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WorkbookListener implements HSSFListener {
     private static final Logger LOG = LoggerFactory.getLogger(WorkbookListener.class);
@@ -68,7 +70,7 @@ public class WorkbookListener implements HSSFListener {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         int row;
         int column;
         Object value;

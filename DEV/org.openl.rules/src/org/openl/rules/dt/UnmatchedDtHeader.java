@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 class UnmatchedDtHeader extends DTHeader {
     UnmatchedDtHeader(String statement, int column, int row, int width, boolean horizontal) {
-        super(new int[] {}, statement, column, row, width, width, horizontal);
+        super(new int[]{}, statement, column, row, width, width, horizontal);
     }
 
     @Override

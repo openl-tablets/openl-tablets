@@ -5,7 +5,6 @@ package org.openl.rules.table.ui;
 
 /**
  * @author snshor
- *
  */
 public class CellFont implements ICellFont {
 

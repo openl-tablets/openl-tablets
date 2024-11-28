@@ -7,15 +7,16 @@ import java.util.Map;
 import org.apache.poi.hssf.record.ExtendedFormatRecord;
 import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
+
 import org.openl.rules.table.xls.XlsCellStyle;
 
 class OpenLCellStyle extends XlsCellStyle {
     private final PaletteRecord palette;
 
     public OpenLCellStyle(int index,
-            ExtendedFormatRecord format,
-            PaletteRecord palette,
-            Map<Integer, FormatRecord> formats) {
+                          ExtendedFormatRecord format,
+                          PaletteRecord palette,
+                          Map<Integer, FormatRecord> formats) {
         super(new PoiCellStyle((short) index, format, formats), null);
         this.palette = palette;
     }

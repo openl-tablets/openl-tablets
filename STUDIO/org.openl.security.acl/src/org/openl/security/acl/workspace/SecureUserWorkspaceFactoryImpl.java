@@ -14,8 +14,8 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
     private final RepositoryAclService deployConfigRepositoryAclService;
 
     public SecureUserWorkspaceFactoryImpl(UserWorkspaceFactory userWorkspaceFactory,
-            RepositoryAclService designRepositoryAclService,
-            RepositoryAclService deployConfigRepositoryAclService) {
+                                          RepositoryAclService designRepositoryAclService,
+                                          RepositoryAclService deployConfigRepositoryAclService) {
         this.delegate = userWorkspaceFactory;
         this.designRepositoryAclService = designRepositoryAclService;
         this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
@@ -23,8 +23,8 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
 
     @Override
     public UserWorkspace create(LocalWorkspaceManager localWorkspaceManager,
-            DesignTimeRepository designTimeRepository,
-            WorkspaceUser user) {
+                                DesignTimeRepository designTimeRepository,
+                                WorkspaceUser user) {
         UserWorkspace userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
         return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService, deployConfigRepositoryAclService);
     }

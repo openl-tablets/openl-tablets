@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.DirectoryScanner;
+
 import org.openl.info.OpenLVersion;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.util.CollectionUtils;
@@ -128,7 +129,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     /**
      * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
      * {@linkplain #addDefaultManifest} parameter.
-     * 
+     *
      * @since 5.23.4
      */
     @Parameter
@@ -142,7 +143,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
      * <p/>
      * When a pattern ends with a '/' or '\', "**" is appended.
-     *
+     * <p>
      * If it is not defined, then all files will be included.
      *
      * @since 5.23.6
@@ -155,9 +156,9 @@ public final class PackageMojo extends BaseOpenLMojo {
      * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
      * <p/>
      * When a pattern ends with a '/' or '\', "**" is appended.
-     *
+     * <p>
      * If it is not defined, then no files will be excluded.
-     *
+     * <p>
      * Note: 'pom.xml' file and 'target' directory are excluded always independently on this parameter.
      *
      * @since 5.23.6
@@ -187,8 +188,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-        "You have to use classifier to attach supplemental artifacts " +
-                "to the project instead of replacing them."
+                    "You have to use classifier to attach supplemental artifacts " +
+                            "to the project instead of replacing them."
             );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
@@ -196,10 +197,10 @@ public final class PackageMojo extends BaseOpenLMojo {
         int dependenciesSize = dependencies.size();
         if (dependenciesSize > dependenciesThreshold) {
             error("The quantity of dependencies (",
-                dependenciesSize,
-                ") exceeds the defined threshold in 'dependenciesThreshold=",
-                dependenciesThreshold,
-                "' parameter.");
+                    dependenciesSize,
+                    ") exceeds the defined threshold in 'dependenciesThreshold=",
+                    dependenciesThreshold,
+                    "' parameter.");
             for (Artifact artifact : dependencies) {
                 error("    : ", artifact);
             }
@@ -278,9 +279,9 @@ public final class PackageMojo extends BaseOpenLMojo {
 
             final String artifactType = getFormats()[0];
             File outputFile = getOutputFile(outputDirectory,
-                deploymentName,
-                DEPLOYMENT_CLASSIFIER,
-                artifactType);
+                    deploymentName,
+                    DEPLOYMENT_CLASSIFIER,
+                    artifactType);
             ZipUtils.archive(outputDeploymentDir, outputFile);
 
             info("Attaching the deployment artifact '", outputFile, ",");
@@ -291,9 +292,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     private String[] getFormats() {
         switch (packaging) {
             case "openl":
-                return new String[] { "zip" };
+                return new String[]{"zip"};
             case "openl-jar":
-                return new String[] { "jar" };
+                return new String[]{"jar"};
             default:
                 return StringUtils.split(format, ',');
         }
@@ -363,9 +364,9 @@ public final class PackageMojo extends BaseOpenLMojo {
     /**
      * Returns the Jar file to generate, based on an optional classifier.
      *
-     * @param basedir the output directory
+     * @param basedir         the output directory
      * @param resultFinalName the name of the ear file
-     * @param classifier an optional classifier
+     * @param classifier      an optional classifier
      * @return the file to generate
      */
     private File getOutputFile(File basedir, String resultFinalName, String classifier, String format) {
@@ -405,7 +406,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
             attributes.putValue("Built-By", userName);
             attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
-                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+                    String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
             attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
             if (project.getOrganization() != null) {
                 attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());

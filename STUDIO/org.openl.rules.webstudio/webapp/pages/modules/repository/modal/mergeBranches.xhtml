@@ -128,7 +128,7 @@
         function modalMergeBranchesExportButtonAction() {
             withCommitInfoRequired('#{studio.currentUsername}', isMergeBranchesGitRepository, () => $j('#mergeBranchesForm\\:exportButtonHdn').click());
         }
-        let mergeBranchesRepositoryType = undefined;
+        var mergeBranchesRepositoryType = undefined;
         function isMergeBranchesGitRepository() {
             return mergeBranchesRepositoryType === 'repo-git';
         }

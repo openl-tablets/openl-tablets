@@ -81,7 +81,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     public ArgumentCachingStorage getArgumentCachingStorage() {
         if (argumentCachingStorage == null) {
-            argumentCachingStorage = new ArgumentCachingStorage(this);
+            argumentCachingStorage = new ArgumentCachingStorage();
         }
         return argumentCachingStorage;
     }

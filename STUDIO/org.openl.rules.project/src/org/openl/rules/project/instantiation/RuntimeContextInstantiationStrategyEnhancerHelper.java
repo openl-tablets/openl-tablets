@@ -6,11 +6,12 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.util.ClassUtils;
-import org.openl.util.generation.InterfaceTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.classloader.ClassLoaderUtils;
+import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.util.generation.InterfaceTransformer;
 
 /**
  * @author PUdalau, Marat Kamalov
@@ -43,10 +44,10 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     /**
      * Undecorates methods signatures of given class.
      *
-     * @param clazz interface to undecorate
+     * @param clazz       interface to undecorate
      * @param classLoader The classloader where generated class should be placed.
      * @return new class with undecorated methods signatures: removed {@link IRulesRuntimeContext} as the first
-     *         parameter for each method.
+     * parameter for each method.
      * @throws Exception
      */
     public static Class<?> undecorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
@@ -66,33 +67,29 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     }
 
     private static Class<?> innerUndecorateInterface(String className,
-            Class<?> original,
-            ClassLoader classLoader) throws Exception {
+                                                     Class<?> original,
+                                                     ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original,
-            className,
-            InterfaceTransformer.REMOVE_FIRST_PARAMETER);
+                className,
+                InterfaceTransformer.REMOVE_FIRST_PARAMETER);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
 
         // Create class object.
         //
-        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-        // Return loaded to classpath class object.
-        //
-        return Class.forName(className, true, classLoader);
+        return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
     }
 
     /**
      * Decorates methods signatures of given clazz.
      *
-     * @param clazz class to decorate
+     * @param clazz       class to decorate
      * @param classLoader The classloader where generated class should be placed.
      * @return new class with decorated methods signatures: added {@link IRulesRuntimeContext} as the first parameter
-     *         for each method.
+     * for each method.
      * @throws Exception
      */
     public static Class<?> decorateClass(Class<?> clazz, ClassLoader classLoader) throws Exception {
@@ -112,24 +109,20 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
     }
 
     private static Class<?> innerDecorateInterface(String className,
-            Class<?> original,
-            ClassLoader classLoader) throws Exception {
+                                                   Class<?> original,
+                                                   ClassLoader classLoader) throws Exception {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new DecoratingClassWriter(classWriter, className);
         InterfaceTransformer transformer = new InterfaceTransformer(original,
-            className,
-            InterfaceTransformer.ADD_FIRST_PARAMETER);
+                className,
+                InterfaceTransformer.ADD_FIRST_PARAMETER);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
 
         // Create class object.
         //
-        ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-        // Return loaded to classpath class object.
-        //
-        return Class.forName(className, true, classLoader);
+        return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
     }
 
     static class DecoratingClassWriter extends ClassVisitor {
@@ -142,20 +135,20 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         @Override
         public void visit(final int version,
-                final int access,
-                final String name,
-                final String signature,
-                final String superName,
-                final String[] interfaces) {
+                          final int access,
+                          final String name,
+                          final String signature,
+                          final String superName,
+                          final String[] interfaces) {
             super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
         public MethodVisitor visitMethod(final int access,
-                final String name,
-                final String descriptor,
-                final String signature,
-                final String[] exceptions) {
+                                         final String name,
+                                         final String descriptor,
+                                         final String signature,
+                                         final String[] exceptions) {
             return super.visitMethod(access, name, addRuntimeContextToDescription(descriptor), signature, exceptions);
         }
 
@@ -180,25 +173,25 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         @Override
         public void visit(final int version,
-                final int access,
-                final String name,
-                final String signature,
-                final String superName,
-                final String[] interfaces) {
+                          final int access,
+                          final String name,
+                          final String signature,
+                          final String superName,
+                          final String[] interfaces) {
             super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
         public MethodVisitor visitMethod(final int access,
-                final String name,
-                final String descriptor,
-                final String signature,
-                final String[] exceptions) {
+                                         final String name,
+                                         final String descriptor,
+                                         final String signature,
+                                         final String[] exceptions) {
             return super.visitMethod(access,
-                name,
-                removeRuntimeContextFromDescriptor(descriptor),
-                signature,
-                exceptions);
+                    name,
+                    removeRuntimeContextFromDescriptor(descriptor),
+                    signature,
+                    exceptions);
         }
 
         private String removeRuntimeContextFromDescriptor(String descriptor) {

@@ -52,7 +52,6 @@ import org.openl.rules.dt.DecisionTableColumnHeaders;
  * </table>
  *
  * @author DLiauchuk
- *
  */
 public interface IDecisionTableColumn {
 
@@ -100,9 +99,8 @@ public interface IDecisionTableColumn {
      * matrix, where first index is the rule index, the second - the index of local parameter. If the
      * {@link #getNumberOfLocalParameters()} is more than 1, use this method to get all rule values.
      *
-     * @param ruleIndex index of the rule
+     * @param ruleIndex           index of the rule
      * @param localParameterIndex index of the local parameter
-     *
      * @return the value for the appropriate rule and local parameter
      */
     String getRuleValue(int ruleIndex, int localParameterIndex);

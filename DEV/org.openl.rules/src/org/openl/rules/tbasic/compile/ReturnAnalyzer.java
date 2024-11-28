@@ -17,7 +17,6 @@ import org.openl.types.java.JavaOpenClass;
 /**
  * The <code>ReturnAnalyzer</code> class analyzes body of some TBasic function for correctness of returns sequence and
  * return types and detects unreachable code.
- *
  */
 public class ReturnAnalyzer {
     private final IOpenClass returnType;
@@ -27,7 +26,7 @@ public class ReturnAnalyzer {
      * Create an instance of <code>ReturnAnalyzer</code> for analysis of some function from TBasic compiler.
      *
      * @param returnType Expected return type of function
-     * @param compiler Associated TBasic compiler.
+     * @param compiler   Associated TBasic compiler.
      */
     public ReturnAnalyzer(IOpenClass returnType, AlgorithmCompiler compiler) {
         this.returnType = returnType;
@@ -50,8 +49,8 @@ public class ReturnAnalyzer {
     }
 
     private SuitablityAsReturn analyzeIFOperation(List<AlgorithmTreeNode> nodesToAnalyze,
-            boolean isMultiline,
-            IBindingContext bindingContext) {
+                                                  boolean isMultiline,
+                                                  IBindingContext bindingContext) {
         SuitablityAsReturn result = SuitablityAsReturn.RETURN;
         // checks only IF and ELSE branches
         for (int i = 0; i < 2; i++) {
@@ -77,11 +76,11 @@ public class ReturnAnalyzer {
             } else {
                 IOpenSourceCodeModule errorSource = nodeToAnalyze.getAlgorithmRow().getCondition().asSourceCodeModule();
                 BindHelper
-                    .processError(
-                        "Incorrect return type. Return type of function declared as '" + returnType
-                            .getDisplayName(INamedThing.REGULAR) + "'",
-                        errorSource,
-                        bindingContext);
+                        .processError(
+                                "Incorrect return type. Return type of function declared as '" + returnType
+                                        .getDisplayName(INamedThing.REGULAR) + "'",
+                                errorSource,
+                                bindingContext);
                 return SuitablityAsReturn.NONE;
             }
         } else if (canBeGrouped(nodeToAnalyze)) {
@@ -105,11 +104,11 @@ public class ReturnAnalyzer {
                 List<AlgorithmTreeNode> nodesToAnalyze1 = nodesToAnalyze.subList(i, i + linkedNodesGroupSize);
                 SuitablityAsReturn result1;
                 if (TBasicSpecificationKey.IF.toString()
-                    .equals(nodesToAnalyze1.get(0).getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
+                        .equals(nodesToAnalyze1.get(0).getSpecificationKeyword()) && TBasicSpecificationKey.ELSE.toString()
                         .equals(nodesToAnalyze1.get(1).getSpecificationKeyword())) {
                     result1 = analyzeIFOperation(nodesToAnalyze1,
-                        nodesToAnalyze1.get(0).getSpecification().isMultiline(),
-                        bindingContext);
+                            nodesToAnalyze1.get(0).getSpecification().isMultiline(),
+                            bindingContext);
                 } else {
                     result1 = SuitablityAsReturn.NONE;
                 }
@@ -118,12 +117,12 @@ public class ReturnAnalyzer {
 
             if (result == SuitablityAsReturn.RETURN && i + linkedNodesGroupSize < nodesToAnalyze.size()) {
                 IOpenSourceCodeModule errorSource = nodesToAnalyze.get(i + linkedNodesGroupSize)
-                    .getAlgorithmRow()
-                    .getOperation()
-                    .asSourceCodeModule();
+                        .getAlgorithmRow()
+                        .getOperation()
+                        .asSourceCodeModule();
                 BindHelper.processError("Unreachable code. Operations after RETURN not allowed.",
-                    errorSource,
-                    bindingContext);
+                        errorSource,
+                        bindingContext);
             }
         }
         return result;
@@ -132,12 +131,11 @@ public class ReturnAnalyzer {
     private boolean canBeGrouped(AlgorithmTreeNode nodeToAnalyze) {
         String currentNodeKeyword = nodeToAnalyze.getSpecificationKeyword();
         String[] operationNamesToGroup = AlgorithmTableParserManager.getInstance()
-            .whatOperationsToGroup(currentNodeKeyword);
+                .whatOperationsToGroup(currentNodeKeyword);
         return operationNamesToGroup != null;
     }
 
     /**
-     *
      * @return Expected return type of function
      */
     public IOpenClass getReturnType() {

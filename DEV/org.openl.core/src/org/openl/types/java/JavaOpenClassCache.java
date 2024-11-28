@@ -2,13 +2,19 @@ package org.openl.types.java;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
+
 import org.openl.classloader.OpenLClassLoader;
 
 public final class JavaOpenClassCache {
@@ -24,7 +30,7 @@ public final class JavaOpenClassCache {
      * instead
      */
     private final Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<>(AbstractReferenceMap.ReferenceStrength.SOFT,
-        AbstractReferenceMap.ReferenceStrength.SOFT);
+            AbstractReferenceMap.ReferenceStrength.SOFT);
 
     public static JavaOpenClassCache getInstance() {
         return JavaOpenClassCacheHolder.INSTANCE;

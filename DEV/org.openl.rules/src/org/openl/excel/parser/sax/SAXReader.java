@@ -4,24 +4,35 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
-import org.apache.poi.openxml4j.opc.*;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
+import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
+import org.apache.poi.openxml4j.opc.PackagingURIHelper;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
-import org.openl.excel.parser.*;
-import org.openl.rules.table.IGridRegion;
-import org.openl.util.FileTool;
-import org.openl.util.FileUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import org.openl.excel.parser.ExcelParseException;
+import org.openl.excel.parser.ExcelReader;
+import org.openl.excel.parser.ExcelUtils;
+import org.openl.excel.parser.ParserDateUtil;
+import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
+import org.openl.rules.table.IGridRegion;
+import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 
 public class SAXReader implements ExcelReader {
 
@@ -83,9 +94,9 @@ public class SAXReader implements ExcelReader {
 
             XMLReader parser = XMLHelper.newXMLReader();
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
-                use1904Windowing,
-                styleTable,
-                parserDateUtil);
+                    use1904Windowing,
+                    styleTable,
+                    parserDateUtil);
             parser.setContentHandler(handler);
 
             try (InputStream sheetData = r.getSheet(saxSheet.getRelationId())) {
@@ -130,10 +141,10 @@ public class SAXReader implements ExcelReader {
             }
 
             return new SAXTableStyles(tableRegion,
-                styleIndexHandler.getCellIndexes(),
-                r.getStylesTable(),
-                getSheetComments(pkg.pck, saxSheet),
-                styleIndexHandler.getFormulas());
+                    styleIndexHandler.getCellIndexes(),
+                    r.getStylesTable(),
+                    getSheetComments(pkg.pck, saxSheet),
+                    styleIndexHandler.getFormulas());
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
         }
@@ -182,7 +193,7 @@ public class SAXReader implements ExcelReader {
         try {
             // Get workbook part
             PackageRelationship workbookRel = pkg.getRelationshipsByType(PackageRelationshipTypes.CORE_DOCUMENT)
-                .getRelationship(0);
+                    .getRelationship(0);
             PackagePart workbookPart = pkg.getPart(workbookRel);
 
             // Find sheet part by relation id
@@ -190,7 +201,7 @@ public class SAXReader implements ExcelReader {
             PackagePart sheetPart = pkg.getPart(PackagingURIHelper.createPartName(sheetRel.getTargetURI()));
 
             PackageRelationshipCollection commentRelList = sheetPart
-                .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+                    .getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
             if (commentRelList.size() > 0) {
                 // Comments have only one relationship
                 PackageRelationship commentRel = commentRelList.getRelationship(0);

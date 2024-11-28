@@ -13,7 +13,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public class MethodParametersNodeBinder extends ANodeBinder {
     /*

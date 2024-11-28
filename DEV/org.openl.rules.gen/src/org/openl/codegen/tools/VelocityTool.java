@@ -18,9 +18,9 @@ import org.openl.types.java.JavaOpenClass;
  */
 public final class VelocityTool {
 
-    private static final Class<?>[] EMPTY = new Class<?>[] {};
-    private static final Class<?>[] STRING = new Class<?>[] { String.class };
-    private static final Class<?>[] STRING_STRING = new Class<?>[] { String.class, String.class };
+    private static final Class<?>[] EMPTY = new Class<?>[]{};
+    private static final Class<?>[] STRING = new Class<?>[]{String.class};
+    private static final Class<?>[] STRING_STRING = new Class<?>[]{String.class, String.class};
 
     public String getTypeName(Class<?> clazz) {
 

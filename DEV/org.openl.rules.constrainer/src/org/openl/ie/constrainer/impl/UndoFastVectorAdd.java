@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
+
 import org.openl.ie.constrainer.Undo;
 import org.openl.ie.constrainer.UndoImpl;
 import org.openl.ie.tools.FastVector;
@@ -11,7 +13,7 @@ import org.openl.ie.tools.ReusableFactory;
  *
  * @see Undo
  */
-public class UndoFastVectorAdd extends UndoImpl implements java.io.Serializable {
+public class UndoFastVectorAdd extends UndoImpl implements Serializable {
 
     static final ReusableFactory _factory = new ReusableFactory() {
         @Override

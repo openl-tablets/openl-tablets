@@ -1,14 +1,14 @@
 package org.openl.rules.spring.openapi.app031;
 
-import org.openl.rules.spring.openapi.app031.exception.ForbiddenException;
-import org.openl.rules.spring.openapi.app031.exception.NotFoundException;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.openl.rules.spring.openapi.app031.exception.ForbiddenException;
+import org.openl.rules.spring.openapi.app031.exception.NotFoundException;
 
 @ControllerAdvice
 public class ErrorControllerAdvice extends ResponseEntityExceptionHandler {

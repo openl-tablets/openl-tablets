@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.Parameter;
 
 public class ProjectRevision {
@@ -22,7 +21,7 @@ public class ProjectRevision {
     private String fullComment;
 
     @Parameter(description = "Author")
-    @JsonView({ UserInfoModel.View.Short.class })
+    @JsonView({UserInfoModel.View.Short.class})
     private UserInfoModel author;
 
     @Parameter(description = "If project was deleted or not.", required = true)

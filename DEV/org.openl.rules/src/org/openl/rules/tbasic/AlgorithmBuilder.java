@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
@@ -23,8 +26,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AlgorithmBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(AlgorithmBuilder.class);
@@ -66,12 +67,12 @@ public class AlgorithmBuilder {
             }
             String[] algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
             CELL_META_INFO = new CellMetaInfo(
-                new DomainOpenClass(OPERATION1,
-                    JavaOpenClass.STRING,
-                    new EnumDomain<>(algorithmOperationsArray),
-                    null,
-                    null),
-                false);
+                    new DomainOpenClass(OPERATION1,
+                            JavaOpenClass.STRING,
+                            new EnumDomain<>(algorithmOperationsArray),
+                            null,
+                            null),
+                    false);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
@@ -108,7 +109,7 @@ public class AlgorithmBuilder {
         List<AlgorithmRow> algorithmRows = buildRows(tableBody);
 
         RowParser rowParser = new RowParser(algorithmRows,
-            AlgorithmTableParserManager.getInstance().getAlgorithmSpecification());
+                AlgorithmTableParserManager.getInstance().getAlgorithmSpecification());
 
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
@@ -144,9 +145,9 @@ public class AlgorithmBuilder {
                 }
 
                 StringValue sv = new StringValue(value,
-                    CELL + r + UNDERSCORE + c,
-                    null,
-                    new GridCellSourceCodeModule(grid, c, r, bindingContext));
+                        CELL + r + UNDERSCORE + c,
+                        null,
+                        new GridCellSourceCodeModule(grid, c, r, bindingContext));
 
                 setRowField(aRow, column.id, sv);
                 if (OPERATION.equalsIgnoreCase(column.id)) {
@@ -155,7 +156,7 @@ public class AlgorithmBuilder {
                     aRow.setOperationLevel(i);
 
                     if (!bindingContext.isExecutionMode() && tsn
-                        .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
+                            .getMetaInfoReader() instanceof AlgorithmMetaInfoReader) {
                         int operationColumn = grid.getCell(c, r).getAbsoluteColumn();
                         ((AlgorithmMetaInfoReader) tsn.getMetaInfoReader()).setOperationColumn(operationColumn);
                     }

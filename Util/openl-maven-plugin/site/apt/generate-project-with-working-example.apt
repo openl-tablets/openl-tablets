@@ -79,9 +79,9 @@ Creating a Project with a Working Example of OpenL Maven Plugin Usage
 
   After that, the following objects can be found the <<<target>>> folder:
 
-  * A ZIP file without suffix for importing a project to OpenL Tablets WebStudio.
+  * A ZIP file without suffix for importing a project to OpenL Studio.
 
-  For more information, see [OpenL Tablets WebStudio User Guide].
+  For more information, see [OpenL Studio User Guide].
 
   * A ZIP file with "-runnable" suffix that can be executed after unpacking.
 

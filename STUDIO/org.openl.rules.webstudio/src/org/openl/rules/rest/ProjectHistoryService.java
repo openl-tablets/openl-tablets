@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -18,6 +19,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.rest.exception.LockedException;
 import org.openl.rules.ui.ProjectModel;
@@ -28,9 +33,6 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ProjectHistoryService {
@@ -42,9 +44,9 @@ public class ProjectHistoryService {
     public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths
-            .get(webStudio.getWorkspacePath(),
-                FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
-            .toString();
+                .get(webStudio.getWorkspacePath(),
+                        FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
+                .toString();
         File dir = new File(projectHistoryPath);
         String[] historyListFiles = dir.list();
         if (historyListFiles == null || historyListFiles.length == 1) {
@@ -52,8 +54,8 @@ public class ProjectHistoryService {
         }
         Arrays.sort(historyListFiles, Comparator.reverseOrder());
         List<ProjectHistoryItem> collect = Arrays.stream(historyListFiles)
-            .map(this::createItem)
-            .collect(Collectors.toList());
+                .map(this::createItem)
+                .collect(Collectors.toList());
         ProjectHistoryItem revisionVersion = collect.remove(0);
         collect.add(revisionVersion);
         return collect;
@@ -73,7 +75,7 @@ public class ProjectHistoryService {
                 FileUtils.copy(fileToRestore, currentSourceFile);
             } catch (FileNotFoundException e) {
                 throw new LockedException(
-                    e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
+                        e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
             }
             model.reset(ReloadType.SINGLE);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
@@ -110,10 +112,10 @@ public class ProjectHistoryService {
 
     public static void deleteHistory(String projectName) throws IOException {
         File userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-            .getLocalWorkspace()
-            .getLocation();
+                .getLocalWorkspace()
+                .getLocation();
         String projectHistoryPath = Paths.get(userWorkspace.getPath(), projectName, FolderHelper.HISTORY_FOLDER)
-            .toString();
+                .toString();
         File dir = new File(projectHistoryPath);
         // Project can contain no history
         if (dir.exists()) {
@@ -140,9 +142,9 @@ public class ProjectHistoryService {
         }
     }
 
-    static class DeleteHistoryVisitor extends SimpleFileVisitor<java.nio.file.Path> {
+    static class DeleteHistoryVisitor extends SimpleFileVisitor<Path> {
         @Override
-        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
             FileVisitResult fileVisitResult = super.visitFile(file, attrs);
             File f = file.toFile();
             if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {

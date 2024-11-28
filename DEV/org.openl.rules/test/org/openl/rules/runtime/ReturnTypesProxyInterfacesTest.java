@@ -1,8 +1,11 @@
 package org.openl.rules.runtime;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class ReturnTypesProxyInterfacesTest {
@@ -74,7 +77,7 @@ public class ReturnTypesProxyInterfacesTest {
 
     @Test
     public void testPrimitiveLongArrayReturnType() {
-        final long[] expected = new long[] { 1, 2, 3 };
+        final long[] expected = new long[]{1, 2, 3};
         final long[] actual = initInstance(PrimitiveLongArrayReturnType.class).doArray();
         assertArraysEquals(expected, actual);
     }

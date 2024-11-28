@@ -1,0 +1,3 @@
+GET /rest/users/user1 HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+

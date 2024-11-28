@@ -8,7 +8,6 @@ package org.openl.util.text;
 
 /**
  * @author snshor
- *
  */
 public class TextInterval implements ILocation {
 

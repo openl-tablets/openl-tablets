@@ -20,7 +20,7 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
         String category = getCategory(tableSyntaxNode);
 
-        return new String[] { category, category, category };
+        return new String[]{category, category, category};
     }
 
     /**
@@ -45,8 +45,8 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return !(XlsNodeTypes.XLS_PROPERTIES.toString()
-            .equals(
-                tableSyntaxNode.getType()) && ModulePropertiesTableNodeBuilder.isModulePropertyTable(tableSyntaxNode));
+                .equals(
+                        tableSyntaxNode.getType()) && ModulePropertiesTableNodeBuilder.isModulePropertyTable(tableSyntaxNode));
     }
 
     /**

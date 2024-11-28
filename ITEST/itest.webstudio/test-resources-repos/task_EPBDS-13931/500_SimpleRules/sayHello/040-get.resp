@@ -35,12 +35,12 @@ Content-Type: application/json
       "Greeting": "Good Morning"
     },
     {
-      "Hours": "[12; 18)",
+      "Hours": "[12..18)",
       "Minutes": "< 60",
       "Greeting": "Good Afternoon"
     },
     {
-      "Hours": "[18; 22)",
+      "Hours": "[18..22)",
       "Minutes": "< 60",
       "Greeting": "Good Evening"
     },

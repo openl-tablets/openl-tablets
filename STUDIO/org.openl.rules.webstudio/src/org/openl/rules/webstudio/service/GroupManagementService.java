@@ -5,11 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.security.acl.JdbcMutableAclService;
-import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Andrei Astrouski

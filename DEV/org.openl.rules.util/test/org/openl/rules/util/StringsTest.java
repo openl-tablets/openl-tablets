@@ -1,15 +1,40 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.*;
-import static org.openl.rules.util.Strings.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.openl.rules.util.Strings.concatenate;
+import static org.openl.rules.util.Strings.contains;
+import static org.openl.rules.util.Strings.containsAny;
+import static org.openl.rules.util.Strings.endsWith;
+import static org.openl.rules.util.Strings.format;
+import static org.openl.rules.util.Strings.isEmpty;
+import static org.openl.rules.util.Strings.isNotEmpty;
+import static org.openl.rules.util.Strings.isNumeric;
+import static org.openl.rules.util.Strings.length;
+import static org.openl.rules.util.Strings.like;
+import static org.openl.rules.util.Strings.lowerCase;
+import static org.openl.rules.util.Strings.removeEnd;
+import static org.openl.rules.util.Strings.removeStart;
+import static org.openl.rules.util.Strings.replace;
+import static org.openl.rules.util.Strings.startsWith;
+import static org.openl.rules.util.Strings.substring;
+import static org.openl.rules.util.Strings.toDouble;
+import static org.openl.rules.util.Strings.toInteger;
+import static org.openl.rules.util.Strings.toLocale;
+import static org.openl.rules.util.Strings.toNumber;
+import static org.openl.rules.util.Strings.trim;
+import static org.openl.rules.util.Strings.upperCase;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.Locale;
+import java.util.TimeZone;
 
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringsTest {
 
@@ -602,16 +627,16 @@ public class StringsTest {
     @Test
     public void testTextSplit() {
         assertNull(Strings.textSplit(null, null));
-        assertArrayEquals(new String[] {""}, Strings.textSplit(null, ""));
-        assertArrayEquals(new String[] {"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
-        assertArrayEquals(new String[] {"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
-        assertArrayEquals(new String[] {"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(", ", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(null, "abc..def.xyz "));
-        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit("", "abc..def.xyz "));
-        assertArrayEquals(new String[] {"a", "b", "c"}, Strings. textSplit(".", "....a....b.....c....."));
-        assertArrayEquals(new String[] {"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
-        assertArrayEquals(new String[] {"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
+        assertArrayEquals(new String[]{""}, Strings.textSplit(null, ""));
+        assertArrayEquals(new String[]{"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
+        assertArrayEquals(new String[]{"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
+        assertArrayEquals(new String[]{"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit(", ", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit(null, "abc..def.xyz "));
+        assertArrayEquals(new String[]{"abc..def.xyz "}, Strings.textSplit("", "abc..def.xyz "));
+        assertArrayEquals(new String[]{"a", "b", "c"}, Strings.textSplit(".", "....a....b.....c....."));
+        assertArrayEquals(new String[]{"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
+        assertArrayEquals(new String[]{"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
                 Strings.textSplit(" ", "Lorem Ipsum is simply dummy text of the printing and typesetting industry"));
     }
 
@@ -630,13 +655,13 @@ public class StringsTest {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2022, Calendar.JANUARY, 11, 12, 13, 15);
             calendar.set(Calendar.MILLISECOND, 0);
-            assertEquals("At 12:13:15 PM on Jan 11, 2022, there was a disturbance in the Force on planet 7.",
-                    format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", 7, calendar.getTime(), "a disturbance in the Force"));
+            assertTrue(format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", 7, calendar.getTime(), "a disturbance in the Force")
+                            .matches("At 12:13:15[  ]PM on Jan 11, 2022, there was a disturbance in the Force on planet 7\\."));
         } finally {
             TimeZone.setDefault(defaultTz);
         }
     }
-    
+
     @Test
     public void testToLocale() {
         assertNull(toLocale(null));

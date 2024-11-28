@@ -19,7 +19,7 @@ try {
     assert new File(folder, 'target/openl-recompile-without-clean-0.0.0.zip').exists()
 
     // Second time we package the project without clean that's why we have 2 jar files
-    assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-lib.jar')}).length == 2
+    assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-lib.jar') }).length == 2
 
     int threadCount = Runtime.runtime.availableProcessors() * 2.5
 
@@ -29,7 +29,7 @@ try {
 
     return true
 
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

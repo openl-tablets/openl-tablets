@@ -1,6 +1,12 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntBoolVar;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.Undo;
+import org.openl.ie.constrainer.UndoImpl;
+import org.openl.ie.constrainer.Undoable;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 

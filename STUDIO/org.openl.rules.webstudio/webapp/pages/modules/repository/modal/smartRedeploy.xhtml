@@ -21,6 +21,7 @@
                     <h:selectOneMenu id="redeploySmartRepository" value="#{smartRedeployController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
+                        <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
                 <h:panelGroup>

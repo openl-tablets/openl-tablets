@@ -38,7 +38,6 @@ import org.openl.xls.Parser;
  * Incomplete. Need AxB vs CxD implementation. Need to be optimal.
  *
  * @author Aleh Bykhavets
- *
  */
 public class XlsDiff2 {
     private List<XlsTable> tables1;
@@ -228,7 +227,7 @@ public class XlsDiff2 {
             pair.setDiffCells2(diff2);
         }
     }
-    
+
     private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
         ArrayList<Integer> grid1MatchedRows = new ArrayList<>();
         // For each row from grid1, the value of the corresponding row from grid2 (if found)
@@ -294,14 +293,14 @@ public class XlsDiff2 {
             }
         }
         diff1.addAll(
-            grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
+                grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
         // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
         for (int grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
             int finalGrid2Row = grid2Row;
             Optional<Integer> matchedKey = grid1RowsState.keySet()
-                .stream()
-                .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
-                .findFirst();
+                    .stream()
+                    .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
+                    .findFirst();
             if (matchedKey.isPresent()) {
                 int rowIndex = matchedKey.get();
                 if (!grid1RowsState.get(rowIndex).getDiff().isEmpty()) {

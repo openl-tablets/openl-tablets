@@ -17,11 +17,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
  * Spreadsheet step(row) that has the code value.
  *
  * @author DLiauchuk, Marat Kamalov
- *
  */
 
 @XmlRootElement
-@XmlSeeAlso({ CompoundStep.class, SimpleStep.class })
+@XmlSeeAlso({CompoundStep.class, SimpleStep.class})
 @Deprecated
 public class CodeStep extends CalculationStep {
 

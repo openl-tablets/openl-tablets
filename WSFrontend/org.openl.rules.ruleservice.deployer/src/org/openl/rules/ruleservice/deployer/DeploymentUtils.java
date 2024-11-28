@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.deployer;
 
 import java.io.InputStream;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
@@ -21,7 +20,7 @@ final class DeploymentUtils {
     }
 
     static String getApiVersion(InputStream stream) {
-        return evaluateXPath(stream, "/version");
+        return evaluateXPath(stream, "/rules-deploy/version");
     }
 
     static String evaluateXPath(InputStream stream, String expression) {

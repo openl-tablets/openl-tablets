@@ -43,14 +43,14 @@ public class FontGridFilter extends AGridFilter {
      * @see Builder
      */
     protected FontGridFilter(IGridSelector selector,
-            short[] fontColor,
-            Integer size,
-            Integer incrementSize,
-            String name,
-            Boolean italic,
-            Boolean bold,
-            Boolean underlined,
-            Boolean strikeout) {
+                             short[] fontColor,
+                             Integer size,
+                             Integer incrementSize,
+                             String name,
+                             Boolean italic,
+                             Boolean bold,
+                             Boolean underlined,
+                             Boolean strikeout) {
         super(selector);
 
         this.fontColor = fontColor;
@@ -65,14 +65,14 @@ public class FontGridFilter extends AGridFilter {
 
     private FontGridFilter(Builder builder) {
         this(builder.selector,
-            builder.fontColor,
-            builder.size,
-            builder.incrementSize,
-            builder.name,
-            builder.italic,
-            builder.bold,
-            builder.underlined,
-            builder.strikeout);
+                builder.fontColor,
+                builder.size,
+                builder.incrementSize,
+                builder.name,
+                builder.italic,
+                builder.bold,
+                builder.underlined,
+                builder.strikeout);
     }
 
     @Override
@@ -198,7 +198,7 @@ public class FontGridFilter extends AGridFilter {
         public FontGridFilter build() {
             if (size != null && incrementSize != null) {
                 throw new IllegalArgumentException(
-                    "Only one of 'size' and 'incrementSize' paremeters should be initialized");
+                        "Only one of 'size' and 'incrementSize' paremeters should be initialized");
             }
 
             return new FontGridFilter(this);

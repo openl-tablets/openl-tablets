@@ -21,9 +21,9 @@ public class InstantiationException extends OpenlNotCheckedException {
     }
 
     public InstantiationException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                  Throwable cause,
+                                  ILocation location,
+                                  IOpenSourceCodeModule sourceModule) {
         super(message, cause, location, sourceModule);
     }
 }

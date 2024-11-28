@@ -6,7 +6,6 @@ package org.openl.util.text;
 
 /**
  * @author snshor
- *
  */
 public interface ILocation {
 

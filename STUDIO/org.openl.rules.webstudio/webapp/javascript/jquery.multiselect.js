@@ -83,20 +83,18 @@
                 }
                 newSelect.val(result.join(options.separator)).change();
             }
-            
-            function changeSelectAllStatus() {
-                allCount = popup.find(":checkbox:not(:first)").size();
-                checkedCount = popup.find(":checkbox[checked]:not(:first)").size();
-                
-                if (checkedCount == allCount) {
-                    popup.find(":checkbox:first").prop("checked",true);
-                } else {
-                    popup.find(":checkbox:first").prop("checked",false);
-                }
-            }
-            
-            changeSelectAllStatus();
 
+            function changeSelectAllStatus() {
+                var allDataCheckbox = popup.find(":checkbox:not(:first)");
+                var allCount = allDataCheckbox.length;
+                var checkedCount = allDataCheckbox.filter(function() {
+                    return $(this).prop("checked");
+                }).length;
+
+                popup.find(":checkbox:first").prop("checked", checkedCount === allCount);
+            }
+
+            changeSelectAllStatus();
         });
     };
 })(jQuery);

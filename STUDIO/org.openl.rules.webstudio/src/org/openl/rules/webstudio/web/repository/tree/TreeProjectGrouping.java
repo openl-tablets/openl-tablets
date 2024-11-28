@@ -26,7 +26,6 @@ import org.openl.util.StringUtils;
  * Represents OpenL project in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeProjectGrouping extends AbstractTreeNode {
     private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
@@ -46,15 +45,15 @@ public class TreeProjectGrouping extends AbstractTreeNode {
     private final List<Repository> repositories;
 
     public TreeProjectGrouping(String id,
-            String name,
-            Collection<RulesProject> projects,
-            ProjectGrouping projectGrouping,
-            int level,
-            TagService tagService,
-            boolean hideDeleted,
-            ProjectDescriptorArtefactResolver projectDescriptorResolver,
-            OpenLProjectService projectService,
-            List<Repository> repositories) {
+                               String name,
+                               Collection<RulesProject> projects,
+                               ProjectGrouping projectGrouping,
+                               int level,
+                               TagService tagService,
+                               boolean hideDeleted,
+                               ProjectDescriptorArtefactResolver projectDescriptorResolver,
+                               OpenLProjectService projectService,
+                               List<Repository> repositories) {
         super("grp_" + id, name);
         this.projects = projects;
         this.projectGrouping = projectGrouping;
@@ -66,13 +65,17 @@ public class TreeProjectGrouping extends AbstractTreeNode {
         this.repositories = repositories;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIcon() {
         return UiConst.ICON_FOLDER;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIconLeaf() {
         // in both cases we use the same icons
@@ -106,20 +109,20 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                             final String id = RepositoryUtils.getTreeNodeId(repoId);
 
                             final List<RulesProject> subProjects = projects.stream()
-                                .filter(project -> project.getRepository().getId().equals(repoId))
-                                .collect(Collectors.toList());
+                                    .filter(project -> project.getRepository().getId().equals(repoId))
+                                    .collect(Collectors.toList());
 
                             if (!subProjects.isEmpty()) {
                                 add(new TreeProjectGrouping(id,
-                                    name,
-                                    subProjects,
-                                    projectGrouping,
-                                    level + 1,
-                                    tagService,
-                                    hideDeleted,
-                                    projectDescriptorResolver,
-                                    projectService,
-                                    repositories));
+                                        name,
+                                        subProjects,
+                                        projectGrouping,
+                                        level + 1,
+                                        tagService,
+                                        hideDeleted,
+                                        projectDescriptorResolver,
+                                        projectService,
+                                        repositories));
                             }
                         });
                     } else {
@@ -131,23 +134,23 @@ public class TreeProjectGrouping extends AbstractTreeNode {
                             final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
 
                             final List<RulesProject> subProjects = projects.stream()
-                                .filter(project -> projectsForTags.stream()
-                                    .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath())) &&
-                                            p.getRepositoryId().equals(project.getRepository().getId())))
-                                .collect(Collectors.toList());
+                                    .filter(project -> projectsForTags.stream()
+                                            .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath())) &&
+                                                    p.getRepositoryId().equals(project.getRepository().getId())))
+                                    .collect(Collectors.toList());
                             projectsAtCurrentLevel.removeAll(subProjects);
 
                             if (!subProjects.isEmpty()) {
                                 add(new TreeProjectGrouping(id,
-                                    name,
-                                    subProjects,
-                                    projectGrouping,
-                                    level + 1,
-                                    tagService,
-                                    hideDeleted,
-                                    projectDescriptorResolver,
-                                    projectService,
-                                    repositories));
+                                        name,
+                                        subProjects,
+                                        projectGrouping,
+                                        level + 1,
+                                        tagService,
+                                        hideDeleted,
+                                        projectDescriptorResolver,
+                                        projectService,
+                                        repositories));
                             }
                         });
                     }

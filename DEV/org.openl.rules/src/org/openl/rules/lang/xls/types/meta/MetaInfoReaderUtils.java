@@ -52,8 +52,8 @@ public class MetaInfoReaderUtils {
     }
 
     private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method,
-            CompositeSourceCodeModule source,
-            int startIndex) {
+                                                                    CompositeSourceCodeModule source,
+                                                                    int startIndex) {
         List<NodeUsage> nodeUsages = getNodeUsages(method, source.getCode(), startIndex);
 
         IOpenSourceCodeModule[] modules = source.getModules();
@@ -68,20 +68,20 @@ public class MetaInfoReaderUtils {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
                         if (usage instanceof ConstructorUsage) {
                             currentCellMethodUsages
-                                .add(new ConstructorUsage(((ConstructorUsage) usage).getConstructorNode(),
-                                    usage.getStart() - moduleStart,
-                                    usage.getEnd() - moduleStart,
-                                    ((MethodUsage) usage).getMethod()));
+                                    .add(new ConstructorUsage(((ConstructorUsage) usage).getConstructorNode(),
+                                            usage.getStart() - moduleStart,
+                                            usage.getEnd() - moduleStart,
+                                            ((MethodUsage) usage).getMethod()));
                         } else if (usage instanceof MethodUsage) {
                             currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
-                                usage.getEnd() - moduleStart,
-                                ((MethodUsage) usage).getMethod()));
+                                    usage.getEnd() - moduleStart,
+                                    ((MethodUsage) usage).getMethod()));
                         } else {
                             currentCellMethodUsages.add(new SimpleNodeUsage(usage.getStart() - moduleStart,
-                                usage.getEnd() - moduleStart,
-                                usage.getDescription(),
-                                usage.getUri(),
-                                usage.getNodeType()));
+                                    usage.getEnd() - moduleStart,
+                                    usage.getDescription(),
+                                    usage.getUri(),
+                                    usage.getNodeType()));
                         }
                     }
                 }

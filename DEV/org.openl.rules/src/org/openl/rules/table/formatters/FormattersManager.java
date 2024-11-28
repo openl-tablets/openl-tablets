@@ -6,7 +6,13 @@ import java.util.Locale;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.*;
+import org.openl.util.formatters.BooleanFormatter;
+import org.openl.util.formatters.DateFormatter;
+import org.openl.util.formatters.DefaultFormatter;
+import org.openl.util.formatters.EnumFormatter;
+import org.openl.util.formatters.FormatterAdapter;
+import org.openl.util.formatters.IFormatter;
+import org.openl.util.formatters.NumberFormatter;
 
 /**
  * Manager to get the formatters for convertions from <code>Object</code> values to <code>String</code> and vice versa.
@@ -26,7 +32,7 @@ public final class FormattersManager {
      *
      * @param value value to format
      * @return xls formatter for appropriate value class (if the value isn`t <code>null</code>). If value is
-     *         <code>null</code> or there is no formatter for it`s class, returns {@link FormatterAdapter}
+     * <code>null</code> or there is no formatter for it`s class, returns {@link FormatterAdapter}
      */
     static IFormatter getFormatter(Object value) {
         IFormatter formatter;
@@ -73,9 +79,9 @@ public final class FormattersManager {
      * <li>{@link DefaultFormatter} for {@link String} type.</li>
      * </ul>
      *
-     * @param clazz formatter will be returned for this {@link Class}.
+     * @param clazz  formatter will be returned for this {@link Class}.
      * @param format format for number, date formatters. If <code>null</code> default format will be used
-     *            {@link #DEFAULT_NUMBER_FORMAT} and {@link #DEFAULT_DATE_FORMAT} accordingly.
+     *               {@link #DEFAULT_NUMBER_FORMAT} and {@link #DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
     public static IFormatter getFormatter(Class<?> clazz, String format) {

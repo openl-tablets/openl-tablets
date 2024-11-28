@@ -6,6 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
@@ -17,10 +21,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.bind.JAXBException;
 
 /**
  * Resolves specified OpenL project revision's dependencies.
@@ -55,7 +55,7 @@ public class ProjectDescriptorArtefactResolver {
         }
 
         AProjectArtefact artefact = project
-            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         if (artefact instanceof AProjectResource) {
             InputStream content = null;
             try {
@@ -83,9 +83,9 @@ public class ProjectDescriptorArtefactResolver {
         } catch (Exception e) {
             // Error in user data, not application logic - debug log level will be used
             log.warn("Cannot get project descriptor for project '{}'. Physical project name will be used. Cause: {}",
-                project.getName(),
-                e.getMessage(),
-                e);
+                    project.getName(),
+                    e.getMessage(),
+                    e);
         }
         if (pd != null) {
             return pd.getName();

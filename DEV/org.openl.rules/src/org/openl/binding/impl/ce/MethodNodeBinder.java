@@ -69,23 +69,23 @@ public class MethodNodeBinder extends org.openl.binding.impl.MethodNodeBinder {
 
     @Override
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
-            String methodName,
-            IOpenClass[] argumentTypes,
-            IBoundNode[] children,
-            int childrenCount,
-            IOpenClass argumentType,
-            int dims,
-            IBindingContext bindingContext) throws Exception {
+                                                  String methodName,
+                                                  IOpenClass[] argumentTypes,
+                                                  IBoundNode[] children,
+                                                  int childrenCount,
+                                                  IOpenClass argumentType,
+                                                  int dims,
+                                                  IBindingContext bindingContext) throws Exception {
         FieldBoundNode fieldBoundNode = super.bindAsFieldBoundNode(methodNode,
-            methodName,
-            argumentTypes,
-            children,
-            childrenCount,
-            argumentType,
-            dims,
-            bindingContext);
+                methodName,
+                argumentTypes,
+                children,
+                childrenCount,
+                argumentType,
+                dims,
+                bindingContext);
         if (fieldBoundNode == null && methodName
-            .startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN) && SpreadsheetResult.class
+                .startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN) && SpreadsheetResult.class
                 .equals(argumentType.getInstanceClass())) {
             throw new FieldNotFoundException("", methodName, argumentType);
         }

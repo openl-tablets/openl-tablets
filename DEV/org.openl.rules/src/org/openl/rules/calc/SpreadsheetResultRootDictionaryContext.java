@@ -8,7 +8,7 @@ import org.openl.types.IOpenField;
 
 public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContext {
     public SpreadsheetResultRootDictionaryContext(IOpenField localVar, int maxDepthLevel) {
-        super(new IOpenField[] { localVar }, maxDepthLevel);
+        super(new IOpenField[]{localVar}, maxDepthLevel);
     }
 
     @Override

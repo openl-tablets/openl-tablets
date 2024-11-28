@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
 import java.util.Map;
-
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 
@@ -11,7 +10,7 @@ public final class ConflictUtils {
     private static final String SESSION_PARAM_MERGE_CONFLICT = "mergeConflict";
     private static final String CONFLICT_RESOLUTIONS_PARAMETER = "conflictResolutions";
 
-    private ConflictUtils(){
+    private ConflictUtils() {
     }
 
     public static void saveMergeConflict(MergeConflictInfo info) {
@@ -42,7 +41,7 @@ public final class ConflictUtils {
     static Map<String, ConflictResolution> getResolutionsFromSession(HttpSession session) {
         @SuppressWarnings("unchecked")
         Map<String, ConflictResolution> suite = (Map<String, ConflictResolution>) session
-            .getAttribute(CONFLICT_RESOLUTIONS_PARAMETER);
+                .getAttribute(CONFLICT_RESOLUTIONS_PARAMETER);
         return suite;
     }
 

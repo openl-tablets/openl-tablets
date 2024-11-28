@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A generic implementation of a ConstrainerObject interface.
  */

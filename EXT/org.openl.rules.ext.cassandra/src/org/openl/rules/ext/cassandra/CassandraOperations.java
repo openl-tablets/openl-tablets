@@ -27,8 +27,8 @@ public class CassandraOperations {
             synchronized (this) {
                 if (session == null) {
                     session = CqlSession.builder()
-                        .withConfigLoader(ConfigLoader.fromProjectResource(CASSANDRA_PROPERTIES_FILE_NAME))
-                        .build();
+                            .withConfigLoader(ConfigLoader.fromProjectResource(CASSANDRA_PROPERTIES_FILE_NAME))
+                            .build();
                 }
             }
         }

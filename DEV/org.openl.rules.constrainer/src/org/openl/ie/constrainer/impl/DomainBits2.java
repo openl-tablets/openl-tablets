@@ -1,13 +1,17 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Domain;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
 
 /**
  * An implementation of the array of bits.
  */
-final class BitArray implements java.io.Serializable {
+final class BitArray implements Serializable {
 
     private static final int BITS_PER_WORD = 32;
 
@@ -54,6 +58,7 @@ final class BitArray implements java.io.Serializable {
 //
 // : DomainBits2.java
 //
+
 /**
  * An implementation of the Domain interface as a small bit field.
  *

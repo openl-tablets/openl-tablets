@@ -1,8 +1,8 @@
 package org.openl.util.print;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FormatterTest {
 
@@ -79,7 +79,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(new Integer[] { 1, 2, 3, 4, 5 });
+        String devStr = printDevView(new Integer[]{1, 2, 3, 4, 5});
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
@@ -93,7 +93,7 @@ public class FormatterTest {
         String busStr = printBusView(intMas);
         assertContains(busStr, "[345, 4567, 76442]");
 
-        String devStr = printDevView(new int[] { 1, 2, 3, 4, 5 });
+        String devStr = printDevView(new int[]{1, 2, 3, 4, 5});
         assertContains(devStr, "[1, 2, 3, ... 2 more]");
     }
 
@@ -113,12 +113,12 @@ public class FormatterTest {
         MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"), Locale.US);
         String busStr = printBusView(myType);
         assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  locale=en-US\n  str=foo\n  }",
-            busStr);
+                busStr);
     }
 
     private void assertContains(String text, String expected) {
         assertNotNull(text);
-        assertTrue(text, text.contains(expected));
+        assertTrue(text.contains(expected), text);
     }
 
     private static class MyType {

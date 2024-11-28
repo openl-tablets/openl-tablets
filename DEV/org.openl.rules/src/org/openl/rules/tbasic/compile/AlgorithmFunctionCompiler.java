@@ -14,7 +14,6 @@ import org.openl.types.IOpenClass;
 
 /**
  * The <code>AlgorithmFunctionCompiler</code> class describes some function and serves for compiling and checking it.
- *
  */
 public class AlgorithmFunctionCompiler {
 
@@ -26,15 +25,15 @@ public class AlgorithmFunctionCompiler {
     /**
      * Create an instance of <code>AlgorithmFunctionCompiler</code>.
      *
-     * @param functionBody Code of function.
+     * @param functionBody   Code of function.
      * @param compileContext Context of function.
-     * @param method Description of function.
-     * @param compiler Main algorithm compiler.
+     * @param method         Description of function.
+     * @param compiler       Main algorithm compiler.
      */
     public AlgorithmFunctionCompiler(List<AlgorithmTreeNode> functionBody,
-            CompileContext compileContext,
-            AlgorithmFunction method,
-            AlgorithmCompiler compiler) {
+                                     CompileContext compileContext,
+                                     AlgorithmFunction method,
+                                     AlgorithmCompiler compiler) {
         this.functionBody = functionBody;
         this.compileContext = compileContext;
         this.method = method;
@@ -48,18 +47,18 @@ public class AlgorithmFunctionCompiler {
                 StringValue operation = algorithmTreeNode.getAlgorithmRow().getOperation();
                 if (operation != null && TBasicSpecificationKey.RETURN.toString().equals(operation.toString())) {
                     SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler)
-                        .analyze(functionBody.get(i).getChildren(), bindingContext);
+                            .analyze(functionBody.get(i).getChildren(), bindingContext);
                     if (status == SuitablityAsReturn.NONE) {
                         IOpenSourceCodeModule errorSource = functionBody.get(i)
-                            .getAlgorithmRow()
-                            .getOperation()
-                            .asSourceCodeModule();
+                                .getAlgorithmRow()
+                                .getOperation()
+                                .asSourceCodeModule();
                         BindHelper
-                            .processError(
-                                "The method must return value of type '" + getReturnType()
-                                    .getDisplayName(INamedThing.REGULAR) + "'",
-                                errorSource,
-                                bindingContext);
+                                .processError(
+                                        "The method must return value of type '" + getReturnType()
+                                                .getDisplayName(INamedThing.REGULAR) + "'",
+                                        errorSource,
+                                        bindingContext);
                     }
                 }
                 i++;
@@ -74,7 +73,7 @@ public class AlgorithmFunctionCompiler {
      */
     public void compile(IBindingContext bindingContext) {
         compileContext.addOperations(new AlgoritmNodesCompiler(getReturnType(), compileContext, compiler)
-            .compileNodes(functionBody, bindingContext));
+                .compileNodes(functionBody, bindingContext));
         analyzeReturnCorrectness(bindingContext);
     }
 
@@ -84,7 +83,6 @@ public class AlgorithmFunctionCompiler {
 
     /**
      * Finalize compilation of function.
-     *
      */
     public void postprocess() {
         method.setAlgorithmSteps(compileContext.getOperations());

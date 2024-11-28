@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.web.repository;
 
 /**
- *
  * @author Aleh Bykhavets
- *
  */
 public class DeploymentProjectItem extends AbstractItem {
     private static final long serialVersionUID = -8514729162777803447L;
 
-    /** Disabled item cannot be selected */
+    /**
+     * Disabled item cannot be selected
+     */
     private boolean disabled;
 
     /**

@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+
 import org.openl.gen.writers.AbstractMethodWriter;
-import org.openl.gen.writers.ChainedBeanByteCodeWriter;
 
 /**
  * Generates Java Interface
@@ -14,28 +14,19 @@ import org.openl.gen.writers.ChainedBeanByteCodeWriter;
  */
 public class JavaInterfaceByteCodeGenerator {
 
-    static final String DEFAULT_PACKAGE = "org.openl.generated.";
-
     private final String nameWithPackage;
-    private final ChainedBeanByteCodeWriter writerChain;
+
+    private final List<MethodDescription> methods;
 
     /**
      * Initialize java interface generator with given parameters
      *
      * @param nameWithPackage interface java name with package
-     * @param methods method descriptions to generate
+     * @param methods         method descriptions to generate
      */
     JavaInterfaceByteCodeGenerator(String nameWithPackage, List<MethodDescription> methods) {
         this.nameWithPackage = nameWithPackage.replace('.', '/');
-        if (methods != null) {
-            ChainedBeanByteCodeWriter writerChain = null;
-            for (MethodDescription description : methods) {
-                writerChain = new AbstractMethodWriter(description, writerChain);
-            }
-            this.writerChain = writerChain;
-        } else {
-            this.writerChain = null;
-        }
+        this.methods = methods;
     }
 
     /**
@@ -48,7 +39,7 @@ public class JavaInterfaceByteCodeGenerator {
                 Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE,
                 nameWithPackage,
                 null,
-                Object.class.getName().replace('.', '/'),
+                "java/lang/Object",
                 null);
     }
 
@@ -60,8 +51,10 @@ public class JavaInterfaceByteCodeGenerator {
     private ClassWriter writeInterface() {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         visitInterfaceDescription(cw);
-        if (writerChain != null) {
-            writerChain.write(cw);
+        if (methods != null) {
+            for (MethodDescription method : methods) {
+                new AbstractMethodWriter(method).write(cw);
+            }
         }
         return cw;
     }

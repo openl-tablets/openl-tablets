@@ -8,6 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
 import org.openl.rules.security.standalone.dao.TagDao;
 import org.openl.rules.security.standalone.dao.TagTemplateDao;
 import org.openl.rules.security.standalone.dao.TagTypeDao;
@@ -15,9 +19,6 @@ import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagTemplate;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Transactional;
 
 public class TagTemplateService {
     private static final Logger LOG = LoggerFactory.getLogger(TagTemplateService.class);
@@ -146,7 +147,7 @@ public class TagTemplateService {
 
     private String escapeNonTagPart(String nonTagRegex) {
         // Escape all characters except * and ?
-        nonTagRegex = NONE_WILDCARD_PATTERN.matcher(nonTagRegex).replaceAll( "\\\\Q$1\\\\E");
+        nonTagRegex = NONE_WILDCARD_PATTERN.matcher(nonTagRegex).replaceAll("\\\\Q$1\\\\E");
 
         // Replace File wildcard * with regex .*
         nonTagRegex = nonTagRegex.replace("*", ".*");

@@ -1,17 +1,24 @@
 package org.openl.rules.dt;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class DTTest {
     private static Object instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create("test/rules/dt/DTTest.xlsx");
     }
@@ -43,25 +50,25 @@ public class DTTest {
     @Test
     public void greeting7() {
         String[] result = TestUtils.invoke(instance, "Greeting7", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting7", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
@@ -73,97 +80,97 @@ public class DTTest {
     @Test
     public void greeting8() {
         String[] result = TestUtils.invoke(instance, "Greeting8", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting8", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting9() {
         String[] result = TestUtils.invoke(instance, "Greeting9", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting9", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting10() {
         Object[] result = TestUtils.invoke(instance, "Greeting10", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting10", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
     public void greeting11() {
         Object[] result = TestUtils.invoke(instance, "Greeting11", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "Greeting11", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     private static Collection<Object> buildCollection(Object... values) {
@@ -469,25 +476,25 @@ public class DTTest {
     @Test
     public void greetingTwoRet3() {
         String[] result = TestUtils.invoke(instance, "GreetingTwoRet3", 0);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 11);
-        assertArrayEquals(new String[] { "Good Morning, World!", "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Morning, World!", "Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 12);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 15);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 17);
-        assertArrayEquals(new String[] { "Good Afternoon, World!" }, result);
+        assertArrayEquals(new String[]{"Good Afternoon, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 18);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 20);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 21);
-        assertArrayEquals(new String[] { "Good Evening, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 22);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
         result = TestUtils.invoke(instance, "GreetingTwoRet3", 23);
-        assertArrayEquals(new String[] { "Good Evening, World!", "Good Night, World!" }, result);
+        assertArrayEquals(new String[]{"Good Evening, World!", "Good Night, World!"}, result);
     }
 
     @Test
@@ -637,15 +644,15 @@ public class DTTest {
     @Test
     public void driverPremium1() {
         Object result = TestUtils.invoke(instance, "DriverPremium1", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "", "");
         assertNull(result);
     }
@@ -653,15 +660,15 @@ public class DTTest {
     @Test
     public void driverPremiumTwoRet1() {
         Object result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "", "");
         assertNull(result);
     }
@@ -669,15 +676,15 @@ public class DTTest {
     @Test
     public void driverPremium2() {
         Object result = TestUtils.invoke(instance, "DriverPremium2", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "", "");
         assertNull(result);
     }
@@ -701,15 +708,15 @@ public class DTTest {
     @Test
     public void driverPremium3() {
         Object result = TestUtils.invoke(instance, "DriverPremium3", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "", "");
         assertNull(result);
     }
@@ -717,15 +724,15 @@ public class DTTest {
     @Test
     public void driverPremium7() {
         Object result = TestUtils.invoke(instance, "DriverPremium7", "Married", "Young Driver");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Single", "Young Driver");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Married", "Senior Driver");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Single", "Senior Driver");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "", "Standard Driver");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "", "");
         assertNull(result);
     }
@@ -733,17 +740,17 @@ public class DTTest {
     @Test
     public void driverPremium4() {
         Object result = TestUtils.invoke(instance, "DriverPremium4", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Standard Driver", "Single");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Standard Driver", "Married");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "", "");
         assertNull(result);
     }
@@ -751,17 +758,17 @@ public class DTTest {
     @Test
     public void driverPremium5() {
         Object result = TestUtils.invoke(instance, "DriverPremium5", "Young Driver", "Married");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Young Driver", "Single");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Senior Driver", "Married");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Senior Driver", "Single");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Standard Driver", "Single");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Standard Driver", "Married");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "", "");
         assertNull(result);
     }
@@ -769,17 +776,17 @@ public class DTTest {
     @Test
     public void driverPremium6() {
         Object result = TestUtils.invoke(instance, "DriverPremium6", "Young Driver", "Married", "");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Young Driver", "Single", "");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Senior Driver", "Married", "");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Senior Driver", "Single", "");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Standard Driver", "Single", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Standard Driver", "Married", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "", "", "");
         assertNull(result);
     }
@@ -787,17 +794,17 @@ public class DTTest {
     @Test
     public void driverPremium8() {
         Object result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Young Driver", "");
-        assertEquals(new Double(700), result);
+        assertEquals(Double.valueOf(700), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Young Driver", "");
-        assertEquals(new Double(720), result);
+        assertEquals(Double.valueOf(720), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Senior Driver", "");
-        assertEquals(new Double(300), result);
+        assertEquals(Double.valueOf(300), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Senior Driver", "");
-        assertEquals(new Double(350), result);
+        assertEquals(Double.valueOf(350), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Standard Driver", "");
-        assertEquals(new Double(500), result);
+        assertEquals(Double.valueOf(500), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "", "", "");
         assertNull(result);
     }
@@ -805,9 +812,9 @@ public class DTTest {
     @Test
     public void carPrice() {
         Object result = TestUtils.invoke(instance, "CarPrice", "USA", "BMW", "Z4 sDRIVE35i");
-        assertEquals(new Double(55150), result);
+        assertEquals(Double.valueOf(55150), result);
         result = TestUtils.invoke(instance, "CarPrice", "Belarus", "Porche", "911 Carrera 4");
-        assertEquals(new Double(130030), result);
+        assertEquals(Double.valueOf(130030), result);
         result = TestUtils.invoke(instance, "CarPrice", "", "", "");
         assertNull(result);
     }
@@ -815,9 +822,9 @@ public class DTTest {
     @Test
     public void carPrice2() {
         Object result = TestUtils.invoke(instance, "CarPrice2", "USA", "BMW", "Z4 sDRIVE35i", "");
-        assertEquals(new Double(55150), result);
+        assertEquals(Double.valueOf(55150), result);
         result = TestUtils.invoke(instance, "CarPrice2", "Belarus", "Porche", "911 Carrera 4", "");
-        assertEquals(new Double(130030), result);
+        assertEquals(Double.valueOf(130030), result);
         result = TestUtils.invoke(instance, "CarPrice2", "", "", "", "");
         assertNull(result);
     }
@@ -825,9 +832,9 @@ public class DTTest {
     @Test
     public void carPrice3() {
         Object result = TestUtils.invoke(instance, "CarPrice3", "BMW", "Z4 sDRIVE35i", "USA", "");
-        assertEquals(new Double(55150), result);
+        assertEquals(Double.valueOf(55150), result);
         result = TestUtils.invoke(instance, "CarPrice3", "Porche", "911 Carrera 4", "Belarus", "");
-        assertEquals(new Double(130030), result);
+        assertEquals(Double.valueOf(130030), result);
         result = TestUtils.invoke(instance, "CarPrice3", "", "", "", "");
         assertNull(result);
     }

@@ -48,8 +48,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Creates an array of "size" constrained integer variables defined from "min" to "max".
      *
      * @param size size of the new array
-     * @param min minimal value of each constrained variable
-     * @param max maximal value of each constrained variable
+     * @param min  minimal value of each constrained variable
+     * @param max  maximal value of each constrained variable
      */
     public IntExpArray(Constrainer c, int size, int min, int max, String array_name, int int_domain) {
         this(c, size);
@@ -150,14 +150,14 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Convenience constructor from 8 expressions.
      */
     public IntExpArray(Constrainer c,
-            IntExp e0,
-            IntExp e1,
-            IntExp e2,
-            IntExp e3,
-            IntExp e4,
-            IntExp e5,
-            IntExp e6,
-            IntExp e7) {
+                       IntExp e0,
+                       IntExp e1,
+                       IntExp e2,
+                       IntExp e3,
+                       IntExp e4,
+                       IntExp e5,
+                       IntExp e6,
+                       IntExp e7) {
         this(c, 8);
 
         _data[0] = e0;
@@ -174,15 +174,15 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * Convenience constructor from 9 expressions.
      */
     public IntExpArray(Constrainer c,
-            IntExp e0,
-            IntExp e1,
-            IntExp e2,
-            IntExp e3,
-            IntExp e4,
-            IntExp e5,
-            IntExp e6,
-            IntExp e7,
-            IntExp e8) {
+                       IntExp e0,
+                       IntExp e1,
+                       IntExp e2,
+                       IntExp e3,
+                       IntExp e4,
+                       IntExp e5,
+                       IntExp e6,
+                       IntExp e7,
+                       IntExp e8) {
         this(c, 9);
 
         _data[0] = e0;
@@ -255,7 +255,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      * The function merges this array and the array provided as parameter and returns the resulted array.
      *
      * @param array the array to be merged
-     *
      * @return the merged array
      */
     public IntExpArray merge(IntExpArray array) {
@@ -321,7 +320,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             case 0:
                 // return new IntExpConst(constrainer(),0);
                 return (IntExp) _constrainer.expressionFactory()
-                    .getExpression(IntExpConst.class, new Object[] { _constrainer, 0 });
+                        .getExpression(IntExpConst.class, new Object[]{_constrainer, 0});
 
             case 1:
                 return _data[0];
@@ -332,10 +331,10 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             default:
                 // return new IntExpAddArray(_constrainer, this);
                 return (IntExp) _constrainer.expressionFactory()
-                    .getExpression(
-                        // IntExpAddArray.class,
-                        IntExpAddArray1.class,
-                        new Object[] { _constrainer, this });
+                        .getExpression(
+                                // IntExpAddArray.class,
+                                IntExpAddArray1.class,
+                                new Object[]{_constrainer, this});
 
         }
     }

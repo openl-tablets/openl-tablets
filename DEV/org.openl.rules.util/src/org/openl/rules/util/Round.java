@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 
 /**
  * A set of rounding util methods.
- *
+ * <p>
  * Note: For OpenL rules only! Don't use it in Java code.
  *
  * @author Yury Molchan
@@ -64,7 +64,7 @@ public final class Round {
         if (value == 0.0 || Double.isNaN(value)) {
             return 0;
         }
-       if (value >= Integer.MAX_VALUE) {
+        if (value >= Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
         } else if (value <= Integer.MIN_VALUE) {
             return Integer.MIN_VALUE;
@@ -228,8 +228,8 @@ public final class Round {
      * Round the given value to the specified number of decimal places. The value is rounded using the given method
      * which is any method defined in {@link RoundingMode}.
      *
-     * @param x the value to round.
-     * @param scale the number of digits to the right of the decimal point.
+     * @param x        the value to round.
+     * @param scale    the number of digits to the right of the decimal point.
      * @param rounding the rounding method as defined in {@link RoundingMode}.
      * @return the rounded value.
      */
@@ -258,8 +258,8 @@ public final class Round {
      * Round the given value to the specified number of decimal places. The value is rounded using the given method
      * which is any method defined in {@link RoundingMode}.
      *
-     * @param x the value to round.
-     * @param scale the number of digits to the right of the decimal point.
+     * @param x        the value to round.
+     * @param scale    the number of digits to the right of the decimal point.
      * @param rounding the rounding method as defined in {@link RoundingMode}.
      * @return the rounded value.
      */
@@ -279,8 +279,8 @@ public final class Round {
      * Round the given value to the specified number of decimal places. The value is rounded using the given method
      * which is any method defined in {@link RoundingMode}.
      *
-     * @param x the value to round.
-     * @param scale the number of digits to the right of the decimal point.
+     * @param x        the value to round.
+     * @param scale    the number of digits to the right of the decimal point.
      * @param rounding the rounding method as defined in {@link RoundingMode}.
      * @return the rounded value.
      */
@@ -298,22 +298,30 @@ public final class Round {
         return x.setScale(0, rounding).toBigInteger();
     }
 
-    /** For backward compatibility */
+    /**
+     * For backward compatibility
+     */
     public static Double round(Double x, int scale, int rounding) {
         return round(x, scale, RoundingMode.valueOf(rounding));
     }
 
-    /** For backward compatibility */
+    /**
+     * For backward compatibility
+     */
     public static Float round(Float x, int scale, int rounding) {
         return round(x, scale, RoundingMode.valueOf(rounding));
     }
 
-    /** For backward compatibility */
+    /**
+     * For backward compatibility
+     */
     public static BigDecimal round(BigDecimal x, int scale, int rounding) {
         return round(x, scale, RoundingMode.valueOf(rounding));
     }
 
-    /** Like {@code round(double)} but without a ulp amendment */
+    /**
+     * Like {@code round(double)} but without a ulp amendment
+     */
     public static Long roundStrict(Double value) {
         if (value == null) {
             return null;
@@ -332,7 +340,9 @@ public final class Round {
         }
     }
 
-    /** Like {@code round(double)} but without a ulp amendment */
+    /**
+     * Like {@code round(double)} but without a ulp amendment
+     */
     public static Double roundStrict(Double value, int scale) {
         return round(value, scale, HALF_UP);
     }

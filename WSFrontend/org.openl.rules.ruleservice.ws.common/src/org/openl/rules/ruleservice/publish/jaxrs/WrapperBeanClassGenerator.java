@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
 import org.openl.gen.TypeDescription;
@@ -22,11 +23,11 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
     private final Map<String, FieldDescription> originalMethodTypes;
 
     WrapperBeanClassGenerator(String beanName,
-            LinkedHashMap<String, FieldDescription> beanFields,
-            TypeDescription parentType,
-            Map<String, FieldDescription> parentFields,
-            Map<String, FieldDescription> originalMethodTypes,
-            String methodName) {
+                              LinkedHashMap<String, FieldDescription> beanFields,
+                              TypeDescription parentType,
+                              Map<String, FieldDescription> parentFields,
+                              Map<String, FieldDescription> originalMethodTypes,
+                              String methodName) {
         super(beanName, beanFields, parentType, parentFields, Collections.emptySet(), false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
         this.originalMethodTypes = originalMethodTypes;
@@ -63,10 +64,10 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
         Method types = Method.getMethod("java.lang.Class[] _types()");
         GeneratorAdapter tg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-            types,
-            null,
-            null,
-            classWriter);
+                types,
+                null,
+                null,
+                classWriter);
         tg.push(originalMethodTypes.size()); // array length
         tg.newArray(classType); // ar = new Object[size]
 
@@ -89,10 +90,10 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
     private void addMethod(ClassWriter classWriter, String methodName) {
         Method method = Method.getMethod("java.lang.String _method()");
         GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC,
-            method,
-            null,
-            null,
-            classWriter);
+                method,
+                null,
+                null,
+                classWriter);
         mg.push(methodName);
         mg.returnValue();
         mg.endMethod();
@@ -113,12 +114,12 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
     @Override
     protected void visitFieldVisitor(FieldVisitor fieldVisitor,
-            String fieldName,
-            FieldDescription field,
-            String javaType,
-            int index) {
+                                     String fieldName,
+                                     FieldDescription field,
+                                     String javaType,
+                                     int index) {
         AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ParameterIndex.class),
-            true);
+                true);
         annotationVisitor.visit("value", index);
         annotationVisitor.visitEnd();
     }

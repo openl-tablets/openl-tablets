@@ -32,6 +32,7 @@ import org.apache.poi.hssf.record.NumberRecord;
 import org.apache.poi.hssf.record.ObjRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.record.RKRecord;
+import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.record.RecordBase;
 import org.apache.poi.hssf.record.RecordFactoryInputStream;
 import org.apache.poi.hssf.record.SSTRecord;
@@ -46,12 +47,13 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookDependentFormula;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.util.CellAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
 import org.openl.rules.table.IGridRegion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TableStyleListener implements HSSFListener {
     private final Logger log = LoggerFactory.getLogger(TableStyleListener.class);
@@ -104,7 +106,7 @@ public class TableStyleListener implements HSSFListener {
                     // Include ContinueRecord items
                     RecordFactoryInputStream recordStream = new RecordFactoryInputStream(in, true);
 
-                    org.apache.poi.hssf.record.Record r;
+                    Record r;
                     while ((r = recordStream.nextRecord()) != null) {
                         formatListener.processRecord(r);
                     }
@@ -121,13 +123,13 @@ public class TableStyleListener implements HSSFListener {
             collectComments();
 
             tableStyles = new EventTableStyles(tableRegion,
-                cellIndexes,
-                formatListener.getExtendedFormats(),
-                formatListener.getCustomFormats(),
-                palette,
-                formatListener.getFonts(),
-                comments,
-                formulas);
+                    cellIndexes,
+                    formatListener.getExtendedFormats(),
+                    formatListener.getCustomFormats(),
+                    palette,
+                    formatListener.getFonts(),
+                    comments,
+                    formulas);
         }
     }
 
@@ -136,7 +138,7 @@ public class TableStyleListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(org.apache.poi.hssf.record.Record record) {
+    public void processRecord(Record record) {
         processFormula(record);
 
         switch (record.getSid()) {
@@ -203,7 +205,7 @@ public class TableStyleListener implements HSSFListener {
         }
     }
 
-    private void processFormula(org.apache.poi.hssf.record.Record record) {
+    private void processFormula(Record record) {
         if (currentFormula != null) {
             int row = currentFormula.getRow();
             short column = currentFormula.getColumn();
@@ -215,11 +217,11 @@ public class TableStyleListener implements HSSFListener {
                     currentFormula.setCachedResultBoolean(false);
                 }
                 FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
-                    cachedText,
-                    sharedValueManager);
+                        cachedText,
+                        sharedValueManager);
                 Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
                 boolean workbookDependentFormula = Arrays.stream(formulaTokens)
-                    .anyMatch(t -> t instanceof WorkbookDependentFormula);
+                        .anyMatch(t -> t instanceof WorkbookDependentFormula);
                 if (workbookDependentFormula) {
                     formulas.put(new CellAddress(row, column), "");
                 } else {
@@ -276,7 +278,7 @@ public class TableStyleListener implements HSSFListener {
         int size = shapeRecords.size();
         for (int i = 0; i < size; i++) {
             RecordBase rb = shapeRecords.get(i);
-            if (rb instanceof org.apache.poi.hssf.record.Record && ((org.apache.poi.hssf.record.Record) rb).getSid() == DrawingRecord.sid) {
+            if (rb instanceof Record && ((Record) rb).getSid() == DrawingRecord.sid) {
                 return i;
             }
         }

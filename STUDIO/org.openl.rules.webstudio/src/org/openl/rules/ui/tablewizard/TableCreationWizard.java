@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -20,6 +19,9 @@ import javax.validation.constraints.NotBlank;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
@@ -29,6 +31,7 @@ import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinition.SystemValuePolicy;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
+import org.openl.rules.tableeditor.util.Constants;
 import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -37,12 +40,10 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Aliaksandr Antonik.
- *         <p/>
+ * <p/>
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
@@ -212,7 +213,7 @@ public abstract class TableCreationWizard extends BaseWizard {
                 wizardFinished = true;
             }
             doSave();
-            WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+            WebStudioUtils.getExternalContext().getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
         } catch (Exception e) {
             log.error("Could not save table: ", e);
             throw e;
@@ -268,7 +269,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         for (TablePropertyDefinition systemPropDef : systemPropDefinitions) {
             String systemValueDescriptor = systemPropDef.getSystemValueDescriptor();
             if (userMode.equals("single") && systemValueDescriptor
-                .equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
+                    .equals(SystemValuesManager.CURRENT_USER_DESCRIPTOR)) {
                 continue;
             }
             if (systemPropDef.getSystemValuePolicy().equals(SystemValuePolicy.IF_BLANK_ONLY)) {

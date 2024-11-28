@@ -15,7 +15,7 @@ import org.springframework.core.annotation.AliasFor;
  * {@link ScopedProxyMode#TARGET_CLASS TARGET_CLASS}
  */
 @Scope(value = "view")
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ViewScope {

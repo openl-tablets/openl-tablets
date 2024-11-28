@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractMatchingOpenMethodDispatcherWrapper extends MatchingOpenMethodDispatcher {
     static {
         WrapperValidation.validateWrapperClass(AbstractMatchingOpenMethodDispatcherWrapper.class,
-            AbstractMatchingOpenMethodDispatcherWrapper.class.getSuperclass());
+                AbstractMatchingOpenMethodDispatcherWrapper.class.getSuperclass());
     }
 
     protected final MatchingOpenMethodDispatcher delegate;

@@ -7,7 +7,6 @@ import org.openl.rules.table.ui.IGridSelector;
 
 /**
  * @author snshor
- *
  */
 public class ColorGridFilter extends AGridFilter {
 

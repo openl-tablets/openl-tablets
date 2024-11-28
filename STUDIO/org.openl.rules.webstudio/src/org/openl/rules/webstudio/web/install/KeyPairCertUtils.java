@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.install;
 
+import java.math.BigInteger;
+import java.security.KeyPairGenerator;
+import java.time.Instant;
+import java.time.Period;
+import java.util.Base64;
+import java.util.Date;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.BasicConstraints;
@@ -10,13 +17,6 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.security.KeyPairGenerator;
-import java.time.Instant;
-import java.time.Period;
-import java.util.Base64;
-import java.util.Date;
 
 /**
  * Generate KeyPair and X509Certificate.

@@ -1,7 +1,12 @@
 package org.openl.rules.serialization;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -39,6 +44,7 @@ public final class JsonUtils {
     static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
+        jacksonObjectMapperFactoryBean.setDefaultDateFormat(new ExtendedStdDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS"));
         try {
             return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
         } catch (ClassNotFoundException ignored) {
@@ -104,8 +110,8 @@ public final class JsonUtils {
     }
 
     public static String toJSON(Object value,
-            Class<?>[] types,
-            boolean enableDefaultTyping) throws JsonProcessingException {
+                                Class<?>[] types,
+                                boolean enableDefaultTyping) throws JsonProcessingException {
         if (types == null) {
             types = new Class<?>[0];
         }
@@ -147,9 +153,9 @@ public final class JsonUtils {
 
     @Deprecated
     public static <T> T fromJSON(String jsonString,
-            Class<T> readType,
-            Class<?>[] types,
-            boolean enableDefaultTyping) throws IOException {
+                                 Class<T> readType,
+                                 Class<?>[] types,
+                                 boolean enableDefaultTyping) throws IOException {
         return fromJSON(jsonString, readType, types);
     }
 }

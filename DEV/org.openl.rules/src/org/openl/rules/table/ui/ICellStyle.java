@@ -5,24 +5,27 @@
  */
 package org.openl.rules.table.ui;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 /**
  * @author snshor Temporary we copy POI constants in here, we will provide more complicated mapping once we start using
- *         other libraries, if ever
+ * other libraries, if ever
  */
 public interface ICellStyle {
 
     int TOP = 0, RIGHT = 1, BOTTOM = 2, LEFT = 3;
 
     /**
-     *
      * @return RGB colors for all border sides.
      */
     short[][] getBorderRGB();
 
     /**
-     *
      * @return styles for all border sides.
      */
     BorderStyle[] getBorderStyle();

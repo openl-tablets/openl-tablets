@@ -15,7 +15,7 @@ public class ConditionOpenLServiceTask extends AbstractOpenLResourceServiceTask<
         Class<?> clazz = getSimpleProjectEngineFactory(execution).getInterfaceClass();
         Method method = clazz.getMethod("DriverPremium1", String.class, String.class);
 
-        Double result = (Double) method.invoke(instance, new Object[] { driverAge, driverMatrialStatus });
+        Double result = (Double) method.invoke(instance, new Object[]{driverAge, driverMatrialStatus});
 
         execution.setVariable("resultVariable", result);
     }

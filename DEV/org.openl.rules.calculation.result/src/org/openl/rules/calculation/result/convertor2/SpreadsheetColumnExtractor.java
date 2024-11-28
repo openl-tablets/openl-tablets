@@ -13,11 +13,12 @@ package org.openl.rules.calculation.result.convertor2;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.util.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Deprecated
 public class SpreadsheetColumnExtractor<S extends CalculationStep> {
@@ -32,7 +33,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
     private ColumnToExtract column;
 
     public SpreadsheetColumnExtractor(ColumnToExtract column,
-            NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration) {
+                                      NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> configuration) {
         this.column = column;
         this.conf = configuration;
     }
@@ -58,7 +59,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
      * Convert the given value to the appropriate type that is expected. And store it to the row instance.
      *
      * @param valueForStoraging
-     * @param step for population with given data
+     * @param step              for population with given data
      */
     public Object convertAndStoreData(Object valueForStoraging, S step) {
         if (valueForStoraging != null) {
@@ -74,7 +75,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
             for (int i = 0; i < expectedTypes.length; i++) {
                 Class<?> expectedType = expectedTypes[i];
                 IOpenCast openCast = getConfiguration().getObjectToDataOpenCastConvertor()
-                    .getConvertor(valueForStoraging.getClass(), expectedType);
+                        .getConvertor(valueForStoraging.getClass(), expectedType);
                 if (openCast != null && openCast.getDistance() < minConvertDistance) {
                     theBestCast = openCast;
                     minConvertDistance = openCast.getDistance();
@@ -111,8 +112,8 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
         } else {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Cannot find setter in class '{}' for [{}] column",
-                    step.getClass().getName(),
-                    column.getColumnName());
+                        step.getClass().getName(),
+                        column.getColumnName());
             }
         }
         return false;

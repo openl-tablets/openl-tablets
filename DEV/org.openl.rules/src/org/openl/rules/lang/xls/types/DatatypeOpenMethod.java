@@ -17,9 +17,9 @@ public class DatatypeOpenMethod extends JavaOpenMethod {
     final IOpenClass type;
 
     public DatatypeOpenMethod(JavaOpenMethod method,
-            IOpenClass declaringClass,
-            IOpenClass[] parameterTypes,
-            IOpenClass type) {
+                              IOpenClass declaringClass,
+                              IOpenClass[] parameterTypes,
+                              IOpenClass type) {
         super(method.getJavaMethod());
         this.method = method;
         this.parameterTypes = parameterTypes;

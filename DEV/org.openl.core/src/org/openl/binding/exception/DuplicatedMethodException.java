@@ -12,7 +12,6 @@ import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
- *
  */
 public class DuplicatedMethodException extends OpenlNotCheckedException {
 

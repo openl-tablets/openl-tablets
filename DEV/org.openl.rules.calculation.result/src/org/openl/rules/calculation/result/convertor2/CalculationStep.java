@@ -11,7 +11,6 @@ package org.openl.rules.calculation.result.convertor2;
  */
 
 import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlTransient;
@@ -23,13 +22,15 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 
 @XmlRootElement
-@XmlSeeAlso({ CodeStep.class })
+@XmlSeeAlso({CodeStep.class})
 @Deprecated
 public class CalculationStep implements Serializable {
 
     private Double formula;
 
-    /** step name */
+    /**
+     * step name
+     */
     private String stepName;
 
     public String getStepName() {

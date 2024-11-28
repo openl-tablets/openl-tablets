@@ -16,7 +16,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author Marat Kamalov
- *
  */
 public class SourceCodeMethodCaller implements IMethodCaller {
     private IOpenMethod method;
@@ -36,9 +35,9 @@ public class SourceCodeMethodCaller implements IMethodCaller {
             IOpenSourceCodeModule src = new StringSourceCodeModule(sourceCode, null);
             OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
             OpenMethodHeader methodHeader = new OpenMethodHeader("run",
-                resultType == null ? JavaOpenClass.VOID : resultType,
-                signature,
-                null);
+                    resultType == null ? JavaOpenClass.VOID : resultType,
+                    signature,
+                    null);
             BindingContext cxt = new BindingContext(op.getBinder(), null, op);
             method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
         }

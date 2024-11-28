@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls.writers;
 
 import org.apache.poi.ss.usermodel.Cell;
+
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
 public abstract class AXlsCellWriter {

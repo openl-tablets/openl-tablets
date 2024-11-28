@@ -1,10 +1,10 @@
 package org.openl.gen;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,11 +16,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
-import org.junit.Test;
+import groovy.lang.GroovyClassLoader;
+import org.junit.jupiter.api.Test;
+
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 import org.openl.gen.groovy.GroovyInterfaceScriptGenerator;
-
-import groovy.lang.GroovyClassLoader;
 
 public class GroovyInterfaceScriptGeneratorTest {
 
@@ -28,21 +28,21 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateEmpty() {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
+        final String expectedName = "org.openl.generated.test.ServiceEmpty";
         GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
-            Collections.emptyList());
+                Collections.emptyList());
         Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
     }
 
     @Test
     public void testGenerateWithMethods() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
-        final Class<?>[] args2 = new Class<?>[] { Object.class, int.class, Date.class };
+        final String expectedName = "org.openl.generated.test.ServiceWithMethods";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
-            Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
-                new MethodDescription("doSomething2", int.class, args2),
-                new MethodDescription("doSomething3", void.class, NO_ARGS)));
+                Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS, null),
+                        new MethodDescription("doSomething2", int.class, args2, null),
+                        new MethodDescription("doSomething3", void.class, NO_ARGS, null)));
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -57,20 +57,20 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotations() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
-        final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
-            Collections.singletonList(new MethodDescription("doSomething",
-                Object.class.getName(),
-                toArray(new TypeDescription(Object.class.getName()),
-                    new TypeDescription(Object.class.getName(),
+                Collections.singletonList(new MethodDescription("doSomething",
+                        Object.class.getName(),
+                        toArray(new TypeDescription(Object.class.getName()),
+                                new TypeDescription(Object.class.getName(),
+                                        toArray(new AnnotationDescription(MyAnnotation.class, null),
+                                                new AnnotationDescription(MyAnnotation2.class,
+                                                        toArray(new AnnotationProperty("value", "foo")))))),
                         toArray(new AnnotationDescription(MyAnnotation.class, null),
-                            new AnnotationDescription(MyAnnotation2.class,
-                                toArray(new AnnotationProperty("value", "foo")))))),
-                toArray(new AnnotationDescription(MyAnnotation.class, null),
-                    new AnnotationDescription(MyAnnotation2.class, toArray(new AnnotationProperty("value", "foo"))),
-                    new AnnotationDescription(MyAnnotation3.class,
-                        toArray(new AnnotationProperty("value", "foo"), new AnnotationProperty("field", "bar")))))));
+                                new AnnotationDescription(MyAnnotation2.class, toArray(new AnnotationProperty("value", "foo"))),
+                                new AnnotationDescription(MyAnnotation3.class,
+                                        toArray(new AnnotationProperty("value", "foo"), new AnnotationProperty("field", "bar")))), null)));
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -100,21 +100,21 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder2() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
-        final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-            .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
-            .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
-                .addAnnotation(
-                    AnnotationDescriptionBuilder.create(MyAnnotation4.class).withProperty("value", "foo", true).build())
-                .addParameter(MethodParameterBuilder.create(Object.class).build())
-                .addParameter(MethodParameterBuilder.create(Object.class)
-                    .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation4.class)
-                        .withProperty("value", new String[] { "foo", "bar" })
+                .create(expectedName)
+                .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
+                        .addAnnotation(
+                                AnnotationDescriptionBuilder.create(MyAnnotation4.class).withProperty("value", "foo", true).build())
+                        .addParameter(MethodParameterBuilder.create(Object.class).build())
+                        .addParameter(MethodParameterBuilder.create(Object.class)
+                                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation4.class)
+                                        .withProperty("value", new String[]{"foo", "bar"})
+                                        .build())
+                                .build())
                         .build())
-                    .build())
-                .build())
-            .buildGroovy();
+                .buildGroovy();
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -124,32 +124,32 @@ public class GroovyInterfaceScriptGeneratorTest {
 
         assertEquals(1, method.getAnnotations().length);
 
-        assertArrayEquals(new String[] { "foo" }, method.getAnnotation(MyAnnotation4.class).value());
+        assertArrayEquals(new String[]{"foo"}, method.getAnnotation(MyAnnotation4.class).value());
 
         assertEquals(0, method.getParameters()[0].getAnnotations().length);
         assertEquals(1, method.getParameters()[1].getAnnotations().length);
-        assertArrayEquals(new String[] { "foo", "bar" },
-            method.getParameters()[1].getAnnotation(MyAnnotation4.class).value());
+        assertArrayEquals(new String[]{"foo", "bar"},
+                method.getParameters()[1].getAnnotation(MyAnnotation4.class).value());
     }
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder3() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
-        final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-            .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
-            .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
-                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
-                    .withProperty("value", new TypeDescription(Integer[].class.getName()))
-                    .build())
-                .addParameter(MethodParameterBuilder.create(Object.class).build())
-                .addParameter(MethodParameterBuilder.create(Object.class)
-                    .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
-                        .withProperty("value", new TypeDescription(Integer.class.getName()))
+                .create(expectedName)
+                .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
+                                .withProperty("value", new TypeDescription(Integer[].class.getName()))
+                                .build())
+                        .addParameter(MethodParameterBuilder.create(Object.class).build())
+                        .addParameter(MethodParameterBuilder.create(Object.class)
+                                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
+                                        .withProperty("value", new TypeDescription(Integer.class.getName()))
+                                        .build())
+                                .build())
                         .build())
-                    .build())
-                .build())
-            .buildGroovy();
+                .buildGroovy();
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -168,26 +168,26 @@ public class GroovyInterfaceScriptGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotationsBuilder() throws NoSuchMethodException {
-        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
-        final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
+        final String expectedName = "org.openl.generated.test.ServiceWithMethodsAndAnnotations";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
         final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
-            .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
-            .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
-                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
-                .addAnnotation(
-                    AnnotationDescriptionBuilder.create(MyAnnotation2.class).withProperty("value", "foo").build())
-                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation3.class)
-                    .withProperty("value", "foo")
-                    .withProperty("field", "bar")
-                    .build())
-                .addParameter(MethodParameterBuilder.create(Object.class).build())
-                .addParameter(MethodParameterBuilder.create(Object.class)
-                    .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
-                    .addAnnotation(
-                        AnnotationDescriptionBuilder.create(MyAnnotation2.class).withProperty("value", "foo").build())
-                    .build())
-                .build())
-            .buildGroovy();
+                .create(expectedName)
+                .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
+                        .addAnnotation(
+                                AnnotationDescriptionBuilder.create(MyAnnotation2.class).withProperty("value", "foo").build())
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation3.class)
+                                .withProperty("value", "foo")
+                                .withProperty("field", "bar")
+                                .build())
+                        .addParameter(MethodParameterBuilder.create(Object.class).build())
+                        .addParameter(MethodParameterBuilder.create(Object.class)
+                                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
+                                .addAnnotation(
+                                        AnnotationDescriptionBuilder.create(MyAnnotation2.class).withProperty("value", "foo").build())
+                                .build())
+                        .build())
+                .buildGroovy();
 
         final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
@@ -218,7 +218,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
-        assertTrue("Interface must be public", (interfaceClass.getModifiers() & Modifier.PUBLIC) != 0);
+        assertTrue((interfaceClass.getModifiers() & Modifier.PUBLIC) != 0, "Interface must be public");
         assertEquals(expectedName, interfaceClass.getName());
     }
 
@@ -239,12 +239,12 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.PARAMETER, ElementType.METHOD })
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface MyAnnotation {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.PARAMETER, ElementType.METHOD })
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface MyAnnotation2 {
         String value();
 
@@ -252,7 +252,7 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.PARAMETER, ElementType.METHOD })
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface MyAnnotation3 {
         String value();
 
@@ -260,13 +260,13 @@ public class GroovyInterfaceScriptGeneratorTest {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.PARAMETER, ElementType.METHOD })
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface MyAnnotation4 {
         String[] value();
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ ElementType.PARAMETER, ElementType.METHOD })
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
     public @interface MyAnnotation5 {
         Class<?> value();
     }

@@ -9,13 +9,14 @@ package org.openl.main;
 import java.io.PrintWriter;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.CompositeSourceCodeModule;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
@@ -79,9 +80,7 @@ public final class SourceCodeURLTool {
             IOpenSourceCodeModule[] modules = ((CompositeSourceCodeModule) module).getModules();
             if (modules.length <= line || line < 0) {
                 // Occurs when Method table expression has several lines but reside inside single cell.
-                LOG.debug(
-                    "Modules count in composite module are less than error line number. " +
-                            "Return first found module uri.");
+                LOG.debug("Modules count in composite module are less than error line number. Return first found module uri.");
                 moduleUri = module.getUri();
             } else {
                 // Occurs when Method table expression has several lines and each line resides inside his own cell.
@@ -106,8 +105,8 @@ public final class SourceCodeURLTool {
      * </p>
      *
      * @param location source location
-     * @param src source code
-     * @param pw writer
+     * @param src      source code
+     * @param pw       writer
      */
     public static void printCodeAndError(ILocation location, String src, PrintWriter pw) {
 

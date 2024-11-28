@@ -89,22 +89,22 @@ public class CellEditorSelector {
                         Number minValue = NumberUtils.getMinValue(instanceClass);
                         Number maxValue = NumberUtils.getMaxValue(instanceClass);
                         result = factory
-                            .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
+                                .makeNumericEditor(minValue, maxValue, IntegerValuesUtils.isIntegerValue(instanceClass));
                     } else {
                         // Numeric Array
                         return factory.makeArrayEditor(ArrayCellEditor.DEFAULT_SEPARATOR,
-                            ICellEditor.CE_NUMERIC,
-                            IntegerValuesUtils.isIntegerValue(instanceClass));
+                                ICellEditor.CE_NUMERIC,
+                                IntegerValuesUtils.isIntegerValue(instanceClass));
                     }
                 }
 
                 // Date
             } else if (ClassUtils.isAssignable(instanceClass, Date.class)
-                        || ClassUtils.isAssignable(instanceClass, LocalDate.class)
-                        || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
-                        || ClassUtils.isAssignable(instanceClass, LocalTime.class)
-                        || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
-                        || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+                    || ClassUtils.isAssignable(instanceClass, LocalDate.class)
+                    || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
+                    || ClassUtils.isAssignable(instanceClass, LocalTime.class)
+                    || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
+                    || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 result = factory.makeDateEditor();
 
                 // Boolean
@@ -136,7 +136,7 @@ public class CellEditorSelector {
     private ICellEditor defaultEditor(ICell cell) {
         final String cellValue = cell.getStringValue();
         return cellValue != null && cellValue.indexOf('\n') >= 0 ? factory.makeMultilineEditor()
-                                                                 : factory.makeTextEditor();
+                : factory.makeTextEditor();
     }
 
 }

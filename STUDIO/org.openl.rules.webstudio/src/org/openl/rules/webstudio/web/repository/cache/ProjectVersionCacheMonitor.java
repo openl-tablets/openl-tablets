@@ -8,6 +8,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
@@ -16,13 +24,6 @@ import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
@@ -32,6 +33,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
+    private boolean enabled;
 
     private final Authentication relevantSystemWideGrantedAuthority;
 
@@ -42,12 +44,15 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         group.setName(relevantSystemWideGrantedAuthority.getAuthority());
         SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
         this.relevantSystemWideGrantedAuthority = new UsernamePasswordAuthenticationToken(principal,
-            "",
-            principal.getAuthorities());
+                "",
+                principal.getAuthorities());
     }
 
     @Override
     public void run() {
+        if (!enabled) {
+            return;
+        }
         Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
             SecurityContextHolder.getContext().setAuthentication(relevantSystemWideGrantedAuthority);
@@ -81,7 +86,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (repository.supports().branches()) {
             for (String branch : ((BranchRepository) repository).getBranches(project.getFolderPath())) {
                 versions.addAll(new AProject(((BranchRepository) repository).forBranch(branch), project.getFolderPath())
-                    .getVersions());
+                        .getVersions());
             }
         } else {
             versions.addAll(project.getVersions());
@@ -96,16 +101,16 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             }
 
             String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
-                projectVersion.getVersionName(),
-                projectVersion.getVersionInfo().getCreatedAt(),
-                ProjectVersionH2CacheDB.RepoType.DESIGN);
+                    projectVersion.getVersionName(),
+                    projectVersion.getVersionInfo().getCreatedAt(),
+                    ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
                 Repository repo = project.getRepository();
                 String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
                 AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
-                    branch,
-                    project.getRealPath(),
-                    projectVersion.getVersionName());
+                        branch,
+                        project.getRealPath(),
+                        projectVersion.getVersionName());
                 if (designProject.isDeleted()) {
                     continue;
                 }
@@ -148,7 +153,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
     /**
      * @see <a href=
-     *      "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
+     * "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
      */
     public synchronized void release() {
         if (scheduledPool == null) {
@@ -171,5 +176,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             Thread.currentThread().interrupt();
         }
         scheduledPool = null;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

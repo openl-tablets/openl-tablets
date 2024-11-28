@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -26,13 +27,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.richfaces.model.UploadedFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.rules.project.impl.local.DummyLockEngine;
+import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -45,9 +51,6 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
-import org.richfaces.model.UploadedFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OpenAPIProjectCreatorTest {
 
@@ -68,7 +71,7 @@ public class OpenAPIProjectCreatorTest {
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -76,13 +79,13 @@ public class OpenAPIProjectCreatorTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         tempRepo = new FileSystemRepository();
         tempRepo.setUri(OPENAPI_OUT);
@@ -96,18 +99,22 @@ public class OpenAPIProjectCreatorTest {
 
         when(userWorkspaceMock.getDesignTimeRepository()).thenReturn(designTimeRepoMock);
         when(userWorkspaceMock.getUser()).thenReturn(new WorkspaceUserImpl("USER_MOCK",
-            (username) -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
-        when(userWorkspaceMock.getProjectsLockEngine()).thenReturn(new DummyLockEngine());
+                (username) -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
+        LockEngine lockEngine = mock(LockEngine.class);
+        when(lockEngine.tryLock(nullable(String.class), nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(true);
+        when(lockEngine.getLockInfo(nullable(String.class), nullable(String.class), nullable(String.class))).thenReturn(LockInfo.NO_LOCK);
+
+        when(userWorkspaceMock.getProjectsLockEngine()).thenAnswer((x) -> lockEngine);
     }
 
     @Test
     public void testAll() {
-        assertFalse("Test is failed.", run(DIR));
+        assertFalse(run(DIR), "Test is failed.");
     }
 
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
-            ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy rulesInstantiationStrategy) {
+                                         ProjectDescriptor projectDescriptor,
+                                         RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
             OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
             return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);
@@ -151,15 +158,15 @@ public class OpenAPIProjectCreatorTest {
                     OpenAPIProjectCreator projectCreator = null;
                     try {
                         projectCreator = new OpenAPIProjectCreator(new ProjectFile(uploadedFile),
-                            REPO_ID,
-                            sourceFile,
-                            sourceFile,
-                            userWorkspaceMock,
-                            DEFAULT_COMMENT,
-                            MOCK_MODEL_PATH,
-                            MOCK_ALGORITHM_PATH,
-                            MOCK_MODEL_NAME,
-                            MOCK_ALGORITHM_NAME);
+                                REPO_ID,
+                                sourceFile,
+                                sourceFile,
+                                userWorkspaceMock,
+                                DEFAULT_COMMENT,
+                                MOCK_MODEL_PATH,
+                                MOCK_ALGORITHM_PATH,
+                                MOCK_MODEL_NAME,
+                                MOCK_ALGORITHM_NAME);
                         projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
@@ -171,8 +178,8 @@ public class OpenAPIProjectCreatorTest {
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                     compiledOpenClass = validate(compiledOpenClass,
-                        engineFactory.getProjectDescriptor(),
-                        engineFactory.getRulesInstantiationStrategy());
+                            engineFactory.getProjectDescriptor(),
+                            engineFactory.getRulesInstantiationStrategy());
                 } catch (Exception e) {
                     error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
@@ -193,18 +200,18 @@ public class OpenAPIProjectCreatorTest {
                 try (var input = new FileInputStream(msgFile)) {
                     String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
                     for (String message : content
-                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
                         if (!StringUtils.isBlank(message)) {
                             expectedMessages.add(message.trim());
                         }
                     }
                 } catch (IOException exc) {
                     error(messagesCount++,
-                        startTime,
-                        sourceFile,
-                        "Failed to read the message file '{}'.",
-                        msgFile,
-                        exc);
+                            startTime,
+                            sourceFile,
+                            "Failed to read the message file '{}'.",
+                            msgFile,
+                            exc);
                 }
 
                 Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
@@ -232,12 +239,12 @@ public class OpenAPIProjectCreatorTest {
                     error(messagesCount++, startTime, sourceFile, "  UNEXPECTED messages:");
                     for (OpenLMessage msg : unexpectedMessages) {
                         error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "   {}: {}    at {}",
-                            msg.getSeverity(),
-                            msg.getSummary(),
-                            msg.getSourceLocation());
+                                startTime,
+                                sourceFile,
+                                "   {}: {}    at {}",
+                                msg.getSeverity(),
+                                msg.getSummary(),
+                                msg.getSourceLocation());
                     }
                 }
                 if (!restMessages.isEmpty()) {
@@ -253,12 +260,12 @@ public class OpenAPIProjectCreatorTest {
             if (success && compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
                     error(messagesCount++,
-                        startTime,
-                        sourceFile,
-                        "   {}: {}    at {}",
-                        msg.getSeverity(),
-                        msg.getSummary(),
-                        msg.getSourceLocation());
+                            startTime,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
                 }
             }
 

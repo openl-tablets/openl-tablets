@@ -62,4 +62,24 @@ public class JavaKeywordUtils {
     public static boolean isJavaKeyword(String s) {
         return JAVA_KEYWORDS.contains(s);
     }
+
+    public static String toJavaIdentifier(String s) {
+        if (s == null) {
+            return null;
+        }
+        if (!s.isEmpty()) {
+            s = s.replaceAll("\\s+", "_"); // Replace whitespaces
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < s.length(); i++) {
+                if (Character.isJavaIdentifierPart(s.charAt(i))) {
+                    sb.append(s.charAt(i));
+                }
+            }
+            s = sb.toString();
+            if (isJavaKeyword(s) || !s.isEmpty() && !Character.isJavaIdentifierStart(s.charAt(0))) {
+                s = "_" + s;
+            }
+        }
+        return s;
+    }
 }

@@ -1,22 +1,22 @@
 <project>
-	<id>project1</id>
-	<name>project1</name>
+    <id>project1</id>
+    <name>project1</name>
 
-	<modules>
-		<module>
-			<name>project1-domain</name>
-			<type>api</type>
-			<rules-root path="rules/Domain.xlsx"/>
-		</module>	
+    <modules>
+        <module>
+            <name>project1-domain</name>
+            <type>api</type>
+            <rules-root path="rules/Domain.xlsx"/>
+        </module>
 
-		<module>
-			<name>Module</name>
-			<type>api</type>
-			<rules-root path="rules/Module1*.xlsx"/>
-		</module>	
-	</modules>
+        <module>
+            <name>Module</name>
+            <type>api</type>
+            <rules-root path="rules/Module1*.xlsx"/>
+        </module>
+    </modules>
 
-	<classpath>
-		<entry path="bin"/>
-	</classpath>
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
 </project>

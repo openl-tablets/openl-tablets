@@ -1,12 +1,13 @@
 package org.openl.tablets;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.util.Dates;
 import org.openl.util.DateTool;
@@ -16,10 +17,10 @@ public class DatesDiffOpenLTest {
     private static final String SRC = "test/rules/DateDifference.xls";
     private IDateDifferenceTest instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<IDateDifferenceTest> engineFactory = new RulesEngineFactory<>(SRC,
-            IDateDifferenceTest.class);
+                IDateDifferenceTest.class);
 
         instance = engineFactory.newEngineInstance();
     }

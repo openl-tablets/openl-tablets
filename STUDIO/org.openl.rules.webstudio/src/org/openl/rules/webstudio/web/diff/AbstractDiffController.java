@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.richfaces.component.UITree;
+import org.richfaces.event.TreeSelectionChangeEvent;
+
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
 import org.openl.rules.diff.tree.DiffElement;
@@ -22,8 +25,6 @@ import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.ui.ColorFilterHolder;
 import org.openl.util.FileUtils;
-import org.richfaces.component.UITree;
-import org.richfaces.event.TreeSelectionChangeEvent;
 
 public abstract class AbstractDiffController {
     // TODO remove?
@@ -124,7 +125,7 @@ public abstract class AbstractDiffController {
         }
         IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
-            new ColorFilterHolder().makeFilter());
+                new ColorFilterHolder().makeFilter());
     }
 
     public void setDiffTree(DiffTreeNode diffTree) {
@@ -164,9 +165,9 @@ public abstract class AbstractDiffController {
                 if (otherDiffCells != null) {
                     List<ICell> finalDiffCells = diffCells;
                     List<ICell> emptyCells = otherDiffCells.stream()
-                        .filter(cell -> finalDiffCells.stream().noneMatch(c -> c.getRow() == cell.getRow()))
-                        .map(EmptyCell::new)
-                        .collect(Collectors.toList());
+                            .filter(cell -> finalDiffCells.stream().noneMatch(c -> c.getRow() == cell.getRow()))
+                            .map(EmptyCell::new)
+                            .collect(Collectors.toList());
                     diffCells.addAll(emptyCells);
                 }
             }
@@ -174,7 +175,7 @@ public abstract class AbstractDiffController {
         return diffCells != null && diffCells.isEmpty() ? null : diffCells;
     }
 
-    public void reset(){
+    public void reset() {
         richDiffTree = null;
         selectedNode = null;
         showEqualElements = false;
@@ -222,7 +223,7 @@ public abstract class AbstractDiffController {
 
         // skip equal elements
         return type
-            .equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(node.getDiffTreeNode());
+                .equals(XlsProjectionType.TABLE.name()) && !showEqualElements && isEqualElements(node.getDiffTreeNode());
     }
 
     private List<PropertyNode> getPropertyNodes(DiffTreeNode d) {

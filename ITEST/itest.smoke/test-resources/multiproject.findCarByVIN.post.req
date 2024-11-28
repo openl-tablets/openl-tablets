@@ -1,4 +1,4 @@
-POST /multi_project/project1/findCarByVIN HTTP/1.1
+POST /2.0/multi_project/project1/findCarByVIN HTTP/1.1
 Content-Type: text/plain;q=1.0, */*;q=0.8
 Accept: application/json
 

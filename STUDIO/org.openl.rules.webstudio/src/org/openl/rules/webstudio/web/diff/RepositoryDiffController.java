@@ -9,10 +9,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
+
+import org.richfaces.component.UITree;
+import org.richfaces.function.RichFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -33,12 +39,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.richfaces.component.UITree;
-import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -64,7 +64,7 @@ public class RepositoryDiffController extends AbstractDiffController {
     private String selectedVersionRepo;
 
     public RepositoryDiffController(RepositoryTreeState repositoryTreeState,
-            DesignTimeRepository designTimeRepository) {
+                                    DesignTimeRepository designTimeRepository) {
         this.repositoryTreeState = repositoryTreeState;
         this.designTimeRepository = designTimeRepository;
     }
@@ -108,7 +108,7 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (designRepository.supports().branches()) {
                 Repository repository = ((BranchRepository) designRepository).forBranch(branch);
                 String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName())
-                    .getFolderPath();
+                        .getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -176,23 +176,23 @@ public class RepositoryDiffController extends AbstractDiffController {
             Repository designRepository = projectUW.getDesignRepository();
             if (designRepository.supports().branches()) {
                 final List<ProjectVersion> versions = new AProject(
-                    ((BranchRepository) designRepository).forBranch(branch),
-                    projectUW.getRealPath()).getVersions();
+                        ((BranchRepository) designRepository).forBranch(branch),
+                        projectUW.getRealPath()).getVersions();
                 if (versions.stream()
-                    .noneMatch(projectVersion -> projectVersion.getVersionName().equals(selectedVersionRepo))) {
+                        .noneMatch(projectVersion -> projectVersion.getVersionName().equals(selectedVersionRepo))) {
                     selectedVersionRepo = null;
                 }
                 projectRepo = designTimeRepository
-                    .getProjectByPath(designRepository.getId(), branch, projectUW.getRealPath(), selectedVersionRepo);
+                        .getProjectByPath(designRepository.getId(), branch, projectUW.getRealPath(), selectedVersionRepo);
             } else {
                 try {
                     projectRepo = designTimeRepository
-                        .getProjectByPath(designRepository.getId(), null, projectUW.getRealPath(), selectedVersionRepo);
+                            .getProjectByPath(designRepository.getId(), null, projectUW.getRealPath(), selectedVersionRepo);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
-                        projectUW.getName(),
-                        selectedVersionRepo,
-                        e);
+                            projectUW.getName(),
+                            selectedVersionRepo,
+                            e);
                     projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName());
                 }
             }
@@ -330,7 +330,7 @@ public class RepositoryDiffController extends AbstractDiffController {
                 cause = e;
             }
             String message = "Cannot compare the files '" + FileUtils
-                .getName(selectedExcelFileUW) + "' and '" + FileUtils
+                    .getName(selectedExcelFileUW) + "' and '" + FileUtils
                     .getName(selectedExcelFileRepo) + "'. Cause: " + cause.getMessage();
             log.error(message, e);
             WebStudioUtils.addErrorMessage(message);

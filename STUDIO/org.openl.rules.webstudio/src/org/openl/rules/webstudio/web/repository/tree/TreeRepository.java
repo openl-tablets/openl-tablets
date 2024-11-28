@@ -8,7 +8,6 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  * Represents Repository in a tree. Repository is a root element.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeRepository extends TreeFolder {
 

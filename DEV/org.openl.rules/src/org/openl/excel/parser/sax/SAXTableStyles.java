@@ -7,6 +7,7 @@ import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
@@ -24,10 +25,10 @@ public class SAXTableStyles implements TableStyles {
     private final Map<CellAddress, String> formulas;
 
     public SAXTableStyles(IGridRegion region,
-            int[][] cellIndexes,
-            StylesTable stylesTable,
-            CommentsTable sheetComments,
-            Map<CellAddress, String> formulas) {
+                          int[][] cellIndexes,
+                          StylesTable stylesTable,
+                          CommentsTable sheetComments,
+                          Map<CellAddress, String> formulas) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.stylesTable = stylesTable;

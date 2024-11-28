@@ -2,8 +2,20 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
 import java.util.Set;
-
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Type;
 
@@ -50,9 +62,9 @@ public class Group implements Serializable {
      *
      * @return
      */
-    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = javax.persistence.CascadeType.MERGE)
-    @JoinTable(name = "OpenL_Group2Group", joinColumns = { @JoinColumn(name = "groupID") }, inverseJoinColumns = {
-            @JoinColumn(name = "includedGroupID") })
+    @ManyToMany(targetEntity = Group.class, fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(name = "OpenL_Group2Group", joinColumns = {@JoinColumn(name = "groupID")}, inverseJoinColumns = {
+            @JoinColumn(name = "includedGroupID")})
     public Set<Group> getIncludedGroups() {
         return includedGroups;
     }

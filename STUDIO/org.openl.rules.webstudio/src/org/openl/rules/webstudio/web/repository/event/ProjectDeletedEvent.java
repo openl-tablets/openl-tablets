@@ -1,7 +1,8 @@
 package org.openl.rules.webstudio.web.repository.event;
 
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.springframework.context.ApplicationEvent;
+
+import org.openl.rules.project.abstraction.AProjectArtefact;
 
 public class ProjectDeletedEvent extends ApplicationEvent {
 

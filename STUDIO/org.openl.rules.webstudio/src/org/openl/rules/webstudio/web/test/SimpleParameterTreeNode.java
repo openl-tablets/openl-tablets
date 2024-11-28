@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.domain.IDomain;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -16,16 +19,14 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaEnumDomain;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
     private final Logger log = LoggerFactory.getLogger(SimpleParameterTreeNode.class);
 
     public SimpleParameterTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                   Object value,
+                                   IOpenClass fieldType,
+                                   ParameterDeclarationTreeNode parent) {
         super(fieldName, value, fieldType, parent);
     }
 
@@ -51,12 +52,12 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         if (boolean.class == instanceClass) {
             return "boolean";
         } else if (ClassUtils.isAssignable(instanceClass,
-            Boolean.class) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
+                Boolean.class) || type instanceof DomainOpenClass || type instanceof JavaEnumDomain) {
             return "selection";
         } else if (ClassUtils.isAssignable(instanceClass, Date.class)) {
             return "date";
         } else if (ClassUtils.isAssignable(instanceClass,
-            Number.class) || byte.class == instanceClass || short.class == instanceClass || int.class == instanceClass || long.class == instanceClass || float.class == instanceClass || double.class == instanceClass) {
+                Number.class) || byte.class == instanceClass || short.class == instanceClass || int.class == instanceClass || long.class == instanceClass || float.class == instanceClass || double.class == instanceClass) {
             return "number";
         } else {
             return "string";
@@ -88,7 +89,7 @@ public class SimpleParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             try {
                 IString2DataConvertor converter = String2DataConvertorFactory
-                    .getConvertor(getType().getInstanceClass());
+                        .getConvertor(getType().getInstanceClass());
                 setValueForced(converter.parse(value, null));
             } catch (Exception e) {
                 setError("Failed to set value '" + value + "' to field '" + getName() + "' " + getType());

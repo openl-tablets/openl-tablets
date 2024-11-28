@@ -21,8 +21,8 @@ public class RangeVariableBinder extends ANodeBinder {
         TextInfo info = new TextInfo(text);
 
         IOpenSourceCodeModule sourceModule = new SubTextSourceCodeModule(node.getModule(),
-            node.getSourceLocation().getStart().getAbsolutePosition(info),
-            node.getSourceLocation().getEnd().getAbsolutePosition(info) + 1);
+                node.getSourceLocation().getStart().getAbsolutePosition(info),
+                node.getSourceLocation().getEnd().getAbsolutePosition(info) + 1);
 
         IdentifierNode[] rangeParts = Tokenizer.tokenize(sourceModule, ":");
 
@@ -31,7 +31,7 @@ public class RangeVariableBinder extends ANodeBinder {
         }
 
         IOpenField om = bindingContext
-            .findRange(ISyntaxConstants.THIS_NAMESPACE, rangeParts[0].getIdentifier(), rangeParts[1].getIdentifier());
+                .findRange(ISyntaxConstants.THIS_NAMESPACE, rangeParts[0].getIdentifier(), rangeParts[1].getIdentifier());
 
         if (om != null) {
             return new FieldBoundNode(node, om);

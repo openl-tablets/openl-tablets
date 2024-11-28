@@ -146,13 +146,13 @@
                 $j("#included-in-wildcard-message").removeClass("hidden");
                 $j("#editModuleBtn").addClass("hidden");
                 $j("#editModuleForm").find(".editable-item").each(function() {
-                    $j(this).attr('disabled', 'disabled');
+                    $j(this).prop('disabled', true);
                 });
             } else {
                 $j("#included-in-wildcard-message").addClass("hidden");
                 $j("#editModuleBtn").removeClass("hidden");
                 $j("#editModuleForm").find(".editable-item").each(function() {
-                    $j(this).removeAttr('disabled');
+                    $j(this).prop('disabled', false);
                 });
             }
 

@@ -1,12 +1,19 @@
 package org.openl.gen;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.util.ClassUtils;
 
 public class InterfaceImplGeneratorTest {
 
@@ -25,8 +32,8 @@ public class InterfaceImplGeneratorTest {
         assertEquals(0, iBean.returnInt());
         assertEquals(0L, iBean.returnLong());
         assertEquals(0, iBean.returnShort());
-        assertEquals(new Float(0F), new Float(iBean.returnFloat()));
-        assertEquals(new Double(0D), new Double(iBean.returnDouble()));
+        assertEquals(Float.valueOf(0F), Float.valueOf(iBean.returnFloat()));
+        assertEquals(Double.valueOf(0D), Double.valueOf(iBean.returnDouble()));
         assertEquals(0, iBean.returnChar());
     }
 
@@ -36,9 +43,11 @@ public class InterfaceImplGeneratorTest {
         newInstance(INotPOJO.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNotInterfaceGeneration() {
-        new InterfaceImplBuilder(Date.class);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new InterfaceImplBuilder(Date.class);
+        });
     }
 
     @Test
@@ -69,14 +78,14 @@ public class InterfaceImplGeneratorTest {
 
     private Class<?> getBeanClass(Class<?> clazzInterface) {
         ClassLoader simpleClassLoader = new OpenLClassLoader(
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleClassLoader);
             InterfaceImplBuilder builder = new InterfaceImplBuilder(clazzInterface);
             byte[] byteCode = builder.byteCode();
             String className = builder.getBeanName();
-            return ClassUtils.defineClass(className, byteCode, simpleClassLoader);
+            return ClassLoaderUtils.defineClass(className, byteCode, simpleClassLoader);
         } catch (Exception e) {
             e.printStackTrace();
             fail();

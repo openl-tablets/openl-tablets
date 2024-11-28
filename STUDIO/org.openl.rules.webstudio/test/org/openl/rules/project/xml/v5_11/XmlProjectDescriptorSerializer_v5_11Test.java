@@ -1,22 +1,24 @@
 package org.openl.rules.project.xml.v5_11;
 
-import org.junit.Test;
-import org.openl.rules.project.model.Module;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest.collapseExtraWhitespaces;
 
 import java.io.FileInputStream;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.v5_11.ProjectDescriptor_v5_11;
 import org.openl.rules.project.model.v5_11.converter.ProjectDescriptorVersionConverter_v5_11;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest.collapseExtraWhitespaces;
 
 public class XmlProjectDescriptorSerializer_v5_11Test {
 
@@ -100,8 +102,8 @@ public class XmlProjectDescriptorSerializer_v5_11Test {
             assertEquals(module.getMethodFilter().getIncludes().size(), moduleClone.getMethodFilter().getIncludes().size());
             assertEquals(module.getMethodFilter().getExcludes().size(), moduleClone.getMethodFilter().getExcludes().size());
 
-            assertEquals(module.getMethodFilter().getIncludes(), collapseExtraWhitespaces(moduleClone.getMethodFilter().getIncludes()));
-            assertEquals(module.getMethodFilter().getExcludes(), collapseExtraWhitespaces(moduleClone.getMethodFilter().getExcludes()));
+            assertIterableEquals(module.getMethodFilter().getIncludes(), collapseExtraWhitespaces(moduleClone.getMethodFilter().getIncludes()));
+            assertIterableEquals(module.getMethodFilter().getExcludes(), collapseExtraWhitespaces(moduleClone.getMethodFilter().getExcludes()));
             assertNull(module.getProject());
             assertNull(module.getProperties());
             assertNull(module.getWildcardName());

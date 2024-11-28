@@ -17,7 +17,7 @@ public class SampleFileNameProcessor implements PropertiesFileNameProcessor {
         Matcher matcher = PATTERN.matcher(path);
         if (matcher.matches()) {
             ITableProperties props = new TableProperties();
-            props.setState(new UsStatesEnum[] { UsStatesEnum.valueOf(matcher.group(1)) });
+            props.setState(new UsStatesEnum[]{UsStatesEnum.valueOf(matcher.group(1))});
             return props;
         }
         throw new NoMatchFileNameException(String.format("Cannot extract properties from module '%s'", path));

@@ -4,10 +4,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.model.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.Module;
 
 /**
  * Folder (File System) Helper for Local Workspace.

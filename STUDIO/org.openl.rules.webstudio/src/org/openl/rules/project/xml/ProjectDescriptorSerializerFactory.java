@@ -64,7 +64,7 @@ public class ProjectDescriptorSerializerFactory {
                         new ProjectDescriptorVersionConverter_v5_11(), ProjectDescriptor_v5_11.class);
             case V5_12:
                 return new BaseProjectDescriptorSerializer<>(
-                    new ProjectDescriptorVersionConverter_v5_12(), ProjectDescriptor_v5_12.class);
+                        new ProjectDescriptorVersionConverter_v5_12(), ProjectDescriptor_v5_12.class);
             case V5_13:
             case V5_14:
             case V5_15:

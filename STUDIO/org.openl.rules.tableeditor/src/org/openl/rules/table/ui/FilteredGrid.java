@@ -2,12 +2,15 @@ package org.openl.rules.table.ui;
 
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.*;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.FormattedCell;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.filters.IGridFilter;
 
 /**
  * @author snshor
- *
  */
 public class FilteredGrid extends AGrid {
 

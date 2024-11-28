@@ -1,9 +1,11 @@
 package org.openl.rules.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.reflect.Method;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class EmptyArrayDataTest {
@@ -22,31 +24,31 @@ public class EmptyArrayDataTest {
         Method getMyDatasMethod = clazz.getMethod("getMyDatas");
 
         Class<?> policyClazz = engineFactory.getCompiledOpenClass()
-            .getClassLoader()
-            .loadClass("org.openl.generated.beans.MyData");
+                .getClassLoader()
+                .loadClass("org.openl.generated.beans.MyData");
 
         Object[] myDatas = (Object[]) getMyDatasMethod.invoke(instance);
 
-        Assert.assertEquals(2, myDatas.length);
+        assertEquals(2, myDatas.length);
 
         Method getStringsMethod = policyClazz.getMethod("getStrings");
 
         String[] strings1 = (String[]) getStringsMethod.invoke(myDatas[0]);
 
-        Assert.assertEquals(3, strings1.length);
-        Assert.assertEquals("28", strings1[2]);
+        assertEquals(3, strings1.length);
+        assertEquals("28", strings1[2]);
 
         String[] strings2 = (String[]) getStringsMethod.invoke(myDatas[1]);
-        Assert.assertEquals(0, strings2.length);
+        assertEquals(0, strings2.length);
 
         Method getPrimitivesMethod = policyClazz.getMethod("getPrimitives");
 
         long[] primitives = (long[]) getPrimitivesMethod.invoke(myDatas[0]);
-        Assert.assertEquals(0, primitives.length);
+        assertEquals(0, primitives.length);
 
         Method getPrimitives2Method = policyClazz.getMethod("getPrimitives2");
 
         int[][] primitives2 = (int[][]) getPrimitives2Method.invoke(myDatas[0]);
-        Assert.assertEquals(0, primitives2.length);
+        assertEquals(0, primitives2.length);
     }
 }

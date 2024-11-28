@@ -11,7 +11,6 @@ import org.openl.vm.IRuntimeEnv;
 /**
  * The <code>TBasicContextHolderEnv</code> contains full context for execution of Algorithm: runtime environment, VM,
  * variables and parameters to run with.
- *
  */
 public class TBasicContextHolderEnv implements IRuntimeEnv {
     private final IRuntimeEnv env;
@@ -29,9 +28,9 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
      * @param tbasicVM
      */
     public TBasicContextHolderEnv(IRuntimeEnv env,
-            DelegatedDynamicObject tbasicTarget,
-            Object[] params,
-            TBasicVM tbasicVM) {
+                                  DelegatedDynamicObject tbasicTarget,
+                                  Object[] params,
+                                  TBasicVM tbasicVM) {
         super();
         this.env = env;
         tbasicVm = tbasicVM;
@@ -43,7 +42,7 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
      * Create new variable in context(if variable with specified name does not exist) and sets its value.
      *
      * @param variableName Name of variable to initiate.
-     * @param value Initial value of new variable.
+     * @param value        Initial value of new variable.
      */
     public void assignValueToVariable(String variableName, Object value) {
         tbasicTarget.setFieldValue(variableName, value);

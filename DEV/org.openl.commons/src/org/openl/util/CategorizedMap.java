@@ -12,7 +12,6 @@ import java.util.Objects;
 
 /**
  * @author snshor
- *
  */
 public class CategorizedMap {
 
@@ -143,7 +142,7 @@ public class CategorizedMap {
     protected synchronized void setParent(Category cc) {
         String search = cc.getCategory();
 
-        for (int i = 1;; ++i) {
+        for (int i = 1; ; ++i) {
             int index = search.lastIndexOf('.');
             if (index < 0) {
                 break;

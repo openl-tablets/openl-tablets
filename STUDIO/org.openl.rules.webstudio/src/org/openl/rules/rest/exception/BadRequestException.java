@@ -1,9 +1,8 @@
 package org.openl.rules.rest.exception;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
-import io.swagger.v3.oas.annotations.Hidden;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST)
 @Hidden

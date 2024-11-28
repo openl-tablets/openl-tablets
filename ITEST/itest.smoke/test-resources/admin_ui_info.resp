@@ -1,0 +1,77 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "appTitle": "Мае сэрвісы",
+  "buildDate": "*",
+  "buildNumber": "*",
+  "deployerEnabled": false,
+  "services": [
+    {
+      "deploymentName": "multimodule",
+      "hasManifest": false,
+      "name": "multi_project_project1(version=2.0)",
+      "servicePath": "multimodule/project1",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "2.0/multi_project/project1"
+      }
+    },
+    {
+      "deploymentName": "multimodule",
+      "hasManifest": false,
+      "name": "multi_project_project2",
+      "servicePath": "multimodule/project2",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {}
+    },
+    {
+      "startedTime": "#####",
+      "name": "no-xlsx_common",
+      "servicePath": "no-xlsx/common",
+      "urls": {},
+      "hasManifest": false,
+      "deploymentName": "no-xlsx",
+      "status": "DEPLOYED"
+    },
+    {
+      "startedTime": "#####",
+      "name": "no-xlsx_service",
+      "servicePath": "no-xlsx/service",
+      "urls": {
+        "RESTFUL": "no-xlsx"
+      },
+      "hasManifest": false,
+      "deploymentName": "no-xlsx",
+      "status": "DEPLOYED"
+    },
+    {
+      "deploymentName": "simple",
+      "hasManifest": false,
+      "name": "simple_simple",
+      "servicePath": "simple/simple",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "simple"
+      }
+    },
+    {
+      "deploymentName": "spring",
+      "hasManifest": false,
+      "name": "spring",
+      "servicePath": "spring/spring",
+      "startedTime": "*",
+      "status": "DEPLOYED",
+      "urls": {
+        "RESTFUL": "spring/spring"
+      }
+    }
+  ],
+  "startedAt": "*",
+  "startedMilli": "*",
+  "url": "https://openl-tablets.org",
+  "version": "*"
+}

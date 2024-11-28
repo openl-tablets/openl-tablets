@@ -1,9 +1,10 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class IntRangeParsingTest {
@@ -33,7 +34,7 @@ public class IntRangeParsingTest {
     private void checkWrong(String x) {
         try {
             new IntRange(x);
-            Assert.fail();
+            fail();
         } catch (Exception ignored) {
         }
     }

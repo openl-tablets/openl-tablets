@@ -8,6 +8,7 @@ import java.util.Set;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.DefaultDirectedGraph;
+
 import org.openl.binding.BindingDependencies;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenMethod;
@@ -18,7 +19,6 @@ import org.openl.types.impl.ExecutableMethod;
  * {@link ExecutableMethod}, edges {@link DirectedEdge}.
  *
  * @author DLiauchuk
- *
  */
 public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, DirectedEdge<ExecutableMethod>> {
 
@@ -35,7 +35,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     private void createGraph() {
         EdgeFactory<ExecutableMethod, DirectedEdge<ExecutableMethod>> edgeFactory = new DirectedEdgeFactory<>(
-            DirectedEdge.class);
+                DirectedEdge.class);
         graph = new DefaultDirectedGraph<>(edgeFactory);
     }
 
@@ -64,8 +64,8 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     @Override
     public boolean addEdge(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex,
-            DirectedEdge<ExecutableMethod> e) {
+                           ExecutableMethod targetVertex,
+                           DirectedEdge<ExecutableMethod> e) {
         return graph.addEdge(sourceVertex, targetVertex, e);
     }
 
@@ -101,7 +101,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     @Override
     public Set<DirectedEdge<ExecutableMethod>> getAllEdges(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {
+                                                           ExecutableMethod targetVertex) {
         return graph.getAllEdges(sourceVertex, targetVertex);
     }
 
@@ -137,7 +137,7 @@ public class DependencyRulesGraph implements DirectedGraph<ExecutableMethod, Dir
 
     @Override
     public Set<DirectedEdge<ExecutableMethod>> removeAllEdges(ExecutableMethod sourceVertex,
-            ExecutableMethod targetVertex) {
+                                                              ExecutableMethod targetVertex) {
         return graph.removeAllEdges(sourceVertex, targetVertex);
     }
 

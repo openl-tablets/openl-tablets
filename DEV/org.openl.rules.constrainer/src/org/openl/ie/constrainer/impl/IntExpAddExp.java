@@ -1,12 +1,18 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 
 //
 //: IntExpAddExp.java
 //
+
 /**
  * An implementation of the expression: <code>(IntExp1 + IntExp2)</code>.
  */

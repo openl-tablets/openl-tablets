@@ -8,7 +8,6 @@ import org.openl.rules.table.ui.ICellStyle;
 
 /**
  * @author snshor
- *
  */
 public abstract class AUndoableCellAction implements IUndoableGridTableAction {
 

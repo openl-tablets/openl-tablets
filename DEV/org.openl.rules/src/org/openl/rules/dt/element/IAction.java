@@ -13,13 +13,13 @@ import org.openl.types.IOpenMethodHeader;
 public interface IAction extends IBaseAction, IDecisionRow {
 
     void prepareAction(DecisionTable decisionTable,
-            IOpenMethodHeader header,
-            IMethodSignature signature,
-            OpenL openl,
-            IBindingContext bindingContext,
-            RuleRow ruleRow,
-            IOpenClass ruleExecutionType,
-            TableSyntaxNode tableSyntaxNode) throws Exception;
+                       IOpenMethodHeader header,
+                       IMethodSignature signature,
+                       OpenL openl,
+                       IBindingContext bindingContext,
+                       RuleRow ruleRow,
+                       IOpenClass ruleExecutionType,
+                       TableSyntaxNode tableSyntaxNode) throws Exception;
 
     IStorage<?>[] getStorage();
 }

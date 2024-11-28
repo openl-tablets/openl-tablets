@@ -17,7 +17,7 @@ import org.openl.rules.project.model.RulesDeploy;
  * @deprecated use @Autowire RulesDeploy rulesDeploy
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ElementType.PARAMETER, ElementType.METHOD})
 @Deprecated
 @Autowired
 @Qualifier("rulesDeploy")

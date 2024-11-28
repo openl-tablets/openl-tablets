@@ -1,10 +1,11 @@
 package org.openl.rules.project;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -19,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -55,19 +57,19 @@ public class ProjectDescriptorManagerTest {
         assertEquals("Project name", descriptor.getName());
         assertEquals("comment", descriptor.getComment());
         assertEquals(2, descriptor.getModules().size());
-        assertArrayEquals(new String[] { "%lob%" }, descriptor.getPropertiesFileNamePatterns());
+        assertArrayEquals(new String[]{"%lob%"}, descriptor.getPropertiesFileNamePatterns());
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
         assertEquals("MyModule1.xls",
-            module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
+                module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
         assertEquals("MyModule1.xls", module1.getRulesRootPath().getPath());
         assertTrue(module1.getRulesPath().isAbsolute());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
         assertEquals("MyModule2.xls",
-            module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
+                module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
         assertEquals("MyModule2.xls", module2.getRulesRootPath().getPath());
         assertTrue(module2.getRulesPath().isAbsolute());
 
@@ -113,20 +115,24 @@ public class ProjectDescriptorManagerTest {
         }
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testReadDescriptor2() throws Exception {
-        ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        manager.readDescriptor("test-resources/descriptor/rules2.xml");
+        assertThrows(ValidationException.class, () -> {
+            ProjectDescriptorManager manager = new ProjectDescriptorManager();
+            manager.readDescriptor("test-resources/descriptor/rules2.xml");
+        });
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void zipArchive_testReadDescriptor2() throws Exception {
-        try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
-        }
+        assertThrows(ValidationException.class, () -> {
+            try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
+                new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
+            }
+        });
     }
 
-    @Test()
+    @Test
     public void testReadDescriptor3() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
@@ -134,7 +140,7 @@ public class ProjectDescriptorManagerTest {
         assertTrue(modules.isEmpty());
     }
 
-    @Test()
+    @Test
     public void zipArchive_testReadDescriptor3() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
@@ -148,7 +154,7 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
         final ProjectDescriptor descriptor = serializer
-            .deserialize(new FileInputStream("test-resources/descriptor/rules-wildcard.xml"));
+                .deserialize(new FileInputStream("test-resources/descriptor/rules-wildcard.xml"));
         assertIsCoveredByWildcardModule(manager, descriptor);
     }
 
@@ -171,7 +177,7 @@ public class ProjectDescriptorManagerTest {
             ProjectDescriptorManager manager = new ProjectDescriptorManager();
             XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
             final ProjectDescriptor descriptor = serializer
-                .deserialize(Files.newInputStream(fs.getPath("/rules-wildcard.xml")));
+                    .deserialize(Files.newInputStream(fs.getPath("/rules-wildcard.xml")));
             assertIsCoveredByWildcardModule(manager, descriptor);
         }
     }
@@ -183,7 +189,7 @@ public class ProjectDescriptorManagerTest {
         descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
         descriptor.setComment("comment1");
-        descriptor.setPropertiesFileNamePatterns(new String[] { "{lob}" });
+        descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});
         descriptor.setPropertiesFileNameProcessor("default.DefaultPropertiesFileNameProcessor");
 
         List<ProjectDependencyDescriptor> dependencies = new ArrayList<>();
@@ -253,7 +259,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(expected, dest.toString());
     }
 
-    @Test()
+    @Test
     public void testWriteDescriptor2() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
@@ -297,7 +303,7 @@ public class ProjectDescriptorManagerTest {
     public void testClassPathUrls() throws Exception {
         ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
         ProjectDescriptor projectDescriptor = projectDescriptorManager
-            .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
+                .readDescriptor("./test-resources/descriptor/rules-clspth.xml");
         URL[] classPathUrls = projectDescriptor.getClassPathUrls();
         assertEquals(10, classPathUrls.length);
     }
@@ -306,7 +312,7 @@ public class ProjectDescriptorManagerTest {
     public void zipArchive_testClassPathUrls() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager()
-                .readDescriptor(fs.getPath("/rules-clspth.xml"));
+                    .readDescriptor(fs.getPath("/rules-clspth.xml"));
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
         }
@@ -316,7 +322,7 @@ public class ProjectDescriptorManagerTest {
     public void zipArchive_testClassPathUrls_Internal() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager()
-                .readDescriptor(fs.getPath("/internal/rules-clspth.xml"));
+                    .readDescriptor(fs.getPath("/internal/rules-clspth.xml"));
             assertEquals(10, projectDescriptor.getClassPathUrls().length);
             assertArrayEquals(projectDescriptor.getClassPathUrls(), projectDescriptor.getClassPathUrls());
         }

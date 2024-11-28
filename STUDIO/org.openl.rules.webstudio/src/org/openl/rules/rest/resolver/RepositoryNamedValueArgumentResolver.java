@@ -4,10 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.util.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -16,6 +12,11 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.annotation.AbstractNamedValueMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerMapping;
 
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.util.StringUtils;
+
 /**
  * <p>An @{@link DesignRepository} is a named value that gets resolved from a URI template variable.
  * It is always required and does not have a default value to fall back on. See the base class
@@ -23,7 +24,6 @@ import org.springframework.web.servlet.HandlerMapping;
  * for more information on how named values are processed.
  *
  * @author Vladyslav Pikus
- *
  * @see DesignRepository
  * @see DesignTimeRepository
  */
@@ -51,7 +51,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
     @Override
     protected NamedValueInfo createNamedValueInfo(MethodParameter parameter) {
         DesignRepository anno = Objects.requireNonNull(parameter.getParameterAnnotation(DesignRepository.class),
-            "No 'DesignRepository' annotation");
+                "No 'DesignRepository' annotation");
         return new DesignRepositoryNamedValueInfo(anno);
     }
 
@@ -70,7 +70,7 @@ public class RepositoryNamedValueArgumentResolver extends AbstractNamedValueMeth
     @SuppressWarnings("unchecked")
     private Map<String, String> resolverUriTemplateVars(NativeWebRequest request) {
         return (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE,
-            RequestAttributes.SCOPE_REQUEST);
+                RequestAttributes.SCOPE_REQUEST);
     }
 
     private static class DesignRepositoryNamedValueInfo extends NamedValueInfo {

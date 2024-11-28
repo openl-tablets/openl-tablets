@@ -1,9 +1,7 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,24 +9,22 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+
 import org.openl.rules.repository.api.BranchRepository;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Vladyslav Pikus
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
 
     private NewBranchValidator validator;
     private BranchRepository branchRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         branchRepository = mock(BranchRepository.class);
         when(branchRepository.isValidBranchName(any())).thenReturn(true);
@@ -47,8 +43,8 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError(
-            "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^",
-            result.getGlobalError());
+                "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^",
+                result.getGlobalError());
 
         result = validateAndGetResult("./branch-name", validator);
         assertEquals(0, result.getFieldErrorCount());
@@ -59,19 +55,19 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain consecutive symbols '.' or '/'.",
-            result.getGlobalError());
+                result.getGlobalError());
 
         result = validateAndGetResult(".lock", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain '.lock/' or end with '.lock'.",
-            result.getGlobalError());
+                result.getGlobalError());
 
         result = validateAndGetResult(".lock/foo", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Invalid branch name. Should not contain '.lock/' or end with '.lock'.",
-            result.getGlobalError());
+                result.getGlobalError());
     }
 
     @Test
@@ -116,15 +112,15 @@ public class NewBranchValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     public void test_validate_customRegex() {
         validator = new NewBranchValidator(branchRepository,
-            "^[a-z0-9_\\-]+$",
-            "Only lowercase letters, numbers, underscores and dashes are allowed.");
+                "^[a-z0-9_\\-]+$",
+                "Only lowercase letters, numbers, underscores and dashes are allowed.");
         assertNull(validateAndGetResult("foo", validator));
 
         var result = validateAndGetResult("FOOOO", validator);
         assertEquals(0, result.getFieldErrorCount());
         assertEquals(1, result.getGlobalErrorCount());
         assertObjectError("Only lowercase letters, numbers, underscores and dashes are allowed.",
-            result.getGlobalError());
+                result.getGlobalError());
     }
 
     @Test

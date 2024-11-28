@@ -10,7 +10,6 @@ import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
  * Starts rule service.
  *
  * @author Marat Kamalov
- *
  */
 public interface ServiceManager {
     /**

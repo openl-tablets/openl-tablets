@@ -14,7 +14,7 @@ public class LockEngineImpl implements LockEngine {
      * Create Lock Engine
      *
      * @param workspacesRoot the folder where all workspaces for all users are stored
-     * @param type projects type, used as a subfolder name. For example "rules" or "deployments"
+     * @param type           projects type, used as a subfolder name. For example "rules" or "deployments"
      * @return Lock Engine
      */
     public static LockEngine create(File workspacesRoot, String type) {
@@ -55,8 +55,8 @@ public class LockEngineImpl implements LockEngine {
      * Id in the format "${repo}/${projectName}/.branches/${branch}".
      * If the branch is null, then id will be "${repo}/${projectName}/.no-branch".
      *
-     * @param repo repository id. For example: design1, design2, design3 etc.
-     * @param branch branch name. Can be null. Can contain '/' symbol.
+     * @param repo        repository id. For example: design1, design2, design3 etc.
+     * @param branch      branch name. Can be null. Can contain '/' symbol.
      * @param projectName project name
      * @return the folder where lock file is stored
      */

@@ -16,7 +16,6 @@ import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableValidationResult implements IValidationResult {
 
@@ -26,15 +25,15 @@ public class DecisionTableValidationResult implements IValidationResult {
 
     public DecisionTableValidationResult(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
-        this.overlappings = new DecisionTableOverlapping[] {};
-        this.uncovered = new DecisionTableUncovered[] {};
+        this.overlappings = new DecisionTableOverlapping[]{};
+        this.uncovered = new DecisionTableUncovered[]{};
     }
 
     public DecisionTableValidationResult(IDecisionTable decisionTable,
-            Overlapping[] overlappings,
-            Uncovered[] uncovered,
-            IConditionTransformer transformer,
-            DecisionTableAnalyzer analyzer) {
+                                         Overlapping[] overlappings,
+                                         Uncovered[] uncovered,
+                                         IConditionTransformer transformer,
+                                         DecisionTableAnalyzer analyzer) {
 
         this.decisionTable = decisionTable;
         this.overlappings = convertOverlappings(overlappings, transformer, analyzer);
@@ -42,8 +41,8 @@ public class DecisionTableValidationResult implements IValidationResult {
     }
 
     private DecisionTableOverlapping[] convertOverlappings(Overlapping[] overlappings,
-            IConditionTransformer transformer,
-            DecisionTableAnalyzer analyzer) {
+                                                           IConditionTransformer transformer,
+                                                           DecisionTableAnalyzer analyzer) {
 
         DecisionTableOverlapping[] tableOverlappings = new DecisionTableOverlapping[overlappings.length];
 
@@ -54,12 +53,12 @@ public class DecisionTableValidationResult implements IValidationResult {
 
             for (int j = 0; j < values.length; j++) {
                 values[j] = transformer
-                    .transformSignatureValueBack(names[j], overlappings[i].getSolutionValues()[j], analyzer);
+                        .transformSignatureValueBack(names[j], overlappings[i].getSolutionValues()[j], analyzer);
             }
 
             DecisionTableOverlapping tableOverlapping = new DecisionTableOverlapping(overlappings[i].getOverlapped(),
-                new ArrayOfNamedValues(names, values),
-                overlappings[i].getStatus());
+                    new ArrayOfNamedValues(names, values),
+                    overlappings[i].getStatus());
 
             tableOverlappings[i] = tableOverlapping;
         }
@@ -68,8 +67,8 @@ public class DecisionTableValidationResult implements IValidationResult {
     }
 
     private DecisionTableUncovered[] convertUncovered(Uncovered[] uncovered,
-            IConditionTransformer transformer,
-            DecisionTableAnalyzer analyzer) {
+                                                      IConditionTransformer transformer,
+                                                      DecisionTableAnalyzer analyzer) {
 
         DecisionTableUncovered[] tableUncovered = new DecisionTableUncovered[uncovered.length];
 
@@ -80,7 +79,7 @@ public class DecisionTableValidationResult implements IValidationResult {
 
             for (int j = 0; j < values.length; j++) {
                 values[j] = transformer
-                    .transformSignatureValueBack(names[j], uncovered[i].getSolutionValues()[j], analyzer);
+                        .transformSignatureValueBack(names[j], uncovered[i].getSolutionValues()[j], analyzer);
             }
 
             tableUncovered[i] = new DecisionTableUncovered(new ArrayOfNamedValues(names, values));
@@ -146,7 +145,7 @@ public class DecisionTableValidationResult implements IValidationResult {
 
         if (getUncovered().length > 0) {
             validationResultDetails
-                .append(String.format("There is an uncovered case for values: %s\r\n", Arrays.asList(getUncovered())));
+                    .append(String.format("There is an uncovered case for values: %s\r\n", Arrays.asList(getUncovered())));
         }
 
         // if (getOverlappings().length > 0) {

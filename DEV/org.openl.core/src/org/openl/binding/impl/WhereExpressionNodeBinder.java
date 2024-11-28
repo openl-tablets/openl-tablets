@@ -6,7 +6,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public class WhereExpressionNodeBinder extends ANodeBinder {
 
@@ -15,7 +14,7 @@ public class WhereExpressionNodeBinder extends ANodeBinder {
     }
 
     private static IBoundNode[] makeLocalVarsFromWhere(ISyntaxNode whereNode,
-            IBindingContext bindingContext) {
+                                                       IBindingContext bindingContext) {
 
         int n = whereNode.getNumberOfChildren();
 

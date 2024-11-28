@@ -20,18 +20,18 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
     private final List<MethodDescription> beanStubMethods;
 
     JavaInterfaceImplGenerator(String beanName,
-            Class<?> clazzInterface,
-            Map<String, FieldDescription> beanFields,
-            List<MethodDescription> beanStubMethods) {
+                               Class<?> clazzInterface,
+                               Map<String, FieldDescription> beanFields,
+                               List<MethodDescription> beanStubMethods) {
 
         super(beanName,
-            beanFields,
-            POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION,
-            Collections.emptyMap(),
-            Collections.emptySet(),
-            false,
-            true,
-            false);
+                beanFields,
+                POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION,
+                Collections.emptyMap(),
+                Collections.emptySet(),
+                false,
+                true,
+                false);
         this.clazzInterface = clazzInterface;
         this.beanStubMethods = beanStubMethods;
     }
@@ -47,7 +47,7 @@ class JavaInterfaceImplGenerator extends POJOByteCodeGenerator {
     protected void visitExtraByteCodeGeneration(ClassWriter classWriter) {
         for (MethodDescription method : beanStubMethods) {
             MethodVisitor methodVisitor = classWriter
-                .visitMethod(Opcodes.ACC_PUBLIC, method.getName(), buildMethodDescriptor(method), null, null);
+                    .visitMethod(Opcodes.ACC_PUBLIC, method.getName(), buildMethodDescriptor(method), null, null);
 
             methodVisitor.visitCode();
             visitDefaultTypeValue(methodVisitor, method.getReturnType().getTypeName());

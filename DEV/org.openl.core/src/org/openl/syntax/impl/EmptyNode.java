@@ -11,7 +11,6 @@ import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
- *
  */
 public class EmptyNode extends TerminalNode {
 

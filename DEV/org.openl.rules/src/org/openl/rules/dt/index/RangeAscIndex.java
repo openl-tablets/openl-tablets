@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
+
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
@@ -23,9 +24,9 @@ public class RangeAscIndex implements IRuleIndex {
     private final int rulesTotalSize;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
-            List<IndexNode> index,
-            IRangeAdaptor<IndexNode, ?> adaptor,
-            int[] emptyRules) {
+                         List<IndexNode> index,
+                         IRangeAdaptor<IndexNode, ?> adaptor,
+                         int[] emptyRules) {
         this.index = Collections.unmodifiableList(index);
         this.adaptor = adaptor;
         this.nextNode = nextNode;

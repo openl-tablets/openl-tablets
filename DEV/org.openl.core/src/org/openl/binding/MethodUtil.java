@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
+
 import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -15,7 +16,6 @@ import org.openl.util.print.DefaultFormat;
 
 /**
  * @author snshor
- *
  */
 public final class MethodUtil {
 
@@ -73,18 +73,18 @@ public final class MethodUtil {
 
     public static String printQualifiedMethodName(Method method) {
         return method.getDeclaringClass().getTypeName() + "." + MethodUtil.printMethod(method.getName(),
-            method.getParameterTypes());
+                method.getParameterTypes());
     }
 
-    private static void printMethod(IOpenMethodHeader methodHeader,
-            StringBuilder buf,
-            Function<IOpenClass, String> typeConverter) {
+    public static void printMethod(IOpenMethodHeader methodHeader,
+                                   StringBuilder buf,
+                                   Function<IOpenClass, String> typeConverter) {
         startPrintingMethodName(methodHeader.getName(), buf);
         printParameters(methodHeader, buf, typeConverter);
         endPrintingMethodName(buf);
     }
 
-    private static void printParameters(IOpenMethodHeader methodHeader, StringBuilder buf, Function<IOpenClass, String> typeConverter){
+    private static void printParameters(IOpenMethodHeader methodHeader, StringBuilder buf, Function<IOpenClass, String> typeConverter) {
         IMethodSignature signature = methodHeader.getSignature();
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String type = typeConverter.apply(signature.getParameterType(i));
@@ -116,9 +116,9 @@ public final class MethodUtil {
     }
 
     public static StringBuilder printMethod(String name,
-            Class<?>[] params,
-            boolean shortClassNames,
-            StringBuilder buf) {
+                                            Class<?>[] params,
+                                            boolean shortClassNames,
+                                            StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
         for (int i = 0; i < params.length; i++) {
@@ -236,9 +236,9 @@ public final class MethodUtil {
      * Get differences between two signatures.
      *
      * @param signatureToCheck Signature to check
-     * @param argTypes Types of existing arguments.
+     * @param argTypes         Types of existing arguments.
      * @return <code>-1</code> if signature to check is not suitable for specified args and transformations count
-     *         otherwise.
+     * otherwise.
      */
     private static int getTransformationsCount(Class<?>[] signatureToCheck, Class<?>[] argTypes) {
         if (!isAssignable(argTypes, signatureToCheck)) {

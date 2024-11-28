@@ -23,7 +23,6 @@ import org.openl.vm.IRuntimeEnv;
  * Was created by extracting functionality from {@link ModuleOpenClass} of 20192 revision.
  *
  * @author DLiauchuk
- *
  */
 public class ComponentOpenClass extends ADynamicClass {
 
@@ -67,7 +66,7 @@ public class ComponentOpenClass extends ADynamicClass {
     @Override
     public Object newInstance(IRuntimeEnv env) {
         DynamicObject res = new DynamicObject(this);
-        init.invoke(res, new Object[] {}, env);
+        init.invoke(res, new Object[]{}, env);
         return res;
     }
 

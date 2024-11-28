@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -25,8 +24,8 @@ public class AppServer {
      * It is called via reflection in the isolated classloader.
      *
      * @param pathDeployment - location of the zipped OpenL projects
-     * @param jars - OpenL classpath
-     * @param workDir - folder location for temporary or working files
+     * @param jars           - OpenL classpath
+     * @param workDir        - folder location for temporary or working files
      * @throws Exception if any errors
      */
     public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {
@@ -44,14 +43,6 @@ public class AppServer {
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*ruleservice.ws[^/]*\\.jar$"); // For scanning annotations of the RuleService WS
 
-        webAppContext.addConfiguration(new AbstractConfiguration() {
-            @Override
-            public void preConfigure(WebAppContext context) throws Exception {
-                // Define default level of the information for logging to prevent leaking of the sensitive information.
-                context.getClassLoader().loadClass("org.openl.info.OpenLInfoLogger").getDeclaredField("defaultLevel").set(null, "main");
-            }
-        });
-
         var server = new Server(0); // Random port
         server.setHandler(webAppContext);
 
@@ -61,9 +52,15 @@ public class AppServer {
             server.start();
 
             int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-            var client = HttpClient.newBuilder()
-                    .executor(Runnable::run) // To prevent memory leak via the default thread pool
-                    .version(java.net.http.HttpClient.Version.HTTP_1_1)
+            var builder = HttpClient.newBuilder();
+            if (Runtime.version().feature() >= 13) {
+                // The leak memory fix is failed under Java 11 when multi-thread maven build.
+                // So add the check, when the issue was fixed
+                // See https://bugs.openjdk.org/browse/JDK-8217264
+                builder.executor(Runnable::run); // To prevent memory leak via the default thread pool
+            }
+            var client = builder
+                    .version(HttpClient.Version.HTTP_1_1)
                     .connectTimeout(Duration.ofSeconds(60)) // wait a minute, it is usual enough a second
                     .build();
             var uri = new URL("http", "localhost", port, "/admin/healthcheck/readiness").toURI();

@@ -1,6 +1,13 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -8,14 +15,11 @@ import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.ErrorsContainer;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents OpenL folder in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeFolder extends AbstractTreeNode {
 
@@ -34,13 +38,17 @@ public class TreeFolder extends AbstractTreeNode {
 
     // ------ UI methods ------
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIcon() {
         return UiConst.ICON_FOLDER;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getIconLeaf() {
         // in both cases we use the same icons
@@ -76,7 +84,7 @@ public class TreeFolder extends AbstractTreeNode {
                     }
                 }
             } catch (Exception e) {
-                log.error(e.getMessage());
+                log.error("", e);
                 ErrorsContainer errorsContainer = getErrorsContainer();
                 if (errorsContainer != null) {
                     errorsContainer.addRequestError(e.getMessage());
@@ -94,9 +102,9 @@ public class TreeFolder extends AbstractTreeNode {
 
     protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
         AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
-            folder.getProject(),
-            folder.getRepository(),
-            folder.getFolderPath());
+                folder.getProject(),
+                folder.getRepository(),
+                folder.getFolderPath());
         for (AProjectArtefact artefact : folder.getArtefacts()) {
             if (!filter.supports(artefact.getClass()) || filter.select(artefact)) {
                 filteredFolder.addArtefact(artefact);

@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.openl.base.INamedThing;
-import org.openl.binding.MethodUtil;
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SimpleRulesView;
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
 import org.openl.rules.rest.model.tables.SmartRulesView;
@@ -14,7 +14,6 @@ import org.openl.rules.rest.model.tables.VocabularyView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.types.impl.AMethod;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads any OpenL table to {@link SummaryTableView} model.
@@ -35,10 +34,10 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var url = table.getUriParser();
         try {
             var file = new File("").getCanonicalFile()
-                .toPath()
-                .relativize(Path.of(url.getWbPath()))
-                .resolve(url.getWbName())
-                .toString();
+                    .toPath()
+                    .relativize(Path.of(url.getWbPath()))
+                    .resolve(url.getWbName())
+                    .toString();
             builder.file(file.replace("\\", "/"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to resolve module location", e);
@@ -48,9 +47,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         var tsn = table.getSyntaxNode();
         var member = tsn.getMember();
         if (member instanceof AMethod) {
-            var methodHeader = ((AMethod) member).getHeader();
-            builder.signature(MethodUtil.printSignature(methodHeader, INamedThing.REGULAR))
-                .returnType(MethodUtil.printType(methodHeader.getType()));
+            initializeMethodSignature(builder, table.getSyntaxNode().getHeader().getSourceString());
         }
 
         if (OpenLTableUtils.isVocabularyTable(table)) {
@@ -64,5 +61,24 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
         } else {
             builder.tableType(OpenLTableUtils.getTableTypeItems().get(table.getType()));
         }
+    }
+
+    private void initializeMethodSignature(SummaryTableView.Builder builder, String headerSource) {
+        int pos = ExecutableTableReader.rollWhitespaces(headerSource, 0);
+        int start = pos;
+        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+        if (start < pos) {
+            // it is probably table type
+            builder.tableType(headerSource.substring(start, pos));
+        }
+        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        start = pos;
+        pos = ExecutableTableReader.rollIdentifier(headerSource, pos);
+        if (start < pos) {
+            // it is probably table return type
+            builder.returnType(headerSource.substring(start, pos));
+        }
+        pos = ExecutableTableReader.rollWhitespaces(headerSource, pos);
+        builder.signature(headerSource.substring(pos));
     }
 }

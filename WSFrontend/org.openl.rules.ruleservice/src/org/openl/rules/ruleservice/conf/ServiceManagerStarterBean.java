@@ -1,7 +1,8 @@
 package org.openl.rules.ruleservice.conf;
 
-import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.beans.factory.InitializingBean;
+
+import org.openl.rules.ruleservice.management.ServiceManager;
 
 public final class ServiceManagerStarterBean implements InitializingBean {
     ServiceManager serviceManager;

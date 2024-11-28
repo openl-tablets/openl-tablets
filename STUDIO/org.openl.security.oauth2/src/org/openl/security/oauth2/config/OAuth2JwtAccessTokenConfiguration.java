@@ -3,8 +3,6 @@ package org.openl.security.oauth2.config;
 import java.util.Collection;
 import java.util.function.BiFunction;
 
-import org.openl.rules.security.Privilege;
-import org.openl.security.oauth2.OpenLJwtGrantedAuthoritiesConverter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +22,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
+import org.openl.rules.security.Privilege;
+import org.openl.security.oauth2.OpenLJwtGrantedAuthoritiesConverter;
+
 /**
  * Configuration for OAuth2 JWT access token authentication.
  */
@@ -32,7 +33,7 @@ public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean(OAuth2AccessTokenConfiguration.AUTH_PROVIDER_BEAN_NAME)
     public AuthenticationProvider oauth2AccessTokenAuthenticationProvider(JwtDecoder decoder,
-            JwtAuthenticationConverter jwtAuthenticationConverter) {
+                                                                          JwtAuthenticationConverter jwtAuthenticationConverter) {
 
         var provider = new JwtAuthenticationProvider(decoder);
         provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
@@ -41,11 +42,11 @@ public class OAuth2JwtAccessTokenConfiguration {
 
     @Bean
     public JwtDecoder jwtDecoder(@Value("${security.oauth2.issuer-uri}") String issuerUri,
-            ClientRegistrationRepository clientRegistrationRepository) {
+                                 ClientRegistrationRepository clientRegistrationRepository) {
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
 
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-            new OidcIdTokenValidator(clientRegistrationRepository.findByRegistrationId("webstudio")));
+                new OidcIdTokenValidator(clientRegistrationRepository.findByRegistrationId("webstudio")));
 
         jwtDecoder.setJwtValidator(validator);
         return jwtDecoder;

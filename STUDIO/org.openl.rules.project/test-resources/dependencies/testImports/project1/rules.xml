@@ -1,14 +1,14 @@
 <project>
-  <name>project1</name>
-  <modules>
-    <module>
-      <name>main</name>
-      <rules-root path="rules/main.xls"/>
-    </module>
-  </modules>
-  <classpath>
-    <entry path="."/>
-    <entry path="target/classes"/>
-    <entry path="lib"/>
-  </classpath>
+    <name>project1</name>
+    <modules>
+        <module>
+            <name>main</name>
+            <rules-root path="rules/main.xls"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="."/>
+        <entry path="target/classes"/>
+        <entry path="lib"/>
+    </classpath>
 </project>

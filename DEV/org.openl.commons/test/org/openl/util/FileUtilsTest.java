@@ -1,9 +1,9 @@
 package org.openl.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ymolchan on 12.10.2015.
@@ -47,6 +47,7 @@ public class FileUtilsTest {
         assertEquals("c", FileUtils.getName("a/b/c"));
         assertEquals("", FileUtils.getName("a/b/c/"));
         assertEquals("c", FileUtils.getName("a/b.txt/c"));
+        assertEquals("c:1234567890", FileUtils.getName("a/b/c:1234567890"));
 
         assertEquals("", FileUtils.getName("\\"));
         assertEquals("c", FileUtils.getName("\\c"));

@@ -1,0 +1,4 @@
+POST /simple/echoLong HTTP/1.1
+Content-Type: text/plain;charset=iso-8859-1
+
+9223372036854775807

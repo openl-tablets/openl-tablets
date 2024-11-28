@@ -16,12 +16,12 @@ public class AddAllMethodCallerWrapper implements MethodCallerWrapper {
 
     @Override
     public IMethodCaller handle(IMethodCaller methodCaller,
-            JavaOpenMethod javaOpenMethod,
-            IOpenClass[] callParams,
-            ICastFactory castFactory) {
+                                JavaOpenMethod javaOpenMethod,
+                                IOpenClass[] callParams,
+                                ICastFactory castFactory) {
         final AddAllMethodDetails addAllMethodDetails = AddAllMethodFilter.resolve(callParams, castFactory);
         return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, e -> addAllMethodDetails),
-            addAllMethodDetails.getType(),
-            JavaNoCast.getInstance());
+                addAllMethodDetails.getType(),
+                JavaNoCast.getInstance());
     }
 }

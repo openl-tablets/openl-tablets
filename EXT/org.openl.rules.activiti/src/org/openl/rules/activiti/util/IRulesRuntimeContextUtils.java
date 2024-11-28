@@ -1,6 +1,7 @@
 package org.openl.rules.activiti.util;
 
 import org.activiti.engine.delegate.DelegateExecution;
+
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;

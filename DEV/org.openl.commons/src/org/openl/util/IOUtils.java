@@ -1,6 +1,9 @@
 package org.openl.util;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -31,10 +34,10 @@ public class IOUtils {
      * Copy bytes from <code>InputStream</code> to an <code>OutputStream</code> and close them after.
      * <p/>
      *
-     * @param input the <code>InputStream</code> to read from
+     * @param input  the <code>InputStream</code> to read from
      * @param output the <code>OutputStream</code> to write to
      * @throws NullPointerException if the input or output is null
-     * @throws IOException if an I/O error occurs
+     * @throws IOException          if an I/O error occurs
      */
     public static void copyAndClose(InputStream input, OutputStream output) throws IOException {
         try {
@@ -50,11 +53,11 @@ public class IOUtils {
      * <p/>
      * This method uses the provided buffer, so there is no need to use a <code>BufferedInputStream</code>.
      *
-     * @param input the <code>InputStream</code> to read from
+     * @param input  the <code>InputStream</code> to read from
      * @param output the <code>OutputStream</code> to write to
      * @param buffer the buffer to use for the copy
      * @throws NullPointerException if the input or output is null
-     * @throws IOException if an I/O error occurs
+     * @throws IOException          if an I/O error occurs
      */
     public static void copy(InputStream input, OutputStream output, byte[] buffer) throws IOException {
         int n;

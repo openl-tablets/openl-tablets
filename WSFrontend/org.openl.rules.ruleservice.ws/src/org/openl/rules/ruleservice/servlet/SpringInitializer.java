@@ -5,12 +5,12 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.spring.env.PropertySourcesLoader;
 import org.openl.util.ClassUtils;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 @WebListener
 public final class SpringInitializer implements ServletContextListener {

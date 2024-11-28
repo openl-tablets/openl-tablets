@@ -1,10 +1,10 @@
 package org.openl.rules.repository.azure;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -28,16 +28,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.repository.api.ChangesetType;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.util.IOUtils;
-
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
@@ -50,13 +40,23 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.util.IOUtils;
 
 public class AzureBlobRepositoryTest {
     private AzureBlobRepository repo;
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
     private final Map<String, List<BlobEmulation>> blobs = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         BlobContainerClient client = mockContainerClient();
 
@@ -65,7 +65,7 @@ public class AzureBlobRepositoryTest {
         repo.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         blobs.clear();
         repo.close();
@@ -107,8 +107,8 @@ public class AzureBlobRepositoryTest {
     @Test
     public void saveFolder() throws IOException {
         List<FileItem> changes = Arrays.asList(
-            new FileItem("rules/project1/new-path/file14", IOUtils.toInputStream("Added")),
-            new FileItem("rules/project1/file11", IOUtils.toInputStream("Modified")));
+                new FileItem("rules/project1/new-path/file14", IOUtils.toInputStream("Added")),
+                new FileItem("rules/project1/file11", IOUtils.toInputStream("Modified")));
 
         FileData folderData = createFileData("rules/project1");
 
@@ -167,10 +167,10 @@ public class AzureBlobRepositoryTest {
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
         projectData.setAuthor(new UserInfo("john_smith"));
-        assertTrue("'project1' has not been deleted", repo.delete(projectData));
+        assertTrue(repo.delete(projectData), "'project1' has not been deleted");
 
         FileData deletedProject = repo.check(projectPath);
-        assertTrue("'project1' is not deleted", deletedProject.isDeleted());
+        assertTrue(deletedProject.isDeleted(), "'project1' is not deleted");
 
         // Restore the project
         FileData toDelete = new FileData();
@@ -180,11 +180,11 @@ public class AzureBlobRepositoryTest {
         toDelete.setComment("Delete project1.");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertFalse("'project1' is not restored", deletedProject.isDeleted());
+        assertFalse(deletedProject.isDeleted(), "'project1' is not restored");
         assertEquals("Delete project1.", deletedProject.getComment());
 
         // Count actual changes in history
-        assertEquals("Actual project changes must be 3.", 3, repo.listHistory(projectPath).size());
+        assertEquals(3, repo.listHistory(projectPath).size(), "Actual project changes must be 3.");
 
         // Erase the project
         toDelete.setName(projectPath);
@@ -192,7 +192,7 @@ public class AzureBlobRepositoryTest {
         toDelete.setComment("Erase project1");
         assertTrue(repo.deleteHistory(toDelete));
         deletedProject = repo.check(projectPath);
-        assertNull("'project1' is not erased", deletedProject);
+        assertNull(deletedProject, "'project1' is not erased");
     }
 
     @Test
@@ -259,15 +259,15 @@ public class AzureBlobRepositoryTest {
         BlobContainerClient client = mock(BlobContainerClient.class);
         when(client.listBlobs(any(), any())).thenAnswer(invocation -> mockListBlobs(invocation.getArgument(0)));
         when(client.getBlobVersionClient(any(), any()))
-            .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), invocation.getArgument(1)));
+                .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), invocation.getArgument(1)));
         when(client.getBlobClient(any()))
-            .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), null));
+                .thenAnswer(invocation -> mockGetBlobVersionClient(invocation.getArgument(0), null));
 
         addBlobsForProject("rules/project1", "version11", "rules/project1/file11", "rules/project1/file12");
         addBlobsForProject("rules/project2",
-            "version21",
-            "rules/project2/folder1/file23",
-            "rules/project2/folder2/file24");
+                "version21",
+                "rules/project2/folder1/file23",
+                "rules/project2/folder2/file24");
 
         return client;
     }
@@ -283,17 +283,17 @@ public class AzureBlobRepositoryTest {
         if (options.getDetails().getRetrieveVersions()) {
             List<BlobEmulation> versions = blobs.get(options.getPrefix());
             final List<BlobItem> list = new ArrayList<>(
-                versions == null ? Collections.emptyList()
-                                 : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
+                    versions == null ? Collections.emptyList()
+                            : versions.stream().map(BlobEmulation::getBlobItem).collect(Collectors.toList()));
             // To conform behavior of Azure Blob Storage
             Collections.reverse(list);
             return mockPagedIterable(list);
         }
         return mockPagedIterable(blobs.entrySet()
-            .stream()
-            .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
-            .map(entry -> entry.getValue().get(0).getBlobItem())
-            .collect(Collectors.toList()));
+                .stream()
+                .filter(entry -> entry.getKey().startsWith(options.getPrefix()))
+                .map(entry -> entry.getValue().get(0).getBlobItem())
+                .collect(Collectors.toList()));
     }
 
     private BlobClient mockGetBlobVersionClient(String blobName, String versionId) throws IOException {
@@ -322,14 +322,14 @@ public class AzureBlobRepositoryTest {
         when(client.getBlobName()).thenReturn(blobName);
         when(client.getVersionId()).thenReturn(versionId);
         when(client.uploadWithResponse(any(), any(), any()))
-            .thenAnswer(invocation -> mockUploadWithResponse(client, invocation.getArgument(0)));
+                .thenAnswer(invocation -> mockUploadWithResponse(client, invocation.getArgument(0)));
         BlobProperties properties = mockBlobProperties(versionId, blob);
         when(client.getProperties()).thenReturn(properties);
 
         doAnswer(invocation -> mockDelete(Objects.requireNonNull(blob))).when(client).delete();
 
         when(client.downloadContent()).thenAnswer(invocation -> BinaryData.fromBytes(Objects.requireNonNull(blob)
-            .getContent()));
+                .getContent()));
         return client;
     }
 
@@ -385,8 +385,8 @@ public class AzureBlobRepositoryTest {
     }
 
     private void addBlobsForProject(String projectName,
-            String versionId,
-            String... fileNamesInProject) throws IOException {
+                                    String versionId,
+                                    String... fileNamesInProject) throws IOException {
         AzureCommit commit = new AzureCommit();
         final ArrayList<FileInfo> files = new ArrayList<>();
         for (String fileName : fileNamesInProject) {
@@ -394,8 +394,8 @@ public class AzureBlobRepositoryTest {
             final String revision = UUID.randomUUID().toString();
 
             addBlob(AzureBlobRepository.CONTENT_PREFIX + fileName,
-                revision,
-                fileContent.getBytes(StandardCharsets.UTF_8));
+                    revision,
+                    fileContent.getBytes(StandardCharsets.UTF_8));
 
             FileInfo fileInfo = new FileInfo();
             fileInfo.setPath(fileName);
@@ -432,7 +432,7 @@ public class AzureBlobRepositoryTest {
             }
         }
 
-        assertTrue("Files list does not contain the file '" + fileName + "'", contains);
+        assertTrue(contains, "Files list does not contain the file '" + fileName + "'");
     }
 
     private FileData createFileData(String project) {
@@ -445,7 +445,7 @@ public class AzureBlobRepositoryTest {
 
     private FileData addFileToProject2AndSave() throws IOException {
         List<FileItem> changes = List
-            .of(new FileItem("rules/project2/new-path/new-file", IOUtils.toInputStream("Added")));
+                .of(new FileItem("rules/project2/new-path/new-file", IOUtils.toInputStream("Added")));
         FileData folderData = createFileData("rules/project2");
 
         return repo.save(folderData, changes, ChangesetType.DIFF);

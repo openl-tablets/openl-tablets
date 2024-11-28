@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang3.time.DateUtils;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.StringUtils;
@@ -44,7 +45,7 @@ public class TablePropertiesSelector implements Predicate<TableSyntaxNode> {
         return numMatch == properties.size() && numMatch > 0;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private boolean valuesEqual(Object searchValue, Object value) {
         boolean result = false;
 

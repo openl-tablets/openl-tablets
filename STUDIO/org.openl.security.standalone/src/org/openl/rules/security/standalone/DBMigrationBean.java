@@ -7,14 +7,13 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
-import org.openl.util.PropertiesUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.PropertiesUtils;
 
 public class DBMigrationBean {
     private static final Logger LOG = LoggerFactory.getLogger(DBMigrationBean.class);
@@ -29,7 +28,7 @@ public class DBMigrationBean {
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
-        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
         TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {

@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.web.repository.deployment;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DeploymentManifestBuilderTest {
 
@@ -31,7 +31,7 @@ public class DeploymentManifestBuilderTest {
         assertEquals("", mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 
@@ -54,7 +54,7 @@ public class DeploymentManifestBuilderTest {
         assertEquals("My Rules", mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 
@@ -71,7 +71,7 @@ public class DeploymentManifestBuilderTest {
         assertNull(mainAttributes.getValue("Implementation-Title"));
         assertEquals("1.0", mainAttributes.getValue("Manifest-Version"));
         assertNotNull(mainAttributes.getValue("Build-Date"));
-        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL WebStudio v."));
+        assertTrue(mainAttributes.getValue("Created-By").startsWith("OpenL Studio v."));
         assertTrue(mainAttributes.getValue("Created-By").length() > 18);
     }
 }

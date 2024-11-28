@@ -16,7 +16,6 @@ import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
- *
  */
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 

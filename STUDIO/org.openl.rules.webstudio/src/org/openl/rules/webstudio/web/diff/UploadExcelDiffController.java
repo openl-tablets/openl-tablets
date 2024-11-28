@@ -6,9 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.annotation.PreDestroy;
 import javax.faces.context.FacesContext;
+
+import org.richfaces.component.UITree;
+import org.richfaces.event.FileUploadEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.Message;
@@ -16,12 +22,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileTool;
-import org.richfaces.component.UITree;
-import org.richfaces.event.FileUploadEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope
@@ -44,7 +44,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
 
     /**
      * Remove uploaded files.
-     * 
+     *
      * @param fileNames file names split by '\n' symbol. If empty, all files will be removed.
      */
     public void setFileNamesToRemove(String fileNames) {
@@ -52,7 +52,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
             clearUploadedFiles();
         } else {
             List<String> toRemove = Arrays.asList(fileNames.split("\n"));
-            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext();) {
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext(); ) {
                 ProjectFile file = iterator.next();
                 if (toRemove.contains(file.getName())) {
                     file.destroy();
@@ -69,8 +69,8 @@ public class UploadExcelDiffController extends ExcelDiffController {
             if (uploadedFiles.size() >= MAX_FILES_COUNT) {
                 // Clear selection to handle NPE bug. See EPBDS-3992 for details.
                 UITree treeComponent = (UITree) FacesContext.getCurrentInstance()
-                    .getViewRoot()
-                    .findComponent("diffTreeForm:newTree");
+                        .getViewRoot()
+                        .findComponent("diffTreeForm:newTree");
                 treeComponent.setSelection(new ArrayList<>());
 
                 deleteTempFiles();
@@ -107,7 +107,7 @@ public class UploadExcelDiffController extends ExcelDiffController {
             File file2ToCompare = ProjectHistoryService.get(historyStoragePath, version2);
 
             UploadExcelDiffController diffController = (UploadExcelDiffController) WebStudioUtils
-                .getBackingBean("uploadExcelDiffController");
+                    .getBackingBean("uploadExcelDiffController");
             diffController.compare(Arrays.asList(file1ToCompare, file2ToCompare));
         } catch (Exception e) {
             log.error(e.getMessage(), e);

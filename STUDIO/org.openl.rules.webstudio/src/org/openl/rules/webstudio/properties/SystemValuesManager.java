@@ -10,7 +10,6 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
  * Manager for system values. Handles implementations for specified system properties.
  *
  * @author DLiauchuk
- *
  */
 public final class SystemValuesManager {
 

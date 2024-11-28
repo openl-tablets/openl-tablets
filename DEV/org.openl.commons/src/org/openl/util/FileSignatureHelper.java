@@ -11,10 +11,9 @@ public final class FileSignatureHelper {
     /**
      * Verifies if first 4 bytes matches archive signature
      *
-     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
-     *
      * @param sign first 4 bytes
      * @return {@code true} if it's archive, otherwise {@code false}
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
      */
     public static boolean isArchiveSign(int sign) {
         return sign == REGULAR_ARCHIVE_FILE_SIGN || isEmptyArchive(sign);

@@ -13,17 +13,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
-import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
-import org.openl.spring.config.ConditionalOnEnable;
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.zaxxer.hikari.HikariDataSource;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.hive.enabled")

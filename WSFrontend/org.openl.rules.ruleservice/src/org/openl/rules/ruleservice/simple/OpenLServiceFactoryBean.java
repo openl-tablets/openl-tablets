@@ -1,13 +1,14 @@
 package org.openl.rules.ruleservice.simple;
 
-import org.openl.runtime.ASMProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import org.openl.runtime.ASMProxyFactory;
+
 /**
  * Creates a proxy object for defined service.
- * 
+ *
  * @param <T> The facade interface type
  */
 public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
@@ -18,7 +19,7 @@ public class OpenLServiceFactoryBean<T> implements FactoryBean<T> {
 
     /**
      * @param proxyInterface a facade interface for work with OpenL rules.
-     * @param serviceName a name of OpenL rules saved in Frontend.
+     * @param serviceName    a name of OpenL rules saved in Frontend.
      */
     public OpenLServiceFactoryBean(Class<T> proxyInterface, String serviceName) {
         this.proxyInterface = proxyInterface;

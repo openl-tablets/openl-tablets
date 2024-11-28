@@ -11,7 +11,6 @@ import org.openl.util.text.ILocation;
 
 /**
  * @author snshor
- *
  */
 public interface ISyntaxNode {
 

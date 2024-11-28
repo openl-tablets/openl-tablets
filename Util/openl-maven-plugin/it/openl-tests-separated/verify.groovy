@@ -9,7 +9,7 @@ try {
     assert new File(basedir, "target/openl-test-reports/TEST-OpenL.tests.SeparateGreetingTest.xml").exists();
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

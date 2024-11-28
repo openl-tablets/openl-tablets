@@ -1,10 +1,14 @@
 package org.openl.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Created by ymolchan on 12.10.2015.
@@ -117,6 +121,192 @@ public class ClassUtilsTest {
         assertEquals("setBBB", ClassUtils.setter("BBB"));
     }
 
+    @Test
+    void commonTypeTest() {
+        assertEquals(Double.class, ClassUtils.commonType(null, Double.class));
+        assertEquals(Integer.class, ClassUtils.commonType(Integer.class, null));
+        assertNull(ClassUtils.commonType(null, null));
+
+        assertEquals(Object.class, ClassUtils.commonType(Object.class, Integer.class));
+        assertEquals(Object.class, ClassUtils.commonType(Integer.class, Object.class));
+        assertEquals(Number.class, ClassUtils.commonType(Integer.class, Double.class));
+        assertEquals(Number.class, ClassUtils.commonType(Double.class, Integer.class));
+        assertEquals(Integer.class, ClassUtils.commonType(int.class, Integer.class));
+        assertEquals(Integer.class, ClassUtils.commonType(Integer.class, int.class));
+        assertEquals(Number[].class, ClassUtils.commonType(Number[].class, Integer[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Integer[].class, Number[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Integer[].class, Double[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Double[].class, Integer[].class));
+        assertEquals(long[].class, ClassUtils.commonType(long[].class, int[].class));
+        assertEquals(long[].class, ClassUtils.commonType(int[].class, long[].class));
+        assertEquals(Number.class, ClassUtils.commonType(int.class, Long.class));
+        assertEquals(Number.class, ClassUtils.commonType(Long.class, int.class));
+        assertEquals(Number[].class, ClassUtils.commonType(int[].class, Long[].class));
+        assertEquals(Number[].class, ClassUtils.commonType(Long[].class, int[].class));
+    }
+
     static class InnerClass {
+    }
+
+    @Test
+    public void testIsAssignable() {
+        assertTrue(ClassUtils.isAssignable(null, null));
+
+        assertTrue(ClassUtils.isAssignable(Integer.class, null));
+        assertTrue(ClassUtils.isAssignable(null, Integer.class));
+        assertFalse(ClassUtils.isAssignable(int.class, null));
+        assertFalse(ClassUtils.isAssignable(null, int.class));
+
+        assertTrue(ClassUtils.isAssignable(Integer.class, int.class));
+        assertTrue(ClassUtils.isAssignable(int.class, Integer.class));
+        assertTrue(ClassUtils.isAssignable(Integer.class, Number.class));
+        assertFalse(ClassUtils.isAssignable(Number.class, Integer.class));
+
+        assertTrue(ClassUtils.isAssignable(int.class, double.class));
+        assertFalse(ClassUtils.isAssignable(int.class, Double.class));
+        assertFalse(ClassUtils.isAssignable(double.class, int.class));
+        assertFalse(ClassUtils.isAssignable(Double.class, int.class));
+
+        assertTrue(ClassUtils.isAssignable(Integer.class, double.class));
+        assertFalse(ClassUtils.isAssignable(Integer.class, Double.class));
+        assertFalse(ClassUtils.isAssignable(double.class, Integer.class));
+        assertFalse(ClassUtils.isAssignable(Double.class, Integer.class));
+    }
+
+    @Test
+    public void testSet() throws Exception {
+        assertEquals("value", setFieldInBean("a", "value").a);
+        assertEquals("value", setFieldInBean("c", "value").c);
+        assertEquals(10, setFieldInBean("x", 10).e);
+        assertEquals(17.3, setFieldInBean("x", 17.3).e);
+        assertNull(setFieldInBean("x", null).e);
+        assertEquals(10, setFieldInBean("y", 10).e);
+        assertEquals(3.1415, setFieldInBean("y", 3.1415).e);
+        assertEquals(10.0, setFieldInBean("z", 10).e);
+        assertEquals(3.1415, setFieldInBean("z", 3.1415).e);
+        assertNull(setFieldInBean("y", null).e);
+        assertEquals(10, setFieldInBean("i", 10).i);
+
+        assertThrows(IllegalAccessException.class, () -> {
+            setFieldInBean("b", "value");
+        });
+        assertThrows(IllegalAccessException.class, () -> {
+            setFieldInBean("d", "value");
+        });
+        assertThrows(IllegalAccessException.class, () -> {
+            setFieldInBean("e", "value");
+        });
+        assertThrows(IllegalAccessException.class, () -> {
+            setFieldInBean("f", "value");
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            setFieldInBean("a", 10);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            setFieldInBean("c", 10);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            setFieldInBean("i", "10");
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            setFieldInBean("i", null);
+        });
+        assertThrows(UnsupportedOperationException.class, () -> {
+            setFieldInBean("x", "not a number");
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            setFieldInBean("y", "not a number");
+        });
+        assertThrows(UnsupportedOperationException.class, () -> {
+            setFieldInBean("z", null);
+        });
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        assertEquals("getter", getFieldInBean("a"));
+        assertThrows(IllegalAccessException.class, () -> {
+            getFieldInBean("b");
+        });
+        assertEquals("public", getFieldInBean("c"));
+        assertEquals("final", getFieldInBean("d"));
+        assertThrows(IllegalAccessException.class, () -> {
+            getFieldInBean("e");
+        });
+        assertThrows(IllegalAccessException.class, () -> {
+            getFieldInBean("f");
+        });
+        assertEquals(10, getFieldInBean("x"));
+        assertThrows(IllegalAccessException.class, () -> {
+            getFieldInBean("y");
+        });
+        assertThrows(IllegalAccessException.class, () -> {
+            getFieldInBean("z");
+        });
+    }
+
+    @Test
+    public void testGetType() throws Exception {
+        var bean = new Bean();
+        assertEquals(String.class, ClassUtils.getType(bean, "a"));
+        assertEquals(String.class, ClassUtils.getType(bean, "b"));
+        assertEquals(String.class, ClassUtils.getType(bean, "c"));
+        assertEquals(String.class, ClassUtils.getType(bean, "d"));
+        assertEquals(Number.class, ClassUtils.getType(bean, "e"));
+        assertNull(ClassUtils.getType(bean, "f"));
+        assertEquals(int.class, ClassUtils.getType(bean, "i"));
+        assertEquals(Number.class, ClassUtils.getType(bean, "x"));
+        assertNull(ClassUtils.getType(bean, "y"));
+        assertNull(ClassUtils.getType(bean, "z"));
+    }
+
+    private static Bean setFieldInBean(String fieldName, Object value) throws Exception {
+        var bean = new Bean();
+        ClassUtils.set(bean, fieldName, value);
+        return bean;
+    }
+
+    private static Object getFieldInBean(String fieldName) throws Exception {
+        var bean = new Bean();
+        return ClassUtils.get(bean, fieldName);
+    }
+
+    public static class Bean {
+        private String a = "getter";
+        protected String b = "protected";
+        public String c = "public";
+        public final String d = "final";
+        private Number e = 10;
+        public int i;
+
+        public void setA(String a) {
+            this.a = a;
+        }
+        public String getA() {
+            return a;
+        }
+
+        public void setX(Number e) {
+            this.e = e;
+        }
+        public Number getX() {
+            return e;
+        }
+
+        public void setX(Object e) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setY(Number e) {
+            this.e = e;
+        }
+
+        public void setZ(double e) {
+            this.e = e;
+        }
+
+        public void setZ(Object e) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

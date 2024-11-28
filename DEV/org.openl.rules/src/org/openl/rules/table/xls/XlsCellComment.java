@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls;
 
 import org.apache.poi.ss.usermodel.Comment;
+
 import org.openl.rules.table.ICellComment;
 
 /**

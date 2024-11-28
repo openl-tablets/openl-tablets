@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractOverloadedMethodsDispatcherTableWrapper extends OverloadedMethodsDispatcherTable {
     static {
         WrapperValidation.validateWrapperClass(AbstractOverloadedMethodsDispatcherTableWrapper.class,
-            AbstractOverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
+                AbstractOverloadedMethodsDispatcherTableWrapper.class.getSuperclass());
     }
 
     protected final OverloadedMethodsDispatcherTable delegate;

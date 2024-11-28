@@ -9,21 +9,23 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.RecursiveTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.core.ce.ServiceMT;
-import org.openl.rules.project.SafeCloner;
 import org.openl.rules.runtime.OpenLRulesMethodHandler;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
+import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * InvocationHandler for proxy that injects variations into service class.
@@ -35,15 +37,13 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
-    private final SafeCloner cloner = new SafeCloner();
-
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancerInvocationHandler.class);
 
     private final Map<Method, Method> methodsMap;
     private final Object serviceClassInstance;
 
     VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
-            Object serviceClassInstance) {
+                                                            Object serviceClassInstance) {
         this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap cannot be null");
         this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance, "serviceClassInstance cannot be null");
     }
@@ -85,7 +85,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
             SimpleRulesRuntimeEnv runtimeEnv;
             runtimeEnv = (SimpleRulesRuntimeEnv) ((IEngineWrapper) serviceClassInstance).getRuntimeEnv();
 
-            runtimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_WRITE);
+            runtimeEnv.changeMethodArgumentsCacheMode(CacheMode.READ_WRITE);
             runtimeEnv.setMethodArgumentsCacheEnable(true);
             runtimeEnv.getArgumentCachingStorage().resetOriginalCalculationSteps();
             runtimeEnv.getArgumentCachingStorage().resetMethodArgumentsCache();
@@ -95,8 +95,8 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
             try {
                 VariationsResult<Object> variationsResults = new VariationsResult<>();
                 VariationsResult<Object> singleVariation = calculateSingleVariation(member,
-                    arguments,
-                    new NoVariation());
+                        arguments,
+                        new NoVariation());
                 merge(variationsResults, singleVariation);
                 if (variationsPack != null) {
                     final VariationCalculationTask[] tasks = createTasks(member, variationsPack, arguments, runtimeEnv);
@@ -119,7 +119,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
             }
         } else {
             throw new OpenlNotCheckedException(
-                "Service instance class must to implement IEngineWrapper or OpenLWrapper interface.");
+                    "Service instance class must to implement IEngineWrapper or OpenLWrapper interface.");
         }
     }
 
@@ -163,21 +163,21 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
     }
 
     private VariationCalculationTask[] createTasks(Method member,
-            VariationsPack variationsPack,
-            Object[] arguments,
-            SimpleRulesRuntimeEnv parentRuntimeEnv) {
+                                                   VariationsPack variationsPack,
+                                                   Object[] arguments,
+                                                   SimpleRulesRuntimeEnv parentRuntimeEnv) {
         final Collection<VariationCalculationTask> tasks = new ArrayList<>(variationsPack.getVariations().size());
         if (!ASMProxyFactory.isProxy(serviceClassInstance)) {
             log.warn("Variation features are not supported for Wrapper classes. This functionality is deprecated.");
         }
         for (Variation variation : variationsPack.getVariations()) {
             final VariationCalculationTask item = new VariationCalculationTask(member,
-                cloner.deepClone(arguments),
-                variation,
-                parentRuntimeEnv.clone());
+                    Cloner.clone(arguments),
+                    variation,
+                    parentRuntimeEnv.clone());
             tasks.add(item);
         }
-        return tasks.toArray(new VariationCalculationTask[] {});
+        return tasks.toArray(new VariationCalculationTask[]{});
     }
 
     private class VariationCalculationTask extends RecursiveTask<VariationsResult<Object>> {
@@ -188,9 +188,9 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
         private final IRuntimeEnv runtimeEnv;
 
         private VariationCalculationTask(Method member,
-                Object[] arguments,
-                Variation variation,
-                IRuntimeEnv runtimeEnv) {
+                                         Object[] arguments,
+                                         Variation variation,
+                                         IRuntimeEnv runtimeEnv) {
             this.member = member;
             this.arguments = arguments;
             this.variation = variation;
@@ -207,7 +207,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
                         handler.setRuntimeEnv(runtimeEnv);
                     }
                     SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
-                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
+                    simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(CacheMode.READ_ONLY);
                     simpleRulesRuntimeEnv.setOriginalCalculation(false);
                     simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
                     simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();

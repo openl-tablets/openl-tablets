@@ -21,16 +21,16 @@ public class GetValuesMethodCallerWrapper implements MethodCallerWrapper {
 
     @Override
     public IMethodCaller handle(IMethodCaller methodCaller,
-            JavaOpenMethod javaOpenMethod,
-            IOpenClass[] callParams,
-            ICastFactory castFactory) {
+                                JavaOpenMethod javaOpenMethod,
+                                IOpenClass[] callParams,
+                                ICastFactory castFactory) {
 
         Method javaMethod = javaOpenMethod.getJavaMethod();
         MethodSearchTuner autoCastReturnType = javaMethod.getAnnotation(MethodSearchTuner.class);
         if (autoCastReturnType != null) {
             IOpenClass arrayType = JavaOpenClass.getOpenClass(
-                Array.newInstance(((StaticDomainOpenClass) callParams[0]).getDelegate().getInstanceClass(), 1)
-                    .getClass());
+                    Array.newInstance(((StaticDomainOpenClass) callParams[0]).getDelegate().getInstanceClass(), 1)
+                            .getClass());
             IOpenCast cast = castFactory.getCast(javaOpenMethod.getType(), arrayType);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, arrayType, cast);

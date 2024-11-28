@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -18,10 +21,7 @@ import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
@@ -30,7 +30,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     private final RuleServiceLoader ruleServiceLoader;
     private final DeploymentDescription deployment;
     private final ThreadLocal<Deque<CompilationInfo>> compilationInfoThreadLocal = ThreadLocal
-        .withInitial(ArrayDeque::new);
+            .withInitial(ArrayDeque::new);
 
     private static class CompilationInfo {
         long time;
@@ -53,10 +53,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
             if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
-                    dependencyLoader.getModule().getName(),
-                    dependencyLoader.getProject().getName(),
-                    deployment.getName(),
-                    t - compilationInfo.embeddedTime);
+                        dependencyLoader.getModule().getName(),
+                        dependencyLoader.getProject().getName(),
+                        deployment.getName(),
+                        t - compilationInfo.embeddedTime);
             }
 
             if (!compilationInfoStack.isEmpty()) {
@@ -76,7 +76,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     public CompiledDependency loadDependency(final ResolvedDependency dependency) throws OpenLCompilationException {
         try {
             return MaxThreadsForCompileSemaphore.getInstance()
-                .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
+                    .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
         } catch (OpenLCompilationException e) {
             throw e;
         } catch (Exception e) {
@@ -85,8 +85,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     public RuleServiceDependencyManager(DeploymentDescription deploymentDescription,
-            RuleServiceLoader ruleServiceLoader,
-            ClassLoader rootClassLoader,
+                                        RuleServiceLoader ruleServiceLoader,
+                                        ClassLoader rootClassLoader,
                                         Map<String, Object> externalParameters) {
         super(rootClassLoader, true, externalParameters);
         this.deployment = Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
@@ -107,9 +107,12 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         for (IProject aProject : rslDeployment.getProjects()) {
             String projectName = aProject.getName();
             try {
-                Collection<Module> modules = ruleServiceLoader
-                    .resolveModulesForProject(deploymentName, deploymentVersion, projectName);
-                ProjectDescriptor project = null;
+                var project = ruleServiceLoader.resolveProject(deploymentName, deploymentVersion, projectName);
+                if (project == null) {
+                    // Not an OpenL project
+                    continue;
+                }
+                Collection<Module> modules = project.getModules();
                 if (!modules.isEmpty()) {
                     project = modules.iterator().next().getProject();
 
@@ -122,10 +125,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
-                    String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
-                        projectName,
-                        deploymentName),
-                    e);
+                        String.format("Failed to initialize dependency loaders for project '%s' in deployment '%s'.",
+                                projectName,
+                                deploymentName),
+                        e);
             }
         }
         return dependencyLoaders;

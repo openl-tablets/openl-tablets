@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * Title:
@@ -18,7 +20,7 @@ package org.openl.ie.constrainer;
  * @version 1.0
  */
 
-public class ChoicePointLabel implements java.io.Serializable {
+public class ChoicePointLabel implements Serializable {
     private final int _label;
     private final Constrainer _c;
 

@@ -10,6 +10,7 @@ import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.ss.util.CellAddress;
+
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
@@ -28,13 +29,13 @@ public class EventTableStyles implements TableStyles {
     private final Map<CellAddress, String> formulas;
 
     public EventTableStyles(IGridRegion region,
-            int[][] cellIndexes,
-            List<ExtendedFormatRecord> extendedFormats,
-            Map<Integer, FormatRecord> customFormats,
-            PaletteRecord palette,
-            List<FontRecord> fonts,
-            List<HSSFComment> comments,
-            Map<CellAddress, String> formulas) {
+                            int[][] cellIndexes,
+                            List<ExtendedFormatRecord> extendedFormats,
+                            Map<Integer, FormatRecord> customFormats,
+                            PaletteRecord palette,
+                            List<FontRecord> fonts,
+                            List<HSSFComment> comments,
+                            Map<CellAddress, String> formulas) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.extendedFormats = extendedFormats;

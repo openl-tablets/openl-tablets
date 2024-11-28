@@ -1,7 +1,12 @@
 package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
@@ -29,9 +34,9 @@ public class EqualsIndexV2 implements IRuleIndex {
     private final ConditionCasts conditionCasts;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
-            Map<Object, int[]> index,
-            int[] emptyRules,
-            ConditionCasts conditionCasts) {
+                         Map<Object, int[]> index,
+                         int[] emptyRules,
+                         ConditionCasts conditionCasts) {
         this.index = Collections.unmodifiableMap(index);
         this.emptyRules = emptyRules;
         this.nextNode = nextNode;

@@ -25,7 +25,7 @@ public interface Formats {
      * Format date object to have date and time info. Note: you should not use it in a loop because dateTime format
      * retrieving can be slow. Instead, you should retrieve format once and use preconfigured SimpleDateFormat in the
      * loop.
-     * 
+     *
      * @see #dateTime()
      */
     default String formatDateTime(Date date) {

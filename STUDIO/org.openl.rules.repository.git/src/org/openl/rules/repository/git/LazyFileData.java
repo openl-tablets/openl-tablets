@@ -11,14 +11,15 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
+
 class LazyFileData extends FileData {
-    private final Logger log = LoggerFactory.getLogger(GitRepository.class);
+    private final Logger log = LoggerFactory.getLogger(LazyFileData.class);
 
     private final String fullPath;
     private final GitRepository gitRepo;
@@ -32,12 +33,12 @@ class LazyFileData extends FileData {
     private boolean deleteStatusLoaded = false;
 
     LazyFileData(String branch,
-            String fullPath,
-            GitRepository gitRepo,
-            ObjectId fromCommit,
-            ObjectId fileId,
-            CommitMessageParser commitMessageParser,
-            CommitMessageParser commitMessageParserOld) {
+                 String fullPath,
+                 GitRepository gitRepo,
+                 ObjectId fromCommit,
+                 ObjectId fileId,
+                 CommitMessageParser commitMessageParser,
+                 CommitMessageParser commitMessageParserOld) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -53,12 +54,12 @@ class LazyFileData extends FileData {
     }
 
     LazyFileData(String branch,
-            String fullPath,
-            GitRepository gitRepo,
-            RevCommit fileCommit,
-            ObjectId fileId,
-            CommitMessageParser commitMessageParser,
-            CommitMessageParser commitMessageParserOld) {
+                 String fullPath,
+                 GitRepository gitRepo,
+                 RevCommit fileCommit,
+                 ObjectId fileId,
+                 CommitMessageParser commitMessageParser,
+                 CommitMessageParser commitMessageParserOld) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {

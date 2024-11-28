@@ -18,7 +18,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class JavaOpenField implements IOpenField {
 
@@ -35,7 +34,7 @@ public class JavaOpenField implements IOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        if (target == null && !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+        if (target == null && !Modifier.isStatic(field.getModifiers())) {
             return getType().nullObject();
         }
         try {

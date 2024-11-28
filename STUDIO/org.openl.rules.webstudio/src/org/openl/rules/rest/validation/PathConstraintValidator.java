@@ -2,12 +2,12 @@ package org.openl.rules.rest.validation;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.util.SystemReader;
+
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.util.StringUtils;
 
@@ -48,7 +48,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             SystemReader.getInstance().checkPath(value);
         } catch (CorruptObjectException e) {
             context.buildConstraintViolationWithTemplate(StringUtils.capitalize(e.getMessage()))
-                .addConstraintViolation();
+                    .addConstraintViolation();
         }
         try {
             // OS specific check

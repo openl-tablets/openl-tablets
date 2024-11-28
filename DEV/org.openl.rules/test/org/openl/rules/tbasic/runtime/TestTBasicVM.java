@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.tbasic.runtime.operations.NopOperation;
 import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
 import org.openl.types.impl.DelegatedDynamicObject;
@@ -31,9 +32,9 @@ public class TestTBasicVM {
         IRuntimeEnv simpleOpenLEnvironment = simpleVm.getRuntimeEnv();
 
         TBasicContextHolderEnv environment = new TBasicContextHolderEnv(simpleOpenLEnvironment,
-            thisTarget,
-            params,
-            tvm);
+                thisTarget,
+                params,
+                tvm);
 
         tvm.run(environment);
     }

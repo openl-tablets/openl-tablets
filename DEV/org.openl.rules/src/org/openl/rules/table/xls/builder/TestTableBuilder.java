@@ -25,10 +25,14 @@ import org.openl.util.StringUtils;
  */
 public class TestTableBuilder extends TableBuilder {
 
-    /** Default result parameter title. */
+    /**
+     * Default result parameter title.
+     */
     private static final String RESULT_PARAM_TITLE = "Result";
 
-    /** Test method name postfix */
+    /**
+     * Test method name postfix
+     */
     private static final String TESTMETHOD_NAME_POSTFIX = "Test";
 
     /**
@@ -64,8 +68,8 @@ public class TestTableBuilder extends TableBuilder {
      * Returns table header.
      *
      * @param executableNode Executable node
-     * @param technicalName Technical name of the table. If <code>null</code> or empty we get default technical name. It
-     *            is building with table name and postfix 'Test'.
+     * @param technicalName  Technical name of the table. If <code>null</code> or empty we get default technical name. It
+     *                       is building with table name and postfix 'Test'.
      * @return table header
      */
     public static String getHeader(TableSyntaxNode executableNode, String technicalName) {
@@ -84,10 +88,9 @@ public class TestTableBuilder extends TableBuilder {
     }
 
     /**
-     *
      * @param executableMethod
      * @return Default technical name for new test table. It is build from <code>ExecutableRulesMethod</code> name and
-     *         postfix 'Test'.
+     * postfix 'Test'.
      */
     private static String getDefaultTechnicalName(ExecutableMethod executableMethod) {
         String tableName = executableMethod.getName();
@@ -100,7 +103,7 @@ public class TestTableBuilder extends TableBuilder {
      * {@link #getDefaultTechnicalName(ExecutableMethod)}.
      *
      * @param executableNode <code>TableSyntaxNode</code> that is executable (see {@link Executable})from which we tries
-     *            to get the <code>ExecutableRulesMethod</code>.
+     *                       to get the <code>ExecutableRulesMethod</code>.
      * @return Default technical name for new test table. It is build from table name and postfix 'Test'.
      */
     public static String getDefaultTechnicalName(TableSyntaxNode executableNode) {
@@ -160,11 +163,10 @@ public class TestTableBuilder extends TableBuilder {
     /**
      * Writes test table parameters.
      *
-     * @param params test table parameters
+     * @param params      test table parameters
      * @param resultTitle result parameter title
-     *
      * @throws IllegalArgumentException if params is null
-     * @throws IllegalStateException if method is called without prior <code>beginTable()</code> call
+     * @throws IllegalStateException    if method is called without prior <code>beginTable()</code> call
      */
     public void writeParams(Map<String, String> params, String resultTitle) {
         Objects.requireNonNull(params, "params cannot be null");
@@ -173,7 +175,7 @@ public class TestTableBuilder extends TableBuilder {
         }
         if (!params.containsKey(TestMethodHelper.EXPECTED_RESULT_NAME)) {
             params.put(TestMethodHelper.EXPECTED_RESULT_NAME,
-                StringUtils.isBlank(resultTitle) ? RESULT_PARAM_TITLE : resultTitle);
+                    StringUtils.isBlank(resultTitle) ? RESULT_PARAM_TITLE : resultTitle);
         }
         int column = 0;
         Set<String> names = params.keySet();

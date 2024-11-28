@@ -368,8 +368,8 @@
                 $j("#account-user-display-name").val(data.displayName);
                 $j("#account-user-lastname").val(data.lastName);
                 $j('#account-user-failures-per-test-row').toggle(data.testsFailuresOnly === true);
-                $j("#account-user-show-header").attr("checked", data.showHeader);
-                $j("#account-user-complex-result").attr("checked", data.showComplexResult);
+                $j("#account-user-show-header").prop("checked", data.showHeader);
+                $j("#account-user-complex-result").prop("checked", data.showComplexResult);
                 $j("#account-user-tests-per-page").val(data.testsPerPage);
                 $j("#account-user-failures-per-test").val(data.testsFailuresPerTest);
                 initAccountUserEmail(data);

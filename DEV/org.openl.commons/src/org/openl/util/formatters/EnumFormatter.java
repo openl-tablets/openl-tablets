@@ -1,8 +1,9 @@
 package org.openl.util.formatters;
 
-import org.openl.util.EnumUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.EnumUtils;
 
 public class EnumFormatter implements IFormatter {
 

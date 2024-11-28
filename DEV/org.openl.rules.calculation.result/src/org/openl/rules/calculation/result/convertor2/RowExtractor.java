@@ -19,14 +19,15 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
 /**
  * Extractor for the appropriate row in spreadsheet.
  *
- * @author DLiauchuk
- *
  * @param <T>
+ * @author DLiauchuk
  */
 @Deprecated
 public abstract class RowExtractor<T extends CalculationStep> {
 
-    /** extractors for columns */
+    /**
+     * extractors for columns
+     */
     private final List<SpreadsheetColumnExtractor<T>> columnExtractors;
 
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {
@@ -66,8 +67,7 @@ public abstract class RowExtractor<T extends CalculationStep> {
      * {@link #makeRowInstance()}
      *
      * @param spreadsheetResult from which the row will be extracted
-     * @param rowIndex index of the row for extraction
-     *
+     * @param rowIndex          index of the row for extraction
      * @return populated row instance with data from spreadsheet row.
      */
     public final T extract(SpreadsheetResult spreadsheetResult, int rowIndex) {
@@ -81,7 +81,7 @@ public abstract class RowExtractor<T extends CalculationStep> {
         for (SpreadsheetColumnExtractor<T> extractor : columnExtractors) {
             String columnName = extractor.getColumn().getColumnName();
             int columnIndex = SpreadsheetResultHelper.getColumnIndexByName(columnName,
-                spreadsheetResult.getColumnNames());
+                    spreadsheetResult.getColumnNames());
             Object columnValue = spreadsheetResult.getValue(rowIndex, columnIndex);
             Object v = extractor.convertAndStoreData(columnValue, rowInstance);
             if (convertationMetadata != null && v != null) {

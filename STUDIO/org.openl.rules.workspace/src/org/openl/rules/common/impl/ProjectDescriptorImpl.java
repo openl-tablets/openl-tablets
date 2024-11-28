@@ -11,10 +11,10 @@ public class ProjectDescriptorImpl implements ProjectDescriptor<CommonVersion> {
     private final CommonVersion projectVersion;
 
     public ProjectDescriptorImpl(String repositoryId,
-        String projectName,
-        String path,
-        String branch,
-        CommonVersion projectVersion) {
+                                 String projectName,
+                                 String path,
+                                 String branch,
+                                 CommonVersion projectVersion) {
         this.repositoryId = repositoryId;
         this.projectName = projectName;
         this.path = path;

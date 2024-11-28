@@ -9,12 +9,13 @@ import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 /**
  * Customizes {@link SystemEnvironmentPropertySource} by removing `$` sing from begging of property token and wraps it with `_`.
- * 
+ * <p>
  * Example:
  * foo.$bar -> foo._bar_
  * foo.$bar.gaz -> foo._bar_.gaz
- *
+ * <p>
  * Must be registered instead of default {@link SystemEnvironmentPropertySource}
+ *
  * @see org.springframework.core.env.StandardEnvironment
  */
 public class SysEnvRefPropertySource extends SystemEnvironmentPropertySource {

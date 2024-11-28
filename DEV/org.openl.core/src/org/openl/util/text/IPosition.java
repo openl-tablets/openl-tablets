@@ -8,12 +8,10 @@ package org.openl.util.text;
 
 /**
  * @author snshor
- *
  */
 public interface IPosition {
 
     /**
-     *
      * @param info text helper class
      * @return the absolute position (number of characters from the very beginning of text) starting from 0
      * @throws {@link UnsupportedOperationException} when subclass doesn`t support this operation
@@ -21,7 +19,6 @@ public interface IPosition {
     int getAbsolutePosition(TextInfo info);
 
     /**
-     *
      * @param info text helper class
      * @return the column with '\t' expanded according to the tabsize starting from 0
      */

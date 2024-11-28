@@ -16,6 +16,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -24,14 +27,13 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AProject extends AProjectFolder implements IProject {
     private static final Logger LOG = LoggerFactory.getLogger(AProject.class);
@@ -61,6 +63,11 @@ public class AProject extends AProjectFolder implements IProject {
         FileData fileData = super.getFileData();
         if (fileData == null) {
             Repository repository = getRepository();
+            // Unwrap delegate repository to get real repository, because delegate repository can be secured.
+            // Get file data can't be secured, because it's used in security check to build identity.
+            while (repository instanceof RepositoryDelegate) {
+                repository = ((RepositoryDelegate) repository).getOriginal();
+            }
             if (isRepositoryVersionable()) {
                 fileData = getFileDataForVersionableRepo(repository);
             } else {
@@ -73,7 +80,7 @@ public class AProject extends AProjectFolder implements IProject {
 
     private FileData getFileDataForVersionableRepo(Repository repository) {
         FileData fileData;// In the case of FolderRepository we can retrieve FileData using check()/checkHistory() for a
-                          // folder.
+        // folder.
         try {
             if (!isHistoric() || isLastVersion()) {
                 fileData = repository.check(getFolderPath());
@@ -409,7 +416,7 @@ public class AProject extends AProjectFolder implements IProject {
                         FileItem fileItem;
                         if (projectFrom.isHistoric()) {
                             fileItem = projectFrom.getRepository()
-                                .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
                         } else {
                             fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
                         }
@@ -453,15 +460,15 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     private FileData unpack(AProject projectFrom,
-            Repository repositoryTo,
-            String folderTo,
-            CommonUser user) throws ProjectException {
+                            Repository repositoryTo,
+                            String folderTo,
+                            CommonUser user) throws ProjectException {
         ZipInputStream stream = null;
         try {
             FileItem fileItem;
             if (projectFrom.isHistoric()) {
                 fileItem = projectFrom.getRepository()
-                    .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
+                        .readHistory(projectFrom.getFolderPath(), projectFrom.getFileData().getVersion());
             } else {
                 fileItem = projectFrom.getRepository().read(projectFrom.getFolderPath());
             }
@@ -472,7 +479,7 @@ public class AProject extends AProjectFolder implements IProject {
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserInfo());
             return repositoryTo
-                .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
+                    .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
@@ -481,7 +488,7 @@ public class AProject extends AProjectFolder implements IProject {
     }
 
     private void writeArtefact(ZipOutputStream zipOutputStream, AProjectArtefact artefact) throws IOException,
-                                                                                           ProjectException {
+            ProjectException {
         if (artefact instanceof AProjectResource) {
             AProjectResource resource = (AProjectResource) artefact;
             zipOutputStream.putNextEntry(new ZipEntry(resource.getInternalPath()));

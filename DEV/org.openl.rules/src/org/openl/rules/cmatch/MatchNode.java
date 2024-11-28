@@ -19,7 +19,9 @@ public class MatchNode {
 
     private int weight;
 
-    /** Actual values in a row */
+    /**
+     * Actual values in a row
+     */
     private Object[] checkValues;
 
     public MatchNode(int rowIndex) {

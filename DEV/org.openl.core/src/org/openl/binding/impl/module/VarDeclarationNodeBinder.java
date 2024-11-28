@@ -18,15 +18,14 @@ import org.openl.types.impl.DynamicObjectField;
 
 /**
  * @author snshor
- *
  */
 public class VarDeclarationNodeBinder extends ANodeBinder {
 
     private IBoundNode createVarDeclarationNode(ISyntaxNode node,
-            String name,
-            ISyntaxNode initializationNode,
-            IOpenClass varType,
-            IBindingContext bindingContext) throws Exception {
+                                                String name,
+                                                ISyntaxNode initializationNode,
+                                                IOpenClass varType,
+                                                IBindingContext bindingContext) throws Exception {
 
         IBoundNode init = null;
         IOpenCast cast = null;

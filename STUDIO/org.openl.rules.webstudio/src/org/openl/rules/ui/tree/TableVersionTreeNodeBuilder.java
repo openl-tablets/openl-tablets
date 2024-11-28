@@ -39,7 +39,7 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
         String sfx = " [" + version + "]";
 
-        return new String[] { name + sfx, display + sfx, display + sfx };
+        return new String[]{name + sfx, display + sfx, display + sfx};
     }
 
     @Override

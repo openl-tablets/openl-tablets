@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "OpenL Tablets WebStudio API",
+    "title": "OpenL Studio API",
     "version": "*"
   },
   "servers": [

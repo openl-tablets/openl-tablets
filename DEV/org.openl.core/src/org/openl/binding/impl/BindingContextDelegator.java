@@ -26,7 +26,6 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
  */
 public class BindingContextDelegator implements IBindingContextDelegator {
 
@@ -38,8 +37,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IOpenField findRange(String namespace,
-            String rangeStartName,
-            String rangeEndName) throws OpenLCompilationException {
+                                String rangeStartName,
+                                String rangeEndName) throws OpenLCompilationException {
         return delegate.findRange(namespace, rangeStartName, rangeEndName);
     }
 
@@ -70,8 +69,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+                                          String name,
+                                          IOpenClass[] parTypes) throws AmbiguousMethodException {
         return delegate.findMethodCaller(namespace, name, parTypes);
     }
 

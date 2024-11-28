@@ -1,8 +1,8 @@
 package org.openl.rules.rest.model;
 
-import io.swagger.v3.oas.annotations.Parameter;
-
 import javax.validation.constraints.NotNull;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Create branch model.

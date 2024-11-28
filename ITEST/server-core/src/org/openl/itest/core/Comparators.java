@@ -1,8 +1,8 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,10 +15,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -27,8 +29,6 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 final class Comparators {
 
@@ -45,7 +45,7 @@ final class Comparators {
 
     static void txt(String message, String expected, String actual) {
         if (actual == null) {
-            assertEquals(message, expected, actual);
+            assertEquals(expected, actual, message);
         }
         String regExp = getRegExp(expected);
         boolean matches = trimExtraSpaces(actual).matches(regExp);
@@ -57,14 +57,14 @@ final class Comparators {
     static void xml(String message, Object expected, Object actual) {
         DifferenceEvaluator evaluator = DifferenceEvaluators.chain(DifferenceEvaluators.Default, matchByPattern());
         Iterator<Difference> differences = DiffBuilder.compare(expected)
-            .withTest(actual)
-            .ignoreWhitespace()
-            .checkForSimilar()
-            .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
-            .withDifferenceEvaluator(evaluator)
-            .build()
-            .getDifferences()
-            .iterator();
+                .withTest(actual)
+                .ignoreWhitespace()
+                .checkForSimilar()
+                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAllAttributes, ElementSelectors.byName))
+                .withDifferenceEvaluator(evaluator)
+                .build()
+                .getDifferences()
+                .iterator();
         if (differences.hasNext()) {
             fail(message + "\n" + differences.next());
         }
@@ -99,11 +99,11 @@ final class Comparators {
 
     private static String getRegExp(String text) {
         return trimExtraSpaces(text).replaceAll("\\\\", "\\\\\\\\")
-            .replaceAll("#+", "\\\\d+")
-            .replaceAll("@+", "[@\\\\w]+")
-            .replaceAll("\\*+", "[^\uFFFF]*")
-            .replace("(", "\\(")
-            .replace(")", "\\)");
+                .replaceAll("#+", "\\\\d+")
+                .replaceAll("@+", "[@\\\\w]+")
+                .replaceAll("\\*+", "[^\uFFFF]*")
+                .replace("(", "\\(")
+                .replace(")", "\\)");
     }
 
     static void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
@@ -115,13 +115,17 @@ final class Comparators {
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
             String regExp = expectedJson.asText()
-                .replaceAll("\\[", "\\\\[")
-                .replaceAll("]", "\\\\]")
-                .replaceAll("#+", "[#\\\\d]+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*");
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("]", "\\\\]")
+                    .replaceAll("#+", "[#\\\\d]+")
+                    .replaceAll("@+", "[@\\\\w]+")
+                    .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
-            if (!Pattern.compile(regExp).matcher(actualText).matches()) {
+            try {
+                if (!Pattern.compile(regExp).matcher(actualText).matches()) {
+                    failDiff(expectedJson, actualJson, path);
+                }
+            } catch (PatternSyntaxException e) {
                 failDiff(expectedJson, actualJson, path);
             }
         } else if (expectedJson.isArray() && actualJson.isArray()) {
@@ -142,7 +146,7 @@ final class Comparators {
     }
 
     private static void failDiff(JsonNode expectedJson, JsonNode actualJson, String path) {
-        assertEquals("Path: \\" + path, expectedJson, actualJson);
+        assertEquals(expectedJson, actualJson, "Path: \\" + path);
     }
 
     static void zip(byte[] expectedBytes, byte[] actualBytes) throws IOException {
@@ -153,9 +157,9 @@ final class Comparators {
         while (actual.hasNext()) {
             final Map.Entry<String, byte[]> actualEntry = actual.next();
             if (expectedZipEntries.containsKey(actualEntry.getKey())) {
-                assertArrayEquals(String.format("Zip entry [%s]: ", actualEntry.getKey()),
-                    expectedZipEntries.remove(actualEntry.getKey()),
-                    actualEntry.getValue());
+                assertArrayEquals(expectedZipEntries.remove(actualEntry.getKey()),
+                        actualEntry.getValue(),
+                        String.format("Zip entry [%s]: ", actualEntry.getKey()));
                 actual.remove();
             }
         }
@@ -166,8 +170,8 @@ final class Comparators {
         if (!actualZipEntries.isEmpty()) {
             failed = true;
             errorMessage.append("UNEXPECTED entries:")
-                .append(CRLF)
-                .append(actualZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
+                    .append(CRLF)
+                    .append(actualZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
         }
         if (!expectedZipEntries.isEmpty()) {
             if (failed) {
@@ -176,8 +180,8 @@ final class Comparators {
                 failed = true;
             }
             errorMessage.append("MISSED entries:")
-                .append(CRLF)
-                .append(expectedZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
+                    .append(CRLF)
+                    .append(expectedZipEntries.keySet().stream().map(tab).collect(Collectors.joining(CRLF)));
         }
         if (failed) {
             fail(errorMessage.toString());

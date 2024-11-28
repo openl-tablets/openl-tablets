@@ -1,8 +1,9 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.openl.rules.util.Miscs.isEmpty;
 import static org.openl.rules.util.Miscs.isInfinite;
 import static org.openl.rules.util.Miscs.isNaN;
@@ -16,7 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MiscsTest {
     @Test
@@ -25,14 +26,14 @@ public class MiscsTest {
         assertTrue(isEmpty(new Object[0]));
         assertTrue(isEmpty(""));
         assertTrue(isEmpty(" \t\n"));
-        assertFalse(isEmpty(new Object[] { 0 }));
+        assertFalse(isEmpty(new Object[]{0}));
         assertFalse(isEmpty(0));
         assertFalse(isEmpty(0.0));
         assertFalse(isEmpty(Double.NaN));
         assertFalse(isEmpty("-"));
 
         assertTrue(isEmpty(new byte[0]));
-        assertFalse(isEmpty(new byte[] { 0 }));
+        assertFalse(isEmpty(new byte[]{0}));
         assertTrue(isEmpty(new ArrayList()));
         assertFalse(isEmpty(new ArrayList() {
             {
@@ -56,14 +57,14 @@ public class MiscsTest {
         assertFalse(isNotEmpty(new Object[0]));
         assertFalse(isNotEmpty(""));
         assertFalse(isNotEmpty(" \t\n"));
-        assertTrue(isNotEmpty(new Object[] { 0 }));
+        assertTrue(isNotEmpty(new Object[]{0}));
         assertTrue(isNotEmpty(0));
         assertTrue(isNotEmpty(0.0));
         assertTrue(isNotEmpty(Double.NaN));
         assertTrue(isNotEmpty("-"));
 
         assertFalse(isNotEmpty(new byte[0]));
-        assertTrue(isNotEmpty(new byte[] { 0 }));
+        assertTrue(isNotEmpty(new byte[]{0}));
         assertFalse(isNotEmpty(new ArrayList()));
         assertTrue(isNotEmpty(new ArrayList() {
             {

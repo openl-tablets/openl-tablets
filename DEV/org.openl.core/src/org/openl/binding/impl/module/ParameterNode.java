@@ -7,7 +7,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class ParameterNode extends ABoundNode {
 

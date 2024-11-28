@@ -5,12 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.openl.rules.spring.openapi.model.SecuritySchemePair;
-import org.openl.util.StringUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.stereotype.Component;
-
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.oas.annotations.security.OAuthScope;
 import io.swagger.v3.oas.models.security.OAuthFlow;
@@ -18,6 +12,12 @@ import io.swagger.v3.oas.models.security.OAuthFlows;
 import io.swagger.v3.oas.models.security.Scopes;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.stereotype.Component;
+
+import org.openl.rules.spring.openapi.model.SecuritySchemePair;
+import org.openl.util.StringUtils;
 
 /**
  * OpenAPI Security schema service
@@ -31,12 +31,12 @@ public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     public OpenApiSecurityServiceImpl(ApplicationContext context) {
         this.globalSecuritySchemes = context
-            .getBeansWithAnnotation(io.swagger.v3.oas.annotations.security.SecurityScheme.class)
-            .values()
-            .stream()
-            .map(Object::getClass)
-            .map(this::getSecurityScheme)
-            .collect(Collectors.toList());
+                .getBeansWithAnnotation(io.swagger.v3.oas.annotations.security.SecurityScheme.class)
+                .values()
+                .stream()
+                .map(Object::getClass)
+                .map(this::getSecurityScheme)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -150,16 +150,16 @@ public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     private static SecurityScheme.In getIn(String value) {
         return Arrays.stream(SecurityScheme.In.values())
-            .filter(i -> i.toString().equals(value))
-            .findFirst()
-            .orElse(null);
+                .filter(i -> i.toString().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 
     private static SecurityScheme.Type getType(String value) {
         return Arrays.stream(SecurityScheme.Type.values())
-            .filter(i -> i.toString().equals(value))
-            .findFirst()
-            .orElse(null);
+                .filter(i -> i.toString().equals(value))
+                .findFirst()
+                .orElse(null);
     }
 
     private static boolean isEmpty(io.swagger.v3.oas.annotations.security.OAuthFlows oAuthFlows) {

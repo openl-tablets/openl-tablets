@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -17,12 +20,11 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.workspace.WorkspaceUser;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RulesProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(RulesProject.class);
@@ -35,14 +37,14 @@ public class RulesProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
 
     public RulesProject(WorkspaceUser user,
-            LocalRepository localRepository,
-            FileData localFileData,
-            Repository designRepository,
-            FileData designFileData,
-            LockEngine lockEngine) {
+                        LocalRepository localRepository,
+                        FileData localFileData,
+                        Repository designRepository,
+                        FileData designFileData,
+                        LockEngine lockEngine) {
         super(user,
-            localFileData != null ? localRepository : designRepository,
-            localFileData != null ? localFileData : designFileData);
+                localFileData != null ? localRepository : designRepository,
+                localFileData != null ? localFileData : designFileData);
         this.localRepository = localRepository;
         this.localFolderName = localFileData == null ? null : localFileData.getName();
         this.designRepository = designRepository;
@@ -68,7 +70,7 @@ public class RulesProject extends UserWorkspaceProject {
                 setFileData(fullLocalFileData);
             } else {
                 if (localFileData.getAuthor() == null || localFileData.getAuthor().getName() == null || localFileData
-                    .getModifiedAt() == null) {
+                        .getModifiedAt() == null) {
                     // Lazy load properties
                     setFileData(null);
                 } else {
@@ -133,8 +135,8 @@ public class RulesProject extends UserWorkspaceProject {
             // local files.
             List<FileData> fileDatas = getHistoryFileDatas();
             boolean extraCommits = fileDatas.size() > 1 && !fileDatas.get(fileDatas.size() - 2)
-                .getVersion()
-                .equals(oldVersion) || additionalData instanceof ConflictResolveData;
+                    .getVersion()
+                    .equals(oldVersion) || additionalData instanceof ConflictResolveData;
             if (extraCommits) {
                 openVersion(version);
             } else {
@@ -191,7 +193,7 @@ public class RulesProject extends UserWorkspaceProject {
                     try {
                         if (localRepository.check(fileData.getName()) != null) {
                             String message = String.format("Cannot close project because resource '%s' is used",
-                                fileData.getName());
+                                    fileData.getName());
                             if (deleteCause == null) {
                                 throw new ProjectException(message);
                             } else {
@@ -374,6 +376,12 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     protected FileData getFileDataForUnversionableRepo(Repository repository) {
+        Repository designRepository = getDesignRepository();
+        // Unwrap delegate repository to get real repository, because delegate repository can be secured.
+        // Get file data can't be secured, because it's used in security check to build identity.
+        while (designRepository instanceof RepositoryDelegate) {
+            designRepository = ((RepositoryDelegate) designRepository).getOriginal();
+        }
         if (isLocalOnly()) {
             FileData fileData = super.getFileDataForUnversionableRepo(repository);
             if (designRepository != null && designRepository.supports().branches()) {
@@ -457,7 +465,7 @@ public class RulesProject extends UserWorkspaceProject {
                     String fromFilePath = designFolderName + "/";
                     String historyVersion = getHistoryVersion();
                     List<FileData> designFiles = historyVersion != null ? fromRepository.listFiles(fromFilePath,
-                        historyVersion) : fromRepository.list(fromFilePath);
+                            historyVersion) : fromRepository.list(fromFilePath);
 
                     for (FileData designData : designFiles) {
                         String designDataName = designData.getName();

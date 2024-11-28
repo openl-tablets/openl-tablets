@@ -34,7 +34,6 @@ import org.openl.vm.Tracer;
  * Class that decorates the <code>IOpenMehtod</code> interface for method overload support.
  *
  * @author Alexey Gamanovich
- *
  */
 public abstract class OpenMethodDispatcher implements IOpenMethod {
 
@@ -202,7 +201,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             sb.append(context.toString());
 
             String message = String
-                .format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s", getName(), sb);
+                    .format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s", getName(), sb);
 
             throw new OpenLRuntimeException(message);
         }
@@ -229,7 +228,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * In case we have several versions of one table we should add only the newest or active version of table.
      *
      * @param existedMethod The existing method.
-     * @param newMethod The methods that we are trying to add.
+     * @param newMethod     The methods that we are trying to add.
      */
     private IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod) {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
@@ -237,7 +236,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             return newMethod;
         } else if (compareResult == 0) {
             DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod,
-                existedMethod);
+                    existedMethod);
         }
         return existedMethod;
     }
@@ -246,7 +245,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         for (Map.Entry<Integer, DimensionPropertiesMethodKey> it : candidatesToDimensionKey.entrySet()) {
             DimensionPropertiesMethodKey existedMethodPropertiesKey = it.getValue();
             if (existedMethodPropertiesKey.hashCode() == newMethodPropertiesKey.hashCode() && newMethodPropertiesKey
-                .equals(existedMethodPropertiesKey)) {
+                    .equals(existedMethodPropertiesKey)) {
                 return it.getKey();
             }
         }
@@ -306,7 +305,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             }
         } else {
             throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
-                MethodUtil.printSignature(this, INamedThing.REGULAR)));
+                    MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
     }
 
@@ -315,7 +314,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             IOpenClass t = getDeclaringClass().getRulesModuleBindingContext()
-                .findClosestClass(signature1.getParameterType(i), signature2.getParameterType(i));
+                    .findClosestClass(signature1.getParameterType(i), signature2.getParameterType(i));
             parameterDeclarations[i] = new ParameterDeclaration(t, signature1.getParameterName(i));
         }
         return new MethodSignature(parameterDeclarations);
@@ -325,7 +324,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * Resolve best matching method to invoke.
      *
      * @param candidates list of candidates
-     * @param context runtime context
+     * @param context    runtime context
      * @return method to invoke
      */
     protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context);

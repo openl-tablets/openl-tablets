@@ -41,7 +41,7 @@ public abstract class BaseParser implements IOpenParser {
 
     protected IParsedCode getInvalidCode(String message, IOpenSourceCodeModule source) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
-        SyntaxNodeException[] errors = new SyntaxNodeException[] { error };
+        SyntaxNodeException[] errors = new SyntaxNodeException[]{error};
 
         return new ParsedCode(null, source, errors, null);
     }

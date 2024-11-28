@@ -14,9 +14,10 @@ package org.openl.ie.tools;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * A generic implementation for Reusable interface.
- *
+ * <p>
  * The classes that implement Reusable interface usually extends ReusableImpl.
  *
  * @see Reusable

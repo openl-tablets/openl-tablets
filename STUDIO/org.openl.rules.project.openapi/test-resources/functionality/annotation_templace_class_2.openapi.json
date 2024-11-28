@@ -885,6 +885,7 @@
       "post": {
         "description": "Rules method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.generated.beans.FinancialData currentFinancialData, org.openl.generated.beans.FinancialData previousFinancialData)",
         "operationId": "BalanceDynamicIndexCalculation",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -978,6 +979,7 @@
       "post": {
         "description": "Rules method: SpreadsheetResultBalanceQualityIndexCalculation BalanceQualityIndexCalculation(org.openl.generated.beans.FinancialData currentFinancialData)",
         "operationId": "BalanceQualityIndexCalculation",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1070,6 +1072,7 @@
       "post": {
         "description": "Rules method: java.lang.Double BankLimitIndex(org.openl.generated.beans.Bank bank, RatingGroup bankRatingGroup)",
         "operationId": "BankLimitIndex",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1163,6 +1166,7 @@
       "post": {
         "description": "Rules method: java.lang.Double BankQualitativeIndexCalculation(org.openl.generated.beans.Bank bank)",
         "operationId": "BankQualitativeIndexCalculation",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1256,6 +1260,7 @@
       "post": {
         "description": "Rules method: SpreadsheetResultBankRatingCalculation BankRatingCalculation(org.openl.generated.beans.Bank bank)",
         "operationId": "BankRatingCalculation",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1348,6 +1353,7 @@
       "post": {
         "description": "Rules method: RatingGroup BankRatingGroup(java.lang.Double bankRating)",
         "operationId": "BankRatingGroup",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1440,6 +1446,7 @@
       "post": {
         "description": "Rules method: java.lang.Double CapitalAdequacyScore(java.lang.Double capitalAdequacy)",
         "operationId": "CapitalAdequacyScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1533,6 +1540,7 @@
       "post": {
         "description": "Rules method: java.lang.Double CapitalDynamicScore(java.lang.Double capitalDynamic)",
         "operationId": "CapitalDynamicScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1626,6 +1634,7 @@
       "post": {
         "description": "Rules method: java.lang.Double ClaimsOnCustomerRatioScore(java.lang.Double claimsOnCustomerRatio)",
         "operationId": "ClaimsOnCustomerRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1719,6 +1728,7 @@
       "post": {
         "description": "Rules method: java.lang.Double CreditPortfolioQualityScore(java.lang.Double creditPortfolioQuality)",
         "operationId": "CreditPortfolioQualityScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1812,6 +1822,7 @@
       "post": {
         "description": "Rules method: java.lang.Double DowngradesOfBankRatingScore(boolean downgradesOfBankRating)",
         "operationId": "DowngradesOfBankRatingScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1905,6 +1916,7 @@
       "post": {
         "description": "Rules method: java.lang.Double EquityScore(CountryCode countryCode, java.lang.Double equity)",
         "operationId": "EquityScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -1998,6 +2010,7 @@
       "post": {
         "description": "Rules method: java.lang.Double HighLiquidityRatioScore(java.lang.Double highLiquidityRatio)",
         "operationId": "HighLiquidityRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2091,6 +2104,7 @@
       "post": {
         "description": "Rules method: java.lang.Double IsAdequateCoreCapitalRatioScore(java.lang.Boolean isAdequateCoreCapitalRatio)",
         "operationId": "IsAdequateCoreCapitalRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2184,6 +2198,7 @@
       "post": {
         "description": "Rules method: java.lang.Double IsAdequateLiquidityRatioScore(java.lang.Boolean isAdequateLiquidityRatio)",
         "operationId": "IsAdequateLiquidityRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2277,6 +2292,7 @@
       "post": {
         "description": "Rules method: java.lang.Double IsAdequateMaxCreditRiskScore(CountryCode countryCode, java.lang.Boolean isAdequateMaxCreditRisk)",
         "operationId": "IsAdequateMaxCreditRiskScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2370,6 +2386,7 @@
       "post": {
         "description": "Rules method: java.lang.Double IsAdequateNormativeIndexCalculation(org.openl.generated.beans.Bank bank)",
         "operationId": "IsAdequateNormativeIndexCalculation",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2463,6 +2480,7 @@
       "post": {
         "description": "Rules method: java.lang.Double LiabilitiesToCustomersDynamicScore(java.lang.Double LiabToCustDynamic)",
         "operationId": "LiabilitiesToCustomersDynamicScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2556,6 +2574,7 @@
       "post": {
         "description": "Rules method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(java.lang.Double liabilitiesToCustOnDemand)",
         "operationId": "LiabilitiesToCustomersOnDemandRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2649,6 +2668,7 @@
       "post": {
         "description": "Rules method: java.lang.Double LiquidityDynamicScore(java.lang.Double liquidityDynamic)",
         "operationId": "LiquidityDynamicScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2742,6 +2762,7 @@
       "post": {
         "description": "Rules method: java.lang.Double LiquidityRatioScore(java.lang.Double liquidityRatio)",
         "operationId": "LiquidityRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2835,6 +2856,7 @@
       "post": {
         "description": "Rules method: java.lang.Double LossesInThisYearScore(java.lang.Boolean lossesInThisYear)",
         "operationId": "LossesInThisYearScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2928,6 +2950,7 @@
       "post": {
         "description": "Rules method: java.lang.Double MaxLimit()",
         "operationId": "MaxLimit",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3021,6 +3044,7 @@
       "post": {
         "description": "Rules method: java.lang.Double NegativeHistoryRelationsScore(java.lang.Boolean negativeHistoryRelations)",
         "operationId": "NegativeHistoryRelationsScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3114,6 +3138,7 @@
       "post": {
         "description": "Rules method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(java.lang.Boolean negativeManagInfo)",
         "operationId": "NegativeInfoShareHoldersOrManagementScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3207,6 +3232,7 @@
       "post": {
         "description": "Rules method: java.lang.Double NegativeMassMediaScore(java.lang.Boolean negativeMassMedia)",
         "operationId": "NegativeMassMediaScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3300,6 +3326,7 @@
       "post": {
         "description": "Rules method: java.lang.Double NetMoneyMarketLiabilitiesScore(java.lang.Double netMoneyMarketLiabilities)",
         "operationId": "NetMoneyMarketLiabilitiesScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3393,6 +3420,7 @@
       "post": {
         "description": "Rules method: java.lang.Double OtherAssetsRatioScore(java.lang.Double otherAssetsRatio)",
         "operationId": "OtherAssetsRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3486,6 +3514,7 @@
       "post": {
         "description": "Rules method: java.lang.Double ProfitDynamicScore(java.lang.Double profitDynamic, java.lang.Double profit)",
         "operationId": "ProfitDynamicScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3579,6 +3608,7 @@
       "post": {
         "description": "Rules method: java.lang.Double QuickRatioScore(java.lang.Double quickRatio)",
         "operationId": "QuickRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3672,6 +3702,7 @@
       "post": {
         "description": "Rules method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(java.lang.Double securedClaimsRatio)",
         "operationId": "SecuredByPropertyChargesClaimsRatioScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3765,6 +3796,7 @@
       "post": {
         "description": "Rules method: void SetNonZeroValues(org.openl.generated.beans.FinancialData financialData)",
         "operationId": "SetNonZeroValues",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3847,6 +3879,7 @@
       "post": {
         "description": "Rules method: java.lang.Double TotalBalanceScore(java.lang.Double totalBalance, CountryCode countryCode)",
         "operationId": "TotalBalanceScore",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -3940,6 +3973,7 @@
       "post": {
         "description": "Method: org.openl.generated.beans.Bank[] getBankData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getBankData",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4035,6 +4069,7 @@
       "post": {
         "description": "Method: org.openl.generated.beans.FinancialData[] getBankFinancialData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getBankFinancialData",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4130,6 +4165,7 @@
       "post": {
         "description": "Method: org.openl.generated.beans.Rating[] getBankRatingList(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getBankRatingList",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {
@@ -4225,6 +4261,7 @@
       "post": {
         "description": "Method: org.openl.generated.beans.QualityIndicators[] getQualityIndicatorsData(org.openl.rules.context.IRulesRuntimeContext)",
         "operationId": "getQualityIndicatorsData",
+        "parameters": [{"example":"en-GB","in":"header","name":"Accept-Language","schema":{"type":"string"}}],
         "requestBody": {
           "content": {
             "application/json": {

@@ -4,9 +4,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -14,8 +16,6 @@ import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 /**
  * Implementation of project service for repository projects.
@@ -29,8 +29,8 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
     private final DesignTimeRepository designTimeRepository;
 
     public RepositoryProjectService(DesignTimeRepository designTimeRepository,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            OpenLProjectService projectService) {
+                                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                    OpenLProjectService projectService) {
         super(designRepositoryAclService, projectService);
         this.designTimeRepository = designTimeRepository;
     }
@@ -65,7 +65,7 @@ public class RepositoryProjectService extends AbstractProjectService<AProject> {
                 filter = filter.and(project -> !project.isDeleted() && !project.isLastVersion());
             } else if (status == ProjectStatus.CLOSED) {
                 filter = filter
-                    .and(project -> !project.isDeleted() && project.isLastVersion() && !project.isModified());
+                        .and(project -> !project.isDeleted() && project.isLastVersion() && !project.isModified());
             }
         } else {
             // doesn't show deleted to keep backward compatibility

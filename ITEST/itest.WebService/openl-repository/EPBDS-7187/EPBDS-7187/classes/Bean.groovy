@@ -2,7 +2,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlType(namespace = "xxx.yyy", name="Bean")
+@XmlType(namespace = "xxx.yyy", name = "Bean")
 @XmlRootElement(namespace = "xxx.yyy")
 public class Bean {
     private int I;

@@ -3,8 +3,8 @@ package org.openl.rules.rest.common.model;
 import io.swagger.v3.oas.annotations.Parameter;
 
 /**
- * Base Error model for handling Exceptions in WebStudio REST API
- * 
+ * Base Error model for handling Exceptions in OpenL Studio REST API
+ *
  * @author Vladyslav Pikus
  * @see org.openl.rules.rest.common.ApiExceptionControllerAdvice
  */

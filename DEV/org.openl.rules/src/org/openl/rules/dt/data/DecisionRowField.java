@@ -16,9 +16,9 @@ public class DecisionRowField implements IOpenField {
     private final ConditionOrActionDataType dataType;
 
     DecisionRowField(DecisionTable decisionTable,
-            IDecisionRow condOrAction,
-            ConditionOrActionDataType dataType,
-            DecisionTableDataType decisionTableDataType) {
+                     IDecisionRow condOrAction,
+                     ConditionOrActionDataType dataType,
+                     DecisionTableDataType decisionTableDataType) {
         this.numberOfTableParameters = decisionTable.getSignature().getNumberOfParameters();
         this.conditionOrAction = condOrAction;
         this.dataType = dataType;

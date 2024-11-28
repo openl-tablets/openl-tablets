@@ -4,9 +4,9 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
@@ -20,14 +20,14 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassWriter;
-import org.openl.util.ClassUtils;
+
+import org.openl.classloader.ClassLoaderUtils;
 
 public class InterfaceTransformerTest {
     private Class<?> getGeneratedClass() throws Exception {
@@ -42,9 +42,7 @@ public class InterfaceTransformerTest {
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         }
     }
 
@@ -61,9 +59,7 @@ public class InterfaceTransformerTest {
             transformer.accept(classWriter);
             classWriter.visitEnd();
 
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         }
     }
 
@@ -116,11 +112,11 @@ public class InterfaceTransformerTest {
             assertNotNull(annotationGenerated);
             Set<String> keys = new HashSet<>();
             keys.addAll(Arrays.stream(annotation.annotationType().getDeclaredMethods())
-                .map(Method::getName)
-                .collect(Collectors.toSet()));
+                    .map(Method::getName)
+                    .collect(Collectors.toSet()));
             keys.addAll(Arrays.stream(annotationGenerated.annotationType().getDeclaredMethods())
-                .map(Method::getName)
-                .collect(Collectors.toSet()));
+                    .map(Method::getName)
+                    .collect(Collectors.toSet()));
             for (String key : keys) {
                 Object valueOriginal;
                 try {
@@ -143,7 +139,7 @@ public class InterfaceTransformerTest {
         }
     }
 
-    @XmlType(name = "TestInterface", propOrder = { "const2", "const1" })
+    @XmlType(name = "TestInterface", propOrder = {"const2", "const1"})
     public interface TestInterface {
         @XmlAttribute(name = "int_const")
         int const1 = 0;
@@ -178,7 +174,7 @@ public class InterfaceTransformerTest {
         }
     }
 
-    @Target({ PARAMETER, METHOD, FIELD, ANNOTATION_TYPE })
+    @Target({PARAMETER, METHOD, FIELD, ANNOTATION_TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     public @interface TestAnnotation {

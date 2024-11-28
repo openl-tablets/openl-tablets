@@ -2,7 +2,6 @@ package org.openl.rules.table.ui.filters;
 
 /**
  * @author snshor
- *
  */
 public class GreyColorFilter implements IColorFilter {
 
@@ -23,7 +22,7 @@ public class GreyColorFilter implements IColorFilter {
 
         avg = (int) (avg * brightness);
 
-        return new short[] { (short) avg, (short) avg, (short) avg };
+        return new short[]{(short) avg, (short) avg, (short) avg};
     }
 
 }

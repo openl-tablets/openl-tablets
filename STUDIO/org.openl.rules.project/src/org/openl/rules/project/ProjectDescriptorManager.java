@@ -20,9 +20,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.xml.bind.JAXBException;
 
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -34,18 +37,12 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.OS;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
-
-import com.rits.cloning.Cloner;
 
 public class ProjectDescriptorManager {
 
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private final ProjectDescriptorValidator validator = new ProjectDescriptorValidator();
     private PathMatcher pathMatcher = new AntPathMatcher();
-
-    private final Cloner cloner = new SafeCloner();
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;
@@ -63,14 +60,14 @@ public class ProjectDescriptorManager {
         this.serializer = serializer;
     }
 
-    private ProjectDescriptor readDescriptorInternal(InputStream source) throws JAXBException {
+    public ProjectDescriptor readDescriptor(InputStream source) throws JAXBException {
         return serializer.deserialize(source);
     }
 
     public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (InputStream inputStream = Files.newInputStream(file)) {
-            descriptor = readDescriptorInternal(inputStream);
+            descriptor = readDescriptor(inputStream);
         }
 
         postProcess(descriptor, file);
@@ -88,7 +85,7 @@ public class ProjectDescriptorManager {
             File filename) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (FileInputStream inputStream = new FileInputStream(filename)) {
-            descriptor = readDescriptorInternal(inputStream);
+            descriptor = readDescriptor(inputStream);
         }
 
         validator.validate(descriptor);
@@ -97,9 +94,9 @@ public class ProjectDescriptorManager {
     }
 
     public void writeDescriptor(ProjectDescriptor descriptor,
-            OutputStream dest) throws IOException, ValidationException, JAXBException {
+                                OutputStream dest) throws IOException, ValidationException, JAXBException {
         validator.validate(descriptor);
-        descriptor = cloner.deepClone(descriptor); // prevent changes argument
+        descriptor = Cloner.clone(descriptor); // prevent changes argument
         // object
         preProcess(descriptor);
         String serializedObject = serializer.serialize(descriptor);
@@ -129,8 +126,8 @@ public class ProjectDescriptorManager {
     }
 
     public List<Module> getAllModulesMatchingPathPattern(ProjectDescriptor descriptor,
-            Module module,
-            String pathPattern) throws IOException {
+                                                         Module module,
+                                                         String pathPattern) throws IOException {
         List<Module> modules = new ArrayList<>();
 
         String ptrn = pathPattern.trim();
@@ -150,7 +147,7 @@ public class ProjectDescriptorManager {
                     if (module.getWebstudioConfiguration() != null) {
                         WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
                         webstudioConfiguration
-                            .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+                                .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
                         m.setWebstudioConfiguration(webstudioConfiguration);
                     }
                     m.setWildcardRulesRootPath(pathPattern);
@@ -207,8 +204,8 @@ public class ProjectDescriptorManager {
             if (isModuleWithWildcard(module)) {
                 List<Module> newModules = new ArrayList<>();
                 List<Module> modules = getAllModulesMatchingPathPattern(descriptor,
-                    module,
-                    module.getRulesRootPath().getPath());
+                        module,
+                        module.getRulesRootPath().getPath());
                 for (Module m : modules) {
                     if (!containsInProcessedModules(processedModules, m, projectRoot)) {
                         newModules.add(m);
@@ -264,7 +261,7 @@ public class ProjectDescriptorManager {
         while (itr.hasNext()) {
             Module module = itr.next();
             if (module.getWildcardRulesRootPath() == null || !wildcardPathSet
-                .contains(module.getWildcardRulesRootPath())) {
+                    .contains(module.getWildcardRulesRootPath())) {
                 module.setProject(null);
                 module.setProperties(null);
                 if (module.getWildcardRulesRootPath() != null) {
@@ -279,14 +276,14 @@ public class ProjectDescriptorManager {
                 if (module.getMethodFilter() != null) {
                     boolean f = true;
                     if (module.getMethodFilter().getExcludes() != null && module.getMethodFilter()
-                        .getExcludes()
-                        .isEmpty()) {
+                            .getExcludes()
+                            .isEmpty()) {
                         module.getMethodFilter().setExcludes(null);
                         f = false;
                     }
                     if (module.getMethodFilter().getIncludes() != null && module.getMethodFilter()
-                        .getIncludes()
-                        .isEmpty()) {
+                            .getIncludes()
+                            .isEmpty()) {
                         if (f) {
                             module.getMethodFilter().setExcludes(null);
                         } else {

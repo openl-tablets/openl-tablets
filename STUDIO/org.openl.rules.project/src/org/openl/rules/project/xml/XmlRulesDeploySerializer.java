@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.model.RulesDeploy;
-
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.openl.rules.project.IRulesDeploySerializer;
+import org.openl.rules.project.model.RulesDeploy;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
@@ -61,16 +60,17 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         }
     }
 
-    public static final class MapAdapter extends XmlAdapter<MapAdapter.MapType,Map<String, Object>> {
+    public static final class MapAdapter extends XmlAdapter<MapAdapter.MapType, Map<String, Object>> {
 
-        public MapAdapter() {}
+        public MapAdapter() {
+        }
 
         @Override
         public MapType marshal(Map<String, Object> arg0) {
             if (arg0 == null) return null;
             List<MapStringEntryType> mapStringEntryTypes = new ArrayList<>();
             MapType mapType = new MapType();
-            for(Map.Entry<String, Object> entry : arg0.entrySet()) {
+            for (Map.Entry<String, Object> entry : arg0.entrySet()) {
                 if (!(entry.getValue() instanceof String)) {
                     throw new IllegalArgumentException("Expected string value in the Rules Deploy configuration");
                 }
@@ -85,7 +85,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
         @Override
         public Map<String, Object> unmarshal(MapType arg0) {
             HashMap<String, Object> hashMap = new HashMap<>();
-            for(MapStringEntryType myEntryType : arg0.entry) {
+            for (MapStringEntryType myEntryType : arg0.entry) {
                 hashMap.put(myEntryType.getString()[0], myEntryType.getString()[1]);
             }
             return hashMap;

@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.event;
 
-import javax.faces.context.FacesContext;
 import java.util.Map;
+import javax.faces.context.FacesContext;
 
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -65,12 +65,12 @@ public class BaseTableEditorController {
             mode = Constants.MODE_EDIT;
         }
         return TableModel.initializeTableModel(table,
-            null,
-            numRows,
-            editor.getLinkBuilder(),
-            mode,
-            editor.getView(),
-            editorModel.getMetaInfoReader(), false, null);
+                null,
+                numRows,
+                editor.getLinkBuilder(),
+                mode,
+                editor.getView(),
+                editorModel.getMetaInfoReader(), false, null);
     }
 
     protected String render(String editorId) {

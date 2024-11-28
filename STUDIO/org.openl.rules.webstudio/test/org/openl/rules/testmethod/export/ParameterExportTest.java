@@ -1,56 +1,37 @@
 package org.openl.rules.testmethod.export;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.data.PrimaryKeyField;
-import org.openl.rules.testmethod.ParameterWithValueDeclaration;
-import org.openl.rules.testmethod.TestDescription;
-import org.openl.rules.testmethod.TestSuite;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
 
-public class ParameterExportTest {
+public class ParameterExportTest extends AbstractParameterExportTest {
+
     private ParameterExport export;
-    private SXSSFWorkbook workbook;
-    private SXSSFSheet sheet;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         workbook = new SXSSFWorkbook();
         sheet = workbook.createSheet("Type 1");
         export = new ParameterExport(new Styles(workbook));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         workbook.dispose();
     }
@@ -123,16 +104,6 @@ public class ParameterExportTest {
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
     }
 
-    public static class ComplexObj {
-        public List<Object> paramList;
-        public Map<String, Integer> mapValues;
-
-        public ComplexObj(List<Object> paramList, Map<String, Integer> mapValues) {
-            this.paramList = paramList;
-            this.mapValues = mapValues;
-        }
-    }
-
     @Test
     public void complexObjectWithListAndMap() throws IOException {
         List<Object> paramList = Arrays.asList(12, 23.0);
@@ -152,10 +123,10 @@ public class ParameterExportTest {
 
     @Test
     public void arrayOfObjects() throws IOException {
-        List<TestUnitsResults> result = mockResults(params((Object) new A[] { new A("name1"), new A("name2") }),
-            params((Object) null),
-            params((Object) new A[] { new A("name3") }),
-            params());
+        List<TestUnitsResults> result = mockResults(params((Object) new A[]{new A("name1"), new A("name2")}),
+                params((Object) null),
+                params((Object) new A[]{new A("name3")}),
+                params());
         export.write(sheet, result, true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
@@ -202,13 +173,13 @@ public class ParameterExportTest {
 
         XSSFRow row = sheetToCheck.getRow(rowNum);
         assertRowEquals(row,
-            "ID",
-            "p1.id",
-            "p1.aValues.name",
-            "p1.aValues.values",
-            "p1.childBValues.id",
-            "p1.childBValues.aValues.name",
-            "p1.childBValues.aValues.values");
+                "ID",
+                "p1.id",
+                "p1.aValues.name",
+                "p1.aValues.values",
+                "p1.childBValues.id",
+                "p1.childBValues.aValues.name",
+                "p1.childBValues.aValues.values");
 
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#1", "id1", "name1", "1", "id11", "n1", "111,2,3");
@@ -238,9 +209,9 @@ public class ParameterExportTest {
     @Test
     public void twoParameters() throws IOException {
         export.write(sheet,
-            mockResults(params(new Class[] { A.class, String.class }, null, "str1"),
-                params(new A("name2", 5, 6), "str2")),
-            true);
+                mockResults(params(new Class[]{A.class, String.class}, null, "str1"),
+                        params(new A("name2", 5, 6), "str2")),
+                true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -258,11 +229,11 @@ public class ParameterExportTest {
     @Test
     public void twoParametersWithArray() throws IOException {
         export.write(sheet,
-            mockResults(params(new Class[] { A[].class, String.class }, null, "str1"),
-                params(new A[] {}, "str2"),
-                params(new A[] { new A("name3", 5, 6) }, "str3"),
-                params(new A[] { new A("name4.1"), new A("name4.2", 7) }, "str4")),
-            true);
+                mockResults(params(new Class[]{A[].class, String.class}, null, "str1"),
+                        params(new A[]{}, "str2"),
+                        params(new A[]{new A("name3", 5, 6)}, "str3"),
+                        params(new A[]{new A("name4.1"), new A("name4.2", 7)}, "str4")),
+                true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -293,9 +264,9 @@ public class ParameterExportTest {
     @Test
     public void twoTestsInSheet() throws IOException {
         export.write(sheet,
-            Arrays.asList(mockResult("FirstTest", params(new A("name1"), "str1"), params(new A("name2"), "str2")),
-                mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),
-            true);
+                Arrays.asList(mockResult("FirstTest", params(new A("name1"), "str1"), params(new A("name2"), "str2")),
+                        mockResult("SecondTest", params(1, "str1", 3.5), params(2, "str2", 4.5))),
+                true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         // First test
@@ -332,9 +303,9 @@ public class ParameterExportTest {
     @Test
     public void paramsWithPK() throws IOException {
         export.write(sheet,
-            mockResults(params(new String[] { "n1", null }, new A("name1"), "str1"),
-                params(new String[] { "n2", null }, new A("name2", 5, 6), "str2")),
-            true);
+                mockResults(params(new String[]{"n1", null}, new A("name1"), "str1"),
+                        params(new String[]{"n2", null}, new A("name2", 5, 6), "str2")),
+                true);
 
         XSSFSheet sheetToCheck = saveAndReadSheet();
         int rowNum = BaseExport.FIRST_ROW + 2;
@@ -347,101 +318,6 @@ public class ParameterExportTest {
 
         row = sheetToCheck.getRow(++rowNum);
         assertRowEquals(row, "#2", "n2", "name2", "5,6", "str2");
-    }
-
-    private void assertRowEquals(Row row, String... values) {
-        assertNotNull("Row is absent. Expected values: " + Arrays.toString(values), row);
-
-        int colNum = BaseExport.FIRST_COLUMN;
-        for (String value : values) {
-            Cell cell = row.getCell(colNum);
-            assertNotNull("Column " + colNum + " is absent", cell);
-            assertEquals("Incorrect column " + colNum, value, cell.getStringCellValue());
-            colNum++;
-        }
-
-        short lastCellNum = row.getLastCellNum();
-        int total = lastCellNum - BaseExport.FIRST_COLUMN;
-        if (values.length < total) {
-            StringBuilder sb = new StringBuilder("Missed values: ");
-            int count = 0;
-            while (colNum < lastCellNum) {
-                if (count > 0) {
-                    sb.append(',');
-                }
-                sb.append(row.getCell(colNum++).getStringCellValue());
-                count++;
-            }
-
-            fail(sb.toString());
-        }
-    }
-
-    private ParameterWithValueDeclaration[] params(Object... values) {
-        return params(null, null, values);
-    }
-
-    private ParameterWithValueDeclaration[] params(Class[] types, Object... values) {
-        return params(null, types, values);
-    }
-
-    private ParameterWithValueDeclaration[] params(String[] pkValues, Object... values) {
-        return params(pkValues, null, values);
-    }
-
-    private ParameterWithValueDeclaration[] params(String[] pkValues, Class[] types, Object... values) {
-        ParameterWithValueDeclaration[] params = new ParameterWithValueDeclaration[values.length];
-        for (int i = 0; i < values.length; i++) {
-
-            IOpenClass type;
-            if (types == null) {
-                type = ParameterWithValueDeclaration.getParamType(values[i]);
-            } else {
-                type = JavaOpenClass.getOpenClass(types[i]);
-            }
-
-            PrimaryKeyField field = mockKeyField(pkValues, i);
-            params[i] = new ParameterWithValueDeclaration("p" + (i + 1), values[i], type, field);
-        }
-        return params;
-    }
-
-    private PrimaryKeyField mockKeyField(String[] pkValues, int i) {
-        if (pkValues != null && pkValues[i] != null) {
-            PrimaryKeyField field = mock(PrimaryKeyField.class);
-            when(field.get(any(), any())).thenReturn(pkValues[i]);
-            return field;
-        }
-
-        return null;
-    }
-
-    private XSSFSheet saveAndReadSheet() throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        workbook.write(stream);
-        workbook.close();
-        return new XSSFWorkbook(new ByteArrayInputStream(stream.toByteArray())).getSheetAt(0);
-    }
-
-    private List<TestUnitsResults> mockResults(ParameterWithValueDeclaration[]... paramsForEachCase) {
-        return Collections.singletonList(mockResult("TestRule", paramsForEachCase));
-    }
-
-    private TestUnitsResults mockResult(String testMethodName, ParameterWithValueDeclaration[]... paramsForEachCase) {
-        IOpenMethod testedMethod = mock(IOpenMethod.class);
-        when(testedMethod.getName()).thenReturn(testMethodName);
-
-        List<TestDescription> results = new ArrayList<>();
-        for (int i = 0; i < paramsForEachCase.length; i++) {
-            TestDescription testDescription = mock(TestDescription.class);
-            when(testDescription.getId()).thenReturn("#" + (i + 1));
-            when(testDescription.getExecutionParams()).thenReturn(paramsForEachCase[i]);
-            when(testDescription.getTestedMethod()).thenReturn(testedMethod);
-            results.add(testDescription);
-        }
-
-        TestSuite testSuite = new TestSuite(results.toArray(new TestDescription[0]));
-        return new TestUnitsResults(testSuite);
     }
 
 }

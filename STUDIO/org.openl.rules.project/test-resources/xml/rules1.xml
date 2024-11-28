@@ -1,13 +1,13 @@
 <project>
-	<id>test</id>
-	<name>test ?</name>
-	<modules>
-		<module>
-			<name>testmodule</name>
-			<rules-root
-				path="dependencies/test3/module/dependency-module?/dependency?.xls" />
-		</module>
-	</modules>
+    <id>test</id>
+    <name>test ?</name>
+    <modules>
+        <module>
+            <name>testmodule</name>
+            <rules-root
+                    path="dependencies/test3/module/dependency-module?/dependency?.xls"/>
+        </module>
+    </modules>
 
     <properties-file-name-pattern>properties-file-name-pattern</properties-file-name-pattern>
     <properties-file-name-processor>properties-file-name-processor</properties-file-name-processor>

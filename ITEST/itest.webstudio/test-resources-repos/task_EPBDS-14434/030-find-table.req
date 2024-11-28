@@ -1,0 +1,3 @@
+GET /rest/projects/ZGVzaWduOkVQQkRTLTE0NDM0/tables?name=FicaTaxRates HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

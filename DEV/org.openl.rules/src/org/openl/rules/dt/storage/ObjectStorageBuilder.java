@@ -86,22 +86,22 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
         int mapMaxValue = uniqueValues.length - 1;
 
         if (mapMaxValue <= Byte.MAX_VALUE) {
-            return new ByteMappedStorage(map, uniqueValues, info);
+            return new ByteMappedStorage(map, uniqueValues, storage, info);
         }
 
         if (mapMaxValue <= Byte.MAX_VALUE - Byte.MIN_VALUE) {
-            return new ByteExtMappedStorage(map, uniqueValues, info);
+            return new ByteExtMappedStorage(map, uniqueValues, storage, info);
         }
 
         if (mapMaxValue <= Short.MAX_VALUE) {
-            return new ShortMappedStorage(map, uniqueValues, info);
+            return new ShortMappedStorage(map, uniqueValues, storage, info);
         }
 
         if (mapMaxValue <= Short.MAX_VALUE - Short.MIN_VALUE) {
-            return new ShortExtMappedStorage(map, uniqueValues, info);
+            return new ShortExtMappedStorage(map, uniqueValues, storage, info);
         }
 
-        return new IntMappedStorage(map, uniqueValues, info);
+        return new IntMappedStorage(map, uniqueValues, storage, info);
     }
 
     private boolean shouldUseMappedStorage() {

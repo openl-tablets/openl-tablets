@@ -86,7 +86,7 @@ public final class ErrorsContainer {
         permanentErrors.clear();
         requestErrors.clear();
     }
-    
+
     private boolean canAdd() {
         return requestErrors.size() + permanentErrors.size() < errorsLimit;
     }

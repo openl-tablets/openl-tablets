@@ -147,7 +147,7 @@ public final class GenRulesCode {
     private void generateMatchingOpenMethodDispatcherCode() throws IOException {
         Map<String, Object> variables = new HashMap<>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-            .getDimensionalPropertiesWithContextVar();
+                .getDimensionalPropertiesWithContextVar();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(MatchingOpenMethodDispatcher.class);
@@ -158,7 +158,7 @@ public final class GenRulesCode {
     private void generateDefaultPropertiesContextMatcherCode() throws IOException {
         Map<String, Object> variables = new HashMap<>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-            .getDimensionalPropertiesWithMatchExpression();
+                .getDimensionalPropertiesWithMatchExpression();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
 
@@ -170,7 +170,7 @@ public final class GenRulesCode {
     private void generateDefaultPropertiesIntersectionFinderCode() throws IOException {
         Map<String, Object> variables = new HashMap<>();
         List<TablePropertyDefinitionWrapper> dimensionalTablePropertyDefinitions = tablePropertyDefinitionWrappers
-            .getGapOverlapDimensionalProperties();
+                .getGapOverlapDimensionalProperties();
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
         String sourceFilePath = getClassSourcePathInRulesModule(DefaultPropertiesIntersectionFinder.class);
@@ -190,7 +190,7 @@ public final class GenRulesCode {
     private void loadDefinitions() {
 
         RulesEngineFactory<ITablePropertyDefinitionLoader> engineFactory = new RulesEngineFactory<>(DEFINITIONS_XLS,
-            ITablePropertyDefinitionLoader.class);
+                ITablePropertyDefinitionLoader.class);
 
         ITablePropertyDefinitionLoader loader = engineFactory.newEngineInstance();
 

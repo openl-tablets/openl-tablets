@@ -1,6 +1,13 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constraint;
+import org.openl.ie.constrainer.ConstraintImpl;
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Goal;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 
 ///////////////////////////////////////////////////////////////////////////////
 /*
@@ -16,6 +23,7 @@ import org.openl.ie.constrainer.*;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An implementation of the constraint: <code>IntExp == value</code>.
  */
@@ -60,7 +68,7 @@ public final class ConstraintExpEqualsValue extends ConstraintImpl {
                 // "+interest);Debug.off();
                 IntEvent event = (IntEvent) interest;
                 if (event.isValueEvent() && event.min() != _value || event.isMaxEvent() && event.max() < _value || event
-                    .isMinEvent() && event.min() > _value) {
+                        .isMinEvent() && event.min() > _value) {
                     exp.constrainer().fail("from ObserverEqualValue");
                 }
                 _exp.setValue(_value);

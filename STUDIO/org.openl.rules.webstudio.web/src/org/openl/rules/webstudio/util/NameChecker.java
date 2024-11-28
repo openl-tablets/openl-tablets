@@ -15,38 +15,38 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  * @author Aleh Bykhavets
  */
 public final class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']', '|', '\"' };
+    private static final char[] FORBIDDEN_CHARS = {'\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']', '|', '\"'};
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name cannot contain forbidden characters (" + NameChecker
-        .getForbiddenCharacters() + "), start with space, end with space or dot.";
+            .getForbiddenCharacters() + "), start with space, end with space or dot.";
     public static final String FOLDER_EXISTS = "Cannot create folder because folder with such name already exists.";
     public static final String FOLDER_NAME_EMPTY = "Folder name must not be empty.";
     public static final String BAD_PROJECT_NAME_MSG = "Project name cannot contain forbidden characters (" + NameChecker
-        .getForbiddenCharacters() + "), special characters, start with space, end with space or dot.";
+            .getForbiddenCharacters() + "), special characters, start with space, end with space or dot.";
     private static final Set<String> RESERVED_WORDS = Stream
-        .of("CON",
-            "PRN",
-            "AUX",
-            "NUL",
-            "COM1",
-            "COM2",
-            "COM3",
-            "COM4",
-            "COM5",
-            "COM6",
-            "COM7",
-            "COM8",
-            "COM9",
-            "LPT1",
-            "LPT2",
-            "LPT3",
-            "LPT4",
-            "LPT5",
-            "LPT6",
-            "LPT7",
-            "LPT8",
-            "LPT9")
-        .collect(Collectors.toSet());
+            .of("CON",
+                    "PRN",
+                    "AUX",
+                    "NUL",
+                    "COM1",
+                    "COM2",
+                    "COM3",
+                    "COM4",
+                    "COM5",
+                    "COM6",
+                    "COM7",
+                    "COM8",
+                    "COM9",
+                    "LPT1",
+                    "LPT2",
+                    "LPT3",
+                    "LPT4",
+                    "LPT5",
+                    "LPT6",
+                    "LPT7",
+                    "LPT8",
+                    "LPT9")
+            .collect(Collectors.toSet());
 
     private NameChecker() {
     }

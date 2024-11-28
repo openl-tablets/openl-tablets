@@ -34,7 +34,7 @@ class NumberComparator implements TestResultComparator {
                 // Number == Number
                 return true;
             } else if (Double.isInfinite(actual) || Double.isInfinite(expected) || Double.isNaN(actual) || Double
-                .isNaN(expected)) {
+                    .isNaN(expected)) {
                 return false;
             } else {
                 // Number ~= Number

@@ -1,9 +1,9 @@
 package org.openl.rules.types.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -15,8 +15,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -33,7 +34,7 @@ public class DispatchingTest {
 
     private Rules instance;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instance = TestUtils.create(RULES_SOURCE_FILE, Rules.class);
     }
@@ -93,7 +94,7 @@ public class DispatchingTest {
     public void testRequestDate() throws Exception {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-        Object[][] testData = { { "2011-08-15", "2012-01-01", 4.0 }, { "2011-08-15", "2009-01-01", 2.0 } };
+        Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
         for (int i = 0; i < testData.length; i++) {
             IRulesRuntimeContext context = initContext();
@@ -103,7 +104,7 @@ public class DispatchingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
@@ -144,21 +145,21 @@ public class DispatchingTest {
     public void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
         IRulesRuntimeContext context = initContext();
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = initContext();
         Calendar cal = new GregorianCalendar();
         cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal.getTime());
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
 
         context = initContext();
         Calendar cal2 = new GregorianCalendar();
         cal2.set(2019, Calendar.OCTOBER, 4, 0, 0, 0);
         cal2.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal2.getTime());
-        assertEquals(myRule.myRule(13), (Double)7.0);
+        assertEquals(myRule.myRule(13), (Double) 7.0);
     }
 
     public void calcBenchmark() {

@@ -29,8 +29,8 @@ public class IndexInfo {
     IndexInfo makeVerticalInfo() {
         DTInfo dti = table.getDtInfo();
         return new IndexInfo().withTable(table)
-            .withToCondition(dti.getNumberVConditions() - 1)
-            .withToRule(dti.getScale().getHScale().getMultiplier() - 1);
+                .withToCondition(dti.getNumberVConditions() - 1)
+                .withToRule(dti.getScale().getHScale().getMultiplier() - 1);
     }
 
     IndexInfo makeHorizontalalInfo() {
@@ -41,10 +41,10 @@ public class IndexInfo {
         int hSize = dts.getHScale().getMultiplier();
 
         return new IndexInfo().withTable(table)
-            .withFromCondition(dti.getNumberVConditions())
-            .withToCondition(toCondition)
-            .withToRule((vSize - 1) * hSize)
-            .withStep(hSize);
+                .withFromCondition(dti.getNumberVConditions())
+                .withToCondition(toCondition)
+                .withToRule((vSize - 1) * hSize)
+                .withStep(hSize);
     }
 
     private IndexInfo withStep(int step) {

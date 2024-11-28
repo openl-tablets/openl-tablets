@@ -8,7 +8,6 @@ import org.openl.util.RuntimeExceptionWrapper;
  * Allows Java based configuration without Ant
  *
  * @author snshor
- *
  */
 
 public class NoAntOpenLTask {
@@ -80,9 +79,9 @@ public class NoAntOpenLTask {
             if (extendsCategory != null) {
                 if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
                     throw new OpenLConfigurationException(
-                        "The extended category " + extendsCategory + " must have been loaded first",
-                        null,
-                        null);
+                            "The extended category " + extendsCategory + " must have been loaded first",
+                            null,
+                            null);
                 }
             }
 
@@ -102,9 +101,9 @@ public class NoAntOpenLTask {
     }
 
     private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration,
-            IUserContext ucxt) {
+                                                                 IUserContext ucxt) {
         ClassLoader parentLoader = extendsConfiguration == null ? OpenL.class
-            .getClassLoader() : extendsConfiguration.getConfigurationContext().getClassLoader();
+                .getClassLoader() : extendsConfiguration.getConfigurationContext().getClassLoader();
 
         if (!inheritExtendedConfigurationLoader) {
             parentLoader = ucxt.getUserClassLoader();

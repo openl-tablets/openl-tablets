@@ -1,28 +1,33 @@
 package org.openl.itest;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.concurrent.TimeUnit;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class WorkspaceCompileServiceTest {
 
     private static JettyServer server;
     private static HttpClient client;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws Exception {
         server = JettyServer.start("simple");
         client = server.client();
     }
 
-    @Test(timeout = 15_000)
+    @Test
+    @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
     public void compile() {
-        // Initialize WebStudio.
+        // Initialize OpenL Studio.
         client.send("workspace-compile/empty.get");
         // Init project compilation.
         client.send("workspace-compile/project.get");
@@ -42,7 +47,7 @@ public class WorkspaceCompileServiceTest {
         client.send("workspace-compile/table.tests.get");
         client.send("workspace-compile/table.errors.module.get");
         TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/8e514ef161e2f50d730dde1fdc4fb4ac",
-            TableErrorInfo.class, 200);
+                TableErrorInfo.class, 200);
         assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl);
         assertEquals(1, tableErrorInfo.errors.length);
         assertEquals(true, tableErrorInfo.errors[0].hasStacktrace);
@@ -50,11 +55,11 @@ public class WorkspaceCompileServiceTest {
         assertEquals("There can be only one active table.", tableErrorInfo.errors[0].summary);
         assertEquals("ERROR", tableErrorInfo.errors[0].severity);
         String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
-            String.class, 200);
+                String.class, 200);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() throws Exception {
         server.stop();
     }

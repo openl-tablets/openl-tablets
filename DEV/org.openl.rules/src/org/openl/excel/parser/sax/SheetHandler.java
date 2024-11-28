@@ -11,16 +11,17 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.model.SharedStrings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.ParserDateUtil;
 import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class SheetHandler extends DefaultHandler {
     private static final int MAX_ESTIMATED_CELLS_COUNT = 10_000 * 256;
@@ -196,7 +197,7 @@ public class SheetHandler extends DefaultHandler {
                         } else {
                             double d = Double.parseDouble(n);
                             if (DateUtil.isValidExcelDate(d) && parserDateUtil.isADateFormat(formatIndex,
-                                formatString)) {
+                                    formatString)) {
                                 parsedValue = DateUtil.getJavaDate(d, use1904Windowing);
                             } else {
                                 parsedValue = NumberUtils.intOrDouble(d);
@@ -316,7 +317,7 @@ public class SheetHandler extends DefaultHandler {
             int c = mergedCell.getFirstColumn() - start.getColumn();
             if (r >= 0 && c >= 0 && cells[r][c] != null) {
                 if (mergedCell.getLastRow() > effectiveEnd.getRow() || mergedCell.getLastColumn() > effectiveEnd
-                    .getColumn()) {
+                        .getColumn()) {
                     int maxRow = Math.max(mergedCell.getLastRow(), effectiveEnd.getRow());
                     int maxCol = Math.max(mergedCell.getLastColumn(), effectiveEnd.getColumn());
                     effectiveEnd = new CellAddress(maxRow, maxCol);

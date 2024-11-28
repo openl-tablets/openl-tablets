@@ -2,6 +2,7 @@ package org.openl.rules.project.xml;
 
 import java.io.File;
 import java.io.IOException;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.v5_11.RulesDeploy_v5_11;
@@ -16,8 +17,6 @@ import org.openl.rules.project.model.v5_17.RulesDeploy_v5_17;
 import org.openl.rules.project.model.v5_17.converter.RulesDeployVersionConverter_v5_17;
 import org.openl.rules.project.model.v5_23.RulesDeploy_v5_23;
 import org.openl.rules.project.model.v5_23.converter.RulesDeployVersionConverter_v5_23;
-
-import javax.xml.bind.JAXBException;
 
 public class RulesDeploySerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;

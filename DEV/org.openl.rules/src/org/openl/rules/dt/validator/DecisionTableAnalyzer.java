@@ -38,7 +38,7 @@ public class DecisionTableAnalyzer {
 
         for (int i = 0; i < n; ++i) {
             conditionAnalyzers.put(decisionTable.getConditionRows()[i],
-                new ConditionAnalyzer(decisionTable.getConditionRows()[i]));
+                    new ConditionAnalyzer(decisionTable.getConditionRows()[i]));
         }
     }
 
@@ -98,8 +98,8 @@ public class DecisionTableAnalyzer {
 
                     if (methodSignature.getParameterName(i).equals(anotherOpenField.getName())) {
                         ParameterDeclaration parameterDeclaration = new ParameterDeclaration(
-                            methodSignature.getParameterTypes()[i],
-                            methodSignature.getParameterName(i));
+                                methodSignature.getParameterTypes()[i],
+                                methodSignature.getParameterName(i));
                         if (!paramDeclarations.contains(parameterDeclaration)) {
                             paramDeclarations.add(parameterDeclaration);
                         }
@@ -117,19 +117,19 @@ public class DecisionTableAnalyzer {
      * {@link DecisionTableValidatedObject#transformParameterType(IParameterDeclaration)}.
      *
      * @param paramDeclarationFromSignature parameter declaration from the signature.
-     * @param decisionTableToValidate decision table that is being validated.
+     * @param decisionTableToValidate       decision table that is being validated.
      * @return new type for paramDeclarationFromSignature appropriate for validation.
      */
     @SuppressWarnings("deprecation")
     public IOpenClass transformSignatureType(IParameterDeclaration paramDeclarationFromSignature,
-            IDecisionTableValidatedObject decisionTableToValidate) {
+                                             IDecisionTableValidatedObject decisionTableToValidate) {
 
         DecisionTableParamDescription paramDescription = usedParamsFromSignature
-            .get(paramDeclarationFromSignature.getName());
+                .get(paramDeclarationFromSignature.getName());
 
         if (paramDescription == null) {
             IOpenClass newType = decisionTableToValidate.getTransformer()
-                .transformSignatureType(paramDeclarationFromSignature);
+                    .transformSignatureType(paramDeclarationFromSignature);
             paramDescription = new DecisionTableParamDescription(paramDeclarationFromSignature, newType);
 
             usedParamsFromSignature.put(paramDeclarationFromSignature.getName(), paramDescription);

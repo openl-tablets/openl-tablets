@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
+import static org.openl.rules.util.Strings.format;
+
 import java.io.InputStream;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
-
-import javax.xml.bind.JAXBException;
-
-import static org.openl.rules.util.Strings.format;
 
 public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
     private final XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();

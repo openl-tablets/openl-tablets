@@ -2,11 +2,10 @@ package org.openl.rules.rest.tags;
 
 import java.util.List;
 
-import org.openl.rules.rest.model.GenericView;
-
 import com.fasterxml.jackson.annotation.JsonView;
-
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.rules.rest.model.GenericView;
 
 public class TagTypeDTO {
 
@@ -14,14 +13,14 @@ public class TagTypeDTO {
     @Parameter(description = "tags.tag-type.id.desc", required = true)
     private Long id;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     @Parameter(description = "Tag type name", required = true)
     private String name;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     private boolean extensible;
 
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     private boolean nullable;
 
     @JsonView(GenericView.Full.class)

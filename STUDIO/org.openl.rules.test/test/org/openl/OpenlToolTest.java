@@ -1,5 +1,9 @@
 package org.openl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -7,8 +11,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-
-import junit.framework.TestCase;
 
 /*
  * Created on Mar 11, 2004
@@ -18,19 +20,10 @@ import junit.framework.TestCase;
 
 /**
  * @author snshor
- *
  */
-public class OpenlToolTest extends TestCase {
+public class OpenlToolTest {
 
-    /**
-     * Constructor for OpenlToolTest.
-     *
-     * @param name
-     */
-    public OpenlToolTest(String name) {
-        super(name);
-    }
-
+    @Test
     public void testMakeMethod() {
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         String name = "abc";
@@ -40,11 +33,11 @@ public class OpenlToolTest extends TestCase {
         IBindingContext cxt = openl.getBinder().makeBindingContext();
 
         IOpenMethod m = OpenLManager
-            .makeMethodWithUnknownType(openl, new StringSourceCodeModule("5", null), name, signature, declaringClass, cxt);
+                .makeMethodWithUnknownType(openl, new StringSourceCodeModule("5", null), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.INT, m.getType());
 
         m = OpenLManager
-            .makeMethodWithUnknownType(openl, new StringSourceCodeModule("if (true) return 5.0; else return 9.1;", null), name, signature, declaringClass, cxt);
+                .makeMethodWithUnknownType(openl, new StringSourceCodeModule("if (true) return 5.0; else return 9.1;", null), name, signature, declaringClass, cxt);
         assertEquals(JavaOpenClass.DOUBLE, m.getType());
 
     }

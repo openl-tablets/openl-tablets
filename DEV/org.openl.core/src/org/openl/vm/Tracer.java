@@ -13,10 +13,10 @@ public class Tracer {
     }
 
     protected <T, E extends IRuntimeEnv, R> R doInvoke(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                       T target,
+                                                       Object[] params,
+                                                       E env,
+                                                       Object source) {
         return executor.invoke(target, params, env);
     }
 
@@ -25,10 +25,10 @@ public class Tracer {
     }
 
     protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                                 T target,
+                                                                 Object[] params,
+                                                                 E env,
+                                                                 Object source) {
 
     }
 
@@ -83,26 +83,26 @@ public class Tracer {
     }
 
     public static <T, E extends IRuntimeEnv, R> R invoke(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                         T target,
+                                                         Object[] params,
+                                                         E env,
+                                                         Object source) {
         return instance.doInvoke(executor, target, params, env, source);
     }
 
     public static <T> T wrap(Object source, T target, Object arg1) {
         if (isEnabled()) {
-            return instance.doWrap(source, target, new Object[] { arg1 });
+            return instance.doWrap(source, target, new Object[]{arg1});
         } else {
             return target;
         }
     }
 
     public static <T, E extends IRuntimeEnv> void resolveTraceNode(Invokable<? super T, E> executor,
-            T target,
-            Object[] params,
-            E env,
-            Object source) {
+                                                                   T target,
+                                                                   Object[] params,
+                                                                   E env,
+                                                                   Object source) {
         instance.doResolveTraceNode(executor, target, params, env, source);
     }
 }

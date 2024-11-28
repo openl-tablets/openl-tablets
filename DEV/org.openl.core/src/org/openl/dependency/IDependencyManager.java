@@ -8,7 +8,6 @@ import org.openl.syntax.code.IDependency;
 
 /**
  * Interface for dependency managers that handles loading dependent modules for projects.
- *
  */
 public interface IDependencyManager {
 
@@ -21,7 +20,7 @@ public interface IDependencyManager {
     CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException;
 
     Collection<ResolvedDependency> resolveDependency(IDependency dependency,
-            boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException;
+                                                     boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException;
 
     /**
      * Remove given dependency from cache.

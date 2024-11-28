@@ -139,7 +139,7 @@ public class DateRangeDomain implements IDomain<Date> {
     /**
      * @param index Index of the date.
      * @return Returns The date within the range or <code>null</code> if date with specified index does not belong to
-     *         the range.
+     * the range.
      */
     public Date getValue(int index) {
         if (index >= size()) {

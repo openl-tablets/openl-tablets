@@ -12,7 +12,9 @@ public class DeploymentDescriptorItem extends AbstractItem {
 
     private final String repositoryId;
     private final String path;
-    /** Project version. */
+    /**
+     * Project version.
+     */
     private final CommonVersion version;
 
     DeploymentDescriptorItem(String repositoryId, String name, String path, CommonVersion version) {

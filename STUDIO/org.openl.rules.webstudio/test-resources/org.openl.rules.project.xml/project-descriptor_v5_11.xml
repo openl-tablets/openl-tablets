@@ -18,12 +18,12 @@
             </method-filter>
         </module>
         <module>
-            <name> Module Name 2 </name>
+            <name>Module Name 2</name>
             <rules-root path="2rules/*.xlsx"/>
             <type>api</type>
             <method-filter>
                 <includes>
-                    <value> * </value>
+                    <value>*</value>
                 </includes>
                 <excludes>
                     <value>^test 2</value>

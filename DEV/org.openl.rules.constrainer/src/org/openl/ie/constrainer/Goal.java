@@ -17,6 +17,7 @@ package org.openl.ie.constrainer;
 //
 //: Goal.java
 //
+
 /**
  * An interface for the constrainer goal.
  *
@@ -26,7 +27,7 @@ package org.openl.ie.constrainer;
 public interface Goal extends ConstrainerObject {
     /**
      * An implementation of the execution algorithm of this goal.
-     *
+     * <p>
      * Returns subgoal of this goal if there are any, null otherwise.
      */
     Goal execute() throws Failure;

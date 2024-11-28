@@ -72,7 +72,6 @@ public interface ITableProperties {
      * Gets the value of the property by its name.
      *
      * @param propertyName Property name.
-     *
      * @return Property value.
      */
     Object getPropertyValue(String propertyName);
@@ -82,7 +81,6 @@ public interface ITableProperties {
      * type, gets the format of date from {@link DefaultPropertyDefinitions}.
      *
      * @param propertyName Name of the property.
-     *
      * @return Value formatted to string. <code>Null</code> when there is no property with such name.
      */
     String getPropertyValueAsString(String propertyName);
@@ -113,10 +111,8 @@ public interface ITableProperties {
      * property is inherited or defined.
      *
      * @param propertyName Name of the property.
-     *
      * @return level on which property is defined. <code>NULL</code> when there is no such property on all these levels.
      * Or it can be set by default. So check is it applied as default. @see {@link #isPropertyAppliedByDefault(String)
-     *
      */
     InheritanceLevel getPropertyLevelDefinedOn(String propertyName);
 
@@ -124,7 +120,6 @@ public interface ITableProperties {
      * Check if the property with given name is applied for current table by default.
      *
      * @param propertyName name of the property.
-     *
      * @return <code>TRUE</code> if the property with given name is applied for current table by default.
      */
     boolean isPropertyAppliedByDefault(String propertyName);

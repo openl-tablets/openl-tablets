@@ -5,13 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.SelectFolderBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RepositoryFolderNode extends TreeFolder {
     private final Logger log = LoggerFactory.getLogger(RepositoryFolderNode.class);

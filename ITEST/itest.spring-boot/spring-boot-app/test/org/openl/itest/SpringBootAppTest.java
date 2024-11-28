@@ -1,12 +1,15 @@
 package org.openl.itest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import org.junit.jupiter.api.Test;
-import org.openl.rules.ruleservice.simple.RulesFrontend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
 
-@SpringBootTest(classes = { SpringBootApp.class })
+import org.openl.rules.ruleservice.simple.RulesFrontend;
+
+@SpringBootTest(classes = {SpringBootApp.class})
 public class SpringBootAppTest {
 
     @Autowired
@@ -14,8 +17,10 @@ public class SpringBootAppTest {
 
     @Test
     public void test() {
-        Assert.notNull(frontend, "frontend cannot be null");
-        Assert.notNull(frontend.findServiceByName("deployed-rules"), "Service is not found");
+        assertDoesNotThrow(() -> {
+            Assert.notNull(frontend, "frontend cannot be null");
+            Assert.notNull(frontend.findServiceByName("deployed-rules"), "Service is not found");
+        });
     }
 
 }

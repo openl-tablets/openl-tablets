@@ -11,7 +11,6 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
  */
 public interface INameSpacedVarFactory {
     IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException;

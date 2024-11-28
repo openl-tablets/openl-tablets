@@ -10,7 +10,7 @@ public interface ZipEntryCommand {
     /**
      * Execute action on file entry
      *
-     * @param filePath path to the current file
+     * @param filePath    path to the current file
      * @param inputStream input stream with content of current file
      * @return true if continue entries iteration, false to stop iteration
      * @throws IOException if an I/O error occurs

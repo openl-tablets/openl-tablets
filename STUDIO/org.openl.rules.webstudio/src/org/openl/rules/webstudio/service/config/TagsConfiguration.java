@@ -1,6 +1,8 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.webstudio.service.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 
 import org.openl.rules.security.standalone.dao.OpenLProjectDao;
 import org.openl.rules.security.standalone.dao.TagDao;
@@ -8,9 +10,6 @@ import org.openl.rules.security.standalone.dao.TagTypeDao;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 
 /**
  * Tags configuration beans.

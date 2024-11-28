@@ -1,6 +1,11 @@
 package org.openl.rules.ui;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -137,7 +142,7 @@ public class RecentlyVisitedTables {
 
             if (tableName == null || tableName.isEmpty()) {
                 tableName = TableSyntaxNodeUtils.str2name(table.getGridTable().getCell(0, 0).getStringValue(),
-                    XlsNodeTypes.getEnumByValue(table.getType()));
+                        XlsNodeTypes.getEnumByValue(table.getType()));
             }
 
             String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
@@ -150,9 +155,9 @@ public class RecentlyVisitedTables {
 
                     if (propValue != null && !propValue.isEmpty()) {
                         dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
-                            .append(dimensionProp)
-                            .append(" = ")
-                            .append(propValue);
+                                .append(dimensionProp)
+                                .append(" = ")
+                                .append(propValue);
                     }
                 }
             }

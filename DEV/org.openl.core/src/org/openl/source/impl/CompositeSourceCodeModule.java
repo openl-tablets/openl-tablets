@@ -15,7 +15,6 @@ import org.openl.util.fast.FastStringReader;
 
 /**
  * @author snshor
- *
  */
 @Deprecated
 public class CompositeSourceCodeModule implements IOpenSourceCodeModule {

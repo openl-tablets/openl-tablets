@@ -3,7 +3,6 @@ package org.openl.rules.helpers;
 import java.beans.Transient;
 import java.util.Comparator;
 import java.util.Objects;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
@@ -17,6 +16,7 @@ public class CharRange extends Range<Character> {
     protected final Character min;
     protected final Character max;
     protected final Type type;
+
     public CharRange(char min, char max) {
         this.min = min;
         this.max = max;

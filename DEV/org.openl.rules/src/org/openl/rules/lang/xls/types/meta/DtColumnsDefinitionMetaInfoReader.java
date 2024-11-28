@@ -1,9 +1,14 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -58,8 +63,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                 List<NodeUsage> nodeUsages;
                 CompositeMethod method = value.getKey();
                 int startIndex = 0;
-                List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
-                    .getNodeUsages(method, stringValue, startIndex);
+                List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils.getNodeUsages(method, stringValue, startIndex);
                 nodeUsages = new ArrayList<>(parsedNodeUsages);
                 return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, false);
             }
@@ -83,12 +87,18 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                     ILocation sourceLocation = paramTypeLocations[i];
                     TextInfo text = new TextInfo(value1.getMiddle());
                     int start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
-                    int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is because location returns 'end' inclusively
+                    int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is
+                    // because
+                    // location
+                    // returns
+                    // 'end'
+                    // inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
-                        end,
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        NodeType.DATATYPE));
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            parameterType,
+                            NodeType.DATATYPE));
                 }
             }
 
@@ -107,7 +117,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
             IMetaInfo metaInfo = type.getMetaInfo();
             if (metaInfo != null) {
                 StringSourceCodeModule source = new StringSourceCodeModule(value2.getValue(),
-                    getTableSyntaxNode().getUri());
+                        getTableSyntaxNode().getUri());
                 IdentifierNode[] paramNodes;
                 try {
                     paramNodes = Tokenizer.tokenize(source, "[] \n\r");
@@ -116,9 +126,10 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                 }
                 if (paramNodes.length > 0) {
                     SimpleNodeUsage nodeUsage = new SimpleNodeUsage(paramNodes[0],
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        NodeType.DATATYPE);
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            type,
+                            NodeType.DATATYPE);
                     return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 }
             }

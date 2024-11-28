@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractAlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod {
     static {
         WrapperValidation.validateWrapperClass(AbstractAlgorithmSubroutineMethodWrapper.class,
-            AbstractAlgorithmSubroutineMethodWrapper.class.getSuperclass());
+                AbstractAlgorithmSubroutineMethodWrapper.class.getSuperclass());
     }
 
     protected final AlgorithmSubroutineMethod delegate;

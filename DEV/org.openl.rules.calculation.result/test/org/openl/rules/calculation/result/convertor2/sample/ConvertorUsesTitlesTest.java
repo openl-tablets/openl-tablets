@@ -1,11 +1,12 @@
 package org.openl.rules.calculation.result.convertor2.sample;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calculation.result.convertor2.CalculationStep;
 import org.openl.rules.calculation.result.convertor2.CompoundStep;
@@ -24,7 +25,7 @@ public class ConvertorUsesTitlesTest {
     public void test1() {
         File xlsFile = new File("test/rules/calc0-1.xls");
         RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
-            ITestCalc.class);
+                ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
@@ -43,7 +44,7 @@ public class ConvertorUsesTitlesTest {
     public void whiteListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
         RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
-            ITestCalc.class);
+                ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();
@@ -61,7 +62,7 @@ public class ConvertorUsesTitlesTest {
     public void blackListTest() {
         File xlsFile = new File("test/rules/calc0-1.xls");
         RulesEngineFactory<ITestCalc> engineFactory = new RulesEngineFactory<>(URLSourceCodeModule.toUrl(xlsFile),
-            ITestCalc.class);
+                ITestCalc.class);
 
         ITestCalc test = engineFactory.newEngineInstance();
         SpreadsheetResult result = test.calc();

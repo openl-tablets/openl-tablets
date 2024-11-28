@@ -7,7 +7,6 @@ import java.util.Collections;
  * Interface for service that responsible for storing logging info into external resource.
  *
  * @author Marat Kamalov.
- *
  */
 public interface StoreLogDataService {
 

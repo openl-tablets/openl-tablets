@@ -1,28 +1,39 @@
 package org.openl.rules.datatype;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class WrongAliasDefaultValuesTest {
 
-    @Test(expected = Exception.class)
+    @Test
     public void test1() {
-        TestUtils.create("test/rules/datatype/WrongAliasDefaultValues1.xls");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDefaultValues1.xls");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test2() {
-        TestUtils.create("test/rules/datatype/WrongAliasDefaultValues2.xls");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDefaultValues2.xls");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test3() {
-        TestUtils.create("test/rules/datatype/WrongAliasDefaultValues3.xls");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDefaultValues3.xls");
+        });
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void test4() {
-        TestUtils.create("test/rules/datatype/WrongAliasDefaultValues4.xls");
+        assertThrows(Exception.class, () -> {
+            TestUtils.create("test/rules/datatype/WrongAliasDefaultValues4.xls");
+        });
     }
 
 }

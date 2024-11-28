@@ -1,0 +1,7 @@
+<svg width="155" height="175" viewBox="-1066 -1200 2132 2400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 1000 866 500 866-500 0-1000-866-500-866 500Z" stroke="#066122" stroke-width="400" stroke-linejoin="round"/>
+    <path d="M0 1000 l866-500 0-500-866 500-866-500 0 500z" fill="#17C663"/>
+    <path d="M0 500 l866-500 0-500-866 500-866-500 0 500z" fill="#0F9340"/>
+    <path d="M0-1000-866-500 0 0 866-500Z" fill="#066224"/>
+    <path d="M0 500 433 250 433-250 0-500-433-250-433 250Z M0 1000 866 500 866-500 0-1000-866-500-866 500Z M0 1000 L0 0-866-500M866-500 0 0" stroke="white" stroke-width="75" stroke-linejoin="round"/>
+</svg>

@@ -1,8 +1,8 @@
 package org.openl.rules.excel.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,8 +25,9 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -57,21 +58,21 @@ public class DatatypeTableExporterTest {
         FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
 
         FieldModel bigDecimalField = new FieldModel("bigNum",
-            "BigDecimal",
-            new BigDecimal("2975671681509007947508815"));
+                "BigDecimal",
+                new BigDecimal("2975671681509007947508815"));
 
         FieldModel bigIntegerField = new FieldModel("bigInt", "BigInteger", BigInteger.TEN);
         FieldModel customTypeField = new FieldModel("driver", "Human");
 
         dt.setFields(Arrays.asList(stringField,
-            doubleField,
-            dateField,
-            booleanField,
-            customTypeField,
-            dateTimeField,
-            floatField,
-            bigDecimalField,
-            bigIntegerField));
+                doubleField,
+                dateField,
+                booleanField,
+                customTypeField,
+                dateTimeField,
+                floatField,
+                bigDecimalField,
+                bigIntegerField));
 
         DatatypeModel oneMoreModel = new DatatypeModel("NextModel");
         FieldModel nextModelField = new FieldModel("color", STRING_TYPE, "red");
@@ -79,16 +80,16 @@ public class DatatypeTableExporterTest {
         oneMoreModel.setFields(Collections.singletonList(nextModelField));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
-            false,
-            false,
-            asSet(dt, oneMoreModel),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                false,
+                false,
+                asSet(dt, oneMoreModel),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
         ExcelFileBuilder.generateProject(projectModel);
 
         try (XSSFWorkbook wb = new XSSFWorkbook(
-            new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
+                new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
             XSSFSheet dtsSheet = wb.getSheet("Datatypes");
             assertNotNull(dtsSheet);
             XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
@@ -182,8 +183,8 @@ public class DatatypeTableExporterTest {
             XSSFCell dateTimeDefaultValueCell = dateTimeRow.getCell(DT_DEFAULT_VALUE_CELL);
             assertNotNull(dateTimeDefaultValueCell);
             OffsetDateTime offsetDateTime = dateTimeDefaultValueCell.getLocalDateTimeCellValue()
-                .atZone(ZoneId.systemDefault())
-                .toOffsetDateTime();
+                    .atZone(ZoneId.systemDefault())
+                    .toOffsetDateTime();
             assertEquals("Date", dateTimeCellType);
             assertEquals("registrationDateTime", dateTimeCellName);
             assertNotNull(offsetDateTime);
@@ -272,13 +273,13 @@ public class DatatypeTableExporterTest {
         }
 
         try (XSSFWorkbook wb = new XSSFWorkbook(
-            new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
+                new FileInputStream("../openl-excel-builder/" + DATATYPE_TEST_PROJECT_NAME))) {
             XSSFSheet dtsSheet = wb.getSheet("Datatypes");
             assertNotNull(dtsSheet);
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();

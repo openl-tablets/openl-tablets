@@ -17,7 +17,7 @@ public class Parser extends BaseParser {
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-        String[] roots = { userContext.getUserHome() };
+        String[] roots = {userContext.getUserHome()};
         ClassLoader classLoader = userContext.getUserClassLoader();
         IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader, roots));
 

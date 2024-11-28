@@ -17,7 +17,7 @@ public interface TreeNodeBuilder<T> {
 
     /**
      * @param object The object that will be displayed in the tree
-     * @param i Order number of object.
+     * @param i      Order number of object.
      * @return TreeNode generated for the object.
      */
     ProjectTreeNode makeNode(T object, int i);
@@ -28,7 +28,7 @@ public interface TreeNodeBuilder<T> {
      * number <code>0</code>, the second - <code>2</code>, the third <code>3</code> etc.)
      *
      * @param object The object for displaying in the tree.
-     * @param i Order number of object.
+     * @param i      Order number of object.
      * @return Key for object.
      */
     Comparable<?> makeKey(T object, int i);
@@ -36,7 +36,7 @@ public interface TreeNodeBuilder<T> {
     /**
      * @param object The object that can be processed by tree builder.
      * @return <code>true</code> if specified object must be processed by tree builder <code>false</code> if current
-     *         tree builder must skip object.
+     * tree builder must skip object.
      */
     boolean isBuilderApplicableForObject(T object);
 

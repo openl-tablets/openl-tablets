@@ -5,12 +5,13 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextConsumer;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The implementation of {@link InvocationHandler} which used by {@link RuntimeContextInstantiationStrategyEnhancer}
@@ -19,7 +20,7 @@ import org.slf4j.LoggerFactory;
 class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final Logger log = LoggerFactory
-        .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
+            .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
     private final Map<Method, Method> methodsMap;
     private final Object serviceClassInstance;
@@ -30,7 +31,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends Abstr
     }
 
     public RuntimeContextInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
-            Object serviceClassInstance) {
+                                                                        Object serviceClassInstance) {
         this.methodsMap = methodsMap;
         this.serviceClassInstance = serviceClassInstance;
     }
@@ -75,7 +76,7 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends Abstr
             wrapper.setRuntimeContext(context);
         } else {
             log.error(
-                "Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
+                    "Failed to define rules runtime context for service instance. Service class must be instance one of: IEngineWrapper.class, IRulesRuntimeContextConsumer.class");
         }
     }
 

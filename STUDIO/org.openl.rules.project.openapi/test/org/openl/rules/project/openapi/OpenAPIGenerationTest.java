@@ -1,6 +1,6 @@
 package org.openl.rules.project.openapi;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +13,20 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -26,15 +34,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
-import io.swagger.v3.oas.models.OpenAPI;
 
 public class OpenAPIGenerationTest {
 
@@ -43,14 +42,14 @@ public class OpenAPIGenerationTest {
     public static final String DIR = "test-resources/functionality/";
 
     @SuppressWarnings("unchecked")
-    private static final Pair<ObjectMapper, String>[] MAPPER_TO_FILE = new Pair[] {
+    private static final Pair<ObjectMapper, String>[] MAPPER_TO_FILE = new Pair[]{
             Pair.of(new ObjectMapper(), ".openapi.json"),
-            Pair.of(new ObjectMapper(new YAMLFactory()), ".openapi.yaml") };
+            Pair.of(new ObjectMapper(new YAMLFactory()), ".openapi.yaml")};
 
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         defaultTimeZone = TimeZone.getDefault();
@@ -58,7 +57,7 @@ public class OpenAPIGenerationTest {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
         TimeZone.setDefault(defaultTimeZone);
@@ -66,7 +65,7 @@ public class OpenAPIGenerationTest {
 
     @Test
     public void testAll() {
-        assertFalse("Test is failed.", run(DIR));
+        assertFalse(run(DIR), "Test is failed.");
     }
 
     public boolean run(String path) {
@@ -115,12 +114,12 @@ public class OpenAPIGenerationTest {
             if (compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getMessages()) {
                     error(messagesCount.getAndIncrement(),
-                        startTime,
-                        sourceFile,
-                        "   {}: {}    at {}",
-                        msg.getSeverity(),
-                        msg.getSummary(),
-                        msg.getSourceLocation());
+                            startTime,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
                 }
                 testsFailed = true;
                 continue;
@@ -129,9 +128,9 @@ public class OpenAPIGenerationTest {
             OpenAPI actualOpenAPI;
             try {
                 actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
-                    .generator()
-                    .generate();
-            } catch (RulesInstantiationException e) {
+                        .generator()
+                        .generate();
+            } catch (RulesInstantiationException | OpenApiGenerationException e) {
                 error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                 testsFailed = true;
                 continue;
@@ -165,11 +164,11 @@ public class OpenAPIGenerationTest {
                         expectedNode = pair.getKey().readTree(expectedOpenAPIFile);
                     } catch (IOException exc) {
                         error(messagesCount.getAndIncrement(),
-                            startTime,
-                            sourceFile,
-                            "Failed to read OpenAPI file '{}'.",
-                            expectedOpenAPIFile,
-                            exc);
+                                startTime,
+                                sourceFile,
+                                "Failed to read OpenAPI file '{}'.",
+                                expectedOpenAPIFile,
+                                exc);
                         testsFailed = true;
                         continue;
                     }
@@ -180,9 +179,9 @@ public class OpenAPIGenerationTest {
 
             if (missedExpectedOpenAPIs.size() == MAPPER_TO_FILE.length) {
                 error(messagesCount.getAndIncrement(),
-                    startTime,
-                    sourceFile,
-                    "Failed to find one of expected OpenAPI files: " + String.join(", ", missedExpectedOpenAPIs));
+                        startTime,
+                        sourceFile,
+                        "Failed to find one of expected OpenAPI files: " + String.join(", ", missedExpectedOpenAPIs));
                 testsFailed = true;
             }
 
@@ -210,11 +209,11 @@ public class OpenAPIGenerationTest {
     }
 
     private void compareJsonObjects(AtomicInteger messagesCount,
-            long startTime,
-            String sourceFile,
-            JsonNode expectedJson,
-            JsonNode actualJson,
-            String path) {
+                                    long startTime,
+                                    String sourceFile,
+                                    JsonNode expectedJson,
+                                    JsonNode actualJson,
+                                    String path) {
         if (Objects.equals(expectedJson, actualJson)) {
             return;
         }
@@ -223,11 +222,11 @@ public class OpenAPIGenerationTest {
         } else if (expectedJson.isTextual()) {
             // try to compare by a pattern
             String regExp = expectedJson.asText()
-                .replaceAll("\\[", "\\\\[")
-                .replaceAll("]", "\\\\]")
-                .replaceAll("#+", "[#\\\\d]+")
-                .replaceAll("@+", "[@\\\\w]+")
-                .replaceAll("\\*+", "[^\uFFFF]*");
+                    .replaceAll("\\[", "\\\\[")
+                    .replaceAll("]", "\\\\]")
+                    .replaceAll("#+", "[#\\\\d]+")
+                    .replaceAll("@+", "[@\\\\w]+")
+                    .replaceAll("\\*+", "[^\uFFFF]*");
             String actualText = actualJson.isTextual() ? actualJson.asText() : actualJson.toString();
             if (!Pattern.compile(regExp).matcher(actualText).matches()) {
                 failDiff(messagesCount, startTime, sourceFile, expectedJson, actualJson, path);
@@ -235,11 +234,11 @@ public class OpenAPIGenerationTest {
         } else if (expectedJson.isArray() && actualJson.isArray()) {
             for (int i = 0; i < expectedJson.size() || i < actualJson.size(); i++) {
                 compareJsonObjects(messagesCount,
-                    startTime,
-                    sourceFile,
-                    expectedJson.get(i),
-                    actualJson.get(i),
-                    path + "[" + i + "]");
+                        startTime,
+                        sourceFile,
+                        expectedJson.get(i),
+                        actualJson.get(i),
+                        path + "[" + i + "]");
             }
         } else if (expectedJson.isObject() && actualJson.isObject()) {
             LinkedHashSet<String> names = new LinkedHashSet<>();
@@ -248,11 +247,11 @@ public class OpenAPIGenerationTest {
 
             for (String name : names) {
                 compareJsonObjects(messagesCount,
-                    startTime,
-                    sourceFile,
-                    expectedJson.get(name),
-                    actualJson.get(name),
-                    path + " > " + name);
+                        startTime,
+                        sourceFile,
+                        expectedJson.get(name),
+                        actualJson.get(name),
+                        path + " > " + name);
             }
         } else {
             failDiff(messagesCount, startTime, sourceFile, expectedJson, actualJson, path);
@@ -260,11 +259,11 @@ public class OpenAPIGenerationTest {
     }
 
     private void failDiff(AtomicInteger messagesCount,
-            long startTime,
-            String sourceFile,
-            JsonNode expectedJson,
-            JsonNode actualJson,
-            String path) {
+                          long startTime,
+                          String sourceFile,
+                          JsonNode expectedJson,
+                          JsonNode actualJson,
+                          String path) {
         error(messagesCount.getAndIncrement(), startTime, sourceFile, "  Path: \\" + path);
         log.error("    Expected: {}", expectedJson);
         log.error("    Actual: {}", actualJson);

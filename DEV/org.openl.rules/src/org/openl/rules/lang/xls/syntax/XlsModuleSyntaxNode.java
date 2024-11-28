@@ -6,7 +6,12 @@
 
 package org.openl.rules.lang.xls.syntax;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.source.IOpenSourceCodeModule;
@@ -14,7 +19,6 @@ import org.openl.syntax.impl.NaryNode;
 
 /**
  * @author snshor
- *
  */
 public class XlsModuleSyntaxNode extends NaryNode {
 
@@ -23,9 +27,9 @@ public class XlsModuleSyntaxNode extends NaryNode {
     private final Set<String> imports;
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
-            IOpenSourceCodeModule module,
-            OpenlSyntaxNode openlNode,
-            Collection<String> imports) {
+                               IOpenSourceCodeModule module,
+                               OpenlSyntaxNode openlNode,
+                               Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
         this.openlNode = openlNode;

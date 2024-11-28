@@ -35,7 +35,7 @@ public abstract class UndoableEditTableAction implements IUndoableGridTableActio
     /**
      * Creates actions that moves the table and executes these actions.
      *
-     * @param table Table to move.
+     * @param table          Table to move.
      * @param metaInfoWriter Needed to save meta info changes
      * @return Actions that moved the table.
      */

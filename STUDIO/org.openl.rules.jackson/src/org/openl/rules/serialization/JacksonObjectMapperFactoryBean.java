@@ -9,11 +9,35 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
-
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import groovy.lang.GroovyObject;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
@@ -33,44 +57,20 @@ import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
-import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator.Builder;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-
-import groovy.lang.GroovyObject;
 
 public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     private static final AtomicLong incrementer = new AtomicLong();
 
-    private static final Class<?>[] VARIATION_CLASSES = new Class[] { Variation.class,
+    private static final Class<?>[] VARIATION_CLASSES = new Class[]{Variation.class,
             NoVariation.class,
             ArgumentReplacementVariation.class,
             ComplexVariation.class,
             DeepCloningVariation.class,
             JXPathVariation.class,
-            VariationsResult.class };
+            VariationsResult.class};
 
     private static final DefaultTypingMode DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE = DefaultTypingMode.JAVA_LANG_OBJECT;
 
@@ -80,7 +80,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private DefaultTypingMode defaultTypingMode = DEFAULT_VALUE_FOR_DEFAULT_TYPING_MODE;
 
-    private DateFormat defaultDateFormat = getISO8601Format();
+    private DateFormat defaultDateFormat = new StdDateFormat();
 
     private JsonInclude.Include serializationInclusion;
 
@@ -98,8 +98,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private ClassLoader classLoader;
 
-    private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
-
     @Deprecated
     private Boolean simpleClassNameAsTypingPropertyValue;
 
@@ -108,9 +106,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
     private Class<?> enhanceMixInClassWithSubTypes(Class<?> classFor,
-            Class<?> originalMixInClass,
-            Set<Class<?>> classes,
-            ClassLoader classLoader) {
+                                                   Class<?> originalMixInClass,
+                                                   Set<Class<?>> classes,
+                                                   ClassLoader classLoader) {
         Class<?> originalClass = originalMixInClass;
         if (originalClass == null) {
             originalClass = SubtypeMixin.class;
@@ -128,42 +126,48 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         String className = classFor.getName() + "$EnhancedMixInClassWithSubTypes$" + incrementer.getAndIncrement();
         ClassWriter classWriter = new ClassWriter(0);
         String typingPropertyName = StringUtils.isNotBlank(
-            getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
         if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
             typingPropertyName = null;
         }
         ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-            originalClass,
-            parentTypeClass,
-            subTypeClasses.toArray(new Class<?>[0]),
-            Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
-                .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
-            typingPropertyName);
+                originalClass,
+                parentTypeClass,
+                subTypeClasses.toArray(new Class<?>[0]),
+                Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
+                        .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
+                typingPropertyName);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
         try {
-            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-            return Class.forName(className, true, classLoader);
+            return ClassLoaderUtils.defineClass(className, classWriter.toByteArray(), classLoader);
         } catch (Exception e1) {
             throw new IllegalStateException(e1);
         }
     }
 
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
-        ObjectMapper mapper = getObjectMapperFactory().createObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setTimeZone(TimeZone.getDefault());
 
         TypeFactory typeFactory = TypeFactory.defaultInstance().withClassLoader(getClassLoader());
         mapper.setTypeFactory(typeFactory);
 
         mapper.enable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         mapper.registerModule(new ParameterNamesModule())
-            .registerModule(new Jdk8Module())
-            .registerModule(new JavaTimeModule());
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule());
+
+        mapper.registerModule(new SimpleModule()
+                .addSerializer(Double.class, new DoubleSerializer(Double.class))
+                .addSerializer(Double.TYPE, new DoubleSerializer(Double.TYPE))
+                .addSerializer(Float.class, new FloatSerializer())
+                .addSerializer(Float.TYPE, new FloatSerializer()));
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
         JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
-            TypeFactory.defaultInstance());
+                TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
@@ -171,7 +175,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
-            secondaryIntrospector);
+                secondaryIntrospector);
 
         mapper.setAnnotationIntrospector(introspector);
 
@@ -187,7 +191,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         Set<Class<?>> overrideClasses = extractOverrideClasses(basicPolymorphicTypeValidatorBuilder,
-            polymorphicTypeValidation);
+                polymorphicTypeValidation);
 
         for (Class<?> clazz : getConfigurationClasses()) {
             MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
@@ -228,11 +232,11 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                     break;
             }
             mapper.activateDefaultTypingAsProperty(
-                polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
-                                          : LaissezFaireSubTypeValidator.instance,
-                defaultTyping,
-                StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
-                                                                : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
+                    polymorphicTypeValidation ? basicPolymorphicTypeValidatorBuilder.build()
+                            : LaissezFaireSubTypeValidator.instance,
+                    defaultTyping,
+                    StringUtils.isNotBlank(getTypingPropertyName()) ? getTypingPropertyName()
+                            : JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
         } else {
             mapper.deactivateDefaultTyping();
         }
@@ -265,9 +269,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
         for (Class<?> clazz : overrideClasses) {
             Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
-                mapper.findMixInClassFor(clazz),
-                overrideClasses,
-                getClassLoader());
+                    mapper.findMixInClassFor(clazz),
+                    overrideClasses,
+                    getClassLoader());
             mapper.addMixIn(clazz, subtypeMixInClass);
         }
 
@@ -277,6 +281,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, false); // OpenL uses ENUMs names
         mapper.configure(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING, true);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+        mapper.configure(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN, true);
+        mapper.disable(SerializationFeature.WRITE_DATES_WITH_CONTEXT_TIME_ZONE);
+        mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
 
         if (getDefaultDateFormat() != null) {
             mapper.setDateFormat(getDefaultDateFormat());
@@ -286,7 +293,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     private Set<Class<?>> extractOverrideClasses(Builder basicPolymorphicTypeValidatorBuilder,
-            boolean polymorphicTypeValidation) throws ClassNotFoundException {
+                                                 boolean polymorphicTypeValidation) throws ClassNotFoundException {
         Set<Class<?>> classes = new HashSet<>();
         if (getOverrideTypes() != null) {
             for (String className : getOverrideTypes()) {
@@ -328,9 +335,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     }
 
     private void registerOverrideClass(Builder basicPolymorphicTypeValidatorBuilder,
-            boolean polymorphicTypeValidation,
-            Set<Class<?>> classes,
-            Class<?> clazz) {
+                                       boolean polymorphicTypeValidation,
+                                       Set<Class<?>> classes,
+                                       Class<?> clazz) {
         if (!classes.contains(clazz)) {
             if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
                 classes.add(clazz);
@@ -342,9 +349,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 if (xmlSeeAlso != null) {
                     for (Class<?> cls : xmlSeeAlso.value()) {
                         registerOverrideClass(basicPolymorphicTypeValidatorBuilder,
-                            polymorphicTypeValidation,
-                            classes,
-                            cls);
+                                polymorphicTypeValidation,
+                                classes,
+                                cls);
                     }
                 }
             }
@@ -355,28 +362,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         if (mapper.findMixInClassFor(classFor) == null) {
             mapper.addMixIn(classFor, mixIn);
         }
-    }
-
-    /**
-     * Create instance of ISO-8601 date time format using following pattern: "yyyy-MM-dd'T'HH:mm:ss.SSSZ" Time zones in
-     * ISO-8601 are represented as local time (with the location unspecified), as UTC, or as an offset from UTC. If no
-     * UTC relation information is given with a time representation, the time is assumed to be in local time. Examples,
-     * when local Time Zone is +2:
-     *
-     * <pre>
-     *     2016-12-31T22:00:00 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00Z corresponds to 2017-01-01T00:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00+0200 corresponds to 2016-12-31T22:00:00+0200 in local Time Zone
-     *     2016-12-31T22:00:00+0300 corresponds to 2016-12-31T21:00:00+0200 in local Time Zone
-     * </pre>
-     *
-     * @see <a href= "https://en.wikipedia.org/wiki/ISO_8601#Time_zone_designators">ISO-8601 Time zone designators</a>
-     * @return
-     */
-    private static DateFormat getISO8601Format() {
-        StdDateFormat iso8601Format = new StdDateFormat();
-        iso8601Format.setTimeZone(TimeZone.getDefault());
-        return iso8601Format;
     }
 
     private Class<?> loadClass(String className) throws ClassNotFoundException {
@@ -476,14 +461,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     public void setCaseInsensitiveProperties(boolean caseInsensitiveProperties) {
         this.caseInsensitiveProperties = caseInsensitiveProperties;
-    }
-
-    public ObjectMapperFactory getObjectMapperFactory() {
-        return objectMapperFactory;
-    }
-
-    public void setObjectMapperFactory(ObjectMapperFactory objectMapperFactory) {
-        this.objectMapperFactory = objectMapperFactory;
     }
 
     public String getTypingPropertyName() {

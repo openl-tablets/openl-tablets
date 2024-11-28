@@ -4,6 +4,9 @@ import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSou
 
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -22,8 +25,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ParserUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTableBoundNode> {
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableMetaInfoReader.class);
@@ -128,9 +129,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             return null;
         }
         SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-            typeMeta.getDisplayName(INamedThing.SHORT),
-            typeMeta.getSourceUrl(),
-            NodeType.DATATYPE);
+                typeMeta.getDisplayName(INamedThing.SHORT),
+                typeMeta.getSourceUrl(),
+                NodeType.DATATYPE);
 
         return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
     }
@@ -144,7 +145,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         } else {
             String name = idn[0].getIdentifier();
             if (name.endsWith(DatatypeTableBoundNode.TRANSIENT_FIELD_SUFFIX) || name
-                .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
+                    .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
                 return name.substring(0, name.length() - 1);
             }
             return name;

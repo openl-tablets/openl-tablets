@@ -12,9 +12,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+
+import org.slf4j.LoggerFactory;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
 import org.openl.rules.table.ILogicalTable;
@@ -24,7 +25,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
-import org.slf4j.LoggerFactory;
 
 /**
  * Serializable bean that handles result of spreadsheet calculation.
@@ -46,8 +46,6 @@ public class SpreadsheetResult implements Serializable {
     transient String[] columnNamesForResultModel;
     transient Map<String, Point> fieldsCoordinates;
 
-    transient boolean tableStructureDetails;
-
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
@@ -61,28 +59,23 @@ public class SpreadsheetResult implements Serializable {
     public SpreadsheetResult() {
     }
 
-    public SpreadsheetResult(Object[][] results, String[] rowNames, String[] columnNames) {
-        this(results, rowNames, columnNames, new String[rowNames.length], new String[columnNames.length], null);
-        initFieldsCoordinates();
-    }
-
     public SpreadsheetResult(Object[][] results,
-            String[] rowNames,
-            String[] columnNames,
-            String[] rowNamesForResultModel,
-            String[] columnNamesForResultModel,
-            Map<String, Point> fieldsCoordinates) {
+                             String[] rowNames,
+                             String[] columnNames,
+                             String[] rowNamesForResultModel,
+                             String[] columnNamesForResultModel,
+                             Map<String, Point> fieldsCoordinates) {
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
         this.rowNamesForResultModel = Objects.requireNonNull(rowNamesForResultModel);
         this.columnNamesForResultModel = Objects.requireNonNull(columnNamesForResultModel);
         if (rowNames.length != rowNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of rowNames is not equal to the length of rowNamesForResultModel.");
+                    "The length of rowNames is not equal to the length of rowNamesForResultModel.");
         }
         if (columnNames.length != columnNamesForResultModel.length) {
             throw new IllegalArgumentException(
-                "The length of columnNames is not equal to the length of columnNamesForResultModel.");
+                    "The length of columnNames is not equal to the length of columnNamesForResultModel.");
         }
         this.results = results;
 
@@ -91,29 +84,70 @@ public class SpreadsheetResult implements Serializable {
 
     public SpreadsheetResult(SpreadsheetResult spr) {
         this(spr.results,
-            spr.rowNames,
-            spr.columnNames,
-            spr.rowNamesForResultModel,
-            spr.columnNamesForResultModel,
-            spr.fieldsCoordinates);
+                spr.rowNames,
+                spr.columnNames,
+                spr.rowNamesForResultModel,
+                spr.columnNamesForResultModel,
+                spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
-        this.tableStructureDetails = spr.tableStructureDetails;
     }
 
-    public boolean isFieldUsedInModel(String fieldName) {
-        Point point = fieldsCoordinates.get(fieldName);
-        if (point != null) {
-            return columnNamesForResultModel[point.getColumn()] != null && rowNamesForResultModel[point
-                .getRow()] != null;
+    static Map<String, Point> buildFieldsCoordinates2(String[] columnNames,
+                                                      String[] rowNames,
+                                                      String[] modelColumnNames,
+                                                      String[] modelRowNames) {
+        Map<String, Point> fieldsCoordinates = new HashMap<>();
+        if (columnNames != null && rowNames != null) {
+            for (int row = 0; row < rowNames.length; row++) {
+                for (int column = 0; column < columnNames.length; column++) {
+                    if (columnNames[column] != null && rowNames[row] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], rowNames[row]), Point.get(column, row));
+                    }
+                }
+            }
+
+            int index = getIndex(modelColumnNames == null ? columnNames : modelColumnNames);
+            if (index >= 0) {
+                for (int row = 0; row < rowNames.length; row++) {
+                    if (rowNames[row] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(null, rowNames[row]), Point.get(index, row));
+                    }
+                }
+            }
+
+            index = getIndex(modelRowNames == null ? rowNames : modelRowNames);
+            if (index >= 0) {
+                for (int column = 0; column < columnNames.length; column++) {
+                    if (columnNames[column] != null) {
+                        fieldsCoordinates.put(ASpreadsheetField.createFieldName(columnNames[column], null), Point.get(column, index));
+                    }
+
+                }
+            }
         }
-        return false;
+        return Map.copyOf(fieldsCoordinates);
+    }
+
+    private static int getIndex(String[] names) {
+        int index = -1;
+        for (int i = 0; i < names.length; i++) {
+            if (names[i] != null) {
+                if (index >= 0) {
+                    index = -1;
+                    // The multiple references by name
+                    break;
+                }
+                index = i;
+            }
+        }
+        return index;
     }
 
     static Map<String, Point> buildFieldsCoordinates(String[] columnNames,
-            String[] rowNames,
-            boolean simpleRefByColumn,
-            boolean simpleRefByRow) {
+                                                     String[] rowNames,
+                                                     boolean simpleRefByColumn,
+                                                     boolean simpleRefByRow) {
         Map<String, Point> fieldsCoordinates = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
@@ -124,8 +158,8 @@ public class SpreadsheetResult implements Serializable {
                 for (int j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
-                            SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
-                            Point.get(j, i));
+                                ASpreadsheetField.createFieldName(columnNames[j], rowNames[i]),
+                                Point.get(j, i));
                     }
                 }
             }
@@ -135,7 +169,7 @@ public class SpreadsheetResult implements Serializable {
                         for (int i = 0; i < rowNames.length; i++) {
                             if (rowNames[i] != null) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
-                                    Point.get(j, i));
+                                        Point.get(j, i));
                             }
                         }
                         break;
@@ -148,7 +182,7 @@ public class SpreadsheetResult implements Serializable {
                         for (int j = 0; j < columnNames.length; j++) {
                             if (columnNames[j] != null) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
-                                    Point.get(j, i));
+                                        Point.get(j, i));
                             }
                         }
                         break;
@@ -157,10 +191,6 @@ public class SpreadsheetResult implements Serializable {
             }
         }
         return fieldsCoordinates;
-    }
-
-    private void initFieldsCoordinates() {
-        this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames, false, false);
     }
 
     @XmlTransient
@@ -197,29 +227,29 @@ public class SpreadsheetResult implements Serializable {
         this.rowNames = rowNames;
     }
 
-    @XmlTransient
-    public boolean isTableStructureDetails() {
-        return tableStructureDetails;
-    }
-
-    public void setTableStructureDetails(boolean tableStructureDetails) {
-        this.tableStructureDetails = tableStructureDetails;
-    }
-
     public Object getValue(int row, int column) {
         return results[row][column];
     }
 
+    public Object getValue(String row, String column) {
+        var p = getPoint(ASpreadsheetField.createFieldName(column, row));
+        return p != null ? getValue(p.getRow(), p.getColumn()) : null;
+    }
+
     public void setFieldValue(String name, Object value) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
-        }
-        Point fieldCoordinates = fieldsCoordinates.get(name);
+        Point fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             setValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn(), value);
         }
+    }
+
+    private Point getPoint(String name) {
+        if (fieldsCoordinates == null) { // Required if default constructor is
+            // used with setter methods.
+            fieldsCoordinates = buildFieldsCoordinates2(columnNames, rowNames, columnNamesForResultModel, rowNamesForResultModel);
+        }
+        return fieldsCoordinates.get(name);
     }
 
     protected void setValue(int row, int column, Object value) {
@@ -235,7 +265,6 @@ public class SpreadsheetResult implements Serializable {
     }
 
     /**
-     *
      * @return logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
     @XmlTransient
@@ -248,11 +277,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public Object getFieldValue(String name) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
-        }
-        Point fieldCoordinates = fieldsCoordinates.get(name);
+        Point fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
             return getValue(fieldCoordinates.getRow(), fieldCoordinates.getColumn());
@@ -260,12 +285,25 @@ public class SpreadsheetResult implements Serializable {
         return null;
     }
 
-    public boolean hasField(String name) {
-        if (fieldsCoordinates == null) { // Required if default constructor is
-            // used with setter methods.
-            initFieldsCoordinates();
+    /**
+     * @see SpreadsheetResultBeanByteCodeGenerator
+     */
+    public Object getModelValue(String name) {
+        var p = getPoint(name);
+
+        if (p != null) {
+            var column = columnNamesForResultModel[p.getColumn()];
+            var row = rowNamesForResultModel[p.getRow()];
+            if (column != null && row != null) {
+                Object result = getValue(p.getRow(), p.getColumn());
+                return result;
+            }
         }
-        return fieldsCoordinates.get(name) != null;
+        return null;
+    }
+
+    public boolean hasField(String name) {
+        return getPoint(name) != null;
     }
 
     @Override
@@ -311,9 +349,9 @@ public class SpreadsheetResult implements Serializable {
             for (int i1 = 0; i1 <= maxHeight; i1++) {
                 for (int j1 = 0; j1 <= maxWidth; j1++) {
                     width[j1] = Math.max(width[j1],
-                        i1 > 0 && j1 > 0 && getValue(i1 - 1,
-                            j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
-                                .length() : truncateStringValue(getStringValue(j1, i1)).length());
+                            i1 > 0 && j1 > 0 && getValue(i1 - 1,
+                                    j1 - 1) instanceof SpreadsheetResult && d > MAX_DEPTH ? "... TRUNCATED TABLE ..."
+                                    .length() : truncateStringValue(getStringValue(j1, i1)).length());
                 }
             }
 
@@ -366,7 +404,7 @@ public class SpreadsheetResult implements Serializable {
         if (value == null) {
             return "";
         } else {
-            String s = Arrays.deepToString(new Object[] { value });
+            String s = Arrays.deepToString(new Object[]{value});
             return s.substring(1, s.length() - 1);
         }
     }
@@ -380,52 +418,38 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
     }
 
-    public Object toPlain() {
-        return toPlain(null);
-    }
-
-    public Object toPlain(SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
-        if (getCustomSpreadsheetResultOpenClass() != null) {
-            return getCustomSpreadsheetResultOpenClass().createBean(this, spreadsheetResultBeanPropertyNamingStrategy);
-        } else {
-            return toMap(false, spreadsheetResultBeanPropertyNamingStrategy);
-        }
-    }
-
     public Map<String, Object> toMap() {
         return toMap(true, null);
     }
 
     public Map<String, Object> toMap(boolean spreadsheetResultsToMap,
-            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                     SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
             final boolean isSingleRow = nonNullsRowsCount == 1;
             final boolean isSingleColumn = nonNullsColumnsCount == 1;
-            final boolean isTableStructureDetailsPresented = tableStructureDetails;
-            String[][] tableDetails = tableStructureDetails ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 Map<String, String> xmlNamesMap = customSpreadsheetResultOpenClass.getXmlNamesMap();
                 for (Map.Entry<String, List<IOpenField>> e : customSpreadsheetResultOpenClass.getBeanFieldsMap()
-                    .entrySet()) {
+                        .entrySet()) {
                     List<IOpenField> openFields = e.getValue();
                     Map<String, Integer> p1 = new HashMap<>();
                     Set<Point> points = new HashSet<>();
                     for (IOpenField openField : openFields) {
-                        Point p = fieldsCoordinates.get(openField.getName());
+                        Point p = getPoint(openField.getName());
                         if (p != null && !points.contains(p) && columnNamesForResultModel[p
-                            .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
+                                .getColumn()] != null && rowNamesForResultModel[p.getRow()] != null) {
                             String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
                             p1.merge(key, 1, Integer::sum);
                             points.add(p);
                         }
                     }
                     for (IOpenField openField : openFields) {
-                        Point p = fieldsCoordinates.get(openField.getName());
+                        Point p = getPoint(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
-                            .getRow()] != null) {
+                                .getRow()] != null) {
                             String key = getKey(spreadsheetResultBeanPropertyNamingStrategy, xmlNamesMap, e, p);
                             String fName;
                             if (p1.get(key) == 1) {
@@ -434,12 +458,9 @@ public class SpreadsheetResult implements Serializable {
                                 fName = xmlNamesMap.get(e.getKey());
                             }
                             values.put(fName,
-                                convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
-                            if (isTableStructureDetailsPresented) {
-                                tableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
-                            }
+                                    convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()),
+                                            spreadsheetResultsToMap,
+                                            spreadsheetResultBeanPropertyNamingStrategy));
                         }
                     }
                 }
@@ -450,21 +471,21 @@ public class SpreadsheetResult implements Serializable {
                             String fName;
                             if (isSingleColumn) {
                                 fName = spreadsheetResultBeanPropertyNamingStrategy == null ? rowNamesForResultModel[i]
-                                                                                            : spreadsheetResultBeanPropertyNamingStrategy
-                                                                                                .transform(
-                                                                                                    rowNamesForResultModel[i]);
+                                        : spreadsheetResultBeanPropertyNamingStrategy
+                                        .transform(
+                                                rowNamesForResultModel[i]);
                             } else {
                                 if (isSingleRow) {
                                     fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j]
-                                                                                                : spreadsheetResultBeanPropertyNamingStrategy
-                                                                                                    .transform(
-                                                                                                        columnNamesForResultModel[j]);
+                                            : spreadsheetResultBeanPropertyNamingStrategy
+                                            .transform(
+                                                    columnNamesForResultModel[j]);
                                 } else {
                                     fName = spreadsheetResultBeanPropertyNamingStrategy == null ? columnNamesForResultModel[j] + "_" + rowNamesForResultModel[i]
-                                                                                                : spreadsheetResultBeanPropertyNamingStrategy
-                                                                                                    .transform(
-                                                                                                        columnNamesForResultModel[j],
-                                                                                                        rowNamesForResultModel[i]);
+                                            : spreadsheetResultBeanPropertyNamingStrategy
+                                            .transform(
+                                                    columnNamesForResultModel[j],
+                                                    rowNamesForResultModel[i]);
                                 }
                             }
                             String fNewName = fName;
@@ -474,42 +495,21 @@ public class SpreadsheetResult implements Serializable {
                                 k++;
                             }
                             values.put(fNewName,
-                                convertSpreadsheetResult(getValue(i, j),
-                                    spreadsheetResultsToMap,
-                                    spreadsheetResultBeanPropertyNamingStrategy));
-                            if (isTableStructureDetailsPresented) {
-                                tableDetails[i][j] = fNewName;
-                            }
+                                    convertSpreadsheetResult(getValue(i, j),
+                                            spreadsheetResultsToMap,
+                                            spreadsheetResultBeanPropertyNamingStrategy));
                         }
                     }
                 }
-            }
-            if (tableStructureDetails) {
-                String[] sprStructureFieldNames = null;
-                if (customSpreadsheetResultOpenClass != null) {
-                    sprStructureFieldNames = customSpreadsheetResultOpenClass.getSprStructureFieldNames();
-                }
-                if (sprStructureFieldNames == null) {
-                    sprStructureFieldNames = new String[] {
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                CustomSpreadsheetResultOpenClass.ROW_NAMES_FIELD_NAME),
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                CustomSpreadsheetResultOpenClass.COLUMN_NAMES_FIELD_NAME),
-                            CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(),
-                                CustomSpreadsheetResultOpenClass.TABLE_DETAILS_FIELD_NAME) };
-                }
-                values.put(sprStructureFieldNames[0], rowNames);
-                values.put(sprStructureFieldNames[1], columnNames);
-                values.put(sprStructureFieldNames[2], tableDetails);
             }
         }
         return values;
     }
 
     private String getKey(SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy,
-            Map<String, String> xmlNamesMap,
-            Entry<String, List<IOpenField>> e,
-            Point p) {
+                          Map<String, String> xmlNamesMap,
+                          Entry<String, List<IOpenField>> e,
+                          Point p) {
         String key;
         if (spreadsheetResultBeanPropertyNamingStrategy == null) {
             key = xmlNamesMap.get(e.getKey());
@@ -520,67 +520,63 @@ public class SpreadsheetResult implements Serializable {
                 key = spreadsheetResultBeanPropertyNamingStrategy.transform(columnNamesForResultModel[p.getColumn()]);
             } else {
                 key = spreadsheetResultBeanPropertyNamingStrategy.transform(columnNamesForResultModel[p.getColumn()],
-                    rowNamesForResultModel[p.getRow()]);
+                        rowNamesForResultModel[p.getRow()]);
             }
         }
         return key;
     }
 
     private static Object convertSpreadsheetResult(Object v,
-            boolean spreadsheetResultsToMap,
-            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                   boolean spreadsheetResultsToMap,
+                                                   SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = spreadsheetResult
-                    .getCustomSpreadsheetResultOpenClass()
-                    .getModule()
-                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                    .toCustomSpreadsheetResultOpenClass();
+                        .getCustomSpreadsheetResultOpenClass()
+                        .getModule()
+                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass();
                 return convertSpreadsheetResult(v,
-                    customSpreadsheetResultOpenClass.getBeanClass(),
-                    customSpreadsheetResultOpenClass,
-                    spreadsheetResultsToMap,
-                    spreadsheetResultBeanPropertyNamingStrategy);
+                        customSpreadsheetResultOpenClass.getBeanClass(),
+                        customSpreadsheetResultOpenClass,
+                        spreadsheetResultsToMap,
+                        spreadsheetResultBeanPropertyNamingStrategy);
             } else {
                 return convertSpreadsheetResult(v,
-                    null,
-                    null,
-                    spreadsheetResultsToMap,
-                    spreadsheetResultBeanPropertyNamingStrategy);
+                        null,
+                        null,
+                        spreadsheetResultsToMap,
+                        spreadsheetResultBeanPropertyNamingStrategy);
             }
         }
         return convertSpreadsheetResult(v,
-            null,
-            null,
-            spreadsheetResultsToMap,
-            spreadsheetResultBeanPropertyNamingStrategy);
-    }
-
-    public static Object convertSpreadsheetResult(Object v) {
-        return convertSpreadsheetResult(v, null, null, false, null);
+                null,
+                null,
+                spreadsheetResultsToMap,
+                spreadsheetResultBeanPropertyNamingStrategy);
     }
 
     public static Object convertSpreadsheetResult(Object v,
-            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                  SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         return convertSpreadsheetResult(v, null, null, false, spreadsheetResultBeanPropertyNamingStrategy);
     }
 
     public static Object convertSpreadsheetResult(Object v,
-            Class<?> toType,
-            IOpenClass toTypeOpenClass,
-            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                  Class<?> toType,
+                                                  IOpenClass toTypeOpenClass,
+                                                  SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         return convertSpreadsheetResult(v, toType, toTypeOpenClass, false, spreadsheetResultBeanPropertyNamingStrategy);
     }
 
     public static Object convertBeansToSpreadsheetResults(Object v,
-            Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
+                                                          Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
         if (v == null) {
             return null;
         }
         if (v instanceof Collection) {
             return convertCollection((Collection<?>) v,
-                e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
+                    e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
         if (v instanceof Map) {
             return convertMap((Map<?, ?>) v, e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
@@ -608,27 +604,27 @@ public class SpreadsheetResult implements Serializable {
         }
         if (mapClassToSprOpenClass.containsKey(v.getClass())) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
-                .get(v.getClass());
+                    .get(v.getClass());
             return customSpreadsheetResultOpenClass1.createSpreadsheetResult(v, mapClassToSprOpenClass);
         }
         return v;
     }
 
     private static Object convertSpreadsheetResult(Object v,
-            Class<?> toType,
-            IOpenClass toTypeOpenClass,
-            boolean spreadsheetResultsToMap,
-            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+                                                   Class<?> toType,
+                                                   IOpenClass toTypeOpenClass,
+                                                   boolean spreadsheetResultsToMap,
+                                                   SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         if (v == null) {
             return null;
         }
         if (v instanceof Collection) {
             return convertCollection((Collection<?>) v,
-                e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
+                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
         }
         if (v instanceof Map) {
             return convertMap((Map<?, ?>) v,
-                e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
+                    e -> convertSpreadsheetResult(e, spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy));
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
@@ -639,16 +635,16 @@ public class SpreadsheetResult implements Serializable {
             int len = Array.getLength(v);
             if (ClassUtils.isAssignable(t, SpreadsheetResult.class)) {
                 Object tmpArray = Array
-                    .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
+                        .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {
                     Array.set(tmpArray,
-                        i,
-                        convertSpreadsheetResult(Array.get(v, i),
-                            toType != null && toType.isArray() ? toType.getComponentType() : null,
-                            toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
-                                                                                 : null,
-                            spreadsheetResultsToMap,
-                            spreadsheetResultBeanPropertyNamingStrategy));
+                            i,
+                            convertSpreadsheetResult(Array.get(v, i),
+                                    toType != null && toType.isArray() ? toType.getComponentType() : null,
+                                    toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
+                                            : null,
+                                    spreadsheetResultsToMap,
+                                    spreadsheetResultBeanPropertyNamingStrategy));
                 }
                 if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
                     return tmpArray;
@@ -676,16 +672,16 @@ public class SpreadsheetResult implements Serializable {
                 }
                 return tmpArray;
             } else if (ClassUtils.isAssignable(SpreadsheetResult.class, t) || ClassUtils.isAssignable(t,
-                Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
+                    Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
                     Array.set(newArray,
-                        i,
-                        convertSpreadsheetResult(Array.get(v, i),
-                            componentType,
-                            null,
-                            spreadsheetResultsToMap,
-                            spreadsheetResultBeanPropertyNamingStrategy));
+                            i,
+                            convertSpreadsheetResult(Array.get(v, i),
+                                    componentType,
+                                    null,
+                                    spreadsheetResultsToMap,
+                                    spreadsheetResultBeanPropertyNamingStrategy));
                 }
                 return newArray;
             } else {
@@ -694,36 +690,40 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
+            if (toType != null && toType.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                return CustomSpreadsheetResultOpenClass.createBean(toType, spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+            }
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap(spreadsheetResultsToMap, spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
-                .isGenerateBeanClass() && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                    spreadsheetResultBeanPropertyNamingStrategy);
+                        spreadsheetResultBeanPropertyNamingStrategy);
             } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) toTypeOpenClass)
-                .toCustomSpreadsheetResultOpenClass()
-                .isGenerateBeanClass() && ((SpreadsheetResultOpenClass) toTypeOpenClass)
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass() == toType) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) toTypeOpenClass)
-                    .toCustomSpreadsheetResultOpenClass();
+                        .toCustomSpreadsheetResultOpenClass();
                 return customSpreadsheetResultOpenClass.createBean(spreadsheetResult,
-                    spreadsheetResultBeanPropertyNamingStrategy);
+                        spreadsheetResultBeanPropertyNamingStrategy);
             } else if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && toType == spreadsheetResult
-                .getCustomSpreadsheetResultOpenClass()
-                .getModule()
-                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                .toCustomSpreadsheetResultOpenClass()
-                .getBeanClass()) {
-                return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                    .getCustomSpreadsheetResultOpenClass()
                     .getModule()
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
-                    .createBean(spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
+                    .getBeanClass()) {
+                return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                        .getModule()
+                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .createBean(spreadsheetResult, spreadsheetResultBeanPropertyNamingStrategy);
             } else {
-                return spreadsheetResult.toPlain();
+                if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
+                    return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
+                } else {
+                    return spreadsheetResult.toMap(false, null);
+                }
             }
         }
         return v;
@@ -763,30 +763,34 @@ public class SpreadsheetResult implements Serializable {
             return false;
 
         SpreadsheetResult that = (SpreadsheetResult) o;
-        if (fieldsCoordinates == null) {
-            initFieldsCoordinates();
+
+        if (rowNames.length != that.rowNames.length) {
+            return false;
         }
-        if (that.fieldsCoordinates == null) {
-            that.initFieldsCoordinates();
+        if (columnNames.length != that.columnNames.length) {
+            return false;
         }
-        if (fieldsCoordinates.keySet().equals(that.fieldsCoordinates.keySet())) {
-            for (Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
-                Object v = this.getFieldValue(entry.getKey());
-                Object thatV = that.getFieldValue(entry.getKey());
+        for (int row = 0; row < rowNames.length; row++) {
+            for (int column = 0; column < columnNames.length; column++) {
+                var v = getValue(row, column);
+                var thatV = that.getValue(getRowName(row), getColumnName(column));
                 if (!Objects.deepEquals(v, thatV)) {
                     return false;
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     @Override
     public int hashCode() {
-        if (fieldsCoordinates == null) {
-            initFieldsCoordinates();
+        int hashCode = 0;
+        for (var row : rowNames) {
+            hashCode += Objects.hashCode(row);
         }
-        return fieldsCoordinates.keySet().hashCode();
+        for (var column : columnNames) {
+            hashCode += Objects.hashCode(column);
+        }
+        return hashCode;
     }
 }

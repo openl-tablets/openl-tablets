@@ -17,16 +17,16 @@ import org.openl.util.MessageUtils;
 public class ConstructorSugarSupport {
 
     public static IBoundNode makeSugarConstructor(ISyntaxNode node,
-            ISyntaxNode[] childNodes,
-            IBindingContext bindingContext,
-            IOpenClass type,
-            ISyntaxNode typeNode) {
+                                                  ISyntaxNode[] childNodes,
+                                                  IBindingContext bindingContext,
+                                                  IOpenClass type,
+                                                  ISyntaxNode typeNode) {
         bindingContext.pushMessages();
         bindingContext.pushErrors();
         try {
             if (type.getInstanceClass() == null) {
                 return ANodeBinder.makeErrorNode(MessageUtils
-                    .getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()), typeNode, bindingContext);
+                        .getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()), typeNode, bindingContext);
             }
             var params = new ArrayList<IBoundNode>();
             var namedParams = new HashMap<String, ISyntaxNode>();
@@ -36,7 +36,7 @@ public class ConstructorSugarSupport {
             try {
                 bindingContext.pushLocalVarContext();
                 var localVar = bindingContext
-                    .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
+                        .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
                 var varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
                 for (var child : childNodes) {
                     String childType = child.getType();
@@ -60,11 +60,11 @@ public class ConstructorSugarSupport {
                 if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
                     cleanErrorsAndMessages(bindingContext);
                     return ANodeBinder.makeErrorNode(String.format("Field '%s' has already used.",
-                        duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
+                            duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
                 } else if (isAllParamsAssign && defaultConstructor == null) {
                     cleanErrorsAndMessages(bindingContext);
                     return ANodeBinder.makeErrorNode(String.format("Default constructor is not found in type '%s'.",
-                        type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
+                            type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
                 } else if (defaultConstructor != null && isAllParamsAssign) {
                     for (var e : namedParams.entrySet()) {
                         var f = type.getField(e.getKey());
@@ -72,21 +72,21 @@ public class ConstructorSugarSupport {
                             cleanErrorsAndMessages(bindingContext);
                             if (f == null) {
                                 return ANodeBinder.makeErrorNode(String.format("Field '%s' is not found.", e.getKey()),
-                                    e.getValue(),
-                                    bindingContext);
+                                        e.getValue(),
+                                        bindingContext);
                             }
                             if (f.isStatic()) {
                                 return ANodeBinder.makeErrorNode(
-                                    String.format("Field '%s' is found, but it is declared with static modifier.",
-                                        e.getKey()),
-                                    e.getValue(),
-                                    bindingContext);
+                                        String.format("Field '%s' is found, but it is declared with static modifier.",
+                                                e.getKey()),
+                                        e.getValue(),
+                                        bindingContext);
                             }
                             if (!f.isWritable()) {
                                 return ANodeBinder.makeErrorNode(
-                                    String.format("Field '%s' is found, but it is read only.", e.getKey()),
-                                    e.getValue(),
-                                    bindingContext);
+                                        String.format("Field '%s' is found, but it is read only.", e.getKey()),
+                                        e.getValue(),
+                                        bindingContext);
                             }
                         }
                     }
@@ -99,7 +99,7 @@ public class ConstructorSugarSupport {
                     if (methodCaller != null) {
                         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                         return new ConstructorParamsNode(
-                            new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
+                                new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
                     }
                 }
             } finally {

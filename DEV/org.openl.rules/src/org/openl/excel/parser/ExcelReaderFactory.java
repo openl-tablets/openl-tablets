@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.poi.poifs.filesystem.FileMagic;
+
 import org.openl.excel.parser.dom.DOMReader;
 import org.openl.excel.parser.event.EventReader;
 import org.openl.excel.parser.sax.SAXReader;

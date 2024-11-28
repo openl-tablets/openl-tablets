@@ -20,10 +20,10 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
 
         if (oldVersion.getLazyModulesForCompilationPatterns() != null) {
             List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
-                Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
-                e -> e == null ? null : new WildcardPattern(e.getValue()));
+                    Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
+                    e -> e == null ? null : new WildcardPattern(e.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new WildcardPattern[0]));
+                    .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
@@ -31,22 +31,22 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
 
         if (oldVersion.getPublishers() != null) {
             List<RulesDeploy.PublisherType> publishers = CollectionUtils.map(Arrays.asList(oldVersion.getPublishers()),
-                e -> {
-                    if (e == null) {
-                        return null;
-                    }
+                    e -> {
+                        if (e == null) {
+                            return null;
+                        }
 
-                    switch (e) {
-                        case WEBSERVICE:
-                            return RulesDeploy.PublisherType.WEBSERVICE;
-                        case RESTFUL:
-                            return RulesDeploy.PublisherType.RESTFUL;
-                        case RMI:
-                            return RulesDeploy.PublisherType.RMI;
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                });
+                        switch (e) {
+                            case WEBSERVICE:
+                                return RulesDeploy.PublisherType.WEBSERVICE;
+                            case RESTFUL:
+                                return RulesDeploy.PublisherType.RESTFUL;
+                            case RMI:
+                                return RulesDeploy.PublisherType.RMI;
+                            default:
+                                throw new IllegalArgumentException();
+                        }
+                    });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[0]));
         }
 
@@ -68,10 +68,10 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
 
         if (currentVersion.getLazyModulesForCompilationPatterns() != null) {
             List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
-                Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
-                oldVersion -> oldVersion == null ? null : new WildcardPattern(oldVersion.getValue()));
+                    Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
+                    oldVersion -> oldVersion == null ? null : new WildcardPattern(oldVersion.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new WildcardPattern[0]));
+                    .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
@@ -79,24 +79,24 @@ public class RulesDeployVersionConverter_v5_16 implements ObjectVersionConverter
 
         if (currentVersion.getPublishers() != null) {
             List<RulesDeploy_v5_16.PublisherType> publishers = CollectionUtils
-                .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
-                    if (oldVersion == null) {
-                        return null;
-                    }
+                    .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
+                        if (oldVersion == null) {
+                            return null;
+                        }
 
-                    switch (oldVersion) {
-                        case WEBSERVICE:
-                            return RulesDeploy_v5_16.PublisherType.WEBSERVICE;
-                        case RESTFUL:
-                            return RulesDeploy_v5_16.PublisherType.RESTFUL;
-                        case RMI:
-                            return RulesDeploy_v5_16.PublisherType.RMI;
-                        case KAFKA:
-                            throw new UnsupportedOperationException("KAFKA publisher is not supported in old version.");
-                        default:
-                            throw new IllegalArgumentException();
-                    }
-                });
+                        switch (oldVersion) {
+                            case WEBSERVICE:
+                                return RulesDeploy_v5_16.PublisherType.WEBSERVICE;
+                            case RESTFUL:
+                                return RulesDeploy_v5_16.PublisherType.RESTFUL;
+                            case RMI:
+                                return RulesDeploy_v5_16.PublisherType.RMI;
+                            case KAFKA:
+                                throw new UnsupportedOperationException("KAFKA publisher is not supported in old version.");
+                            default:
+                                throw new IllegalArgumentException();
+                        }
+                    });
             rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_16.PublisherType[0]));
         }
 

@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.domain.IDomain;
@@ -25,12 +28,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.StaticOpenClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
- *
  */
 public abstract class AOpenClass implements IOpenClass {
 
@@ -47,8 +47,8 @@ public abstract class AOpenClass implements IOpenClass {
     protected volatile Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap;
 
     private void addFieldToLowerCaseMaps(IOpenField f,
-            Map<String, IOpenField> uniqueLCaseFieldMap,
-            Map<String, List<IOpenField>> nonUniqueLCaseFieldMap) {
+                                         Map<String, IOpenField> uniqueLCaseFieldMap,
+                                         Map<String, List<IOpenField>> nonUniqueLCaseFieldMap) {
         String lname = f.getName().toLowerCase().replace(" ", "");
         if (uniqueLCaseFieldMap.containsKey(lname)) {
             List<IOpenField> ff = new ArrayList<>(2);
@@ -97,11 +97,11 @@ public abstract class AOpenClass implements IOpenClass {
                     domainOpenClassName.append("[]");
                 }
                 return new DomainOpenClass(domainOpenClassName.toString(),
-                    arrayType,
-                    openClass.getDomain(),
-                    openClass instanceof BelongsToModuleOpenClass ? ((BelongsToModuleOpenClass) openClass).getModule()
-                                                                  : null,
-                    null);
+                        arrayType,
+                        openClass.getDomain(),
+                        openClass instanceof BelongsToModuleOpenClass ? ((BelongsToModuleOpenClass) openClass).getModule()
+                                : null,
+                        null);
             } else {
                 return arrayType;
             }
@@ -333,7 +333,7 @@ public abstract class AOpenClass implements IOpenClass {
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(String
-                .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
+                    .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
         }
         invalidateInternalData();
     }
@@ -425,7 +425,6 @@ public abstract class AOpenClass implements IOpenClass {
 
     /**
      * Default implementation. Always returns <code>null</code>.
-     *
      */
     @Override
     public Collection<IOpenClass> getTypes() {

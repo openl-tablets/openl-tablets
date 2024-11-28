@@ -1,15 +1,16 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -34,11 +35,11 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
-            dependencyManager,
-            true);
+                dependencyManager,
+                true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
@@ -72,9 +73,9 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
 
         Class<?> serviceClass = strategy.getInstanceClass();
         Object instance = strategy.instantiate();
@@ -108,9 +109,9 @@ public class MultiModuleInstantiationTest {
         List<ProjectDescriptor> projects = listProjectsInFolder(root);
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
         strategy.setServiceClass(MultiModuleInterface.class);
         Object instantiate = strategy.instantiate();
         assertNotNull(instantiate);
@@ -127,12 +128,12 @@ public class MultiModuleInstantiationTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
-            listModules(projects),
-            dependencyManager,
-            true);
+                listModules(projects),
+                dependencyManager,
+                true);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
 
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();

@@ -1,8 +1,9 @@
 package org.openl.rules.tbasic;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 /**
@@ -12,7 +13,7 @@ public class TestForEach {
     @Test
     public void test1() {
         TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F1.xls",
-            "Compilation failure. The cell should be of the array type");
+                "Compilation failure. The cell should be of the array type");
     }
 
     @Test
@@ -33,13 +34,13 @@ public class TestForEach {
     @Test
     public void test5() {
         TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F5.xls",
-            "Compilation failure. The cell should be of the array type");
+                "Compilation failure. The cell should be of the array type");
     }
 
     @Test
     public void test6() {
         TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F6.xls",
-            "Compilation failure. The cell should be of the array type");
+                "Compilation failure. The cell should be of the array type");
     }
 
     @Test

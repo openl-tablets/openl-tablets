@@ -1,14 +1,15 @@
 package org.openl.rules.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DatesTest {
 
@@ -74,6 +75,7 @@ public class DatesTest {
         assertEquals(new Date(138, 6, 12), Dates.toDate("7/12/38"));
         assertEquals(new Date(-1820, 6, 12), Dates.toDate("7/12/080"));
         assertEquals(new Date(80, 6, 12), Dates.toDate("07/12/1980"));
+        assertEquals(new Date(80, 6, 12), Dates.toDate("1980-07-12"));
 
         assertNull(Dates.toDate(null, null));
         assertNull(Dates.toDate("", ""));
@@ -100,9 +102,11 @@ public class DatesTest {
     private static final Date DEF_DATE = new Date();
     private static final Double ZERO_DOUBLE = 0.0d;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void test_dateDif_shouldThrowIllegalArgumentException_whenUnitNameInUnknown() {
-        Dates.dateDif(null, null, "SOME_NAME");
+        assertThrows(IllegalArgumentException.class, () -> {
+            Dates.dateDif(null, null, "SOME_NAME");
+        });
     }
 
     @Test
@@ -151,18 +155,18 @@ public class DatesTest {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
-        assertEquals(new Double(366), Dates.dateDif(start, end, "D"));
-        assertEquals(new Double(52), Dates.dateDif(start, end, "W"));
-        assertEquals(new Double(12), Dates.dateDif(start, end, "M"));
-        assertEquals(new Double(1), Dates.dateDif(start, end, "Y"));
-        assertEquals(new Double(1), Dates.dateDif(start, end, "MD"));
-        assertEquals(new Double(1), Dates.dateDif(start, end, "YD"));
+        assertEquals(Double.valueOf(366), Dates.dateDif(start, end, "D"));
+        assertEquals(Double.valueOf(52), Dates.dateDif(start, end, "W"));
+        assertEquals(Double.valueOf(12), Dates.dateDif(start, end, "M"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(start, end, "Y"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(start, end, "MD"));
+        assertEquals(Double.valueOf(1), Dates.dateDif(start, end, "YD"));
         assertEquals(ZERO_DOUBLE, Dates.dateDif(start, end, "YM"));
 
-        assertEquals(new Double(10), Dates.dateDif(start, getDate(27, 2, 2013), "M"));
-        assertEquals(new Double(2), Dates.dateDif(start, getDate(27, 1, 2015), "Y"));
-        assertEquals(new Double(23), Dates.dateDif(start, getDate(20, 1, 2015), "MD"));
-        assertEquals(new Double(298), Dates.dateDif(start, getDate(20, 1, 2015), "YD"));
+        assertEquals(Double.valueOf(10), Dates.dateDif(start, getDate(27, 2, 2013), "M"));
+        assertEquals(Double.valueOf(2), Dates.dateDif(start, getDate(27, 1, 2015), "Y"));
+        assertEquals(Double.valueOf(23), Dates.dateDif(start, getDate(20, 1, 2015), "MD"));
+        assertEquals(Double.valueOf(298), Dates.dateDif(start, getDate(20, 1, 2015), "YD"));
         assertEquals(ZERO_DOUBLE, Dates.dateDif(getDate(31, 1, 2013), getDate(1, 3, 2013), "MD"));
     }
 
@@ -171,12 +175,12 @@ public class DatesTest {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
-        assertEquals(new Double(-366), Dates.dateDif(end, start, "D"));
-        assertEquals(new Double(-52), Dates.dateDif(end, start, "W"));
-        assertEquals(new Double(-12), Dates.dateDif(end, start, "M"));
-        assertEquals(new Double(-1), Dates.dateDif(end, start, "Y"));
-        assertEquals(new Double(-1), Dates.dateDif(end, start, "MD"));
-        assertEquals(new Double(-1), Dates.dateDif(end, start, "YD"));
+        assertEquals(Double.valueOf(-366), Dates.dateDif(end, start, "D"));
+        assertEquals(Double.valueOf(-52), Dates.dateDif(end, start, "W"));
+        assertEquals(Double.valueOf(-12), Dates.dateDif(end, start, "M"));
+        assertEquals(Double.valueOf(-1), Dates.dateDif(end, start, "Y"));
+        assertEquals(Double.valueOf(-1), Dates.dateDif(end, start, "MD"));
+        assertEquals(Double.valueOf(-1), Dates.dateDif(end, start, "YD"));
         assertEquals(ZERO_DOUBLE, Dates.dateDif(end, start, "YM"));
     }
 
@@ -185,12 +189,12 @@ public class DatesTest {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
-        assertEquals(new Double(52.285714285714285d), Dates.dateDif(start, end, "WF"));
-        assertEquals(new Double(12.03225806451613d), Dates.dateDif(start, end, "MF"));
-        assertEquals(new Double(1.0027397260273974d), Dates.dateDif(start, end, "YF"));
-        assertEquals(new Double(0.03225806451612903d), Dates.dateDif(start, end, "YMF"));
-        assertEquals(new Double(10.967741935483872), Dates.dateDif(start, getDate(27, 2, 2013), "MF"));
-        assertEquals(new Double(2.8356164383561646), Dates.dateDif(start, getDate(27, 1, 2015), "YF"));
+        assertEquals(Double.valueOf(52.285714285714285d), Dates.dateDif(start, end, "WF"));
+        assertEquals(Double.valueOf(12.03225806451613d), Dates.dateDif(start, end, "MF"));
+        assertEquals(Double.valueOf(1.0027397260273974d), Dates.dateDif(start, end, "YF"));
+        assertEquals(Double.valueOf(0.03225806451612903d), Dates.dateDif(start, end, "YMF"));
+        assertEquals(Double.valueOf(10.967741935483872), Dates.dateDif(start, getDate(27, 2, 2013), "MF"));
+        assertEquals(Double.valueOf(2.8356164383561646), Dates.dateDif(start, getDate(27, 1, 2015), "YF"));
     }
 
     @Test
@@ -198,10 +202,10 @@ public class DatesTest {
         final Date start = getDate(28, 3, 2012);
         final Date end = getDate(29, 3, 2013);
 
-        assertEquals(new Double(-52.285714285714285d), Dates.dateDif(end, start, "WF"));
-        assertEquals(new Double(-12.03225806451613d), Dates.dateDif(end, start, "MF"));
-        assertEquals(new Double(-1.0027397260273974d), Dates.dateDif(end, start, "YF"));
-        assertEquals(new Double(-0.03225806451612903d), Dates.dateDif(end, start, "YMF"));
+        assertEquals(Double.valueOf(-52.285714285714285d), Dates.dateDif(end, start, "WF"));
+        assertEquals(Double.valueOf(-12.03225806451613d), Dates.dateDif(end, start, "MF"));
+        assertEquals(Double.valueOf(-1.0027397260273974d), Dates.dateDif(end, start, "YF"));
+        assertEquals(Double.valueOf(-0.03225806451612903d), Dates.dateDif(end, start, "YMF"));
     }
 
     @Test
@@ -223,7 +227,7 @@ public class DatesTest {
     }
 
     @Test
-    public void isLeap(){
+    public void isLeap() {
         assertTrue(Dates.isLeap(Dates.Date(2016, 2, 29)));
         assertFalse(Dates.isLeap(Dates.Date(2017, 2, 28)));
         assertFalse(Dates.isLeap(Dates.Date(1900, 2, 28)));

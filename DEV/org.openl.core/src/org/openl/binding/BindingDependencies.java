@@ -10,7 +10,6 @@ import org.openl.types.impl.ExecutableMethod;
 
 /**
  * @author snshor
- *
  */
 
 public class BindingDependencies {

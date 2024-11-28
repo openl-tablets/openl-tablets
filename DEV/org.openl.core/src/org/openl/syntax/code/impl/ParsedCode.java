@@ -4,7 +4,12 @@
 
 package org.openl.syntax.code.impl;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLMessage;
@@ -16,7 +21,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
- *
  */
 public class ParsedCode implements IParsedCode {
 
@@ -31,17 +35,17 @@ public class ParsedCode implements IParsedCode {
     private Set<CompiledDependency> compiledDependencies = new HashSet<>();
 
     public ParsedCode(ISyntaxNode topNode,
-            IOpenSourceCodeModule source,
-            SyntaxNodeException[] syntaxErrors,
-            Collection<OpenLMessage> messages) {
+                      IOpenSourceCodeModule source,
+                      SyntaxNodeException[] syntaxErrors,
+                      Collection<OpenLMessage> messages) {
         this(topNode, source, syntaxErrors, messages, new IDependency[0]);
     }
 
     public ParsedCode(ISyntaxNode topNode,
-            IOpenSourceCodeModule source,
-            SyntaxNodeException[] syntaxErrors,
-            Collection<OpenLMessage> messages,
-            IDependency[] dependencies) {
+                      IOpenSourceCodeModule source,
+                      SyntaxNodeException[] syntaxErrors,
+                      Collection<OpenLMessage> messages,
+                      IDependency[] dependencies) {
         this.topNode = topNode;
         this.syntaxErrors = syntaxErrors;
         this.source = source;

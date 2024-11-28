@@ -12,24 +12,30 @@ import org.openl.rules.workspace.uw.UserWorkspaceListener;
  * Manager of Multiple User Workspaces.
  * <p/>
  * It takes care of creation and releasing of User Workspaces.
- *
+ * <p>
  * Must be configured in spring configuration as a singleton.
  *
  * @author Aleh Bykhavets
  */
 public class MultiUserWorkspaceManager implements UserWorkspaceListener {
-    /** Design Time Repository */
+    /**
+     * Design Time Repository
+     */
     private DesignTimeRepository designTimeRepository;
-    /** Manager of Local Workspaces */
+    /**
+     * Manager of Local Workspaces
+     */
     private LocalWorkspaceManager localWorkspaceManager;
-    /** Cache for User Workspaces */
+    /**
+     * Cache for User Workspaces
+     */
     private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
 
     private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) {
         UserWorkspace userWorkspace = getUserWorkspaceFactory()
-            .create(localWorkspaceManager, designTimeRepository, user);
+                .create(localWorkspaceManager, designTimeRepository, user);
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
     }

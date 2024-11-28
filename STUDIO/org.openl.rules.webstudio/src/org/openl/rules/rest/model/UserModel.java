@@ -2,9 +2,9 @@ package org.openl.rules.rest.model;
 
 import java.util.Set;
 
-import org.openl.rules.security.UserExternalFlags;
-
 import io.swagger.v3.oas.annotations.Parameter;
+
+import org.openl.rules.security.UserExternalFlags;
 
 public class UserModel extends UserCreateModel {
 
@@ -18,7 +18,7 @@ public class UserModel extends UserCreateModel {
     private boolean unsafePassword;
     private UserExternalFlags externalFlags;
 
-    @Parameter(description = "Number of external groups which is unknown by WebStudio")
+    @Parameter(description = "Number of external groups which is unknown by OpenL Studio")
     private Long notMatchedExternalGroupsCount;
 
     @Parameter(description = "User online marker")

@@ -4,21 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.openl.rules.rest.exception.BadRequestException;
-import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.rest.model.MailConfigModel;
-import org.openl.rules.rest.model.NotificationModel;
-import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.User;
-import org.openl.rules.webstudio.mail.MailSender;
-import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
-import org.openl.spring.env.DynamicPropertySource;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
@@ -32,9 +22,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.rules.rest.exception.ForbiddenException;
+import org.openl.rules.rest.model.MailConfigModel;
+import org.openl.rules.rest.model.NotificationModel;
+import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.User;
+import org.openl.rules.webstudio.mail.MailSender;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.spring.env.DynamicPropertySource;
 
 @RestController
 @RequestMapping("/mail")
@@ -55,11 +54,11 @@ public class MailController {
 
     @Autowired
     public MailController(MailSender mailSender,
-            UserManagementService userManagementService,
-            CurrentUserInfo currentUserInfo,
-            UserSettingManagementService userSettingManagementService,
-            PropertyResolver propertyResolver,
-            BeanValidationProvider validationProvider) {
+                          UserManagementService userManagementService,
+                          CurrentUserInfo currentUserInfo,
+                          UserSettingManagementService userSettingManagementService,
+                          PropertyResolver propertyResolver,
+                          BeanValidationProvider validationProvider) {
         this.mailSender = mailSender;
         this.userSettingManagementService = userSettingManagementService;
         this.userManagementService = userManagementService;
@@ -77,12 +76,12 @@ public class MailController {
         String dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
         if (Objects.equals(dbToken, token) && Objects.nonNull(user)) {
             userManagementService.updateUserData(user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                null,
-                user.getEmail(),
-                user.getDisplayName(),
-                true);
+                    user.getFirstName(),
+                    user.getLastName(),
+                    null,
+                    user.getEmail(),
+                    user.getDisplayName(),
+                    true);
             userSettingManagementService.setProperty(username, MAIL_VERIFY_TOKEN, "");
         } else {
             throw new BadRequestException("mail.wrong.token");
@@ -92,7 +91,7 @@ public class MailController {
     @Operation(summary = "mail.send-verification.summary", description = "mail.send-verification.desc")
     @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public NotificationModel sendVerification(HttpServletRequest request,
-            @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
+                                              @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -109,8 +108,8 @@ public class MailController {
     @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     public MailConfigModel getMailConfig() {
         return new MailConfigModel().setUrl(propertyResolver.getProperty(MAIL_URL))
-            .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
-            .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
+                .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
+                .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
     }
 
     @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")

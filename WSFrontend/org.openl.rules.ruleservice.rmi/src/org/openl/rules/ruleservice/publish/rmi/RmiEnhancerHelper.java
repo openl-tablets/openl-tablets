@@ -17,7 +17,6 @@ import org.openl.runtime.ASMProxyFactory;
  * Utility class for generate RMI annotations for service interface.
  *
  * @author Marat Kamalov
- *
  */
 public class RmiEnhancerHelper {
 
@@ -36,7 +35,7 @@ public class RmiEnhancerHelper {
     }
 
     public static DefaultRmiHandler decorateBeanWithDynamicRmiHandler(Object targetBean,
-            OpenLService service) throws Exception {
+                                                                      OpenLService service) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
         Map<String, List<Method>> methodMap = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
@@ -60,7 +59,7 @@ public class RmiEnhancerHelper {
             boolean found = false;
             for (Method method : serviceClass.getMethods()) {
                 if (m.getName()
-                    .equals(method.getName()) && m.getParameterTypes().length == method.getParameterTypes().length) {
+                        .equals(method.getName()) && m.getParameterTypes().length == method.getParameterTypes().length) {
                     boolean f = true;
                     for (int i = 0; i < method.getParameterTypes().length; i++) {
                         if (!m.getParameterTypes()[i].equals(method.getParameterTypes()[i])) {
@@ -77,12 +76,12 @@ public class RmiEnhancerHelper {
             }
             if (!found) {
                 throw new RuleServiceRuntimeException(
-                    "Failed to create a proxy for the service. RMI interface contains a method that is not found in the service interface.");
+                        "Failed to create a proxy for the service. RMI interface contains a method that is not found in the service interface.");
             }
         }
 
         return (Remote) ASMProxyFactory.newProxyInstance(getClassLoader(service),
-            new StaticRmiMethodHandler(targetBean, methodMap),
-            service.getRmiServiceClass());
+                new StaticRmiMethodHandler(targetBean, methodMap),
+                service.getRmiServiceClass());
     }
 }

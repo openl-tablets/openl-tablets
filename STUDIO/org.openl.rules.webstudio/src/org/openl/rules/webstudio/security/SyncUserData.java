@@ -16,8 +16,8 @@ public class SyncUserData implements Consumer<SimpleUser> {
     private final ExternalGroupService externalGroupService;
 
     public SyncUserData(UserManagementService userManagementService,
-            AdminUsers adminUsersInitializer,
-            ExternalGroupService externalGroupService) {
+                        AdminUsers adminUsersInitializer,
+                        ExternalGroupService externalGroupService) {
         this.userManagementService = userManagementService;
         this.adminUsersInitializer = adminUsersInitializer;
         this.externalGroupService = externalGroupService;

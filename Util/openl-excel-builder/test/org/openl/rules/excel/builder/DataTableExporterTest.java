@@ -1,9 +1,10 @@
 package org.openl.rules.excel.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.openl.rules.excel.builder.export.DataTableExporter.DATA_SHEET;
 
 import java.io.ByteArrayOutputStream;
@@ -21,8 +22,9 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.AfterClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -52,11 +54,11 @@ public class DataTableExporterTest {
         FieldModel customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
         PathInfo info = new PathInfo("/getTest",
-            "/getTest",
-            PathInfo.Operation.GET,
-            new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
-            "application/json",
-            "application/json");
+                "/getTest",
+                PathInfo.Operation.GET,
+                new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
+                "application/json",
+                "application/json");
         DataModel dm = new DataModel("getTest", "Test", info, dt);
 
         DatatypeModel secondModel = new DatatypeModel("MyModel");
@@ -66,11 +68,11 @@ public class DataTableExporterTest {
         FieldModel isOkField = new FieldModel("isOk", "Boolean", false);
         secondModel.setFields(Arrays.asList(integerField, sumField, isOkField));
         PathInfo infoForNotOk = new PathInfo("/getMyModel",
-            "/my/model",
-            PathInfo.Operation.POST,
-            new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
-            "text/plain",
-            "text/html");
+                "/my/model",
+                PathInfo.Operation.POST,
+                new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
+                "text/plain",
+                "text/html");
         DataModel myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);
 
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -81,7 +83,7 @@ public class DataTableExporterTest {
         }
 
         try (XSSFWorkbook wb = new XSSFWorkbook(
-            new FileInputStream("../openl-excel-builder/" + DATA_TEST_PROJECT_NAME))) {
+                new FileInputStream("../openl-excel-builder/" + DATA_TEST_PROJECT_NAME))) {
             XSSFSheet dtsSheet = wb.getSheet(DATA_SHEET);
             assertNotNull(dtsSheet);
 
@@ -254,7 +256,7 @@ public class DataTableExporterTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void clean() throws IOException {
         File dir = new File("../openl-excel-builder");
         File[] files = dir.listFiles();

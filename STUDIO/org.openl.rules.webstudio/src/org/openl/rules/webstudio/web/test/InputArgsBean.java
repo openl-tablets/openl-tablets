@@ -20,9 +20,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.model.SelectItem;
 import javax.xml.bind.JAXBException;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.richfaces.component.UITree;
+import org.richfaces.model.SequenceRowKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
@@ -37,7 +47,6 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JsonUtils;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -45,8 +54,8 @@ import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.deploy.DeployUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -54,21 +63,14 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.richfaces.component.UITree;
-import org.richfaces.model.SequenceRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 @Service
 @ViewScope
 public class InputArgsBean {
     private final Logger log = LoggerFactory.getLogger(InputArgsBean.class);
+
+    @Autowired
+    private Environment environment;
 
     private String uri;
     private UITree currentTreeNode;
@@ -81,6 +83,7 @@ public class InputArgsBean {
     private String inputTextBean;
 
     private static final List<IOpenClass> predefinedTypes;
+
     static {
         predefinedTypes = new ArrayList<>();
 
@@ -111,6 +114,10 @@ public class InputArgsBean {
         predefinedTypes.add(DOUBLE);
         predefinedTypes.add(BOOLEAN);
         predefinedTypes.add(CHAR);
+    }
+
+    public InputArgsBean(Environment environment) {
+        this.environment = environment;
     }
 
     enum InputTestCaseType {
@@ -176,17 +183,12 @@ public class InputArgsBean {
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
             ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setRulesDeploy(rulesDeploy);
+            objectMapperFactory.setEnvironment(environment);
             objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) WebStudioUtils.getWebStudio()
-                .getModel()
-                .getCompiledOpenClass()
-                .getOpenClassWithErrors());
+                    .getModel()
+                    .getCompiledOpenClass()
+                    .getOpenClassWithErrors());
             objectMapperFactory.setClassLoader(classLoader);
-            // Default values from webservices. TODO this should be configurable
-            objectMapperFactory.setPolymorphicTypeValidation(true);
-            objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
-            objectMapperFactory.setCaseInsensitiveProperties(false);
-            objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
-            objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
 
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {
@@ -199,7 +201,7 @@ public class InputArgsBean {
 
     public void fillBean() {
         if (StringUtils.isNotBlank(inputTextBean) && InputTestCaseType.BEAN
-            .equals(inputTestCaseType) && argumentTreeNodes != null) {
+                .equals(inputTestCaseType) && argumentTreeNodes != null) {
             try {
                 Map<String, String> stringStringMap = JsonUtils.splitJSON(inputTextBean);
                 if (stringStringMap.isEmpty()) {
@@ -212,7 +214,7 @@ public class InputArgsBean {
                         arg.setValueForced(JsonUtils.fromJSON(field, arg.getType().getInstanceClass(), objectMapper));
                     } else if (argumentTreeNodes.length == 1) {
                         argumentTreeNodes[0].setValueForced(JsonUtils
-                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
+                                .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
                     }
                 }
             } catch (JsonParseException e) {
@@ -253,14 +255,14 @@ public class InputArgsBean {
                 ObjectMapper objectMapper = configureObjectMapper();
                 if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
                     parsedArguments[0] = JsonUtils
-                        .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
+                            .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
                 } else {
                     for (int i = 0; i < argumentTreeNodes.length; i++) {
                         String field = stringStringMap.get(argumentTreeNodes[i].getName());
                         if (field != null) {
                             parsedArguments[i] = tryParseJson(field,
-                                argumentTreeNodes[i].getType().getInstanceClass(),
-                                objectMapper);
+                                    argumentTreeNodes[i].getType().getInstanceClass(),
+                                    objectMapper);
                             stringStringMap.remove(argumentTreeNodes[i].getName());
                         }
                     }
@@ -303,9 +305,9 @@ public class InputArgsBean {
 
     private String constructJsonExceptionMessage(JsonParseException e) {
         return String.format("%s</br>[line: %s, column: %s]",
-            e.getOriginalMessage(),
-            e.getLocation().getLineNr(),
-            e.getLocation().getColumnNr());
+                e.getOriginalMessage(),
+                e.getLocation().getLineNr(),
+                e.getLocation().getColumnNr());
     }
 
     public void initObject() {
@@ -317,13 +319,13 @@ public class InputArgsBean {
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
         Object value = ParameterTreeBuilder.canInstantiate(fieldType)
-                                                                      ? fieldType
-                                                                          .newInstance(new SimpleVM().getRuntimeEnv())
-                                                                      : null;
+                ? fieldType
+                .newInstance(new SimpleVM().getRuntimeEnv())
+                : null;
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
-            .fieldNameInParent(currentNode.getName())
-            .parent(parent)
-            .build();
+                .fieldNameInParent(currentNode.getName())
+                .parent(parent)
+                .build();
         ParameterDeclarationTreeNode newNode = ParameterTreeBuilder.createNode(config);
         currentNode.setValueForced(newNode.getValueForced());
 
@@ -361,7 +363,7 @@ public class InputArgsBean {
     private ParameterWithValueDeclaration[] initArguments() {
         IOpenMethod method = getTestedMethod();
         ParameterWithValueDeclaration[] args = new ParameterWithValueDeclaration[method.getSignature()
-            .getNumberOfParameters()];
+                .getNumberOfParameters()];
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
         for (int i = 0; i < args.length; i++) {
             String parameterName = method.getSignature().getParameterName(i);
@@ -396,8 +398,8 @@ public class InputArgsBean {
         ParameterDeclarationTreeNode[] argTreeNodes = new ParameterDeclarationTreeNode[args.length];
         for (int i = 0; i < args.length; i++) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(args[i].getType(), args[i].getValue())
-                .fieldNameInParent(args[i].getName())
-                .build();
+                    .fieldNameInParent(args[i].getName())
+                    .build();
             argTreeNodes[i] = ParameterTreeBuilder.createNode(config);
         }
         return argTreeNodes;
@@ -492,9 +494,9 @@ public class InputArgsBean {
     private RulesDeploy getCurrentProjectRulesDeploy() {
         try {
             RulesProject currentProject = WebStudioUtils.getWebStudio().getCurrentProject();
-            if (currentProject.hasArtefact(DeployUtils.RULES_DEPLOY_XML)) {
+            if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
                 try {
-                    AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                    AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
                     if (artefact instanceof AProjectResource) {
                         try (InputStream content = ((AProjectResource) artefact).getContent()) {
                             IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();

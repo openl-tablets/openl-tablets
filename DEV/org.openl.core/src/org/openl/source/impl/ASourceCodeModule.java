@@ -29,7 +29,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
             StringBuilder buf = new StringBuilder(4096);
             char[] c = new char[8192];
             try (BufferedReader br = new BufferedReader(getCharacterStream())) {
-                for (int len; (len = br.read(c)) > 0;) {
+                for (int len; (len = br.read(c)) > 0; ) {
                     buf.append(c, 0, len);
                 }
             } catch (IOException e) {

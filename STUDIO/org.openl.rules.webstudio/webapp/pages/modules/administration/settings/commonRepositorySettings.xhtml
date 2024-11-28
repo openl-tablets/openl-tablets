@@ -17,7 +17,7 @@
         <h:message for="#{prependId}uri" styleClass="error"/>
         <h:outputLabel value="Secure connection:" for="#{prependId}repositorySecureConnection" />
         <h:selectBooleanCheckbox id="#{prependId}repositorySecureConnection" value="#{settings.secure}"
-                                 onmousedown="if($j(this).attr('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
+                                 onmousedown="if($j(this).prop('checked')){if(!window.confirm('Login and password will be deleted. Do you want to continue?')) {return false;}} return this.click()">
             <f:ajax event="change" execute="@form" render="#{prependId}repoSettings" />
         </h:selectBooleanCheckbox>
         <h:outputText value="Login:" rendered="#{settings.secure}"/>

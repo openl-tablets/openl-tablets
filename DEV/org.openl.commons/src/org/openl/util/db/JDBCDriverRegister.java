@@ -3,9 +3,10 @@ package org.openl.util.db;
 import java.net.URL;
 import java.sql.Driver;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.StringUtils;
 
 /**
  * A utility class which register all supported drivers in the classloader.
@@ -26,14 +27,14 @@ public class JDBCDriverRegister {
 
         // Defaults drivers
         registerDrivers("org.h2.Driver",
-            "org.hsqldb.jdbcDriver",
-            "org.postgresql.Driver",
-            "org.mariadb.jdbc.Driver",
-            "com.mysql.cj.jdbc.Driver",
-            "com.mysql.jdbc.Driver",
-            "com.ibm.db2.jcc.DB2Driver",
-            "oracle.jdbc.OracleDriver",
-            "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                "org.hsqldb.jdbcDriver",
+                "org.postgresql.Driver",
+                "org.mariadb.jdbc.Driver",
+                "com.mysql.cj.jdbc.Driver",
+                "com.mysql.jdbc.Driver",
+                "com.ibm.db2.jcc.DB2Driver",
+                "oracle.jdbc.OracleDriver",
+                "com.microsoft.sqlserver.jdbc.SQLServerDriver");
     }
 
     private static void registerDrivers(String... drivers) {
@@ -51,15 +52,15 @@ public class JDBCDriverRegister {
             }
             String path = getPath(aClass);
             try {
-                Driver dr = Driver.class.cast(aClass.newInstance());
+                Driver dr = Driver.class.cast(aClass.getDeclaredConstructor().newInstance());
                 int majorVersion = dr.getMajorVersion();
                 int minorVersion = dr.getMinorVersion();
 
                 log.info("JDBC Driver: '{}' - OK.\n      Path: {}\n      Version: {}.{}",
-                    driver,
-                    path,
-                    majorVersion,
-                    minorVersion);
+                        driver,
+                        path,
+                        majorVersion,
+                        minorVersion);
             } catch (Exception e) {
                 log.info("JDBC Driver: '{}' - ERROR.\n      Path: {}", driver, path, e);
             }

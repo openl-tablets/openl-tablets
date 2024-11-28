@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Difference result of the same workbook by HSSF Palette between three revisions. {@code base revision} to
  * {@code our revision}, {@code base revision} to {@code their revision}
- * 
+ *
  * @author Vladyslav Pikus
  */
 public class HSSFPaletteDiffResult {

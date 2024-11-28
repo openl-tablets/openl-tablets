@@ -118,9 +118,9 @@ public abstract class JavaCC30Grammar implements IGrammar {
                 // grammar problem???
                 ISyntaxNode node = pop();
                 syntaxError = SyntaxNodeExceptionUtils.createError(
-                    "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
-                    null,
-                    node);
+                        "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
+                        null,
+                        node);
                 return node;
             // throw new RuntimeException("More than one syntax node on
             // stack");

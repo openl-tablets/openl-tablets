@@ -29,6 +29,14 @@
 
             <h:outputText value="#{msg['ws.search.no']}" rendered="#{empty searchBean.searchResults}" />
         </h1>
+        <c:if test="#{searchBean.tableCountForIndexing > 0}">
+            <div class="page-header">
+                <h:outputFormat value="#{msg['ws.search.indexing']}">
+                    <f:param value="#{searchBean.expectedIndexingDuration}"/>
+                    <f:param value="#{searchBean.tableCountForIndexing}"/>
+                </h:outputFormat>
+            </div>
+        </c:if>
 
         <div id="searchResults">
             <div>
@@ -51,7 +59,7 @@
     </div>
 
     <script>
-        $j("#searchQuery").val("#{param.query}");
+        $j("#searchQuery").val(decodeURIComponent("#{searchBean.query}"));
     </script>
 
 </ui:composition>

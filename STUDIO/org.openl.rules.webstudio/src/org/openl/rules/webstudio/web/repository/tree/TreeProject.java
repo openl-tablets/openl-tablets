@@ -3,6 +3,9 @@ package org.openl.rules.webstudio.web.repository.tree;
 import java.util.Date;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -12,14 +15,11 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.UiConst;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Represents OpenL project in a tree.
  *
  * @author Aleh Bykhavets
- *
  */
 public class TreeProject extends TreeFolder {
 
@@ -79,9 +79,9 @@ public class TreeProject extends TreeFolder {
     }
 
     public TreeProject(String id,
-            String name,
-            IFilter<AProjectArtefact> filter,
-            ProjectDescriptorArtefactResolver projectDescriptorResolver) {
+                       String name,
+                       IFilter<AProjectArtefact> filter,
+                       ProjectDescriptorArtefactResolver projectDescriptorResolver) {
         super(id, name, filter);
         this.projectDescriptorResolver = projectDescriptorResolver;
     }

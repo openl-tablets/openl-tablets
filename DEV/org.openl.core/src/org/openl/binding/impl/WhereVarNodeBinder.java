@@ -13,7 +13,6 @@ import org.openl.syntax.impl.IdentifierNode;
 
 /**
  * @author snshor
- *
  */
 public class WhereVarNodeBinder extends ANodeBinder {
 

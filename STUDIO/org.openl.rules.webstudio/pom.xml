@@ -4,19 +4,18 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - STUDIO - WebStudio</name>
-    <description>OpenL WebStudio</description>
+    <name>OpenL - STUDIO - Application</name>
+    <description>OpenL Studio Application</description>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <generate-application.properties>prepare-package</generate-application.properties>
         <sonar.sources>src,webapp</sonar.sources>
     </properties>
     <build>
@@ -95,7 +94,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
-                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -190,11 +189,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.security.acl</artifactId>
         </dependency>
@@ -256,11 +250,6 @@
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!--added for fix problem webstudio failure on Jboss 7.1 and JBoss 7.2, due to new JSF version-->
-        <dependency>
-            <groupId>org.reactivestreams</groupId>
-            <artifactId>reactive-streams</artifactId>
-        </dependency>
         <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
         <dependency>
             <groupId>javax.websocket</groupId>
@@ -278,17 +267,16 @@
         </dependency>
         <dependency>
             <groupId>com.icegreen</groupId>
-            <artifactId>greenmail-junit4</artifactId>
+            <artifactId>greenmail-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- Logging -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -382,6 +370,18 @@
         <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.webstudio.ai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.cache2k</groupId>
+            <artifactId>cache2k-jcache</artifactId>
         </dependency>
     </dependencies>
 </project>

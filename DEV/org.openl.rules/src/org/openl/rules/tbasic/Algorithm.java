@@ -1,6 +1,10 @@
 package org.openl.rules.tbasic;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.rules.annotations.Executable;
@@ -14,9 +18,8 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * Table Basic Algorithm component. It's runnable method inside OpenL Tablets infrastructure.
- *
+ * <p>
  * Allows users to represent any algorithm in tables using simple TBasic syntax.
- *
  */
 @Executable
 public class Algorithm extends AlgorithmFunction {

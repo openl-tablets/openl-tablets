@@ -16,6 +16,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+
 import org.openl.util.CollectionUtils;
 import org.openl.util.ZipUtils;
 

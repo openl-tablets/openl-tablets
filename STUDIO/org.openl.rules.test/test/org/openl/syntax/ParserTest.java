@@ -6,11 +6,15 @@
 
 package org.openl.syntax;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.OpenL;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.CharNodeBinder;
@@ -29,7 +33,6 @@ import org.openl.util.text.TextInfo;
 
 /**
  * @author snshor
- *
  */
 public class ParserTest {
 
@@ -56,8 +59,8 @@ public class ParserTest {
 
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
-        Assert.assertEquals(res, ln.getText());
-        Assert.assertEquals(type, ln.getType());
+        assertEquals(res, ln.getText());
+        assertEquals(type, ln.getType());
     }
 
     public void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
@@ -65,11 +68,11 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
-        Assert.assertEquals(0, pc.getErrors().length);
+        assertEquals(0, pc.getErrors().length);
 
         ISyntaxNode syntaxNode = pc.getTopNode();
 
-        Assert.assertEquals(type, syntaxNode.getType());
+        assertEquals(type, syntaxNode.getType());
     }
 
     @SuppressWarnings("unchecked")
@@ -102,22 +105,22 @@ public class ParserTest {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         ISyntaxNode bn = search(pc.getTopNode(), type);
-        Assert.assertNotNull(bn);
+        assertNotNull(bn);
 
-        Assert.assertEquals(type, bn.getType());
+        assertEquals(type, bn.getType());
     }
 
     @Test
     public void testOfMethod() {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
     }
 
     @Test
@@ -125,31 +128,31 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
-        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
+        assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
     }
 
     public void _testLiteralParseAndBind(INodeBinder binder,
-            String src,
-            Object res,
-            Class<?> clazz,
-            final String type) throws Exception {
+                                         String src,
+                                         Object res,
+                                         Class<?> clazz,
+                                         final String type) throws Exception {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
         LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
-        Assert.assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
-        Assert.assertEquals(res, literalBoundNode.getValue());
+        assertEquals(clazz, literalBoundNode.getType().getInstanceClass());
+        assertEquals(res, literalBoundNode.getValue());
     }
 
     @Test
@@ -234,7 +237,7 @@ public class ParserTest {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
         ILocation loc = pc.getTopNode().getSourceLocation();
-        Assert.assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
+        assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
 
     }
 
@@ -246,31 +249,31 @@ public class ParserTest {
     @Test
     public void testOperator() throws OpenLConfigurationException {
         BinaryNode binaryNode = _testOperator("x+y", "op.binary.add");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x-3", "op.binary.subtract");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x%3", "op.binary.rem");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is less than 3", "op.binary.lt");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x is  less  than 3", "op.binary.lt");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x or y", "op.binary.or");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         binaryNode = _testOperator("x and y", "op.binary.and");
-        Assert.assertNotNull(binaryNode);
+        assertNotNull(binaryNode);
 
         NaryNode naryNode = _testOperator("x?y: z", "op.ternary.qmark");
-        Assert.assertNotNull(naryNode);
+        assertNotNull(naryNode);
 
         naryNode = _testOperator("x?y:z", "op.ternary.qmark");
-        Assert.assertNotNull(naryNode);
+        assertNotNull(naryNode);
     }
 
     @Test
@@ -278,46 +281,46 @@ public class ParserTest {
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000", 1000000, int.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(), "1000000000000", 1000000000000L, long.class, "literal.integer");
         _testLiteralParseAndBind(new IntNodeBinder(),
-            "10000000000000000000",
-            new BigInteger("10000000000000000000"),
-            BigInteger.class,
-            "literal.integer");
+                "10000000000000000000",
+                new BigInteger("10000000000000000000"),
+                BigInteger.class,
+                "literal.integer");
 
         _testLiteralParseAndBind(new DoubleNodeBinder(),
-            "1e+308",
-            Double.valueOf("1e+308"),
-            double.class,
-            "literal.real");
+                "1e+308",
+                Double.valueOf("1e+308"),
+                double.class,
+                "literal.real");
         _testLiteralParseAndBind(new DoubleNodeBinder(),
-            "2e+308",
-            new BigDecimal("2e+308"),
-            BigDecimal.class,
-            "literal.real");
+                "2e+308",
+                new BigDecimal("2e+308"),
+                BigDecimal.class,
+                "literal.real");
     }
 
     @Test
     @SuppressWarnings("UnnecessaryUnicodeEscape")
     public void testStringParseAndBind() throws Exception {
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u00A0"),
-            "\u00A0",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u00A0"),
+                "\u00A0",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\uAAAA"),
-            "\uAAAA",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\uAAAA"),
+                "\uAAAA",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u222b"),
-            "\u222b",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u222b"),
+                "\u222b",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("\\u00BD"),
-            "\u00BD",
-            String.class,
-            "literal.string");
+                wrapStrLit("\\u00BD"),
+                "\u00BD",
+                String.class,
+                "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\123bla"), "\123bla", String.class, "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\1230bla"), "\1230bla", String.class, "literal.string");
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\128bla"), "\128bla", String.class, "literal.string");
@@ -326,10 +329,10 @@ public class ParserTest {
         _testLiteralParseAndBind(new StringNodeBinder(), wrapStrLit("\\7"), "\7", String.class, "literal.string");
 
         _testLiteralParseAndBind(new StringNodeBinder(),
-            wrapStrLit("H\\u00e5ll\\u00F8, W\\u00f8\\u00AEl\\u2202\\u00a1"),
-            "H\u00e5ll\u00F8, W\u00f8\u00AEl\u2202\u00a1",
-            String.class,
-            "literal.string");
+                wrapStrLit("H\\u00e5ll\\u00F8, W\\u00f8\\u00AEl\\u2202\\u00a1"),
+                "H\u00e5ll\u00F8, W\u00f8\u00AEl\u2202\u00a1",
+                String.class,
+                "literal.string");
     }
 
     @Test

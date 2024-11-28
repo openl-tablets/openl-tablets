@@ -1,6 +1,14 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.webstudio.service.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.integration.support.locks.LockRegistry;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -10,12 +18,6 @@ import org.openl.rules.webstudio.service.ExternalGroupServiceImpl;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * User management configuration beans.
@@ -36,8 +38,10 @@ public class UserManagementConfiguration {
     }
 
     @Bean("externalGroupService")
-    public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao) {
-        return new ExternalGroupServiceImpl(externalGroupDao);
+    public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao,
+                                                     LockRegistry lockRegistry,
+                                                     PlatformTransactionManager txManager) {
+        return new ExternalGroupServiceImpl(externalGroupDao, lockRegistry, new TransactionTemplate(txManager));
     }
 
     @Bean("groupManagementService")

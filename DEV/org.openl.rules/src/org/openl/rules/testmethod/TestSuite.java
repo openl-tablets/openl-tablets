@@ -4,7 +4,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -15,7 +14,6 @@ public class TestSuite implements INamedThing {
     private TestSuiteMethod testSuiteMethod;
     private final TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
-    private final OpenLCloner cloner = new OpenLCloner();
 
     public TestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
@@ -53,8 +51,8 @@ public class TestSuite implements INamedThing {
     }
 
     public TestUnitsResults invokeParallel(TestSuiteExecutor testSuiteExecutor,
-            final IOpenClass openClass,
-            final int ntimes) {
+                                           final IOpenClass openClass,
+                                           final int ntimes) {
         final int THREAD_COUNT = testSuiteExecutor.getThreadCount();
         Executor threadPoolExecutor = testSuiteExecutor.getExecutor();
 
@@ -106,7 +104,7 @@ public class TestSuite implements INamedThing {
         TestDescription currentTest = getTest(test);
         IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
         final Object target = openClass.newInstance(env);
-        return testRunner.runTest(currentTest, target, env, cloner, ntimes);
+        return testRunner.runTest(currentTest, target, env, ntimes);
     }
 
     public TestUnitsResults invoke(Object target, IRuntimeEnv env) {
@@ -114,7 +112,7 @@ public class TestSuite implements INamedThing {
 
         for (int i = 0; i < getNumberOfTests(); i++) {
             TestDescription currentTest = getTest(i);
-            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, cloner, 1);
+            ITestUnit testUnit = testRunner.runTest(currentTest, target, env, 1);
             testUnitResults.addTestUnit(testUnit);
         }
 
@@ -136,7 +134,7 @@ public class TestSuite implements INamedThing {
 
     /**
      * @return <code>true</code> in case this test suite is virtual, and <code>false</code> if this test suite
-     *         corresponds to particular test table.
+     * corresponds to particular test table.
      */
     public boolean isVirtualTestSuite() {
         return testSuiteMethod == null;
@@ -165,9 +163,5 @@ public class TestSuite implements INamedThing {
         } else {
             return getTestedMethod().getInfo().getSourceUrl();
         }
-    }
-
-    public OpenLCloner getCloner() {
-        return cloner;
     }
 }

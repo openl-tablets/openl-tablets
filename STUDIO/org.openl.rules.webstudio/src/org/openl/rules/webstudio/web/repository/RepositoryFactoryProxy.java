@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.core.env.PropertyResolver;
+
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * Repository Factory Proxy.
@@ -48,7 +49,7 @@ public class RepositoryFactoryProxy {
 
     public String getRepoListConfig() {
         return repoListConfig;
-     }
+    }
 
     public Repository getRepositoryInstance(String configName) {
         if (!factories.containsKey(Objects.requireNonNull(configName))) {

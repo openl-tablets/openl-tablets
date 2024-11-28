@@ -1,10 +1,10 @@
 package org.openl.rules.repository.azure;
 
+import java.util.function.Function;
+
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
-
-import java.util.function.Function;
 
 public class AzureBlobRepositoryFactory implements RepositoryFactory {
     private static final String ID = "repo-azure-blob";

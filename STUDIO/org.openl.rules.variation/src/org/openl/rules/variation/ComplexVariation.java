@@ -19,7 +19,7 @@ public class ComplexVariation extends Variation {
      * Constructs complex variation with the specified ID.
      *
      * @param variationID Unique ID for this variation.
-     * @param variations Variations that composes this complex variation.
+     * @param variations  Variations that composes this complex variation.
      */
     public ComplexVariation(String variationID, Variation... variations) {
         super(variationID);
@@ -30,7 +30,7 @@ public class ComplexVariation extends Variation {
      * Constructs complex variation with generated ID.
      *
      * @param variationID Unique ID for this variation.
-     * @param variations Variations that composes this complex variation.
+     * @param variations  Variations that composes this complex variation.
      */
     public ComplexVariation(Variation... variations) {
         this(createVariationID(variations), variations);

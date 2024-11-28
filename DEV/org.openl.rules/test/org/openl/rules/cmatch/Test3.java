@@ -1,8 +1,9 @@
 package org.openl.rules.cmatch;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.TestUtils;
 
 public class Test3 {
@@ -26,8 +27,8 @@ public class Test3 {
     @Test
     public void test3() {
         TestUtils.assertEx("test/rules/cmatch1/match3-3.xls",
-            "Column operation of special row Total Score must be defined.",
-            "cell=C7");
+                "Column operation of special row Total Score must be defined.",
+                "cell=C7");
     }
 
     public interface ITest4 {

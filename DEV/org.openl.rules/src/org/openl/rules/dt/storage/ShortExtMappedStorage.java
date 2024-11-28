@@ -4,8 +4,8 @@ class ShortExtMappedStorage extends MappedStorage {
 
     private final short[] bmap;
 
-    ShortExtMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
-        super(uniqueValues, info);
+    ShortExtMappedStorage(int[] map, Object[] uniqueValues, IStorage storage, StorageInfo info) {
+        super(uniqueValues, storage, info);
         int size = map.length;
         bmap = new short[size];
         for (int i = 0; i < size; i++) {

@@ -45,12 +45,11 @@ public class FileUtils {
      * {@link File#setLastModified(long)}, however it is not guaranteed that the operation will succeed. If the
      * modification operation fails, no indication is provided.
      *
-     * @param src an existing file to copy, must not be {@code null}
+     * @param src  an existing file to copy, must not be {@code null}
      * @param dest the new file, must not be {@code null}
-     *
      * @throws NullPointerException if source or destination is {@code null}
-     * @throws IOException if source or destination is invalid
-     * @throws IOException if an IO error occurs during copying
+     * @throws IOException          if source or destination is invalid
+     * @throws IOException          if an IO error occurs during copying
      */
     public static void copy(File src, File dest) throws IOException {
         if (!src.exists()) {
@@ -68,7 +67,7 @@ public class FileUtils {
         } else {
             if (destPath.startsWith(srcPath)) {
                 throw new IOException(
-                    String.format("Destination '%s' has the same path of the source '%s'", dest, src));
+                        String.format("Destination '%s' has the same path of the source '%s'", dest, src));
             }
             File destFile = dest;
             if (dest.isDirectory()) {
@@ -86,7 +85,7 @@ public class FileUtils {
     /**
      * Collects nested directories which should be excluded for copying to prevent an infinity loop of copying.
      *
-     * @param src the source directory
+     * @param src  the source directory
      * @param dest the destination directory
      * @return the list of looped directories
      * @throws IOException if an I/O error occurs
@@ -115,8 +114,8 @@ public class FileUtils {
     /**
      * Internal copy directory method.
      *
-     * @param srcDir the validated source directory, must not be {@code null}
-     * @param destDir the validated destination directory, must not be {@code null}
+     * @param srcDir   the validated source directory, must not be {@code null}
+     * @param destDir  the validated destination directory, must not be {@code null}
      * @param excluded the list of directories or files to exclude from the copy, may be null
      * @throws IOException if an error occurs
      */
@@ -156,7 +155,7 @@ public class FileUtils {
     /**
      * Internal copy file method.
      *
-     * @param srcFile the validated source file, must not be {@code null}
+     * @param srcFile  the validated source file, must not be {@code null}
      * @param destFile the validated destination file, must not be {@code null}
      * @throws IOException if an error occurs
      */
@@ -200,11 +199,11 @@ public class FileUtils {
      * <p>
      * When the destination directory or file is on another file system, do a "copy and delete".
      *
-     * @param src the directory or the file to be moved
+     * @param src  the directory or the file to be moved
      * @param dest the destination directory or file
      * @throws NullPointerException if source or destination is {@code null}
-     * @throws IOException if source or destination is invalid
-     * @throws IOException if an IO error occurs moving the file
+     * @throws IOException          if source or destination is invalid
+     * @throws IOException          if an IO error occurs moving the file
      */
     public static void move(File src, File dest) throws IOException {
         if (!src.exists()) {
@@ -217,13 +216,13 @@ public class FileUtils {
         if (!rename) {
             if (src.isDirectory() && dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
                 throw new IOException(
-                    String.format("Cannot move directory '%s' to a subdirectory of itself '%s'.", src, dest));
+                        String.format("Cannot move directory '%s' to a subdirectory of itself '%s'.", src, dest));
             }
             copy(src, dest);
             delete(src);
             if (src.exists()) {
                 throw new IOException(
-                    String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
+                        String.format("Failed to delete original directory or file '%s' after copy to '%s'", src, dest));
             }
         }
     }
@@ -238,9 +237,9 @@ public class FileUtils {
      * </ul>
      *
      * @param file file or directory to delete, must not be {@code null}
-     * @throws NullPointerException if the directory is {@code null}
+     * @throws NullPointerException  if the directory is {@code null}
      * @throws FileNotFoundException if the file has not been found
-     * @throws IOException in case deletion is unsuccessful
+     * @throws IOException           in case deletion is unsuccessful
      */
     public static void delete(File file) throws IOException {
         if (file.isDirectory()) {
@@ -280,9 +279,9 @@ public class FileUtils {
      * Deletes a path. If provided path is a directory, delete it and all sub-directories.
      *
      * @param root path to file or directory to delete, must not be {@code null}
-     * @throws NullPointerException if the directory is {@code null}
+     * @throws NullPointerException  if the directory is {@code null}
      * @throws FileNotFoundException if the file has not been found
-     * @throws IOException in case deletion is unsuccessful
+     * @throws IOException           in case deletion is unsuccessful
      */
     public static void delete(Path root) throws IOException {
         if (!Files.exists(root)) {
@@ -420,7 +419,7 @@ public class FileUtils {
      *
      * @param filename the filename to retrieve the extension of.
      * @return the extension of the file or an empty string if none exists or {@code null} if the filename is
-     *         {@code null}.
+     * {@code null}.
      */
     public static String getExtension(String filename) {
         if (filename == null) {

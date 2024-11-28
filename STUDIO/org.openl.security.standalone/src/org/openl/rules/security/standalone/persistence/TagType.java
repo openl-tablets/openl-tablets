@@ -2,7 +2,6 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
 import java.util.Objects;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -34,6 +33,7 @@ public class TagType implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
     /**
      * Tag type name.
      */

@@ -8,7 +8,6 @@ package org.openl.conf;
 
 /**
  * @author snshor
- *
  */
 
 public class OpenLConfigurationException extends RuntimeException {

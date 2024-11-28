@@ -134,11 +134,11 @@ abstract class OpenLLogger {
 
     private boolean isSimpleType(Object o) {
         return o == null || o instanceof Number || o instanceof CharSequence || o instanceof Class<?> || o instanceof URL || o instanceof URI || o instanceof File || o instanceof Path || o instanceof Iterable || o instanceof Map || o
-            .getClass()
-            .isArray() || o.getClass().isEnum() || o.getClass().isAnnotation() || o.getClass().isInterface() || o
+                .getClass()
+                .isArray() || o.getClass().isEnum() || o.getClass().isAnnotation() || o.getClass().isInterface() || o
                 .getClass()
                 .isPrimitive() || o.getClass().getName().startsWith("java") || o.getClass()
-                    .getName()
-                    .startsWith("org.apache.naming");
+                .getName()
+                .startsWith("org.apache.naming");
     }
 }

@@ -1,17 +1,15 @@
 package org.openl.rules.rest.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.openl.rules.rest.model.GroupSettingsModel;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.validation.BindingResult;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = MockConfiguration.class)
+import org.openl.rules.rest.model.GroupSettingsModel;
+
+@SpringJUnitConfig(classes = MockConfiguration.class)
 public class SecurityDefaultGroupModelValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
@@ -31,15 +29,15 @@ public class SecurityDefaultGroupModelValidatorTest extends AbstractConstraintVa
     public void testNotValid1() {
         GroupSettingsModel model = new GroupSettingsModel();
         model.setDefaultGroup(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.");
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.");
 
         BindingResult bindingResult = validateAndGetResult(model);
         assertEquals(1, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("defaultGroup",
-            "The size must be between 0 and 65.",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
-            bindingResult.getFieldError("defaultGroup"));
+                "The size must be between 0 and 65.",
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
+                bindingResult.getFieldError("defaultGroup"));
     }
 
 }

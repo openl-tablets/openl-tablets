@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw;
 
 import org.openl.rules.project.abstraction.LockEngine;
-import org.openl.rules.workspace.WorkspaceUser;
 
 public interface LocalWorkspaceManager {
     LocalWorkspace getWorkspace(String userId);

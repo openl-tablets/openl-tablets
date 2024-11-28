@@ -5,13 +5,20 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 
+import org.richfaces.component.UITree;
+import org.richfaces.function.RichFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
+
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.ui.Message;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;
@@ -22,13 +29,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.richfaces.component.UITree;
-import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope
@@ -40,7 +40,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
     private final UserManagementService userManagementService;
 
     public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager,
-            UserManagementService userManagementService) {
+                                        UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
         this.userManagementService = userManagementService;
     }
@@ -66,24 +66,24 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                 MergeConflictException exception = mergeConflict.getException();
                 String userName = SecurityContextHolder.getContext().getAuthentication().getName();
                 WorkspaceUser user = new WorkspaceUserImpl(userName,
-                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
-                        .orElse(null));
+                        (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
+                                .orElse(null));
 
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
                 String repositoryId = mergeConflict.getRepositoryId();
                 FileItem their = userWorkspace.getDesignTimeRepository()
-                    .getRepository(repositoryId)
-                    .readHistory(conflictedFile, exception.getTheirCommit());
+                        .getRepository(repositoryId)
+                        .readHistory(conflictedFile, exception.getTheirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
                 File ourFile;
 
                 FileItem our;
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
-                        .getRepository(repositoryId)
-                        .readHistory(conflictedFile, exception.getYourCommit());
+                            .getRepository(repositoryId)
+                            .readHistory(conflictedFile, exception.getYourCommit());
                     ourFile = createTempFile(our, conflictedFile);
                     if (mergeConflict.isExportOperation()) {
                         File tmp = ourFile;

@@ -3,13 +3,9 @@ package org.openl.util;
 import static java.util.Locale.ENGLISH;
 
 import java.beans.Introspector;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
-import java.security.ProtectionDomain;
 import java.util.regex.Pattern;
 
 /**
@@ -19,90 +15,7 @@ import java.util.regex.Pattern;
  */
 public final class ClassUtils {
 
-    private static final Method DEFINE_CLASS;
-    private static final Method DEFINE_PACKAGE;
-    private static final Method GET_PACKAGE;
-    private static final ProtectionDomain PROTECTION_DOMAIN;
-    private static final Throwable THROWABLE;
-
-    static {
-        ProtectionDomain pd;
-        Method dc;
-        Method dp;
-        Method gp;
-        Throwable ex = null;
-        try {
-            pd = (ProtectionDomain) AccessController
-                .doPrivileged((PrivilegedAction) ClassUtils.class::getProtectionDomain);
-            dc = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                Class<?> loader = Class.forName("java.lang.ClassLoader");
-                Method defineClass = loader.getDeclaredMethod("defineClass",
-                    String.class,
-                    byte[].class,
-                    int.class,
-                    int.class,
-                    ProtectionDomain.class);
-                defineClass.setAccessible(true);
-                return defineClass;
-            });
-            dp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                Class<?> loader = Class.forName("java.lang.ClassLoader");
-                Method defineClass = loader.getDeclaredMethod("definePackage",
-                    String.class,
-                    String.class,
-                    String.class,
-                    String.class,
-                    String.class,
-                    String.class,
-                    String.class,
-                    URL.class);
-                defineClass.setAccessible(true);
-                return defineClass;
-            });
-            gp = (Method) AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-                Class<?> loader = Class.forName("java.lang.ClassLoader");
-                Method defineClass = loader.getDeclaredMethod("getPackage", String.class);
-                defineClass.setAccessible(true);
-                return defineClass;
-            });
-        } catch (NoClassDefFoundError | Exception e) {
-            ex = e;
-            dc = null;
-            pd = null;
-            dp = null;
-            gp = null;
-        }
-        DEFINE_CLASS = dc;
-        DEFINE_PACKAGE = dp;
-        GET_PACKAGE = gp;
-        PROTECTION_DOMAIN = pd;
-        THROWABLE = ex;
-    }
-
     private ClassUtils() {
-    }
-
-    /**
-     * Loads bytecode and run static initializes.
-     */
-    public static Class<?> defineClass(String className, byte[] b, ClassLoader loader)
-            throws InvocationTargetException, IllegalAccessException, ClassNotFoundException {
-        Class<?> clazz;
-        if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
-            Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
-            clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
-            if (className.lastIndexOf('.') >= 0) {
-                String pkgName = className.substring(0, className.lastIndexOf('.'));
-                if (StringUtils.isNotEmpty(pkgName) && GET_PACKAGE.invoke(loader, pkgName) == null) {
-                    Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
-                    DEFINE_PACKAGE.invoke(loader, args1);
-                }
-            }
-        } else {
-            throw new IllegalStateException(THROWABLE);
-        }
-        Class.forName(className, true, loader); // Force static initializers to run.
-        return clazz;
     }
 
     public static ClassLoader getCurrentClassLoader(Class<?> clazz) {
@@ -135,7 +48,7 @@ public final class ClassUtils {
      *
      * @param cls the class to convert, may be null
      * @return the wrapper class for {@code cls} or {@code cls} if {@code cls} is not a primitive. {@code null} if null
-     *         input.
+     * input.
      */
     public static Class<?> primitiveToWrapper(final Class<?> cls) {
         if (cls == null) {
@@ -283,7 +196,7 @@ public final class ClassUtils {
      *
      * <p>
      *
-     * @param cls the Class to check, may be null
+     * @param cls     the Class to check, may be null
      * @param toClass the Class to try to assign into
      * @return {@code true} if assignment possible
      */
@@ -350,6 +263,29 @@ public final class ClassUtils {
         return toClass.isAssignableFrom(cls);
     }
 
+    public static Class<?> commonType(Class<?> a, Class<?> b) {
+        if (a == null || b == null) {
+            return a == null ? b : a;
+        }
+        if (isAssignable(b, a) && !a.isPrimitive()) {
+            return a;
+        } else if (isAssignable(a, b)) {
+            return b;
+        } else if (isAssignable(b, a)) {
+            return a;
+        }
+        if (a.isArray() && b.isArray()) {
+            var component = commonType(a.getComponentType(), b.getComponentType());
+            return Array.newInstance(component, 0).getClass();
+        }
+        if (!a.isPrimitive()) {
+            return commonType(a.getSuperclass(), b);
+        } else if (!b.isPrimitive()) {
+            return commonType(a, b.getSuperclass());
+        }
+        return Object.class;
+    }
+
     public static String capitalize(String name) {
         if (name == null || name.length() == 0) {
             return name;
@@ -382,12 +318,116 @@ public final class ClassUtils {
     }
 
     private static final Pattern PACKAGE_NAME = Pattern.compile(
-        "(?!^abstract$|^abstract\\..*|.*\\.abstract\\..*|.*\\.abstract$|^assert$|^assert\\..*|.*\\.assert\\..*|.*\\.assert$|^boolean$|^boolean\\..*|.*\\.boolean\\..*|.*\\.boolean$|^break$|^break\\..*|.*\\.break\\..*|.*\\.break$|^byte$|^byte\\..*|.*\\.byte\\..*|.*\\.byte$|^case$|^case\\..*|.*\\.case\\..*|.*\\.case$|^catch$|^catch\\..*|.*\\.catch\\..*|.*\\.catch$|^char$|^char\\..*|.*\\.char\\..*|.*\\.char$|^class$|^class\\..*|.*\\.class\\..*|.*\\.class$|^const$|^const\\..*|.*\\.const\\..*|.*\\.const$|^continue$|^continue\\..*|.*\\.continue\\..*|.*\\.continue$|^default$|^default\\..*|.*\\.default\\..*|.*\\.default$|^do$|^do\\..*|.*\\.do\\..*|.*\\.do$|^double$|^double\\..*|.*\\.double\\..*|.*\\.double$|^else$|^else\\..*|.*\\.else\\..*|.*\\.else$|^enum$|^enum\\..*|.*\\.enum\\..*|.*\\.enum$|^extends$|^extends\\..*|.*\\.extends\\..*|.*\\.extends$|^final$|^final\\..*|.*\\.final\\..*|.*\\.final$|^finally$|^finally\\..*|.*\\.finally\\..*|.*\\.finally$|^float$|^float\\..*|.*\\.float\\..*|.*\\.float$|^for$|^for\\..*|.*\\.for\\..*|.*\\.for$|^goto$|^goto\\..*|.*\\.goto\\..*|.*\\.goto$|^if$|^if\\..*|.*\\.if\\..*|.*\\.if$|^implements$|^implements\\..*|.*\\.implements\\..*|.*\\.implements$|^import$|^import\\..*|.*\\.import\\..*|.*\\.import$|^instanceof$|^instanceof\\..*|.*\\.instanceof\\..*|.*\\.instanceof$|^int$|^int\\..*|.*\\.int\\..*|.*\\.int$|^interface$|^interface\\..*|.*\\.interface\\..*|.*\\.interface$|^long$|^long\\..*|.*\\.long\\..*|.*\\.long$|^native$|^native\\..*|.*\\.native\\..*|.*\\.native$|^new$|^new\\..*|.*\\.new\\..*|.*\\.new$|^package$|^package\\..*|.*\\.package\\..*|.*\\.package$|^private$|^private\\..*|.*\\.private\\..*|.*\\.private$|^protected$|^protected\\..*|.*\\.protected\\..*|.*\\.protected$|^public$|^public\\..*|.*\\.public\\..*|.*\\.public$|^return$|^return\\..*|.*\\.return\\..*|.*\\.return$|^short$|^short\\..*|.*\\.short\\..*|.*\\.short$|^static$|^static\\..*|.*\\.static\\..*|.*\\.static$|^strictfp$|^strictfp\\..*|.*\\.strictfp\\..*|.*\\.strictfp$|^super$|^super\\..*|.*\\.super\\..*|.*\\.super$|^switch$|^switch\\..*|.*\\.switch\\..*|.*\\.switch$|^synchronized$|^synchronized\\..*|.*\\.synchronized\\..*|.*\\.synchronized$|^this$|^this\\..*|.*\\.this\\..*|.*\\.this$|^throw$|^throw\\..*|.*\\.throw\\..*|.*\\.throw$|^throws$|^throws\\..*|.*\\.throws\\..*|.*\\.throws$|^transient$|^transient\\..*|.*\\.transient\\..*|.*\\.transient$|^try$|^try\\..*|.*\\.try\\..*|.*\\.try$|^void$|^void\\..*|.*\\.void\\..*|.*\\.void$|^volatile$|^volatile\\..*|.*\\.volatile\\..*|.*\\.volatile$|^while$|^while\\..*|.*\\.while\\..*|.*\\.while$)(^(?:[a-z_]+(?:\\d*[a-zA-Z_]*)*)(?:\\.[a-z_]+(?:\\d*[a-zA-Z_]*)*)*$)");
+            "(?!^abstract$|^abstract\\..*|.*\\.abstract\\..*|.*\\.abstract$|^assert$|^assert\\..*|.*\\.assert\\..*|.*\\.assert$|^boolean$|^boolean\\..*|.*\\.boolean\\..*|.*\\.boolean$|^break$|^break\\..*|.*\\.break\\..*|.*\\.break$|^byte$|^byte\\..*|.*\\.byte\\..*|.*\\.byte$|^case$|^case\\..*|.*\\.case\\..*|.*\\.case$|^catch$|^catch\\..*|.*\\.catch\\..*|.*\\.catch$|^char$|^char\\..*|.*\\.char\\..*|.*\\.char$|^class$|^class\\..*|.*\\.class\\..*|.*\\.class$|^const$|^const\\..*|.*\\.const\\..*|.*\\.const$|^continue$|^continue\\..*|.*\\.continue\\..*|.*\\.continue$|^default$|^default\\..*|.*\\.default\\..*|.*\\.default$|^do$|^do\\..*|.*\\.do\\..*|.*\\.do$|^double$|^double\\..*|.*\\.double\\..*|.*\\.double$|^else$|^else\\..*|.*\\.else\\..*|.*\\.else$|^enum$|^enum\\..*|.*\\.enum\\..*|.*\\.enum$|^extends$|^extends\\..*|.*\\.extends\\..*|.*\\.extends$|^final$|^final\\..*|.*\\.final\\..*|.*\\.final$|^finally$|^finally\\..*|.*\\.finally\\..*|.*\\.finally$|^float$|^float\\..*|.*\\.float\\..*|.*\\.float$|^for$|^for\\..*|.*\\.for\\..*|.*\\.for$|^goto$|^goto\\..*|.*\\.goto\\..*|.*\\.goto$|^if$|^if\\..*|.*\\.if\\..*|.*\\.if$|^implements$|^implements\\..*|.*\\.implements\\..*|.*\\.implements$|^import$|^import\\..*|.*\\.import\\..*|.*\\.import$|^instanceof$|^instanceof\\..*|.*\\.instanceof\\..*|.*\\.instanceof$|^int$|^int\\..*|.*\\.int\\..*|.*\\.int$|^interface$|^interface\\..*|.*\\.interface\\..*|.*\\.interface$|^long$|^long\\..*|.*\\.long\\..*|.*\\.long$|^native$|^native\\..*|.*\\.native\\..*|.*\\.native$|^new$|^new\\..*|.*\\.new\\..*|.*\\.new$|^package$|^package\\..*|.*\\.package\\..*|.*\\.package$|^private$|^private\\..*|.*\\.private\\..*|.*\\.private$|^protected$|^protected\\..*|.*\\.protected\\..*|.*\\.protected$|^public$|^public\\..*|.*\\.public\\..*|.*\\.public$|^return$|^return\\..*|.*\\.return\\..*|.*\\.return$|^short$|^short\\..*|.*\\.short\\..*|.*\\.short$|^static$|^static\\..*|.*\\.static\\..*|.*\\.static$|^strictfp$|^strictfp\\..*|.*\\.strictfp\\..*|.*\\.strictfp$|^super$|^super\\..*|.*\\.super\\..*|.*\\.super$|^switch$|^switch\\..*|.*\\.switch\\..*|.*\\.switch$|^synchronized$|^synchronized\\..*|.*\\.synchronized\\..*|.*\\.synchronized$|^this$|^this\\..*|.*\\.this\\..*|.*\\.this$|^throw$|^throw\\..*|.*\\.throw\\..*|.*\\.throw$|^throws$|^throws\\..*|.*\\.throws\\..*|.*\\.throws$|^transient$|^transient\\..*|.*\\.transient\\..*|.*\\.transient$|^try$|^try\\..*|.*\\.try\\..*|.*\\.try$|^void$|^void\\..*|.*\\.void\\..*|.*\\.void$|^volatile$|^volatile\\..*|.*\\.volatile\\..*|.*\\.volatile$|^while$|^while\\..*|.*\\.while\\..*|.*\\.while$)(^(?:[a-z_]+(?:\\d*[a-zA-Z_]*)*)(?:\\.[a-z_]+(?:\\d*[a-zA-Z_]*)*)*$)");
 
     public static boolean isValidPackageName(String packageName) {
         if (packageName == null) {
             return false;
         }
         return PACKAGE_NAME.matcher(packageName).matches();
+    }
+
+    public static void set(Object target, String fieldName, Object value) throws Exception {
+        var clz = target.getClass();
+        try {
+            // Try direct access to the public fields
+            clz.getField(fieldName).set(target, value);
+            return;
+        } catch (NoSuchFieldException ignore) {
+            // Ignore attempt. No public field has been found.
+        }
+
+        Class<?> type = value != null ? value.getClass() : getType(target, fieldName);
+
+        var setterName = setter(fieldName);
+        Method setter = null;
+        Method setter2 = null;
+
+        var methods = clz.getMethods();
+        for (var method : methods) {
+            if (method.getName().equals(setterName) && method.getParameterCount() == 1) {
+                var parameterType = method.getParameterTypes()[0];
+                if (isAssignable(type, parameterType)) {
+                    if (setter != null) {
+                        var setterType = setter.getParameterTypes()[0];
+                        if (isAssignable(parameterType, setterType)) {
+                            setter = method;
+                        } else if (!isAssignable(setterType, parameterType)) {
+                            throw new IllegalArgumentException("Method '" + setterName + "(" + type + ")' is ambiguous in " + clz);
+                        }
+                    } else {
+                        setter = method;
+                    }
+                }
+                setter2 = method;
+            }
+        }
+        if (setter == null) {
+            setter = setter2;
+        }
+
+        if (setter == null) {
+            throw new IllegalAccessException("Field '" + fieldName + "' is not accessible in class " + clz.getName());
+        }
+
+        try {
+            setter.invoke(target, value);
+        } catch (InvocationTargetException ex) {
+            var exception = ex.getTargetException();
+            if (exception instanceof Exception) {
+                throw (Exception) exception;
+            }
+            throw ex;
+        }
+    }
+
+    public static Object get(Object target, String fieldName) throws Exception {
+        var clz = target.getClass();
+        try {
+            // Try direct access to the public fields
+            return clz.getField(fieldName).get(target);
+        } catch (NoSuchFieldException ignore) {
+            // Ignore attempt. No public field has been found.
+        }
+
+        var getter = findGetterMethod(target, fieldName);
+
+        if (getter == null) {
+            throw new IllegalAccessException("Field '" + fieldName + "' is not accessible in class " + clz.getName());
+        }
+
+        try {
+            return getter.invoke(target);
+        } catch (InvocationTargetException ex) {
+            var exception = ex.getTargetException();
+            if (exception instanceof Exception) {
+                throw (Exception) exception;
+            }
+            throw ex;
+        }
+    }
+
+    public static Class<?> getType(Object target, String fieldName) {
+        Class<?> type;
+        try {
+            type = target.getClass().getDeclaredField(fieldName).getType();
+        } catch (NoSuchFieldException ignore) {
+            var getterMethod = findGetterMethod(target, fieldName);
+            type = getterMethod != null ? getterMethod.getReturnType() : null;
+        }
+        return type;
+    }
+
+    private static Method findGetterMethod(Object target, String fieldName) {
+        try {
+            // Try to find a getter method
+            return target.getClass().getMethod(getter(fieldName));
+        } catch (NoSuchMethodException ignore) {
+            try {
+                return target.getClass().getMethod("is" + capitalize(fieldName));
+            } catch (NoSuchMethodException ex) {
+                return null;
+            }
+        }
     }
 }

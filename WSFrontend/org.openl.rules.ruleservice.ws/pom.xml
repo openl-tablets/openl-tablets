@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
@@ -15,9 +15,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-    <properties>
-        <generate-application.properties>prepare-package</generate-application.properties>
-    </properties>
     <build>
         <finalName>webservice</finalName>
         <resources>
@@ -112,7 +109,7 @@
                                 <!-- Logging -->
                                 <artifactItem>
                                     <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-slf4j-impl</artifactId>
+                                    <artifactId>log4j-slf4j2-impl</artifactId>
                                     <version>${log4j.version}</version>
                                     <type>jar</type>
                                 </artifactItem>
@@ -167,10 +164,6 @@
             <artifactId>cxf-rt-rs-extension-providers</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>jakarta.xml.ws</groupId>
             <artifactId>jakarta.xml.ws-api</artifactId>
         </dependency>
@@ -193,10 +186,6 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.cache2k</groupId>
-            <artifactId>cache2k-jcache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -228,11 +217,6 @@
             <groupId>jakarta.activation</groupId>
             <artifactId>jakarta.activation-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
-        <dependency>
-            <groupId>org.reactivestreams</groupId>
-            <artifactId>reactive-streams</artifactId>
         </dependency>
 
         <!-- OpenL dependencies -->

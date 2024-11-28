@@ -8,11 +8,9 @@ package org.openl.conf;
 
 /**
  * @author snshor
- *
  */
 public interface IConfigurationElement {
     /**
-     *
      * @return URI of this element (if known) or null
      */
     String getUri();

@@ -207,7 +207,7 @@
             }
 
             function confirmSave() {
-                return !#{isNotSingleMode} || confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?');
+                return !#{isNotSingleMode} || confirm('All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply these settings now?');
             }
 
             function updateRepoTab(repoId, input) {
@@ -241,7 +241,7 @@
         <div class="simpleView_workspace">
             <div>
                 <ui:param name="applyButtonText" value="Apply All and Restart"/>
-                <ui:param name="applyButtonTitle" value="Apply all changes and restart WebStudio"/>
+                <ui:param name="applyButtonTitle" value="Apply all changes and restart OpenL Studio"/>
 
                 <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
                 <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
@@ -845,7 +845,7 @@
                                         </div>
                                     </section>
                                     <section>
-                                        <h3>WebStudio Settings</h3>
+                                        <h3>OpenL Studio Settings</h3>
                                         <div>
                                             <p>
                                                 <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>

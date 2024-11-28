@@ -1,0 +1,75 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "email": "admin@openl.example",
+    "displayName": "OpenL Admin",
+    "firstName": "OpenL",
+    "lastName": "Admin",
+    "username": "admin",
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": false,
+    "externalFlags": {
+      "emailExternal": true,
+      "emailVerified": true,
+      "displayNameExternal": true,
+      "firstNameExternal": true,
+      "lastNameExternal": true
+    },
+    "notMatchedExternalGroupsCount": 1,
+    "online": false,
+    "userGroups": [
+      {
+        "name": "Administrators",
+        "type": "ADMIN"
+      }, {
+        "name": "openl-admin",
+        "type": "ADMIN"
+      }
+    ]
+  }, {
+  "email": "guest@openl.example",
+  "displayName": "Guest Ghost",
+  "firstName": "Guest",
+  "lastName": "Ghost",
+  "username": "guest",
+  "currentUser": false,
+  "superUser": false,
+  "unsafePassword": false,
+  "externalFlags": {
+    "emailExternal": true,
+    "emailVerified": true,
+    "displayNameExternal": true,
+    "firstNameExternal": true,
+    "lastNameExternal": true
+  },
+  "notMatchedExternalGroupsCount": 1,
+  "online": false
+}, {
+  "email": "user1@openl.example",
+  "displayName": "User User1",
+  "firstName": "User",
+  "lastName": "User1",
+  "username": "user1",
+  "currentUser": false,
+  "superUser": false,
+  "unsafePassword": false,
+  "externalFlags": {
+    "emailExternal": true,
+    "emailVerified": true,
+    "displayNameExternal": true,
+    "firstNameExternal": true,
+    "lastNameExternal": true
+  },
+  "notMatchedExternalGroupsCount": 1,
+  "online": false,
+  "userGroups": [
+    {
+      "name": "openl-ba",
+      "type": "EXTERNAL"
+    }
+  ]
+}
+]

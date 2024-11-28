@@ -13,7 +13,7 @@ try {
     assert junitReport2.readLines().get(1).contains("tests=\"10000\" skipped=\"0\" failures=\"0\" errors=\"0\"")
 
     return true
-} catch(Throwable e) {
+} catch (Throwable e) {
     e.printStackTrace()
     return false
 }

@@ -14,19 +14,21 @@ package org.openl.ie.tools;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
+import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Vector;
 
 /**
  * An abstract implementation of the factory for reusable objects.
- *
+ * <p>
  * Any concrete factory should implement the method: createNewElement(). This method returns a new uninitialized object
  * for the conctete factory.
  *
  * @see Reusable
  */
 // "implements serializable" was added by Eugeny Tseitlin 18.06.2003
-public abstract class ReusableFactory implements java.io.Serializable {
+public abstract class ReusableFactory implements Serializable {
     /**
      * All created factories.
      */

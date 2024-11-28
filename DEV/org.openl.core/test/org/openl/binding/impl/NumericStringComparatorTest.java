@@ -1,10 +1,10 @@
 package org.openl.binding.impl;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
+import org.junit.jupiter.api.Test;
 
 public class NumericStringComparatorTest {
 
@@ -12,7 +12,7 @@ public class NumericStringComparatorTest {
     public void testCompare() {
 
         assertTrue(compare("A07B", "A7A") > 0);
-        assertTrue(compare("A07B", "A07A")> 0);
+        assertTrue(compare("A07B", "A07A") > 0);
 
         assertTrue(compare("A07B", "A06") > 0);
         assertTrue(compare("A07B", "A6") > 0);

@@ -4,6 +4,21 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "ProjectLockInfo" : {
+        "type" : "object",
+        "required" : [ "lockedAt", "lockedBy"],
+        "properties" : {
+          "lockedAt" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Locked date and time"
+          },
+          "lockedBy" : {
+            "type" : "string",
+            "description" : "Locked by user"
+          }
+        }
+      },
       "BaseError": {
         "properties": {
           "code": {
@@ -389,6 +404,9 @@ Content-Type: application/json
           "name": {
             "type": "string",
             "description": "Project Name"
+          },
+          "lockInfo" : {
+            "$ref" : "#/components/schemas/ProjectLockInfo"
           },
           "modifiedBy": {
             "type": "string",
@@ -1797,7 +1815,7 @@ Content-Type: application/json
     }
   },
   "info": {
-    "title": "OpenL Tablets WebStudio API",
+    "title": "OpenL Studio API",
     "version": "#.##.*"
   },
   "openapi": "3.0.1",
@@ -3751,9 +3769,8 @@ Content-Type: application/json
         "responses": {
           "200": {
             "content": {
-              "text/plain": {
+              "text/plain;charset=UTF-8": {
                 "schema": {
-                  "format": "binary",
                   "type": "string"
                 }
               }
@@ -7902,6 +7919,14 @@ Content-Type: application/json
            "schema": {
              "type": "boolean"
            }
+          },
+          {
+            "in" : "query",
+            "name" : "flattenParameters",
+            "schema" : {
+              "type" : "boolean",
+              "default" : false
+            }
           }
         ],
         "responses": {

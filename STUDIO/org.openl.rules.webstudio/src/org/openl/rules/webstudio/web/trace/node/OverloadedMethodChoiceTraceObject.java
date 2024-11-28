@@ -16,9 +16,9 @@ public class OverloadedMethodChoiceTraceObject extends ATableTracerNode {
     private final List<IOpenMethod> methodCandidates;
 
     OverloadedMethodChoiceTraceObject(ExecutableRulesMethod dispatcherTable,
-            Object[] params,
-            IRuntimeContext context,
-            List<IOpenMethod> methodCandidates) {
+                                      Object[] params,
+                                      IRuntimeContext context,
+                                      List<IOpenMethod> methodCandidates) {
         super("overloadedMethodChoice", null, dispatcherTable, params, context);
         this.methodCandidates = methodCandidates;
     }

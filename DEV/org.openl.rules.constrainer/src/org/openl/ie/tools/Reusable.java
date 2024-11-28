@@ -1,5 +1,7 @@
 package org.openl.ie.tools;
 
+import java.io.Serializable;
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  * Copyright Exigen Group 1998, 1999, 2000
@@ -14,17 +16,18 @@ package org.openl.ie.tools;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * An interface for the reusable object. Reusable objects allow the developer to reuse the memory allocated and freed
  * for the objects of the same class.
- *
+ * <p>
  * Any reusable object belongs to the single ReusableFactory. The factory creates the objects and the objects are
  * returned to the factory when they are no longer used.
  *
  * @see ReusableFactory
  */
 // "implements serializable" was added by Eugeny Tseitlin 18.06.2003
-public interface Reusable extends java.io.Serializable {
+public interface Reusable extends Serializable {
     /**
      * Clean-up the object and returns it to the factory that owns this object.
      */

@@ -12,7 +12,6 @@ import java.util.List;
 
 /**
  * @author snshor
- *
  */
 public class TextInfo {
 

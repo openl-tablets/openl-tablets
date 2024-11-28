@@ -18,8 +18,11 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
-
 import javax.annotation.PreDestroy;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -31,7 +34,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.abstraction.IProjectArtefact;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
@@ -44,9 +46,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.FileSystemUtils;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
@@ -81,29 +80,29 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Module> resolveModulesForProject(String deploymentName,
-            CommonVersion deploymentVersion,
-            String projectName) {
+    public ProjectDescriptor resolveProject(String deploymentName,
+                                            CommonVersion deploymentVersion,
+                                            String projectName) throws ProjectResolvingException {
         Objects.requireNonNull(deploymentName, "deploymentName cannot be null");
         Objects.requireNonNull(deploymentVersion, "deploymentVersion cannot be null");
         Objects.requireNonNull(projectName, "projectName cannot be null");
 
         log.debug("Resolving modules for deployment (name='{}', version='{}', projectName='{}')",
-            deploymentName,
-            deploymentVersion.getVersionName(),
-            projectName);
+                deploymentName,
+                deploymentVersion.getVersionName(),
+                projectName);
 
         IDeployment localDeployment = getDeployment(deploymentName, deploymentVersion);
         IProject project = localDeployment.getProject(projectName);
         if (project == null) {
             throw new RuleServiceRuntimeException(
-                String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
+                    String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
         Path projectFolder;
         if (project instanceof LocalProject) {
             projectFolder = ((LocalProject) project).getData().getPath();
             if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(
-                projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
+                    projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
 
                 FileSystem fs = FileSystems.getFileSystem(ZipUtils.toJarURI(projectFolder));
                 projectFolder = fs.getPath("/");
@@ -112,17 +111,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             String stringValue = project.getArtefactPath().getStringValue();
             projectFolder = tempPath.resolve(stringValue);
         }
-        List<Module> result = Collections.emptyList();
-        try {
-            ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
-            if (projectDescriptor != null) {
-                List<Module> modules = projectDescriptor.getModules();
-                result = Collections.unmodifiableList(modules);
-            }
-        } catch (ProjectResolvingException e) {
-            log.error("Project resolving has been failed.", e);
-        }
-        return result;
+        return projectResolver.resolve(projectFolder);
     }
 
     @Override
@@ -140,10 +129,10 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         String versionName = version.getVersionName();
         Deployment loadedDeployment = new Deployment(tempRepo,
-            deploymentName + "_v" + cleanUp(versionName),
-            deploymentName,
-            version,
-            true);
+                deploymentName + "_v" + cleanUp(versionName),
+                deploymentName,
+                version,
+                true);
 
         if (loadedDeployment.getProjects().isEmpty()) {
             log.debug("Loading deployment with name='{}' and version='{}'", deploymentName, versionName);
@@ -156,9 +145,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 loadedDeployment.refresh();
             } catch (ProjectException e) {
                 log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
-                    deploymentName,
-                    versionName,
-                    e);
+                        deploymentName,
+                        versionName,
+                        e);
                 throw new RuleServiceRuntimeException(e);
             }
         }
@@ -206,10 +195,10 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             } else {
                 boolean folderStructure = isFolderStructure(folderPath);
                 deployment = new Deployment(repository,
-                    folderPath,
-                    deploymentFolderName,
-                    commonVersion,
-                    folderStructure);
+                        folderPath,
+                        deploymentFolderName,
+                        commonVersion,
+                        folderStructure);
             }
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
@@ -219,9 +208,9 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private boolean isLocalZipFile(FileData fileData) {
         return repository.supports().folders() && repository.supports()
-            .isLocal() && fileData.getPath() != null && (FileTypeHelper
+                .isLocal() && fileData.getPath() != null && (FileTypeHelper
                 .isZipFile(fileData.getPath().getFileName().toString()) || ZippedLocalRepository
-                    .zipArchiveFilter(fileData.getPath()));
+                .zipArchiveFilter(fileData.getPath()));
     }
 
     private boolean isSimpleProjectDeployment(FileData fileData) {
@@ -239,15 +228,15 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private LocalDeployment buildLocalDeployment(CommonVersion commonVersion,
-            FileData deploymentFolder,
-            Repository repository) throws IOException {
+                                                 FileData deploymentFolder,
+                                                 Repository repository) throws IOException {
         LocalDeployment deployment;
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
             deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0],
-                commonVersion,
-                Collections.singletonMap(project.getName(), project));
+                    commonVersion,
+                    Collections.singletonMap(project.getName(), project));
         } else {
             List<FileData> projectFolders = repository.listFolders(getDeployPath() + deploymentFolder.getName());
             Map<String, IProject> projectMap = new HashMap<>();
@@ -262,7 +251,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private Map<String, IProjectArtefact> gatherProjectResources(FileData folder,
-            Repository repository) throws IOException {
+                                                                 Repository repository) throws IOException {
         List<FileData> files = repository.list(getDeployPath() + folder.getName());
         Map<String, IProjectArtefact> resourceMap = new HashMap<>();
         for (FileData file : files) {

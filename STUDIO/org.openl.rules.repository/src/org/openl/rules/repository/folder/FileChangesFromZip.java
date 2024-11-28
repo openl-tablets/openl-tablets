@@ -5,9 +5,10 @@ import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.openl.rules.repository.api.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.rules.repository.api.FileItem;
 
 public class FileChangesFromZip implements Iterable<FileItem> {
     private static final Logger LOG = LoggerFactory.getLogger(FileChangesFromZip.class);

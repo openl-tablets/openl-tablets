@@ -6,6 +6,6 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 
 public interface UserWorkspaceFactory {
     UserWorkspace create(LocalWorkspaceManager localWorkspaceManager,
-            DesignTimeRepository designTimeRepository,
-            WorkspaceUser user);
+                         DesignTimeRepository designTimeRepository,
+                         WorkspaceUser user);
 }

@@ -8,14 +8,13 @@ import org.openl.rules.diff.hierarchy.Projection;
  * comparing projections must have the same type.
  *
  * @author Aleh Bykhavets
- *
  */
 public interface ProjectionDiffer {
     /**
      * Compare two projections from different sources. Both is assumed to be of the same type and not null.
      *
      * @param original original projection
-     * @param other comparing projection
+     * @param other    comparing projection
      * @return true if they are selfEqual
      */
     boolean compare(Projection original, Projection other);

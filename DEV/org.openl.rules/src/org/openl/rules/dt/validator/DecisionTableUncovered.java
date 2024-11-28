@@ -7,7 +7,6 @@ import org.openl.util.ArrayOfNamedValues;
 
 /**
  * @author snshor
- *
  */
 public class DecisionTableUncovered {
 

@@ -2,7 +2,15 @@ package org.openl.rules.dt.algorithm.evaluator;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
@@ -21,7 +29,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluator {
 

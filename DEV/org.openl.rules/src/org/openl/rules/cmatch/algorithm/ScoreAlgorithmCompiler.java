@@ -77,7 +77,7 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     @Override
     protected void parseSpecialRows(IBindingContext bindingContext,
-            ColumnMatch columnMatch) throws SyntaxNodeException {
+                                    ColumnMatch columnMatch) throws SyntaxNodeException {
         IOpenClass retType = columnMatch.getHeader().getType();
         Class<?> retClass = retType.getInstanceClass();
         if (!(int.class == retClass) && !(Integer.class == retClass)) {
@@ -99,9 +99,9 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
 
         // score(s)
         Object[] objScores = parseValues(bindingContext,
-            columnMatch,
-            scoreRow,
-            JavaOpenClass.getOpenClass(Integer.class));
+                columnMatch,
+                scoreRow,
+                JavaOpenClass.getOpenClass(Integer.class));
         int[] scores = new int[objScores.length];
         for (int i = 0; i < objScores.length; i++) {
             scores[i] = (Integer) objScores[i];
@@ -112,9 +112,9 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
 
     @Override
     protected MatchNode[] prepareNodes(IBindingContext bindingContext,
-            ColumnMatch columnMatch,
-            ArgumentsHelper argumentsHelper,
-            int retValuesCount) throws SyntaxNodeException {
+                                       ColumnMatch columnMatch,
+                                       ArgumentsHelper argumentsHelper,
+                                       int retValuesCount) throws SyntaxNodeException {
         MatchNode[] nodes = super.prepareNodes(bindingContext, columnMatch, argumentsHelper, retValuesCount);
 
         List<TableRow> rows = columnMatch.getRows();
@@ -129,8 +129,8 @@ public class ScoreAlgorithmCompiler extends MatchAlgorithmCompiler {
             if (constantOpenField != null && constantOpenField.getValue() != null) {
                 setMetaInfoForConstant(bindingContext, columnMatch, weightSV, constantOpenField);
                 rowWeight = (Integer) RuleRowHelper.castConstantToExpectedType(bindingContext,
-                    constantOpenField,
-                    JavaOpenClass.getOpenClass(Integer.class));
+                        constantOpenField,
+                        JavaOpenClass.getOpenClass(Integer.class));
             } else {
                 IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(Integer.class);
                 rowWeight = (Integer) convertor.parse(weightSV.getString(), null);

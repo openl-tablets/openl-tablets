@@ -7,7 +7,6 @@ import org.richfaces.model.TreeNode;
  * Tree class containing object's fields for the Data Table Wizard.
  *
  * @author NSamatov
- *
  */
 public class DataTableTree {
     private TreeNode rootNode;

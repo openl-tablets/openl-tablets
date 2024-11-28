@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.abstracts;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;

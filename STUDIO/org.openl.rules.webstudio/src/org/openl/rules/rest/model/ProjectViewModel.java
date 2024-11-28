@@ -5,16 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.rest.model.converters.ProjectStatusSerializer;
 import org.openl.util.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 public class ProjectViewModel {
 
@@ -30,12 +28,16 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final ZonedDateTime modifiedAt;
 
+    @Parameter(description = "Lock info")
+    @JsonView(GenericView.Full.class)
+    public final ProjectLockInfo lockInfo;
+
     @Parameter(description = "Branch Name. Can be absent if current repository doesn't support branches")
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final String branch;
 
     @Parameter(description = "Revision ID", required = true)
-    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final String revision;
 
     @Parameter(description = "Project path in target repository. Can be absent if Design Repository is flat")
@@ -46,12 +48,12 @@ public class ProjectViewModel {
     @JsonView(GenericView.Full.class)
     public final String id;
 
-    @Parameter(description = "Project Status", schema = @Schema(allowableValues = { "LOCAL",
+    @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
             "ARCHIVED",
             "OPENED",
             "VIEWING_VERSION",
             "EDITING",
-            "CLOSED" }))
+            "CLOSED"}))
     @JsonSerialize(using = ProjectStatusSerializer.class)
     @JsonView(GenericView.Full.class)
     public final ProjectStatus status;
@@ -80,6 +82,7 @@ public class ProjectViewModel {
         this.tags = new TreeMap<>(from.tags);
         this.comment = from.comment;
         this.repository = from.repository;
+        this.lockInfo = from.lockInfo;
     }
 
     public static Builder builder() {
@@ -98,6 +101,7 @@ public class ProjectViewModel {
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
         private String repository;
+        private ProjectLockInfo lockInfo;
 
         public Builder name(String name) {
             this.name = name;
@@ -106,6 +110,11 @@ public class ProjectViewModel {
 
         public Builder modifiedBy(String modifiedBy) {
             this.modifiedBy = modifiedBy;
+            return this;
+        }
+
+        public Builder lockInfo(ProjectLockInfo lockInfo) {
+            this.lockInfo = lockInfo;
             return this;
         }
 

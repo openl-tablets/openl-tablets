@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.io.Serializable;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Undo;
 import org.openl.ie.tools.FastStack;
@@ -7,7 +9,7 @@ import org.openl.ie.tools.FastStack;
 /**
  * An implementation of the undo stack.
  */
-public final class UndoStack implements java.io.Serializable {
+public final class UndoStack implements Serializable {
     private final FastStack _stack;
 
     /**

@@ -17,10 +17,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.helger.jcodemodel.AbstractJClass;
+import com.helger.jcodemodel.EClassType;
+import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JCodeModelException;
+import com.helger.jcodemodel.JDefinedClass;
+import com.helger.jcodemodel.JMethod;
+import com.helger.jcodemodel.JMod;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
@@ -46,18 +56,6 @@ import org.openl.types.NullOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-
-import com.helger.jcodemodel.AbstractJClass;
-import com.helger.jcodemodel.EClassType;
-import com.helger.jcodemodel.JCodeModel;
-import com.helger.jcodemodel.JCodeModelException;
-import com.helger.jcodemodel.JDefinedClass;
-import com.helger.jcodemodel.JMethod;
-import com.helger.jcodemodel.JMod;
-
-import net.sf.cglib.beans.BeanGenerator;
-import net.sf.cglib.core.NamingPolicy;
-import net.sf.cglib.core.Predicate;
 
 /**
  * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.
@@ -152,29 +150,29 @@ public final class GenerateMojo extends BaseOpenLMojo {
             }
 
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                .setClassLoader(classLoader)
-                .setProvideRuntimeContext(isProvideRuntimeContext)
-                .setProvideVariations(isProvideVariations)
-                .setExecutionMode(true)
-                .setExternalParameters(externalParameters)
-                .build();
+                    .setClassLoader(classLoader)
+                    .setProvideRuntimeContext(isProvideRuntimeContext)
+                    .setProvideVariations(isProvideVariations)
+                    .setExecutionMode(true)
+                    .setExternalParameters(externalParameters)
+                    .build();
 
             CompiledOpenClass compiledOpenClass;
             // TODO Support project name
             if (StringUtils.isNotEmpty(moduleName) && interfaceClass == null) {
                 try {
                     Collection<ResolvedDependency> resolvedDependencies = factory.getDependencyManager()
-                        .resolveDependency(
-                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)),
-                            false);
+                            .resolveDependency(
+                                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)),
+                                    false);
                     CompiledDependency compiledDependency = factory.getDependencyManager()
-                        .loadDependency(resolvedDependencies.iterator().next());
+                            .loadDependency(resolvedDependencies.iterator().next());
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
                         String message = String
-                            .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
+                                .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -205,9 +203,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
-        } finally
-
-        {
+        } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
@@ -221,14 +217,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
         return new URLClassLoader(urls, this.getClass().getClassLoader()) {
             @Override
             public Class<?> findClass(String name) throws ClassNotFoundException {
-                String file = name.replace('.', '/').concat(".java");
+                String className = name.replace('.', '/');
+                String file = className.concat(".java");
                 for (String dir : sourceRoots) {
                     if (new File(dir, file).isFile()) {
                         debug("  # FOUND > ", dir, "/", file);
-                        BeanGenerator builder = new BeanGenerator();
-                        builder.setClassLoader(this);
-                        builder.setNamingPolicy(new ClassNaming(name));
-                        return builder.create().getClass();
+                        byte[] bytes = generateStubClass(className);
+                        return defineClass(name, bytes, 0, bytes.length);
                     }
                 }
                 debug("  > ", file);
@@ -269,9 +264,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
     }
 
     private void writeCustomSpreadsheetResultBeans(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
-        if (customSpreadsheetResultOpenClass
-            .isGenerateBeanClass() && !writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
+                                                   Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
+        if (!writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
             Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
             info("Java Bean for Spreadsheet Result: " + cls.getName());
             Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
@@ -281,14 +275,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
             for (IOpenField openField : customSpreadsheetResultOpenClass.getFields()) {
                 if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = (CustomSpreadsheetResultOpenClass) openField
-                        .getType();
+                            .getType();
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass1,
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 } else if (openField.getType() instanceof SpreadsheetResultOpenClass) {
                     SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openField
-                        .getType();
+                            .getType();
                     writeCustomSpreadsheetResultBeans(spreadsheetResultOpenClass.toCustomSpreadsheetResultOpenClass(),
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 }
             }
         }
@@ -302,14 +296,14 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass,
-                        writtenSpreadsheetResultOpenClasses);
+                            writtenSpreadsheetResultOpenClasses);
                 }
             }
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 writeCustomSpreadsheetResultBeans(
-                    xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass(),
-                    writtenSpreadsheetResultOpenClasses);
+                        xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                .toCustomSpreadsheetResultOpenClass(),
+                        writtenSpreadsheetResultOpenClasses);
             }
         }
     }
@@ -341,7 +335,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, service);
 
             String[] argNames = MethodUtils
-                .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
+                    .getParameterNames(openMember, method, isProvideRuntimeContext, isProvideVariations);
             Class<?>[] argTypes = method.getParameterTypes();
             for (int i = 0; i < argTypes.length; i++) {
                 Class<?> argType = argTypes[i];
@@ -354,19 +348,6 @@ public final class GenerateMojo extends BaseOpenLMojo {
         // Write the generated source code
         outputDirectory.mkdirs();
         model.build(outputDirectory, (PrintStream) null);
-    }
-
-    private static class ClassNaming implements NamingPolicy {
-        private final String className;
-
-        private ClassNaming(String className) {
-            this.className = className;
-        }
-
-        @Override
-        public String getClassName(String s, String s1, Object o, Predicate predicate) {
-            return className;
-        }
     }
 
     /**
@@ -398,5 +379,12 @@ public final class GenerateMojo extends BaseOpenLMojo {
             }
             return jArgType;
         }
+    }
+
+    private static byte[] generateStubClass(String className) {
+            ClassWriter classWriter = new ClassWriter(0);
+            classWriter.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, className, null, "java/lang/Object", null);
+            classWriter.visitEnd();
+            return classWriter.toByteArray();
     }
 }

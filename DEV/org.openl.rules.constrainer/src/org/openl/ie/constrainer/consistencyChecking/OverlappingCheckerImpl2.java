@@ -4,7 +4,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.Constraint;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.Goal;
+import org.openl.ie.constrainer.GoalAnd;
+import org.openl.ie.constrainer.GoalGenerate;
+import org.openl.ie.constrainer.GoalImpl;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
 
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
@@ -113,15 +122,15 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
                     if (completelyOverlaps(_dt.getRule(rules[A]), _dt.getRule(rules[B]))) {
                         // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = blocks");
                         this.overlappings
-                            .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
+                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.BLOCK));
                     } else if (completelyOverlaps(_dt.getRule(rules[B]), _dt.getRule(rules[A]))) {
                         // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = overrides");
                         this.overlappings
-                            .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
+                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.OVERRIDE));
                     } else /* if (!blocks && !overrides) */ {
                         // System.out.println(" +***+ Checking " + rules[A] + " vs " + rules[B] + " = partial overlap");
                         this.overlappings
-                            .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
+                                .add(new Overlapping(ovl, rules[A], rules[B], Overlapping.OverlappingStatus.PARTIAL));
                     }
                     checkWithRemove(rules[A]);
                     checkWithRemove(rules[B]);

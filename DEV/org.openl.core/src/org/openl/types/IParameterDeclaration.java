@@ -11,7 +11,6 @@ import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor
- *
  */
 public interface IParameterDeclaration extends INamedThing {
 

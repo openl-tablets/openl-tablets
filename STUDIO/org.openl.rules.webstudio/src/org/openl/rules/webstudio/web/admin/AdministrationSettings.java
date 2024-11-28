@@ -1,14 +1,14 @@
 package org.openl.rules.webstudio.web.admin;
 
 
-import org.openl.engine.OpenLSystemProperties;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
+import org.openl.engine.OpenLSystemProperties;
 
 /**
  * The class contains system settings property names for settings edited in "Administration" page.

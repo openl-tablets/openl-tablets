@@ -16,7 +16,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
  * The <code>IBoundCode</code> interface is designed to provide a common protocol for objects what describes bound code.
  *
  * @author snshor
- *
  */
 public interface IBoundCode {
 

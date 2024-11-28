@@ -1,0 +1,47 @@
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY=/tables/5cff64b989fa6f416c2ba143cc959320 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "kind": "Rules",
+  "name": "FicaDetails",
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "fica",
+      "type": "String"
+    }, {
+      "name": "startDate",
+      "type": "Date"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Fica"
+    }, {
+      "title": "Start Date"
+    }, {
+      "title": "Rate, %"
+    }
+  ],
+  "rules": [
+    {
+      "Fica": "AFMT",
+      "Start Date": "2025-01-01",
+      "Rate, %": 1.45
+    }, {
+      "Fica": "FMT",
+      "Start Date": "2025-01-01",
+      "Rate, %": 1.45
+    }, {
+      "Fica": "FSST",
+      "Start Date": "2025-01-01T00:00:00",
+      "Rate, %": 6.2
+    }, {
+      "Fica": "GG_WP",
+      "Start Date": "2012-01-03",
+      "Rate, %": 11.3
+    }
+  ]
+}

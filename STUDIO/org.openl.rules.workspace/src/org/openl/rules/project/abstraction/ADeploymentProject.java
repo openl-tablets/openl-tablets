@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
 import javax.xml.bind.JAXBException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
@@ -29,8 +31,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
@@ -46,10 +46,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
     private final LockEngine lockEngine;
 
     private ADeploymentProject(WorkspaceUser user,
-            Repository repository,
-            String folderPath,
-            String version,
-            LockEngine lockEngine) {
+                               Repository repository,
+                               String folderPath,
+                               String version,
+                               LockEngine lockEngine) {
         super(user, repository, folderPath, version);
         this.lockEngine = lockEngine;
     }
@@ -65,10 +65,10 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     public void addProjectDescriptor(String repositoryId,
-            String name,
-            String path,
-            String branch,
-            CommonVersion version) {
+                                     String name,
+                                     String path,
+                                     String branch,
+                                     CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
@@ -156,9 +156,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     fileData.setSize(out.size());
 
                     FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
-                        new ByteArrayInputStream(out.toByteArray()));
+                            new ByteArrayInputStream(out.toByteArray()));
                     setFileData(getRepository()
-                        .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
+                            .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);
                 }
@@ -256,7 +256,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
             try {
                 FileData folder = getRepository().check(getFolderPath());
                 if (folder != null) {
-                    // Determine whether the deployment project has been modified by other WebStudio instances or
+                    // Determine whether the deployment project has been modified by other OpenL Studio instances or
                     // manually, if so, then refresh it.
                     // do not refresh the project if it is open
                     Date modifiedAt = folder.getModifiedAt();
@@ -277,7 +277,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     InputStream content = null;
                     try {
                         content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
-                            .getContent();
+                                .getContent();
                         List<ProjectDescriptor> newDescriptors = new ProjectDescriptorSerializer().deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;

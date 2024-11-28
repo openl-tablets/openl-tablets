@@ -11,7 +11,7 @@ import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * Factory for creating TBasic operations from the 'org.openl.rules.tbasic.runtime.operations' package
- *
+ * <p>
  * Created by dl on 9/16/14.
  */
 public class OperationFactory {
@@ -26,11 +26,11 @@ public class OperationFactory {
     }
 
     public RuntimeOperation createOperation(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep,
-            IBindingContext bindingContext) {
+                                            ConversionRuleStep conversionStep,
+                                            IBindingContext bindingContext) {
         try {
             String operationClassName = String
-                .format("%s.%s%s", OPERATIONS_PACKAGE, conversionStep.getOperationType(), OPERATION_SUFFIX);
+                    .format("%s.%s%s", OPERATIONS_PACKAGE, conversionStep.getOperationType(), OPERATION_SUFFIX);
             Class<?> clazz = Class.forName(operationClassName);
             Constructor<?> constructor = clazz.getConstructors()[0];
 
@@ -40,25 +40,25 @@ public class OperationFactory {
             //
             if (constructor.getParameterTypes().length > 0) {
                 params[0] = parameterConverter.convertParam(nodesToCompile,
-                    constructor.getParameterTypes()[0],
-                    conversionStep.getOperationParam1(),
-                    bindingContext);
+                        constructor.getParameterTypes()[0],
+                        conversionStep.getOperationParam1(),
+                        bindingContext);
             }
 
             // Init the second parameter for the Operation constructor
             //
             if (constructor.getParameterTypes().length > 1) {
                 params[1] = parameterConverter.convertParam(nodesToCompile,
-                    constructor.getParameterTypes()[1],
-                    conversionStep.getOperationParam2(),
-                    bindingContext);
+                        constructor.getParameterTypes()[1],
+                        conversionStep.getOperationParam2(),
+                        bindingContext);
             }
 
             RuntimeOperation emittedOperation = (RuntimeOperation) constructor.newInstance(params);
 
             // TODO: set more precise source reference
             AlgorithmOperationSource source = AlgorithmCompilerTool
-                .getOperationSource(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
+                    .getOperationSource(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
             emittedOperation.setSourceCode(source);
 
             String nameForDebug = conversionStep.getNameForDebug();
@@ -67,9 +67,9 @@ public class OperationFactory {
             return emittedOperation;
         } catch (Exception e) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
-                .getAlgorithmRow()
-                .getOperation()
-                .asSourceCodeModule();
+                    .getAlgorithmRow()
+                    .getOperation()
+                    .asSourceCodeModule();
             BindHelper.processError(e, errorSource, bindingContext);
             return null;
         }

@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Variation for replacement of value of some argument.
- *
+ * <p>
  * It was introduced because field modification variations cannot modify root object(argument of method).
  *
  * @author PUdalau
@@ -24,9 +24,9 @@ public class ArgumentReplacementVariation extends Variation {
     /**
      * Constructs variation.
      *
-     * @param variationID Unique ID for variation.
+     * @param variationID          Unique ID for variation.
      * @param updatedArgumentIndex Index of argument to be updated.
-     * @param valueToSet Value that will be set to instead of argument.
+     * @param valueToSet           Value that will be set to instead of argument.
      */
     public ArgumentReplacementVariation(String variationID, int updatedArgumentIndex, Object valueToSet) {
         super(variationID);
@@ -47,10 +47,10 @@ public class ArgumentReplacementVariation extends Variation {
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
-                getVariationID(),
-                updatedArgumentIndex,
-                originalArguments.length));
+                    "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                    getVariationID(),
+                    updatedArgumentIndex,
+                    originalArguments.length));
         }
         originalArguments[updatedArgumentIndex] = valueToSet;
         return originalArguments;

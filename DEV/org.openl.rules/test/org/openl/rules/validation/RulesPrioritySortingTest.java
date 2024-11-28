@@ -1,14 +1,15 @@
 package org.openl.rules.validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -27,13 +28,13 @@ public class RulesPrioritySortingTest {
 
     private static String csr;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() {
         csr = System.getProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, "");
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, csr);
     }
@@ -43,19 +44,19 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-01-15", "2011-02-15", 120.0 },
-                { "2011-02-15", "2011-01-15", 120.0 },
-                { "2011-01-15", "2020-01-15", 120.0 },
-                { "2020-01-15", "2011-01-15", 120.0 },
-                { "2011-03-15", "2011-03-15", 120.0 },
-                { "2011-04-15", "2011-03-15", 100.0 },
-                { "2020-04-15", "2011-03-15", 100.0 },
-                { "2011-04-15", "2020-03-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 },
-                { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-07-15", 100.0 },
-                { "2020-07-15", "2011-07-15", 100.0 },
-                { "2011-07-15", "2011-08-15", 150.0 } };
+        Object[][] testData = {{"2011-01-15", "2011-02-15", 120.0},
+                {"2011-02-15", "2011-01-15", 120.0},
+                {"2011-01-15", "2020-01-15", 120.0},
+                {"2020-01-15", "2011-01-15", 120.0},
+                {"2011-03-15", "2011-03-15", 120.0},
+                {"2011-04-15", "2011-03-15", 100.0},
+                {"2020-04-15", "2011-03-15", 100.0},
+                {"2011-04-15", "2020-03-15", 100.0},
+                {"2011-07-15", "2011-07-15", 100.0},
+                {"2020-07-15", "2011-07-15", 100.0},
+                {"2011-07-15", "2011-07-15", 100.0},
+                {"2020-07-15", "2011-07-15", 100.0},
+                {"2011-07-15", "2011-08-15", 150.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -66,7 +67,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
@@ -75,7 +76,7 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-08-15", "2012-01-01", 4.0 }, { "2011-08-15", "2009-01-01", 2.0 } };
+        Object[][] testData = {{"2011-08-15", "2012-01-01", 4.0}, {"2011-08-15", "2009-01-01", 2.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -86,7 +87,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
             Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 
@@ -95,7 +96,7 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = { { "2011-08-15", "lobb", 4.0 }, { "2011-08-15", "lobb2", 7.0 } };
+        Object[][] testData = {{"2011-08-15", "lobb", 4.0}, {"2011-08-15", "lobb2", 7.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -106,7 +107,7 @@ public class RulesPrioritySortingTest {
             context.setCurrentDate(currentDate);
             context.setLob(lob);
             Double res = instance.driverRiskScoreOverloadTest3("High Risk Driver");
-            assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
+            assertEquals((Double) data[2], res.doubleValue(), 0, "testData index = " + i);
         }
     }
 }

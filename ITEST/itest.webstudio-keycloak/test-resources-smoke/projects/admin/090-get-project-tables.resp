@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "a9b205cbc833c511accabda0c39a87c8",
+    "tableType": "SmartRules",
+    "kind": "Rules",
+    "name": "Hello",
+    "returnType": "String",
+    "signature": "Hello (Integer hour)",
+    "file": "Project/Main.xlsx",
+    "pos": "B3:D8"
+  }
+]

@@ -48,9 +48,9 @@ public class MethodBasedIndex implements IOpenIndex {
         int n = reader.getMethod().getSignature().getParameterTypes().length;
 
         if (n == 2) {
-            return reader.invoke(null, new Object[] { container, index }, null);
+            return reader.invoke(null, new Object[]{container, index}, null);
         } else {
-            return reader.invoke(container, new Object[] { index }, null);
+            return reader.invoke(container, new Object[]{index}, null);
         }
     }
 
@@ -71,9 +71,9 @@ public class MethodBasedIndex implements IOpenIndex {
         int n = writer.getMethod().getSignature().getParameterTypes().length;
 
         if (n == 3) {
-            writer.invoke(null, new Object[] { container, index, value }, null);
+            writer.invoke(null, new Object[]{container, index, value}, null);
         } else {
-            writer.invoke(container, new Object[] { index, value }, null);
+            writer.invoke(container, new Object[]{index, value}, null);
         }
     }
 }

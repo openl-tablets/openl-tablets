@@ -20,7 +20,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * @author snshor
- *
  * @deprecated
  */
 @Deprecated
@@ -29,18 +28,24 @@ public final class ObjectViewer {
     private ObjectViewer() {
     }
 
-    /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon **/
+    /**
+     * Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon
+     **/
     public static String displaySpreadsheetResult(final SpreadsheetResult res,
                                                   Map<Point, ComparedResult> spreadsheetCellsForTest) {
         return display(res, spreadsheetCellsForTest, true, false);
     }
 
-    /** Display SpreadsheetResult with filter for links to explanation for values */
+    /**
+     * Display SpreadsheetResult with filter for links to explanation for values
+     */
     public static String displaySpreadsheetResult(final SpreadsheetResult res) {
         return display(res, null, true, false);
     }
 
-    /** Display SpreadsheetResult without any filters in the table **/
+    /**
+     * Display SpreadsheetResult without any filters in the table
+     **/
     public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res, boolean smartNumbers) {
         return display(res, null, false, smartNumbers);
     }
@@ -67,11 +72,11 @@ public final class ObjectViewer {
 
         ProjectModel model = WebStudioUtils.getWebStudio().getModel();
         MetaInfoReader metaInfoReader = Optional.ofNullable(model.getNode(gridtable.getUri()))
-            .map(TableSyntaxNode::getMetaInfoReader)
-            .orElseGet(EmptyMetaInfoReader::getInstance);
+                .map(TableSyntaxNode::getMetaInfoReader)
+                .orElseGet(EmptyMetaInfoReader::getInstance);
 
         TableModel tableModel = TableModel
-            .initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]), metaInfoReader, smartNumbers);
+                .initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]), metaInfoReader, smartNumbers);
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 

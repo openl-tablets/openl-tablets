@@ -3,15 +3,16 @@ package org.openl.rules.spring.openapi.app031;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.spring.openapi.AbstractSpringOpenApiTest;
-import org.openl.rules.spring.openapi.MockConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ContextConfiguration;
 
-@ContextConfiguration(classes = { MockConfiguration.class, TestRunner031.TestConfig.class })
+import org.openl.rules.spring.openapi.AbstractSpringOpenApiTest;
+import org.openl.rules.spring.openapi.MockConfiguration;
+
+@ContextConfiguration(classes = {MockConfiguration.class, TestRunner031.TestConfig.class})
 public class TestRunner031 extends AbstractSpringOpenApiTest {
 
     @Configuration

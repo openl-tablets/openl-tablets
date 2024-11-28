@@ -71,7 +71,7 @@ public class DiffManager implements AutoCloseable {
     private void activateCleanup() {
         scheduledPool = Executors.newSingleThreadScheduledExecutor();
         scheduled = scheduledPool
-            .scheduleWithFixedDelay(this::cleanUpInactive, cleanUpPeriod, cleanUpPeriod, TimeUnit.SECONDS);
+                .scheduleWithFixedDelay(this::cleanUpInactive, cleanUpPeriod, cleanUpPeriod, TimeUnit.SECONDS);
     }
 
     private void cleanUpInactive() {

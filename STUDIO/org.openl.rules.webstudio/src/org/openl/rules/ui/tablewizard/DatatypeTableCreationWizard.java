@@ -4,7 +4,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -27,7 +26,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Andrei Astrouski
  */
-@GroupSequence({ DatatypeTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({DatatypeTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)

@@ -26,8 +26,8 @@ public class TaskScheduler {
      * Schedule a command with given delay
      *
      * @param command command to execute
-     * @param delay the time from now to delay execution
-     * @param unit the time unit of the delay parameter
+     * @param delay   the time from now to delay execution
+     * @param unit    the time unit of the delay parameter
      */
     public void schedule(Runnable command, int delay, TimeUnit unit) {
         scheduledExecutor.schedule(wrap(command), delay, unit);

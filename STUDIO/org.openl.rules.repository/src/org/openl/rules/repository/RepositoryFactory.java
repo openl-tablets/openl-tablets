@@ -1,8 +1,8 @@
 package org.openl.rules.repository;
 
-import org.openl.rules.repository.api.Repository;
-
 import java.util.function.Function;
+
+import org.openl.rules.repository.api.Repository;
 
 public interface RepositoryFactory {
 

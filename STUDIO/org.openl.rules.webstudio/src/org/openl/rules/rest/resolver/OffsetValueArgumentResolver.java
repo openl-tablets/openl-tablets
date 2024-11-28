@@ -3,12 +3,13 @@ package org.openl.rules.rest.resolver;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
-import org.openl.rules.repository.api.Offset;
-import org.openl.rules.repository.api.Page;
-import org.openl.rules.repository.api.Pageable;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import org.openl.rules.repository.api.Offset;
+import org.openl.rules.repository.api.Page;
+import org.openl.rules.repository.api.Pageable;
 
 /**
  * REST API {@link Offset} parameter type resolver. Resolves {@link Offset} type from {@code offset} and {@code size}
@@ -44,8 +45,8 @@ public class OffsetValueArgumentResolver extends AbstractPaginationValueArgument
         if (offset < 0) {
             Method annotatedMethod = parameter.getMethod();
             throw new IllegalStateException(
-                String.format("Invalid default page offset configured for method '%s'. Must not be less than zero.",
-                    annotatedMethod));
+                    String.format("Invalid default page offset configured for method '%s'. Must not be less than zero.",
+                            annotatedMethod));
         }
         return Offset.of(offset, getDefaultPageSize(parameter, defaultAnno));
     }

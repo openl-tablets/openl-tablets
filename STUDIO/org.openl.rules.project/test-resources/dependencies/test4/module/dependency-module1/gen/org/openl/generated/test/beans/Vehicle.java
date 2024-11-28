@@ -1,34 +1,33 @@
 /*
- * This class has been generated. Do not change it. 
-*/
+ * This class has been generated. Do not change it.
+ */
 
 package org.openl.generated.test.beans;
 
-import java.lang.String;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.ArrayUtils;
 
 public class Vehicle {
-    protected java.lang.String name;
+    protected String name;
 
-    protected java.lang.String type;
+    protected String type;
 
     protected int year;
 
-    protected java.lang.String model;
+    protected String model;
 
     protected boolean hasAlarm;
 
     protected boolean onHighTheftProbabilityList;
 
-    protected java.lang.String airbags;
+    protected String airbags;
 
     protected double price;
 
-    protected java.lang.String bodyType;
+    protected String bodyType;
 
-    protected java.lang.String[] coverage;
+    protected String[] coverage;
 
     protected boolean hasRollBar;
 
@@ -37,16 +36,16 @@ public class Vehicle {
     }
 
     public Vehicle(String name,
-            String model,
-            int year,
-            boolean hasAlarm,
-            String type,
-            boolean onHighTheftProbabilityList,
-            String airbags,
-            double price,
-            String bodyType,
-            String[] coverage,
-            boolean hasRollBar) {
+                   String model,
+                   int year,
+                   boolean hasAlarm,
+                   String type,
+                   boolean onHighTheftProbabilityList,
+                   String airbags,
+                   double price,
+                   String bodyType,
+                   String[] coverage,
+                   boolean hasRollBar) {
         super();
         this.name = name;
         this.model = model;
@@ -97,20 +96,20 @@ public class Vehicle {
         return builder.isEquals();
     }
 
-    public java.lang.String getName() {
+    public String getName() {
         return name;
     }
 
     public String toString() {
         return "Vehicle {" + " name=" + getName() + " model=" + getModel() + " year=" + getYear() + " hasAlarm=" + getHasAlarm() + " type=" + getType() + " onHighTheftProbabilityList=" + getOnHighTheftProbabilityList() + " airbags=" + getAirbags() + " price=" + getPrice() + " bodyType=" + getBodyType() + " coverage=" + ArrayUtils
-            .toString(getCoverage()) + " hasRollBar=" + getHasRollBar() + " }";
+                .toString(getCoverage()) + " hasRollBar=" + getHasRollBar() + " }";
     }
 
-    public void setName(java.lang.String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public java.lang.String getType() {
+    public String getType() {
         return type;
     }
 
@@ -118,11 +117,11 @@ public class Vehicle {
         return year;
     }
 
-    public void setType(java.lang.String type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public void setModel(java.lang.String model) {
+    public void setModel(String model) {
         this.model = model;
     }
 
@@ -130,7 +129,7 @@ public class Vehicle {
         this.year = year;
     }
 
-    public java.lang.String getModel() {
+    public String getModel() {
         return model;
     }
 
@@ -150,11 +149,11 @@ public class Vehicle {
         this.onHighTheftProbabilityList = onHighTheftProbabilityList;
     }
 
-    public java.lang.String getAirbags() {
+    public String getAirbags() {
         return airbags;
     }
 
-    public void setAirbags(java.lang.String airbags) {
+    public void setAirbags(String airbags) {
         this.airbags = airbags;
     }
 
@@ -166,19 +165,19 @@ public class Vehicle {
         this.price = price;
     }
 
-    public java.lang.String getBodyType() {
+    public String getBodyType() {
         return bodyType;
     }
 
-    public void setBodyType(java.lang.String bodyType) {
+    public void setBodyType(String bodyType) {
         this.bodyType = bodyType;
     }
 
-    public java.lang.String[] getCoverage() {
+    public String[] getCoverage() {
         return coverage;
     }
 
-    public void setCoverage(java.lang.String[] coverage) {
+    public void setCoverage(String[] coverage) {
         this.coverage = coverage;
     }
 

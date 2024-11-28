@@ -19,7 +19,6 @@ import org.openl.types.IOpenField;
 
 /**
  * @author snshor
- *
  */
 public class AmbiguousFieldException extends OpenlNotCheckedException {
 

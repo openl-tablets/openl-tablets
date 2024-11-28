@@ -5,12 +5,13 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
-import org.openl.rules.rest.model.MailConfigModel;
-import org.openl.rules.webstudio.mail.MailSender;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.openl.rules.rest.model.MailConfigModel;
+import org.openl.rules.webstudio.mail.MailSender;
+import org.openl.util.StringUtils;
 
 public class MailConfigConstraintValidator implements ConstraintValidator<MailConfigConstraint, MailConfigModel> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailConfigConstraintValidator.class);

@@ -8,7 +8,6 @@ import org.openl.types.IOpenMember;
  * Handles internal type that is defined through datatype mechanism.
  *
  * @author DLiauchuk
- *
  */
 public class InternalDatatypeClass implements IOpenMember {
 

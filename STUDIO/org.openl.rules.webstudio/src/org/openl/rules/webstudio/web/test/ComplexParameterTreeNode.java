@@ -5,6 +5,9 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.rules.vm.SimpleRulesVM;
@@ -13,8 +16,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final Logger LOG = LoggerFactory.getLogger(ComplexParameterTreeNode.class);
@@ -25,7 +26,7 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
 
     public ComplexParameterTreeNode(ParameterRenderConfig config) {
         super(config
-            .getFieldNameInParent(), config.getValue(), config.getType(), config.getParent(), config.getKeyField());
+                .getFieldNameInParent(), config.getValue(), config.getType(), config.getParent(), config.getKeyField());
         this.config = config;
 
         Object key = null;
@@ -100,10 +101,10 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                     }
 
                     ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
-                        .fieldNameInParent(fieldName)
-                        .parent(this)
-                        .requestId(config.getRequestId())
-                        .build();
+                            .fieldNameInParent(fieldName)
+                            .parent(this)
+                            .requestId(config.getRequestId())
+                            .build();
 
                     fields.put(fieldName, ParameterTreeBuilder.createNode(childConfig));
                 }
@@ -116,14 +117,14 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
      * Finds a reference of a field's value to any of it's parents or object itself. If field value is not referenced to
      * any of it's parents, function will return null.
      *
-     * @param fieldValue field value
-     * @param parentObject object that contains a field
+     * @param fieldValue    field value
+     * @param parentObject  object that contains a field
      * @param referenceName reference
      * @return reference name to a parent or null
      */
     private static String getReferenceNameToParent(Object fieldValue,
-            ParameterDeclarationTreeNode parentObject,
-            String referenceName) {
+                                                   ParameterDeclarationTreeNode parentObject,
+                                                   String referenceName) {
         // Check reference, not value - that's why "==" instead of "equals".
         if (parentObject.getValue() == fieldValue) {
             return referenceName;

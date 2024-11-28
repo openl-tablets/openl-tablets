@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.all</artifactId>
     <packaging>war</packaging>
@@ -15,9 +15,6 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
-    <properties>
-        <generate-application.properties>prepare-package</generate-application.properties>
-    </properties>
     <build>
         <finalName>webservice-all</finalName>
         <plugins>
@@ -114,7 +111,7 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
-                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j2-impl</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -124,7 +121,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>

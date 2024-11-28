@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
+
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
@@ -17,8 +20,6 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.RequestScope;
 
 @Service
 @RequestScope
@@ -40,8 +41,8 @@ public class EditProjectTagsBean {
     private String errorMessage;
 
     public EditProjectTagsBean(TagTypeService tagTypeService,
-            TagService tagService,
-            OpenLProjectService projectService) {
+                               TagService tagService,
+                               OpenLProjectService projectService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
         this.projectService = projectService;
@@ -71,9 +72,9 @@ public class EditProjectTagsBean {
         fillAbsentTags();
         if (StringUtils.isNotEmpty(errorMessage)) {
             tags.stream()
-                .filter(tag1 -> tag1.getType().getId().equals(typeId))
-                .findFirst()
-                .ifPresent(tag -> tag.setName(tagName));
+                    .filter(tag1 -> tag1.getType().getId().equals(typeId))
+                    .findFirst()
+                    .ifPresent(tag -> tag.setName(tagName));
         }
         tags.sort(Comparator.comparing((Tag tag) -> tag.getType().getName()).thenComparing(Tag::getName));
     }
@@ -121,7 +122,7 @@ public class EditProjectTagsBean {
                 if (existed == null) {
                     WebStudioUtils.validate(type != null, "Tag type with id '" + typeId + "' does not exist.");
                     WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
-                        String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
+                            String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
                 }
             }
 

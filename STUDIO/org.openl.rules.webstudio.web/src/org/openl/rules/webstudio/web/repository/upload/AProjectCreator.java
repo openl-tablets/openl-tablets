@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -13,8 +16,6 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AProjectCreator {
 

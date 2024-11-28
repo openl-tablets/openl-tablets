@@ -1,13 +1,14 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -32,12 +33,12 @@ public class RulesServiceEnhancerTest {
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, false, null);
+                .singletonList(project), null, false, null);
 
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
-            strategy);
+                strategy);
         Class<?> serviceClass = enhancer.getServiceClass();
         Object instance = enhancer.instantiate();
 

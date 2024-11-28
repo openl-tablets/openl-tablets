@@ -17,7 +17,6 @@ import org.openl.util.StringUtils;
 
 /**
  * Builds tree node for group of methods.
- *
  */
 public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
@@ -72,7 +71,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
         String folderName = getFolderName(method);
-        return new ProjectTreeNode(new String[] {folderName, folderName, folderName}, IProjectTypes.PT_FOLDER, null);
+        return new ProjectTreeNode(new String[]{folderName, folderName, folderName}, IProjectTypes.PT_FOLDER, null);
     }
 
     private String getFolderName(IOpenMethod method) {

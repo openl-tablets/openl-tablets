@@ -34,7 +34,6 @@ import org.openl.rules.table.IGridTable;
  * And we need to transform it to common case for further work.
  *
  * @author DLiauchuk
- *
  */
 public class LookupHeadersTransformer extends TwoDimensionDecisionTableTransformer {
 
@@ -42,10 +41,10 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTransform
     private final int[] horizontalHeaderOffsets;
 
     LookupHeadersTransformer(IGridTable entireTable,
-            IGridTable lookupValuesTable,
-            int retTableWidth,
-            int firstVerticalColumn,
-            int[] horizontalHeaderOffsets) {
+                             IGridTable lookupValuesTable,
+                             int retTableWidth,
+                             int firstVerticalColumn,
+                             int[] horizontalHeaderOffsets) {
         super(entireTable, lookupValuesTable, retTableWidth);
         this.firstVerticalColumn = firstVerticalColumn;
         this.horizontalHeaderOffsets = horizontalHeaderOffsets;

@@ -3,6 +3,10 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.openl.rules.cloner.Cloner;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.data.ColumnDescriptor;
@@ -10,7 +14,6 @@ import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
-import org.openl.rules.table.OpenLCloner;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -18,8 +21,6 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
 import org.openl.types.impl.ThisField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TestDescription {
 
@@ -33,11 +34,11 @@ public class TestDescription {
     private List<IOpenField> errorFields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
-            DynamicObject testObject,
-            List<IOpenField> fields,
-            List<IOpenField> errorFields,
-            ITableModel dataModel,
-            IDataBase db) {
+                           DynamicObject testObject,
+                           List<IOpenField> fields,
+                           List<IOpenField> errorFields,
+                           ITableModel dataModel,
+                           IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
         this.fields = fields;
@@ -52,8 +53,8 @@ public class TestDescription {
     }
 
     private static DynamicObject createTestObject(IOpenMethod testedMethod,
-            IRulesRuntimeContext context,
-            Object[] arguments) {
+                                                  IRulesRuntimeContext context,
+                                                  Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
         if (context != null) {
@@ -87,7 +88,7 @@ public class TestDescription {
         return names;
     }
 
-    public Object[] getArguments(OpenLCloner cloner) {
+    public Object[] getArguments() {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
@@ -95,13 +96,13 @@ public class TestDescription {
             try {
                 if (value != null) {
                     Thread.currentThread().setContextClassLoader(value.getClass().getClassLoader());
-                }
-                try {
-                    args[i] = cloner.deepClone(value);
-                } catch (RuntimeException e) {
-                    log.error("Failed to clone an argument '{}'. Original argument will be used.",
-                        executionParams[i].getName());
-                    args[i] = value;
+                    try {
+                        args[i] = Cloner.clone(value);
+                    } catch (RuntimeException e) {
+                        log.warn("Failed to clone an argument '{}' of '{}' type. Original argument will be used.",
+                                executionParams[i].getName(), value.getClass().getName(), e);
+                        args[i] = value;
+                    }
                 }
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -111,11 +112,11 @@ public class TestDescription {
     }
 
     private static ParameterWithValueDeclaration[] initExecutionParams(IOpenMethod testedMethod,
-            DynamicObject testObject,
-            IDataBase db,
-            ITableModel dataModel) {
+                                                                       DynamicObject testObject,
+                                                                       IDataBase db,
+                                                                       ITableModel dataModel) {
         ParameterWithValueDeclaration[] executionParams = new ParameterWithValueDeclaration[testedMethod.getSignature()
-            .getNumberOfParameters()];
+                .getNumberOfParameters()];
         for (int i = 0; i < executionParams.length; i++) {
             String paramName = testedMethod.getSignature().getParameterName(i);
             Object paramValue = testObject.getFieldValue(paramName);
@@ -144,7 +145,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.EXPECTED_RESULT_NAME)
                 // When all test cases contain empty (null) expected value
                 || testObject.getType() != null && testObject.getType()
-                    .getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
+                .getField(TestMethodHelper.EXPECTED_RESULT_NAME) != null;
     }
 
     public Object getExpectedResult() {
@@ -163,7 +164,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.CONTEXT_NAME);
     }
 
-    public IRulesRuntimeContext getRuntimeContext(OpenLCloner cloner) {
+    public IRulesRuntimeContext getRuntimeContext() {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
 
         if (context == null) {
@@ -171,7 +172,7 @@ public class TestDescription {
         }
 
         try {
-            return cloner.deepClone(context);
+            return Cloner.clone(context);
         } catch (Exception e) {
             log.error("Failed to clone context. Original context will be used.");
             return context;
@@ -210,10 +211,10 @@ public class TestDescription {
     }
 
     protected static IOpenField getKeyField(String paramName,
-            IOpenClass type,
-            Object value,
-            IDataBase db,
-            ITableModel dataModel) {
+                                            IOpenClass type,
+                                            Object value,
+                                            IDataBase db,
+                                            ITableModel dataModel) {
         if (value == null) {
             return null;
         }
@@ -258,6 +259,6 @@ public class TestDescription {
      */
     public boolean isEmptyOrNewStyleErrorDescription() {
         return errorFields
-            .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
+                .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
     }
 }

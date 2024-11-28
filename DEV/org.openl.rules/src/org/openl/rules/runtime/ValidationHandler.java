@@ -63,10 +63,10 @@ class ValidationHandler {
         boolean isInDomain = domain.selectObject(value);
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(
-                String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                    value,
-                    domainOpenClass.getName(),
-                    DomainUtils.toString(domain)));
+                    String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                            value,
+                            domainOpenClass.getName(),
+                            DomainUtils.toString(domain)));
         }
     }
 }

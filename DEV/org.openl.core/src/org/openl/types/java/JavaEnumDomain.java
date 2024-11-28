@@ -16,7 +16,7 @@ public class JavaEnumDomain implements IDomain<Object> {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Iterator iterator() {
         return Arrays.asList(enumClass.getInstanceClass().getEnumConstants()).iterator();
     }

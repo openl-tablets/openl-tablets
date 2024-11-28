@@ -2,10 +2,10 @@ package com.example.java;
 
 import java.util.Map;
 
-import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
-
 import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.relation.Relation;
+
+import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 
 public class CollectAfter implements StoreLogDataAdvice {
 

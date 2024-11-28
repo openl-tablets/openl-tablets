@@ -33,7 +33,6 @@ import org.openl.util.OpenClassUtils;
 
 /**
  * Helper class that encapsulates several OpenL engine methods.
- *
  */
 public final class OpenLManager {
 
@@ -43,16 +42,16 @@ public final class OpenLManager {
     /**
      * Makes a method from source using method header descriptor.
      *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodHeader method header descriptor
+     * @param openl          OpenL engine context
+     * @param source         source
+     * @param methodHeader   method header descriptor
      * @param bindingContext binding context
      * @return {@link CompositeMethod} instance
      */
     public static CompositeMethod makeMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            IOpenMethodHeader methodHeader,
-            IBindingContext bindingContext) {
+                                             IOpenSourceCodeModule source,
+                                             IOpenMethodHeader methodHeader,
+                                             IBindingContext bindingContext) {
 
         CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
 
@@ -64,14 +63,14 @@ public final class OpenLManager {
     /**
      * Makes a method header from source.
      *
-     * @param openl OpenL engine context
-     * @param source source
+     * @param openl          OpenL engine context
+     * @param source         source
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
     public static IOpenMethodHeader makeMethodHeader(OpenL openl,
-            IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+                                                     IOpenSourceCodeModule source,
+                                                     IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser().parseAsMethodHeader(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, true);
         if (topNode instanceof IBoundMethodHeader) {
@@ -81,8 +80,8 @@ public final class OpenLManager {
     }
 
     public static IParameterDeclaration makeParameterDeclaration(OpenL openl,
-            IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+                                                                 IOpenSourceCodeModule source,
+                                                                 IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser().parseAsParameterDeclaration(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
         if (topNode instanceof ParameterDeclarationNode) {
@@ -92,11 +91,11 @@ public final class OpenLManager {
     }
 
     public static IOpenClass makeType(OpenL openl,
-            String code,
-            IOpenSourceCodeModule source,
-            IBindingContext bindingContext) {
+                                      String code,
+                                      IOpenSourceCodeModule source,
+                                      IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser()
-            .parseAsType(code != null ? new StringSourceCodeModule(code, source.getUri()) : source);
+                .parseAsType(code != null ? new StringSourceCodeModule(code, source.getUri()) : source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
         if (topNode instanceof TypeBoundNode) {
             return topNode.getType();
@@ -110,20 +109,20 @@ public final class OpenLManager {
      * create open class that hasn't information of return type at compile time. Return type can be recognized at
      * runtime time.
      *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodName method name
-     * @param signature method signature
+     * @param openl          OpenL engine context
+     * @param source         source
+     * @param methodName     method name
+     * @param signature      method signature
      * @param declaringClass open class that declare method
      * @param bindingContext binding context
      * @return {@link IOpenMethodHeader} instance
      */
     public static CompositeMethod makeMethodWithUnknownType(OpenL openl,
-            IOpenSourceCodeModule source,
-            String methodName,
-            IMethodSignature signature,
-            IOpenClass declaringClass,
-            IBindingContext bindingContext) {
+                                                            IOpenSourceCodeModule source,
+                                                            String methodName,
+                                                            IMethodSignature signature,
+                                                            IOpenClass declaringClass,
+                                                            IBindingContext bindingContext) {
 
         OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
         CompositeMethod compositeMethod = new CompositeMethod(header, null);
@@ -149,15 +148,15 @@ public final class OpenLManager {
     /**
      * Compiles a method and sets meta info to the cells.
      *
-     * @param openl OpenL engine context
-     * @param source method source
+     * @param openl           OpenL engine context
+     * @param source          method source
      * @param compositeMethod {@link CompositeMethod} instance
-     * @param bindingContext binding context
+     * @param bindingContext  binding context
      */
     public static void compileMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
+                                     IOpenSourceCodeModule source,
+                                     CompositeMethod compositeMethod,
+                                     IBindingContext bindingContext) {
 
         IOpenMethodHeader header = compositeMethod.getHeader();
         MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
@@ -172,9 +171,9 @@ public final class OpenLManager {
     }
 
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
-            IOpenSourceCodeModule source,
-            boolean executionMode,
-            IDependencyManager dependencyManager) {
+                                                            IOpenSourceCodeModule source,
+                                                            boolean executionMode,
+                                                            IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
         return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }
@@ -182,7 +181,7 @@ public final class OpenLManager {
     /**
      * Compiles and runs OpenL script.
      *
-     * @param openl OpenL engine context
+     * @param openl  OpenL engine context
      * @param source source
      * @return result of script execution
      * @throws CompositeOpenlException if errors in the source code
@@ -213,13 +212,13 @@ public final class OpenLManager {
      * Binds method which defines by header descriptor.
      *
      * @param boundMethodNode method bound node
-     * @param header method header descriptor
-     * @param bindingContext binding context
+     * @param header          method header descriptor
+     * @param bindingContext  binding context
      * @return node of bound code that contains information about method
      */
     private static IBoundMethodNode bindMethod(IBoundMethodNode boundMethodNode,
-            IOpenMethodHeader header,
-            IBindingContext bindingContext) {
+                                               IOpenMethodHeader header,
+                                               IBindingContext bindingContext) {
 
         IOpenClass type = header.getType();
 
@@ -240,9 +239,9 @@ public final class OpenLManager {
     }
 
     public static IBoundNode getBoundNode(OpenL openl,
-            IBindingContext bindingContext,
-            IParsedCode parsedCode,
-            boolean allowParsingErrors) {
+                                          IBindingContext bindingContext,
+                                          IParsedCode parsedCode,
+                                          boolean allowParsingErrors) {
         SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
         if (parsingErrors.length > 0) {
             for (SyntaxNodeException parsingError : parsingErrors) {

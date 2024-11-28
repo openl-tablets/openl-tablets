@@ -1,10 +1,12 @@
 package org.openl.rules.table.xls;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.ICell;
@@ -15,7 +17,7 @@ public class XlsSheetGridModelTest {
 
     private static XlsSheetGridModel xsGrid;
 
-    @Before
+    @BeforeEach
     public void before() {
         URLSourceCodeModule source = new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls");
         XlsWorkbookSourceCodeModule wbSrc = new XlsWorkbookSourceCodeModule(source);
@@ -33,10 +35,10 @@ public class XlsSheetGridModelTest {
     }
 
     private void _testCell(String cell, int col, int row) {
-        Assert.assertEquals(IGridRegion.Tool.getColumn(cell), col);
-        Assert.assertEquals(IGridRegion.Tool.getRow(cell), row);
+        assertEquals(IGridRegion.Tool.getColumn(cell), col);
+        assertEquals(IGridRegion.Tool.getRow(cell), row);
 
-        Assert.assertEquals(cell, XlsUtil.xlsCellPresentation(col, row));
+        assertEquals(cell, XlsUtil.xlsCellPresentation(col, row));
     }
 
     @Test

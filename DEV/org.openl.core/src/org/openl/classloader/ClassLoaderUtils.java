@@ -26,7 +26,21 @@ public final class ClassLoaderUtils {
             }
         } else {
             LOG.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
-                classLoader);
+                    classLoader);
         }
+    }
+
+    /**
+     * Define and load a class from the bytecode.
+     * @param className the class name
+     * @param bytes the byte code of the class
+     * @param loader OpenLClassLoader instance
+     * @return initialized class
+     * @throws ClassNotFoundException
+     */
+    public static Class<?> defineClass(String className, byte[] bytes, ClassLoader loader) throws ClassNotFoundException {
+        var openLClassLoader = loader instanceof OpenLClassLoader ? (OpenLClassLoader) loader : new OpenLClassLoader(loader);
+        openLClassLoader.addGeneratedClass(className, bytes);
+        return Class.forName(className, true, openLClassLoader); // Force static initializers to run.
     }
 }

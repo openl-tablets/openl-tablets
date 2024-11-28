@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -92,12 +91,12 @@ public class PropertiesBean {
     public void addProperty() {
         TablePropertyDefinition propDefinition = getPropByName(propNameToAdd);
         Class<?> propType = propDefinition.getType() == null ? String.class
-                                                             : propDefinition.getType().getInstanceClass();
+                : propDefinition.getType().getInstanceClass();
         properties.add(
-            new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType, WebStudioFormats.getInstance())
-                .displayName(propDefinition.getDisplayName())
-                .format(propDefinition.getFormat())
-                .build());
+                new TableProperty.TablePropertyBuilder(propDefinition.getName(), propType, WebStudioFormats.getInstance())
+                        .displayName(propDefinition.getDisplayName())
+                        .format(propDefinition.getFormat())
+                        .build());
         possibleToAddProps.remove(propNameToAdd);
     }
 

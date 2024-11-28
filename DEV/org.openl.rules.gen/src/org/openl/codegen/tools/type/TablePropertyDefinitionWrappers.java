@@ -67,7 +67,7 @@ public class TablePropertyDefinitionWrappers {
             if (wrapper.getDefinition().isDimensional()) {
                 String operation = wrapper.getOperation();
                 if (ContainsMatchingExpression.OPERATION_NAME
-                    .equalsIgnoreCase(operation) || EQMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operation)) {
+                        .equalsIgnoreCase(operation) || EQMatchingExpression.OPERATION_NAME.equalsIgnoreCase(operation)) {
                     dimensionalTablePropertyDefinitions.add(wrapper);
                 }
             }

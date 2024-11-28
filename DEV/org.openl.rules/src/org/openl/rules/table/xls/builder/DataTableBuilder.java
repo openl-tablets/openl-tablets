@@ -34,9 +34,9 @@ public class DataTableBuilder extends TableBuilder {
     /**
      * Write a header of a data table
      *
-     * @param typeName type name
+     * @param typeName     type name
      * @param variableName technical variable name
-     * @param style cell style (can be null)
+     * @param style        cell style (can be null)
      */
     public void writeHeader(String typeName, String variableName, ICellStyle style) {
         String header = IXlsTableNames.DATA_TABLE;
@@ -55,7 +55,7 @@ public class DataTableBuilder extends TableBuilder {
     /**
      * Write a header of a data table
      *
-     * @param typeName type name
+     * @param typeName     type name
      * @param variableName technical variable name
      */
     public void writeHeader(String typeName, String variableName) {
@@ -89,7 +89,7 @@ public class DataTableBuilder extends TableBuilder {
      * Write a field values
      *
      * @param fieldValues a map containing values where a key is fully qualified field name
-     * @param style cell style (can be null)
+     * @param style       cell style (can be null)
      */
     public void writeFieldValues(Map<String, String> fieldValues, ICellStyle cellStyle) {
         writeFieldValues(fields, fieldValues, cellStyle);
@@ -153,8 +153,8 @@ public class DataTableBuilder extends TableBuilder {
     }
 
     private void writeFieldValues(List<? extends DataTableField> fields,
-            Map<String, String> fieldValues,
-            ICellStyle cellStyle) {
+                                  Map<String, String> fieldValues,
+                                  ICellStyle cellStyle) {
         for (int i = 0; i < fields.size(); i++) {
             DataTableField field = fields.get(i);
             if (field.isFillChildren()) {

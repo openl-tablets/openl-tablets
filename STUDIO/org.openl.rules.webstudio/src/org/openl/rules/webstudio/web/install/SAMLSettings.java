@@ -12,14 +12,14 @@ public class SAMLSettings {
     private String serverCertificate;
 
     public SAMLSettings(String entityId,
-            String samlServerMetadataUrl,
-            String usernameAttribute,
-            String firstNameAttribute,
-            String secondNameAttribute,
-            String displayNameAttribute,
-            String emailAttribute,
-            String groupsAttribute,
-            String serverCertificate) {
+                        String samlServerMetadataUrl,
+                        String usernameAttribute,
+                        String firstNameAttribute,
+                        String secondNameAttribute,
+                        String displayNameAttribute,
+                        String emailAttribute,
+                        String groupsAttribute,
+                        String serverCertificate) {
         this.entityId = entityId;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.usernameAttribute = usernameAttribute;

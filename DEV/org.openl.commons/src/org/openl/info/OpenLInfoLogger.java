@@ -1,12 +1,9 @@
 package org.openl.info;
 
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class OpenLInfoLogger {
-
-    public static String defaultLevel = "full";
 
     /**
      * Logs information for investigation purposes.
@@ -28,15 +25,14 @@ public final class OpenLInfoLogger {
         } catch (Exception ignored) {
             logger.info("##### Cannot access to 'openl.info' system property");
         }
-        level = StringUtils.isBlank(level) ? defaultLevel : level;
 
-        new SysInfoLogger().log();  // "main" level
+        new SysInfoLogger().log();
 
-        if (!"full".equals(level)) {
+        logger.info("To discovery more information, define -Dopenl.info=all or OPENL_INFO=all");
+
+        if (!"all".equals(level)) {
             return;
         }
-
-        logger.warn("To hide the configuration below, define -Dopenl.info=main or OPENL_INFO=main. Invisible is not absent!");
 
         new ClasspathLogger().log();
         new SysPropLogger().log();

@@ -14,7 +14,6 @@ import org.openl.types.IOpenClass;
  * Handles <code>{@link IOpenClass}</code> with parsing and compiled errors.
  *
  * @author snshor
- *
  */
 public class CompiledOpenClass {
 
@@ -33,8 +32,8 @@ public class CompiledOpenClass {
     }
 
     public CompiledOpenClass(IOpenClass openClass,
-            Collection<OpenLMessage> allMessages,
-            Collection<OpenLMessage> messages) {
+                             Collection<OpenLMessage> allMessages,
+                             Collection<OpenLMessage> messages) {
         this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
         this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");
         if (allMessages == null) {
@@ -62,7 +61,7 @@ public class CompiledOpenClass {
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
             Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages,
-                Severity.ERROR);
+                    Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
     }

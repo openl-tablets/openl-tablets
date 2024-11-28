@@ -6,10 +6,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.faces.application.FacesMessage;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -29,10 +31,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@GroupSequence({ DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({DataTableCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class DataTableCreationWizard extends TableCreationWizard {
     private static final Logger LOG = LoggerFactory.getLogger(DataTableCreationWizard.class);
 
@@ -279,7 +279,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
         } else {
             DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass,
-                tableType, type -> getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null);
+                    tableType, type -> getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null);
 
             tree.setRoot(new DataTableTreeNode(field, true));
         }
@@ -348,9 +348,9 @@ public class DataTableCreationWizard extends TableCreationWizard {
                 if (!node.isComplex() && node.isEditForeignKey()) {
                     clientId += ":simpleForeignKeyTable";
                     WebStudioUtils.addMessage(clientId,
-                        "Validation Error: ",
-                        "Fill foreign key or uncheck the checkbox",
-                        FacesMessage.SEVERITY_ERROR);
+                            "Validation Error: ",
+                            "Fill foreign key or uncheck the checkbox",
+                            FacesMessage.SEVERITY_ERROR);
                     return false;
                 }
 
@@ -381,7 +381,6 @@ public class DataTableCreationWizard extends TableCreationWizard {
      * Enumeration with the wizard's pages
      *
      * @author NSamatov
-     *
      */
     private enum Page {
         NO_SUCH_PAGE(-1),

@@ -40,10 +40,10 @@ public final class GenRulesTypes {
 
         try {
             List<List<String>> table = Files.readAllLines(csvFile)
-                .stream()
-                .filter(StringUtils::isNotBlank)
-                .map(GenRulesTypes::parseCSVLine)
-                .collect(Collectors.toList());
+                    .stream()
+                    .filter(StringUtils::isNotBlank)
+                    .map(GenRulesTypes::parseCSVLine)
+                    .collect(Collectors.toList());
 
             Map<String, Object> vars = new HashMap<>();
             vars.put("enumPackage", enumPackage);

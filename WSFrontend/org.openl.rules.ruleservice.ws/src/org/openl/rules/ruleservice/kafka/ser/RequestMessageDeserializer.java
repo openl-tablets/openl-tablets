@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.kafka.ser;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,11 +12,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
@@ -24,19 +24,15 @@ import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenMember;
-import org.openl.util.ClassUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RequestMessageDeserializer implements Deserializer<RequestMessage> {
 
-    private static final String UTF8 = "UTF8";
     private final ObjectMapper objectMapper;
     private final OpenLService service;
     private final Map<String, Map<String, Entry>> methodMap;
     private final Entry methodParametersWrapperClassInfo;
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private String encoding = UTF8;
+    private Charset encoding = StandardCharsets.UTF_8;
 
     public RequestMessageDeserializer(OpenLService service, ObjectMapper objectMapper, Method method) throws Exception {
         this.service = Objects.requireNonNull(service, "service cannot be null");
@@ -61,33 +57,15 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             encodingValue = configs.get("deserializer.encoding");
         }
         if (encodingValue instanceof String) {
-            encoding = (String) encodingValue;
+            encoding = Charset.forName((String) encodingValue);
         }
     }
 
     private Entry generateWrapperClass(Method m) throws Exception {
         IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
         String[] parameterNames = MethodUtils
-            .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
-        String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
-            .getName() + "$" + RandomStringUtils.random(16, true, false);
-
-        int i = 0;
-        JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanName);
-        for (Class<?> type : m.getParameterTypes()) {
-            beanClassBuilder.addField(parameterNames[i], type.getName());
-            i++;
-        }
-
-        byte[] byteCode = beanClassBuilder.byteCode();
-        Class<?> wrapperClazz = ClassUtils.defineClass(beanName, byteCode, service.getClassLoader());
-        Field[] wrapperClazzFields = new Field[m.getParameterCount()];
-        for (int j = 0; j < m.getParameterCount(); j++) {
-            wrapperClazzFields[j] = wrapperClazz.getDeclaredField(parameterNames[j]);
-            wrapperClazzFields[j].setAccessible(true);
-        }
-
-        return new Entry(m, wrapperClazz, wrapperClazzFields);
+                .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
+        return new Entry(m, parameterNames);
     }
 
     @Override
@@ -109,10 +87,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
             try {
                 return buildRequestMessage(methodParametersWrapperClassInfo, rawData);
             } catch (Exception e) {
-                return new RequestMessage(methodParametersWrapperClassInfo.getMethod(),
-                    new RequestMessageFormatException("Invalid message format.", e),
-                    rawData,
-                    encoding);
+                return new RequestMessage(methodParametersWrapperClassInfo.method, e, rawData, encoding);
             }
         } else {
             Method m = null;
@@ -125,33 +100,35 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
                     entry = generateWrapperClass(m);
                     putCachedMethodParametersWrapperClassInfo(methodName, methodParameters, entry);
                 } else {
-                    m = entry.getMethod();
+                    m = entry.method;
                 }
                 return buildRequestMessage(entry, rawData);
             } catch (Exception e) {
-                return new RequestMessage(m,
-                    new RequestMessageFormatException("Invalid message format.", e),
-                    rawData,
-                    encoding);
+                return new RequestMessage(m, e, rawData, encoding);
             }
         }
     }
 
-    protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException,
-                                                                              IllegalAccessException {
-        final Method method = entry.getMethod();
+    protected RequestMessage buildRequestMessage(Entry entry, byte[] rawData) throws IOException {
+        final Method method = entry.method;
         final int numOfParameters = method.getParameterCount();
         if (numOfParameters == 0) {
-            return new RequestMessage(method, new Object[] {}, rawData, encoding);
+            return new RequestMessage(method, new Object[]{}, rawData, encoding);
         } else if (numOfParameters == 1) {
             Object arg = objectMapper.readValue(new String(rawData, encoding), method.getParameterTypes()[0]);
-            return new RequestMessage(method, new Object[] { arg }, rawData, encoding);
+            return new RequestMessage(method, new Object[]{arg}, rawData, encoding);
         } else {
-            Object wrapperTarget = objectMapper.readValue(new String(rawData, encoding), entry.getWrapperClass());
             Object[] parameters = new Object[numOfParameters];
-            Field[] wrapperClassFields = entry.getWrapperClassFields();
+
+            var tree = objectMapper.readTree(rawData);
+            if (!tree.isObject()) {
+                throw new IllegalArgumentException("Expecting a JSON object");
+            }
             for (int i = 0; i < method.getParameterCount(); i++) {
-                parameters[i] = wrapperClassFields[i].get(wrapperTarget);
+                var name = entry.paramNames[i];
+                var type = method.getParameterTypes()[i];
+                var node = tree.get(name);
+                parameters[i] = objectMapper.treeToValue(node, type);
             }
             return new RequestMessage(method, parameters, rawData, encoding);
         }
@@ -185,29 +162,11 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
 
     private static final class Entry {
         private final Method method;
-        private final Class<?> wrapperClass;
-        private final Field[] wrapperClassFields;
+        private final String[] paramNames;
 
-        public Entry(Method method, Class<?> wrapperClass, Field[] wrapperClassFields) {
+        public Entry(Method method, String[] paramNames) {
             this.method = Objects.requireNonNull(method);
-            this.wrapperClass = Objects.requireNonNull(wrapperClass);
-            this.wrapperClassFields = Objects.requireNonNull(wrapperClassFields);
+            this.paramNames = Objects.requireNonNull(paramNames);
         }
-
-        public Method getMethod() {
-            return method;
-        }
-
-        public Class<?> getWrapperClass() {
-            return wrapperClass;
-        }
-
-        public Field[] getWrapperClassFields() {
-            return wrapperClassFields;
-        }
-    }
-
-    @Override
-    public void close() {
     }
 }

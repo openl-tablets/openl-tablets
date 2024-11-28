@@ -3,11 +3,12 @@ package org.openl.rules.rest.service.tables.read;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import org.openl.rules.rest.model.tables.SimpleSpreadsheetView;
 import org.openl.rules.rest.model.tables.SpreadsheetStepView;
 import org.openl.rules.rest.service.tables.OpenLTableUtils;
 import org.openl.rules.table.IOpenLTable;
-import org.springframework.stereotype.Component;
 
 /**
  * Reads simpple {@code Spreadsheet} table to {@link SimpleSpreadsheetView} model.
@@ -31,6 +32,7 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
         super.initialize(builder, openLTable);
 
         var tsn = openLTable.getSyntaxNode();
+        var metaInfoReader = tsn.getMetaInfoReader();
         var tableBody = tsn.getTableBody();
         int height = OpenLTableUtils.getHeightWithoutEmptyRows(tableBody);
         int width = OpenLTableUtils.getWidthWithoutEmptyColumns(tableBody);
@@ -43,9 +45,9 @@ public class SimpleSpreadsheetReader extends ExecutableTableReader<SimpleSpreads
         for (int row = 1; row < height; row++) {
             var stepParts = SpreadsheetTableReader.splitStepDeclaration(tableBody.getCell(0, row).getStringValue());
             var stepBuilder = SpreadsheetStepView.builder()
-                .name(stepParts.getLeft())
-                .type(stepParts.getRight())
-                .value(tableBody.getCell(1, row).getObjectValue());
+                    .name(stepParts.getLeft())
+                    .type(stepParts.getRight())
+                    .value(getCellValue(tableBody.getCell(1, row), metaInfoReader));
             steps.add(stepBuilder.build());
         }
         builder.steps(steps);

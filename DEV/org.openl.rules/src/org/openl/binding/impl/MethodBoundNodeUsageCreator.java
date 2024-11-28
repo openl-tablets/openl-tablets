@@ -50,7 +50,7 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
                 int pend = pstart + method.getName().length();
                 return Optional.of(new MethodUsage(pstart, pend, method));
             } else if (method instanceof JavaOpenConstructor && methodBoundNode.getSyntaxNode()
-                .getNumberOfChildren() > 0) {
+                    .getNumberOfChildren() > 0) {
                 TextInfo info = new TextInfo(sourceString);
                 // get constructor syntax node location
                 location = methodBoundNode.getSyntaxNode().getChild(0).getSourceLocation();
@@ -58,9 +58,9 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
                     int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
                     String x = sourceString.substring(pstart);
                     int pend = pstart + x.indexOf(method.getDeclaringClass().getDisplayName(INamedThing.SHORT)) + method
-                        .getDeclaringClass()
-                        .getDisplayName(INamedThing.SHORT)
-                        .length();
+                            .getDeclaringClass()
+                            .getDisplayName(INamedThing.SHORT)
+                            .length();
                     return Optional.of(new MethodUsage(pstart, pend, method));
                 }
             }

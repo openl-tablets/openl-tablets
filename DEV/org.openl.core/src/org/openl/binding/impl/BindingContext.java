@@ -33,7 +33,6 @@ import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
- *
  */
 public class BindingContext implements IBindingContext {
     private static final Object NOT_FOUND = "NOT_FOUND";
@@ -97,8 +96,8 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public IMethodCaller findMethodCaller(String namespace,
-            String name,
-            IOpenClass[] parTypes) throws AmbiguousMethodException {
+                                          String name,
+                                          IOpenClass[] parTypes) throws AmbiguousMethodException {
         MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).getMethodCache();
 
@@ -106,7 +105,7 @@ public class BindingContext implements IBindingContext {
             Object res = methodCache.get(key);
             if (res == null) {
                 IMethodCaller found = binder.getMethodFactory()
-                    .getMethodCaller(namespace, name, parTypes, binder.getCastFactory());
+                        .getMethodCaller(namespace, name, parTypes, binder.getCastFactory());
                 methodCache.put(key, found == null ? NOT_FOUND : found);
                 return found;
             }
@@ -267,8 +266,8 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public IOpenField findRange(String namespace,
-            String rangeStartName,
-            String rangeEndName) throws FieldNotFoundException {
+                                String rangeStartName,
+                                String rangeEndName) throws FieldNotFoundException {
         throw new FieldNotFoundException("Range:", rangeStartName + ":" + rangeEndName, null);
     }
 

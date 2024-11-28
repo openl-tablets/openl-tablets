@@ -10,7 +10,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 
 /**
  * @author snshor
- *
  */
 public interface IMemberBoundNode {
 

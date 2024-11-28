@@ -10,7 +10,7 @@ import org.openl.rules.ui.IProjectTypes;
 /**
  * Folder tree node that represents table with several versions. If node has several versions then folder node will be
  * linked with one of its child. If node has only one version then it will be leaf in tree.
- *
+ * <p>
  * Linked child is child with "active" table(there is only one "active" table among all version of the table) or the
  * child with greatest version.
  *

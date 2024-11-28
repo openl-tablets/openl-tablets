@@ -20,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractTableMethodWrapper extends TableMethod {
     static {
         WrapperValidation.validateWrapperClass(AbstractTableMethodWrapper.class,
-            AbstractTableMethodWrapper.class.getSuperclass());
+                AbstractTableMethodWrapper.class.getSuperclass());
     }
 
     protected final TableMethod delegate;

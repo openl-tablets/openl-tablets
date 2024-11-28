@@ -5,13 +5,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.OpenL;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AlgorithmOpenClass extends ComponentOpenClass {
     private static final Logger LOG = LoggerFactory.getLogger(AlgorithmOpenClass.class);

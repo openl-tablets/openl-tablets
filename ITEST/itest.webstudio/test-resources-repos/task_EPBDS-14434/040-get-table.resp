@@ -1,0 +1,109 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "tableType": "SmartRules",
+  "id": "30507d65bb546d53797e0ab23f25a719",
+  "kind": "Rules",
+  "name": "FicaTaxRates",
+  "returnType": "PaymentToolsFicaDetails",
+  "args": [
+    {
+      "name": "year",
+      "type": "Integer"
+    }, {
+      "name": "ficaType",
+      "type": "String"
+    }, {
+      "name": "rate",
+      "type": "Double"
+    }, {
+      "name": "threshold",
+      "type": "Integer"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Year"
+    }, {
+      "title": "Fica Type"
+    }, {
+      "title": "Rate"
+    }, {
+      "title": "Threshold"
+    }
+  ],
+  "rules": [
+    {
+      "Year": 2025,
+      "Fica Type": "AFMT",
+      "Rate": 0.9,
+      "Threshold": 200000
+    }, {
+      "Year": 2025,
+      "Fica Type": "FMT",
+      "Rate": 1.45
+    }, {
+      "Year": 2025,
+      "Fica Type": "FSST",
+      "Rate": 6.2,
+      "Threshold": 168600
+    }, {
+      "Year": 2024,
+      "Fica Type": "AFMT",
+      "Rate": 0.9,
+      "Threshold": 200000
+    }, {
+      "Year": 2024,
+      "Fica Type": "FMT",
+      "Rate": 1.45
+    }, {
+      "Year": 2024,
+      "Fica Type": "FSST",
+      "Rate": 6.2,
+      "Threshold": 168600
+    }, {
+      "Year": 2023,
+      "Fica Type": "AFMT",
+      "Rate": 0.9,
+      "Threshold": 200000
+    }, {
+      "Year": 2023,
+      "Fica Type": "FMT",
+      "Rate": 1.45
+    }, {
+      "Year": 2023,
+      "Fica Type": "FSST",
+      "Rate": 6.2,
+      "Threshold": 152000
+    }, {
+      "Year": 2022,
+      "Fica Type": "AFMT",
+      "Rate": 0.9,
+      "Threshold": 200000
+    }, {
+      "Year": 2022,
+      "Fica Type": "FMT",
+      "Rate": 1.45
+    }, {
+      "Year": 2022,
+      "Fica Type": "FSST",
+      "Rate": 6.2,
+      "Threshold": 147000
+    }, {
+      "Year": 2021,
+      "Fica Type": "AFMT",
+      "Rate": 0.9,
+      "Threshold": 200000
+    }, {
+      "Year": 2021,
+      "Fica Type": "FMT",
+      "Rate": 1.45
+    }, {
+      "Year": 2021,
+      "Fica Type": "FSST",
+      "Rate": 6.2,
+      "Threshold": 142800
+    }
+  ]
+}

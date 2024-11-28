@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 /**
  * @author snshor
- *
  */
 public class Bean2 {
 

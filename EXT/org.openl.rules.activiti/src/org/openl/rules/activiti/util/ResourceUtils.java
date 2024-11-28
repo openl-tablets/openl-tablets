@@ -1,10 +1,16 @@
 package org.openl.rules.activiti.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import javax.xml.bind.JAXBException;
 
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.context.Context;
+
 import org.openl.rules.activiti.ResourceNotFoundException;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
@@ -12,8 +18,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
-
-import javax.xml.bind.JAXBException;
 
 public final class ResourceUtils {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";

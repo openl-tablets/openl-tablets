@@ -1,10 +1,11 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 
 import java.io.File;
@@ -35,11 +36,12 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -61,7 +63,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
     private File root;
     private GitRepository repo;
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() throws IOException, GitAPIException {
         template = Files.createTempDirectory("openl-merge-test-template").toFile();
         // Initialize remote repository
@@ -80,12 +82,12 @@ public class GitRepositoryMergeConflictsInExcelTest {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void cleanUp() throws IOException {
         FileUtils.delete(template);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl-merge-test").toFile();
 
@@ -96,7 +98,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
         repo = createRepository(remote, local);
     }
 
-    @After
+    @AfterEach
     public void reset() throws IOException {
         try {
             repo.close();
@@ -110,7 +112,7 @@ public class GitRepositoryMergeConflictsInExcelTest {
         repo.setUri(remote.toURI().toString());
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setBranch("master");
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setCommentTemplate("OpenL Studio: {commit-type}. {user-message}");
         String settingsPath = local.getParent() + "/git-settings";
         FileSystemRepository settingsRepository = new FileSystemRepository();
         settingsRepository.setUri(settingsPath);
@@ -130,17 +132,17 @@ public class GitRepositoryMergeConflictsInExcelTest {
     @Test
     public void testCase_02() throws IOException, GitAPIException {
         executeTestCase("02",
-            Set.of("02/Main.xlsx"),
-            "02/Main.xlsx\n\t\tSheet1 (02)\n\t\tRules (master)",
-            "02/Main.xlsx\n\t\tRules (master)\n\t\tSheet1 (02_COPY)");
+                Set.of("02/Main.xlsx"),
+                "02/Main.xlsx\n\t\tSheet1 (02)\n\t\tRules (master)",
+                "02/Main.xlsx\n\t\tRules (master)\n\t\tSheet1 (02_COPY)");
     }
 
     @Test
     public void testCase_03() throws IOException, GitAPIException {
         executeTestCase("03",
-            Set.of("03/Case1.xlsx"),
-            "03/Case1.xlsx\n\t\tA (03)\n\t\tC (03)\n\t\tB (master)\n\t\tD (master)\n\t\tF (master)\n\t\tG (master)\n\t\tH (master)",
-            "03/Case1.xlsx\n\t\tB (master)\n\t\tD (master)\n\t\tF (master)\n\t\tG (master)\n\t\tH (master)\n\t\tA (03_COPY)\n\t\tC (03_COPY)");
+                Set.of("03/Case1.xlsx"),
+                "03/Case1.xlsx\n\t\tA (03)\n\t\tC (03)\n\t\tB (master)\n\t\tD (master)\n\t\tF (master)\n\t\tG (master)\n\t\tH (master)",
+                "03/Case1.xlsx\n\t\tB (master)\n\t\tD (master)\n\t\tF (master)\n\t\tG (master)\n\t\tH (master)\n\t\tA (03_COPY)\n\t\tC (03_COPY)");
     }
 
     @Test
@@ -181,71 +183,71 @@ public class GitRepositoryMergeConflictsInExcelTest {
     @Test
     public void testCase_05() throws IOException, GitAPIException {
         executeTestCase("05",
-            Set.of("05/Case4.xlsx"),
-            "05/Case4.xlsx\n\t\tTargetFactor (05)\n\t\tSalaryAdjustment (master)",
-            "05/Case4.xlsx\n\t\tSalaryAdjustment (master)\n\t\tTargetFactor (05_COPY)");
+                Set.of("05/Case4.xlsx"),
+                "05/Case4.xlsx\n\t\tTargetFactor (05)\n\t\tSalaryAdjustment (master)",
+                "05/Case4.xlsx\n\t\tSalaryAdjustment (master)\n\t\tTargetFactor (05_COPY)");
     }
 
     @Test
     public void testCase_06() throws IOException, GitAPIException {
         executeTestCase("06",
-            Set.of("06/BugCase3.xlsx"),
-            "06/BugCase3.xlsx\n\t\tClaim Cost Benefit (06)\n\t\tBenefit Adjust Prc (master)",
-            "06/BugCase3.xlsx\n\t\tBenefit Adjust Prc (master)\n\t\tClaim Cost Benefit (06_COPY)");
+                Set.of("06/BugCase3.xlsx"),
+                "06/BugCase3.xlsx\n\t\tClaim Cost Benefit (06)\n\t\tBenefit Adjust Prc (master)",
+                "06/BugCase3.xlsx\n\t\tBenefit Adjust Prc (master)\n\t\tClaim Cost Benefit (06_COPY)");
     }
 
     @Test
     public void testCase_07() throws IOException, GitAPIException {
         executeTestCase("07",
-            Set.of("07/Case2.xls"),
-            "07/Case2.xls\n" + "\t\tB (07)\n" + "\t\tC (07)\n" + "\t\tG (07)\n" + "\t\tH (07)\n" + "\t\tK (07)\n" + "\t\tL (07)\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)",
-            "07/Case2.xls\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)\n" + "\t\tB (07_COPY)\n" + "\t\tC (07_COPY)\n" + "\t\tG (07_COPY)\n" + "\t\tH (07_COPY)\n" + "\t\tK (07_COPY)\n" + "\t\tL (07_COPY)");
+                Set.of("07/Case2.xls"),
+                "07/Case2.xls\n" + "\t\tB (07)\n" + "\t\tC (07)\n" + "\t\tG (07)\n" + "\t\tH (07)\n" + "\t\tK (07)\n" + "\t\tL (07)\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)",
+                "07/Case2.xls\n" + "\t\tA (master)\n" + "\t\tD (master)\n" + "\t\tE (master)\n" + "\t\tI (master)\n" + "\t\tJ (master)\n" + "\t\tB (07_COPY)\n" + "\t\tC (07_COPY)\n" + "\t\tG (07_COPY)\n" + "\t\tH (07_COPY)\n" + "\t\tK (07_COPY)\n" + "\t\tL (07_COPY)");
     }
 
     @Test
     public void testCase_08() throws IOException, GitAPIException {
         executeTestCase("08",
-            Set.of("08/AutoPolicyCalculation.xlsx"),
-            "08/AutoPolicyCalculation.xlsx\n" + "\t\tDriver-Eligibility (08)\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)",
-            "08/AutoPolicyCalculation.xlsx\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)\n" + "\t\tDriver-Eligibility (08_COPY)");
+                Set.of("08/AutoPolicyCalculation.xlsx"),
+                "08/AutoPolicyCalculation.xlsx\n" + "\t\tDriver-Eligibility (08)\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)",
+                "08/AutoPolicyCalculation.xlsx\n" + "\t\tCalculation (master)\n" + "\t\tUtilities (master)\n" + "\t\tDriver-Eligibility (08_COPY)");
     }
 
     @Test
     public void testCase_09() throws IOException, GitAPIException {
         executeTestCase("09",
-            Set.of("09/defect5.xls"),
-            "09/defect5.xls\n" + "\t\tCapping Calculation (09)\n" + "\t\tProgram Name (master)",
-            "09/defect5.xls\n" + "\t\tProgram Name (master)\n" + "\t\tCapping Calculation (09_COPY)");
+                Set.of("09/defect5.xls"),
+                "09/defect5.xls\n" + "\t\tCapping Calculation (09)\n" + "\t\tProgram Name (master)",
+                "09/defect5.xls\n" + "\t\tProgram Name (master)\n" + "\t\tCapping Calculation (09_COPY)");
     }
 
     @Test
     public void testCase_10() throws IOException, GitAPIException {
         executeTestCase("10",
-            Set.of("10/Main.xlsx"),
-            "10/Main.xlsx\n" + "\t\tRules (10)\n" + "\t\tSheet1 (master)",
-            "10/Main.xlsx\n" + "\t\tSheet1 (master)\n" + "\t\tRules (10_COPY)");
+                Set.of("10/Main.xlsx"),
+                "10/Main.xlsx\n" + "\t\tRules (10)\n" + "\t\tSheet1 (master)",
+                "10/Main.xlsx\n" + "\t\tSheet1 (master)\n" + "\t\tRules (10_COPY)");
     }
 
     @Test
     public void testCase_11() throws IOException, GitAPIException {
         executeTestCase("11",
-            Set.of("11/bugMessageBug.xlsx"),
-            "11/bugMessageBug.xlsx\n" + "\t\tSheet1 (11)\n" + "\t\tSheet2 (master)",
-            "11/bugMessageBug.xlsx\n" + "\t\tSheet2 (master)\n" + "\t\tSheet1 (11_COPY)");
+                Set.of("11/bugMessageBug.xlsx"),
+                "11/bugMessageBug.xlsx\n" + "\t\tSheet1 (11)\n" + "\t\tSheet2 (master)",
+                "11/bugMessageBug.xlsx\n" + "\t\tSheet2 (master)\n" + "\t\tSheet1 (11_COPY)");
     }
 
     @Test
     public void testCase_12() throws IOException, GitAPIException {
         executeTestCase("12",
-            Set.of("12/Bank Rating.xlsx"),
-            "12/Bank Rating.xlsx\n" + "\t\tSetNonZero Test (12)\n" + "\t\tTest Data (master)",
-            "12/Bank Rating.xlsx\n" + "\t\tTest Data (master)\n" + "\t\tSetNonZero Test (12_COPY)");
+                Set.of("12/Bank Rating.xlsx"),
+                "12/Bank Rating.xlsx\n" + "\t\tSetNonZero Test (12)\n" + "\t\tTest Data (master)",
+                "12/Bank Rating.xlsx\n" + "\t\tTest Data (master)\n" + "\t\tSetNonZero Test (12_COPY)");
     }
 
     private void executeTestCase(String testCase,
-            Set<String> expectedModifiedFiles,
-            String expectedMrMessage1,
-            String expectedMrMessage2) throws IOException, GitAPIException {
+                                 Set<String> expectedModifiedFiles,
+                                 String expectedMrMessage1,
+                                 String expectedMrMessage2) throws IOException, GitAPIException {
         TestCaseData testCaseData = initializeTestCase(testCase);
         GitRepository branchRepo = repo.forBranch(testCase);
         branchRepo.merge(Constants.MASTER, USER_INFO, null);
@@ -255,8 +257,8 @@ public class GitRepositoryMergeConflictsInExcelTest {
             masterToBranchMergeCommit = mergeCommit.getName();
             String actualCommitMessage = mergeCommit.getFullMessage();
             String expectedCommitMessage = String.format(
-                "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage1,
-                testCaseData.theirRevision);
+                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage1,
+                    testCaseData.theirRevision);
             assertEquals(expectedCommitMessage, actualCommitMessage);
 
             var repository = git.getRepository();
@@ -264,14 +266,14 @@ public class GitRepositoryMergeConflictsInExcelTest {
             List<DiffEntry> diffs = getDiffs(git, mergeCommit, theirCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
-                assertTrue("File must be modified", expectedModifiedFiles.contains(diffEntry.getNewPath()));
+                assertTrue(expectedModifiedFiles.contains(diffEntry.getNewPath()), "File must be modified");
             }
 
             RevCommit ourCommit = repository.parseCommit(repository.resolve(testCaseData.ourRevision));
             diffs = getDiffs(git, mergeCommit, ourCommit);
             for (DiffEntry diffEntry : diffs) {
                 assertEquals(DiffEntry.ChangeType.MODIFY, diffEntry.getChangeType());
-                assertTrue("File must be modified", expectedModifiedFiles.contains(diffEntry.getNewPath()));
+                assertTrue(expectedModifiedFiles.contains(diffEntry.getNewPath()), "File must be modified");
             }
         }
 
@@ -284,8 +286,8 @@ public class GitRepositoryMergeConflictsInExcelTest {
             branchToMasterMergeCommit = mergeCommit.getName();
             String actualCommitMessage = mergeCommit.getFullMessage();
             String expectedCommitMessage = String.format(
-                "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage2,
-                testCaseData.ourRevision);
+                    "Merge commit with %s\n\n Automatically resolved conflicts:\n\t" + expectedMrMessage2,
+                    testCaseData.ourRevision);
             assertEquals(expectedCommitMessage, actualCommitMessage);
         }
 
@@ -321,14 +323,14 @@ public class GitRepositoryMergeConflictsInExcelTest {
         FileUtils.copy(baseSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
         RevCommit commit = git.commit()
-            .setMessage("Initial test case '" + gitTestCase.getName() + "' commit")
-            .setCommitter("User 1", "user1@email.to")
-            .call();
+                .setMessage("Initial test case '" + gitTestCase.getName() + "' commit")
+                .setCommitter("User 1", "user1@email.to")
+                .call();
         return commit.getName();
     }
 
     private String initializeBranchRevision(Git git, File gitTestCase, Path ourSrc) throws GitAPIException,
-                                                                                    IOException {
+            IOException {
         String testCaseName = gitTestCase.getName();
         git.branchCreate().setName(testCaseName).call();
         git.checkout().setName(testCaseName).call();
@@ -336,29 +338,29 @@ public class GitRepositoryMergeConflictsInExcelTest {
         FileUtils.copy(ourSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
         RevCommit commit = git.commit()
-            .setMessage("Our branch test case '" + gitTestCase.getName() + "' commit")
-            .setCommitter("User 1", "user1@email.to")
-            .call();
+                .setMessage("Our branch test case '" + gitTestCase.getName() + "' commit")
+                .setCommitter("User 1", "user1@email.to")
+                .call();
 
         git.branchCreate().setName(testCaseName + COPY_BRANCH_PREF).call();
         return commit.getName();
     }
 
     private String initializeTheirRevision(Git git, File gitTestCase, Path theirSrc) throws IOException,
-                                                                                     GitAPIException {
+            GitAPIException {
         git.checkout().setName(Constants.MASTER).call();
         FileUtils.copy(theirSrc.toFile(), gitTestCase);
         git.add().addFilepattern(".").call();
         RevCommit commit = git.commit()
-            .setMessage("Their test case '" + gitTestCase.getName() + "' commit")
-            .setCommitter("User 1", "user1@email.to")
-            .call();
+                .setMessage("Their test case '" + gitTestCase.getName() + "' commit")
+                .setCommitter("User 1", "user1@email.to")
+                .call();
         return commit.getName();
     }
 
     private void assertSymmetryMerge(String testCase,
-            String masterToBranchMergeCommit,
-            String branchToMasterMergeCommit) throws IOException {
+                                     String masterToBranchMergeCommit,
+                                     String branchToMasterMergeCommit) throws IOException {
         Path basePath = Paths.get(testCase);
         Path testCaseRoot = TEST_CASES_ROOT.resolve(testCase);
         Set<String> filesToVerify = new HashSet<>();
@@ -380,9 +382,9 @@ public class GitRepositoryMergeConflictsInExcelTest {
             boolean hssf;
             Map<Short, XlsMatch> paletteMatchResult = null;
             try (var file1 = repo.readHistory(fileToVerify, masterToBranchMergeCommit);
-                    var file2 = repo.readHistory(fileToVerify, branchToMasterMergeCommit)) {
+                 var file2 = repo.readHistory(fileToVerify, branchToMasterMergeCommit)) {
                 try (var wb1 = WorkbookFactory.create(file1.getStream());
-                        var wb2 = WorkbookFactory.create(file2.getStream())) {
+                     var wb2 = WorkbookFactory.create(file2.getStream())) {
                     hssf = wb1 instanceof HSSFWorkbook;
                     matchResult = XlsWorkbooksMatcher.match(wb1, wb2);
                     if (hssf) {

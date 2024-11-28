@@ -17,7 +17,6 @@ import org.openl.types.impl.DynamicObject;
 
 /**
  * @author snshor
- *
  */
 public class TestMethodBoundNode extends DataTableBoundNode {
 
@@ -45,21 +44,21 @@ public class TestMethodBoundNode extends DataTableBoundNode {
         DynamicObject[] testCases = (DynamicObject[]) getField().getData();
         for (DynamicObject testCase : testCases) {
             if (testCase.getFieldValue(TestMethodHelper.EXPECTED_ERROR) != null && testCase
-                .getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
+                    .getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
                 ITable table = getTable();
                 for (int i = 0; i < table.getNumberOfColumns(); i++) {
                     ColumnDescriptor descriptor = table.getColumnDescriptor(i);
                     IdentifierNode[] identifiers = descriptor.getFieldChainTokens();
                     if (identifiers.length > 0 && TestMethodHelper.EXPECTED_ERROR
-                        .equals(identifiers[0].getIdentifier()) && descriptor.getColumnValue(testCase) != null) {
+                            .equals(identifiers[0].getIdentifier()) && descriptor.getColumnValue(testCase) != null) {
                         int row = table.getRowIndex(testCase);
                         int column = table.getColumnIndex(descriptor.getDisplayName());
                         IGridTable cell = table.getRowTable(row).getColumn(column);
                         IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
 
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                            "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
-                            cellSourceCodeModule);
+                                "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
+                                cellSourceCodeModule);
                         cxt.addError(error);
                     }
                 }

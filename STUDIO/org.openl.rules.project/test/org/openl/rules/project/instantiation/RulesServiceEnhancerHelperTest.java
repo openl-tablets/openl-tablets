@@ -1,22 +1,26 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 
 public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassDecoration() throws Exception {
         Class<?> enhanced = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(SimpleInterface.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(enhanced, SimpleInterface.class, false);
     }
 
@@ -26,7 +30,7 @@ public class RulesServiceEnhancerHelperTest {
         for (Method method : simple.getMethods()) {
             try {
                 Method m = enhanced.getMethod(method.getName(),
-                    ArrayUtils.insert(0, method.getParameterTypes(), IRulesRuntimeContext.class));
+                        ArrayUtils.insert(0, method.getParameterTypes(), IRulesRuntimeContext.class));
                 assertTrue(Modifier.isPublic(m.getModifiers()));
                 if (checkAnnotations) {
                     // check annotations: all annotations should remain after
@@ -51,10 +55,10 @@ public class RulesServiceEnhancerHelperTest {
     @Test
     public void testServiceClassUndecoration() throws Exception {
         Class<?> undecorated = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced.class, undecorated, true);
         Class<?> undecorated2 = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(Enhanced2.class,
-            Thread.currentThread().getContextClassLoader());
+                Thread.currentThread().getContextClassLoader());
         checkEnhancement(Enhanced2.class, undecorated2, true);
     }
 
@@ -82,7 +86,7 @@ public class RulesServiceEnhancerHelperTest {
         @Deprecated
         void doSome2(IRulesRuntimeContext context, String arg);
 
-        @Ignore
+        @Disabled
         String getSome(IRulesRuntimeContext context, String arg, int arg2);
     }
 

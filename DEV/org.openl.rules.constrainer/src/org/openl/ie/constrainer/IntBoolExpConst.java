@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 /**
  * IntBoolExp wraps a boolean value (that is reffered to as "boolean_const" in this documentation) into object that is
  * to be used like constant expression of IntBoolExp type.
@@ -25,9 +26,9 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     public static IntBoolExpConst getIntBoolExpConst(Constrainer c, boolean value) {
         // return new IntBoolExpConst(constrainer(),value);
         return (IntBoolExpConst) c.expressionFactory()
-            .getExpression(IntBoolExpConst.class,
-                new Object[] { c, value },
-                new Class[] { Constrainer.class, boolean.class });
+                .getExpression(IntBoolExpConst.class,
+                        new Object[]{c, value},
+                        new Class[]{Constrainer.class, boolean.class});
     }
 
     /**
@@ -38,7 +39,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     * @return (IntBoolExp)(<code>isTrue() ? getIntBoolExpConst(constrainer(),value) : this</code>)
+     * @return (IntBoolExp)(< code > isTrue () ? getIntBoolExpConst(constrainer(),value) : this</code>)
      * @see #getIntBoolExpConst(Constrainer, boolean)
      * @see #isTrue()
      */
@@ -48,7 +49,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     * @return (IntBoolExp)(<code>isTrue() ? exp : this</code>)
+     * @return (IntBoolExp)(< code > isTrue () ? exp : this</code>)
      * @see #isTrue()
      */
     @Override
@@ -57,8 +58,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
-     * @return (Constraint)(isTrue())
+     * @return (Constraint)(isTrue ())
      */
     @Override
     final public Constraint asConstraint() {
@@ -66,8 +66,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
-     * @return (boolean_const == 0)
+     * @return (boolean_const = = 0)
      */
     @Override
     final public boolean isFalse() {
@@ -75,8 +74,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
-     * @return (boolean_const == 0)
+     * @return (boolean_const = = 0)
      */
     @Override
     final public boolean isTrue() {
@@ -84,7 +82,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     * @return (IntBoolExp)(<code>isTrue() ? this : getIntBoolExpConst(constrainer(),value)</code>)
+     * @return (IntBoolExp)(< code > isTrue () ? this : getIntBoolExpConst(constrainer(),value)</code>)
      * @see #getIntBoolExpConst(Constrainer, boolean)
      * @see #isTrue()
      */
@@ -94,8 +92,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
-     * @return (IntBoolExp)(<code>isTrue() ? this : exp</code>)
+     * @return (IntBoolExp)(< code > isTrue () ? this : exp</code>)
      */
     @Override
     final public IntBoolExp or(IntBoolExp exp) {
@@ -103,7 +100,6 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
      * @throws Failure if "boolean_const" is equal to <code>true</code>
      */
     @Override
@@ -112,7 +108,6 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
     }
 
     /**
-     *
      * @throws Failure if "boolean_const" is equal to <code>false</code>
      */
     @Override

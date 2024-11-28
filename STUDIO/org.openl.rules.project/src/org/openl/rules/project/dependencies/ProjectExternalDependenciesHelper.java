@@ -21,7 +21,7 @@ public final class ProjectExternalDependenciesHelper {
     }
 
     public static Map<String, Object> buildExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
-            Collection<Module> modules) {
+                                                                                 Collection<Module> modules) {
         Map<String, Object> parameters = new HashMap<>();
         if (externalParams != null) {
             parameters.putAll(externalParams);
@@ -37,7 +37,7 @@ public final class ProjectExternalDependenciesHelper {
                 for (ProjectDependencyDescriptor dependency : projectDescriptor.getDependencies()) {
                     if (dependency.isAutoIncluded()) {
                         externalDependencies.add(new Dependency(DependencyType.PROJECT,
-                            new IdentifierNode(null, null, dependency.getName(), null)));
+                                new IdentifierNode(null, null, dependency.getName(), null)));
                     }
                 }
             }

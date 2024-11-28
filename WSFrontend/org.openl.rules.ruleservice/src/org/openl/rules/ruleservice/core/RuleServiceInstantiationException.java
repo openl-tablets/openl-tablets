@@ -4,28 +4,35 @@ package org.openl.rules.ruleservice.core;
  * Exception for instantiation issues.
  *
  * @author Marat Kamalov
- *
  */
 public class RuleServiceInstantiationException extends RuleServiceException {
 
     private static final long serialVersionUID = 1L;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public RuleServiceInstantiationException() {
         super();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public RuleServiceInstantiationException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public RuleServiceInstantiationException(String message) {
         super(message);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     public RuleServiceInstantiationException(Throwable cause) {
         super(cause);
     }

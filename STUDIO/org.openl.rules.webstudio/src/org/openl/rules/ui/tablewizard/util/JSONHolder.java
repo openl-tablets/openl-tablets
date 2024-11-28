@@ -1,7 +1,12 @@
 package org.openl.rules.ui.tablewizard.util;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import org.richfaces.json.JSONArray;
 import org.richfaces.json.JSONException;
@@ -25,15 +30,15 @@ public class JSONHolder {
                 JSONObject param = (JSONObject) inParam.get(i);
 
                 result.append(i > 0 ? ", " : "")
-                    .append(param.getString("type"))
-                    .append(param.getBoolean("iterable") ? "[]" : "")
-                    .append(" ")
-                    .append(param.getString("name"));
+                        .append(param.getString("type"))
+                        .append(param.getBoolean("iterable") ? "[]" : "")
+                        .append(" ")
+                        .append(param.getString("name"));
             }
 
             return returnObj.getString(
-                "type") + (returnObj.getBoolean("iterable") ? "[]"
-                                                            : "") + " " + tableName + "(" + result.toString() + ")";
+                    "type") + (returnObj.getBoolean("iterable") ? "[]"
+                    : "") + " " + tableName + "(" + result.toString() + ")";
         } catch (Exception e) {
             return "";
         }
@@ -73,7 +78,7 @@ public class JSONHolder {
                         Map<String, Object> cell = new HashMap<>();
                         cell.put("value", value);
                         cell.put("style",
-                            styleManager.getCellStyle(((JSONObject) rowElements.get(j)).getJSONObject("style")));
+                                styleManager.getCellStyle(((JSONObject) rowElements.get(j)).getJSONObject("style")));
 
                         row.add(cell);
                     }

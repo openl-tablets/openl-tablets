@@ -83,7 +83,7 @@ public class FileData {
 
     /**
      * The last modification time. This value is get from the repository system.
-     *
+     * <p>
      * Cannot be modified from the client side.
      *
      * @return the time the file was last modified.
@@ -99,7 +99,7 @@ public class FileData {
     /**
      * The version of the file. This value is get from the repository system. The latest file in the history MUST have
      * the latest modification time.
-     *
+     * <p>
      * Can be empty. Cannot be modified from the client side.
      *
      * @return the version (revision) of the file.
@@ -114,7 +114,7 @@ public class FileData {
 
     /**
      * The mark that the file was deleted. This value is get from the repository system.
-     *
+     * <p>
      * Cannot be modified from the client side.
      *
      * @return true if the file was deleted.

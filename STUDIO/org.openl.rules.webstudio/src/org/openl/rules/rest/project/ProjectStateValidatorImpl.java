@@ -1,7 +1,8 @@
 package org.openl.rules.rest.project;
 
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.springframework.stereotype.Component;
+
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
 
 /**
  * Project state validator implementation

@@ -1,7 +1,7 @@
 package org.openl.rules.ui;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
@@ -12,8 +12,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
@@ -27,7 +28,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private Module expenseModule;
     private Module mainModule;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         createExpenseModule();
         createMainModule(); // main module depends on expense module
@@ -122,7 +123,7 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createExpenseModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String[][] expenseTable = { { "Datatype Expense" }, { "String", "area" } };
+        String[][] expenseTable = {{"Datatype Expense"}, {"String", "area"}};
 
         createTable(sheet, expenseTable);
         writeBook(book, EXPENSE_MODULE_FILE_NAME);
@@ -131,8 +132,8 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
     private void createMainModule() throws IOException {
         Workbook book = new HSSFWorkbook();
         Sheet sheet = book.createSheet(SHEET_NAME);
-        String[][] environmentTable = { { "Environment" }, { "dependency", "ExpenseModule" } };
-        String[][] dataTable = { { "Data Expense a" }, { "area", "Area", "Test area" } };
+        String[][] environmentTable = {{"Environment"}, {"dependency", "ExpenseModule"}};
+        String[][] dataTable = {{"Data Expense a"}, {"area", "Area", "Test area"}};
 
         createTable(sheet, environmentTable);
         createTable(sheet, dataTable);

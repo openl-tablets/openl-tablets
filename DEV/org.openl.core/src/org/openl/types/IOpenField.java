@@ -10,7 +10,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public interface IOpenField extends IOpenMember {
     Object get(Object target, IRuntimeEnv env);

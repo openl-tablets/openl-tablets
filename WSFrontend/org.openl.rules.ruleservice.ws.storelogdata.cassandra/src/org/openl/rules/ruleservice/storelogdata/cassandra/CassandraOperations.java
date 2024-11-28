@@ -11,12 +11,10 @@ import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
-import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
-import org.openl.spring.config.ConditionalOnEnable;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.DriverException;
+import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -24,10 +22,12 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.DriverException;
-import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
-import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
@@ -40,9 +40,9 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     private boolean schemaCreationEnabled;
 
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
+            Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
+            Collections.unmodifiableMap(new HashMap<>()));
 
     public CassandraConfigLoader configLoader;
 
@@ -53,9 +53,9 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     private synchronized void init() {
         if (session == null) {
             session = CqlSession.builder()
-                .withConfigLoader(configLoader.getDriverConfigLoader())
-                .addTypeCodecs(TypeCodecs.ZONED_TIMESTAMP_SYSTEM)
-                .build();
+                    .withConfigLoader(configLoader.getDriverConfigLoader())
+                    .addTypeCodecs(TypeCodecs.ZONED_TIMESTAMP_SYSTEM)
+                    .build();
         } else {
             throw new IllegalStateException("Session is already initialized!");
         }
@@ -77,7 +77,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     private CassandraEntitySaver getEntitySaver(Class<?> entityClass) throws DaoCreationException,
-                                                                      ReflectiveOperationException {
+            ReflectiveOperationException {
         CassandraEntitySaver cassandraEntitySaver = null;
         Map<Class<?>, CassandraEntitySaver> current;
         Map<Class<?>, CassandraEntitySaver> next;
@@ -102,13 +102,13 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         EntitySupport entitySupport = entityClass.getAnnotation(EntitySupport.class);
         if (entitySupport == null) {
             throw new DaoCreationException(String.format(
-                "Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '%s'.",
-                entityClass.getTypeName()));
+                    "Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '%s'.",
+                    entityClass.getTypeName()));
         } else {
             Class<? extends EntityOperations<?, ?>> entityOperationsClass = entitySupport.value();
             @SuppressWarnings("unchecked")
             EntityOperations<Object, Object> entityOperations = (EntityOperations<Object, Object>) entityOperationsClass
-                .newInstance();
+                    .newInstance();
             Object dao = entityOperations.buildDao(session);
             return new CassandraEntitySaver(entityOperations, dao);
         }
@@ -122,8 +122,8 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
         if (entitySupport == null) {
             throw new CassandraOperationException(String.format(
-                "Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '%s'.",
-                entity.getClass().getTypeName()));
+                    "Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '%s'.",
+                    entity.getClass().getTypeName()));
         } else {
             CompletionStage<Void> completionStage = getEntitySaver(entity.getClass()).insert(entity);
             if (sync) {
@@ -166,17 +166,17 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
                     }
                 } catch (IOException e) {
                     throw new SchemaCreationException(
-                        String.format("Failed to extract a file with schema creation CQL for '%s'.",
-                            entityClass.getTypeName()),
-                        e);
+                            String.format("Failed to extract a file with schema creation CQL for '%s'.",
+                                    entityClass.getTypeName()),
+                            e);
                 } catch (DriverException e) {
                     throw new SchemaCreationException(
-                        String.format("Failed to execute schema creation CQL for '%s'", entityClass.getTypeName()),
-                        e);
+                            String.format("Failed to execute schema creation CQL for '%s'", entityClass.getTypeName()),
+                            e);
                 }
             } else {
                 throw new SchemaCreationException(String
-                    .format("Missed @Entity annotation for cassandra entity class '%s'.", entityClass.getTypeName()));
+                        .format("Missed @Entity annotation for cassandra entity class '%s'.", entityClass.getTypeName()));
             }
         }
     }

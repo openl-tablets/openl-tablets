@@ -5,7 +5,6 @@ package org.openl.rules.table;
 
 /**
  * @author snshor
- *
  */
 public class TableException extends RuntimeException {
 

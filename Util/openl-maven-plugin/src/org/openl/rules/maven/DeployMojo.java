@@ -9,6 +9,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.util.StringUtils;
 
@@ -53,7 +54,7 @@ public class DeployMojo extends BaseOpenLMojo {
         Server server = settings.getServer(deployServer);
         if (server == null) {
             throw new IllegalStateException(
-                String.format("The server configuration with name %s does not exist", deployServer));
+                    String.format("The server configuration with name %s does not exist", deployServer));
         }
 
         var properties = new HashMap<String, String>();

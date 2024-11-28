@@ -1,0 +1,7 @@
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+  "code": "openl.error.403.default.message",
+  "message": "You do not have the required privileges to do that."
+}

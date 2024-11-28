@@ -10,6 +10,9 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.DataTypeTableStyle;
 import org.openl.rules.excel.builder.template.TableStyle;
@@ -17,8 +20,6 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeModel> {
 
@@ -76,13 +77,13 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             String type = field.getType();
             typeCell.setCellValue(type);
             typeCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getTypeStyle() : style.getRowStyle().getTypeStyle());
             next = next.moveRight(1);
 
             Cell nameCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
             nameCell.setCellValue(field.getName());
             nameCell
-                .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
+                    .setCellStyle(lastRow ? style.getLastRowStyle().getNameStyle() : style.getRowStyle().getNameStyle());
             next = next.moveRight(1);
 
             Cell valueCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
@@ -90,7 +91,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
             CellStyle styleAfterWrite = valueCell.getCellStyle();
             if (styleAfterWrite.getDataFormat() == 0) {
                 valueCell.setCellStyle(
-                    lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
+                        lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
             }
 
             endPosition = next.moveLeft(2);

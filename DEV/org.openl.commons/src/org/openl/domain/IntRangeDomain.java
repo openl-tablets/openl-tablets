@@ -6,7 +6,6 @@
 package org.openl.domain;
 
 import java.util.Iterator;
-
 import javax.xml.bind.annotation.XmlTransient;
 
 /**

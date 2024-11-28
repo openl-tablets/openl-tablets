@@ -33,7 +33,7 @@ class TopClassOpenMethodWrapperCache {
         IOpenMethod openMethod = get(topOpenClass);
         if (openMethod == null) {
             openMethod = topOpenClass.getMethod(methodWrapper.getDelegate().getName(),
-                methodWrapper.getDelegate().getSignature().getParameterTypes());
+                    methodWrapper.getDelegate().getSignature().getParameterTypes());
             put(topOpenClass, openMethod);
         }
         return openMethod;

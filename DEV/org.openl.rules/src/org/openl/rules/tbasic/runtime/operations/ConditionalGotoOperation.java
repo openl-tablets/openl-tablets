@@ -12,7 +12,6 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  * returned expected result.
  *
  * @author User
- *
  */
 public class ConditionalGotoOperation extends GotoOperation {
 
@@ -21,9 +20,9 @@ public class ConditionalGotoOperation extends GotoOperation {
     /**
      * Create an instance of <code>ConditionalGotoOperation</code>.
      *
-     * @param label The label to jump to.
+     * @param label             The label to jump to.
      * @param expectedCondition expected result of previous calculation of condition(if equals then GOTO will executed
-     *            else jump to next operation will be performed).
+     *                          else jump to next operation will be performed).
      */
     public ConditionalGotoOperation(String label, boolean expectedCondition) {
         super(label);

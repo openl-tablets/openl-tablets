@@ -88,7 +88,7 @@
                 const $fullLogInput = $searchForm.find("input[name=full-log]");
                 $searchInput.unbind("change");
                 $fullLogInput.unbind("change");
-                $fullLogInput.attr("checked", false);
+                $fullLogInput.prop("checked", false);
                 $searchInput.val("");
                 $searchInput.unbind("keypress");
                 $searchInput.keypress((event) => {

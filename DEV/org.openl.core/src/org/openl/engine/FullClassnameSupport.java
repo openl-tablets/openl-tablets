@@ -1,6 +1,5 @@
 package org.openl.engine;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,25 +18,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
-    private static final Field binaryNodeLeftField;
-    private static final Field unaryNodeLeftField;
-
-    static {
-        Field binaryNodeLeftFieldTmp = null;
-        try {
-            binaryNodeLeftFieldTmp = BinaryNode.class.getDeclaredField("left");
-            binaryNodeLeftFieldTmp.setAccessible(true);
-        } catch (NoSuchFieldException ignored) {
-        }
-        binaryNodeLeftField = binaryNodeLeftFieldTmp;
-        Field unaryNodeLeftFieldTmp = null;
-        try {
-            unaryNodeLeftFieldTmp = UnaryNode.class.getDeclaredField("left");
-            unaryNodeLeftFieldTmp.setAccessible(true);
-        } catch (NoSuchFieldException ignored) {
-        }
-        unaryNodeLeftField = unaryNodeLeftFieldTmp;
-    }
 
     private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) throws IdentifierChainException {
         if (syntaxNode instanceof IdentifierNode) {
@@ -66,7 +46,7 @@ class FullClassnameSupport {
                 localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
             } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
                 localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
-                    syntaxNode.getChild(0).getChild(0).getText());
+                        syntaxNode.getChild(0).getChild(0).getText());
             } else {
                 throw new IllegalStateException("Unsupported syntax node type");
             }
@@ -118,8 +98,8 @@ class FullClassnameSupport {
                                 originalFullClassName.append(".");
                             }
                             originalFullClassName.append(
-                                syntaxNode1 instanceof IdentifierNode ? ((IdentifierNode) syntaxNode1).getOriginalText()
-                                                                      : syntaxNode1.getText());
+                                    syntaxNode1 instanceof IdentifierNode ? ((IdentifierNode) syntaxNode1).getOriginalText()
+                                            : syntaxNode1.getText());
                         }
                         updateSyntaxNode(syntaxNode, identifierChain, originalFullClassName.toString(), j);
                         break;
@@ -168,33 +148,30 @@ class FullClassnameSupport {
     }
 
     private static void updateSyntaxNode(ISyntaxNode syntaxNode,
-            List<ISyntaxNode> identifierChain,
-            String fullClassName,
-            int j) {
-        try {
-            ISyntaxNode nodeToChange;
-            if (j < identifierChain.size() - 1) {
-                nodeToChange = identifierChain.get(j + 1).getParent();
-            } else {
-                nodeToChange = syntaxNode.getParent();
-            }
-            IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
+                                         List<ISyntaxNode> identifierChain,
+                                         String fullClassName,
+                                         int j) {
+        ISyntaxNode nodeToChange;
+        if (j < identifierChain.size() - 1) {
+            nodeToChange = identifierChain.get(j + 1).getParent();
+        } else {
+            nodeToChange = syntaxNode.getParent();
+        }
+        IdentifierNode newIdentifierNode = new IdentifierNode("identifier",
                 nodeToChange.getChild(0).getSourceLocation(),
                 fullClassName,
                 nodeToChange.getChild(0).getModule());
-            if (nodeToChange instanceof BinaryNode) {
-                binaryNodeLeftField.set(nodeToChange, newIdentifierNode);
-            } else if (nodeToChange instanceof UnaryNode) {
-                unaryNodeLeftField.set(nodeToChange, newIdentifierNode);
-            } else {
-                throw new IllegalStateException();
-            }
-        } catch (IllegalAccessException ignored) {
+        if (nodeToChange instanceof BinaryNode) {
+            ((BinaryNode) nodeToChange).left = newIdentifierNode;
+        } else if (nodeToChange instanceof UnaryNode) {
+            ((UnaryNode) nodeToChange).left = newIdentifierNode;
+        } else {
+            throw new IllegalStateException();
         }
     }
 
     static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
-            IParsedCode parsedCode) {
+                                                                 IParsedCode parsedCode) {
         ISyntaxNode topNode = parsedCode.getTopNode();
         if (bindingContext != null) {
             rec(topNode, bindingContext, new HashMap<>());

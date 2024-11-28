@@ -1,0 +1,9 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <url>no-xlsx</url>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <annotationTemplateClassName>util.Service</annotationTemplateClassName>
+</rules-deploy>

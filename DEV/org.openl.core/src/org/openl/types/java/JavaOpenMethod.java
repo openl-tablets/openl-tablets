@@ -21,7 +21,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
     private final Method method;

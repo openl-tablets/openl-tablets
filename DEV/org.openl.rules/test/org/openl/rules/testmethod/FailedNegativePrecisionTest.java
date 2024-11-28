@@ -1,10 +1,11 @@
 package org.openl.rules.testmethod;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.openl.rules.TestUtils;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.TestUtils;
 
 public class FailedNegativePrecisionTest {
 
@@ -12,7 +13,7 @@ public class FailedNegativePrecisionTest {
 
     private INegativePrecision instance;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         instance = TestUtils.create(FILE_NAME, INegativePrecision.class);
     }

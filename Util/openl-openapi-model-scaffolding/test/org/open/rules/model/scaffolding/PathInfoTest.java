@@ -1,9 +1,10 @@
 package org.open.rules.model.scaffolding;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.TypeInfo;
 
@@ -16,53 +17,53 @@ public class PathInfoTest {
     @Test
     public void testPathInfoCreation() {
         PathInfo xyzPath = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            APPLICATION_JSON,
-            TEXT_PLAIN);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                APPLICATION_JSON,
+                TEXT_PLAIN);
         PathInfo xyzPathText = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            TEXT_PLAIN,
-            TEXT_PLAIN);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                TEXT_PLAIN,
+                TEXT_PLAIN);
         PathInfo xyzPathJSON = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            APPLICATION_JSON,
-            APPLICATION_JSON);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                APPLICATION_JSON,
+                APPLICATION_JSON);
         PathInfo oneMoreXyzPath = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            APPLICATION_JSON,
-            TEXT_PLAIN);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                APPLICATION_JSON,
+                TEXT_PLAIN);
         PathInfo xyzStringPath = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(String.class),
-            APPLICATION_JSON,
-            TEXT_PLAIN);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(String.class),
+                APPLICATION_JSON,
+                TEXT_PLAIN);
         PathInfo xyFormattedPath = new PathInfo("/x/y/z",
-            "xy",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            TEXT_JAVASCRIPT,
-            TEXT_PLAIN);
+                "xy",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                TEXT_JAVASCRIPT,
+                TEXT_PLAIN);
         PathInfo xyOriginalPath = new PathInfo("/x/y",
-            "xyz",
-            PathInfo.Operation.POST,
-            new TypeInfo(Double.class),
-            TEXT_JAVASCRIPT,
-            TEXT_JAVASCRIPT);
+                "xyz",
+                PathInfo.Operation.POST,
+                new TypeInfo(Double.class),
+                TEXT_JAVASCRIPT,
+                TEXT_JAVASCRIPT);
         PathInfo xyzPUT = new PathInfo("/x/y/z",
-            "xyz",
-            PathInfo.Operation.PUT,
-            new TypeInfo(Double.class),
-            TEXT_PLAIN,
-            APPLICATION_JSON);
+                "xyz",
+                PathInfo.Operation.PUT,
+                new TypeInfo(Double.class),
+                TEXT_PLAIN,
+                APPLICATION_JSON);
 
         assertEquals(xyzPath, xyzPath);
         assertEquals(xyzPath, oneMoreXyzPath);

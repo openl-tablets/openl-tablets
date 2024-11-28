@@ -7,7 +7,7 @@
     <version>0.0.0</version>
     <packaging>pom</packaging>
     <name>Jar Packaging</name>
-    
+
     <modules>
         <module>openl-simple</module>
         <module>openl-simple-dependency</module>

@@ -1,13 +1,13 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.List;
 import javax.faces.context.FacesContext;
 
-import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.util.List;
+import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 /**
  * Needed to render repository tree and to show error messages if failed to render it.

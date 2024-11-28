@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.faces.application.FacesMessage;
@@ -30,21 +29,6 @@ import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
-import org.openl.config.InMemoryProperties;
-import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.webstudio.util.WebStudioValidationUtils;
-import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
-import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
-import org.openl.rules.webstudio.web.admin.RepositoryEditor;
-import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryValidators;
-import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.spring.env.DynamicPropertySource;
-import org.openl.util.PropertiesUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -53,6 +37,22 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
+
+import org.openl.config.InMemoryProperties;
+import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.util.WebStudioValidationUtils;
+import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
+import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.admin.RepositoryEditor;
+import org.openl.rules.webstudio.web.admin.RepositoryValidators;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.spring.env.DynamicPropertySource;
+import org.openl.util.PropertiesUtils;
+import org.openl.util.StringUtils;
 
 @Service
 @SessionScope
@@ -171,7 +171,7 @@ public class InstallWizard implements Serializable {
                 }
 
                 deployConfigRepositoryConfiguration = new RepositoryConfiguration("deploy-config",
-                    properties);
+                        properties);
                 if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 }
@@ -217,24 +217,24 @@ public class InstallWizard implements Serializable {
 
     private void readCasProperties() {
         casSettings = new CASSettings(propertyResolver.getProperty("security.cas.app-url"),
-            propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
-            propertyResolver.getProperty("security.cas.attribute.first-name"),
-            propertyResolver.getProperty("security.cas.attribute.last-name"),
-            propertyResolver.getProperty("security.cas.attribute.display-name"),
-            propertyResolver.getProperty("security.cas.attribute.email"),
-            propertyResolver.getProperty("security.cas.attribute.groups"));
+                propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
+                propertyResolver.getProperty("security.cas.attribute.first-name"),
+                propertyResolver.getProperty("security.cas.attribute.last-name"),
+                propertyResolver.getProperty("security.cas.attribute.display-name"),
+                propertyResolver.getProperty("security.cas.attribute.email"),
+                propertyResolver.getProperty("security.cas.attribute.groups"));
     }
 
     private void readSamlProperties() {
         samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.entity-id"),
-            propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
-            propertyResolver.getProperty("security.saml.attribute.username"),
-            propertyResolver.getProperty("security.saml.attribute.first-name"),
-            propertyResolver.getProperty("security.saml.attribute.last-name"),
-            propertyResolver.getProperty("security.saml.attribute.display-name"),
-            propertyResolver.getProperty("security.saml.attribute.email"),
-            propertyResolver.getProperty("security.saml.attribute.groups"),
-            propertyResolver.getProperty("security.saml.server-certificate"));
+                propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
+                propertyResolver.getProperty("security.saml.attribute.username"),
+                propertyResolver.getProperty("security.saml.attribute.first-name"),
+                propertyResolver.getProperty("security.saml.attribute.last-name"),
+                propertyResolver.getProperty("security.saml.attribute.display-name"),
+                propertyResolver.getProperty("security.saml.attribute.email"),
+                propertyResolver.getProperty("security.saml.attribute.groups"),
+                propertyResolver.getProperty("security.saml.server-certificate"));
     }
 
     private void readOauth2Properties() {
@@ -301,7 +301,7 @@ public class InstallWizard implements Serializable {
                 properties.setProperty("security.oauth2.attribute.first-name", oauth2Settings.getFirstNameAttribute());
                 properties.setProperty("security.oauth2.attribute.last-name", oauth2Settings.getSecondNameAttribute());
                 properties.setProperty("security.oauth2.attribute.display-name",
-                    oauth2Settings.getDisplayNameAttribute());
+                        oauth2Settings.getDisplayNameAttribute());
                 properties.setProperty("security.oauth2.attribute.email", oauth2Settings.getEmailAttribute());
                 properties.setProperty("security.oauth2.attribute.groups", oauth2Settings.getGroupsAttribute());
             }
@@ -323,8 +323,8 @@ public class InstallWizard implements Serializable {
             destroyRepositoryObjects();
 
             FacesContext.getCurrentInstance()
-                .getExternalContext()
-                .redirect(WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
+                    .getExternalContext()
+                    .redirect(WebStudioUtils.getExternalContext().getRequestContextPath() + "/");
 
             return "/";
         } catch (Exception e) {
@@ -419,11 +419,11 @@ public class InstallWizard implements Serializable {
         if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
-                    domain,
-                    url);
+                        domain,
+                        url);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    username,
-                    password);
+                        username,
+                        password);
                 ldapAuthenticationProvider.setSearchFilter(ldapFilter);
                 ldapAuthenticationProvider.authenticate(authenticationToken);
             } catch (AuthenticationException e) {
@@ -442,11 +442,11 @@ public class InstallWizard implements Serializable {
         UIViewRoot viewRoot = context.getViewRoot();
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl"))
-            .getSubmittedValue();
+                .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
+            throw new ValidatorException(createErrorMessage("OpenL Studio server URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
@@ -460,7 +460,7 @@ public class InstallWizard implements Serializable {
         String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
-            .getSubmittedValue();
+                .getSubmittedValue();
 
         if (StringUtils.isBlank(entityId)) {
             throw new ValidatorException(createErrorMessage("Entity ID cannot be blank."));
@@ -535,11 +535,11 @@ public class InstallWizard implements Serializable {
     }
 
     /**
-     * Validates WebStudio working directory for write access. If specified folder is not writable the validation error
+     * Validates OpenL Studio working directory for write access. If specified folder is not writable the validation error
      * will appears
      */
     public void workingDirValidator(FacesContext context, UIComponent toValidate, Object value) {
-        WebStudioValidationUtils.directoryValidator(value, "WebStudio working directory");
+        WebStudioValidationUtils.directoryValidator(value, "OpenL Studio working directory");
     }
 
     /**
@@ -761,7 +761,7 @@ public class InstallWizard implements Serializable {
         connectionProductionRepoController.setProperties(properties);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
-            .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
+                .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
         connectionProductionRepoController.clearForm();
     }
 

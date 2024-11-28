@@ -1,19 +1,19 @@
 package org.openl.rules.operators;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.openl.rules.TestUtils;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import org.openl.rules.TestUtils;
 
 /**
  * Test remainder operator ('%') in rules
  *
  * @author DLiauchuk
- *
  */
 public class RemOperatorTest {
 
@@ -21,7 +21,7 @@ public class RemOperatorTest {
 
     private static RulesInterf instance;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         instance = TestUtils.create(SRC, RulesInterf.class);
     }
@@ -102,15 +102,15 @@ public class RemOperatorTest {
     public void testBigIntegerValue() {
         assertEquals("passed", instance.testRemBigIntegerValue(new BigInteger("10"), new BigInteger("5")));
         assertEquals("not passed",
-            instance.testRemBigIntegerValue(new BigInteger("17"), new BigInteger("3")));
+                instance.testRemBigIntegerValue(new BigInteger("17"), new BigInteger("3")));
     }
 
     @Test
     public void testBigDecimalValue() {
         assertEquals("passed",
-            instance.testRemBigDecimalValue(new BigDecimal("4.44"), new BigDecimal("2.22")));
+                instance.testRemBigDecimalValue(new BigDecimal("4.44"), new BigDecimal("2.22")));
         assertEquals("not passed",
-            instance.testRemBigDecimalValue(new BigDecimal("5.57"), new BigDecimal("44")));
+                instance.testRemBigDecimalValue(new BigDecimal("5.57"), new BigDecimal("44")));
     }
 
     public interface RulesInterf {

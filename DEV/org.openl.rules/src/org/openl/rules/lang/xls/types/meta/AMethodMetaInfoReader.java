@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -58,15 +59,16 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
             int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             nodeUsages.add(
-                new SimpleNodeUsage(
-                    start,
-                    end,
-                    metaInfo.getDisplayName(INamedThing.SHORT)
-                        + (StringUtils.isEmpty(getAdditionalMetaInfoForTableReturnType())
-                            ? ""
-                            : ("\n" + getAdditionalMetaInfoForTableReturnType())),
-                    metaInfo.getSourceUrl(),
-                    NodeType.DATATYPE)
+                    new SimpleNodeUsage(
+                            start,
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT)
+                                    + (StringUtils.isEmpty(getAdditionalMetaInfoForTableReturnType())
+                                    ? ""
+                                    : ("\n" + getAdditionalMetaInfoForTableReturnType())),
+                            metaInfo.getSourceUrl(),
+                            type,
+                            NodeType.DATATYPE)
             );
         }
 
@@ -86,10 +88,11 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                     int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
                     int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because location returns 'end' inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
-                        end,
-                        metaInfo.getDisplayName(INamedThing.SHORT),
-                        metaInfo.getSourceUrl(),
-                        NodeType.DATATYPE));
+                            end,
+                            metaInfo.getDisplayName(INamedThing.SHORT),
+                            metaInfo.getSourceUrl(),
+                            parameterType,
+                            NodeType.DATATYPE));
                 }
             }
         }

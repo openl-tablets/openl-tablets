@@ -1,8 +1,9 @@
 package org.openl.itest.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -12,11 +13,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
- * 
+ *
  * @author Yury Molchan
  */
 public class HttpClient {
@@ -29,6 +34,9 @@ public class HttpClient {
     private final URL baseURL;
     private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
+    public final Map<String, String> localEnv = new HashMap<>();
+
+    private final int retryTimeout;
 
     private HttpClient(URL baseURL) {
         this.baseURL = baseURL;
@@ -38,7 +46,11 @@ public class HttpClient {
         if (connectTimeout > 0) {
             builder.connectTimeout(Duration.ofMillis(connectTimeout));
         }
-
+        int retryTimeout = Integer.parseInt(System.getProperty("http.timeout.read")) * 2;
+        if (retryTimeout <= 0) {
+            retryTimeout = 120_000; // 2 minutes
+        }
+        this.retryTimeout = retryTimeout;
         this.client = builder.build();
     }
 
@@ -68,7 +80,7 @@ public class HttpClient {
     }
 
     public void send(String reqRespFiles) {
-        send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
+        send("test-resources/" + reqRespFiles + ".req", "test-resources/" + reqRespFiles + ".resp");
     }
 
     public void test() {
@@ -93,16 +105,16 @@ public class HttpClient {
                 try {
                     send(p + ".req", p + ".resp");
                     long end = System.currentTimeMillis();
-                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end-start) + "ms)");
+                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end - start) + "ms)");
                     return false;
-                } catch (Exception ex) {
+                } catch (Exception | AssertionError ex) {
                     long end = System.currentTimeMillis();
-                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end-start) + "ms)");
+                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end - start) + "ms)");
                     ex.printStackTrace();
                     return true;
                 }
             }).filter(p -> p).count();
-            assertEquals("Failed requests: ", 0, errors);
+            assertEquals(0, errors, "Failed requests: ");
         } catch (IOException e) {
             fail("Test folder is not found: " + path);
         }
@@ -114,7 +126,7 @@ public class HttpClient {
                     .GET()
                     .build();
             var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
-            assertEquals("URL :" + url, status, resp.statusCode());
+            assertEquals(status, resp.statusCode(), "URL :" + url);
             if (cl == String.class) {
                 return (T) resp.body();
             }
@@ -133,7 +145,7 @@ public class HttpClient {
                     .build();
 
             var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
-            assertEquals("URL :" + url, 204, resp.statusCode());
+            assertEquals(204, resp.statusCode(), "URL :" + url);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -141,7 +153,7 @@ public class HttpClient {
 
     /**
      * DO NOT MAKE THIS METHOD PUBLIC!!!
-     *
+     * <p>
      * Because of further migration effort for tests which do not follow the style naming.
      *
      * <pre>
@@ -150,19 +162,54 @@ public class HttpClient {
      */
     private void send(String requestFile, String responseFile) {
         try {
-            HttpData header = HttpData.send(baseURL, requestFile, cookie.get());
-
-            var c = header.getCookie();
-            if (c != null && !c.isBlank()) {
-                cookie.set(c);
+            HttpData request = HttpData.readFile(requestFile);
+            if (request == null) {
+                throw new FileNotFoundException(requestFile);
             }
 
-            HttpData respHeader = HttpData.readFile(responseFile);
+            var assertResponse = Objects.requireNonNullElse(HttpData.readFile(responseFile), HttpData.ok());
+            String retry = request.getSetting("Retry");
+            long timeout = System.currentTimeMillis();
+            if ("yes".equals(retry)) {
+                timeout += retryTimeout;
+            }
 
-            header.assertTo(respHeader);
+            AssertionError error = null;
+            HttpData response;
+            do {
+                if (error != null) {
+                    TimeUnit.MILLISECONDS.sleep(100);
+                }
+                response = HttpData.send(baseURL, request, cookie.get(), localEnv);
+
+                var c = response.getCookie();
+                if (c != null && !c.isBlank()) {
+                    cookie.set(c);
+                }
+
+                // Bulk update of OpenAPI files
+//                if (Files.readAllLines(Paths.get(requestFile)).get(0).contains("/openapi.")) {
+//                    response.writeBodyTo(responseFile);
+//                }
+
+
+                try {
+                    response.assertTo(assertResponse);
+                    error = null;
+                } catch (AssertionError e) {
+                    error = e;
+                }
+            } while (error != null && System.currentTimeMillis() < timeout);
+
+            if (error != null) {
+                response.log(requestFile);
+                throw error;
+            }
 
         } catch (IOException e) {
             throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

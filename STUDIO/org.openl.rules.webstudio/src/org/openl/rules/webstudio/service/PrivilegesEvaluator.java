@@ -40,8 +40,8 @@ public final class PrivilegesEvaluator {
             if (!visitedGroups.contains(persistGroup)) {
                 Collection<Privilege> privileges = createPrivileges(persistGroup, visitedGroups);
                 SimpleGroup simpleGroup = new SimpleGroup(persistGroup.getName(),
-                    persistGroup.getDescription(),
-                    privileges);
+                        persistGroup.getDescription(),
+                        privileges);
                 grantedList.add(simpleGroup);
             }
         }

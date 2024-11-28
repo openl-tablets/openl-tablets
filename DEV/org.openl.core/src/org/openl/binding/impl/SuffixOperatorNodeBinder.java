@@ -40,7 +40,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
 
         IOpenClass[] types = getTypes(children);
         IMethodCaller methodCaller = UnaryOperatorNodeBinder
-            .findUnaryOperatorMethodCaller(methodName, types, bindingContext);
+                .findUnaryOperatorMethodCaller(methodName, types, bindingContext);
 
         if (methodCaller == null) {
             String message = UnaryOperatorNodeBinder.errorMsg(methodName, types[0]);
@@ -50,7 +50,7 @@ public class SuffixOperatorNodeBinder extends ANodeBinder {
         IOpenClass methodType = methodCaller.getMethod().getType();
 
         if (ClassUtils.primitiveToWrapper(methodType.getInstanceClass()) != ClassUtils
-            .primitiveToWrapper(types[0].getInstanceClass())) {
+                .primitiveToWrapper(types[0].getInstanceClass())) {
             return makeErrorNode("Suffix operator must return the same type as an argument", node, bindingContext);
         }
 

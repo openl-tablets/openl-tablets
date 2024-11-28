@@ -1,7 +1,8 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -9,9 +10,9 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class String2DateConvertorTest {
 
@@ -20,13 +21,13 @@ public class String2DateConvertorTest {
 
     private Locale defaultLocale;
 
-    @Before
+    @BeforeEach
     public void setupLocale() {
         defaultLocale = Locale.getDefault();
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void restoreLocale() {
         Locale.setDefault(defaultLocale);
     }
@@ -45,22 +46,70 @@ public class String2DateConvertorTest {
         assertEquals(new Date(114, 5, 17), result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseEmpty() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("", null);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseWrongValue() {
-        String2DateConvertor converter = new String2DateConvertor();
-        converter.parse("Kin-Dza-Dza", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("Kin-Dza-Dza", null);
+        });
+    }
+
+    @Test
+    public void testParseExtraSymbol() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("2021-01-01T", null);
+        });
+    }
+
+    @Test
+    public void testParseMissprint() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2DateConvertor converter = new String2DateConvertor();
+            converter.parse("10/13/20 17", null);
+        });
     }
 
     @Test
     public void testParseNull() {
         String2DateConvertor converter = new String2DateConvertor();
         assertNull(converter.parse(null, null));
+    }
+
+    @Test
+    public void testParseUSDateTime() {
+        String2DateConvertor converter = new String2DateConvertor();
+        Date result = converter.parse("04/01/2021 12:00 AM", null);
+        assertEquals(createDate(2021, 4, 1, 0, 0, 0, 0), result);
+
+        result = converter.parse("8/1/2013 11:59 PM", null);
+        assertEquals(createDate(2013, 8, 1, 23, 59, 0, 0), result);
+
+        result = converter.parse("04/01/2021 10:00", null);
+        assertEquals(createDate(2021, 4, 1, 10, 0, 0, 0), result);
+
+        result = converter.parse("5/14/1789 3:30:10", null);
+        assertEquals(createDate(1789, 5, 14, 3, 30, 10, 0), result);
+
+        result = converter.parse("04/01/2021", null);
+        assertEquals(createDate(2021, 4, 1, 0, 0, 0, 0), result);
+
+        result = converter.parse("7/12/80", null);
+        assertEquals(createDate(1980, 7, 12, 0, 0, 0, 0), result);
+
+        result = converter.parse("04/01/2021 20:00", null);
+        assertEquals(createDate(2021, 4, 1, 20, 0, 0, 0), result);
+
+        result = converter.parse("04/01/2021 20:00:24", null);
+        assertEquals(createDate(2021, 4, 1, 20, 0, 24, 0), result);
     }
 
     @Test
@@ -87,8 +136,26 @@ public class String2DateConvertorTest {
             result = converter.parse("2021-01-01T01:01:01.000", null);
             assertEquals(createDate(2021, 1, 1, 1, 1, 1, 0), result);
 
+            result = converter.parse("7777777-07-07T22:7:7.000", null);
+            assertEquals(createDate(7777777, 7, 7, 22, 7, 7, 0), result);
+
             result = converter.parse("2021-01-01T01:01:01.000Z", null);
             assertEquals(createDate(2021, 1, 1, 3, 1, 1, 0), result);
+
+            result = converter.parse("2021-01-01T01:01:01.000+00", null);
+            assertEquals(createDate(2021, 1, 1, 3, 1, 1, 0), result);
+
+            result = converter.parse("2021-02-03T14:15:16.123+05", null);
+            assertEquals(createDate(2021, 2, 3, 11, 15, 16, 123), result);
+
+            result = converter.parse("2021-02-03T14:15:16.123+05:30", null);
+            assertEquals(createDate(2021, 2, 3, 10, 45, 16, 123), result);
+
+            result = converter.parse("2021-02-03T14:15:16.1239+00:00", null);
+            assertEquals(createDate(2021, 2, 3, 16, 15, 16, 123), result);
+
+            result = converter.parse("2021-01-01T01:01:01.000+02", null);
+            assertEquals(createDate(2021, 1, 1, 1, 1, 1, 0), result);
             // Day saving time
             result = converter.parse("2021-06-01T01:01:01.000Z", null);
             assertEquals(createDate(2021, 6, 1, 4, 1, 1, 0), result);

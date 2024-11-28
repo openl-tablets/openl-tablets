@@ -5,7 +5,6 @@ import org.openl.util.text.TextInterval;
 
 /**
  * @author snshor
- *
  */
 public class LiteralNode extends TerminalNode {
 

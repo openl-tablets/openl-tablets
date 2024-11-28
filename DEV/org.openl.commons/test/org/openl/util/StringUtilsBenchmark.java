@@ -29,6 +29,7 @@ public class StringUtilsBenchmark {
     public static class IN {
         @Param({"simple", "trim", "one", "two", "heavy"})
         private String type;
+
         @Setup
         public void setup() {
             switch (type) {
@@ -51,6 +52,7 @@ public class StringUtilsBenchmark {
                     throw new IllegalStateException("Unknown type: " + type);
             }
         }
+
         public String p = "abc-def - fff- - ---ff f ff --";
         public char separator = '-';
     }

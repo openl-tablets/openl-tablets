@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
@@ -14,6 +13,10 @@ import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
 import javax.validation.GroupSequence;
 import javax.validation.constraints.NotBlank;
+
+import org.richfaces.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -29,13 +32,10 @@ import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.rules.ui.validation.StringPresentedGroup;
 import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
-import org.openl.util.TableNameChecker;
 import org.openl.util.StringUtils;
-import org.richfaces.json.JSONException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openl.util.TableNameChecker;
 
-@GroupSequence({ SimpleRulesCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class })
+@GroupSequence({SimpleRulesCreationWizard.class, StringPresentedGroup.class, StringValidGroup.class})
 public class SimpleRulesCreationWizard extends TableCreationWizard {
     private static final String TABLE_TYPE = "xls.dt";
     private static final String RESTORE_TABLE_FUNCTION = "tableModel.restoreTableFromJSONString";
@@ -74,9 +74,9 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
         domainTypes.addAll(WizardUtils.importedClasses());
 
         this.typesList = domainTypes.stream()
-            .filter(x -> !x.isEmpty())
-            .map(DomainTypeHolder::new)
-            .collect(Collectors.toList());
+                .filter(x -> !x.isEmpty())
+                .map(DomainTypeHolder::new)
+                .collect(Collectors.toList());
 
         initWorkbooks();
     }
@@ -92,14 +92,14 @@ public class SimpleRulesCreationWizard extends TableCreationWizard {
     public List<SelectItem> getPropertyList() {
         List<SelectItem> propertyNames = new ArrayList<>();
         TablePropertyDefinition[] propDefinitions = TablePropertyDefinitionUtils
-            .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
+                .getDefaultDefinitionsForTable(TABLE_TYPE, InheritanceLevel.TABLE, true);
 
         SelectItem selectItem = new SelectItem("");
         selectItem.setLabel("");
         propertyNames.add(selectItem);
 
         Map<String, List<TablePropertyDefinition>> propGroups = TablePropertyDefinitionUtils
-            .groupProperties(propDefinitions);
+                .groupProperties(propDefinitions);
         for (Map.Entry<String, List<TablePropertyDefinition>> entry : propGroups.entrySet()) {
             List<SelectItem> items = new ArrayList<>();
 

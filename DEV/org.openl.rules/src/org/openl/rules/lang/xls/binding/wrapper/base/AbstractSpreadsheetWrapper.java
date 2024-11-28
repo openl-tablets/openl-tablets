@@ -25,7 +25,7 @@ import org.openl.vm.IRuntimeEnv;
 public class AbstractSpreadsheetWrapper extends Spreadsheet {
     static {
         WrapperValidation.validateWrapperClass(AbstractSpreadsheetWrapper.class,
-            AbstractSpreadsheetWrapper.class.getSuperclass());
+                AbstractSpreadsheetWrapper.class.getSuperclass());
     }
 
     protected final Spreadsheet delegate;
@@ -142,16 +142,6 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     @Override
     public String[] getColumnNames() {
         return delegate.getColumnNames();
-    }
-
-    @Override
-    public boolean isTableStructureDetails() {
-        return delegate.isTableStructureDetails();
-    }
-
-    @Override
-    public void getTableStructureDetails(boolean tableStructureDetails) {
-        delegate.getTableStructureDetails(tableStructureDetails);
     }
 
     @Override

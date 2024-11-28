@@ -9,11 +9,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.sql.DataSource;
 
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
-import org.openl.util.PropertiesUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +23,7 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.openl.util.PropertiesUtils;
 
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
@@ -37,16 +36,16 @@ public class DBTestConfiguration {
 
     /**
      * Wraps original datasource with proxy DataSource. This proxy helps to analyze generated SQL queries
-     * 
+     *
      * @param dataSource original bean
      * @return proxied bean
      */
     private DataSource wrapLoggedDataSource(DataSource dataSource) {
         return ProxyDataSourceBuilder.create(dataSource)
-            .name("OpenL-DataSource-Logger")
-            .asJson()
-            .countQuery()
-            .build();
+                .name("OpenL-DataSource-Logger")
+                .asJson()
+                .countQuery()
+                .build();
     }
 
     @Bean
@@ -80,7 +79,7 @@ public class DBTestConfiguration {
             databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
         }
 
-        String[] locations = { "/db/flyway/common", "/db/flyway/" + databaseCode };
+        String[] locations = {"/db/flyway/common", "/db/flyway/" + databaseCode};
 
         TreeMap<String, String> placeholders = new TreeMap<>();
         for (String location : locations) {

@@ -10,7 +10,6 @@ import java.util.Map;
 
 /**
  * @author snshor
- *
  */
 public interface IDynamicObject {
 

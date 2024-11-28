@@ -1,8 +1,11 @@
 package org.openl.rules.convertor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class String2EnumConvertorTest {
 
@@ -27,10 +30,12 @@ public class String2EnumConvertorTest {
         assertNotEquals(EnumVal.Val3, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testParseNotPresent() {
-        String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<>(EnumRes.class);
-        converter.parse("Val4", null);
+        assertThrows(IllegalArgumentException.class, () -> {
+            String2EnumConvertor<EnumRes> converter = new String2EnumConvertor<>(EnumRes.class);
+            converter.parse("Val4", null);
+        });
     }
 
     @Test

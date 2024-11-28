@@ -3,6 +3,7 @@ package org.openl.rules.excel.builder.template;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
+
 import org.openl.rules.excel.builder.CellRangeSettings;
 import org.openl.rules.excel.builder.template.row.DataTypeRowStyle;
 
@@ -15,13 +16,13 @@ public class DataTypeTableStyleImpl extends DefaultTableStyleImpl implements Dat
     private final Font datatypeFont;
 
     public DataTypeTableStyleImpl(RichTextString headerTextTemplate,
-            CellStyle headerStyle,
-            CellRangeSettings headerSizeSettings,
-            DataTypeRowStyle rowStyle,
-            CellStyle dateFieldStyle,
-            CellStyle dateTimeFieldStyle,
-            DataTypeRowStyle lastRowStyle,
-            Font datatypeFont) {
+                                  CellStyle headerStyle,
+                                  CellRangeSettings headerSizeSettings,
+                                  DataTypeRowStyle rowStyle,
+                                  CellStyle dateFieldStyle,
+                                  CellStyle dateTimeFieldStyle,
+                                  DataTypeRowStyle lastRowStyle,
+                                  Font datatypeFont) {
         super(headerTextTemplate, headerStyle, headerSizeSettings);
         this.dataTypeRowStyle = rowStyle;
         this.dateFieldStyle = dateFieldStyle;

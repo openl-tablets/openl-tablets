@@ -71,7 +71,7 @@ public class MatchAlgorithmFactory {
      * Note that if builder for such name was registered already it will be overwritten.
      *
      * @param nameOfAlgorithm algorithm name
-     * @param builder compiler builder for algorithm
+     * @param builder         compiler builder for algorithm
      */
     public static void registerBuilder(String nameOfAlgorithm, IMatchAlgorithmCompilerBuilder builder) {
         builders.put(nameOfAlgorithm, builder);

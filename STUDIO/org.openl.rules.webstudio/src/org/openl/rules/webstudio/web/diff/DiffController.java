@@ -6,8 +6,15 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.UUID;
 
-import org.openl.util.FileTool;
-import org.openl.util.FileUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,15 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import org.openl.util.FileTool;
+import org.openl.util.FileUtils;
 
 @RestController
 @RequestMapping("/public/compare")
@@ -45,15 +45,15 @@ public class DiffController {
 
     @Operation(summary = "diff.compare-xls.summary", description = "diff.compare-xls.desc")
     @PostMapping(value = "xls", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Parameters({ @Parameter(name = "file1", description = "diff.field.file.1", content = @Content(encoding = {
-            @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel") })),
+    @Parameters({@Parameter(name = "file1", description = "diff.field.file.1", content = @Content(encoding = {
+            @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel")})),
             @Parameter(name = "file2", description = "diff.field.file.2", content = @Content(encoding = {
-                    @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel") })),
-            @Parameter(name = "fileName", in = ParameterIn.QUERY, description = "diff.field.file-name") })
+                    @Encoding(contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel")})),
+            @Parameter(name = "fileName", in = ParameterIn.QUERY, description = "diff.field.file-name")})
     @ApiResponse(description = "diff.compare-xls.303.desc", headers = @Header(name = HttpHeaders.LOCATION, required = true))
     public ResponseEntity<?> compareXls(@RequestParam(value = "file1", required = false) MultipartFile file1,
-            @RequestParam(value = "file2", required = false) MultipartFile file2,
-            @RequestParam(value = "fileName", required = false) String fileName) {
+                                        @RequestParam(value = "file2", required = false) MultipartFile file2,
+                                        @RequestParam(value = "fileName", required = false) String fileName) {
         try {
             String requestId = UUID.randomUUID().toString();
 
@@ -67,8 +67,8 @@ public class DiffController {
                 root = root.substring(0, root.lastIndexOf('/'));
             }
             return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                .location(new URI(root + "/faces/pages/public/showDiff.xhtml?id=" + requestId))
-                .build();
+                    .location(new URI(root + "/faces/pages/public/showDiff.xhtml?id=" + requestId))
+                    .build();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

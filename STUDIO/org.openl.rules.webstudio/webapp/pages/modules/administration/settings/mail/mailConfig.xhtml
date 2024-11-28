@@ -50,12 +50,12 @@
                 onSuccess: (data) => {
                     let verification = data.url && data.username && data.password && true || false;
                     $j("#mail-config-verification-section").toggle(verification);
-                    $j("#mail-config-verification").attr("checked", verification);
+                    $j("#mail-config-verification").prop("checked", verification);
                 }
             });
 
             $j("#mail-config-verification").change(function () {
-                const verificationChecked = $j(this).attr("checked") === 'checked';
+                const verificationChecked = $j(this).prop("checked");
                 $j("#mail-config-verification-section").toggle(verificationChecked);
             });
 
@@ -82,7 +82,7 @@
 
             $j("#mail-config").click(function (e) {
                 e.preventDefault();
-                if (confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
+                if (confirm('All users working with OpenL Studio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
                     $j('#mailConfigForm').submit();
                 }
             });

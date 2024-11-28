@@ -8,7 +8,6 @@ package org.openl.binding.impl;
 
 /**
  * @author snshor
- *
  */
 public class ControlSignalContinue extends ControlSignal {
 }

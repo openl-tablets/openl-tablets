@@ -7,7 +7,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class SuffixNode extends MethodBoundNode {
     /**
@@ -22,7 +21,7 @@ public class SuffixNode extends MethodBoundNode {
     @Override
     protected Object evaluateRuntime(IRuntimeEnv env) {
         Object oldValue = children[0].evaluate(env);
-        Object newValue = boundMethod.invoke(null, new Object[] { oldValue }, env);
+        Object newValue = boundMethod.invoke(null, new Object[]{oldValue}, env);
 
         children[0].assign(newValue, env);
 

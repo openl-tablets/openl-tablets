@@ -1,6 +1,7 @@
 package org.openl.opentelemetry.javaagent.extension;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
+
 import static org.openl.opentelemetry.javaagent.extension.MethodSingletons.instrumenter;
 
 import io.opentelemetry.context.Context;

@@ -116,12 +116,12 @@ public class AProjectArtefact implements IProjectArtefact {
             return new RepositoryProjectVersionImpl(true);
         }
         RepositoryVersionInfoImpl rvii = Optional.ofNullable(fileData.getAuthor())
-            .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName(), author.getEmail()))
-            .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null, null));
+                .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName(), author.getEmail()))
+                .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null, null));
         String version = fileData.getVersion();
         RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
-            rvii,
-            fileData.isDeleted());
+                rvii,
+                fileData.isDeleted());
         projectVersion.setVersionComment(fileData.getComment());
         return projectVersion;
     }
@@ -147,7 +147,7 @@ public class AProjectArtefact implements IProjectArtefact {
     /**
      * Try to lock the project if it's not locked already. If the project was locked by other user, throws
      * ProjectException.
-     * 
+     *
      * @throws ProjectException if cannot lock the project, or the project was locked by other user.
      */
     public final void tryLockOrThrow() throws ProjectException {

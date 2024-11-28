@@ -31,9 +31,9 @@ public class JXPathVariation extends Variation {
     /**
      * Constructs JXPath variation.
      *
-     * @param variationID Unique ID of variations.
+     * @param variationID          Unique ID of variations.
      * @param updatedArgumentIndex index of argument to modify.
-     * @param path Path supported by JXPath that point to field to modify.
+     * @param path                 Path supported by JXPath that point to field to modify.
      * @param valueToSet
      */
     public JXPathVariation(String variationID, int updatedArgumentIndex, String path, Object valueToSet) {
@@ -52,10 +52,10 @@ public class JXPathVariation extends Variation {
     public Object currentValue(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
-                getVariationID(),
-                updatedArgumentIndex,
-                originalArguments.length));
+                    "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                    getVariationID(),
+                    updatedArgumentIndex,
+                    originalArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -66,10 +66,10 @@ public class JXPathVariation extends Variation {
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
-                getVariationID(),
-                updatedArgumentIndex,
-                originalArguments.length));
+                    "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                    getVariationID(),
+                    updatedArgumentIndex,
+                    originalArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(originalArguments[updatedArgumentIndex]);
         Pointer pointer = compiledExpression.createPath(context);
@@ -81,10 +81,10 @@ public class JXPathVariation extends Variation {
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         if (updatedArgumentIndex >= modifiedArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
-                getVariationID(),
-                updatedArgumentIndex,
-                modifiedArguments.length));
+                    "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                    getVariationID(),
+                    updatedArgumentIndex,
+                    modifiedArguments.length));
         }
         JXPathContext context = JXPathContext.newContext(modifiedArguments[updatedArgumentIndex]);
         compiledExpression.setValue(context, previousValue);

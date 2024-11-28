@@ -1,6 +1,6 @@
 package org.openl.rules.xls.merge;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,8 +11,8 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -23,7 +23,7 @@ public class XlsSheetsMatcherTest {
     private static final Path TEST_CL = Paths.get("target/test-classes");
     private static final Logger LOG = LoggerFactory.getLogger("Excel Sheet Matcher Test");
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         ZipSecureFile.setMinInflateRatio(0.001);
     }
@@ -92,8 +92,8 @@ public class XlsSheetsMatcherTest {
 
     private static void error(String sourceFile, String msg, Object... args) {
         LOG.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] sheet\n        {}",
-            sourceFile,
-            MessageFormatter.arrayFormat(msg, args).getMessage());
+                sourceFile,
+                MessageFormatter.arrayFormat(msg, args).getMessage());
     }
 
 }

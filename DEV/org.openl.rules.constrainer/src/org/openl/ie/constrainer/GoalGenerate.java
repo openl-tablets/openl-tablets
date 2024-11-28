@@ -14,6 +14,7 @@ package org.openl.ie.constrainer;
  * the program(s) have been supplied.
  */
 ///////////////////////////////////////////////////////////////////////////////
+
 import org.openl.ie.tools.FastVector;
 
 /**
@@ -24,7 +25,6 @@ import org.openl.ie.tools.FastVector;
  * <li>Tries to instantiate it using {@link GoalInstantiate}. GoalInstantiate make use of IntValueSelector taken from a
  * constructor of GoalGenerate to work with the domain of a variable.
  * </ul>
- *
  */
 public class GoalGenerate extends GoalImpl {
     private final IntExpArray _intvars;

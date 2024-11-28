@@ -1,32 +1,32 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <isProvideVariations>true</isProvideVariations>
-  <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
-  <serviceName>rulesDeployName</serviceName>
-  <serviceClass>java.lang.String</serviceClass>
-  <rmiServiceClass>java.lang.String</rmiServiceClass>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
-  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
-  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
-  <url>someURL</url>
-  <rmiName>rmiName</rmiName>
-  <version>v1</version>
-  <groups>group1,group2</groups>
-  <lazy-modules-for-compilation>
-    <module name="some1*"/>
-    <module name="some2*"/>
-  </lazy-modules-for-compilation>
-  <configuration>
-    <entry>
-      <string>rootClassNamesBinding</string>
-      <string>com.chartis.premier.rating.result.ChartisCompoundStep,com.chartis.premier.rating.result.ChartisSimpleStep</string>
-    </entry>
-    <entry>
-      <string>some.other.key</string>
-      <string>some.other.value</string>
-    </entry>
-  </configuration>
-  <someUnknownField>unknown field</someUnknownField>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>true</isProvideVariations>
+    <useRuleServiceRuntimeContext>true</useRuleServiceRuntimeContext>
+    <serviceName>rulesDeployName</serviceName>
+    <serviceClass>java.lang.String</serviceClass>
+    <rmiServiceClass>java.lang.String</rmiServiceClass>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>
+    <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>
+    <url>someURL</url>
+    <rmiName>rmiName</rmiName>
+    <version>v1</version>
+    <groups>group1,group2</groups>
+    <lazy-modules-for-compilation>
+        <module name="some1*"/>
+        <module name="some2*"/>
+    </lazy-modules-for-compilation>
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>com.chartis.premier.rating.result.ChartisCompoundStep,com.chartis.premier.rating.result.ChartisSimpleStep</string>
+        </entry>
+        <entry>
+            <string>some.other.key</string>
+            <string>some.other.value</string>
+        </entry>
+    </configuration>
+    <someUnknownField>unknown field</someUnknownField>
 </rules-deploy>

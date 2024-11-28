@@ -21,12 +21,12 @@ public class ServiceInfo {
     }
 
     public ServiceInfo(Date startedTime,
-            String name,
-            boolean failed,
-            Map<String, String> urls,
-            String servicePath,
-            boolean hasManifest,
-            String deploymentName) {
+                       String name,
+                       boolean failed,
+                       Map<String, String> urls,
+                       String servicePath,
+                       boolean hasManifest,
+                       String deploymentName) {
         this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.status = failed ? ServiceStatus.FAILED : ServiceStatus.DEPLOYED;

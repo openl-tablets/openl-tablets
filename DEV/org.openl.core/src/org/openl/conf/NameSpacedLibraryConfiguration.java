@@ -16,7 +16,6 @@ import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
- *
  */
 public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
@@ -29,8 +28,8 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
     }
 
     public IOpenField getField(String name,
-            IConfigurableResourceContext cxt,
-            boolean strictMatch) throws AmbiguousFieldException {
+                               IConfigurableResourceContext cxt,
+                               boolean strictMatch) throws AmbiguousFieldException {
         List<IOpenField> fields = new ArrayList<>();
         for (IMethodFactoryConfigurationElement factory : factories) {
             IOpenField field = factory.getLibrary(cxt).getVar(name, strictMatch);

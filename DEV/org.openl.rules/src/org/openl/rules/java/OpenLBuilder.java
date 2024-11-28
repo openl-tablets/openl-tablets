@@ -1,7 +1,12 @@
 package org.openl.rules.java;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.IfNodeBinderWithCSRSupport;
+import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.ce.MethodNodeBinder;
 import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
+import org.openl.binding.impl.operator.Comparison;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
 import org.openl.conf.JavaLibraryConfiguration;
@@ -16,6 +21,7 @@ import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.rules.binding.TableProperties;
 import org.openl.rules.calc.AnySpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.dt.algorithm.evaluator.CtrUtils;
 import org.openl.rules.enumeration.CaProvincesEnum;
 import org.openl.rules.enumeration.CaRegionsEnum;
 import org.openl.rules.enumeration.CountriesEnum;
@@ -32,37 +38,49 @@ import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.RulesUtils;
 import org.openl.rules.helpers.StringRange;
+import org.openl.rules.util.Arrays;
+import org.openl.rules.util.Avg;
+import org.openl.rules.util.Booleans;
+import org.openl.rules.util.Dates;
+import org.openl.rules.util.Miscs;
+import org.openl.rules.util.Numbers;
+import org.openl.rules.util.Product;
+import org.openl.rules.util.Round;
+import org.openl.rules.util.Statistics;
+import org.openl.rules.util.Strings;
+import org.openl.rules.util.Sum;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
 
 public class OpenLBuilder extends AOpenLBuilder {
 
-    private static final String[] JAVA_LIBRARY_NAMES = new String[] { org.openl.rules.util.Round.class.getName(),
-            org.openl.rules.util.Booleans.class.getName(),
-            org.openl.rules.util.Strings.class.getName(),
-            org.openl.rules.util.Dates.class.getName(),
-            org.openl.rules.util.Arrays.class.getName(),
-            org.openl.rules.util.Statistics.class.getName(),
-            org.openl.rules.util.Sum.class.getName(),
-            org.openl.rules.util.Product.class.getName(),
-            org.openl.rules.util.Avg.class.getName(),
-            org.openl.rules.util.Miscs.class.getName(),
-            org.openl.rules.util.Numbers.class.getName(),
-            org.openl.rules.helpers.RulesUtils.class.getName(),
-            org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName() };
+    private static final String[] JAVA_LIBRARY_NAMES = new String[]{Round.class.getName(),
+            Booleans.class.getName(),
+            Strings.class.getName(),
+            Dates.class.getName(),
+            Arrays.class.getName(),
+            Statistics.class.getName(),
+            Sum.class.getName(),
+            Product.class.getName(),
+            Avg.class.getName(),
+            Miscs.class.getName(),
+            Numbers.class.getName(),
+            RulesUtils.class.getName(),
+            CtrUtils.class.getName()};
 
-    private static final String[] JAVA_OPERATORS_CLASSES = new String[] {
-            org.openl.binding.impl.Operators.class.getName(),
-            org.openl.binding.impl.operator.Comparison.class.getName() };
+    private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
+            Operators.class.getName(),
+            Comparison.class.getName()};
 
-    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[] {
-            org.openl.rules.helpers.IntRange.class.getName(),
-            org.openl.rules.helpers.DoubleRange.class.getName(),
-            org.openl.rules.helpers.CharRange.class.getName(),
-            org.openl.rules.helpers.StringRange.class.getName(),
-            org.openl.rules.helpers.DateRange.class.getName() };
+    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[]{
+            IntRange.class.getName(),
+            DoubleRange.class.getName(),
+            CharRange.class.getName(),
+            StringRange.class.getName(),
+            DateRange.class.getName()};
 
     @Override
     protected SimpleVM createVM() {
@@ -82,12 +100,12 @@ public class OpenLBuilder extends AOpenLBuilder {
         op.setExtendsCategory(OpenL.OPENL_J_NAME);
         op.setCategory(OpenL.OPENL_JAVA_NAME);
 
-        String[] binders = { "function",
-                org.openl.binding.impl.ce.MethodNodeBinder.class.getName(),
+        String[] binders = {"function",
+                MethodNodeBinder.class.getName(),
                 "op.ternary.qmark",
-                org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName(),
+                IfNodeBinderWithCSRSupport.class.getName(),
                 "parameter.declaration",
-                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(), };
+                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(),};
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
@@ -121,7 +139,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         TypeCastFactory typecast = op.createTypecast();
         for (String typeCastClassName : JAVA_TYPE_CAST_CLASSES) {
             TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(typeCastClassName,
-                org.openl.binding.impl.cast.CastFactory.class.getName());
+                    CastFactory.class.getName());
             typecast.addJavaCast(javacast);
         }
 

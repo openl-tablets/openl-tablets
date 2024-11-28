@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.message.OpenLMessage;
@@ -53,10 +54,10 @@ public final class CompileMojo extends BaseOpenLMojo {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
-                .setClassLoader(classLoader)
-                .setExecutionMode(true)
-                .setExternalParameters(externalParameters)
-                .build();
+                    .setClassLoader(classLoader)
+                    .setExecutionMode(true)
+                    .setExternalParameters(externalParameters)
+                    .build();
 
             CompiledOpenClass openLRules = new OpenApiProjectValidator()
                     .validate(factory.getProjectDescriptor(), factory.getRulesInstantiationStrategy());
@@ -67,7 +68,7 @@ public final class CompileMojo extends BaseOpenLMojo {
             long memEnd = memUsed();
 
             Collection<OpenLMessage> warnMessages = OpenLMessagesUtils
-                .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.WARN);
+                    .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.WARN);
             info("Compilation has finished.");
             info("DataTypes    : ", openClass.getTypes().size());
             info("Methods      : ", openClass.getMethods().size());

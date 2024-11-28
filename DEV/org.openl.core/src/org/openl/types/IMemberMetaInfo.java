@@ -14,7 +14,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public interface IMemberMetaInfo extends IMetaInfo {
     BindingDependencies getDependencies();

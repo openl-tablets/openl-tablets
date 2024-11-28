@@ -23,10 +23,10 @@ class SplitByIndexNode extends ABoundNode {
     private final IOpenClass componentType;
 
     SplitByIndexNode(ISyntaxNode syntaxNode,
-            IBoundNode targetNode,
-            IBoundNode splitBy,
-            ILocalVar tempVar,
-            IOpenCast openCast) {
+                     IBoundNode targetNode,
+                     IBoundNode splitBy,
+                     ILocalVar tempVar,
+                     IOpenCast openCast) {
         super(syntaxNode, targetNode, splitBy);
         this.tempVar = tempVar;
         this.targetNode = targetNode;

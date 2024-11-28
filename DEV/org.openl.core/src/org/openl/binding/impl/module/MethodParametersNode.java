@@ -19,7 +19,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor
- *
  */
 public class MethodParametersNode extends ABoundNode {
 
@@ -41,8 +40,8 @@ public class MethodParametersNode extends ABoundNode {
             if (children[i] instanceof ParameterNode) {
                 ParameterNode parameterNode = (ParameterNode) children[i];
                 params[i] = new ParameterDeclaration(parameterNode.getType(),
-                    parameterNode.getName(),
-                    parameterNode.getContextProperty());
+                        parameterNode.getName(),
+                        parameterNode.getContextProperty());
                 if (parameterNode.getContextProperty() != null) {
                     checkConflicts.merge(parameterNode.getContextProperty(), 1, Integer::sum);
                 }
@@ -52,8 +51,8 @@ public class MethodParametersNode extends ABoundNode {
         }
         checkConflicts.entrySet().stream().filter(e -> e.getValue() > 1).forEach(e -> {
             bindingContext.addError(SyntaxNodeExceptionUtils.createError(
-                String.format("Multiple method parameters refer to the same context property '%s'.", e.getKey()),
-                getSyntaxNode()));
+                    String.format("Multiple method parameters refer to the same context property '%s'.", e.getKey()),
+                    getSyntaxNode()));
         });
         return new MethodSignature(params);
 

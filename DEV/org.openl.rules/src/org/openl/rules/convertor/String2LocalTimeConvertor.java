@@ -9,6 +9,7 @@ import java.util.List;
 public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTime> {
 
     private final List<DateTimeFormatter> supportedFormats = new ArrayList<>();
+
     {
         supportedFormats.add(DateTimeFormatter.ISO_LOCAL_TIME);
         supportedFormats.add(DateTimeFormatter.ofPattern("H:mm a"));

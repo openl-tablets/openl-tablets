@@ -1,9 +1,10 @@
 package org.openl.rules.dt.element;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class CommaSeparatedParamsDTTest {
@@ -12,7 +13,7 @@ public class CommaSeparatedParamsDTTest {
 
     private CommaSeparatedTest instance;
 
-    @Before
+    @BeforeEach
     public void initEngine() {
         RulesEngineFactory<CommaSeparatedTest> engineFactory = new RulesEngineFactory<>(SRC, CommaSeparatedTest.class);
 
@@ -38,12 +39,12 @@ public class CommaSeparatedParamsDTTest {
 
     @Test
     public void testArrayParametersContainsAll() {
-        testArrayParametersContainsAll(new int[] { 12, 14 }, new int[] { 13, 17 }, "Rule 10 Fire");
+        testArrayParametersContainsAll(new int[]{12, 14}, new int[]{13, 17}, "Rule 10 Fire");
     }
 
     @Test
     public void testArrayParametersContainsAllString() {
-        testArrayParametersContainsAllString(new String[] { "12", "14" }, new String[] { "13", "17" }, "Rule 10 Fire");
+        testArrayParametersContainsAllString(new String[]{"12", "14"}, new String[]{"13", "17"}, "Rule 10 Fire");
     }
 
     private void testArrayParametersContainsAllString(String[] income1, String[] income2, String expectedResult) {

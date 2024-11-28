@@ -6,11 +6,10 @@ import java.text.MessageFormat;
  * There are no CommonException(String pattern, Object... params) constructor since it will lead to ambiguous case with
  * Throwable. Thus, Throwable can be placed in "Object..." and will be treated like parameter for result message, not a
  * <code>cause</code>. That kind of bug is hard to detect.
- *
+ * <p>
  * If you cannot provide Throwable just use <code>null</code>.
  *
  * @author Aleh Bykhavets
- *
  */
 public class CommonException extends Exception {
 
@@ -23,7 +22,7 @@ public class CommonException extends Exception {
      * be initialized by a call to {@link #initCause}.
      *
      * @param message the detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
-     *            method.
+     *                method.
      */
     public CommonException(String message) {
         super(message);

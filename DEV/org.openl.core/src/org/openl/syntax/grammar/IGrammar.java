@@ -12,7 +12,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
- *
  */
 public interface IGrammar {
 

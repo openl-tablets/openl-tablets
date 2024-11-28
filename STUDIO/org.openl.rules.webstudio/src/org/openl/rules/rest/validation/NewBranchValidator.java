@@ -1,19 +1,16 @@
-/* Copyright © 2023 EIS Group and/or one of its affiliates. All rights reserved. Unpublished work under U.S. copyright laws.
-CONFIDENTIAL AND TRADE SECRET INFORMATION. No portion of this work may be copied, distributed, modified, or incorporated into any other media without EIS Group prior written consent.*/
 package org.openl.rules.rest.validation;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
-
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.util.StringUtils;
 
 /**
  * Validator for new branch name.
@@ -28,8 +25,8 @@ public class NewBranchValidator implements Validator {
     private final String customRegexError;
 
     public NewBranchValidator(BranchRepository repository,
-            @Nullable String customRegex,
-            @Nullable String customRegexError) {
+                              @Nullable String customRegex,
+                              @Nullable String customRegexError) {
         this.repository = repository;
         this.customRegex = customRegex;
         this.customRegexError = customRegexError;
@@ -56,10 +53,10 @@ public class NewBranchValidator implements Validator {
         try {
             for (String branch : repository.getBranches(null)) {
                 if (branch.equalsIgnoreCase(newBranchName)) {
-                    errors.reject("branch.name.exists.message", new Object[] { newBranchName }, null);
+                    errors.reject("branch.name.exists.message", new Object[]{newBranchName}, null);
                     return false;
                 } else if (newBranchName.startsWith(branch + "/")) {
-                    errors.reject("branch.name.exists.1.message", new Object[] { newBranchName, branch }, null);
+                    errors.reject("branch.name.exists.1.message", new Object[]{newBranchName, branch}, null);
                     return false;
                 }
             }
@@ -77,7 +74,7 @@ public class NewBranchValidator implements Validator {
         try {
             if (!newBranchName.matches(customRegex)) {
                 if (StringUtils.isBlank(customRegexError)) {
-                    errors.reject("branch.name.invalid.pattern.message", new Object[] { customRegex }, null);
+                    errors.reject("branch.name.invalid.pattern.message", new Object[]{customRegex}, null);
                 } else {
                     errors.reject(customRegexError, customRegexError);
                 }

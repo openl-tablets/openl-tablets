@@ -63,8 +63,8 @@ public class NewNodeBinder extends ANodeBinder {
             }
             if (hasErrorBoundNode(children)) {
                 var iBoundNode = Optional.of(type)
-                    .map(t -> ConstructorSugarSupport
-                        .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
+                        .map(t -> ConstructorSugarSupport
+                                .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
                 if (iBoundNode.isPresent()) {
                     sugarConstructor = true;
                     return iBoundNode.get();
@@ -76,8 +76,8 @@ public class NewNodeBinder extends ANodeBinder {
             BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
             if (methodCaller == null) {
                 var iBoundNode = Optional.of(type)
-                    .map(t -> ConstructorSugarSupport
-                        .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
+                        .map(t -> ConstructorSugarSupport
+                                .makeSugarConstructor(node, childNodes, bindingContext, t, node.getChild(childrenCount - 1)));
                 if (iBoundNode.isPresent()) {
                     sugarConstructor = true;
                     return iBoundNode.get();

@@ -1,8 +1,18 @@
 package org.openl.rules.lang.xls;
 
 import org.openl.OpenL;
-import org.openl.conf.*;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.conf.AOpenLBuilder;
+import org.openl.conf.JavaImportTypeConfiguration;
+import org.openl.conf.JavaLibraryConfiguration;
+import org.openl.conf.LibraryFactoryConfiguration;
+import org.openl.conf.NameSpacedLibraryConfiguration;
+import org.openl.conf.NameSpacedTypeConfiguration;
+import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.OperatorsNamespace;
+import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
+import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
@@ -13,10 +23,10 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
     private String category;
 
-    private String[] packageImports = new String[] {};
-    private String[] classImports = new String[] {};
+    private String[] packageImports = new String[]{};
+    private String[] classImports = new String[]{};
 
-    private String[] libraries = new String[] {};
+    private String[] libraries = new String[]{};
 
     @Override
     protected SimpleVM createVM() {
@@ -71,7 +81,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                 thisNamespaceLibrary.addJavalib(javaLib);
 
                 JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
-                    org.openl.binding.impl.cast.CastFactory.class.getName());
+                        CastFactory.class.getName());
                 typeCastFactory.addJavaCast(javaCastComponent);
 
             }

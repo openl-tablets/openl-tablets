@@ -1,12 +1,8 @@
-package org.openl.rules.project.validation.openapi.test;
+package org.openl.rules.project.validation.openapi.test
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import org.openl.rules.ruleservice.core.interceptors.RulesType
 
-import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import javax.ws.rs.*
 
 interface EPBDS10489Service {
     @RulesType(value = "Double")

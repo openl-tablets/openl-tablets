@@ -9,6 +9,7 @@ import java.util.List;
 public class String2ZonedDateTimeConvertor implements IString2DataConvertor<ZonedDateTime> {
 
     private final List<DateTimeFormatter> supportedFormats = new ArrayList<>();
+
     {
         supportedFormats.add(DateTimeFormatter.ISO_DATE_TIME);
         supportedFormats.add(DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a VV"));

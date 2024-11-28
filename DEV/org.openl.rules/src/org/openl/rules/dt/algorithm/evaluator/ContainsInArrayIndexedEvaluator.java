@@ -10,7 +10,6 @@ import org.openl.rules.dt.index.EqualsIndex;
 
 /**
  * @author snshor
- *
  */
 public class ContainsInArrayIndexedEvaluator extends AContainsInArrayIndexedEvaluator {
 

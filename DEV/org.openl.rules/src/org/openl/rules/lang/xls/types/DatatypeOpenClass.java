@@ -16,6 +16,9 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
@@ -36,8 +39,6 @@ import org.openl.types.java.JavaOpenConstructor;
 import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Open class for types represented as datatype table components in openl.
@@ -199,7 +200,7 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     public Object newInstance(IRuntimeEnv env) {
         Object instance = null;
         try {
-            instance = getInstanceClass().newInstance();
+            instance = getInstanceClass().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             LOG.error("{}", this, e);
         }
@@ -225,12 +226,12 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
                     DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
                     if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
                         return new DatatypeOpenMethod(javaOpenMethod,
-                            this,
-                            javaOpenMethod.getParameterTypes(),
-                            field.getType());
+                                this,
+                                javaOpenMethod.getParameterTypes(),
+                                field.getType());
                     }
                     if (Objects.equals(datatypeOpenField.getSetter(), javaMethod)) {
-                        IOpenClass[] parameterTypes = new IOpenClass[] { field.getType() };
+                        IOpenClass[] parameterTypes = new IOpenClass[]{field.getType()};
                         return new DatatypeOpenMethod(javaOpenMethod, this, parameterTypes, javaOpenMethod.getType());
                     }
                 }
@@ -277,11 +278,11 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
             } else {
                 MethodKey candidate = new MethodKey(
-                    getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
+                        getFields().stream().map(IOpenMember::getType).toArray(IOpenClass[]::new));
                 if (mk.equals(candidate)) {
                     ParameterDeclaration[] parameters = getFields().stream()
-                        .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
-                        .toArray(ParameterDeclaration[]::new);
+                            .map(f -> new ParameterDeclaration(f.getType(), f.getName()))
+                            .toArray(ParameterDeclaration[]::new);
                     return new DatatypeOpenConstructor(javaOpenConstructor, this, parameters);
                 }
             }

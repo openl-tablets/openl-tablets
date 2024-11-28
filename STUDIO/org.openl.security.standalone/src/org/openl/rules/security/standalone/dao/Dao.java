@@ -30,7 +30,7 @@ public interface Dao<T> {
     void update(T obj);
 
     /**
-     *  Batch object insert operation
+     * Batch object insert operation
      *
      * @param objs objects to save
      */

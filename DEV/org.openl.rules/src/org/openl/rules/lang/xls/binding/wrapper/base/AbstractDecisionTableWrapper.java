@@ -31,7 +31,7 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     static {
         WrapperValidation.validateWrapperClass(AbstractDecisionTableWrapper.class,
-            AbstractDecisionTableWrapper.class.getSuperclass());
+                AbstractDecisionTableWrapper.class.getSuperclass());
     }
 
     protected final DecisionTable delegate;
@@ -117,12 +117,12 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
 
     @Override
     public void bindTable(IBaseCondition[] conditionRows,
-            IBaseAction[] actionRows,
-            RuleRow ruleRow,
-            OpenL openl,
-            ModuleOpenClass module,
-            IBindingContext bindingContext,
-            int columns) throws Exception {
+                          IBaseAction[] actionRows,
+                          RuleRow ruleRow,
+                          OpenL openl,
+                          ModuleOpenClass module,
+                          IBindingContext bindingContext,
+                          int columns) throws Exception {
         delegate.bindTable(conditionRows, actionRows, ruleRow, openl, module, bindingContext, columns);
     }
 

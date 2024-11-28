@@ -36,9 +36,9 @@ public class MessageUtils {
 
     public static String getIncompatibleTypesErrorMessage(IOpenField fieldName, IOpenClass type, IOpenClass resType) {
         return String.format("Field '%s' type is '%s' that is incompatible with type '%s'.",
-            fieldName,
-            type.getName(),
-            resType.getName());
+                fieldName,
+                type.getName(),
+                resType.getName());
     }
 
     public static String getTableNotFoundErrorMessage(String tableName) {

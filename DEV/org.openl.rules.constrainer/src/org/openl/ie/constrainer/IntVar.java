@@ -17,6 +17,7 @@ package org.openl.ie.constrainer;
 //
 //: IntVar.java
 //
+
 /**
  * An interface for the constrained integer variable. The following code creates an integer variable:
  *

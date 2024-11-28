@@ -157,7 +157,7 @@ public final class AliasWrapperLogic {
             return new AliasTableMethodWrapper((TableMethod) openMethod, aliasMethodName);
         }
         throw new IllegalStateException(
-            String.format("Unsupported method type '%s' for method wrapping with alias functionality",
-                openMethod.getClass().getTypeName()));
+                String.format("Unsupported method type '%s' for method wrapping with alias functionality",
+                        openMethod.getClass().getTypeName()));
     }
 }

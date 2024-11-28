@@ -10,10 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.ui.WebStudio;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
+
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.ui.WebStudio;
 
 @Service
 @RequestScope
@@ -61,7 +62,6 @@ public class ModulePageBean {
     }
 
     /**
-     *
      * @return List of all imoirts
      */
     public List<String> getImports() {
@@ -73,7 +73,6 @@ public class ModulePageBean {
     }
 
     /**
-     *
      * @return List of all includes
      */
     public List<String> getIncludes() {

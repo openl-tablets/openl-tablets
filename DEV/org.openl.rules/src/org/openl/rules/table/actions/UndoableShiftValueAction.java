@@ -1,7 +1,12 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 
 /**
  * Shift cell with merged region.
@@ -44,9 +49,9 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
             toRestore = rrFrom;
             grid.removeMergedRegion(rrFrom);
             GridRegion copyFrom = new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
-                rrFrom.getLeft() + getCol() - colFrom,
-                rrFrom.getBottom() + getRow() - rowFrom,
-                rrFrom.getRight() + getCol() - colFrom);
+                    rrFrom.getLeft() + getCol() - colFrom,
+                    rrFrom.getBottom() + getRow() - rowFrom,
+                    rrFrom.getRight() + getCol() - colFrom);
             grid.addMergedRegion(copyFrom);
             toRemove = copyFrom;
         }

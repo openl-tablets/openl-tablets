@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.27.2-SNAPSHOT</version>
+        <version>5.27.10-SNAPSHOT</version>
     </parent>
 
     <groupId>org.openl.itest</groupId>
@@ -16,8 +16,8 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <http.timeout.connect>0</http.timeout.connect>
-        <http.timeout.read>0</http.timeout.read>
+        <http.timeout.connect>60000</http.timeout.connect>
+        <http.timeout.read>7200000</http.timeout.read>
     </properties>
 
     <modules>
@@ -38,6 +38,8 @@
         <module>itest.kafka.smoke</module>
         <module>itest.tracing</module>
         <module>itest.storelogdata</module>
+        <module>itest.minio</module>
+        <module>itest.webstudio-keycloak</module>
     </modules>
 
     <dependencyManagement>
@@ -80,6 +82,7 @@
                             <server.responses>${project.build.directory}/responses/</server.responses>
                             <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
                             <http.timeout.read>${http.timeout.read}</http.timeout.read>
+                            <jdk.httpclient.allowRestrictedHeaders>Host</jdk.httpclient.allowRestrictedHeaders>
                             <!-- To disable JMX bean registration to prevent memory leak -->
                             <log4j2.disable.jmx>true</log4j2.disable.jmx>
                             <!--

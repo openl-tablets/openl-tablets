@@ -4,7 +4,7 @@
 2. Run the [Build](https://github.com/openl-tablets/openl-tablets/actions/workflows/build.yml) action.
    It must be green.
 3. Run the [Deploy Maven artifacts](https://github.com/openl-tablets/openl-tablets/actions/workflows/deploy.yml) action.
-   This action uploads DEMO, WebStudio and RuleServices artifacts to [GitHub packages](https://github.com/orgs/openl-tablets/packages?repo_name=openl-tablets).
+   This action uploads DEMO, OpenL Studio and RuleServices artifacts to [GitHub packages](https://github.com/orgs/openl-tablets/packages?repo_name=openl-tablets).
 4. Execute all automation tests.
 5. Execute all performance tests.
 6. Execute all backward compatibility tests.
@@ -20,6 +20,5 @@
 run the [DockerHub Publisher](https://github.com/openl-tablets/openl-tablets/actions/workflows/docker.yml) action.
 4. For each product, update the supported tags on the [DockerHub](https://hub.docker.com/u/openltablets) page.
 5. Go to the [Releases](https://github.com/openl-tablets/openl-tablets/releases) section and publish the release artifacts on GitHub.
-6. If necessary, update the DEMO download to the latest version at [Sourceforge](https://sourceforge.net/projects/openl-tablets/files/).
-7. Publish the release and migration notes at https://openl-tablets.org/.
-8. Do [tweet](https://twitter.com/openltablets) and email to the OpenL Tablets Announcements group.
+6. Publish the release and migration notes at https://openl-tablets.org/.
+7. Do [tweet](https://twitter.com/openltablets) and email to the OpenL Tablets Announcements group.

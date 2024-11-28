@@ -6,7 +6,7 @@ FROM eclipse-temurin:${JDK} as jdk
 
 FROM alpine as otel
 
-ENV OTEL_VER 1.31.0
+ENV OTEL_VER 2.10.0
 
 RUN <<EOT
 set -euxv
@@ -63,7 +63,7 @@ if [ -r "$OPENL_DIR/setenv.sh" ]; then
 fi
 
 echo "--------------------------------------------------------------------------------------------------"
-echo "|    To define OpenTelemetry endpoint:    OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-host:4317    |"
+echo "|    To define OpenTelemetry endpoint:    OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-host:4318    |"
 echo "|    To disable OpenL rules tracing:      OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false         |"
 echo "|    To disable OpenTelemetry:            OTEL_JAVAAGENT_ENABLED=false                           |"
 echo "--------------------------------------------------------------------------------------------------"
@@ -89,6 +89,7 @@ EOT
 RUN <<'EOT' cat > $OPENL_DIR/setenv.sh && chmod +x $OPENL_DIR/setenv.sh
 export JAVA_OPTS="$JAVA_OPTS \
 -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+-Dorg.eclipse.jetty.server.Request.maxFormKeys=-1 \
 -Djetty.httpConfig.requestHeaderSize=32768 \
 -Djetty.httpConfig.responseHeaderSize=32768 \
 "

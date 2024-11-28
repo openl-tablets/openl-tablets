@@ -10,6 +10,6 @@ public final class ReflectionUtils {
     @SuppressWarnings("rawtypes")
     public static Class getGenericParameterClass(Class actualClass, int parameterIndex) {
         return (Class) ((ParameterizedType) actualClass.getGenericSuperclass())
-            .getActualTypeArguments()[parameterIndex];
+                .getActualTypeArguments()[parameterIndex];
     }
 }

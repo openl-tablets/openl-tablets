@@ -11,7 +11,6 @@ import org.openl.rules.table.properties.ITableProperties;
  * rule in dispatcher decision table.
  *
  * @author DLiauchuk
- *
  */
 class DispatcherTableRules {
 

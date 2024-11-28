@@ -1,10 +1,13 @@
 package org.openl.rules.project.dependencies;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
@@ -26,8 +29,8 @@ public class DependencyMethodDispatchingTest {
         // mode based on methods selecting in java code
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
-            .setProject("test-resources/dependencies/testMethodDispatching")
-            .build();
+                .setProject("test-resources/dependencies/testMethodDispatching")
+                .build();
         factory.getCompiledOpenClass();
         Class<?> interfaceClass = factory.getInterfaceClass();
         Method method = interfaceClass.getMethod("hello1", int.class);
@@ -49,8 +52,8 @@ public class DependencyMethodDispatchingTest {
     public void testMethodDispatching() throws Exception {
 
         ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
-            .setProject("test-resources/dependencies/testMethodDispatching1")
-            .build();
+                .setProject("test-resources/dependencies/testMethodDispatching1")
+                .build();
         factory.getCompiledOpenClass();
 
         Class<?> interfaceClass = factory.getInterfaceClass();

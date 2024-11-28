@@ -14,45 +14,43 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
-import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.ResourceUtils;
+
+import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
+import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 
 public class DeployClasspathJarsBean implements InitializingBean, DisposableBean {
 
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
-    private boolean enabled = false;
-    private boolean ignoreIfExists = false;
-
-    private RulesDeployerService rulesDeployerService;
+    private final boolean enabled;
+    private final RulesDeployerService rulesDeployerService;
+    private final DeployStrategy deployStrategy;
     private Queue<File> filesToDeploy = new LinkedList<>();
     private ScheduledExecutorService scheduledPool;
     private long retryPeriod = 10;
 
+    public DeployClasspathJarsBean(RulesDeployerService rulesDeployerService,
+                                   DeployStrategy deployStrategy,
+                                   PropertyResolver propertyResolver) {
+        var repositoryFactory = propertyResolver.getProperty("production-repository.factory");
+        this.enabled = !"repo-jar"
+                .equals(repositoryFactory) && deployStrategy != null && deployStrategy != DeployStrategy.NEVER;
+        this.rulesDeployerService = rulesDeployerService;
+        this.deployStrategy = deployStrategy;
+    }
+
     public boolean isEnabled() {
         return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
-        this.rulesDeployerService = rulesDeployerService;
-    }
-
-    public void setIgnoreIfExists(boolean ignoreIfExists) {
-        this.ignoreIfExists = ignoreIfExists;
     }
 
     public void setRetryPeriod(long retryPeriod) {
@@ -84,7 +82,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             filesToDeploy.add(physicalFile);
         } else {
             throw new RuleServiceRuntimeException(
-                "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
+                    "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
         }
     }
 
@@ -108,6 +106,9 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         if (archives != null) {
             processResources(archives);
         }
+
+        scheduledPool = Executors.newSingleThreadScheduledExecutor();
+        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     private static String createClasspathPattern(String fileName) {
@@ -120,17 +121,16 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             try {
                 final URL resourceURL = rulesXmlResource.getURL();
                 if ("jar".equals(resourceURL.getProtocol()) || "wsjar".equals(resourceURL.getProtocol())) {
-                    URL jarUrl = org.springframework.util.ResourceUtils.extractJarFileURL(resourceURL);
-                    file = org.springframework.util.ResourceUtils.getFile(jarUrl);
+                    URL jarUrl = ResourceUtils.extractJarFileURL(resourceURL);
+                    file = ResourceUtils.getFile(jarUrl);
                 } else if ("vfs".equals(rulesXmlResource.getURL().getProtocol())) {
                     // This reflection implementation for JBoss vfs
                     deployJarForJboss(resourceURL);
                     continue;
                 } else if ("file".equals(resourceURL.getProtocol())) {
-                    file = org.springframework.util.ResourceUtils.getFile(resourceURL);
+                    file = ResourceUtils.getFile(resourceURL);
                 } else {
-                    throw new RuleServiceRuntimeException(
-                        "Protocol for URL is not supported! URL: " + resourceURL);
+                    throw new RuleServiceRuntimeException("Protocol for URL is not supported! URL: " + resourceURL);
                 }
             } catch (Exception e) {
                 log.error("Failed to load a resource.", e);
@@ -163,7 +163,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
                     return;
                 }
 
-                rulesDeployerService.deploy(file, ignoreIfExists);
+                rulesDeployerService.deploy(file, getIgnoreIfExists());
                 // File was deployed successfully. Remove it from the queue.
                 filesToDeploy.remove();
 
@@ -184,16 +184,14 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         }
     }
 
-    /**
-     * Initialize deploying of JAR files to the remote repository after context readiness
-     */
-    @EventListener(ContextRefreshedEvent.class)
-    public void initializeDeploy() {
-        if (!isEnabled()) {
-            return;
+    private boolean getIgnoreIfExists() {
+        if (deployStrategy == DeployStrategy.IF_ABSENT) {
+            return false;
+        } else if (deployStrategy == DeployStrategy.ALWAYS) {
+            return true;
+        } else {
+            throw new IllegalStateException("Unknown deploy strategy: " + deployStrategy);
         }
-        scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     public boolean isDone() {

@@ -1,12 +1,12 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <isProvideVariations>false</isProvideVariations>
-  <serviceName>spreadsheetresult</serviceName>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
-  <url>spreadsheetresult</url>
-  <!-- STATIC INTERFACE -->
-  <serviceClass>org.openl.itest.MainService</serviceClass>
-  <!-- //STATIC INTERFACE -->
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>spreadsheetresult</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>spreadsheetresult</url>
+    <!-- STATIC INTERFACE -->
+    <serviceClass>org.openl.itest.MainService</serviceClass>
+    <!-- //STATIC INTERFACE -->
 </rules-deploy>

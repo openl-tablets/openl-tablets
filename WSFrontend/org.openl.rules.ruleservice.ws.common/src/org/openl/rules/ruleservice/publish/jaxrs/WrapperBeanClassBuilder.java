@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 
@@ -33,10 +34,10 @@ class WrapperBeanClassBuilder extends JavaBeanClassBuilder {
     @Override
     public byte[] byteCode() {
         return new WrapperBeanClassGenerator(beanName,
-            fields,
-            parentType,
-            parentFields,
-            originalMethodTypeFields,
-            methodName).byteCode();
+                fields,
+                parentType,
+                parentFields,
+                originalMethodTypeFields,
+                methodName).byteCode();
     }
 }

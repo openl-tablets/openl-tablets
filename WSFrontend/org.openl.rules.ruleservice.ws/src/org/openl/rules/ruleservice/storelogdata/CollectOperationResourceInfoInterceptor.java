@@ -41,8 +41,8 @@ public class CollectOperationResourceInfoInterceptor extends AbstractPhaseInterc
         } else {
             BindingOperationInfo bop = message.getExchange().get(BindingOperationInfo.class);
             MethodDispatcher md = (MethodDispatcher) message.getExchange()
-                .get(Service.class)
-                .get(MethodDispatcher.class.getName());
+                    .get(Service.class)
+                    .get(MethodDispatcher.class.getName());
             Method method = md.getMethod(bop);
             storeLogData.setServiceMethod(method);
         }

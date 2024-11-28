@@ -15,7 +15,6 @@ import org.openl.syntax.ISyntaxNode;
 
 /**
  * @author snshor
- *
  */
 public abstract class AXlsTableBinder extends ANodeBinder {
 
@@ -30,7 +29,7 @@ public abstract class AXlsTableBinder extends ANodeBinder {
     }
 
     public abstract IMemberBoundNode preBind(TableSyntaxNode syntaxNode,
-            OpenL openl,
-            RulesModuleBindingContext bindingContext,
-            XlsModuleOpenClass module) throws Exception;
+                                             OpenL openl,
+                                             RulesModuleBindingContext bindingContext,
+                                             XlsModuleOpenClass module) throws Exception;
 }

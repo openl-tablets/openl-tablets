@@ -6,7 +6,6 @@ import org.openl.vm.IRuntimeEnv;
 
 /**
  * @author snshor, Yury Molchan
- *
  */
 public abstract class ATargetBoundNode extends ABoundNode {
 

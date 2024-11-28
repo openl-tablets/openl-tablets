@@ -5,11 +5,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.richfaces.model.TreeNode;
+
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.richfaces.model.TreeNode;
 
 public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDeclaration implements TreeNode {
 
@@ -17,18 +18,18 @@ public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDec
     private LinkedHashMap<Object, ParameterDeclarationTreeNode> children;
 
     public ParameterDeclarationTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent,
-            IOpenField keyField) {
+                                        Object value,
+                                        IOpenClass fieldType,
+                                        ParameterDeclarationTreeNode parent,
+                                        IOpenField keyField) {
         super(fieldName, value, fieldType, keyField);
         this.parent = parent;
     }
 
     public ParameterDeclarationTreeNode(String fieldName,
-            Object value,
-            IOpenClass fieldType,
-            ParameterDeclarationTreeNode parent) {
+                                        Object value,
+                                        IOpenClass fieldType,
+                                        ParameterDeclarationTreeNode parent) {
         this(fieldName, value, fieldType, parent, null);
     }
 

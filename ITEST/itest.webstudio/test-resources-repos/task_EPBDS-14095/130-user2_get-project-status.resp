@@ -10,7 +10,11 @@ Content-Type: application/json
     "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
     "status": "VIEWING_VERSION",
     "comment": "Project EPBDS-14095 is created.",
-    "repository": "design"
+    "repository": "design",
+    "lockInfo": {
+      "lockedBy": "EPBDS_14095_user1",
+      "lockedAt": "*"
+    }
   },
   {
     "name": "Project",

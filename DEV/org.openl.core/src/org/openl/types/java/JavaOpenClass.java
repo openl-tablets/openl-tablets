@@ -27,6 +27,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
+import org.openl.classloader.ClassLoaderUtils;
 import org.openl.gen.InterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
@@ -36,7 +37,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
-import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.IRuntimeEnv;
 
@@ -107,10 +107,10 @@ public class JavaOpenClass extends AOpenClass {
         try {
             return type.getConstructor(Class.class).newInstance(c);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
-                | InvocationTargetException e) {
+                 | InvocationTargetException e) {
             throw new IllegalStateException(String.format("Failed to instantiate '%s' class to support @%s annotation",
-                type.getTypeName(),
-                CustomJavaOpenClass.class.getSimpleName()), e);
+                    type.getTypeName(),
+                    CustomJavaOpenClass.class.getSimpleName()), e);
         }
     }
 
@@ -162,7 +162,7 @@ public class JavaOpenClass extends AOpenClass {
             for (Field field : ff) {
                 if (isPublic(field)) {
                     openFields.put(field.getName(), new JavaOpenField(field));
-                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                    if (Modifier.isStatic(field.getModifiers())) {
                         staticOpenFields.put(field.getName(), new JavaOpenField(field));
                     }
                 }
@@ -321,7 +321,7 @@ public class JavaOpenClass extends AOpenClass {
     @Override
     public Object newInstance(IRuntimeEnv env) {
         try {
-            return getInstanceClass().newInstance();
+            return getInstanceClass().getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }
@@ -521,13 +521,13 @@ public class JavaOpenClass extends AOpenClass {
                     synchronized (this) {
                         if (generatedImplClass == null) {
                             InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
-                            generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
-                                builder.byteCode(),
-                                Thread.currentThread().getContextClassLoader());
+                            generatedImplClass = ClassLoaderUtils.defineClass(builder.getBeanName(),
+                                    builder.byteCode(),
+                                    Thread.currentThread().getContextClassLoader());
                         }
                     }
                 }
-                return generatedImplClass.newInstance();
+                return generatedImplClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }

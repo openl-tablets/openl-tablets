@@ -10,7 +10,7 @@ final class ArgumentsClonerFactory {
 
     public static Cloner getCloner() {
         try {
-            return (Cloner) Class.forName("org.openl.rules.table.OpenLArgumentsCloner").newInstance();
+            return (Cloner) Class.forName("org.openl.rules.table.OpenLArgumentsCloner").getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             return new Cloner(new ObjenesisInstantiationStrategy());
         }

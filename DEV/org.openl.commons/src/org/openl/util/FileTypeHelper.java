@@ -28,6 +28,6 @@ public final class FileTypeHelper {
         }
         String lcFileName = fileName.toLowerCase();
         return lcFileName.endsWith(".json") || lcFileName.endsWith(".yml") || lcFileName
-            .endsWith(".yaml");
+                .endsWith(".yaml");
     }
 }

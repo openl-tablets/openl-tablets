@@ -13,9 +13,9 @@ public class DependencyLoaderInitializationException extends OpenlNotCheckedExce
     }
 
     public DependencyLoaderInitializationException(String message,
-            Throwable cause,
-            ILocation location,
-            IOpenSourceCodeModule sourceModule) {
+                                                   Throwable cause,
+                                                   ILocation location,
+                                                   IOpenSourceCodeModule sourceModule) {
         super(message, cause, location, sourceModule);
     }
 

@@ -47,8 +47,8 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         if (!"assign".equals(methodName)) {
 
             methodCaller = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(methodName,
-                new IOpenClass[] { targetType, sourceType },
-                bindingContext);
+                    new IOpenClass[]{targetType, sourceType},
+                    bindingContext);
 
             if (methodCaller == null) {
 
@@ -71,7 +71,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             // only implicit casts and explicit casts for literal are allowed for right part
             if (cast == null || (!cast.isImplicit() && !(source instanceof LiteralBoundNode))) {
                 String message = String
-                    .format("Cannot convert from '%s' to '%s'.", rightType.getName(), targetType.getName());
+                        .format("Cannot convert from '%s' to '%s'.", rightType.getName(), targetType.getName());
                 return makeErrorNode(message, node, bindingContext);
             }
         }

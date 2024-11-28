@@ -5,9 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -17,8 +17,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.util.FileUtils;
 import org.springframework.util.AntPathMatcher;
+
+import org.openl.util.FileUtils;
 
 /**
  * Servlet filter to load web resources (images, html, etc). First, attempt is made to load resource from classpath and
@@ -30,7 +31,12 @@ public class WebResourceFilter implements Filter {
     private static final String WEBRESOURCE_PREFIX = "/webresource/";
     private static final String WEBRESOURCE_PATTERN = "/**" + WEBRESOURCE_PREFIX + "**";
     private static final Pattern JSESSION_ID_PATTERN = Pattern.compile("^(.+?);jsessionid=\\w+$",
-        Pattern.CASE_INSENSITIVE);
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Map<String, String> RICHFACES_RESOURCES_OVERRIDE = Map.of(
+            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/jquery.js", "/webresource/javascript/vendor/jquery-3.7.1.min.js",
+            "/**/org.richfaces.resources/javax.faces.resource/org.richfaces/fileupload.js", "/webresource/javascript/fileupload.js"
+    );
 
     private FilterConfig filterConfig;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
@@ -41,10 +47,17 @@ public class WebResourceFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-                                                                                              ServletException {
+            ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String path = httpRequest.getRequestURI();
+
+        for (Map.Entry<String, String> entry : RICHFACES_RESOURCES_OVERRIDE.entrySet()) {
+            if (pathMatcher.match(entry.getKey(), path)) {
+                path = entry.getValue();
+                break;
+            }
+        }
 
         if (pathMatcher.match(WEBRESOURCE_PATTERN, path)) {
             Matcher matcher = JSESSION_ID_PATTERN.matcher(path);
@@ -63,6 +76,9 @@ public class WebResourceFilter implements Filter {
                 case "css":
                     response.setContentType("text/css");
                     break;
+                case "svg":
+                    response.setContentType("image/svg+xml");
+                    break;
                 case "js":
                     response.setContentType("text/javascript");
                     break;
@@ -71,9 +87,6 @@ public class WebResourceFilter implements Filter {
                     break;
                 case "png":
                     response.setContentType("image/png");
-                    break;
-                case "svg":
-                    response.setContentType("image/svg+xml");
                     break;
                 default:
                     // Do not process other resources, such as .class or .properties

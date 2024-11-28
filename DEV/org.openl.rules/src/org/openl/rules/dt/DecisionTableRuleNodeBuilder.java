@@ -23,6 +23,10 @@ public class DecisionTableRuleNodeBuilder {
         return new DecisionTableRuleNode(makeRulesAry());
     }
 
+    public List<Integer> getRules() {
+        return rules;
+    }
+    
     public int[] makeRulesAry() {
 
         int size = rules.size();

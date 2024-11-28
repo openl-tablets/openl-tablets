@@ -51,7 +51,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
             Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getAllMessages(),
-                Severity.ERROR);
+                    Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
     }

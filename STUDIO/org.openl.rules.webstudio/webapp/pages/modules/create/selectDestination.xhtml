@@ -51,8 +51,8 @@
       function updateControls() {
           var e = document.forms['destForm']['newSheet'][0];
           var newSheet = e.value == 'new' ? e.checked : !e.checked;
-          $j('#sheet').attr("disabled", newSheet);
-          $j('#newSheetName').attr("disabled", !newSheet);
+          $j('#sheet').prop("disabled", newSheet);
+          $j('#newSheetName').prop("disabled", !newSheet);
       }
 
       updateControls();

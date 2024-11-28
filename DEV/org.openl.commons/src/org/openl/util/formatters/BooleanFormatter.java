@@ -1,8 +1,9 @@
 package org.openl.util.formatters;
 
-import org.openl.util.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.openl.util.BooleanUtils;
 
 public class BooleanFormatter implements IFormatter {
 

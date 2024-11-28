@@ -5,7 +5,6 @@ import org.openl.rules.ui.IProjectTypes;
 
 /**
  * Base class for building tree using tables meta information.
- *
  */
 public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableSyntaxNode> {
 
@@ -79,7 +78,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * Gets display value (triple of possible names) of node object.
      *
      * @param nodeObject node object
-     * @param i display name mode
+     * @param i          display name mode
      * @return display value
      */
     public abstract String[] getDisplayValue(Object nodeObject, int i);

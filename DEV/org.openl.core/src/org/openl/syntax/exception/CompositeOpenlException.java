@@ -23,8 +23,8 @@ public class CompositeOpenlException extends RuntimeException {
     private Collection<OpenLMessage> errorMessages = new ArrayList<>();
 
     public CompositeOpenlException(String message,
-            SyntaxNodeException[] errors,
-            Collection<OpenLMessage> errorMessages) {
+                                   SyntaxNodeException[] errors,
+                                   Collection<OpenLMessage> errorMessages) {
         super(message);
         this.message = message;
         this.errors = errors != null ? errors : SyntaxNodeException.EMPTY_ARRAY;
@@ -66,7 +66,7 @@ public class CompositeOpenlException extends RuntimeException {
         for (OpenLMessage message : errorMessages) {
             printWriter.print(message);
             printWriter
-                .print("\r\n-------------------------------------------------------------------------------------\r\n");
+                    .print("\r\n-------------------------------------------------------------------------------------\r\n");
         }
 
         printWriter.close();

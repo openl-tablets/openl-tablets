@@ -11,7 +11,6 @@ import java.util.List;
 
 /**
  * @author snshor
- *
  */
 public class GridSplitter {
 
@@ -77,7 +76,7 @@ public class GridSplitter {
     }
 
     private int expandLeft(int y, int stX) {
-        for (int x = stX;; --x) {
+        for (int x = stX; ; --x) {
             if (x <= 0) {
                 return 0;
             }

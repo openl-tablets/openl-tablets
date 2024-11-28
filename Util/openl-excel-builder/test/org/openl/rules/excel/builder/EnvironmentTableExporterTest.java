@@ -1,8 +1,9 @@
 package org.openl.rules.excel.builder;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +16,8 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.util.CollectionUtils;
@@ -34,19 +36,19 @@ public class EnvironmentTableExporterTest {
         environmentModel.setImports(Collections.singletonList(IMPORTED_VALUE));
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
-            false,
-            false,
-            Collections.emptySet(),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList());
+                false,
+                false,
+                Collections.emptySet(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList());
 
         byte[] bytes;
         try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
-                Collections.emptyList(),
-                sos,
-                environmentModel);
+                    Collections.emptyList(),
+                    sos,
+                    environmentModel);
             bytes = sos.toByteArray();
         }
         assertFalse(CollectionUtils.isEmpty(bytes));

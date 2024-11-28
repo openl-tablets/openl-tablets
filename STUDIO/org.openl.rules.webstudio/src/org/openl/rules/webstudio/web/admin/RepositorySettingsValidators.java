@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.regex.Pattern;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -34,9 +33,9 @@ public class RepositorySettingsValidators {
         String template = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(template), "Comment message template cannot be empty");
         WebStudioUtils.validate(template.contains("{commit-type}"),
-            "Comment message template must contain '{commit-type}'");
+                "Comment message template must contain '{commit-type}'");
         WebStudioUtils.validate(template.contains("{user-message}"),
-            "Comment message template must contain '{user-message}'");
+                "Comment message template must contain '{user-message}'");
     }
 
     public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -48,14 +47,14 @@ public class RepositorySettingsValidators {
         }
     }
 
-    public static void validateBranchName(String newBranchName){
+    public static void validateBranchName(String newBranchName) {
         WebStudioUtils.validate(newBranchName.matches("[^\\\\:*?\"<>|{}~^\\s]*"),
                 "Invalid branch name. Must not contain whitespaces or following characters: \\ : * ? \" < > | { } ~ ^");
         WebStudioUtils.validate(newBranchName.matches("(.(?<![./]{2}))+"),
                 "Invalid branch name. Should not contain consecutive symbols '.' or '/'.");
         WebStudioUtils.validate(newBranchName.matches("^[^./].*[^./]"),
                 "Invalid branch name. Cannot start with '.' or '/'.");
-        WebStudioUtils.validate(!newBranchName.contains(".lock/") && !newBranchName.endsWith(".lock") ,
+        WebStudioUtils.validate(!newBranchName.contains(".lock/") && !newBranchName.endsWith(".lock"),
                 "Invalid branch name. Should not contain '.lock/' or end with '.lock'.");
 
     }

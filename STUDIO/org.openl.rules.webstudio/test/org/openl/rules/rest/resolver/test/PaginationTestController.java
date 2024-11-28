@@ -2,13 +2,14 @@ package org.openl.rules.rest.resolver.test;
 
 import java.util.function.Consumer;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import org.openl.rules.repository.api.Offset;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.resolver.PaginationDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/pagination-test")

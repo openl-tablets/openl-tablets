@@ -1,13 +1,13 @@
 package org.openl.rules.security.standalone.dao;
 
 import java.util.List;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.openl.rules.security.standalone.persistence.User;
 
 /**
  * Hibernate implementation of {@link UserDao}.
@@ -44,8 +44,8 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     @Transactional
     public void deleteUserByName(final String name) {
         getSession().createNativeQuery("delete from OpenL_Users where loginName = :name")
-            .setParameter("name", name)
-            .executeUpdate();
+                .setParameter("name", name)
+                .executeUpdate();
     }
 
     @Override

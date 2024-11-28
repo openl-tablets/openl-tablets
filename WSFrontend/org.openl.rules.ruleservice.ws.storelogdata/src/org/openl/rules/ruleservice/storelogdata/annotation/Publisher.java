@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import org.openl.rules.ruleservice.storelogdata.Converter;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.FIELD, ElementType.METHOD })
+@Target(value = {ElementType.FIELD, ElementType.METHOD})
 public @interface Publisher {
     Class<? extends Converter<String, ?>> converter() default NoStringConverter.class;
 }

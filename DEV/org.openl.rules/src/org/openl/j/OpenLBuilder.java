@@ -1,10 +1,72 @@
 package org.openl.j;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.ArrayInitializationBinder;
+import org.openl.binding.impl.AssignOperatorNodeBinder;
+import org.openl.binding.impl.BExChainBinder;
+import org.openl.binding.impl.BExChainSuffixBinder;
+import org.openl.binding.impl.BinaryOperatorAndNodeBinder;
+import org.openl.binding.impl.BinaryOperatorNodeBinder;
+import org.openl.binding.impl.BinaryOperatorOrNodeBinder;
+import org.openl.binding.impl.BlockBinder;
+import org.openl.binding.impl.BusinessIntNodeBinder;
+import org.openl.binding.impl.CharNodeBinder;
+import org.openl.binding.impl.DoubleNodeBinder;
+import org.openl.binding.impl.ForNodeBinder;
+import org.openl.binding.impl.IdentifierBinder;
+import org.openl.binding.impl.IdentifierSequenceBinder;
+import org.openl.binding.impl.IfNodeBinder;
+import org.openl.binding.impl.IndexNodeBinder;
+import org.openl.binding.impl.IndexParameterDeclarationBinder;
+import org.openl.binding.impl.IntNodeBinder;
+import org.openl.binding.impl.ListNodeBinder;
+import org.openl.binding.impl.LiteralNodeBinder;
+import org.openl.binding.impl.LocalVarBinder;
+import org.openl.binding.impl.MethodHeaderNodeBinder;
+import org.openl.binding.impl.MethodNodeBinder;
+import org.openl.binding.impl.NewArrayNodeBinder;
+import org.openl.binding.impl.NewNodeBinder;
+import org.openl.binding.impl.Operators;
+import org.openl.binding.impl.OrderByIndexNodeBinder;
 import org.openl.binding.impl.ParameterDeclarationNodeBinder;
-import org.openl.conf.*;
+import org.openl.binding.impl.PercentNodeBinder;
+import org.openl.binding.impl.PrefixOperatorNodeBinder;
+import org.openl.binding.impl.RangeVariableBinder;
+import org.openl.binding.impl.ReturnNodeBinder;
+import org.openl.binding.impl.SelectAllIndexNodeBinder;
+import org.openl.binding.impl.SelectFirstIndexNodeBinder;
+import org.openl.binding.impl.SplitByIndexNodeBinder;
+import org.openl.binding.impl.StringNodeBinder;
+import org.openl.binding.impl.SuffixOperatorNodeBinder;
+import org.openl.binding.impl.TransformIndexNodeBinder;
+import org.openl.binding.impl.TypeBinder;
+import org.openl.binding.impl.TypeCastBinder;
+import org.openl.binding.impl.UnaryOperatorNodeBinder;
+import org.openl.binding.impl.WhereExpressionNodeBinder;
+import org.openl.binding.impl.WhereVarNodeBinder;
+import org.openl.binding.impl.WhileNodeBinder;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.CastOperators;
+import org.openl.binding.impl.module.MethodDeclarationNodeBinder;
+import org.openl.binding.impl.module.MethodParametersNodeBinder;
+import org.openl.binding.impl.module.VarDeclarationNodeBinder;
+import org.openl.binding.impl.operator.Comparison;
+import org.openl.conf.AOpenLBuilder;
+import org.openl.conf.ClassFactory;
+import org.openl.conf.JavaImportTypeConfiguration;
+import org.openl.conf.JavaLibraryConfiguration;
+import org.openl.conf.JavaLongNameTypeConfiguration;
+import org.openl.conf.JavaTypeConfiguration;
+import org.openl.conf.LibraryFactoryConfiguration;
+import org.openl.conf.NameSpacedLibraryConfiguration;
+import org.openl.conf.NameSpacedTypeConfiguration;
+import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.NodeBinderFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.conf.TypeCastFactory;
+import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.types.java.JavaPrimitiveTypeLibrary;
 
 public class OpenLBuilder extends AOpenLBuilder {
 
@@ -19,108 +81,108 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 
-        String[] binders = { "literal",
-                org.openl.binding.impl.LiteralNodeBinder.class.getName(),
+        String[] binders = {"literal",
+                LiteralNodeBinder.class.getName(),
                 "literal.integer",
-                org.openl.binding.impl.IntNodeBinder.class.getName(),
+                IntNodeBinder.class.getName(),
                 "literal.real",
-                org.openl.binding.impl.DoubleNodeBinder.class.getName(),
+                DoubleNodeBinder.class.getName(),
                 "literal.percent",
-                org.openl.binding.impl.PercentNodeBinder.class.getName(),
+                PercentNodeBinder.class.getName(),
                 "literal.string",
-                org.openl.binding.impl.StringNodeBinder.class.getName(),
+                StringNodeBinder.class.getName(),
                 "literal.char",
-                org.openl.binding.impl.CharNodeBinder.class.getName(),
+                CharNodeBinder.class.getName(),
                 "literal.integer.business",
-                org.openl.binding.impl.BusinessIntNodeBinder.class.getName(),
+                BusinessIntNodeBinder.class.getName(),
                 "array.init",
-                org.openl.binding.impl.ArrayInitializationBinder.class.getName(),
+                ArrayInitializationBinder.class.getName(),
                 "method.header",
-                org.openl.binding.impl.MethodHeaderNodeBinder.class.getName(),
+                MethodHeaderNodeBinder.class.getName(),
                 "param.declaration",
                 ParameterDeclarationNodeBinder.class.getName(),
                 "method.parameters",
-                org.openl.binding.impl.module.MethodParametersNodeBinder.class.getName(),
+                MethodParametersNodeBinder.class.getName(),
                 "method.declaration",
-                org.openl.binding.impl.module.MethodDeclarationNodeBinder.class.getName(),
+                MethodDeclarationNodeBinder.class.getName(),
                 "var.declaration",
-                org.openl.binding.impl.module.VarDeclarationNodeBinder.class.getName(),
+                VarDeclarationNodeBinder.class.getName(),
                 "parameter.declaration",
                 org.openl.binding.impl.module.ParameterDeclarationNodeBinder.class.getName(),
                 "block",
-                org.openl.binding.impl.BlockBinder.class.getName(),
+                BlockBinder.class.getName(),
                 "op.binary",
-                org.openl.binding.impl.BinaryOperatorNodeBinder.class.getName(),
+                BinaryOperatorNodeBinder.class.getName(),
                 "op.binary.and",
-                org.openl.binding.impl.BinaryOperatorAndNodeBinder.class.getName(),
+                BinaryOperatorAndNodeBinder.class.getName(),
                 "op.binary.or",
-                org.openl.binding.impl.BinaryOperatorOrNodeBinder.class.getName(),
+                BinaryOperatorOrNodeBinder.class.getName(),
                 "op.unary",
-                org.openl.binding.impl.UnaryOperatorNodeBinder.class.getName(),
+                UnaryOperatorNodeBinder.class.getName(),
                 "op.prefix",
-                org.openl.binding.impl.PrefixOperatorNodeBinder.class.getName(),
+                PrefixOperatorNodeBinder.class.getName(),
                 "op.suffix",
-                org.openl.binding.impl.SuffixOperatorNodeBinder.class.getName(),
+                SuffixOperatorNodeBinder.class.getName(),
                 "op.assign",
-                org.openl.binding.impl.AssignOperatorNodeBinder.class.getName(),
+                AssignOperatorNodeBinder.class.getName(),
                 "op.new.object",
-                org.openl.binding.impl.NewNodeBinder.class.getName(),
+                NewNodeBinder.class.getName(),
                 "op.new.array",
-                org.openl.binding.impl.NewArrayNodeBinder.class.getName(),
+                NewArrayNodeBinder.class.getName(),
                 "op.index",
-                org.openl.binding.impl.IndexNodeBinder.class.getName(),
+                IndexNodeBinder.class.getName(),
                 "selectfirst.index",
-                org.openl.binding.impl.SelectFirstIndexNodeBinder.class.getName(),
+                SelectFirstIndexNodeBinder.class.getName(),
                 "selectall.index",
-                org.openl.binding.impl.SelectAllIndexNodeBinder.class.getName(),
+                SelectAllIndexNodeBinder.class.getName(),
                 "orderby.index",
-                org.openl.binding.impl.OrderByIndexNodeBinder.class.getName(),
+                OrderByIndexNodeBinder.class.getName(),
                 "orderdecreasingby.index",
-                org.openl.binding.impl.OrderByIndexNodeBinder.class.getName(),
+                OrderByIndexNodeBinder.class.getName(),
                 "splitby.index",
-                org.openl.binding.impl.SplitByIndexNodeBinder.class.getName(),
+                SplitByIndexNodeBinder.class.getName(),
 
                 "transform.index",
-                org.openl.binding.impl.TransformIndexNodeBinder.class.getName(),
+                TransformIndexNodeBinder.class.getName(),
                 "transformunique.index",
-                org.openl.binding.impl.TransformIndexNodeBinder.class.getName(),
+                TransformIndexNodeBinder.class.getName(),
                 "index.parameter.declaration",
-                org.openl.binding.impl.IndexParameterDeclarationBinder.class.getName(),
+                IndexParameterDeclarationBinder.class.getName(),
 
                 "op.ternary.qmark",
-                org.openl.binding.impl.IfNodeBinder.class.getName(),
+                IfNodeBinder.class.getName(),
                 "type.cast",
-                org.openl.binding.impl.TypeCastBinder.class.getName(),
+                TypeCastBinder.class.getName(),
                 "local.var.declaration",
-                org.openl.binding.impl.LocalVarBinder.class.getName(),
+                LocalVarBinder.class.getName(),
                 "type.declaration",
-                org.openl.binding.impl.TypeBinder.class.getName(),
+                TypeBinder.class.getName(),
                 "function",
-                org.openl.binding.impl.MethodNodeBinder.class.getName(),
+                MethodNodeBinder.class.getName(),
                 "identifier",
-                org.openl.binding.impl.IdentifierBinder.class.getName(),
+                IdentifierBinder.class.getName(),
                 "identifier.sequence",
-                org.openl.binding.impl.IdentifierSequenceBinder.class.getName(),
+                IdentifierSequenceBinder.class.getName(),
                 "range.variable",
-                org.openl.binding.impl.RangeVariableBinder.class.getName(),
+                RangeVariableBinder.class.getName(),
                 "chain",
-                org.openl.binding.impl.BExChainBinder.class.getName(),
+                BExChainBinder.class.getName(),
                 "chain.suffix",
-                org.openl.binding.impl.BExChainSuffixBinder.class.getName(),
+                BExChainSuffixBinder.class.getName(),
                 "where.expression",
-                org.openl.binding.impl.WhereExpressionNodeBinder.class.getName(),
+                WhereExpressionNodeBinder.class.getName(),
                 "where.var.explanation",
-                org.openl.binding.impl.WhereVarNodeBinder.class.getName(),
+                WhereVarNodeBinder.class.getName(),
                 "list",
-                org.openl.binding.impl.ListNodeBinder.class.getName(),
+                ListNodeBinder.class.getName(),
                 "control.for",
-                org.openl.binding.impl.ForNodeBinder.class.getName(),
+                ForNodeBinder.class.getName(),
                 "control.if",
-                org.openl.binding.impl.IfNodeBinder.class.getName(),
+                IfNodeBinder.class.getName(),
                 "control.while",
-                org.openl.binding.impl.WhileNodeBinder.class.getName(),
+                WhileNodeBinder.class.getName(),
                 "control.return",
-                org.openl.binding.impl.ReturnNodeBinder.class.getName() };
+                ReturnNodeBinder.class.getName()};
 
         for (int i = 0; i < binders.length / 2; i++) {
             SingleBinderFactory sbf = new SingleBinderFactory();
@@ -133,10 +195,10 @@ public class OpenLBuilder extends AOpenLBuilder {
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
         JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(
-            org.openl.binding.impl.Operators.class.getName());
+                Operators.class.getName());
         nslc.addJavalib(javalib);
         JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration(
-            org.openl.binding.impl.operator.Comparison.class.getName());
+                Comparison.class.getName());
         nslc.addJavalib(javalib2);
         lfc.addConfiguredLibrary(nslc);
 
@@ -150,7 +212,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         nstc.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         JavaTypeConfiguration javatype = new JavaTypeConfiguration();
-        javatype.setClassName(org.openl.types.java.JavaPrimitiveTypeLibrary.class.getName());
+        javatype.setClassName(JavaPrimitiveTypeLibrary.class.getName());
         nstc.addConfiguration(javatype);
 
         JavaImportTypeConfiguration javaImports = new JavaImportTypeConfiguration();
@@ -383,8 +445,8 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         TypeCastFactory typecast = op.createTypecast();
         TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
-            org.openl.binding.impl.cast.CastOperators.class.getName(),
-            org.openl.binding.impl.cast.CastFactory.class.getName());
+                CastOperators.class.getName(),
+                CastFactory.class.getName());
         typecast.addJavaCast(javacast);
 
         /*
