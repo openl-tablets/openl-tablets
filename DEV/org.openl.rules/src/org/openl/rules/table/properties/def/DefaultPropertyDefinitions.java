@@ -305,6 +305,7 @@ public final class DefaultPropertyDefinitions {
         definitions[19].setDescription("Indicates origin of the rules to allow hierarchy of more generic and more specific rules");
         definitions[19].setDimensional(true);
         definitions[19].setDisplayName("Origin");
+        definitions[19].setExpression(new MatchingExpression("eq(origin)"));
         definitions[19].setGroup("Business Dimension");
         definitions[19].setInheritanceLevel(new InheritanceLevel[]{InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE});
         definitions[19].setName("origin");

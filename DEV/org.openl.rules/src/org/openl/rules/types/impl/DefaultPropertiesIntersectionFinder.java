@@ -109,6 +109,18 @@ public class DefaultPropertiesIntersectionFinder {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
+        constraints.put("origin", new IntersectionConstraint<org.openl.rules.enumeration.OriginsEnum>() {
+
+            @Override
+            protected org.openl.rules.enumeration.OriginsEnum getPropertyValue(ITableProperties properties) {
+                return properties.getOrigin();
+            }
+
+            @Override
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.OriginsEnum firstValue, org.openl.rules.enumeration.OriginsEnum secondValue) {
+                return intersectionForEQ(firstValue, secondValue);
+            }
+        });
         constraints.put("usregion", new IntersectionConstraint<org.openl.rules.enumeration.UsRegionsEnum[]>() {
 
             @Override
