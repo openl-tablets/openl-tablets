@@ -48,4 +48,28 @@ public class StreamUtils {
     public static <T> Stream<T> fromIterator(Iterator<T> iterator) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
     }
+
+    /**
+     * Concatenates three {@link Stream}s into a single {@link Stream}.
+     *
+     * <p>This method takes three input streams and returns a single stream that combines
+     * all elements from the three streams in the order they are provided. The resulting
+     * stream will first contain all elements from the first stream, followed by all elements
+     * from the second stream, and finally all elements from the third stream.</p>
+     *
+     * <p><strong>Note:</strong> The resulting stream is lazy and elements are not read
+     * from the input streams until they are consumed from the resulting stream.</p>
+     *
+     * @param <T> the type of the elements in the streams
+     * @param a the first stream
+     * @param b the second stream
+     * @param c the third stream
+     * @return a new stream containing all elements from the three input streams in order
+     * @throws NullPointerException if any of the input streams is {@code null}
+     *
+     * @see Stream#concat(Stream, Stream)
+     */
+    public static <T> Stream<T> concat(Stream<T> a, Stream<T> b, Stream<T> c) {
+        return Stream.concat(Stream.concat(a, b), c);
+    }
 }

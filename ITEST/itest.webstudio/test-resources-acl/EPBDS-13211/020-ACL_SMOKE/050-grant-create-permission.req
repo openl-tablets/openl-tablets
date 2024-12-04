@@ -1,3 +1,0 @@
-PUT /rest/acl/repo/design/design/user/EPBDS_13211?permissions=CREATE HTTP/1.1
-Authorization: Basic RVBCRFNfMTMyMTE6cGFzcw==
-

@@ -10,11 +10,15 @@ public interface SimpleRepositoryAclService {
 
     Map<Sid, List<Permission>> listPermissions(String repositoryId, String path);
 
+    List<Permission> listPermissions(String repositoryId, String path, Sid sid);
+
     Map<Sid, List<Permission>> listRootPermissions();
 
     List<Permission> listRootPermissions(Sid sid);
 
     void addPermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids);
+
+    void addPermissions(String repositoryId, String path, Sid sid, Permission... permissions);
 
     void addRootPermissions(List<Permission> permissions, List<Sid> sids);
 
@@ -27,6 +31,8 @@ public interface SimpleRepositoryAclService {
     void removePermissions(String repositoryId, String path);
 
     void removePermissions(String repositoryId, String path, List<Sid> sids);
+
+    void removePermissions(String repositoryId, String path, Sid sid);
 
     void removePermissions(String repositoryId, String path, List<Permission> permissions, List<Sid> sids);
 
