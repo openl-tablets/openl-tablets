@@ -1,0 +1,16 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.{openl.constraints.principal-sid.not.exists.message}",
+      "message": "The user with such SID does not exist.",
+      "field": "updateAclRepositoryRulesForSid.sid",
+      "rejectedValue": {
+        "principal": "UNKNOWN"
+      }
+    }
+  ]
+}

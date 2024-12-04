@@ -52,6 +52,7 @@ import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 @RestController
 @RequestMapping("/acl/repo")
 @Tag(name = "ACL Management")
+@Deprecated
 public class RepositoryAclServiceController {
 
     private final RepositoryAclServiceProvider aclServiceProvider;

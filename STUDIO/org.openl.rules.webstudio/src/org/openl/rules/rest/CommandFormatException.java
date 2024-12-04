@@ -1,5 +1,6 @@
 package org.openl.rules.rest;
 
+@Deprecated
 public class CommandFormatException extends Exception {
     public CommandFormatException() {
     }

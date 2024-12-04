@@ -89,6 +89,17 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
+    public List<Permission> listPermissions(String repositoryId, String path, Sid sid) {
+        if (sid == null) {
+            return Collections.emptyList();
+        }
+        var oi = oidProvider.getRepositoryOid(repositoryId, path);
+        var permissions = listPermissions(oi, List.of(sid));
+        return permissions.getOrDefault(sid, Collections.emptyList());
+    }
+
+    @Override
+    @Transactional
     public Map<Sid, List<Permission>> listRootPermissions() {
         var rootOid = oidProvider.getRootOid();
         return listPermissions(rootOid, null);
@@ -98,7 +109,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Transactional
     public List<Permission> listRootPermissions(Sid sid) {
         var rootOid = oidProvider.getRootOid();
-        var permissions = listPermissions(rootOid, List.of(sid));
+        var permissions = listPermissions(rootOid, sid == null ? Collections.emptyList() : List.of(sid));
         return permissions.getOrDefault(sid, Collections.emptyList());
     }
 
@@ -168,6 +179,13 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
+    public void addPermissions(String repositoryId, String path, Sid sid, Permission... permissions) {
+        var oi = oidProvider.getRepositoryOid(repositoryId, path);
+        addPermissions(oi, Map.of(sid, List.of(permissions)));
+    }
+
+    @Override
+    @Transactional
     public void addRootPermissions(List<Permission> permissions, List<Sid> sids) {
         var rootOid = oidProvider.getRootOid();
         addPermissions(rootOid, joinSidsAndPermissions(permissions, sids));
@@ -207,6 +225,16 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         }
         ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
         removePermissions(oi, sids);
+    }
+
+    @Override
+    @Transactional
+    public void removePermissions(String repositoryId, String path, Sid sid) {
+        if (sid == null) {
+            return;
+        }
+        var oi = oidProvider.getRepositoryOid(repositoryId, path);
+        removePermissions(oi, List.of(sid));
     }
 
     protected void removePermissions(ObjectIdentity objectIdentity, List<Sid> sids) {

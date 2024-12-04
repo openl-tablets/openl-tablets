@@ -29,6 +29,23 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
 
     @Override
     @Transactional
+    public boolean existsByName(String name) {
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+        Root<Group> groupRoot = criteria.from(Group.class);
+
+        criteria.select(builder.count(groupRoot))
+                .where(builder.equal(groupRoot.get("name"), name));
+        try {
+            var count = getSession().createQuery(criteria).setMaxResults(1).getSingleResult();
+            return count > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
     public Group getGroupById(final Long id) {
         return getSession().get(Group.class, id);
     }

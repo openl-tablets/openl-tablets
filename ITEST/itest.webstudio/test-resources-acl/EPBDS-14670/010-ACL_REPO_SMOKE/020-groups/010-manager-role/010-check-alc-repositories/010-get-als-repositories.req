@@ -1,0 +1,3 @@
+GET /rest/acls/repositories?sid=openl_mnt HTTP/1.1
+Authorization: Basic anNtaXRoOmpzbWl0aA==
+
