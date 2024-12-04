@@ -24,6 +24,8 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
@@ -76,6 +78,22 @@ public class ApiConfig implements WebMvcConfigurer {
     @Override
     public Validator getValidator() {
         return validator;
+    }
+
+    @Bean
+    public static LocalValidatorFactoryBean localValidatorFactoryBean() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    /**
+     * This bean must be static, to be instantiated before the other post processors.
+     * Otherwise, some are not instantiated.
+     */
+    @Bean
+    public static MethodValidationPostProcessor getMethodValidationPostProcessor(LocalValidatorFactoryBean validator) {
+        MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
+        processor.setValidator(validator);
+        return processor;
     }
 
     @Bean

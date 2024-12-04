@@ -1,3 +1,0 @@
-GET /rest/acl/repo/design/design/owner?path=/DESIGN/rules/EPBDS_13211_3 HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-

@@ -347,6 +347,13 @@ public class GroupManagementTest {
         assertEquals(1, queryCount.getTotal());
     }
 
+    @Test
+    public void testExists() {
+        groupService.addGroup("foo", "Foo");
+        assertTrue(groupService.existsByName("foo"));
+        assertFalse(groupService.existsByName("bar"));
+    }
+
     private static <T, R> void assertCollectionEquals(Collection<R> expected,
                                                       Collection<T> actual,
                                                       Function<T, R> attr) {

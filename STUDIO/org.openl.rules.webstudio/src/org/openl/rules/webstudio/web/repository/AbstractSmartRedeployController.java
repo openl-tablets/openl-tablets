@@ -33,6 +33,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
@@ -54,7 +55,7 @@ public abstract class AbstractSmartRedeployController {
      * A controller which contains pre-built UI object tree.
      */
     @Autowired
-    RepositoryTreeState repositoryTreeState;
+    private RepositoryTreeState repositoryTreeState;
 
     @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
@@ -78,6 +79,9 @@ public abstract class AbstractSmartRedeployController {
     @Autowired
     private RepositoryAclServiceProvider aclServiceProvider;
 
+    @Autowired
+    private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
+
     volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
     List<DeploymentProjectItem> items;
@@ -85,10 +89,6 @@ public abstract class AbstractSmartRedeployController {
     private String repositoryConfigName;
 
     AProject currentProject;
-
-    public void setUserWorkspace(UserWorkspace userWorkspace) {
-        this.userWorkspace = userWorkspace;
-    }
 
     public synchronized List<DeploymentProjectItem> getItems() {
         if (currentProject == null || (isSupportsBranches() && currentProject.getLastHistoryVersion() == null)) {
@@ -355,10 +355,6 @@ public abstract class AbstractSmartRedeployController {
 
     public abstract void reset();
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
-
     public String redeploy() {
         if (currentProject == null) {
             return UiConst.OUTCOME_FAILURE;
@@ -408,26 +404,6 @@ public abstract class AbstractSmartRedeployController {
     protected String getRepositoryName(String repositoryConfigName) {
         RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
         return repo.getName();
-    }
-
-    public void setDeploymentManager(DeploymentManager deploymentManager) {
-        this.deploymentManager = deploymentManager;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
-    }
-
-    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
-        this.projectDescriptorResolver = projectDescriptorResolver;
-    }
-
-    public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
-        this.deployConfigRepoComments = deployConfigRepoComments;
-    }
-
-    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
-        this.projectVersionCacheManager = projectVersionCacheManager;
     }
 
     private ADeploymentProject update(String deploymentName, AProject project) {
@@ -547,13 +523,8 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
-                deploymentManager,
-                propertyResolver,
-                aclServiceProvider.getProdRepoAclService(),
-                AclPermission.READ,
-                AclPermission.WRITE);
-        return repositoryConfigurations.stream()
+        return secureDeploymentRepositoryService.getReadableRepositories().stream()
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)))
                 .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
                         deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
                 .collect(Collectors.toList());
@@ -603,15 +574,6 @@ public abstract class AbstractSmartRedeployController {
                 item.setSelected(newState);
             }
         }
-    }
-
-    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
-        return productionRepositoriesTreeController;
-    }
-
-    public void setProductionRepositoriesTreeController(
-            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
-        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 
     /**

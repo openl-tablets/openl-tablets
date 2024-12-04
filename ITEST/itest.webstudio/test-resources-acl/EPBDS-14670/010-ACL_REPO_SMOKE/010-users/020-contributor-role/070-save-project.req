@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q= HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ2NzA6RVBCRFNfMTQ2NzA=
+Content-Type: application/json
+
+{
+  "comment": "EPBDS_14670 saved the project"
+}
