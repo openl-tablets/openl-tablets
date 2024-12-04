@@ -11,7 +11,6 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.acls.AclPermissionEvaluator;
 import org.springframework.security.acls.domain.AclAuthorizationStrategy;
-import org.springframework.security.acls.domain.AuditLogger;
 import org.springframework.security.acls.domain.ConsoleAuditLogger;
 import org.springframework.security.acls.domain.DefaultPermissionFactory;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -19,6 +18,7 @@ import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.jdbc.BasicLookupStrategy;
 import org.springframework.security.acls.model.AclCache;
+import org.springframework.security.acls.model.PermissionGrantingStrategy;
 import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -51,19 +51,18 @@ public class EnabledAclConfiguration {
     private static final String PROD_REPO_ROOT_ID = "3";
 
     @Bean
-    public AuditLogger consoleAuditLogger() {
-        return new ConsoleAuditLogger();
+    public PermissionGrantingStrategy maskPermissionGrantingStrategy() {
+        return new MaskPermissionGrantingStrategy(new ConsoleAuditLogger());
     }
 
     @Bean
     public AclCache aclCache(CacheManager cacheManager,
                              AclAuthorizationStrategy aclAuthorizationStrategy,
-                             AuditLogger auditLogger) {
+                             PermissionGrantingStrategy permissionGrantingStrategy) {
         var cache = cacheManager.getCache(ACL_CACHE_NAME);
-        var aclPermissionGrantingStrategy = new MaskPermissionGrantingStrategy(auditLogger);
 
         return new SpringCacheBasedAclCache(cache,
-                aclPermissionGrantingStrategy,
+                permissionGrantingStrategy,
                 aclAuthorizationStrategy);
     }
 
@@ -83,15 +82,15 @@ public class EnabledAclConfiguration {
     public JdbcMutableAclService repositoryJdbcMutableAclService(DataSource openlDataSource,
                                                                  AclCache aclCache,
                                                                  AclAuthorizationStrategy aclAuthorizationStrategy,
-                                                                 AuditLogger aclAuditLogger,
+                                                                 PermissionGrantingStrategy permissionGrantingStrategy,
                                                                  DefaultPermissionFactory repositoryPermissionFactory,
                                                                  @Value("${db.url}") String jdbcUrl) {
 
         var lookupStrategy = createRepositoryAclLookupStrategy(openlDataSource,
                 aclCache,
                 aclAuthorizationStrategy,
-                aclAuditLogger,
-                repositoryPermissionFactory);
+                repositoryPermissionFactory,
+                permissionGrantingStrategy);
         var mutableAclService = new JdbcMutableAclService(openlDataSource,
                 lookupStrategy,
                 aclCache,
@@ -121,12 +120,12 @@ public class EnabledAclConfiguration {
     private BasicLookupStrategy createRepositoryAclLookupStrategy(DataSource openlDataSource,
                                                                   AclCache aclCache,
                                                                   AclAuthorizationStrategy aclAuthorizationStrategy,
-                                                                  AuditLogger aclAuditLogger,
-                                                                  DefaultPermissionFactory repositoryPermissionFactory) {
+                                                                  DefaultPermissionFactory repositoryPermissionFactory,
+                                                                  PermissionGrantingStrategy permissionGrantingStrategy) {
         var strategy = new BasicLookupStrategy(openlDataSource,
                 aclCache,
                 aclAuthorizationStrategy,
-                aclAuditLogger);
+                permissionGrantingStrategy);
         strategy.setAclClassIdSupported(ALC_CLASS_ID_SUPPORTED);
         strategy.setPermissionFactory(repositoryPermissionFactory);
         return strategy;

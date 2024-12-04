@@ -1,0 +1,7 @@
+PATCH /rest/projects/ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q= HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ2NzBfMjpFUEJEU18xNDY3MF8y
+Content-Type: application/json
+
+{
+  "status": "CLOSED"
+}
