@@ -1,7 +1,0 @@
-HTTP/1.1 404
-Content-Type: application/json
-
-{
-  "code": "openl.error.404.group.message",
-  "message": "Group is not found."
-}

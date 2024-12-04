@@ -12,7 +12,6 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -24,12 +23,11 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @Service
 @SessionScope
@@ -39,16 +37,10 @@ public class ProductionRepositoriesTreeState {
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
     @Autowired
-    private DeploymentManager deploymentManager;
-
-    @Autowired
     private RepositoryFactoryProxy productionRepositoryFactoryProxy;
 
     @Autowired
-    private PropertyResolver propertyResolver;
-
-    @Autowired
-    private RepositoryAclServiceProvider aclServiceProvider;
+    private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -112,10 +104,6 @@ public class ProductionRepositoriesTreeState {
         return latestDeployments.values();
     }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
-
     private void buildTree() {
         if (root != null) {
             return;
@@ -172,13 +160,7 @@ public class ProductionRepositoriesTreeState {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<>(DeploymentRepositoriesUtil
-                .getRepositories(deploymentManager,
-                        propertyResolver,
-                        aclServiceProvider.getProdRepoAclService(),
-                        AclPermission.READ));
-        repos.sort(RepositoryConfiguration.COMPARATOR);
-        return repos;
+        return secureDeploymentRepositoryService.getReadableRepositories();
     }
 
     public TreeRepository getRoot() {
@@ -221,29 +203,5 @@ public class ProductionRepositoriesTreeState {
      */
     public void invalidateTree() {
         root = null;
-    }
-
-    public DeploymentManager getDeploymentManager() {
-        return deploymentManager;
-    }
-
-    public void setDeploymentManager(DeploymentManager deploymentManager) {
-        this.deploymentManager = deploymentManager;
-    }
-
-    public RepositoryFactoryProxy getProductionRepositoryFactoryProxy() {
-        return productionRepositoryFactoryProxy;
-    }
-
-    public void setProductionRepositoryFactoryProxy(RepositoryFactoryProxy productionRepositoryFactoryProxy) {
-        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
-    }
-
-    public RepositorySelectNodeStateHolder getRepositorySelectNodeStateHolder() {
-        return repositorySelectNodeStateHolder;
-    }
-
-    public void setRepositorySelectNodeStateHolder(RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
-        this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
 }
