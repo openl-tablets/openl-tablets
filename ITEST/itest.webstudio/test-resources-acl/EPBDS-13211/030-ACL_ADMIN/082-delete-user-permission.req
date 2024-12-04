@@ -1,3 +1,0 @@
-DELETE /rest/acl/repo/design/design/user/non-existing-user?path=/DESIGN/rules/EPBDS_13211_3&permissions=DELETE HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-
