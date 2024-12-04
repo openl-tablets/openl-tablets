@@ -9,6 +9,7 @@ import org.springframework.security.acls.model.Permission;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.StringUtils;
 
+@Deprecated
 public class AclCommandSupport {
     public static final String MSG1 = "Each line must contains 3 parts for 'list' or 'listAll' and 6 parts for 'add', 'set', or 'remove' action. Format: 'command:repo type/repo id:resource[:sid type:sid name or group id:permissions]'.";
     public static final String MSG2 = "Permissions list is an empty.";
