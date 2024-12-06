@@ -196,16 +196,15 @@ public class NicePrinterAdaptor {
     private static String printDouble(double dd) {
         double d = dd < 0 ? -dd : dd;
         double x = 1;
+        var nf = NumberFormat.getNumberInstance(Locale.US);
         for (int i = 0; i < 7; i++) {
             if (d > x) {
-                NumberFormat nf = NumberFormat.getNumberInstance();
                 nf.setMinimumFractionDigits(0);
                 nf.setMaximumFractionDigits(2 + i);
                 return nf.format(dd);
             }
             x /= 10;
         }
-        return String.valueOf(dd);
-
+        return nf.format(dd);
     }
 }
