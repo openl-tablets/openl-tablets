@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "Administrators": {
+    "id": 1,
+    "privileges": ["ADMIN"]
+  },
+  "Analysts": {
+    "id": 6
+  },
+  "Deployers": {
+    "id": 5
+  },
+  "Developers": {
+    "id": 3
+  },
+  "Testers": {
+    "id": 4
+  },
+  "Viewers": {
+    "id": 2
+  }
+}
