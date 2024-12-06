@@ -3,6 +3,10 @@ package org.openl.rules.rest.common;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +66,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                 .orElse(HttpStatus.BAD_REQUEST);
         return _handleExceptionInternal(e,
                 handleBindingResult(code, e.getBindingResult()),
+                new HttpHeaders(),
+                code,
+                request);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ValidationError> handleConstraintViolationException(ConstraintViolationException e, WebRequest request) {
+        var code = HttpStatus.BAD_REQUEST;
+        return _handleExceptionInternal(e,
+                handleConstraintViolations(code, e.getConstraintViolations()),
                 new HttpHeaders(),
                 code,
                 request);
@@ -231,6 +245,40 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             }
         }
         return builder.build();
+    }
+
+    private ValidationError handleConstraintViolations(HttpStatus status, Set<ConstraintViolation<?>> constraintViolations) {
+        var builder = ValidationError.builder();
+
+        builder.message(status.getReasonPhrase());
+
+        // Handle field errors
+        constraintViolations.stream()
+                .filter(violation -> isFieldError(violation.getPropertyPath()))
+                .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString(), String.CASE_INSENSITIVE_ORDER))
+                .map(violation -> org.openl.rules.rest.common.model.FieldError.builder()
+                        .code(buildErrorCode(violation.getMessageTemplate()))
+                        .field(violation.getPropertyPath().toString())
+                        .rejectedValue(violation.getInvalidValue())
+                        .message(violation.getMessage())
+                        .build())
+                .forEach(builder::addField);
+
+        // Handle global errors
+        constraintViolations.stream()
+                .filter(violation -> !isFieldError(violation.getPropertyPath()))
+                .sorted(Comparator.comparing(ConstraintViolation::getMessageTemplate, String.CASE_INSENSITIVE_ORDER))
+                .map(violation -> BaseError.builder()
+                        .code(buildErrorCode(violation.getMessageTemplate()))
+                        .message(violation.getMessage())
+                        .build())
+                .forEach(builder::addError);
+
+        return builder.build();
+    }
+
+    private boolean isFieldError(Path propertyPath) {
+        return propertyPath != null && !propertyPath.toString().isEmpty();
     }
 
     private String resolveLocalMessage(ObjectError error) {

@@ -32,6 +32,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
@@ -82,6 +83,9 @@ public class DeploymentController {
     @Autowired
     private RepositoryAclServiceProvider aclServiceProvider;
 
+    @Autowired
+    private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
+
     public void onPageLoad() {
         if (repositoryTreeState.getSelectedNode() == null) {
             repositoryTreeState.invalidateSelection();
@@ -103,10 +107,6 @@ public class DeploymentController {
             }
             canDeploy = checker.check();
         }
-    }
-
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
     }
 
     public String addItem(String version) {
@@ -481,14 +481,6 @@ public class DeploymentController {
         return newDescriptors;
     }
 
-    public void setDeploymentManager(DeploymentManager deploymentManager) {
-        this.deploymentManager = deploymentManager;
-    }
-
-    public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
-        this.projectDescriptorResolver = projectDescriptorResolver;
-    }
-
     public void setProjectName(String projectName) {
         this.projectName = projectName;
 
@@ -501,10 +493,6 @@ public class DeploymentController {
         if (repository.supports().branches()) {
             projectBranch = ((BranchRepository) repository).getBranch();
         }
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
     }
 
     public void setVersion(String version) {
@@ -539,13 +527,8 @@ public class DeploymentController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        Collection<RepositoryConfiguration> repositoryConfigurations = DeploymentRepositoriesUtil.getRepositories(
-                deploymentManager,
-                propertyResolver,
-                aclServiceProvider.getProdRepoAclService(),
-                AclPermission.READ,
-                AclPermission.WRITE);
-        return repositoryConfigurations.stream()
+        return secureDeploymentRepositoryService.getReadableRepositories().stream()
+                .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)))
                 .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
                         deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
                 .collect(Collectors.toList());
@@ -563,19 +546,6 @@ public class DeploymentController {
         UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         List<Repository> repositories = workspace.getDesignTimeRepository().getRepositories();
         setRepositoryId(repositories.isEmpty() ? null : repositories.get(0).getId());
-    }
-
-    public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
-        return productionRepositoriesTreeController;
-    }
-
-    public void setProductionRepositoriesTreeController(
-            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
-        this.productionRepositoriesTreeController = productionRepositoriesTreeController;
-    }
-
-    public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
-        this.deployConfigRepoComments = deployConfigRepoComments;
     }
 
     public boolean isRepoSupportsBranches() {

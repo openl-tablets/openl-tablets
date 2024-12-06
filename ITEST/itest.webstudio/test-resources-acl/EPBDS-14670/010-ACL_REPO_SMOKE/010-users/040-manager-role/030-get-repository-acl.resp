@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "sid": {
+      "sid": "EPBDS_14670_2",
+      "principal": true
+    },
+    "role": "VIEWER"
+  }, {
+  "sid": {
+    "sid": "EPBDS_14670_3",
+    "principal": true
+  },
+  "role": "MANAGER"
+}, {
+  "sid": {
+    "sid": "EPBDS_14670",
+    "principal": true
+  },
+  "role": "CONTRIBUTOR"
+}
+]

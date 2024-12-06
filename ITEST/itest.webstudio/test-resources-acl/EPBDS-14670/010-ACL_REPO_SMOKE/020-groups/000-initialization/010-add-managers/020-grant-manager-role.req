@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/roots/REVTSUdO?sid=openl_mnt HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}
