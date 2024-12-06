@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Define settings
         run: |
-          echo "JAVA8=8-jre-focal" >> $GITHUB_ENV
+          echo "JAVA21=21-jre-noble" >> $GITHUB_ENV
           echo "JAVA11=11-jre-focal" >> $GITHUB_ENV
           echo "SERVER=https://repo.maven.apache.org/maven2" >> $GITHUB_ENV
 
@@ -59,16 +59,16 @@ jobs:
           echo $latest
           echo $latestMajor
           tags_11="-t openltablets/\$appName:$version"
-          tags_17="-t openltablets/\$appName:$version-jre17"
+          tags_21="-t openltablets/\$appName:$version-jre21"
           if [ "$latestMajor" = "$version" ]; then
             tags_11+=" -t openltablets/\$appName:$major.x"
-            tags_17+=" -t openltablets/\$appName:$major.x-jre17"
+            tags_21+=" -t openltablets/\$appName:$major.x-jre21"
           fi
           if [ "$latest" = "$version" ]; then
             tags_11+=" -t openltablets/\$appName:latest"
           fi
           echo "tags_11=$tags_11" >> $GITHUB_ENV
-          echo "tags_17=$tags_17" >> $GITHUB_ENV
+          echo "tags_21=$tags_21" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
 
       - name: Download OpenL Studio
@@ -200,6 +200,55 @@ jobs:
           --build-arg APP=webstudio
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --build-arg JDK=$JAVA11
+          --label '"org.opencontainers.image.title=OpenL Studio"'
+          --label "org.opencontainers.image.version=${version}"
+          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+          --label "org.opencontainers.image.created=${BUILD_DATE}"
+          --label '"org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"'
+          .
+
+      - name: Push Rule Services (All) on JRE 21
+        run: >
+          docker buildx build
+          -t openltablets/ws:$version-jre21-all
+          --platform ${BUILD_PLATFORMS} --push
+          --build-arg APP=webservice-all
+          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
+          --build-arg JDK=$JAVA21
+          --label "org.opencontainers.image.title=OpenL RuleServices (All)"
+          --label "org.opencontainers.image.version=${version}"
+          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+          --label "org.opencontainers.image.created=${BUILD_DATE}"
+          --label "org.opencontainers.image.description=An OpenL web service with extra modules"
+          .
+
+      - name: Push Rule Services on JRE 21
+        env:
+          appName: ws
+        run: >
+          eval docker buildx build
+          $tags_21
+          --platform ${BUILD_PLATFORMS} --push
+          --build-arg APP=webservice
+          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
+          --build-arg JDK=$JAVA21
+          --label '"org.opencontainers.image.title=OpenL RuleServices"'
+          --label "org.opencontainers.image.version=${version}"
+          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+          --label "org.opencontainers.image.created=${BUILD_DATE}"
+          --label '"org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"'
+          .
+
+      - name: Push OpenL Studio on JRE 21
+        env:
+          appName: webstudio
+        run: >
+          eval docker buildx build
+          $tags_21
+          --platform ${BUILD_PLATFORMS} --push
+          --build-arg APP=webstudio
+          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
+          --build-arg JDK=$JAVA21
           --label '"org.opencontainers.image.title=OpenL Studio"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
