@@ -8,27 +8,45 @@ Content-Type: application/json
   },
   "Analysts": {
     "id": 6,
-    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","BENCHMARK","VIEW_DEPLOYMENT","RUN","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "CONTRIBUTOR",
+      "deployConfig": "VIEWER"
+    }
   },
   "Authenticated": {
     "id": 7,
     "description": "A default group for authenticated users",
-    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   },
   "Deployers": {
     "id": 5,
-    "privileges": ["DELETE_DEPLOYMENT","ERASE_DEPLOYMENT","VIEW_DEPLOYMENT","CREATE_DEPLOYMENT","DEPLOY_PROJECTS","EDIT_DEPLOYMENT","VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "CONTRIBUTOR"
+    }
   },
   "Developers": {
     "id": 3,
-    "privileges": ["CREATE_PROJECTS","ADD","ERASE_PROJECTS","VIEW_DEPLOYMENT","EDIT_PROJECTS","VIEW_PROJECTS","DELETE_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "CONTRIBUTOR",
+      "deployConfig": "VIEWER"
+    }
   },
   "Testers": {
     "id": 4,
-    "privileges": ["BENCHMARK","VIEW_DEPLOYMENT","RUN","VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   },
   "Viewers": {
     "id": 2,
-    "privileges": ["VIEW_DEPLOYMENT", "VIEW_PROJECTS"]
+    "repositoryTypeToRole": {
+      "design": "VIEWER",
+      "deployConfig": "VIEWER"
+    }
   }
 }

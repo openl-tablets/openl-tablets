@@ -311,7 +311,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     content = artefact.getContent();
                     ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     projectDescriptor.setName(project.getName());
-                    if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+                    if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
                                 ProjectArtifactUtils.extractResourceName(artefact)));
                     }
@@ -744,7 +744,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     absentResources.add(absentFileData);
                 } else {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
-                            List.of(AclPermission.EDIT))) {
+                            List.of(AclPermission.WRITE))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
                                 projectPath + "/" + relative));
                     }
@@ -752,7 +752,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
-                        List.of(AclPermission.ADD))) {
+                        List.of(AclPermission.CREATE))) {
                     throw new Message(String.format("There is no permission for creating '%s' file.",
                             ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
                 }
@@ -1379,7 +1379,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -1407,7 +1407,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 .stream()
                 .filter(e -> !DeploymentRepositoriesUtil
                         .isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
+                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.WRITE)));
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -1418,7 +1418,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         if (!selectedProject.isLocalOnly()) {
-            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
         }
 
         return false;

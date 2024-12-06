@@ -68,7 +68,7 @@ public class SecurityAnnotationsSupportTest {
 
         // Now grant some permissions via an access control entry (ACE)
         Sid sid = new PrincipalSid("oleg");
-        acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, false);
+        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, false);
         aclService.updateAcl(acl);
         try {
             securedService.read(foo);
@@ -76,7 +76,7 @@ public class SecurityAnnotationsSupportTest {
         } catch (AccessDeniedException ignored) {
         }
         acl.deleteAce(acl.getEntries().size() - 1);
-        acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, true);
+        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, true);
         aclService.updateAcl(acl);
         securedService.read(foo);
     }

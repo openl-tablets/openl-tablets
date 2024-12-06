@@ -30,7 +30,7 @@ import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -132,14 +132,14 @@ public class RepositoryProjectRulesDeployConfig {
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(artefact)));
                     return;
                 }
                 artefact.setContent(inputStream);
             } else {
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD))) {
+                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
                             ProjectArtifactUtils.extractResourceName(project),
                             RULES_DEPLOY_CONFIGURATION_FILE));
@@ -148,7 +148,7 @@ public class RepositoryProjectRulesDeployConfig {
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
@@ -233,9 +233,9 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.EDIT));
+                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.WRITE));
             } else {
-                return designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD));
+                return designRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE));
             }
         } catch (ProjectException e) {
             return false;

@@ -86,7 +86,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
@@ -661,7 +661,7 @@ public class ProjectBean {
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService.hasAcl(newProjectResource) && !designRepositoryAclService
-                    .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(newProjectResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(newProjectResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -796,7 +796,7 @@ public class ProjectBean {
                 path = designRepositoryAclService
                         .getPath(currentProject) + (StringUtils.isNotBlank(path) ? "/" + path : StringUtils.EMPTY);
                 return designRepositoryAclService
-                        .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.ADD));
+                        .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.CREATE));
             }
         }
         return false;
@@ -810,12 +810,12 @@ public class ProjectBean {
                     return designRepositoryAclService.isGranted(
                             currentProject
                                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
-                            List.of(AclPermission.EDIT));
+                            List.of(AclPermission.WRITE));
                 } catch (ProjectException ignored) {
                     return false;
                 }
             } else {
-                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD));
+                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.CREATE));
             }
         }
         return false;
@@ -1020,7 +1020,7 @@ public class ProjectBean {
                     currentProject.addResource(openAPIType.getDefaultFileName(), in);
                     AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
                     if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                            .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                            .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                         String message = String.format("Granting permissions to a new file '%s' is failed.",
                                 ProjectArtifactUtils.extractResourceName(projectArtefact));
                         WebStudioUtils.addErrorMessage(message);
@@ -1230,7 +1230,7 @@ public class ProjectBean {
     }
 
     private void validatePermissionForEditing(AProjectArtefact artefact) {
-        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.WRITE))) {
             throw new Message(String.format("There is no permission for modifying '%s' file.",
                     ProjectArtifactUtils.extractResourceName(artefact)));
         }
@@ -1239,7 +1239,7 @@ public class ProjectBean {
     private void validatePermissionForCreating(RulesProject currentProject, String path) {
         String p = designRepositoryAclService.getPath(currentProject);
         if (!designRepositoryAclService
-                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.ADD))) {
+                .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.CREATE))) {
             throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                     ProjectArtifactUtils.extractResourceName(currentProject),
                     path));
@@ -1476,7 +1476,7 @@ public class ProjectBean {
                 AProjectArtefact projectArtefact = project
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
-                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .createAcl(projectArtefact, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);

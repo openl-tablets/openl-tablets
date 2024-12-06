@@ -40,6 +40,7 @@
         <module>itest.storelogdata</module>
         <module>itest.minio</module>
         <module>itest.webstudio-keycloak</module>
+        <module>itest.studio-rdbms</module>
     </modules>
 
     <dependencyManagement>
