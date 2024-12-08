@@ -20,8 +20,8 @@ public class RunRestRulesDeploymentTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        server = JettyServer.start("jdbc");
-        client = server.client();
+        server = JettyServer.get().withProfile("jdbc");
+        client = server.start();
     }
 
     @AfterAll

@@ -20,8 +20,8 @@ public class WorkspaceCompileServiceTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        server = JettyServer.start("simple");
-        client = server.client();
+        server = JettyServer.get().withProfile("simple");
+        client = server.start();
     }
 
     @Test

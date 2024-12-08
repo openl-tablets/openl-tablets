@@ -32,8 +32,8 @@ public class RunMinioDeployIfAbsentTest extends AbstractMinioTest {
                     .build());
 
             config.put("ruleservice.datasource.deploy.classpath.jars", "IF_ABSENT");
-            server = JettyServer.start(config);
-            var client = server.client();
+            server = JettyServer.get().withInitParam(config);
+            var client = server.start();
             client.test("test-resources-smoke/stage1");
 
             // verify that projects are not redeployed
