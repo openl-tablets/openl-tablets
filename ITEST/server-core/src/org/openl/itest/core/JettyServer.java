@@ -27,8 +27,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
  */
 public class JettyServer {
 
-    private static final long MAX_READINESS_WAIT_TIMEOUT_MS = 60 * 1000;
-
     private final Server server;
 
     private JettyServer(String explodedWar, Map<String, String> params) throws IOException {
@@ -66,15 +64,6 @@ public class JettyServer {
         }
 
         return classPath.isEmpty() ? null : String.join(",", classPath);
-    }
-
-    /**
-     * Start an application with configuration defined using {@code @WebListener}.
-     */
-    public static JettyServer start() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), null);
-        jetty.server.start();
-        return jetty;
     }
 
     /**
