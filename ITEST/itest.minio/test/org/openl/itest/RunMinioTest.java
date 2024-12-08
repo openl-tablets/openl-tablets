@@ -12,8 +12,8 @@ public class RunMinioTest extends AbstractMinioTest {
     public void testSmoke() throws Exception {
         JettyServer server = null;
         try {
-            server = JettyServer.start(config);
-            var client = server.client();
+            server = JettyServer.get().withInitParam(config);
+            var client = server.start();
             verifyS3Repository();
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",
                     "deploy/multiple-deployment-datasource/project2",

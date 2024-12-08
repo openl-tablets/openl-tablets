@@ -49,9 +49,9 @@ public class RunKafkaSmokeITest {
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
-        server = JettyServer
-                .start(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
-        client = server.client();
+        server = JettyServer.get()
+                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers());
+        client = server.start();
     }
 
     @Test

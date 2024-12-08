@@ -8,7 +8,7 @@ public class RunUnpackClasspathJarsTest {
 
     @Test
     public void test() throws Exception {
-        JettyServer.test();
+        JettyServer.get().test();
     }
 
 }

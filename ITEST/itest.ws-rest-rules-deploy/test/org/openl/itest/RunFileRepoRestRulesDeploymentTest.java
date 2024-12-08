@@ -20,8 +20,8 @@ public class RunFileRepoRestRulesDeploymentTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        server = JettyServer.start("file");
-        client = server.client();
+        server = JettyServer.get().withProfile("file");
+        client = server.start();
     }
 
     @AfterAll

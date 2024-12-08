@@ -8,7 +8,7 @@ public class RunHealthchecksITest {
 
     @Test
     public void test() throws Exception {
-        JettyServer.test();
+        JettyServer.get().test();
     }
 
     @Test

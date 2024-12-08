@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -54,8 +53,10 @@ public class UsersRestTest {
         h2Connection = DriverManager.getConnection(dbUrl);
         h2Connection.setAutoCommit(false);
 
-        server = JettyServer.start("usr", Map.of("db.url", dbUrl));
-        client = server.client();
+        server = JettyServer.get()
+                .withProfile("usr")
+                .withInitParam("db.url", dbUrl);
+        client = server.start();
 
         smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");

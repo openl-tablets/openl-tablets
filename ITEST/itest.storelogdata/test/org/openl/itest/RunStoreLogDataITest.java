@@ -109,11 +109,11 @@ public class RunStoreLogDataITest {
 
         KAFKA_CONTAINER.start();
 
-        Map<String, String> params = Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers(),
-                "datastax-java-driver.basic.contact-points.0", CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort(),
-                "hibernate.connection.url", dbUrl);
-        server = JettyServer.start(params);
-        client = server.client();
+        server = JettyServer.get()
+                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers())
+                .withInitParam("datastax-java-driver.basic.contact-points.0", CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort())
+                .withInitParam("hibernate.connection.url", dbUrl);
+        client = server.start();
 
     }
 

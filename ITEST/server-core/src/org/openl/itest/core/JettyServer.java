@@ -1,13 +1,11 @@
 package org.openl.itest.core;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -28,26 +26,28 @@ import org.eclipse.jetty.webapp.WebAppContext;
 public class JettyServer {
 
     private final Server server;
+    private final WebAppContext webAppContext;
+    private final Locale DEFAULT_LOCALE = Locale.getDefault();
+    private final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
 
-    private JettyServer(String explodedWar, Map<String, String> params) throws IOException {
-        this.server = new Server(0);
-        this.server.setStopAtShutdown(true);
-        WebAppContext webAppContext = new WebAppContext();
-        webAppContext.setResourceBase(explodedWar);
+    private JettyServer() throws IOException {
+        var webAppContext = new WebAppContext();
+        webAppContext.setResourceBase(System.getProperty("webservice-webapp"));
         webAppContext.setExtraClasspath(getExtraClasspath());
         // Solve issue with different slf4j implementations comes from dependencies
         webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j."));
         webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
 
-        if (params != null && params.size() > 0) {
-            webAppContext.getInitParams().putAll(params);
-        }
-
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
                 "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
 
-        this.server.setHandler(webAppContext);
+        var server = new Server(0);
+        server.setStopAtShutdown(true);
+        server.setHandler(webAppContext);
+
+        this.webAppContext = webAppContext;
+        this.server = server;
     }
 
     private String getExtraClasspath() {
@@ -66,90 +66,62 @@ public class JettyServer {
         return classPath.isEmpty() ? null : String.join(",", classPath);
     }
 
-    /**
-     * Start an application with configuration defined using {@code @WebListener}.
-     *
-     * @param profile Spring profiles which are activated
-     */
-    public static JettyServer start(String profile) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), Map.of("spring.profiles.active", profile));
-        jetty.server.start();
-        return jetty;
+    public static JettyServer get() throws IOException {
+        return new JettyServer();
     }
 
-    /**
-     * Start an application with configuration defined using {@code @WebListener}.
-     *
-     * @param params Servlet context init params
-     */
-    public static JettyServer start(String profile, Map<String, String> params) throws Exception {
-        params = new HashMap<>(params);
-        params.put("spring.profiles.active", profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
-        jetty.server.start();
-        return jetty;
+    public JettyServer withInitParam(Map<String, String> params) {
+        if (params != null && !params.isEmpty()) {
+            webAppContext.getInitParams().putAll(params);
+        }
+        return this;
     }
 
-    /**
-     * Start an application with configuration defined using {@code @WebListener}.
-     *
-     * @param params Servlet context init params
-     */
-    public static JettyServer start(Map<String, String> params) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
-        jetty.server.start();
-        return jetty;
+    public JettyServer withInitParam(String key, String value) {
+        webAppContext.getInitParams().put(key, value);
+        return this;
+    }
+
+    public JettyServer withProfile(String profile) {
+        return withInitParam("spring.profiles.active", profile);
+    }
+
+    public void test() throws Exception {
+        var profile = this.webAppContext.getInitParams().get("spring.profiles.active");
+        try {
+            start().test(profile == null ? "test-resources" : ("test-resources-" + profile));
+        } finally {
+            stop();
+        }
     }
 
     public void stop() throws Exception {
-        server.stop();
-        server.destroy();
-    }
-
-    public HttpClient client() {
-        int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
         try {
-            URL url = new URL("http", "localhost", port, "");
-            return HttpClient.create(url);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Starts Jetty Server and executes a set of http requests.
-     */
-    public static void test(String profile) throws Exception {
-        Map<String, String> params = null;
-        if (profile != null) {
-            params = Map.of("spring.profiles.active", profile);
-        }
-        String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), params);
-
-        final Locale DEFAULT_LOCALE = Locale.getDefault();
-        final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
-        try {
-            Locale.setDefault(Locale.US);
-
-            // set -10 as default
-            TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
-
-            jetty.server.start();
-            try {
-                var httpClient = jetty.client();
-                httpClient.test(testFolder);
-            } finally {
-                jetty.stop();
-            }
+            server.stop();
+            server.destroy();
         } finally {
             Locale.setDefault(DEFAULT_LOCALE);
             TimeZone.setDefault(DEFAULT_TIMEZONE);
         }
     }
 
-    public static void test() throws Exception {
-        test(null);
+    public HttpClient start() throws Exception {
+        Locale.setDefault(Locale.US);
+        // set -10 as default
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
+        this.server.start();
+        int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
+        URL url = new URL("http", "localhost", port, "");
+        return HttpClient.create(url);
+    }
+
+    /**
+     * Starts Jetty Server and executes a set of http requests.
+     */
+    public static void test(String profile) throws Exception {
+        JettyServer.get()
+                .withProfile(profile)
+                .test();
     }
 
 }
