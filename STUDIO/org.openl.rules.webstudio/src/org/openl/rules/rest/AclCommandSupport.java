@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.springframework.security.acls.model.Permission;
+
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.StringUtils;
 
@@ -120,7 +122,7 @@ public class AclCommandSupport {
         }
     }
 
-    public static Collection<AclPermission> listAllSupportedPermissions(RepoType repoType) {
+    public static Collection<Permission> listAllSupportedPermissions(RepoType repoType) {
         if (repoType == null) {
             throw new IllegalArgumentException("repoType argument can't be null.");
         }

@@ -89,7 +89,7 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.READ))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
@@ -204,7 +204,7 @@ public class ProjectManagementController {
                         .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
-                    if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
+                    if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject, List.of(AclPermission.WRITE))) {
                         throw new SecurityException();
                     }
                     deploymentProjectsToDeploy.add(deploymentProject);
@@ -268,7 +268,7 @@ public class ProjectManagementController {
                       @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.ERASE))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {

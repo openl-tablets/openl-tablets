@@ -2,12 +2,28 @@ version: '3.9'
 
 services:
 
+  openL_mssql:
+    image: mcr.microsoft.com/azure-sql-edge
+    container_name: openL_mssql
+    hostname: openL_mssql
+    networks:
+      - openl_net
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=OpenL!Passw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - "vol_mssql:/var/opt/mssql"
+
   webstudio:
     build:
       context: .
       args:
         "APP": STUDIO/org.openl.rules.webstudio/target/webapp
     container_name: webstudio
+    networks:
+      - openl_net
     ports:
       - "8181:8080"
       - "5501:5005" # Debug port
@@ -19,7 +35,16 @@ services:
         reservations:
           memory: 512M
     environment:
-        JAVA_OPTS: $JAVA_DEBUG_OPTS
+      JAVA_OPTS: $JAVA_DEBUG_OPTS
+
+      WEBSTUDIO_CONFIGURED: "true"
+
+      DB_URL: "jdbc:sqlserver://openL_mssql:1433;databaseName=master;TrustServerCertificate=true"
+      DB_USER: "sa"
+      DB_PASSWORD: "OpenL!Passw0rd"
+
+      USER_MODE: "multi"
+      SECURITY_ADMINISTRATORS: "admin"
 
   ws:
     build:
@@ -69,9 +94,14 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 640M
-        reservations:
-          memory: 32M
+          cpus: '2'
+          memory: 3G
     environment:
       JAVA_OPTS: $JAVA_DEBUG_OPTS
+
+networks:
+  openl_net:
+    driver: bridge
+
+volumes:
+  vol_mssql:

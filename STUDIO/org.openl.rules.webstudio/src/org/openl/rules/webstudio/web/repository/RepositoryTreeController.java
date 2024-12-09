@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
@@ -125,7 +123,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
@@ -291,7 +289,7 @@ public class RepositoryTreeController {
                                     .getProject() instanceof ADeploymentProject
                                     ? aclServiceProvider.getDeployConfigRepoAclService()
                                     : aclServiceProvider.getDesignRepoAclService();
-                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.ADD))) {
+                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.CREATE))) {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
@@ -370,7 +368,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
             var repositoryAclService = repositoryProject instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.READ))) {
                 WebStudioUtils.addErrorMessage(String.format("There is no permission for closing '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
                 return null;
@@ -586,7 +584,7 @@ public class RepositoryTreeController {
             String comment = deployConfigRepoComments.copiedFrom(project.getName());
             ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
             if (!aclServiceProvider.getDeployConfigRepoAclService()
-                    .createAcl(newProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
+                    .createAcl(newProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new deployment configuration '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(newProject));
                 WebStudioUtils.addErrorMessage(message);
@@ -630,7 +628,7 @@ public class RepositoryTreeController {
             }
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
             if (!aclServiceProvider.getDeployConfigRepoAclService()
-                    .createAcl(createdProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
+                    .createAcl(createdProject, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new deployment configuration '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(createdProject));
                 WebStudioUtils.addErrorMessage(message);
@@ -735,7 +733,7 @@ public class RepositoryTreeController {
 
                 if (aclServiceProvider.getDesignRepoAclService().createAcl(newRuleProject.getDesignRepository().getId(),
                         newRuleProject.getDesignFolderName(),
-                        AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
                         true)) {
                     // Get just created project, because creator API doesn't create internals states for ProjectState
                     RulesProject createdProject = userWorkspace.getProject(repositoryId,
@@ -1004,7 +1002,7 @@ public class RepositoryTreeController {
             if (projectDescriptorChanged) {
                 String xmlString = serializer.serialize(projectDescriptor);
                 InputStream newContent = IOUtils.toInputStream(xmlString);
-                if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.EDIT))) {
+                if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.WRITE))) {
                     throw new Message(String.format("There is no permission for modifying '%s' file.",
                             ProjectArtifactUtils.extractResourceName(resource)));
                 }
@@ -1552,7 +1550,7 @@ public class RepositoryTreeController {
 
                 is = ((AProjectResource) uwp.getArtefactByPath(pathInProject)).getContent();
             }
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(folder, List.of(AclPermission.ADD))) {
+            if (!aclServiceProvider.getDesignRepoAclService().isGranted(folder, List.of(AclPermission.CREATE))) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         folder.getArtefactPath().getStringValue(),
                         artefactPath.segment(artefactPath.segmentCount() - 1)));
@@ -1561,7 +1559,7 @@ public class RepositoryTreeController {
                     .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             if ((selectedProject instanceof ADeploymentProject || !aclServiceProvider.getDesignRepoAclService()
                     .hasAcl(addedFileResource)) && !repositoryAclService
-                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -1736,7 +1734,7 @@ public class RepositoryTreeController {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
             var repositoryAclService = project instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(project)));
             }
@@ -1800,7 +1798,7 @@ public class RepositoryTreeController {
             }
             var repositoryAclService = repositoryProject instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.READ))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                         ProjectArtifactUtils.extractResourceName(repositoryProject)));
             }
@@ -2229,7 +2227,7 @@ public class RepositoryTreeController {
             var repositoryAclService = node
                     .getProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(node, List.of(AclPermission.ADD))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.CREATE))) {
                 throw new Message(String.format("There is no permission for creating '%s/%s' file.",
                         ProjectArtifactUtils.extractResourceName(node),
                         fileName));
@@ -2244,7 +2242,7 @@ public class RepositoryTreeController {
             while (!projectFolders.isEmpty()) {
                 AProjectFolder p = projectFolders.pop();
                 if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
-                        .hasAcl(p)) && !repositoryAclService.createAcl(p, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        .hasAcl(p)) && !repositoryAclService.createAcl(p, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                     String message = String.format("Granting permissions to a new folder '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(p));
                     WebStudioUtils.addErrorMessage(message);
@@ -2252,7 +2250,7 @@ public class RepositoryTreeController {
             }
             if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
                     .hasAcl(addedFileResource)) && !repositoryAclService
-                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    .createAcl(addedFileResource, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -2290,7 +2288,7 @@ public class RepositoryTreeController {
                             .getSerializer(selectedProject);
 
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
-                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.EDIT))) {
+                    if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.WRITE))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
                                 ProjectArtifactUtils.extractResourceName(resource)));
                     }
@@ -2332,7 +2330,7 @@ public class RepositoryTreeController {
             var repositoryAclService = node
                     .getProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            if (!repositoryAclService.isGranted(node, List.of(AclPermission.EDIT))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.WRITE))) {
                 throw new Message(String.format("There is no permission for modifying '%s' file.",
                         ProjectArtifactUtils.extractResourceName(node)));
             }
@@ -2524,7 +2522,7 @@ public class RepositoryTreeController {
             }
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                        List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                        List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                     return true;
                 }
             }
@@ -2556,12 +2554,12 @@ public class RepositoryTreeController {
         return false;
     }
 
-    public boolean getCanUnlock() {
-        return isGranted(UNLOCK_PROJECTS);
+    public boolean canUnlock(AProject project) {
+        return aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.ADMINISTRATION));
     }
 
-    public boolean getCanUnlockDeployment() {
-        return isGranted(UNLOCK_DEPLOYMENT);
+    public boolean canUnlockDeployment(AProject project) {
+        return aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.ADMINISTRATION));
     }
 
     public boolean getCanDeleteDeployment() {
@@ -3173,7 +3171,7 @@ public class RepositoryTreeController {
         }
         for (AProjectArtefact artefact : project.getArtefacts()) {
             if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
-                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
                 return true;
             }
         }
