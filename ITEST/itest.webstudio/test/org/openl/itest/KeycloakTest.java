@@ -13,9 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import org.openl.itest.core.JettyServer;
 
+@DisabledIfSystemProperty(named = "noDocker", matches = ".*")
 public class KeycloakTest {
 
     private static final String CLIENT_ID = "openlstudio";
@@ -28,7 +30,7 @@ public class KeycloakTest {
     public void smoke() throws Exception {
         try (var keycloack = new KeycloakContainer("quay.io/keycloak/keycloak:25.0")) {
             keycloack
-                    .withRealmImportFile("/keycloak/openlstudio-realm.json")
+                    .withRealmImportFile("/openlstudio-realm.json")
                     .start();
             var authServerUrl = keycloack.getAuthServerUrl();
             try (var httpClient = JettyServer.get()
@@ -41,11 +43,11 @@ public class KeycloakTest {
                 httpClient.localEnv.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
                 httpClient.localEnv.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
                 httpClient.localEnv.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
-                httpClient.test("test-resources-smoke");
+                httpClient.test("test-resources-oauth2");
 
                 // stop Keycloak to simulate the lag
                 keycloack.stop();
-                httpClient.test("test-resources-negative");
+                httpClient.test("test-resources-oauth2-lag");
             }
         }
     }
