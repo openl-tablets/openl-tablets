@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -346,6 +345,13 @@ public class GroupManagementTest {
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getTotal());
+    }
+
+    @Test
+    public void testExists() {
+        groupService.addGroup("foo", "Foo");
+        assertTrue(groupService.existsByName("foo"));
+        assertFalse(groupService.existsByName("bar"));
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,

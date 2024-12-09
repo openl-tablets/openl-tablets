@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/REVTSUdOOmRlc2lnbg==?sid=openl_r HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "role": "VIEWER"
+}

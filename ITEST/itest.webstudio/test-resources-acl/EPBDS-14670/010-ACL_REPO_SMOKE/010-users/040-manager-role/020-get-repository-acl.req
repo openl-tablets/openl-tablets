@@ -1,0 +1,3 @@
+GET /rest/acls/repositories?sid=EPBDS_14670_2&principal=true HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ2NzBfMzpFUEJEU18xNDY3MF8z
+

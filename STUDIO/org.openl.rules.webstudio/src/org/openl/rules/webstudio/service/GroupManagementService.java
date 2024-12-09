@@ -43,10 +43,6 @@ public class GroupManagementService {
         return null;
     }
 
-    public boolean isGroupExist(String name) {
-        return groupDao.getGroupByName(name) != null;
-    }
-
     public void addGroup(String name, String description) {
         Group persistGroup = new Group();
         persistGroup.setName(name);
@@ -69,7 +65,13 @@ public class GroupManagementService {
         groupDao.update(persistGroup);
     }
 
+    @Transactional
     public void deleteGroup(Long id) {
         groupDao.deleteGroupById(id);
+    }
+
+    @Transactional
+    public boolean existsByName(String name) {
+        return groupDao.existsByName(name);
     }
 }
