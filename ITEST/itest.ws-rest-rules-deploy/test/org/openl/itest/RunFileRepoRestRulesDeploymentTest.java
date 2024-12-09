@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -15,19 +14,9 @@ import org.openl.itest.core.worker.AsyncExecutor;
 
 public class RunFileRepoRestRulesDeploymentTest {
 
-    private static JettyServer server;
-    private static HttpClient client;
+    @AutoClose
+    private static final HttpClient client = JettyServer.get().withProfile("file").start();
 
-    @BeforeAll
-    public static void setUp() throws Exception {
-        server = JettyServer.get().withProfile("file");
-        client = server.start();
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        server.stop();
-    }
 
     @Test
     public void testDeployRules() {

@@ -10,10 +10,8 @@ public class RunMinioTest extends AbstractMinioTest {
 
     @Test
     public void testSmoke() throws Exception {
-        JettyServer server = null;
-        try {
-            server = JettyServer.get().withInitParam(config);
-            var client = server.start();
+        try (var client = JettyServer.get().withInitParam(config).start()) {
+
             verifyS3Repository();
             assertDeployedServices("deploy/multiple-deployment-datasource/project1",
                     "deploy/multiple-deployment-datasource/project2",
@@ -32,10 +30,6 @@ public class RunMinioTest extends AbstractMinioTest {
                     "deploy/rules-to-deploy/rules-to-deploy");
 
             client.test("test-resources-smoke/stage3");
-        } finally {
-            if (server != null) {
-                server.stop();
-            }
         }
     }
 

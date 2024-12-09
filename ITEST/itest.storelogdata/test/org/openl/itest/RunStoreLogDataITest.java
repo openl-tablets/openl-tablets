@@ -80,7 +80,6 @@ public class RunStoreLogDataITest {
     private static final String RESTFUL_PUBLISHER_TYPE = PublisherType.RESTFUL.name();
     private static final String WEBSERVICE_PUBLISHER_TYPE = PublisherType.WEBSERVICE.name();
 
-    private static JettyServer server;
     private static HttpClient client;
     private static Connection h2Connection;
     private static Server h2Server;
@@ -109,11 +108,11 @@ public class RunStoreLogDataITest {
 
         KAFKA_CONTAINER.start();
 
-        server = JettyServer.get()
+        client = JettyServer.get()
                 .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers())
                 .withInitParam("datastax-java-driver.basic.contact-points.0", CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort())
-                .withInitParam("hibernate.connection.url", dbUrl);
-        client = server.start();
+                .withInitParam("hibernate.connection.url", dbUrl)
+                .start();
 
     }
 
@@ -660,7 +659,7 @@ public class RunStoreLogDataITest {
     @AfterAll
     public static void tearDown() throws Exception {
 
-        server.stop();
+        client.close();
 
         doQuite(cassandraSession::close);
         doQuite(CASSANDRA_CONTAINER::stop);

@@ -36,7 +36,6 @@ public class UsersRestTest {
     private static final String TOKEN_PARAM = "token=";
     private static final int TOKEN_LENGTH = 8;
 
-    private static JettyServer server;
     private static HttpClient client;
     private static GreenMail smtpServer;
     private static String mailUrl;
@@ -53,10 +52,10 @@ public class UsersRestTest {
         h2Connection = DriverManager.getConnection(dbUrl);
         h2Connection.setAutoCommit(false);
 
-        server = JettyServer.get()
+        client = JettyServer.get()
                 .withProfile("usr")
-                .withInitParam("db.url", dbUrl);
-        client = server.start();
+                .withInitParam("db.url", dbUrl)
+                .start();
 
         smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
@@ -72,7 +71,7 @@ public class UsersRestTest {
 
     @AfterAll
     public static void tearDown() throws Exception {
-        server.stop();
+        client.close();
         h2Connection.close();
         h2Server.stop();
         smtpServer.stop();

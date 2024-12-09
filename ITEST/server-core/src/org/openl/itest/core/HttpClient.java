@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
@@ -24,21 +24,23 @@ import java.util.stream.Stream;
  *
  * @author Yury Molchan
  */
-public class HttpClient {
+public class HttpClient implements AutoCloseable{
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_BLACK_BOLD = "\u001B[2;36m";
     public static final String ANSI_RED_BOLD = "\u001B[1;31m";
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
 
-    private final URL baseURL;
+    private final JettyServer server;
+    private final URI baseURL;
     private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
     public final Map<String, String> localEnv = new HashMap<>();
 
     private final int retryTimeout;
 
-    private HttpClient(URL baseURL) {
+    HttpClient(JettyServer server, URI baseURL) {
+        this.server = server;
         this.baseURL = baseURL;
         var builder = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1);
 
@@ -55,7 +57,7 @@ public class HttpClient {
     }
 
     private HttpRequest.Builder requestBuilder(String url, String[] headers) throws URISyntaxException {
-        var uri = baseURL.toURI().resolve(url);
+        var uri = baseURL.resolve(url);
         var builder = HttpRequest.newBuilder().uri(uri);
 
         int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
@@ -73,10 +75,6 @@ public class HttpClient {
         }
 
         return builder;
-    }
-
-    static HttpClient create(URL url) {
-        return new HttpClient(url);
     }
 
     public void send(String reqRespFiles) {
@@ -211,5 +209,10 @@ public class HttpClient {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        server.stop();
     }
 }

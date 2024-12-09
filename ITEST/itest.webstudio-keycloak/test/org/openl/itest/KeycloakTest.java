@@ -31,14 +31,12 @@ public class KeycloakTest {
                     .withRealmImportFile("/keycloak/openlstudio-realm.json")
                     .start();
             var authServerUrl = keycloack.getAuthServerUrl();
-            JettyServer server = JettyServer.get();
-            try {
-                var httpClient = server
+            try (var httpClient = JettyServer.get()
                         .withProfile("oauth2")
                         .withInitParam("security.oauth2.client-id", CLIENT_ID)
                         .withInitParam("security.oauth2.client-secret", CLIENT_SECRET)
                         .withInitParam("security.oauth2.issuer-uri", authServerUrl + "realms/openlstudio")
-                        .start();
+                        .start()) {
                 httpClient.localEnv.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
                 httpClient.localEnv.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
                 httpClient.localEnv.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
@@ -48,8 +46,6 @@ public class KeycloakTest {
                 // stop Keycloak to simulate the lag
                 keycloack.stop();
                 httpClient.test("test-resources-negative");
-            } finally {
-                server.stop();
             }
         }
     }
