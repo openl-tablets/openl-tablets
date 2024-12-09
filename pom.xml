@@ -109,7 +109,9 @@
         <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
         <!-- REST -->
-        <jackson.version>2.18.2</jackson.version>
+        <!-- https://github.com/swagger-api/swagger-core/issues/4755 -->
+        <!-- Downgrade to 2.17.x due errors in the log -->
+        <jackson.version>2.17.3</jackson.version>
         <cxf.version>3.6.4</cxf.version>
 
         <!-- gRPC -->
