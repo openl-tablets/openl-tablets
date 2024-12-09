@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.HttpClient;
@@ -15,19 +14,8 @@ import org.openl.itest.core.worker.TaskScheduler;
 
 public class RunRestRulesDeploymentTest {
 
-    private static JettyServer server;
-    private static HttpClient client;
-
-    @BeforeAll
-    public static void setUp() throws Exception {
-        server = JettyServer.get().withProfile("jdbc");
-        client = server.start();
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        server.stop();
-    }
+    @AutoClose
+    private static final HttpClient client = JettyServer.get().withProfile("jdbc").start();
 
     @Test
     public void testDeployRules() {

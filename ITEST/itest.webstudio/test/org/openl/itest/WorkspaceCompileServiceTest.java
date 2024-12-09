@@ -5,8 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AutoClose;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -15,14 +14,8 @@ import org.openl.itest.core.JettyServer;
 
 public class WorkspaceCompileServiceTest {
 
-    private static JettyServer server;
-    private static HttpClient client;
-
-    @BeforeAll
-    public static void setUp() throws Exception {
-        server = JettyServer.get().withProfile("simple");
-        client = server.start();
-    }
+    @AutoClose
+    private static final HttpClient client = JettyServer.get().withProfile("simple").start();
 
     @Test
     @Timeout(value = 15_000, unit = TimeUnit.MILLISECONDS)
@@ -57,11 +50,6 @@ public class WorkspaceCompileServiceTest {
         String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
                 String.class, 200);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        server.stop();
     }
 
     private static class CompileProgress {

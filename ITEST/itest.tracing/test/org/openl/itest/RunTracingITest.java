@@ -49,7 +49,6 @@ public class RunTracingITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
 
-    private static JettyServer server;
     private static HttpClient client;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
@@ -59,14 +58,14 @@ public class RunTracingITest {
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
-        server = JettyServer.get()
-                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers());
-        client = server.start();
+        client = JettyServer.get()
+                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers())
+                .start();
     }
 
     @AfterAll
     public static void tearDown() throws Exception {
-        server.stop();
+        client.close();
         try {
             KAFKA_CONTAINER.stop();
         } catch (RuntimeException e) {

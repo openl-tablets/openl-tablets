@@ -39,7 +39,6 @@ import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 
 public class RunKafkaSmokeITest {
-    private static JettyServer server;
     private static HttpClient client;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
@@ -49,9 +48,9 @@ public class RunKafkaSmokeITest {
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
 
-        server = JettyServer.get()
-                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers());
-        client = server.start();
+        client = JettyServer.get()
+                .withInitParam("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers())
+                .start();
     }
 
     @Test
@@ -208,7 +207,7 @@ public class RunKafkaSmokeITest {
 
     @AfterAll
     public static void tearDown() throws Exception {
-        server.stop();
+        client.close();
         KAFKA_CONTAINER.stop();
     }
 

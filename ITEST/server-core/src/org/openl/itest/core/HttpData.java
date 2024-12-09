@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -95,7 +94,7 @@ class HttpData {
         return new HttpData("HTTP/1.1 200 OK", Collections.emptyMap(), null);
     }
 
-    static HttpData send(URL baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
+    static HttpData send(URI baseURL, HttpData httpData, String cookie, Map<String, String> localEnv) throws Exception {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(baseURL.toString() + httpData.getUrl()))
                 .method(httpData.getHttpMethod(), HttpRequest.BodyPublishers.ofByteArray(httpData.body))

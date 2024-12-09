@@ -1,7 +1,7 @@
 package org.openl.itest.core;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,8 +66,12 @@ public class JettyServer {
         return classPath.isEmpty() ? null : String.join(",", classPath);
     }
 
-    public static JettyServer get() throws IOException {
-        return new JettyServer();
+    public static JettyServer get() {
+        try {
+            return new JettyServer();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public JettyServer withInitParam(Map<String, String> params) {
@@ -88,14 +92,12 @@ public class JettyServer {
 
     public void test() throws Exception {
         var profile = this.webAppContext.getInitParams().get("spring.profiles.active");
-        try {
-            start().test(profile == null ? "test-resources" : ("test-resources-" + profile));
-        } finally {
-            stop();
+        try (var client = start()) {
+            client.test(profile == null ? "test-resources" : ("test-resources-" + profile));
         }
     }
 
-    public void stop() throws Exception {
+    void stop() throws Exception {
         try {
             server.stop();
             server.destroy();
@@ -105,14 +107,17 @@ public class JettyServer {
         }
     }
 
-    public HttpClient start() throws Exception {
+    public HttpClient start() {
         Locale.setDefault(Locale.US);
         // set -10 as default
         TimeZone.setDefault(TimeZone.getTimeZone("America/Adak"));
-        this.server.start();
+        try {
+            this.server.start();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
         int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-        URL url = new URL("http", "localhost", port, "");
-        return HttpClient.create(url);
+        return new HttpClient(this, URI.create("http://localhost:" + port));
     }
 
     /**
