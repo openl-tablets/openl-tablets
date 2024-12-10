@@ -67,7 +67,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
                 if (methodCaller != null) {
                     methodCaller = processFoundMethodCaller(methodCaller);
-                    validateMethodParameter(methodCaller, children, node, bindingContext);
+                    validateMethodParameters(methodCaller, children, node, bindingContext);
                     bindingContext.addMessages(openLMessages);
                     log(methodName, parameterTypes, "entirely appropriate by signature method");
                     return new MethodBoundNode(node, methodCaller, children);
@@ -106,7 +106,11 @@ public class MethodNodeBinder extends ANodeBinder {
                 childNodes[i] = node.getChild(i);
             }
             var iBoundNode = Optional.ofNullable(type)
-                    .map(t -> ConstructorSugarSupport.makeSugarConstructor(node, childNodes, bindingContext, t, funcNode));
+                    .map(t -> ConstructorSugarSupport.makeSugarConstructor(node,
+                            childNodes,
+                            bindingContext,
+                            t,
+                            funcNode));
             if (iBoundNode.isPresent()) {
                 return iBoundNode.get();
             }
@@ -126,54 +130,86 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private void validateMethodParameter(IMethodCaller methodCaller, IBoundNode[] children, ISyntaxNode node, IBindingContext bindingContext) {
+    private void validateMethodParameters(IMethodCaller methodCaller,
+            IBoundNode[] children,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
         var parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
-        var parameterCount = parameterTypes.length;
-        if (parameterCount == children.length) {
-            for (int i = 0; i < parameterCount; i++) {
-                var parameterType = parameterTypes[i];
-                var param = children[i];
-                var domain = parameterType.getDomain();
-                if (domain != null) {
-                    var iDomain = (IDomain<Object>) domain;
-                    if (children[i] instanceof LiteralBoundNode) {
-                        processLiteralBoundNode(((LiteralBoundNode) param).getValue(), iDomain, node, bindingContext, parameterType.getName());
-                    } else if (children[i] instanceof ArrayInitializerNode) {
-                        // In case of MultiCallOpenMethod or enum is an array
-                        validateParameterArray(((ArrayInitializerNode) param).children, iDomain, node, bindingContext, parameterType.getName());
-                    }
-                }
+        var noOfChildren = children.length;
+        var parameterCount = Math.min(parameterTypes.length, noOfChildren);
+        for (var i = 0; i < parameterCount; i++) {
+            validateParam(parameterTypes[i], children[i], node, bindingContext);
+        }
+        // In case of last parameter var args
+        if (noOfChildren > parameterCount) {
+            for (var j = parameterCount; j < noOfChildren; j++) {
+                validateParam(parameterTypes[parameterCount - 1], children[j], node, bindingContext);
             }
         }
-
     }
 
-    private void processLiteralBoundNode(Object inputValue, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
-        if (inputValue != null && !domain.selectObject(inputValue)) {
-            BindHelper.processError(String.format(
-                    "Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                    inputValue,
-                    toClass, DomainUtils.toString(domain)), node, bindingContext);
+    private void validateParam(IOpenClass parameterType,
+            IBoundNode param,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
+        var domain = parameterType.getDomain();
+        if (domain != null) {
+            var iDomain = (IDomain<Object>) domain;
+            if (param instanceof LiteralBoundNode) {
+                processLiteralBoundNode(((LiteralBoundNode) param).getValue(),
+                        iDomain,
+                        node,
+                        bindingContext,
+                        parameterType.getName());
+            } else if (param instanceof ArrayInitializerNode) {
+                // In case of MultiCallOpenMethod or enum is an array
+                validateParameterArray(((ArrayInitializerNode) param).children,
+                        iDomain,
+                        node,
+                        bindingContext,
+                        parameterType.getName());
+            }
         }
     }
 
-    private void validateParameterArray(IBoundNode[] iBoundNode, IDomain<Object> domain, ISyntaxNode node, IBindingContext bindingContext, String toClass) {
+    private void processLiteralBoundNode(Object inputValue,
+            IDomain<Object> domain,
+            ISyntaxNode node,
+            IBindingContext bindingContext,
+            String toClass) {
+        if (inputValue != null && !domain.selectObject(inputValue)) {
+            BindHelper.processError(String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                    inputValue,
+                    toClass,
+                    DomainUtils.toString(domain)), node, bindingContext);
+        }
+    }
+
+    private void validateParameterArray(IBoundNode[] iBoundNode,
+            IDomain<Object> domain,
+            ISyntaxNode node,
+            IBindingContext bindingContext,
+            String toClass) {
         var enumDomain = (EnumDomain<Object>) domain;
         if (enumDomain.getComponentType().isArray() && iBoundNode[0] instanceof LiteralBoundNode) {
-                // Enum/domain is itself an array
-                var stringBuilder = new StringBuilder();
-                var inputkey = generateEnumKey(stringBuilder, iBoundNode);
-                if (inputkey != null && !OpenClassUtils.belongsToEnum(enumDomain.getAllObjects(), inputkey)) {
-                    BindHelper.processError(String.format(
-                            "Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                            inputkey,
-                            toClass, DomainUtils.toString(enumDomain)), node, bindingContext);
-                }
+            // Enum/domain is itself an array
+            var stringBuilder = new StringBuilder();
+            var inputkey = generateEnumKey(stringBuilder, iBoundNode);
+            if (inputkey != null && !OpenClassUtils.belongsToEnum(enumDomain.getAllObjects(), inputkey)) {
+                BindHelper.processError(String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
+                        inputkey,
+                        toClass,
+                        DomainUtils.toString(enumDomain)), node, bindingContext);
+            }
         } else {
             for (IBoundNode boundNode : iBoundNode) {
                 if (boundNode instanceof LiteralBoundNode) {
                     // MultiCallOpenMethod
-                    processLiteralBoundNode(((LiteralBoundNode) boundNode).getValue(), domain, node, bindingContext, toClass);
+                    processLiteralBoundNode(((LiteralBoundNode) boundNode).getValue(),
+                            domain,
+                            node,
+                            bindingContext,
+                            toClass);
                 } else {
                     validateParameterArray(boundNode.getChildren(), domain, node, bindingContext, toClass);
                 }
