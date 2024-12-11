@@ -3,10 +3,10 @@ package org.openl.rules.project.model;
 import static org.openl.rules.project.xml.XmlRulesDeploySerializer.MODULE_NAME;
 import static org.openl.rules.project.xml.XmlRulesDeploySerializer.NAME_TAG;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = MODULE_NAME)
