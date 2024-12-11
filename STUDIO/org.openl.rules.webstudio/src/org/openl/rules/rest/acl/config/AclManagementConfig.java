@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 import org.openl.rules.rest.acl.resolver.AclRepositoryIdConverter;
 import org.openl.rules.rest.acl.resolver.AlcSidValueArgumentResolver;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.acl.service.AclProjectsHelperImpl;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelper;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelperImpl;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
@@ -17,6 +19,11 @@ public class AclManagementConfig {
     @Bean
     public AclRepositoriesHelper aclRepositoriesHelper(RepositoryAclServiceProvider aclServiceProvider) {
         return new AclRepositoriesHelperImpl(aclServiceProvider);
+    }
+
+    @Bean
+    public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider) {
+        return new AclProjectsHelperImpl(aclServiceProvider);
     }
 
     @Bean
