@@ -2,10 +2,10 @@ package org.openl.rules.project.validation.openapi.test;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;

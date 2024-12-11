@@ -1,6 +1,6 @@
 package org.openl.rules.calc;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.types.java.CustomJavaOpenClass;
 

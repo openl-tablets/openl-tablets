@@ -1,6 +1,6 @@
 package org.openl.rules.variation;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import  jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Variation for replacement of value of some argument.

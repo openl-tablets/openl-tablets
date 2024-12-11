@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Disabled;

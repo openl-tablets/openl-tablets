@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
+import jakarta.inject.Inject;
+import jakarta.xml.bind.JAXBException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;

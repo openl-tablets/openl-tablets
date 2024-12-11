@@ -14,10 +14,11 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.webapp.ClassMatcher;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.ClassMatcher;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppClassLoader;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.Resource;
 
 /**
  * Simple wrapper for Jetty Server
@@ -33,15 +34,15 @@ public class JettyServer {
 
     private JettyServer() throws IOException {
         var webAppContext = new WebAppContext();
-        webAppContext.setResourceBase(System.getProperty("webservice-webapp"));
-        webAppContext.setExtraClasspath(getExtraClasspath());
+        webAppContext.setWar(System.getProperty("webservice-webapp"));
+        webAppContext.setExtraClasspath(getExtraClasspath(webAppContext));
         // Solve issue with different slf4j implementations comes from dependencies
-        webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j."));
-        webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j."));
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
                 "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
-                "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
+                "|.*jakarta\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in OpenL Studio
 
         webAppContext.setClassLoader(new WebAppClassLoader(webAppContext) {
             @Override
@@ -63,20 +64,20 @@ public class JettyServer {
         this.server = server;
     }
 
-    private String getExtraClasspath() {
-        var classPath = new ArrayList<String>();
+    private ArrayList<Resource> getExtraClasspath(WebAppContext context) {
+        var classPath = new ArrayList<Resource>();
         var classes = Paths.get("target/classes");
         if (Files.exists(classes)) {
-            classPath.add(classes.toString());
+            classPath.add(context.newResource(classes.toUri()));
         }
         try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
 
-            classPath.addAll(stream.map(Path::toString).collect(Collectors.toList()));
+            classPath.addAll(stream.map(Path::toUri).map(context::newResource).collect(Collectors.toList()));
         } catch (IOException ignored) {
             // ignore
         }
 
-        return classPath.isEmpty() ? null : String.join(",", classPath);
+        return classPath.isEmpty() ? null : classPath;
     }
 
     public static JettyServer get() {

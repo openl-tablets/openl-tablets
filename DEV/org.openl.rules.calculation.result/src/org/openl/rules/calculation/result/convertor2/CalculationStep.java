@@ -11,9 +11,9 @@ package org.openl.rules.calculation.result.convertor2;
  */
 
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  * The base abstraction for the spreadsheet step, each step is a spreadsheet row.

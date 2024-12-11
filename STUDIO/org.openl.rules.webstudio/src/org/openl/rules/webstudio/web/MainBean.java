@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web;
 
 import java.util.Optional;
 import java.util.UUID;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

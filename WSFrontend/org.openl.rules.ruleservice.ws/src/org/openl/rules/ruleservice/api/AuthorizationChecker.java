@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.api;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Interface for defining authorization checker that can be added to the Spring context  to filter incoming HTTP requests.

@@ -3,7 +3,7 @@ package org.openl.rules.rest.validation;
 import java.io.IOException;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.validation.Errors;

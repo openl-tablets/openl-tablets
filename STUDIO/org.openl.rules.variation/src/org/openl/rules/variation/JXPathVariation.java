@@ -1,6 +1,6 @@
 package org.openl.rules.variation;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import  jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;

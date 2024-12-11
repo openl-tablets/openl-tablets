@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;

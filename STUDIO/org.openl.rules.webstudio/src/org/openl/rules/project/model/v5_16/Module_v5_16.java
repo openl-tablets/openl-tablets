@@ -4,11 +4,11 @@ import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.METHOD
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULE_TAG;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.RULES_ROOT_TAG;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.PathEntry;

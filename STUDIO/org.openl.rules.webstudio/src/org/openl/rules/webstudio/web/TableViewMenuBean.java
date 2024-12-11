@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;

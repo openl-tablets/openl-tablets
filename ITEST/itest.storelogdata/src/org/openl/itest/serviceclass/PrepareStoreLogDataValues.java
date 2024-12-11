@@ -1,7 +1,7 @@
 package org.openl.itest.serviceclass;
 
 import java.util.Map;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 

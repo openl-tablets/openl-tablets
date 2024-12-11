@@ -16,8 +16,8 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -113,7 +113,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
                                                                   HttpHeaders headers,
-                                                                  HttpStatus status,
+                                                                  HttpStatusCode status,
                                                                   WebRequest request) {
         return handleExceptionInternal(e,
                 handleBindingResult(status, e.getBindingResult()),
@@ -126,7 +126,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleExceptionInternal(Exception e,
                                                              Object body,
                                                              HttpHeaders headers,
-                                                             HttpStatus status,
+                                                             HttpStatusCode status,
                                                              WebRequest request) {
         var handledEx = super.handleExceptionInternal(e, body, headers, status, request);
         if (handledEx.hasBody()) {
@@ -138,7 +138,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                         .message(Optional.ofNullable(handledBody)
                                 .map(Object::toString)
                                 .filter(StringUtils::isNotBlank)
-                                .orElseGet(status::getReasonPhrase));
+                                .orElseGet(() -> HttpStatus.resolve(status.value()).getReasonPhrase()));
                 return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             }
         } else {
@@ -152,7 +152,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     private <T extends BaseError> ResponseEntity<T> _handleExceptionInternal(Exception e,
                                                                              T body,
                                                                              HttpHeaders headers,
-                                                                             HttpStatus status,
+                                                                             HttpStatusCode status,
                                                                              WebRequest request) {
         if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, e, WebRequest.SCOPE_REQUEST);
@@ -161,27 +161,17 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @Override
-    protected ResponseEntity<Object> handleBindException(BindException e,
-                                                         HttpHeaders headers,
-                                                         HttpStatus status,
-                                                         WebRequest request) {
-        var handledEx = super.handleBindException(e, headers, status, request);
-        var bindingErrorModel = handleBindingResult(status, e.getBindingResult());
-        return new ResponseEntity<>(bindingErrorModel, handledEx.getHeaders(), handledEx.getStatusCode());
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
                                                         HttpHeaders headers,
-                                                        HttpStatus status,
+                                                        HttpStatusCode status,
                                                         WebRequest request) {
         if (ex.getCause() instanceof ConversionFailedException) {
             return (ResponseEntity<Object>) handleConversionFailedException((ConversionFailedException) ex.getCause(), request);
         }
         var handledEx = super.handleTypeMismatch(ex, headers, status, request);
         var builder = ValidationError.builder()
-                .message(status.getReasonPhrase())
+                .message(HttpStatus.resolve(status.value()).getReasonPhrase())
                 .addField(org.openl.rules.rest.common.model.FieldError.builder()
                         .field(getFieldName(ex))
                         .message(ex.getLocalizedMessage())
@@ -197,13 +187,13 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return ex.getPropertyName();
     }
 
-    private ValidationError handleBindingResult(HttpStatus status, BindingResult bindingResult) {
+    private ValidationError handleBindingResult(HttpStatusCode status, BindingResult bindingResult) {
         var builder = ValidationError.builder();
         if (bindingResult.getGlobalErrorCount() == 1 && !bindingResult.hasFieldErrors()) {
             builder.code(buildErrorCode(bindingResult.getGlobalError().getCode()))
                     .message(resolveLocalMessage(bindingResult.getGlobalError()));
         } else {
-            builder.message(status.getReasonPhrase());
+            builder.message(HttpStatus.resolve(status.value()).getReasonPhrase());
             if (bindingResult.hasFieldErrors()) {
                 bindingResult.getFieldErrors()
                         .stream()

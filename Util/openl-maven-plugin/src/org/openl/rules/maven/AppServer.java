@@ -6,16 +6,16 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.ClassMatcher;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.ClassMatcher;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 
 public class AppServer {
 
@@ -29,11 +29,12 @@ public class AppServer {
      * @throws Exception if any errors
      */
     public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {
-        var libs = jars.stream().map(Resource::newResource).collect(Collectors.toList());
         var webAppContext = new WebAppContext();
-        webAppContext.setResourceBase(""); // No resources
-        webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j.")); // For logging via Maven SLF4J
-        webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
+        var libs = jars.stream().map(File::toURI).map(webAppContext::newResource).collect(Collectors.toList());
+        var warFolder = Files.createTempDirectory("openl-maven-plugin");
+        webAppContext.setWar(warFolder.toString()); // No resources
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j.")); // For logging via Maven SLF4J
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
         webAppContext.setExtraClasspath(libs); // WebAppClassLoader
 
         webAppContext.setInitParameter("openl.config.location", ""); // to be not affected by external configurations
@@ -77,6 +78,7 @@ public class AppServer {
             server.stop();
             server.destroy();
             System.setProperties(backupProperties);
+            Files.deleteIfExists(warFolder);
         }
     }
 }
