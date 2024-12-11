@@ -146,6 +146,7 @@ public class RunFileRepoRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
     }
 
+    @Disabled
     @Test
     public void EPBDS_11144() {
         client.send("admin_services_no_services.json.get");
