@@ -5,10 +5,10 @@
     </aspects>
 
     <weaver options="-verbose">
-        <!-- Weave types that are within the javax.* or org.aspectj.*
+        <!-- Weave types that are within the jakarta.* or org.aspectj.*
              packages. Also weave all types in the foo package that do
              not have the @NoWeave annotation. -->
-        <include within="javax.*"/>
+        <include within="jakarta.*"/>
         <include within="org.aspectj.*"/>
         <include within="org.openl.rules.dt.*"/>
         <include within="org.openl.rules.calc.*"/>

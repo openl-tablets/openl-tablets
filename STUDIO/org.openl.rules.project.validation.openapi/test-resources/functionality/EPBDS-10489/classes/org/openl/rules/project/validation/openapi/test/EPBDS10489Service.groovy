@@ -2,7 +2,7 @@ package org.openl.rules.project.validation.openapi.test
 
 import org.openl.rules.ruleservice.core.interceptors.RulesType
 
-import javax.ws.rs.*
+import jakarta.ws.rs.*
 
 interface EPBDS10489Service {
     @RulesType(value = "Double")

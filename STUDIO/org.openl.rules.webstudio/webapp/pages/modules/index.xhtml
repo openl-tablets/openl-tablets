@@ -43,7 +43,7 @@
     <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery-editable-select.min.js?1"></script>
 
-    <h:outputScript name="jsf.js" library="javax.faces" />
+    <h:outputScript name="faces.js" library="jakarta.faces" />
 
     <script>
         //<![CDATA[
@@ -594,15 +594,15 @@
 
                 // Fix Mojarra bug. Make rerendered forms work.
                 // See http://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790
-                jsf.ajax.addOnEvent(function (data) {
+                faces.ajax.addOnEvent(function (data) {
                     if (data.status === "success") {
-                        var viewState = $("partial-response:first changes:first update[id = 'javax.faces.ViewState']", data.responseXML);
+                        var viewState = $("partial-response:first changes:first update[id = 'jakarta.faces.ViewState']", data.responseXML);
                         if (viewState.length) {
-                            $("partial-response:first changes:first update[id != 'javax.faces.ViewState']", data.responseXML).each(function (i, u) {
+                            $("partial-response:first changes:first update[id != 'jakarta.faces.ViewState']", data.responseXML).each(function (i, u) {
                                 $("form", document.getElementById(u.getAttribute("id"))).each(function (i, f) {
-                                    var field = $("input[name='javax.faces.ViewState']", f);
+                                    var field = $("input[name='jakarta.faces.ViewState']", f);
                                     if (!field.length) {
-                                        field = $("<input type=\"hidden\" name=\"javax.faces.ViewState\" />").appendTo(f);
+                                        field = $("<input type=\"hidden\" name=\"jakarta.faces.ViewState\" />").appendTo(f);
                                     }
                                     field.val(viewState.text());
                                 });
@@ -612,7 +612,7 @@
                 });
 
                 // Handle JSF / Richfaces AJAX errors
-                jsf.ajax.addOnError(function (data) {
+                faces.ajax.addOnError(function (data) {
                     if (typeof console != "undefined") console.error(data);
 
                     // @Deprecated

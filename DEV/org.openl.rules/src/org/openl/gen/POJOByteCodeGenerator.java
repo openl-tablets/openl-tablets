@@ -131,16 +131,16 @@ public class POJOByteCodeGenerator {
         String namespace = ByteCodeUtils.getNamespace(beanNameWithPackage);
         String name = beanNameWithPackage.substring(beanNameWithPackage.lastIndexOf('/') + 1);
 
-        AnnotationVisitor av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
+        AnnotationVisitor av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlAccessorType;", true);
-        av.visitEnum("value", "Ljavax/xml/bind/annotation/XmlAccessType;", "FIELD");
+        av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlAccessorType;", true);
+        av.visitEnum("value", "Ljakarta/xml/bind/annotation/XmlAccessType;", "FIELD");
         av.visitEnd();
 
-        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
+        av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         AnnotationVisitor av1 = av.visitArray("propOrder");
@@ -162,7 +162,7 @@ public class POJOByteCodeGenerator {
                                              String fieldName,
                                              FieldDescription field,
                                              String javaType) {
-        AnnotationVisitor av = fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlElement;", true);
+        AnnotationVisitor av = fieldVisitor.visitAnnotation("Ljakarta/xml/bind/annotation/XmlElement;", true);
 
         av.visit("name", field.getXmlName() != null ? field.getXmlName() : fieldName);
 
@@ -198,7 +198,7 @@ public class POJOByteCodeGenerator {
         av.visitEnd();
 
         if (field.isTransient()) {
-            fieldVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlTransient;", true).visitEnd();
+            fieldVisitor.visitAnnotation("Ljakarta/xml/bind/annotation/XmlTransient;", true).visitEnd();
         }
     }
 

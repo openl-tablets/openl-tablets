@@ -192,7 +192,7 @@
             <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>de.qaware.xff</groupId>
+            <groupId>org.openl</groupId>
             <artifactId>x-forwarded-filter</artifactId>
         </dependency>
         <dependency>
@@ -210,13 +210,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-            <scope>provided</scope>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
 
         <!-- OpenL dependencies -->

@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.faces.application.FacesMessage;
-import javax.validation.GroupSequence;
-import javax.validation.constraints.NotBlank;
+import jakarta.faces.application.FacesMessage;
+import jakarta.validation.GroupSequence;
+import jakarta.validation.constraints.NotBlank;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

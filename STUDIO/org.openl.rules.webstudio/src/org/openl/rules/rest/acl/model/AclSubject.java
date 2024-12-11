@@ -1,7 +1,7 @@
 package org.openl.rules.rest.acl.model;
 
 import java.util.Comparator;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

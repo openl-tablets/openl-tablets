@@ -28,16 +28,19 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.ControllerAdviceBean;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import org.openl.rules.spring.openapi.OpenApiUtils;
@@ -111,7 +114,7 @@ public class OpenApiSpringMvcReaderImpl {
                                     RequestMappingInfo mappingInfo,
                                     HandlerMethod method,
                                     List<ControllerAdviceInfo> controllerAdviceInfos) {
-        if (mappingInfo.getPatternsCondition() == null) {
+        if (mappingInfo.getPathPatternsCondition() == null) {
             return;
         }
         for (var controllerAdviceInfo : controllerAdviceInfos) {
@@ -120,8 +123,8 @@ public class OpenApiSpringMvcReaderImpl {
             }
         }
         var methodInfoBuilder = MethodInfo.Builder.from(method, mappingInfo);
-        for (String pathPattern : mappingInfo.getPatternsCondition().getPatterns()) {
-            methodInfoBuilder.pathPattern(pathPattern);
+        for (var pathPattern : mappingInfo.getPathPatternsCondition().getPatterns()) {
+            methodInfoBuilder.pathPattern(pathPattern.getPatternString());
             var requestMethods = mappingInfo.getMethodsCondition().getMethods();
             if (requestMethods.isEmpty()) {
                 // if request method is not defined, it means that ALL HTTP methods are accepted
@@ -413,7 +416,21 @@ public class OpenApiSpringMvcReaderImpl {
             Collection<ControllerAdviceInfo> controllerAdvices,
             Class<?> beanType) {
         return controllerAdvices.stream()
-                .filter(controllerAdvice -> new ControllerAdviceBean(controllerAdvice).isApplicableToBeanType(beanType))
+                .filter(controllerAdvice -> createHandlerTypePredicate(controllerAdvice).test(beanType))
                 .collect(Collectors.toList());
+    }
+
+    private static HandlerTypePredicate createHandlerTypePredicate(Object bean) {
+        var beanType = ClassUtils.getUserClass(bean);
+        var controllerAdvice = AnnotatedElementUtils.findMergedAnnotation(beanType, ControllerAdvice.class);
+        if (controllerAdvice == null) {
+            return HandlerTypePredicate.forAnyHandlerType();
+        }
+        return HandlerTypePredicate.builder()
+                .basePackage(controllerAdvice.basePackages())
+                .basePackageClass(controllerAdvice.basePackageClasses())
+                .assignableType(controllerAdvice.assignableTypes())
+                .annotation(controllerAdvice.annotations())
+                .build();
     }
 }

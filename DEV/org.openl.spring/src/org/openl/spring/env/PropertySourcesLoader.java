@@ -2,7 +2,7 @@ package org.openl.spring.env;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -27,7 +27,7 @@ import org.springframework.jndi.JndiPropertySource;
  * <li>Java System properties. {@link System#getProperties()}</li>
  * <li>JNDI attributes from {@code java:comp/env}</li>
  * <li>Servlet context loadProperties parameters from
- * {@link javax.servlet.ServletContext#getInitParameter(java.lang.String)}</li>
+ * {@link jakarta.servlet.ServletContext#getInitParameter(java.lang.String)}</li>
  * </ul>
  *
  * @author Yury Molchan

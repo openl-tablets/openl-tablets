@@ -2,7 +2,7 @@ package org.openl.rules.rest.settings;
 
 import java.io.IOException;
 import java.util.function.Supplier;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
