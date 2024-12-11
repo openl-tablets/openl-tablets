@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG JDK=11-jre-focal
+ARG JDK=21-jre-noble
 
 FROM eclipse-temurin:${JDK} as jdk
 
@@ -52,7 +52,7 @@ ENV OTEL_SERVICE_NAME OpenL
 RUN mkdir -p $OTEL_DIR
 COPY --from=otel opentelemetry-javaagent.jar $OTEL_DIR
 
-COPY --from=jetty:10-jre11 /usr/local/jetty $OPENL_APP
+COPY --from=jetty:12-jre21 /usr/local/jetty $OPENL_APP
 
 # Create start file for Jetty with configuration options
 RUN <<'EOT' cat > $OPENL_DIR/start.sh && chmod +x $OPENL_DIR/start.sh
@@ -82,7 +82,7 @@ JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
 
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -javaagent:"$OTEL_DIR/opentelemetry-javaagent.jar" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"
+-jar "$OPENL_APP/start.jar" --module=http,ee10-jsp,ext,ee10-deploy --lib="$OPENL_LIB/*.jar" "$@"
 EOT
 
 # Create setenv.sh file for configuration customization purpose

@@ -38,7 +38,7 @@ ENV LC_ALL C.UTF-8
 # Copy Java
 ENV JAVA_HOME /opt/java/openjdk
 ENV JAVA $JAVA_HOME/bin/java
-COPY --from=eclipse-temurin:11-jre-focal $JAVA_HOME $JAVA_HOME
+COPY --from=eclipse-temurin:21-jre-noble $JAVA_HOME $JAVA_HOME
 
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
 RUN <<EOT
