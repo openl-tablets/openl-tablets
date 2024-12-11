@@ -13,14 +13,8 @@
     <modules>
         <module>org.openl.commons</module>
         <module>org.openl.spring</module>
-        <module>org.openl.rules.util</module>
-        <module>org.openl.core.annotations</module>
         <module>org.openl.core</module>
-        <module>org.openl.grammars</module>
         <module>org.openl.rules</module>
         <module>org.openl.rules.calculation.result</module>
-        <module>org.openl.rules.constrainer</module>
-        <module>org.openl.rules.gen</module>
-
     </modules>
 </project>

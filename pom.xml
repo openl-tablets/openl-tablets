@@ -68,6 +68,7 @@
         </repository>
     </repositories>
     <properties>
+        <openl-tablets.version>5.27.10</openl-tablets.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
@@ -218,17 +219,11 @@
         <module>DEV</module>
         <module>STUDIO</module>
         <module>WSFrontend</module>
-        <module>EXT</module>
-        <module>DEMO</module>
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
-        <module>Util/org.openl.rules.profiler</module>
-        <module>Util/openl-rules-opentelemetry</module>
         <module>ITEST</module>
         <module>Util/openl-maven-plugin</module>
-        <module>Util/openl-simple-project-archetype</module>
-        <module>Util/openl-project-archetype</module>
         <module>Util/openl-yaml</module>
     </modules>
     <build>
@@ -1586,7 +1581,7 @@
             <dependency>
                 <groupId>org.openl</groupId>
                 <artifactId>org.openl.rules.util</artifactId>
-                <version>${project.version}</version>
+                <version>${openl-tablets.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl</groupId>
@@ -1601,12 +1596,12 @@
             <dependency>
                 <groupId>org.openl</groupId>
                 <artifactId>org.openl.core.annotations</artifactId>
-                <version>${project.version}</version>
+                <version>${openl-tablets.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl</groupId>
                 <artifactId>org.openl.grammars</artifactId>
-                <version>${project.version}</version>
+                <version>${openl-tablets.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -1621,7 +1616,7 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.constrainer</artifactId>
-                <version>${project.version}</version>
+                <version>${openl-tablets.version}</version>
             </dependency>
             <!-- STUDIO -->
             <dependency>
@@ -1749,7 +1744,7 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.jackson.configuration</artifactId>
-                <version>${project.version}</version>
+                <version>${openl-tablets.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
