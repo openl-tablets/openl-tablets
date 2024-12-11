@@ -3,7 +3,7 @@ package org.openl.security.oauth2.config;
 import java.util.Collection;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

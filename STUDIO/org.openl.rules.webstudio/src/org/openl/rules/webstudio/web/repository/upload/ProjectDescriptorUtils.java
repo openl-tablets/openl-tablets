@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.xml.sax.SAXParseException;
 

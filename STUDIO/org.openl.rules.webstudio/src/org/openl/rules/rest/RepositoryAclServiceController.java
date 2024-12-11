@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.MediaType;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.MediaType;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;

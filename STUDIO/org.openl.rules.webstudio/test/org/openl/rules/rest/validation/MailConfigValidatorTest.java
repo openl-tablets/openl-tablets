@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-import javax.mail.MessagingException;
-import javax.mail.Transport;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Transport;
 
 import com.icegreen.greenmail.smtp.SmtpServer;
 import com.icegreen.greenmail.util.GreenMail;

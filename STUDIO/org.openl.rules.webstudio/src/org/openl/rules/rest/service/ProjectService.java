@@ -1,7 +1,7 @@
 package org.openl.rules.rest.service;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.rest.model.ProjectViewModel;
