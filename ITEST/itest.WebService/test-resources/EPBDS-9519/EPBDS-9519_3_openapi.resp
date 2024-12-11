@@ -297,7 +297,7 @@ Content-Type: application/json
           "ySrp2" : {
             "type" : "string"
           },
-          "MYSPR" : {
+          "myspr" : {
             "type" : "string"
           }
         }
