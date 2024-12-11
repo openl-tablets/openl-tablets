@@ -1,7 +1,7 @@
 package org.openl.rules.project.validation.openapi.test;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.annotations.Name;

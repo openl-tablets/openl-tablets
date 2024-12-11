@@ -23,7 +23,7 @@
             <description>Component binding</description>
             <name>binding</name>
             <deferred-value>
-                <type>javax.faces.component.UIComponent</type>
+                <type>jakarta.faces.component.UIComponent</type>
             </deferred-value>
         </attribute>
         <attribute>
@@ -96,7 +96,7 @@
             <description>Component binding</description>
             <name>binding</name>
             <deferred-value>
-                <type>javax.faces.component.UIComponent</type>
+                <type>jakarta.faces.component.UIComponent</type>
             </deferred-value>
         </attribute>
         <attribute>

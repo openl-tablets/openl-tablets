@@ -2,7 +2,7 @@ package org.openl.binding.impl;
 
 import java.math.BigInteger;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.util.StringPool;
 

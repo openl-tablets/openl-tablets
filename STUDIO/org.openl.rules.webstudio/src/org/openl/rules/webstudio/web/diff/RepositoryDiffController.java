@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.PreDestroy;
-import javax.faces.component.UIComponent;
-import javax.faces.model.SelectItem;
+import jakarta.annotation.PreDestroy;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.model.SelectItem;
 
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;

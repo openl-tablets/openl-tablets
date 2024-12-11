@@ -15,8 +15,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import javax.annotation.PreDestroy;
-import javax.xml.bind.JAXBException;
+import jakarta.annotation.PreDestroy;
+import jakarta.xml.bind.JAXBException;
 
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;

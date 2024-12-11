@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.repository.upload.zip;
 import static org.openl.rules.util.Strings.format;
 
 import java.io.InputStream;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;

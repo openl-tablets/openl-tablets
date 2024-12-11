@@ -2,7 +2,7 @@ package org.openl.rules.project.xml;
 
 import java.io.File;
 import java.io.IOException;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.v5_11.RulesDeploy_v5_11;
