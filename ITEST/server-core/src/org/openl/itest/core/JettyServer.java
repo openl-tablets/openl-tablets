@@ -16,9 +16,10 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.webapp.ClassMatcher;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.ClassMatcher;
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.Resource;
 
 /**
  * Simple wrapper for Jetty Server
@@ -35,11 +36,11 @@ public class JettyServer {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
-        webAppContext.setResourceBase(explodedWar);
-        webAppContext.setExtraClasspath(getExtraClasspath());
+        webAppContext.setWar(explodedWar);
+        webAppContext.setExtraClasspath(getExtraClasspath(webAppContext));
         // Solve issue with different slf4j implementations comes from dependencies
-        webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j."));
-        webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("org.slf4j."));
+        webAppContext.addProtectedClassMatcher(new ClassMatcher("-jakarta.activation."));
 
         if (params != null && params.size() > 0) {
             webAppContext.getInitParams().putAll(params);
@@ -52,20 +53,20 @@ public class JettyServer {
         this.server.setHandler(webAppContext);
     }
 
-    private String getExtraClasspath() {
-        var classPath = new ArrayList<String>();
+    private ArrayList<Resource> getExtraClasspath(WebAppContext context) {
+        var classPath = new ArrayList<Resource>();
         var classes = Paths.get("target/classes");
         if (Files.exists(classes)) {
-            classPath.add(classes.toString());
+            classPath.add(context.newResource(classes.toUri()));
         }
         try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
 
-            classPath.addAll(stream.map(Path::toString).collect(Collectors.toList()));
+            classPath.addAll(stream.map(Path::toUri).map(context::newResource).collect(Collectors.toList()));
         } catch (IOException ignored) {
             // ignore
         }
 
-        return classPath.isEmpty() ? null : String.join(",", classPath);
+        return classPath.isEmpty() ? null : classPath;
     }
 
     /**

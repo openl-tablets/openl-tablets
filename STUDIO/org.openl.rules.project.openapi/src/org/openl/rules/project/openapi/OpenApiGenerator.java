@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.jaxrs2.Reader;

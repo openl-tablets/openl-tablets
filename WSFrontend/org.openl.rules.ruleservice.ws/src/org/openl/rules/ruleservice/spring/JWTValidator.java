@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.spring;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwk.HttpsJwks;
