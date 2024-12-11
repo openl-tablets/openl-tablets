@@ -1,7 +1,7 @@
 package org.openl.spring.env;
 
 import java.util.Collections;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.core.env.EnumerablePropertySource;
 
