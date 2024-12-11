@@ -3,9 +3,9 @@ package org.openl.generated.beans
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-import javax.xml.bind.annotation.XmlElement
-import javax.xml.bind.annotation.XmlRootElement
-import javax.xml.bind.annotation.XmlType
+import jakarta.xml.bind.annotation.XmlElement
+import jakarta.xml.bind.annotation.XmlRootElement
+import jakarta.xml.bind.annotation.XmlType
 
 @XmlRootElement(namespace = "http://beans.generated.openl.org", name = "MyType")
 @XmlType(namespace = "http://beans.generated.openl.org", name = "MyType", propOrder = ["mYSPR1", "ySrp2", "MYSPR"])

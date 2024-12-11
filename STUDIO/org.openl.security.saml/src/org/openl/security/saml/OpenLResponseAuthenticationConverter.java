@@ -20,7 +20,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.w3c.dom.Node;
 
@@ -36,7 +36,7 @@ import org.openl.util.StringUtils;
  *
  * @author Eugene Biruk
  */
-public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> {
+public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication> {
 
     private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
     private final Consumer<User> syncUserData;
@@ -57,7 +57,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
      * @return Saml2Authentication
      */
     @Override
-    public Saml2Authentication convert(OpenSaml4AuthenticationProvider.ResponseToken responseToken) {
+    public Saml2Authentication convert(OpenSaml5AuthenticationProvider.ResponseToken responseToken) {
         Assertion assertion = responseToken.getResponse().getAssertions().iterator().next();
         SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
         simpleUserBuilder.setAssertionAttributes(assertion);

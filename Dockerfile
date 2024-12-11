@@ -74,7 +74,7 @@ JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
 
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -javaagent:"$OTEL_DIR/opentelemetry-javaagent.jar" \
--jar "$OPENL_APP/start.jar" --module=http,ee8-jsp,ext,ee8-deploy --lib="$OPENL_LIB/*.jar" "$@"
+-jar "$OPENL_APP/start.jar" --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi  --lib="$OPENL_LIB/*.jar" "$@"
 EOT
 
 # Create setenv.sh file for configuration customization purpose

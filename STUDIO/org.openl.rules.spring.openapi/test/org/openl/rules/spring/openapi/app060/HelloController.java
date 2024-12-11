@@ -1,7 +1,7 @@
 package org.openl.rules.spring.openapi.app060;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.HttpHeaders;

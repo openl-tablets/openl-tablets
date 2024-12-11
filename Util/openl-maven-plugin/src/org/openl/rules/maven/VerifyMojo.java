@@ -100,7 +100,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         var jettyClassLoader = world.newRealm("jetty");
 
         // JettysourcePathsourcePath Server with annotations
-        for (var x : getJars("org.eclipse.jetty:jetty-annotations").values()) {
+        for (var x : getJars("org.eclipse.jetty.ee10:jetty-ee10-annotations").values()) {
             jettyClassLoader.addURL(x.toURI().toURL());
         }
 

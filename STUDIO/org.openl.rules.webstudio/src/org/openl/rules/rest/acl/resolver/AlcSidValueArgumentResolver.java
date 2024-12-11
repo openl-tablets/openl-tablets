@@ -1,6 +1,6 @@
 package org.openl.rules.rest.acl.resolver;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.core.MethodParameter;

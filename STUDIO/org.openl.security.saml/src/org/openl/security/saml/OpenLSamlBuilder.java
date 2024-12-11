@@ -6,12 +6,12 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml5AuthenticationRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -26,7 +26,7 @@ public class OpenLSamlBuilder {
     //Since the bean will be recreated in this case, but the link should remain the same.
     //RequireInitialize can be called only once, because of this it must be in a static block and call before
     //the initialization of the rest of the beans of the saml, where the initialization method can be called,
-    //for example OpenSaml4AuthenticationProvider.
+    //for example OpenSaml5AuthenticationProvider.
     private static boolean forceAuthN;
 
     static {
@@ -75,8 +75,8 @@ public class OpenLSamlBuilder {
      *
      * @return DefaultSaml2AuthenticationRequestContextResolver
      */
-    public Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-        return new DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver());
+    public Saml2AuthenticationRequestResolver authenticationRequestContextResolver() {
+        return new OpenSaml5AuthenticationRequestResolver(relyingPartyRegistrationResolver());
     }
 
     /**
@@ -88,8 +88,8 @@ public class OpenLSamlBuilder {
         return new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
     }
 
-    public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
-        return new OpenSaml4AuthenticationProvider();
+    public OpenSaml5AuthenticationProvider openSaml5AuthenticationProvider() {
+        return new OpenSaml5AuthenticationProvider();
     }
 
 }

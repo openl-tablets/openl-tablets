@@ -2,8 +2,8 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.openl.rules.repository.git.WildcardBranchNameFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;

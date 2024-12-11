@@ -1,6 +1,6 @@
 package org.openl.exception;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.util.print.NicePrinter;
 

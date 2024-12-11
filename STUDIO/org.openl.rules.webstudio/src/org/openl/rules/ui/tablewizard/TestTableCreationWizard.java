@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import javax.faces.model.SelectItem;
-import javax.validation.GroupSequence;
-import javax.validation.constraints.NotBlank;
+import jakarta.faces.model.SelectItem;
+import jakarta.validation.GroupSequence;
+import jakarta.validation.constraints.NotBlank;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;

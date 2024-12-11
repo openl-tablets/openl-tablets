@@ -2,12 +2,12 @@ package org.openl.rules.rest.settings.model.validation;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidator;
 
 public class RegexpConstraintValidator implements ConstraintValidator<RegexpConstraint, String> {
 
     @Override
-    public boolean isValid(String value, javax.validation.ConstraintValidatorContext context) {
+    public boolean isValid(String value, jakarta.validation.ConstraintValidatorContext context) {
         if (value == null || value.isBlank()) {
             return true;
         }

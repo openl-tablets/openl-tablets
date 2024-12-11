@@ -1,4 +1,4 @@
-import javax.ws.rs.core.HttpHeaders
+import jakarta.ws.rs.core.HttpHeaders
 import java.lang.reflect.Method
 
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodBeforeAdvice;

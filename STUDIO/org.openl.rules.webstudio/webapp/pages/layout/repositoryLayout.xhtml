@@ -40,7 +40,7 @@
         <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery-editable-select.min.js?1"></script>
 
-        <h:outputScript name="jsf.js" library="javax.faces" />
+        <h:outputScript name="faces.js" library="jakarta.faces" />
 
         <style>
             .rf-trn-sel {
@@ -98,7 +98,7 @@
                     handleError(data.responseCode);
                 }
             };
-            jsf.ajax.addOnError(onError);
+            faces.ajax.addOnError(onError);
 
             var ws = {
                 storage: {

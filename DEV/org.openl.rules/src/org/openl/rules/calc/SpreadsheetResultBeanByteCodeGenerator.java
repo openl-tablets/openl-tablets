@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import javax.xml.bind.annotation.XmlElement;
+
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -118,19 +119,19 @@ final class SpreadsheetResultBeanByteCodeGenerator {
     }
 
     private void visitClassAnnotations(ClassWriter classWriter) {
-        var av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlRootElement;", true);
+        var av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlRootElement;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlAccessorType;", true);
-        av.visitEnum("value", "Ljavax/xml/bind/annotation/XmlAccessType;", "PROPERTY");
+        av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlAccessorType;", true);
+        av.visitEnum("value", "Ljakarta/xml/bind/annotation/XmlAccessType;", "PROPERTY");
         av.visitEnd();
 
         av = classWriter.visitAnnotation(SR_BEAN_CLASS, true);
         av.visitEnd();
 
-        av = classWriter.visitAnnotation("Ljavax/xml/bind/annotation/XmlType;", true);
+        av = classWriter.visitAnnotation("Ljakarta/xml/bind/annotation/XmlType;", true);
         av.visit("namespace", namespace);
         av.visit("name", name);
         AnnotationVisitor av1 = av.visitArray("propOrder");

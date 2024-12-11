@@ -31,7 +31,7 @@
         <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
         <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
         <script src="#{contextPath}/javascript/common.js?12"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
-        <h:outputScript name="jsf.js" library="javax.faces" />
+        <h:outputScript name="faces.js" library="jakarta.faces" />
 
         <script src="#{contextPath}/javascript/vendor/jquery.easytabs.js"></script>
 
@@ -112,7 +112,7 @@
             var loadingPanel;
 
             // Handle JSF / Richfaces AJAX errors
-            jsf.ajax.addOnError(function (data) {
+            faces.ajax.addOnError(function (data) {
                 if (typeof console != "undefined") console.error(data);
 
                 // @Deprecated

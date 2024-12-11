@@ -1,6 +1,6 @@
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice
 
-import javax.ws.rs.core.Response
+import jakarta.ws.rs.core.Response
 import java.lang.reflect.Method
 
 class ResponseInterceptor implements ServiceMethodAfterAdvice<Response> {

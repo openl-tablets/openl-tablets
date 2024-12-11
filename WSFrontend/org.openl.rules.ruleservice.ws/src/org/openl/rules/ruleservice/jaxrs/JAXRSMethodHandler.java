@@ -6,7 +6,7 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 import java.util.Objects;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.runtime.AbstractOpenLMethodHandler;
