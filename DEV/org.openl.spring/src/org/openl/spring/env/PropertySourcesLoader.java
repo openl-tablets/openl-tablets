@@ -2,7 +2,7 @@ package org.openl.spring.env;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

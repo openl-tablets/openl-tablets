@@ -61,7 +61,7 @@ public class GettersWriter extends DefaultBeanByteCodeWriter {
         methodVisitor.visitMaxs(0, 0);
 
         if (fieldDescription.isTransient()) {
-            methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlTransient;", true).visitEnd();
+            methodVisitor.visitAnnotation("Ljakarta/xml/bind/annotation/XmlTransient;", true).visitEnd();
         }
 
         if (fieldDescription.getGetterVisitorWriters() != null) {

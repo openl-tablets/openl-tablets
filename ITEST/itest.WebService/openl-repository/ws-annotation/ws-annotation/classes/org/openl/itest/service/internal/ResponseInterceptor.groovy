@@ -2,7 +2,7 @@ package org.openl.itest.service.internal;
 
 import java.lang.reflect.Method;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 

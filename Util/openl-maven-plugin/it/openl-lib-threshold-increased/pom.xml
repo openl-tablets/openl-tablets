@@ -18,7 +18,7 @@
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <dependenciesThreshold>7</dependenciesThreshold>
+                    <dependenciesThreshold>8</dependenciesThreshold>
                 </configuration>
             </plugin>
         </plugins>
