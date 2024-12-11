@@ -1,8 +1,5 @@
 package org.openl.rules.rest.resolver;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -16,6 +13,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
@@ -68,13 +66,9 @@ public class Base64ProjectConverter implements Converter<String, RulesProject> {
     }
 
     private RulesProject decodeProjectIdentifier(String id) throws ProjectException {
-        var decoded = new String(Base64.getDecoder().decode(id.getBytes(UTF_8)), UTF_8);
-        var parts = decoded.indexOf(SEPARATOR);
-        if (parts == -1) {
-            throw new IllegalArgumentException("Invalid projectId: " + id);
-        }
-        var repoId = decoded.substring(0, parts);
-        var projectName = decoded.substring(parts + 1);
+        var projectId = ProjectIdModel.decode(id);
+        var repoId = projectId.getRepository();
+        var projectName = projectId.getProjectName();
         var workspace = getUserWorkspace();
         try {
             return workspace.getProject(repoId, projectName);
