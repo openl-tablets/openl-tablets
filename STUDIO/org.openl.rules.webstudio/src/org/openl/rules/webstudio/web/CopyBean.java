@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.component.UIInput;
+import jakarta.faces.context.FacesContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

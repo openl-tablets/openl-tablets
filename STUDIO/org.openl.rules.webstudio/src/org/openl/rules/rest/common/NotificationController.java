@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

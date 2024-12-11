@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.trace;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,6 +1,6 @@
 package org.openl.rules.calculation.result.convertor2;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /*
  * #%L

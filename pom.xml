@@ -61,7 +61,7 @@
         <repository>
             <id>shibboleth-releases</id>
             <name>Shibboleth Repository</name>
-            <url>https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+            <url>https://build.shibboleth.net/maven/releases/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -77,13 +77,13 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>5.3.39</spring.framework.version>
-        <spring.boot.version>2.7.18</spring.boot.version>
-        <spring.integration.version>5.5.20</spring.integration.version>
+        <spring.framework.version>6.2.5</spring.framework.version>
+        <spring.boot.version>3.4.5</spring.boot.version>
+        <spring.integration.version>6.5.0</spring.integration.version>
 
         <!-- Security -->
-        <spring.security.version>5.8.16</spring.security.version>
-        <opensaml.version>4.3.2</opensaml.version>
+        <spring.security.version>6.5.1</spring.security.version>
+        <opensaml.version>5.1.4</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.4.2</nimbus-jose-jwt.version>
         <json-smart.version>2.6.0</json-smart.version>
@@ -109,7 +109,7 @@
 
         <!-- REST -->
         <jackson.version>2.20.0</jackson.version>
-        <cxf.version>3.6.8</cxf.version>
+        <cxf.version>4.1.3</cxf.version>
 
         <!-- gRPC -->
         <grpc.version>1.75.0</grpc.version>
@@ -128,7 +128,7 @@
         <plexus-utils.version>4.0.2</plexus-utils.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>10.0.26</jetty.version>
+        <jetty.version>12.0.25</jetty.version>
 
         <!-- Repositories -->
         <amazonaws.version>2.33.0</amazonaws.version>
@@ -140,8 +140,8 @@
         <h2.version>2.3.232</h2.version>
         <mssql.version>12.10.1.jre11</mssql.version>
         <hikaricp.version>7.0.2</hikaricp.version>
-        <hibernate.orm.version>5.6.15.Final</hibernate.orm.version>
-        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
+        <hibernate.orm.version>6.6.21.Final</hibernate.orm.version>
+        <hibernate.validator.version>8.0.2.Final</hibernate.validator.version>
 
         <!-- Testing -->
         <junit.version>5.13.4</junit.version>
@@ -158,23 +158,23 @@
         <mariadb.version>2.7.12</mariadb.version>
         <jmh.version>1.37</jmh.version>
 
-        <!-- javax & Jakarta APIs -->
-        <jakarta.annotation-api.version>1.3.5</jakarta.annotation-api.version>
-        <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
-        <jakarta.xml.ws-api.version>2.3.3</jakarta.xml.ws-api.version>
-        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
-        <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
-        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <javax.websocket-api.version>1.1</javax.websocket-api.version>
+        <!-- Jakarta APIs -->
+        <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
+        <jakarta.mail-api.version>2.1.3</jakarta.mail-api.version>
+        <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
+        <jakarta.xml.bind-api.version>4.0.2</jakarta.xml.bind-api.version>
+        <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
 
         <!-- Cache -->
         <javax.cache-api.version>1.1.1</javax.cache-api.version>
         <cache2k.version>2.6.1.Final</cache2k.version>
 
         <!-- Mail -->
-        <jakarta.mail.version>1.6.7</jakarta.mail.version>
-        <greenmail.version>1.6.15</greenmail.version>
+        <angus-mail.version>2.0.3</angus-mail.version>
+        <greenmail.version>2.1.4</greenmail.version>
+
+        <!-- XML -->
+        <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
 
         <!-- Commons and utils -->
         <commons-codec.version>1.19.0</commons-codec.version>
@@ -194,11 +194,9 @@
         <aspectj.version>1.9.24</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
         <guava.version>33.4.8-jre</guava.version>
-        <xmlsec.version>2.3.5</xmlsec.version>
+        <xmlsec.version>4.0.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
-        <istack.version>3.0.12</istack.version>
         <activiti.version>5.23.0</activiti.version>
-        <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -819,18 +817,28 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-webapp</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-annotations</artifactId>
+                <groupId>org.eclipse.jetty.ee10.websocket</groupId>
+                <artifactId>jetty-ee10-websocket-jakarta-server</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>apache-jsp</artifactId>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-annotations</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-cdi</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.ee10</groupId>
+                <artifactId>jetty-ee10-apache-jsp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -936,9 +944,9 @@
                 The reason of this usage: no huge dependencies.
                 Neither Spring filter, nor CXF filter works correctly within the same reverse proxy.
                 So this library unifies forwarding for both OpenL Studio and RuleServices -->
-                <groupId>de.qaware.xff</groupId>
+                <groupId>org.openl</groupId>
                 <artifactId>x-forwarded-filter</artifactId>
-                <version>${x-forwarded-filter.version}</version>
+                <version>2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.groovy</groupId>
@@ -995,73 +1003,67 @@
             <!-- JSF -->
             <dependency>
                 <groupId>org.glassfish</groupId>
-                <artifactId>javax.faces</artifactId>
-                <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
-                    At the time of writing the latest official version is 2.3.9.
-                 -->
-                <version>2.3.9</version>
+                <artifactId>jakarta.faces</artifactId>
+                <version>4.0.11</version>
             </dependency>
             <dependency>
-                <groupId>javax.enterprise</groupId>
-                <artifactId>cdi-api</artifactId>
-                <version>2.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.el</groupId>
-                        <artifactId>javax.el-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>jakarta.enterprise</groupId>
+                <artifactId>jakarta.enterprise.cdi-api</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.weld.servlet</groupId>
+                <artifactId>weld-servlet-core</artifactId>
+                <version>5.1.6.Final</version>
             </dependency>
             <!-- RichFaces -->
             <!-- RichFaces reached end-of-life status with version 4.5.17.Final so vulnerabilities will not be fixed.
             To fix that we use forked richfaces implementation until we stop using richfaces features. -->
             <dependency>
-                <groupId>com.github.albfernandez.richfaces</groupId>
+                <groupId>org.openl.richfaces</groupId>
                 <artifactId>richfaces</artifactId>
-                <version>4.6.21.ayg</version>
+                <version>10.0.0-openl</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
+                        <groupId>org.apache.myfaces.core</groupId>
+                        <artifactId>myfaces-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.myfaces.core</groupId>
+                        <artifactId>myfaces-impl</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <!-- Servlets -->
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet-api.version}</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.1</version>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>jstl</artifactId>
-                <version>1.2</version>
+                <groupId>jakarta.servlet.jsp</groupId>
+                <artifactId>jakarta.servlet.jsp-api</artifactId>
+                <version>3.1.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet.jsp.jstl</groupId>
+                <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+                <version>3.0.2</version>
             </dependency>
             <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
             <dependency>
-                <groupId>javax.el</groupId>
-                <artifactId>javax.el-api</artifactId>
-                <version>3.0.0</version>
+                <groupId>jakarta.el</groupId>
+                <artifactId>jakarta.el-api</artifactId>
+                <version>5.0.1</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>3.0.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
-            <dependency>
-                <groupId>javax.websocket</groupId>
-                <artifactId>javax.websocket-api</artifactId>
-                <version>${javax.websocket-api.version}</version>
             </dependency>
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
@@ -1131,11 +1133,6 @@
                 <version>${jakarta.ws.rs-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>jakarta.xml.ws</groupId>
-                <artifactId>jakarta.xml.ws-api</artifactId>
-                <version>${jakarta.xml.ws-api.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core-shaded</artifactId>
                 <version>${cassandra.driver.version}</version>
@@ -1151,6 +1148,20 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <!-- Jakarta Mail Api for SMTP server connection -->
+            <dependency>
+                <groupId>jakarta.mail</groupId>
+                <artifactId>jakarta.mail-api</artifactId>
+                <version>${jakarta.mail-api.version}</version>
+            </dependency>
+            <!-- Angus is the implementation of the Jakarta Mail API -->
+            <dependency>
+                <groupId>org.eclipse.angus</groupId>
+                <artifactId>angus-mail</artifactId>
+                <version>${angus-mail.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <!-- GreenMail is an e-mail server for testing purposes -->
             <dependency>
                 <groupId>com.icegreen</groupId>
                 <artifactId>greenmail-junit5</artifactId>
@@ -1185,21 +1196,6 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.activation</groupId>
-                <artifactId>jakarta.activation</artifactId>
-                <version>${jakarta.activation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.activation</groupId>
-                <artifactId>jakarta.activation-api</artifactId>
-                <version>${jakarta.activation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.istack</groupId>
-                <artifactId>istack-commons-runtime</artifactId>
-                <version>${istack.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jgrapht</groupId>
@@ -1370,33 +1366,12 @@
             </dependency>
             <!-- Hibernate -->
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-core</artifactId>
                 <version>${hibernate.orm.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.activation</groupId>
-                        <artifactId>javax.activation-api</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-entitymanager</artifactId>
-                <version>${hibernate.orm.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.jboss.logging</groupId>
-                        <artifactId>jboss-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.orm</groupId>
                 <artifactId>hibernate-hikaricp</artifactId>
                 <version>${hibernate.orm.version}</version>
             </dependency>
@@ -1419,24 +1394,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-jaxb-annotations</artifactId>
-                <version>${jackson.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
-            <dependency>
-                <groupId>com.sun.mail</groupId>
-                <artifactId>jakarta.mail</artifactId>
-                <version>${jakarta.mail.version}</version>
-            </dependency>
             <!-- OpenAPI -->
             <dependency>
                 <groupId>io.swagger.parser.v3</groupId>
@@ -1447,26 +1404,34 @@
                         <groupId>io.swagger.parser.v3</groupId>
                         <artifactId>swagger-parser-v2-converter</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger.core.v3</groupId>
+                        <artifactId>swagger-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger.core.v3</groupId>
+                        <artifactId>swagger-models</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-jaxrs2</artifactId>
+                <artifactId>swagger-jaxrs2-jakarta</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations</artifactId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-core</artifactId>
+                <artifactId>swagger-core-jakarta</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-models</artifactId>
+                <artifactId>swagger-models-jakarta</artifactId>
                 <version>${swagger.core.version}</version>
             </dependency>
             <!--Activity -->

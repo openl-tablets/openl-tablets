@@ -1,7 +1,7 @@
 package org.openl.generated.epbds6830;
 
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 public class BeanA {
     private int a = 1;

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

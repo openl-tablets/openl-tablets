@@ -6,9 +6,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Optional;
 import java.util.Set;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
