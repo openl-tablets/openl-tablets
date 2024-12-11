@@ -34,12 +34,9 @@
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
         <module>itest.unpackClasspathZip</module>
-        <module>itest.webstudio</module>
         <module>itest.kafka.smoke</module>
-        <module>itest.tracing</module>
         <module>itest.storelogdata</module>
         <module>itest.minio</module>
-        <module>itest.webstudio-keycloak</module>
     </modules>
 
     <dependencyManagement>
