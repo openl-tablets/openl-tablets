@@ -164,7 +164,7 @@ echo.
 
 @title "OpenL Studio DEMO"
 @start http://localhost:8080/
-%_JAVA% -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,jsp,ext,deploy
+%_JAVA% -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,ee10-jsp,ext,ee10-deploy,ee10-websocket-jakarta,ee10-cdi
 
 @popd
 @exit /b 0 & endlocal

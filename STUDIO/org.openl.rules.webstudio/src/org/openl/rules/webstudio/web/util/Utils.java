@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.util;
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 

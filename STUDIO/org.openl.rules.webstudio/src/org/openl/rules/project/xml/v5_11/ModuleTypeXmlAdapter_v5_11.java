@@ -1,6 +1,6 @@
 package org.openl.rules.project.xml.v5_11;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.openl.rules.project.model.v5_11.ModuleType_v5_11;
 

@@ -1,13 +1,13 @@
 package org.openl.security.saml;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -24,7 +24,7 @@ public class SamlLogoutSuccessHandler extends SecurityContextLogoutHandler imple
     private final Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutHandler;
 
 
-    public SamlLogoutSuccessHandler(OpenSaml4LogoutRequestResolver requestResolver) {
+    public SamlLogoutSuccessHandler(OpenSaml5LogoutRequestResolver requestResolver) {
         this.logoutHandler = new Saml2RelyingPartyInitiatedLogoutSuccessHandler(requestResolver);
     }
 

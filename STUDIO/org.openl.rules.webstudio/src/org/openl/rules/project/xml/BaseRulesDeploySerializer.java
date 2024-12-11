@@ -3,7 +3,7 @@ package org.openl.rules.project.xml;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.ObjectVersionConverter;

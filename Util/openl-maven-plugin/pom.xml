@@ -66,8 +66,8 @@
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-annotations</artifactId>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>

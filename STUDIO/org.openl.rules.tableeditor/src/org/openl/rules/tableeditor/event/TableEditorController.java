@@ -2,9 +2,11 @@ package org.openl.rules.tableeditor.event;
 
 import java.io.IOException;
 import java.util.Date;
-import javax.el.ELContext;
-import javax.el.MethodExpression;
-import javax.faces.context.FacesContext;
+import jakarta.el.ELContext;
+import jakarta.el.MethodExpression;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
 
 import com.sdicons.json.mapper.JSONMapper;
 import com.sdicons.json.mapper.MapperException;
@@ -40,6 +42,8 @@ import org.openl.util.formatters.IFormatter;
  * @author Andrey Naumenko
  * @author Andrei Ostrovski
  */
+@Named("_tableEditorController")
+@RequestScoped
 public class TableEditorController extends BaseTableEditorController {
 
     private final Logger log = LoggerFactory.getLogger(TableEditorController.class);

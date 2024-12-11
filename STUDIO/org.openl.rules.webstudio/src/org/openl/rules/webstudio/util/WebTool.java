@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.util;
 
 import java.util.Map;
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.apache.commons.lang3.ArrayUtils;
 

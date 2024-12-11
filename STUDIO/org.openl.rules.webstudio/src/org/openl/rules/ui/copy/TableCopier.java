@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.GroupSequence;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.GroupSequence;
+import jakarta.validation.constraints.NotBlank;
 
 import org.richfaces.component.UIRepeat;
 import org.slf4j.Logger;
