@@ -1,6 +1,8 @@
 package org.openl.security.acl.repository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
@@ -91,5 +93,40 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     public String getFullPath(AProjectArtefact projectArtefact) {
         ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
         return (String) oi.getIdentifier();
+    }
+
+    @Override
+    @Transactional
+    public List<Permission> listPermissions(AProjectArtefact projectArtefact, Sid sid) {
+        if (sid == null) {
+            return Collections.emptyList();
+        }
+        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        var permissions = listPermissions(oi, List.of(sid));
+        return permissions.getOrDefault(sid, Collections.emptyList());
+    }
+
+    @Override
+    @Transactional
+    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact) {
+        ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        return listPermissions(oi, null);
+    }
+
+    @Override
+    @Transactional
+    public void removePermissions(AProjectArtefact projectArtefact, Sid sid) {
+        if (sid == null) {
+            return;
+        }
+        var oi = oidProvider.getArtifactOid(projectArtefact);
+        removePermissions(oi, List.of(sid));
+    }
+
+    @Override
+    @Transactional
+    public void addPermissions(AProjectArtefact projectArtefact, Sid sid, Permission... permissions) {
+        var oi = oidProvider.getArtifactOid(projectArtefact);
+        addPermissions(oi, Map.of(sid, List.of(permissions)));
     }
 }

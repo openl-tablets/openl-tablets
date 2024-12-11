@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS_14670_Project",
+  "modifiedBy": "jdoe",
+  "modifiedAt": "*",
+  "revision": "*",
+  "id": "ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=",
+  "status": "CLOSED",
+  "comment": "jdoe saved the project",
+  "repository": "design"
+}

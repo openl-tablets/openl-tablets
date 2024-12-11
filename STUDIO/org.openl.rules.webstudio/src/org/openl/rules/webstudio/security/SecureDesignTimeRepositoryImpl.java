@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.acls.model.Permission;
@@ -20,7 +21,7 @@ import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
 
-public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
+public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepository {
 
     private DesignTimeRepository designTimeRepository;
 
@@ -63,9 +64,28 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Repository> getManageableRepositories() {
+        return designTimeRepository.getRepositories()
+                .stream()
+                .filter(e -> designRepositoryAclService
+                        .isGranted(e.getId(), null, List.of(AclPermission.ADMINISTRATION))
+                )
+                .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, getDesignRepositoryAclService()))
+                .collect(Collectors.toList());
+    }
+
     private boolean isGrantedToAnyProject(String repoId, List<Permission> permissions) {
         return designTimeRepository.getProjects(repoId).stream()
                 .anyMatch(project -> designRepositoryAclService.isGranted(project, permissions));
+    }
+
+    @Override
+    public List<AProject> getManageableProjects() {
+        return designTimeRepository.getProjects()
+                .stream()
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.ADMINISTRATION)))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -177,6 +197,14 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
     public Repository getDeployConfigRepository() {
         return SecuredRepositoryFactory.wrapToSecureRepo(designTimeRepository.getDeployConfigRepository(),
                 getDeployConfigRepositoryAclService());
+    }
+
+    @Override
+    public Repository getManageableDeployConfigRepository() {
+        return Optional.ofNullable(designTimeRepository.getDeployConfigRepository())
+                .filter(e -> deployConfigRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.ADMINISTRATION)))
+                .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, deployConfigRepositoryAclService))
+                .orElse(null);
     }
 
     @Override

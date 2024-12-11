@@ -83,13 +83,13 @@ public class AdminUsers {
                 return group.getName();
             }
         }
-        if (!groupService.isGroupExist(ADMIN_GROUP)) {
+        if (!groupService.existsByName(ADMIN_GROUP)) {
             groupService.addGroup(ADMIN_GROUP, "A group with ADMIN privileges (restored)");
             groupService.updateGroup(ADMIN_GROUP, Collections.singleton(ADMIN));
             return ADMIN_GROUP;
         }
         String group = (user + "_Group");
-        if (!groupService.isGroupExist(group)) {
+        if (!groupService.existsByName(group)) {
             groupService.addGroup(group, "A group for restoring ADMIN privileges");
         }
         groupService.updateGroup(group, Collections.singleton(ADMIN));

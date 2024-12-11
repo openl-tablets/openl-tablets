@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -127,9 +128,24 @@ public class ManagementController {
     @AdminPrivilege
     public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         Group group = groupDao.getGroupById(id);
-        groupDao.deleteGroupById(id);
+        groupManagementService.deleteGroup(id);
         if (group != null && aclService != null) {
             aclService.deleteSid(new GrantedAuthoritySid(group.getName()));
+        }
+    }
+
+    @DeleteMapping(value = "/groups")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @Transactional
+    @AdminPrivilege
+    @Hidden // for testing purposes
+    public void deleteGroupByName(@RequestParam("name") final String name) {
+        Group group = groupDao.getGroupByName(name);
+        if (group != null) {
+            groupManagementService.deleteGroup(group.getId());
+            if (aclService != null) {
+                aclService.deleteSid(new GrantedAuthoritySid(group.getName()));
+            }
         }
     }
 
@@ -145,7 +161,7 @@ public class ManagementController {
             @Parameter(description = "mgmt.schema.group.design.role") @RequestParam(value = "designRole", required = false) final AclRole designRole,
             @Parameter(description = "mgmt.schema.group.deployConfig.role") @RequestParam(value = "deployConfigRole", required = false) final AclRole deployConfigRole,
             @Parameter(description = "mgmt.schema.group.admin") @RequestParam(value = "admin", required = false) final Boolean admin) {
-        if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
+        if (!name.equals(oldName) && groupManagementService.existsByName(name)) {
             throw new ConflictException("duplicated.group.message");
         }
         if (StringUtils.isBlank(oldName)) {
@@ -196,6 +212,7 @@ public class ManagementController {
     @Operation(description = "mgmt.get-roles.desc", summary = "mgmt.get-roles.summary")
     @GetMapping("/roles")
     @AdminPrivilege
+    @Deprecated
     public Map<AclRole, String> roles() {
         return Stream.of(AclRole.values())
                 .collect(StreamUtils.toLinkedMap(Function.identity(), AclRole::getDescription));
