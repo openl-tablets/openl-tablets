@@ -3,7 +3,7 @@ package org.openl.rules.helpers;
 import java.beans.Transient;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.rules.range.Range;

@@ -1,7 +1,7 @@
 package org.openl.rules.rest.model;
 
 import java.util.Set;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.spring;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;

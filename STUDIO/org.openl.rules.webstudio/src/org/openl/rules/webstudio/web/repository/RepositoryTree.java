@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.util.List;
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;

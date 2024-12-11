@@ -1,6 +1,6 @@
 package org.openl.rules.rest.model;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import org.openl.rules.rest.validation.PathConstraint;
 import org.openl.rules.rest.validation.ProjectNameConstraint;

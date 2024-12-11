@@ -24,7 +24,7 @@
             <security:filter-chain pattern="/icons/**" filters="none"/>
             <security:filter-chain pattern="/images/**" filters="none"/>
             <security:filter-chain pattern="/javascript/**" filters="none"/>
-            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/jakarta.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
             <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
             <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
@@ -85,7 +85,7 @@
     <util:list id="logoutHandlers">
         <bean class="org.openl.security.saml.SamlLogoutSuccessHandler">
             <constructor-arg name="requestResolver">
-                <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver">
+                <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver">
                     <constructor-arg name="relyingPartyRegistrationResolver" ref="relyingPartyRegistrationResolver"/>
                 </bean>
             </constructor-arg>
@@ -99,7 +99,7 @@
             <bean class="org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator"/>
         </constructor-arg>
         <constructor-arg name="logoutResponseResolver">
-            <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver">
+            <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutResponseResolver">
                 <constructor-arg name="relyingPartyRegistrationResolver" ref="relyingPartyRegistrationResolver"/>
             </bean>
         </constructor-arg>
@@ -136,7 +136,7 @@
     </bean>
 
     <bean id="authenticationRequestContextResolver"
-          class="org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver"
+          class="org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver"
           factory-bean="openLSamlBuilder" factory-method="authenticationRequestContextResolver">
     </bean>
 
@@ -146,11 +146,8 @@
     </bean>
 
     <bean id="samlRequestFilter"
-          class="org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter">
-        <constructor-arg name="authenticationRequestContextResolver" ref="authenticationRequestContextResolver"/>
-        <constructor-arg name="authenticationRequestFactory">
-            <bean class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory"/>
-        </constructor-arg>
+          class="org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter">
+        <constructor-arg name="authenticationRequestResolver" ref="authenticationRequestContextResolver"/>
     </bean>
 
     <bean id="responseAuthenticationConverter" class="org.openl.security.saml.OpenLResponseAuthenticationConverter">
@@ -160,7 +157,7 @@
     </bean>
 
     <bean id="samlFilter"
-          class="org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter">
+          class="org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter">
         <constructor-arg name="relyingPartyRegistrationRepository" ref="relyingPartyRegistration"/>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
@@ -168,8 +165,8 @@
     </bean>
 
     <bean id="samlAuthenticationProvider"
-          class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider"
-          factory-bean="openLSamlBuilder" factory-method="openSaml4AuthenticationProvider">
+          class="org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider"
+          factory-bean="openLSamlBuilder" factory-method="openSaml5AuthenticationProvider">
         <property name="responseAuthenticationConverter" ref="responseAuthenticationConverter"/>
     </bean>
 

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PreDestroy;
-import javax.faces.context.FacesContext;
+import jakarta.annotation.PreDestroy;
+import jakarta.faces.context.FacesContext;
 
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;

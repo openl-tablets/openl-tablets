@@ -1,6 +1,6 @@
 package org.openl.rules.rest.settings.model;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

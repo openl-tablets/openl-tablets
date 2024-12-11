@@ -1,7 +1,7 @@
 package org.openl.rules.ui.tablewizard;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * @author Aliaksandr Antonik.

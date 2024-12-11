@@ -3,9 +3,9 @@ package org.openl.rules.tableeditor.renderkit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
 
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IOpenLTable;

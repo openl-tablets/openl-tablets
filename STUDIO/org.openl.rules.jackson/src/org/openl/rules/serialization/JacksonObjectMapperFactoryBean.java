@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.xml.bind.annotation.XmlSeeAlso;
+import jakarta.xml.bind.annotation.XmlSeeAlso;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
+import com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import groovy.lang.GroovyObject;
 import org.objectweb.asm.ClassVisitor;
@@ -141,7 +141,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 .addSerializer(Float.TYPE, new FloatSerializer()));
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
-        JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
+        var secondaryIntrospector = new JakartaXmlBindAnnotationIntrospector(
                 TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {

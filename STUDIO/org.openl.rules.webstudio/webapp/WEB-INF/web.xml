@@ -19,21 +19,21 @@
         <description>
             Comma separated list of URIs of (additional) faces config files.
         </description>
-        <param-name>javax.faces.CONFIG_FILES</param-name>
+        <param-name>jakarta.faces.CONFIG_FILES</param-name>
         <param-value>
             /WEB-INF/faces/faces-config.xml
         </param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+        <param-name>jakarta.faces.FACELETS_LIBRARIES</param-name>
         <param-value>
             /WEB-INF/taglib/html.taglib.xml
         </param-value>
     </context-param>
 
     <context-param>
-        <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+        <param-name>jakarta.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
         <param-value>true</param-value>
     </context-param>
 
@@ -43,7 +43,7 @@
      use WebStudioUtils.addErrorMessage()). After that we can remove this context-param. Development is too verbose,
      so using SystemTest. -->
     <context-param>
-        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-name>jakarta.faces.PROJECT_STAGE</param-name>
         <param-value>SystemTest</param-value>
     </context-param>
 
@@ -131,7 +131,7 @@
 
     <servlet>
         <servlet-name>FacesServlet</servlet-name>
-        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <multipart-config>
             <!--parameter max-file-size should not be deleted. It is necessary for the WebSphere to work correctly with the jsf file downloader, but also we do not need to limit the file size in it, so the limit is 100 gigabytes-->
@@ -167,7 +167,7 @@
     </error-page>
 
     <error-page>
-        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <exception-type>jakarta.faces.application.ViewExpiredException</exception-type>
         <location>/faces/pages/sessionExpired.xhtml</location>
     </error-page>
 

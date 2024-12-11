@@ -42,7 +42,7 @@
             <ref bean="#{ ${ruleservice.deployer.enabled} ? 'deployer' : 'emptyEndPoint'}"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+            <bean class="com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider"/>
         </jaxrs:providers>
     </jaxrs:server>
 

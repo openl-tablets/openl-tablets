@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import javax.annotation.PreDestroy;
-import javax.faces.component.UIComponent;
+import jakarta.annotation.PreDestroy;
+import jakarta.faces.component.UIComponent;
 
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
