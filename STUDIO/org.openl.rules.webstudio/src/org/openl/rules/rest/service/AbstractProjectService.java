@@ -1,9 +1,7 @@
 package org.openl.rules.rest.service;
 
-import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +19,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.rules.rest.model.ProjectLockInfo;
 import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.security.acl.permission.AclPermission;
@@ -35,8 +34,6 @@ import org.openl.security.acl.repository.RepositoryAclService;
 public abstract class AbstractProjectService<T extends AProject> implements ProjectService<T> {
 
     private static final Predicate<AProject> ALL_PROJECTS = project -> true;
-
-    protected static final String PROJECT_ID_SEPARATOR = ":";
 
     protected final RepositoryAclService designRepositoryAclService;
 
@@ -85,7 +82,10 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
-                .id(buildProjectId(repository.getId(), resolveProjectName(src)))
+                .id(ProjectIdModel.builder()
+                        .repository(repository.getId())
+                        .projectName(resolveProjectName(src))
+                        .build())
                 .repository(repository.getId());
         var fileData = src.getFileData();
         if (fileData != null) {
@@ -130,11 +130,6 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         }
 
         return builder;
-    }
-
-    private String buildProjectId(String repositoryId, String projectName) {
-        var rawProjectId = repositoryId + PROJECT_ID_SEPARATOR + projectName;
-        return Base64.getEncoder().encodeToString(rawProjectId.getBytes(StandardCharsets.UTF_8));
     }
 
     protected String resolveProjectName(T src) {
