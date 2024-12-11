@@ -25,7 +25,6 @@ jobs:
       - name: Define settings
         run: |
           echo "JAVA21=21-jre-noble" >> $GITHUB_ENV
-          echo "JAVA11=11-jre-focal" >> $GITHUB_ENV
           echo "SERVER=https://repo.maven.apache.org/maven2" >> $GITHUB_ENV
 
       - name: Setup Soft
@@ -59,72 +58,54 @@ jobs:
           echo $major
           echo $latest
           echo $latestMajor
-          tags_11="-t openltablets/\$appName:$version"
-          tags_21="-t openltablets/\$appName:$version-jre21"
+          tags_jakarta="-t openltablets/\$appName:$version-jakarta"
           if [ "$latestMajor" = "$version" ]; then
-            tags_11+=" -t openltablets/\$appName:$major.x"
-            tags_21+=" -t openltablets/\$appName:$major.x-jre21"
+            tags_jakarta+=" -t openltablets/\$appName:$major.x-jakarta"
           fi
-          if [ "$latest" = "$version" ]; then
-            tags_11+=" -t openltablets/\$appName:latest"
-          fi
-          echo "tags_11=$tags_11" >> $GITHUB_ENV
-          echo "tags_21=$tags_21" >> $GITHUB_ENV
+          echo "tags_jakarta=$tags_jakarta" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
 
-      - name: Download OpenL Studio
+      - name: Download OpenL Studio (Jakarta)
         run: |
           # Define urls
           artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.webstudio-$version.war"
+          downloadUrl="$artifactUrl/$version-jakarta/org.openl.rules.webstudio-$version-jakarta.war"
           # Download artifact.
           wget --progress=dot:giga -O app.war "$downloadUrl"
           wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
           # GPG verification
           gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webstudio
+          unzip -q app.war -d webstudio-jakarta
           rm app.war.asc
           rm app.war
 
-      - name: Download Rule Services
+      - name: Download Rule Services (Jakarta)
         run: |
           # Define urls
           artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws-$version.war"
+          downloadUrl="$artifactUrl/$version-jakarta/org.openl.rules.ruleservice.ws-$version-jakarta.war"
           # Download artifact.
           wget --progress=dot:giga -O app.war "$downloadUrl"
           wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
           # GPG verification
           gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webservice
+          unzip -q app.war -d webservice-jakarta
           rm app.war.asc
           rm app.war
 
-      - name: Download Rule Services (ALL)
+      - name: Download Rule Services (ALL) (Jakarta)
         run: |
           # Define urls
           artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws.all"
-          downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws.all-$version.war"
+          downloadUrl="$artifactUrl/$version-jakarta/org.openl.rules.ruleservice.ws.all-$version-jakarta.war"
           # Download artifact.
           wget --progress=dot:giga -O app.war "$downloadUrl"
           wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
           # GPG verification
           gpg --batch --verify app.war.asc app.war
-          unzip -q app.war -d webservice-all
+          unzip -q app.war -d webservice-all-jakarta
           rm app.war.asc
           rm app.war
-
-      - name: Download DEMO
-        run: |
-          # Define urls
-          artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app"
-          downloadUrl="$artifactUrl/$version/openl-demo-app-$version.zip"
-          # Download artifact.
-          wget --progress=dot:giga -O openl-tablets-demo.zip "$downloadUrl"
-          wget --progress=dot:giga -O demo.zip.asc "$downloadUrl.asc"
-          # GPG verification
-          gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
-          rm demo.zip.asc
 
       - name: Download OpenTelemetry extension
         run: |
@@ -146,111 +127,49 @@ jobs:
           docker buildx create --use
           docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Push DEMO
-        env:
-          appName: demo
-        run: >
-          eval docker buildx build
-          $tags_11
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=openl-tablets-demo.zip
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          -f DEMO/Dockerfile .
-
-      - name: Push Rule Services (All)
+      - name: Push Rule Services (All) (Jakarta)
         run: >
           docker buildx build
-          -t openltablets/ws:$version-all
+          -t openltablets/ws:$version-jakarta-all
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice-all
+          --build-arg APP=webservice-all-jakarta
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
-          --label "org.opencontainers.image.title=OpenL RuleServices (All)"
+          --build-arg JDK=$JAVA21
+          --label "org.opencontainers.image.title=OpenL RuleServices (All) (Jakarta)"
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
           --label "org.opencontainers.image.created=${BUILD_DATE}"
           --label "org.opencontainers.image.description=An OpenL web service with extra modules"
           .
 
-      - name: Push Rule Services
+      - name: Push Rule Services (Jakarta)
         env:
           appName: ws
         run: >
           eval docker buildx build
-          $tags_11
+          $tags_jakarta
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice
+          --build-arg APP=webservice-jakarta
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
-          --label '"org.opencontainers.image.title=OpenL RuleServices"'
+          --build-arg JDK=$JAVA21
+          --label '"org.opencontainers.image.title=OpenL RuleServices (Jakarta)"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
           --label "org.opencontainers.image.created=${BUILD_DATE}"
           --label '"org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"'
           .
 
-      - name: Push OpenL Studio
+      - name: Push OpenL Studio (Jakarta)
         env:
           appName: webstudio
         run: >
           eval docker buildx build
-          $tags_11
+          $tags_jakarta
           --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webstudio
-          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA11
-          --label '"org.opencontainers.image.title=OpenL Studio"'
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          --label '"org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"'
-          .
-
-      - name: Push Rule Services (All) on JRE 21
-        run: >
-          docker buildx build
-          -t openltablets/ws:$version-jre21-all
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice-all
+          --build-arg APP=webstudio-jakarta
           --build-arg OTEL_APP=openl-rules-opentelemetry.jar
           --build-arg JDK=$JAVA21
-          --label "org.opencontainers.image.title=OpenL RuleServices (All)"
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          --label "org.opencontainers.image.description=An OpenL web service with extra modules"
-          .
-
-      - name: Push Rule Services on JRE 21
-        env:
-          appName: ws
-        run: >
-          eval docker buildx build
-          $tags_21
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webservice
-          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA21
-          --label '"org.opencontainers.image.title=OpenL RuleServices"'
-          --label "org.opencontainers.image.version=${version}"
-          --label "org.opencontainers.image.revision=${GITHUB_SHA}"
-          --label "org.opencontainers.image.created=${BUILD_DATE}"
-          --label '"org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"'
-          .
-
-      - name: Push OpenL Studio on JRE 21
-        env:
-          appName: webstudio
-        run: >
-          eval docker buildx build
-          $tags_21
-          --platform ${BUILD_PLATFORMS} --push
-          --build-arg APP=webstudio
-          --build-arg OTEL_APP=openl-rules-opentelemetry.jar
-          --build-arg JDK=$JAVA21
-          --label '"org.opencontainers.image.title=OpenL Studio"'
+          --label '"org.opencontainers.image.title=OpenL Studio (Jakarta)"'
           --label "org.opencontainers.image.version=${version}"
           --label "org.opencontainers.image.revision=${GITHUB_SHA}"
           --label "org.opencontainers.image.created=${BUILD_DATE}"
