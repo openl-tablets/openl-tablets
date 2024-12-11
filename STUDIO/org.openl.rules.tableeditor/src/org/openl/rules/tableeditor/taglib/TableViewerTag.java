@@ -1,11 +1,11 @@
 package org.openl.rules.tableeditor.taglib;
 
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponentBase;
 
 import org.openl.rules.tableeditor.util.Constants;
 
-public class TableViewerTag extends BaseTag {
+public class TableViewerTag extends UIComponentBase {
 
     private ValueExpression table = null;
     private ValueExpression filters = null;
@@ -16,7 +16,7 @@ public class TableViewerTag extends BaseTag {
     private ValueExpression excludeScripts = null;
 
     @Override
-    public String getComponentType() {
+    public String getFamily() {
         return Constants.TABLE_VIEWER_TYPE;
     }
 
@@ -51,32 +51,6 @@ public class TableViewerTag extends BaseTag {
 
     public void setExcludeScripts(ValueExpression excludeScripts) {
         this.excludeScripts = excludeScripts;
-    }
-
-    @Override
-    public void setProperties(UIComponent component) {
-        // always call the superclass method
-        super.setProperties(component);
-        component.setValueExpression(Constants.ATTRIBUTE_TABLE, table);
-        component.setValueExpression(Constants.ATTRIBUTE_VIEW, view);
-        component.setValueExpression(Constants.ATTRIBUTE_FILTERS, filters);
-        component.setValueExpression(Constants.ATTRIBUTE_CELLS, modifiedCells);
-        component.setValueExpression(Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
-        component.setValueExpression(Constants.ATTRIBUTE_COLLAPSE_PROPS, collapseProps);
-        component.setValueExpression(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS, excludeScripts);
-    }
-
-    @Override
-    public void release() {
-        // always call the superclass method
-        super.release();
-        table = null;
-        filters = null;
-        modifiedCells = null;
-        view = null;
-        showFormulas = null;
-        collapseProps = null;
-        excludeScripts = null;
     }
 
 }

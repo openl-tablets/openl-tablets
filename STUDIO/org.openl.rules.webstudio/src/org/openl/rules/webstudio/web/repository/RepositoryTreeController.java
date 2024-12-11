@@ -31,15 +31,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.event.AjaxBehaviorEvent;
-import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.AjaxBehaviorEvent;
+import jakarta.faces.model.SelectItem;
+import jakarta.faces.validator.ValidatorException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -2137,7 +2137,7 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public String createProjectWithFiles() {
+    public void createProjectWithFiles() {
         try {
             String comment;
             if (StringUtils.isNotBlank(createProjectComment)) {
@@ -2148,12 +2148,12 @@ public class RepositoryTreeController {
             String errorMessage = validateCreateProjectParams(comment);
             if (errorMessage != null) {
                 WebStudioUtils.addErrorMessage(errorMessage);
-                return errorMessage;
+                return;
             }
             if (uploadedFiles.isEmpty()) {
                 errorMessage = "There are no uploaded files.";
                 WebStudioUtils.addErrorMessage(errorMessage);
-                return errorMessage;
+                return;
             }
             Map<String, String> tags = projectTagsBean.saveTagsTypesAndGetTags();
             final ProjectUploader uploader = new ProjectUploader(repositoryId,
@@ -2175,17 +2175,17 @@ public class RepositoryTreeController {
                 uploadedProject = uploader.uploadProject();
             } catch (ProjectException e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
-                return e.getMessage();
+                return;
             }
             try {
                 repositoryTreeState.addRulesProjectToTree(uploadedProject);
                 selectProject(uploadedProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
-                return null;
+                return;
             } catch (Exception e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
-                return e.getMessage();
+                return;
             }
         } finally {
             /* Clear the load form */

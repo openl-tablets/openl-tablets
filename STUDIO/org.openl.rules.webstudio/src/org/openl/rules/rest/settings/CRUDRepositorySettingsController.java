@@ -1,7 +1,7 @@
 package org.openl.rules.rest.settings;
 
 import java.io.IOException;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

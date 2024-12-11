@@ -1,8 +1,8 @@
 package org.openl.rules.spring.openapi.app021.controller;
 
 import java.util.Map;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import javax.faces.model.SelectItem;
+import jakarta.faces.model.SelectItem;
 
 import org.openl.rules.table.constraints.Constraints;
 import org.openl.rules.table.formatters.Formats;

@@ -2,7 +2,7 @@ package org.openl.rules.openapi;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.databind.JavaType;
 import io.swagger.v3.core.converter.AnnotatedType;

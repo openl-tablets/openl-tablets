@@ -6,7 +6,7 @@ import static org.openl.util.StringUtils.isNotBlank;
 import java.beans.Transient;
 import java.util.Comparator;
 import java.util.Objects;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

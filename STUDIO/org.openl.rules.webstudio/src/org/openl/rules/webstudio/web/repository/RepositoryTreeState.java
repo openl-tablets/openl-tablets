@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.faces.context.FacesContext;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.faces.context.FacesContext;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.richfaces.component.UITree;

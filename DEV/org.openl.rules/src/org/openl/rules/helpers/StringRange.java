@@ -1,7 +1,7 @@
 package org.openl.rules.helpers;
 
 import java.beans.Transient;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.NumericStringComparator;

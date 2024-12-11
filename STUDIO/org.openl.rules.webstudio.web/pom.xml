@@ -28,12 +28,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.albfernandez.richfaces</groupId>
+            <groupId>org.openl.richfaces</groupId>
             <artifactId>richfaces</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.faces</artifactId>
+            <artifactId>jakarta.faces</artifactId>
         </dependency>
 
         <!-- OpenL dependencies -->

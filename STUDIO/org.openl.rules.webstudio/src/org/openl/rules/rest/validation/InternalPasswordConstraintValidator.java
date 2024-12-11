@@ -1,8 +1,8 @@
 package org.openl.rules.rest.validation;
 
-import javax.annotation.Resource;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.annotation.Resource;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 
@@ -30,7 +30,7 @@ public class InternalPasswordConstraintValidator implements ConstraintValidator<
                 return false;
             }
         } else if (canCreateInternalUsers) {
-            context.buildConstraintViolationWithTemplate("{javax.validation.constraints.NotBlank.message}")
+            context.buildConstraintViolationWithTemplate("{jakarta.validation.constraints.NotBlank.message}")
                     .addConstraintViolation();
             return false;
         }

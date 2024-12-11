@@ -35,7 +35,7 @@ public interface OpenApiParameterService {
                                              Set<io.swagger.v3.oas.annotations.Parameter> ignore);
 
     /**
-     * Applies javax validation annotations from method parameter to provided schema
+     * Applies jakarta validation annotations from method parameter to provided schema
      *
      * @param paramInfo method parameter
      * @param schema    schema to apply validation annotations

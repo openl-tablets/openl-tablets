@@ -2,7 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.Collection;
 import java.util.Collections;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;

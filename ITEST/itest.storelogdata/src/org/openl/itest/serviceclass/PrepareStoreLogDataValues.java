@@ -1,7 +1,7 @@
 package org.openl.itest.serviceclass;
 
 import java.util.Map;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
 import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;

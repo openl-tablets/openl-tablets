@@ -10,7 +10,7 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import javax.faces.context.FacesContext;
+import jakarta.faces.context.FacesContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

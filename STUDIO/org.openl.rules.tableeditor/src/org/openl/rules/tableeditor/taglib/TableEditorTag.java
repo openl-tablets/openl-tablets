@@ -1,14 +1,14 @@
 package org.openl.rules.tableeditor.taglib;
 
 import java.util.List;
-import javax.el.MethodExpression;
-import javax.el.ValueExpression;
-import javax.faces.component.UIComponent;
+import jakarta.el.MethodExpression;
+import jakarta.el.ValueExpression;
+import jakarta.faces.component.UIComponentBase;
 
 import org.openl.rules.table.ICell;
 import org.openl.rules.tableeditor.util.Constants;
 
-public class TableEditorTag extends TableViewerTag {
+public class TableEditorTag extends UIComponentBase {
 
     private ValueExpression mode = null;
     private ValueExpression editable = null;
@@ -24,9 +24,10 @@ public class TableEditorTag extends TableViewerTag {
     private List<ICell> modifiedCells = null;
 
     @Override
-    public String getComponentType() {
+    public String getFamily() {
         return Constants.TABLE_EDITOR_TYPE;
     }
+
 
     public void setMode(ValueExpression mode) {
         this.mode = mode;
@@ -87,34 +88,6 @@ public class TableEditorTag extends TableViewerTag {
     @Override
     public String getRendererType() {
         return Constants.TABLE_EDITOR_TYPE;
-    }
-
-    @Override
-    public void setProperties(UIComponent component) {
-        // Always call the superclass method
-        super.setProperties(component);
-        component.setValueExpression(Constants.ATTRIBUTE_MODE, mode);
-        component.setValueExpression(Constants.ATTRIBUTE_EDITABLE, editable);
-        component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_EDIT_ACTION, beforeEditAction);
-        component.getAttributes().put(Constants.ATTRIBUTE_BEFORE_SAVE_ACTION, beforeSaveAction);
-        component.getAttributes().put(Constants.ATTRIBUTE_AFTER_SAVE_ACTION, afterSaveAction);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_EDIT, onBeforeEdit);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_BEFORE_SAVE, onBeforeSave);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_AFTER_SAVE, onAfterSave);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_ERROR, onError);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_REQUEST_START, onRequestStart);
-        component.setValueExpression(Constants.ATTRIBUTE_ON_REQUEST_END, onRequestEnd);
-    }
-
-    @Override
-    public void release() {
-        // always call the superclass method
-        super.release();
-        mode = null;
-        editable = null;
-        beforeEditAction = null;
-        beforeSaveAction = null;
-        afterSaveAction = null;
     }
 
 }
