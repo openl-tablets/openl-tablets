@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AutoClose;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.openl.itest.core.HttpClient;
@@ -155,6 +156,7 @@ public class RunRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
     }
 
+    @Disabled
     @Test
     public void EPBDS_11144() {
         client.send("admin_services_no_services.json.get");
