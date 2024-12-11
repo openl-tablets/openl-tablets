@@ -81,6 +81,14 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     @Override
+    public List<AProject> getManageableProjects() {
+        return designTimeRepository.getProjects()
+                .stream()
+                .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.ADMINISTRATION)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Repository getRepository(String id) {
         return SecuredRepositoryFactory.wrapToSecureRepo(designTimeRepository.getRepository(id),
                 getDesignRepositoryAclService());
