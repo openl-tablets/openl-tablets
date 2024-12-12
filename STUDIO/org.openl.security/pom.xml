@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <artifactId>spring-security-config</artifactId>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>

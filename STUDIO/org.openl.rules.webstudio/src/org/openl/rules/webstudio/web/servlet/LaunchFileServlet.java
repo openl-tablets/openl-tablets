@@ -73,7 +73,7 @@ public class LaunchFileServlet extends HttpServlet {
         } catch (ProjectException e) {
             return;
         }
-        if (!ws.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
+        if (!ws.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.WRITE))) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }

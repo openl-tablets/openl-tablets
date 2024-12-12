@@ -8,10 +8,7 @@ package org.openl.rules.security;
  */
 public enum Privileges implements Privilege {
 
-    ADMIN("Administrate"),
-
-    UNLOCK_PROJECTS("Unlock Projects"),
-    UNLOCK_DEPLOYMENT("Unlock Deploy Configuration");
+    ADMIN("Administrate");
 
     private final String displayName;
 

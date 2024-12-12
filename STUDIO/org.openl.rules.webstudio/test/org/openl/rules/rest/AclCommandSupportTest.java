@@ -64,14 +64,14 @@ public class AclCommandSupportTest {
 
     @Test
     public void ok() throws CommandFormatException {
-        AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD");
-        AclCommandSupport.toCommand("AdD:DeSiGn/design1:/DESIGN/rules/Project1:user:username:ViEw,AdD");
+        AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,CREATE");
+        AclCommandSupport.toCommand("AdD:DeSiGn/design1:/DESIGN/rules/Project1:user:username:ViEw,CrEaTe");
         AclCommandSupport.toCommand("rEmOvE:PrOd/design1:/DESIGN/rules/Project1:user:username:EdIt");
-        AclCommandSupport.toCommand("rEmOvE:DePlOyCoNfIg/deploy-config:/DESIGN/rules/Project1:user:username:ViEw,AdD");
-        AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username: VIEW, ADD");
-        AclCommandSupport.toCommand("add:DESIGN::user:username:VIEW,ADD");
+        AclCommandSupport.toCommand("rEmOvE:DePlOyCoNfIg/deploy-config:/DESIGN/rules/Project1:user:username:ViEw,CrEaTe");
+        AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username: VIEW, CREATE");
+        AclCommandSupport.toCommand("add:DESIGN::user:username:VIEW,CREATE");
 
-        AclCommandSupport.toCommand("set:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD");
+        AclCommandSupport.toCommand("set:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,CREATE");
         AclCommandSupport.toCommand("list:DESIGN/design1:");
         AclCommandSupport.toCommand("list:DESIGN/design1:/DESIGN/rules/Project1");
         AclCommandSupport.toCommand("listAll:DESIGN/design1:");

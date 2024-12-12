@@ -49,7 +49,9 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Group;
+import org.openl.rules.security.OwnerOrAdminPrivilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.User;
@@ -116,11 +118,9 @@ public class UsersController {
 
     @Operation(description = "users.get-user.desc", summary = "users.get-user.summary")
     @GetMapping("/{username}")
+    @OwnerOrAdminPrivilege
     public UserModel getUser(
             @Parameter(description = "users.field.username") @PathVariable("username") String username) {
-        if (!currentUserInfo.getUserName().equals(username)) {
-            SecurityChecker.allow(Privileges.ADMIN);
-        }
         checkUserExists(username);
         return Optional.ofNullable(userManagementService.getUser(username)).map(this::mapUser).orElse(null);
     }
@@ -128,8 +128,8 @@ public class UsersController {
     @Operation(description = "users.add-user.desc", summary = "users.add-user.summary")
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @AdminPrivilege
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
-        SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
         userManagementService.addUser(userModel.getUsername(),
                 userModel.getFirstName(),
@@ -146,12 +146,10 @@ public class UsersController {
     @Operation(description = "users.edit-user.desc", summary = "users.edit-user.summary")
     @PutMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @OwnerOrAdminPrivilege
     public void editUser(HttpServletRequest request,
                          @RequestBody UserEditModel userModel,
                          @Parameter(description = "users.field.username") @PathVariable("username") String username) {
-        if (!currentUserInfo.getUserName().equals(username)) {
-            SecurityChecker.allow(Privileges.ADMIN);
-        }
         checkUserExists(username);
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(username);
@@ -305,10 +303,10 @@ public class UsersController {
 
     @Operation(description = "users.get-user-external-groups.desc", summary = "users.get-user-external-groups.summary")
     @GetMapping("/{username}/groups/external")
+    @AdminPrivilege
     public Set<String> getUserExternalGroups(
             @Parameter(description = "users.field.username") @PathVariable("username") String username,
             @Parameter(description = "users.get-user-external-groups.param.matched.username") @RequestParam(value = "matched", required = false) Boolean matched) {
-        SecurityChecker.allow(Privileges.ADMIN);
         checkUserExists(username);
         List<Group> extGroups;
         if (matched == null) {

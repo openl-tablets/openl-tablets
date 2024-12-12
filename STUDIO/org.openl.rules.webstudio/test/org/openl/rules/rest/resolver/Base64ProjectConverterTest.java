@@ -59,10 +59,10 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.VIEW))).thenReturn(true);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(true);
 
         assertSame(rulesProject, projectConverter.convert(projectId));
-        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.VIEW));
+        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.READ));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.VIEW))).thenReturn(false);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(false);
 
         assertThrows(SecurityException.class, () -> projectConverter.convert(projectId));
     }
@@ -121,10 +121,10 @@ public class Base64ProjectConverterTest {
 
         var rulesProject = mock(RulesProject.class);
         when(userWorkspace.getProject(repoId, projectBusinessName)).thenReturn(rulesProject);
-        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.VIEW))).thenReturn(true);
+        when(designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.READ))).thenReturn(true);
 
         assertSame(rulesProject, projectConverter.convert(projectId));
-        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.VIEW));
+        verify(designRepositoryAclService).isGranted(rulesProject, List.of(AclPermission.READ));
     }
 
     @Test

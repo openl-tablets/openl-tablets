@@ -5,12 +5,12 @@ Content-Type: application/json
   {
     "groupId": 7,
     "groupName": "Group1",
-    "permissions": ["DELETE", "ERASE"]
+    "permissions": ["DELETE"]
   }, {
   "username": "EPBDS_13211_3",
   "permissions": ["VIEW", "EDIT", "DELETE"]
 }, {
   "username": "admin",
-  "permissions": ["VIEW", "ADD", "EDIT", "DELETE", "ERASE", "RUN", "BENCHMARK"]
+  "permissions": ["VIEW", "CREATE", "EDIT", "DELETE"]
 }
 ]

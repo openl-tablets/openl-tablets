@@ -56,13 +56,13 @@ public class AclServiceTest {
 
         // Now grant some permissions via an access control entry (ACE)
         Sid sid = new PrincipalSid("Samantha");
-        acl.insertAce(acl.getEntries().size(), AclPermission.EDIT, sid, true);
-        acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, true);
+        acl.insertAce(acl.getEntries().size(), AclPermission.WRITE, sid, true);
+        acl.insertAce(acl.getEntries().size(), AclPermission.READ, sid, true);
         acl.insertAce(acl.getEntries().size(), AclPermission.DELETE, sid, false);
 
         // Authority Permissions
         Sid sid1 = new GrantedAuthoritySid("Samantha");
-        acl.insertAce(acl.getEntries().size(), AclPermission.EDIT, sid1, false);
+        acl.insertAce(acl.getEntries().size(), AclPermission.WRITE, sid1, false);
         aclService.updateAcl(acl);
 
         try {
@@ -71,10 +71,10 @@ public class AclServiceTest {
             fail("ACL is not found!");
         }
 
-        assertTrue(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid), false));
-        assertTrue(acl.isGranted(List.of(AclPermission.VIEW), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(AclPermission.WRITE), List.of(sid), false));
+        assertTrue(acl.isGranted(List.of(AclPermission.READ), List.of(sid), false));
         assertFalse(acl.isGranted(List.of(AclPermission.DELETE), List.of(sid), false));
         // Authority Permissions
-        assertFalse(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid1), false));
+        assertFalse(acl.isGranted(List.of(AclPermission.WRITE), List.of(sid1), false));
     }
 }

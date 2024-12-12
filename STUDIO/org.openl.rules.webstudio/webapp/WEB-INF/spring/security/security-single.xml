@@ -51,16 +51,6 @@
     <!-- Allow unrestricted access  -->
     <bean id="accessDecisionManager" class="org.openl.rules.webstudio.AlwaysGrantAccessDecisionManager"/>
 
-    <bean id="securityMetadataSource"
-          class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
-    <bean id="openlManagerSecurity"
-          class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
-        <property name="validateConfigAttributes" value="false"/>
-        <property name="authenticationManager" ref="authenticationManager"/>
-        <property name="accessDecisionManager" ref="accessDecisionManager"/>
-        <property name="securityMetadataSource" ref="securityMetadataSource"/>
-    </bean>
-
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg value="/"/>
         <constructor-arg>
