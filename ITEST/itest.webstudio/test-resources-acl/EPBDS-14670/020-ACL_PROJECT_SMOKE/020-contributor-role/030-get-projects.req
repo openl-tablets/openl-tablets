@@ -1,0 +1,4 @@
+GET /rest/projects HTTP/1.1
+Authorization: Basic amRvZTpqZG9l
+Cookie: NO_JSESSIONID=noAuth
+
