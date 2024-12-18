@@ -43,14 +43,21 @@ import org.openl.rules.helpers.StringRange;
 import org.openl.rules.util.Arrays;
 import org.openl.rules.util.Avg;
 import org.openl.rules.util.Booleans;
+import org.openl.rules.util.Corel;
+import org.openl.rules.util.Covar;
 import org.openl.rules.util.Dates;
+import org.openl.rules.util.Forecast;
+import org.openl.rules.util.Intercept;
 import org.openl.rules.util.Miscs;
 import org.openl.rules.util.Numbers;
 import org.openl.rules.util.Product;
 import org.openl.rules.util.Round;
+import org.openl.rules.util.Slope;
 import org.openl.rules.util.Statistics;
+import org.openl.rules.util.StdDev;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
+import org.openl.rules.util.Var;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
@@ -69,7 +76,14 @@ public class OpenLBuilder extends AOpenLBuilder {
             Miscs.class.getName(),
             Numbers.class.getName(),
             RulesUtils.class.getName(),
-            CtrUtils.class.getName()};
+            CtrUtils.class.getName(),
+            Var.class.getName(),
+            Covar.class.getName(),
+            Corel.class.getName(),
+            Forecast.class.getName(),
+            Intercept.class.getName(),
+            Slope.class.getName(),
+            StdDev.class.getName()};
 
     private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
             Operators.class.getName(),
@@ -178,6 +192,13 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(DTEmptyResultProcessingEnum.class.getName());
         javaImport1.addClassImport(RecalculateEnum.class.getName());
         javaImport1.addClassImport(ValidateDTEnum.class.getName());
+        javaImport1.addClassImport(Var.class.getName());
+        javaImport1.addClassImport(Covar.class.getName());
+        javaImport1.addClassImport(Corel.class.getName());
+        javaImport1.addClassImport(Forecast.class.getName());
+        javaImport1.addClassImport(Intercept.class.getName());
+        javaImport1.addClassImport(Slope.class.getName());
+        javaImport1.addClassImport(StdDev.class.getName());
 
         typeLibrary.addConfiguration(javaImport1);
 
