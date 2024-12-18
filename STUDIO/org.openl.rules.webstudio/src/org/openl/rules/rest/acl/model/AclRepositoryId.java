@@ -5,9 +5,11 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.security.acl.repository.AclRepositoryType;
 
+@Schema(implementation = String.class)
 public class AclRepositoryId {
 
     private static final String ID_SEPARATOR = ":";

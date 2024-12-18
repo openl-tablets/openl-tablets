@@ -1,5 +1,10 @@
 package org.openl.rules.rest.acl;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -8,6 +13,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
@@ -38,11 +47,11 @@ import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StreamUtils;
 
+@Hidden
 @Validated
 @RestController
 @RequestMapping(value = "/acls/repositories", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "ACL Management: Repositories", description = "ACL Management API for Repositories")
-@Hidden
 public class AclRepositoriesController {
 
     private final RepositoryAclServiceProvider aclServiceProvider;
@@ -61,6 +70,10 @@ public class AclRepositoriesController {
     }
 
     @GetMapping
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     public List<AclRepositoryModel> getAclRepositoryRules(@NotNull @SidExistsConstraint Sid sid) {
         var aclRepoModels = designTimeRepository.getManageableRepositories().stream()
                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.DESIGN, repo.getId(), sid));
@@ -86,6 +99,10 @@ public class AclRepositoriesController {
 
     @RepositoryManagementPermission
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     @PutMapping(value = "/{repo-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid,
@@ -100,6 +117,10 @@ public class AclRepositoriesController {
 
     @RepositoryManagementPermission
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     @DeleteMapping(value = "/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
@@ -108,6 +129,10 @@ public class AclRepositoriesController {
     }
 
     @AdminPrivilege
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     @GetMapping(value = "/roots")
     public List<AclRepositoryModel> getAclRepositoryRulesForRoot(@NotNull @SidExistsConstraint Sid sid) {
         return StreamUtils.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
@@ -117,6 +142,10 @@ public class AclRepositoriesController {
     }
 
     @AdminPrivilege
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/roots/{root-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
@@ -160,6 +189,17 @@ public class AclRepositoriesController {
                         .type(type)
                         .role(AclRole.getRole(permission.getMask()))
                         .build());
+    }
+
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
+    public @interface SidQueryParameter {
+
     }
 
 }
