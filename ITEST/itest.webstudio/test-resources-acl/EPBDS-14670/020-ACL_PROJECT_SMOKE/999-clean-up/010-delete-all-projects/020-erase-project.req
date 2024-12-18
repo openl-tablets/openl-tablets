@@ -1,0 +1,5 @@
+DELETE /rest/user-workspace/design/projects/EPBDS_14670_Project/erase HTTP/1.1
+Authorization: Basic anNtaXRoOmpzbWl0aA==
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar

@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.model.Sid;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,9 +48,9 @@ public class AclProjectsController {
 
     public AclProjectsController(SecureDesignTimeRepository designTimeRepository,
                                  RepositoryAclServiceProvider aclServiceProvider,
-                                 TransactionTemplate txTemplate) {
+                                 PlatformTransactionManager txManager) {
         this.aclServiceProvider = aclServiceProvider;
-        this.txTemplate = txTemplate;
+        this.txTemplate = new TransactionTemplate(txManager);
         this.designTimeRepository = designTimeRepository;
     }
 
@@ -106,17 +107,11 @@ public class AclProjectsController {
     }
 
     private Stream<AclProjectModel> mapAclProjectModelForSid(AProject project) {
-        var projectId = ProjectIdModel.builder()
-                .repository(project.getRepository().getId())
-                .projectName(project.getName())
-                .build();
         var aclService = aclServiceProvider.getDesignRepoAclService();
         return aclService.listPermissions(project).entrySet().stream()
                 .map(entry -> Pair.of(AclSidModel.of(entry.getKey()), entry.getValue()))
                 .flatMap(entry -> entry.getValue().stream()
                         .map(permission -> AclProjectModel.builder()
-                                .id(projectId)
-                                .name(project.getName())
                                 .sid(entry.getKey())
                                 .role(AclRole.getRole(permission.getMask()))
                                 .build()));

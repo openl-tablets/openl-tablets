@@ -23,10 +23,10 @@ public class AProjectConverter implements Converter<String, AProject> {
 
     @Override
     public AProject convert(String source) {
-        var projectId = ProjectIdModel.decode(source);
         try {
+            var projectId = ProjectIdModel.decode(source);
             return designTimeRepository.getProject(projectId.getRepository(), projectId.getProjectName());
-        } catch (ProjectException e) {
+        } catch (ProjectException | IllegalArgumentException e) {
             var ex = new NotFoundException("project.identifier.message");
             ex.initCause(e);
             throw ex;

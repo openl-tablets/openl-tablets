@@ -1,0 +1,3 @@
+GET /rest/acls/projects/ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q= HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+
