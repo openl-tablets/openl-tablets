@@ -1,12 +1,12 @@
 package org.openl.rules.util;
 
+import static org.openl.rules.util.InputStatistics.loadInputStats;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.openl.rules.util.InputStatistics.InputStatsBigDecimal;
 import org.openl.rules.util.InputStatistics.InputStatsDouble;
-
-import static org.openl.rules.util.InputStatistics.loadInputStats;
 
 public final class Forecast {
 

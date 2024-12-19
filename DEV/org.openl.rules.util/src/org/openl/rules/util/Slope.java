@@ -1,12 +1,12 @@
 package org.openl.rules.util;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-
 import static org.openl.rules.util.Covar.sampleCovariance;
 import static org.openl.rules.util.InputStatistics.loadInputStats;
 import static org.openl.rules.util.Var.varS;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 
 public final class Slope {
 

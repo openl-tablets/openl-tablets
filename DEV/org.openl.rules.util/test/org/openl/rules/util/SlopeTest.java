@@ -1,13 +1,14 @@
 package org.openl.rules.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.util.Slope.slope;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.openl.rules.util.Slope.slope;
 
 public class SlopeTest {
 

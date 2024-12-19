@@ -1,13 +1,14 @@
 package org.openl.rules.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.util.Intercept.intercept;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.openl.rules.util.Intercept.intercept;
 
 public class InterceptTest {
     private static final double DELTA = 1e-9;

@@ -1,11 +1,12 @@
 package org.openl.rules.util;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import static java.math.MathContext.DECIMAL128;
+
 import static org.openl.rules.util.Var.varP;
 import static org.openl.rules.util.Var.varS;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public final class StdDev {
 

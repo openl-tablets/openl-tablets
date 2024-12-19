@@ -1,5 +1,8 @@
 package org.openl.rules.util;
 
+import static org.openl.rules.util.InputStatistics.loadInputStats;
+import static org.openl.rules.util.Statistics.biProcess;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
@@ -7,9 +10,6 @@ import java.math.MathContext;
 import org.openl.rules.util.InputStatistics.InputStatsBigDecimal;
 import org.openl.rules.util.InputStatistics.InputStatsDouble;
 import org.openl.rules.util.Statistics.Result;
-
-import static org.openl.rules.util.InputStatistics.loadInputStats;
-import static org.openl.rules.util.Statistics.biProcess;
 
 public final class Covar {
 

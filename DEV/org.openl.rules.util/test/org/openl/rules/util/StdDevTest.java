@@ -1,14 +1,15 @@
 package org.openl.rules.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.util.StdDev.stdevP;
+import static org.openl.rules.util.StdDev.stdevS;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.openl.rules.util.StdDev.stdevP;
-import static org.openl.rules.util.StdDev.stdevS;
 
 public class StdDevTest {
     private static final double DELTA = 1e-9;

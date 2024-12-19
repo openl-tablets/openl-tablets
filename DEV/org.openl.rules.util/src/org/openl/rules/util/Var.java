@@ -1,13 +1,14 @@
 package org.openl.rules.util;
 
+import static java.math.MathContext.DECIMAL128;
+
+import static org.openl.rules.util.Avg.avg;
+import static org.openl.rules.util.Statistics.process;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.openl.rules.util.Statistics.Result;
-
-import static java.math.MathContext.DECIMAL128;
-import static org.openl.rules.util.Avg.avg;
-import static org.openl.rules.util.Statistics.process;
 
 public final class Var {
 

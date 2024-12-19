@@ -1,14 +1,15 @@
 package org.openl.rules.util;
 
+import static java.math.MathContext.DECIMAL128;
+
+import static org.openl.rules.util.Covar.sampleCovariance;
+import static org.openl.rules.util.InputStatistics.loadInputStats;
+import static org.openl.rules.util.StdDev.stdevS;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.openl.rules.util.InputStatistics.InputStatsDouble;
-
-import static java.math.MathContext.DECIMAL128;
-import static org.openl.rules.util.Covar.sampleCovariance;
-import static org.openl.rules.util.InputStatistics.loadInputStats;
-import static org.openl.rules.util.StdDev.stdevS;
 
 public class Corel {
 

@@ -1,14 +1,15 @@
 package org.openl.rules.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static org.openl.rules.util.Var.varP;
+import static org.openl.rules.util.Var.varS;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.openl.rules.util.Var.varP;
-import static org.openl.rules.util.Var.varS;
 
 public class VarTest {
     private static final double DELTA = 1e-9;
