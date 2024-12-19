@@ -11,20 +11,61 @@ import org.openl.rules.util.InputStatistics.InputStatsBigDecimal;
 import org.openl.rules.util.InputStatistics.InputStatsDouble;
 import org.openl.rules.util.Statistics.Result;
 
+/**
+ * Utility class providing methods to calculate covariance between two arrays of numbers.
+ * Supports both sample covariance (covarS) and population covariance (covarP) calculations.
+ *
+ * <p>Covariance measures how two variables change together. A positive covariance indicates
+ * that the variables tend to move in the same direction, while a negative covariance indicates
+ * they tend to move in opposite directions.</p>
+ *
+ * <p>This class supports various numeric types including:
+ * <ul>
+ *   <li>Generic Number types (Double, Integer, etc.)</li>
+ *   <li>BigDecimal calculations</li>
+ *   <li>BigInteger calculations</li>
+ * </ul></p>
+ */
 public final class Covar {
 
+    /**
+     * Private constructor to prevent instantiation of utility class.
+     */
     private Covar() {
-        //Utility Class
     }
 
+    /**
+     * Calculates the sample covariance between two arrays of numbers.
+     * Sample covariance is calculated using (n-1) as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array(extending Number)
+     * @param x the variable array(extending Number)
+     * @return the sample covariance as a Double, or null
+     */
     public static <X extends Number, Y extends Number> Double covarS(Y[] y, X[] x) {
         return sampleCovariance(loadInputStats(y, x));
     }
 
+    /**
+     * Calculates the sample covariance between two arrays of BigDecimal numbers.
+     * Sample covariance is calculated using (n-1) as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array of BigDecimal values
+     * @param x the variable array of BigDecimal values
+     * @return the sample covariance as a BigDecimal, or null
+     */
     public static BigDecimal covarS(BigDecimal[] y, BigDecimal[] x) {
         return sampleCovariance(loadInputStats(y, x));
     }
 
+    /**
+     * Calculates the sample covariance between two arrays of BigInteger numbers.
+     * Sample covariance is calculated using (n-1) as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array of BigInteger values
+     * @param x the variable array of BigInteger values
+     * @return the sample covariance as a BigDecimal, or null
+     */
     public static BigDecimal covarS(BigInteger[] y, BigInteger[] x) {
         return sampleCovariance(loadInputStats(y, x));
     }
@@ -64,9 +105,7 @@ public final class Covar {
 
             @Override
             public BigDecimal result() {
-                return result == null ?
-                        null :
-                        result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
+                return result == null ? null : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
             }
         });
 
@@ -77,15 +116,19 @@ public final class Covar {
         return result == null ? tmp : result + tmp;
     }
 
-    private static BigDecimal covariance(BigDecimal y,
-                                         BigDecimal x,
-                                         BigDecimal avgY,
-                                         BigDecimal avgX,
-                                         BigDecimal result) {
+    private static BigDecimal covariance(BigDecimal y, BigDecimal x, BigDecimal avgY, BigDecimal avgX, BigDecimal result) {
         var tmp = (x.subtract(avgX)).multiply(y.subtract(avgY));
         return result == null ? tmp : result.add(tmp);
     }
 
+    /**
+     * Calculates the population covariance between two arrays of numbers.
+     * Population covariance is calculated using n as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array(extending Number)
+     * @param x the variable array(extending Number)
+     * @return the population covariance as a Double, or null
+     */
     public static <X extends Number, Y extends Number> Double covarP(Y[] y, X[] x) {
         //covarP
         InputStatsDouble inputStats = loadInputStats(y, x);
@@ -107,12 +150,28 @@ public final class Covar {
         });
     }
 
+    /**
+     * Calculates the population covariance between two arrays of BigDecimal numbers.
+     * Population covariance is calculated using n as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array of BigDecimal values
+     * @param x the variable array of BigDecimal values
+     * @return the population covariance as a BigDecimal, or null
+     */
     public static BigDecimal covarP(BigDecimal[] y, BigDecimal[] x) {
         //covarP
         InputStatsBigDecimal inputStats = loadInputStats(y, x);
         return covarP(inputStats);
     }
 
+    /**
+     * Calculates the population covariance between two arrays of BigInteger numbers.
+     * Population covariance is calculated using n as the denominator, where n is the number of non-null pairs.
+     *
+     * @param y the variable array of BigInteger values
+     * @param x the variable array of BigInteger values
+     * @return the population covariance as a BigDecimal, or null
+     */
     public static BigDecimal covarP(BigInteger[] y, BigInteger[] x) {
         //covarP
         InputStatsBigDecimal inputStats = loadInputStats(y, x);

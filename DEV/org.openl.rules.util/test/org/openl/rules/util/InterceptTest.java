@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import org.junit.jupiter.api.Test;
 
 public class InterceptTest {
-    private static final double DELTA = 1e-9;
 
     @Test
     public void testIntercept() {
@@ -21,32 +20,21 @@ public class InterceptTest {
         assertNull(intercept(new Double[]{1.0, 2.0}, new Double[]{null, null}));
 
         assertNull(intercept(new Double[]{9.5}, new Double[]{5.0}));
-        assertEquals(0, intercept(new Double[]{1.0, 10.0, 9.0}, new Double[]{1.0, 10.0, 9.0}), DELTA);
-        assertEquals(0, intercept(new Double[]{1.0, null, 9.0}, new Double[]{1.0, 10.0, 9.0}), DELTA);
-        assertEquals(5.776785714285714,
-                intercept(new Double[]{-1.0, 10.0, 9.0}, new Double[]{1.0, -15.0, 9.0}),
-                DELTA);
+        assertEquals(2.846153846153846, intercept(new Double[]{3.0, 4.0, 8.0}, new Double[]{3.0, 10.0, 8.0}));
+        assertNull(intercept(new Double[]{3.0, 3.0, 3.0}, new Double[]{3.0, 3.0, 3.0}));
+        assertEquals(0.0, intercept(new Double[]{3.0, null, 8.0}, new Double[]{3.0, 10.0, 8.0}));
+        assertEquals(2.976833976833977, intercept(new Double[]{-3.0, 4.0, 8.0}, new Double[]{3.0, -10.0, 8.0}));
 
-        assertEquals(0, intercept(new Long[]{3L, 4L}, new Long[]{3L, 4L}), DELTA);
+        assertEquals(0.0, intercept(new Long[]{3L, 4L}, new Long[]{3L, 4L}));
 
-        assertEquals(0,
-                intercept(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Byte[]{(byte) 3, (byte) 4, (byte) 8}),
-                0);
-        assertEquals(0,
-                intercept(new Short[]{(short) 3, (short) 4, (short) 8},
-                        new Short[]{(short) 3, (short) 4, (short) 8}),
-                DELTA);
-        assertEquals(0, intercept(new Integer[]{3, 4, 8}, new Integer[]{3, 4, 8}), DELTA);
-        assertEquals(0, intercept(new Long[]{3L, 4L, 8L}, new Long[]{3L, 4L, 8L}), DELTA);
-        assertEquals(0, intercept(new Float[]{3f, 4f, 8f}, new Float[]{3f, 4f, 8f}), DELTA);
-        assertEquals(0,
-                intercept(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Short[]{(short) 3, (short) 4, (short) 8}),
-                DELTA);
-        assertEquals(new BigDecimal("7.333333333333333333333333333333333"),
-                intercept(new BigInteger[]{BigInteger.valueOf(10), BigInteger.valueOf(4), BigInteger.valueOf(8)},
-                        new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}));
-        assertEquals(new BigDecimal("0.0"),
-                intercept(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)},
-                        new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4)}));
+        assertEquals(2.846153846153846, intercept(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Byte[]{(byte) 3, (byte) 10, (byte) 8}));
+        assertEquals(2.846153846153846, intercept(new Short[]{(short) 3, (short) 4, (short) 8}, new Short[]{(short) 3, (short) 10, (short) 8}));
+        assertEquals(2.846153846153846, intercept(new Integer[]{3, 4, 8}, new Integer[]{3, 10, 8}));
+        assertEquals(2.846153846153846, intercept(new Long[]{3L, 4L, 8L}, new Long[]{3L, 10L, 8L}));
+        assertEquals(2.846153846153846, intercept(new Float[]{3f, 4f, 8f}, new Float[]{3f, 10f, 8f}));
+        assertEquals(2.846153846153846, intercept(new Byte[]{(byte) 3, (byte) 4, (byte) 8}, new Short[]{(short) 3, (short) 10, (short) 8}));
+        assertEquals(new BigDecimal("2.8461538461538461538461538461538461"), intercept(new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)}, new BigInteger[]{BigInteger.valueOf(3), BigInteger.valueOf(10), BigInteger.valueOf(8)}));
+        assertEquals(new BigDecimal("2.8461538461538461538461538461538461"), intercept(new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(4), BigDecimal.valueOf(8)}, new BigDecimal[]{BigDecimal.valueOf(3), BigDecimal.valueOf(10), BigDecimal.valueOf(8)}));
+
     }
 }

@@ -11,32 +11,19 @@ final class InputStatistics {
         //Utility Class
     }
 
-    static <X extends Number, Y extends Number> InputStatistics.InputStatsDouble loadInputStats(Y[] knownY,
-                                                                                                X[] knownX) {
-        return (InputStatistics.InputStatsDouble) validateAndGetInputStats(knownY,
-                knownX,
-                Number::doubleValue,
-                InputStatistics::getInputStatsDouble);
+    static <X extends Number, Y extends Number> InputStatistics.InputStatsDouble loadInputStats(Y[] knownY, X[] knownX) {
+        return (InputStatistics.InputStatsDouble) validateAndGetInputStats(knownY, knownX, Number::doubleValue, InputStatistics::getInputStatsDouble);
     }
 
     static InputStatistics.InputStatsBigDecimal loadInputStats(BigDecimal[] knownY, BigDecimal[] knownX) {
-        return (InputStatistics.InputStatsBigDecimal) validateAndGetInputStats(knownY,
-                knownX,
-                Function.identity(),
-                InputStatistics::getInputStatsBigDecimal);
+        return (InputStatistics.InputStatsBigDecimal) validateAndGetInputStats(knownY, knownX, Function.identity(), InputStatistics::getInputStatsBigDecimal);
     }
 
     static InputStatistics.InputStatsBigDecimal loadInputStats(BigInteger[] knownY, BigInteger[] knownX) {
-        return (InputStatistics.InputStatsBigDecimal) validateAndGetInputStats(knownY,
-                knownX,
-                BigDecimal::new,
-                InputStatistics::getInputStatsBigDecimal);
+        return (InputStatistics.InputStatsBigDecimal) validateAndGetInputStats(knownY, knownX, BigDecimal::new, InputStatistics::getInputStatsBigDecimal);
     }
 
-    static <T extends Number> InputStatistics.InputStats validateAndGetInputStats(T[] knownY,
-                                                                                  T[] knownX,
-                                                                                  Function<T, Number> numberFunction,
-                                                                                  IntFunction<InputStats> inputStatsFunction) {
+    static <T extends Number> InputStatistics.InputStats validateAndGetInputStats(T[] knownY, T[] knownX, Function<T, Number> numberFunction, IntFunction<InputStats> inputStatsFunction) {
         if (knownX == null || knownY == null) {
             return null;
         }

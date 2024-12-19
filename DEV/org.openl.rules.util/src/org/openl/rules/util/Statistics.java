@@ -48,8 +48,7 @@ public final class Statistics {
     }
 
     static <V, R> R biProcess(V[] y, V[] x, Processor<V, R> processor) {
-        if (x == null || x.length == 0
-                || y == null || y.length == 0) {
+        if (x == null || x.length == 0 || y == null || y.length == 0) {
             return null;
         }
         for (int i = 0; i < y.length; i++) {
