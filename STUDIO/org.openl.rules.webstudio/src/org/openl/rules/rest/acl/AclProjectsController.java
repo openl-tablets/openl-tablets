@@ -1,17 +1,26 @@
 package org.openl.rules.rest.acl;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import io.swagger.v3.oas.annotations.Hidden;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -28,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.rest.acl.model.AclProjectModel;
 import org.openl.rules.rest.acl.model.AclSidModel;
+import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
 import org.openl.rules.rest.model.ProjectIdModel;
@@ -39,7 +49,6 @@ import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 @RestController
 @RequestMapping(value = "/acls/projects", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "ACL Management: Projects", description = "ACL Management API for Projects")
-@Hidden
 public class AclProjectsController {
 
     private final SecureDesignTimeRepository designTimeRepository;
@@ -54,23 +63,36 @@ public class AclProjectsController {
         this.designTimeRepository = designTimeRepository;
     }
 
+    @Operation(summary = "Get a list of ACL rules for all projects by criteria")
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
     @GetMapping
+    @JsonView(AclView.Project.class)
     public List<AclProjectModel> getAclProjectRules(@NotNull @SidExistsConstraint Sid sid) {
         return mapAclProjectModel(designTimeRepository.getManageableProjects(), sid)
                 .collect(Collectors.toList());
     }
 
+    @Operation(summary = "Get a list of ACL rules for a single project")
+    @ProjectManagementPermission
     @GetMapping("/{project-id}")
-    @PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority()) or @aclProjectsHelper.hasPermission(#project, T(org.openl.security.acl.permission.AclPermission).ADMINISTRATION)")
-    public List<AclProjectModel> getAclProjectRulesForSid(@PathVariable("project-id") AProject project) {
+    @JsonView(AclView.Sid.class)
+    public List<AclProjectModel> getAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project) {
         return mapAclProjectModelForSid(project)
                 .collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority()) or @aclProjectsHelper.hasPermission(#project, T(org.openl.security.acl.permission.AclPermission).ADMINISTRATION)")
+    @Operation(summary = "Update existing ACL rule for a single project")
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
+    @ProjectManagementPermission
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{project-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void updateAclProjectRulesForSid(@PathVariable("project-id") AProject project,
+    public void updateAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid,
                                             @Valid @RequestBody SetAclRoleModel requestBody) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
@@ -81,10 +103,15 @@ public class AclProjectsController {
         });
     }
 
-    @PreAuthorize("hasAuthority(T(org.openl.rules.security.Privileges).ADMIN.getAuthority()) or @aclProjectsHelper.hasPermission(#project, T(org.openl.security.acl.permission.AclPermission).ADMINISTRATION)")
+    @Operation(summary = "Delete an ACL rule for the project by the requested criteria")
+    @Parameters({
+            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
+            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
+    })
+    @ProjectManagementPermission
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{project-id}")
-    public void deleteAclProjectRulesForSid(@PathVariable("project-id") AProject project,
+    public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         aclService.removePermissions(project, sid);
@@ -115,6 +142,14 @@ public class AclProjectsController {
                                 .sid(entry.getKey())
                                 .role(AclRole.getRole(permission.getMask()))
                                 .build()));
+    }
+
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Parameter(description = "Project ID", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+    public @interface ProjectIdPathParameter {
+
     }
 
 }
