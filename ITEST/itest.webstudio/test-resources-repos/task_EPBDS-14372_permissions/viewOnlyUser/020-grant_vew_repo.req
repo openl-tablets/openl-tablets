@@ -1,5 +1,7 @@
-POST /rest/acl/repo/runScript HTTP/1.1
+PUT /rest/acls/repositories/REVTSUdOOmRlc2lnbi1ub24tZmxhdA==?principal=true&sid=EPBDS_14372 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
-Content-Type: text/plain
+Content-Type: application/json
 
-add:design::user:EPBDS_14372:VIEW
+{
+  "role": "VIEWER"
+}
