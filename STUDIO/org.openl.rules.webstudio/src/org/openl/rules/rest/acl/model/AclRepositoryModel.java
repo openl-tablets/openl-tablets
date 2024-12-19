@@ -3,17 +3,35 @@ package org.openl.rules.rest.acl.model;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
 
+@Schema(description = "ACL Repository Model")
 public class AclRepositoryModel {
 
+    @JsonView({AclView.Repository.class,  AclView.Root.class})
+    @Parameter(description = "Repository ID")
     private final AclRepositoryId id;
+
+    @JsonView(AclView.Repository.class)
+    @Parameter(description = "Repository Name")
     private final String name;
+
+    @JsonView({AclView.Repository.class,  AclView.Root.class})
+    @Parameter(description = "Repository Type")
     private final AclRepositoryType type;
+
+    @JsonView(AclView.Sid.class)
+    @Parameter(description = "SID")
     private final AclSidModel sid;
 
     @NotNull
+    @JsonView({AclView.Repository.class, AclView.Root.class, AclView.Sid.class})
+    @Parameter(description = "Role")
     private final AclRole role;
 
     private AclRepositoryModel(RootRepositoryBuilder<?> builder) {

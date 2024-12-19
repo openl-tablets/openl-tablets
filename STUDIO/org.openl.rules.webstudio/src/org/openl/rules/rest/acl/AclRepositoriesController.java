@@ -1,10 +1,5 @@
 package org.openl.rules.rest.acl;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -12,7 +7,8 @@ import javax.annotation.Nonnull;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import io.swagger.v3.oas.annotations.Hidden;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -37,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.openl.rules.rest.acl.model.AclRepositoryId;
 import org.openl.rules.rest.acl.model.AclRepositoryModel;
 import org.openl.rules.rest.acl.model.AclSidModel;
+import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
 import org.openl.rules.security.AdminPrivilege;
@@ -47,7 +44,6 @@ import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StreamUtils;
 
-@Hidden
 @Validated
 @RestController
 @RequestMapping(value = "/acls/repositories", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -69,11 +65,13 @@ public class AclRepositoriesController {
         this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
-    @GetMapping
+    @Operation(summary = "Get a list of ACL rules for all repositories by criteria")
     @Parameters({
             @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
+    @GetMapping
+    @JsonView(AclView.Repository.class)
     public List<AclRepositoryModel> getAclRepositoryRules(@NotNull @SidExistsConstraint Sid sid) {
         var aclRepoModels = designTimeRepository.getManageableRepositories().stream()
                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.DESIGN, repo.getId(), sid));
@@ -90,19 +88,22 @@ public class AclRepositoriesController {
                 .collect(Collectors.toList());
     }
 
+    @Operation(summary = "Get a list of ALC rules for a single repository")
     @RepositoryManagementPermission
     @GetMapping(value = "/{repo-id}")
+    @JsonView(AclView.Sid.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId) {
         return mapAclRepositoryModelForSid(aclRepoId.getType(), aclRepoId.getId())
                 .collect(Collectors.toList());
     }
 
-    @RepositoryManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Update existing ACL rule for a single repository")
     @Parameters({
             @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
+    @RepositoryManagementPermission
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/{repo-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid,
@@ -115,12 +116,13 @@ public class AclRepositoriesController {
         });
     }
 
-    @RepositoryManagementPermission
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Delete an ACL rule for the repository by the requested criteria")
     @Parameters({
             @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
+    @RepositoryManagementPermission
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping(value = "/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
@@ -128,12 +130,14 @@ public class AclRepositoriesController {
         aclService.removePermissions(aclRepoId.getId(), null, sid);
     }
 
-    @AdminPrivilege
+    @Operation(summary = "Get ACL rules for all repository roots")
     @Parameters({
             @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
+    @AdminPrivilege
     @GetMapping(value = "/roots")
+    @JsonView(AclView.Root.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForRoot(@NotNull @SidExistsConstraint Sid sid) {
         return StreamUtils.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
                         mapAclRepositoryModelForRoot(AclRepositoryType.DEPLOY_CONFIG, sid),
@@ -141,11 +145,12 @@ public class AclRepositoriesController {
                 .collect(Collectors.toList());
     }
 
-    @AdminPrivilege
+    @Operation(summary = "Update ACL rule for a repository root")
     @Parameters({
             @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
             @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
     })
+    @AdminPrivilege
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping(value = "/roots/{root-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void updateAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
@@ -189,17 +194,6 @@ public class AclRepositoriesController {
                         .type(type)
                         .role(AclRole.getRole(permission.getMask()))
                         .build());
-    }
-
-    @Target(ElementType.PARAMETER)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @Parameters({
-            @Parameter(name = "sid", in = ParameterIn.QUERY, required = true, schema = @Schema(implementation = String.class)),
-            @Parameter(name = "principal", in = ParameterIn.QUERY, schema = @Schema(implementation = Boolean.class))
-    })
-    public @interface SidQueryParameter {
-
     }
 
 }
