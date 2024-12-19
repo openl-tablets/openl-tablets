@@ -46,7 +46,7 @@ public class ProjectViewModel {
 
     @Parameter(description = "Project identifier", required = true)
     @JsonView(GenericView.Full.class)
-    public final String id;
+    public final ProjectIdModel id;
 
     @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
             "ARCHIVED",
@@ -96,7 +96,7 @@ public class ProjectViewModel {
         private String branch;
         private String revision;
         private String path;
-        public String id;
+        public ProjectIdModel id;
         public ProjectStatus status;
         private final Map<String, String> tags = new HashMap<>();
         private String comment;
@@ -138,7 +138,7 @@ public class ProjectViewModel {
             return this;
         }
 
-        public Builder id(String id) {
+        public Builder id(ProjectIdModel id) {
             this.id = id;
             return this;
         }

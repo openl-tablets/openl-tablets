@@ -1,3 +1,0 @@
-PUT /rest/acl/repo/non-existing-repo-type/design/group/8?path=/DESIGN/rules/EPBDS_13211_3&permissions=VIEW HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
-
