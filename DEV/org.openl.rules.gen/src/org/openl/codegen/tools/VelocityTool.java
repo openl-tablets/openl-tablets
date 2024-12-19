@@ -99,7 +99,7 @@ public final class VelocityTool {
 
         if (c.isArray()) {
             StringBuilder sb = new StringBuilder();
-            sb.append("new ").append(c.getSimpleName()).append(" { ");
+            sb.append("new ").append(c.getSimpleName()).append("{");
 
             int len = Array.getLength(value);
             for (int i = 0; i < len; i++) {
@@ -109,7 +109,7 @@ public final class VelocityTool {
                 sb.append(value(Array.get(value, i)));
             }
 
-            return sb.append(" }").toString();
+            return sb.append("}").toString();
         } else if (value instanceof String) {
             return "\"" + value + "\"";
         } else if (c.isEnum()) {
