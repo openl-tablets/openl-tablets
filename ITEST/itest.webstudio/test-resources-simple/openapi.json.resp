@@ -4,6 +4,142 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "AclRepositoryModel_Sid": {
+        "type": "object",
+        "description": "ACL Repository Model",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "sid": {
+            "$ref": "#/components/schemas/AclSidModel_Sid"
+          }
+        },
+        "required": ["role"]
+      },
+      "AclRepositoryModel_Repository": {
+        "type": "object",
+        "description": "ACL Repository Model",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Repository ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Repository Name"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "type": {
+            "type": "string",
+            "description": "Repository Type",
+            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+          }
+        },
+        "required": ["role"]
+      },
+      "AclRepositoryModel_Root": {
+        "type": "object",
+        "description": "ACL Repository Model",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Repository ID"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "type": {
+            "type": "string",
+            "description": "Repository Type",
+            "enum": ["DESIGN", "DEPLOY_CONFIG", "PROD"]
+          }
+        },
+        "required": ["role"]
+      },
+      "AclProjectModel_Project": {
+        "type": "object",
+        "description": "ACL Project Model",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Project ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Project Name"
+          },
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          }
+        },
+        "required": ["role"]
+      },
+      "AclProjectModel_Sid": {
+        "type": "object",
+        "description": "ACL Project Model",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "sid": {
+            "$ref": "#/components/schemas/AclSidModel_Sid"
+          }
+        },
+        "required": ["role"]
+      },
+      "AclSidModel_Sid": {
+        "type": "object",
+        "properties": {
+          "principal": {
+            "type": "boolean",
+            "description": "Is principal"
+          },
+          "sid": {
+            "type": "string",
+            "description": "SID name"
+          }
+        }
+      },
+      "SetAclRoleModel": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role to set",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          }
+        },
+        "required": ["role"]
+      },
+      "AclRoleModel": {
+        "type": "object",
+        "description": "ACL Role Model",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Code",
+            "enum": ["MANAGER", "CONTRIBUTOR", "VIEWER"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Description"
+          }
+        },
+        "required": ["code", "description"]
+      },
       "ProjectLockInfo" : {
         "type" : "object",
         "required" : [ "lockedAt", "lockedBy"],
@@ -2379,6 +2515,7 @@ Content-Type: application/json
       "get": {
         "description": "Get all roles.",
         "operationId": "roles",
+        "deprecated" : true,
         "responses": {
           "423": {
             "content": {
@@ -3210,6 +3347,1067 @@ Content-Type: application/json
         "tags": [
           "Tags"
         ]
+      }
+    },
+    "/acls/repositories/{repo-id}": {
+      "delete": {
+        "operationId": "deleteAclRepositoryRulesForSid",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }, {
+            "in": "path",
+            "name": "repo-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "204": {
+            "description": "default response"
+          }
+        },
+        "summary": "Delete an ACL rule for the repository by the requested criteria",
+        "tags": ["ACL Management: Repositories"]
+      },
+      "get": {
+        "operationId": "getAclRepositoryRulesForSid",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "repo-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclRepositoryModel_Sid"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get a list of ALC rules for a single repository",
+        "tags": ["ACL Management: Repositories"]
+      },
+      "put": {
+        "operationId": "updateAclRepositoryRulesForSid",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }, {
+            "in": "path",
+            "name": "repo-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAclRoleModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "204": {
+            "description": "default response"
+          }
+        },
+        "summary": "Update existing ACL rule for a single repository",
+        "tags": ["ACL Management: Repositories"]
+      }
+    },
+    "/acls/roles": {
+      "get": {
+        "description": "Get all roles.",
+        "operationId": "getRoles",
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclRoleModel"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get all roles",
+        "tags": ["ACL Management: Roles"]
+      }
+    },
+    "/acls/projects/{project-id}": {
+      "delete": {
+        "operationId": "deleteAclProjectRulesForSid",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }, {
+            "description": "Project ID",
+            "in": "path",
+            "name": "project-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "204": {
+            "description": "default response"
+          }
+        },
+        "summary": "Delete an ACL rule for the project by the requested criteria",
+        "tags": ["ACL Management: Projects"]
+      },
+      "get": {
+        "operationId": "getAclProjectRulesForSid",
+        "parameters": [
+          {
+            "description": "Project ID",
+            "in": "path",
+            "name": "project-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclProjectModel_Sid"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get a list of ACL rules for a single project",
+        "tags": ["ACL Management: Projects"]
+      },
+      "put": {
+        "operationId": "updateAclProjectRulesForSid",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }, {
+            "description": "Project ID",
+            "in": "path",
+            "name": "project-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAclRoleModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "204": {
+            "description": "default response"
+          }
+        },
+        "summary": "Update existing ACL rule for a single project",
+        "tags": ["ACL Management: Projects"]
+      }
+    },
+    "/acls/projects": {
+      "get": {
+        "operationId": "getAclProjectRules",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclProjectModel_Project"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get a list of ACL rules for all projects by criteria",
+        "tags": ["ACL Management: Projects"]
+      }
+    },
+    "/acls/repositories/roots/{root-id}": {
+      "put": {
+        "operationId": "updateAclRepositoryRulesForRoot",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }, {
+            "in": "path",
+            "name": "root-id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAclRoleModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "204": {
+            "description": "default response"
+          }
+        },
+        "summary": "Update ACL rule for a repository root",
+        "tags": ["ACL Management: Repositories"]
+      }
+    },
+    "/acls/repositories/roots": {
+      "get": {
+        "operationId": "getAclRepositoryRulesForRoot",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclRepositoryModel_Root"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get ACL rules for all repository roots",
+        "tags": ["ACL Management: Repositories"]
+      }
+    },
+    "/acls/repositories": {
+      "get": {
+        "operationId": "getAclRepositoryRules",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }, {
+            "in": "query",
+            "name": "principal",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Locked"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AclRepositoryModel_Repository"
+                  }
+                }
+              }
+            },
+            "description": "default response"
+          }
+        },
+        "summary": "Get a list of ACL rules for all repositories by criteria",
+        "tags": ["ACL Management: Repositories"]
       }
     },
     "/compile/progress/{messageId}/{messageIndex}": {
@@ -9788,6 +10986,15 @@ Content-Type: application/json
   ],
   "tags": [
     {
+      "description" : "ACL Management API for Projects",
+      "name" : "ACL Management: Projects"
+    }, {
+      "description" : "ACL Management API for Repositories",
+      "name" : "ACL Management: Repositories"
+    }, {
+      "description" : "ACL Management API for Roles",
+      "name" : "ACL Management: Roles"
+    }, {
       "name": "Compare"
     }, {
       "name": "Conflict"

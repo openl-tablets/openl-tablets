@@ -1,16 +1,20 @@
 package org.openl.rules.rest.acl.model;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Sid;
 
 public class AclSidModel {
 
+    @Parameter(description = "SID name")
     private final String sid;
+
+    @Parameter(description = "Is principal")
     private final Boolean principal;
 
 
-    public AclSidModel(Builder builder) {
+    private AclSidModel(Builder builder) {
         this.sid = builder.sid;
         this.principal = builder.principal;
     }

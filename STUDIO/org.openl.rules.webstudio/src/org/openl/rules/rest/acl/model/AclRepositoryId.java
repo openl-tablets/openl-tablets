@@ -19,7 +19,7 @@ public class AclRepositoryId {
 
     private final String id;
 
-    public AclRepositoryId(Builder builder) {
+    private AclRepositoryId(Builder builder) {
         this.type = builder.type;
         this.id = builder.id;
     }

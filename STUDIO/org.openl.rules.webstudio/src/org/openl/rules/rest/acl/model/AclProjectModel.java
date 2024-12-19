@@ -2,16 +2,31 @@ package org.openl.rules.rest.acl.model;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import org.openl.rules.rest.model.ProjectIdModel;
 import org.openl.security.acl.permission.AclRole;
 
+@Schema(description = "ACL Project Model")
 public class AclProjectModel {
 
+    @JsonView(AclView.Project.class)
+    @Parameter(description = "Project ID")
     private final ProjectIdModel id;
+
+    @JsonView(AclView.Project.class)
+    @Parameter(description = "Project Name")
     private final String name;
+
+    @JsonView(AclView.Sid.class)
+    @Parameter(description = "SID")
     private final AclSidModel sid;
 
     @NotNull
+    @JsonView({AclView.Project.class, AclView.Sid.class})
+    @Parameter(description = "Role")
     private final AclRole role;
 
     private AclProjectModel(Builder builder) {
