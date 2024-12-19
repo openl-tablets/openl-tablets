@@ -92,7 +92,7 @@ public final class OpenClassUtils {
             // RuntimeException when value doesn`t belong to domain.
             //
             var contains = true;
-            if(domain instanceof EnumDomain) {
+            if (domain instanceof EnumDomain) {
                 contains = belongsToEnum(((EnumDomain) domain).getAllObjects(), value.toString());
             } else {
                 contains = domain.selectObject(value);

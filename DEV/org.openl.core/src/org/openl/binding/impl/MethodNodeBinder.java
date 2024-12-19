@@ -131,9 +131,9 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private void validateMethodParameters(IMethodCaller methodCaller,
-            IBoundNode[] children,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                                          IBoundNode[] children,
+                                          ISyntaxNode node,
+                                          IBindingContext bindingContext) {
         var parameterTypes = methodCaller.getMethod().getSignature().getParameterTypes();
         var noOfChildren = children.length;
         var parameterCount = Math.min(parameterTypes.length, noOfChildren);
@@ -149,9 +149,9 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private void validateParam(IOpenClass parameterType,
-            IBoundNode param,
-            ISyntaxNode node,
-            IBindingContext bindingContext) {
+                               IBoundNode param,
+                               ISyntaxNode node,
+                               IBindingContext bindingContext) {
         var domain = parameterType.getDomain();
         if (domain != null) {
             var iDomain = (IDomain<Object>) domain;
@@ -173,10 +173,10 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private void processLiteralBoundNode(Object inputValue,
-            IDomain<Object> domain,
-            ISyntaxNode node,
-            IBindingContext bindingContext,
-            String toClass) {
+                                         IDomain<Object> domain,
+                                         ISyntaxNode node,
+                                         IBindingContext bindingContext,
+                                         String toClass) {
         if (inputValue != null && !domain.selectObject(inputValue)) {
             BindHelper.processError(String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
                     inputValue,
@@ -186,10 +186,10 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     private void validateParameterArray(IBoundNode[] iBoundNode,
-            IDomain<Object> domain,
-            ISyntaxNode node,
-            IBindingContext bindingContext,
-            String toClass) {
+                                        IDomain<Object> domain,
+                                        ISyntaxNode node,
+                                        IBindingContext bindingContext,
+                                        String toClass) {
         var enumDomain = (EnumDomain<Object>) domain;
         if (enumDomain.getComponentType().isArray() && iBoundNode[0] instanceof LiteralBoundNode) {
             // Enum/domain is itself an array
