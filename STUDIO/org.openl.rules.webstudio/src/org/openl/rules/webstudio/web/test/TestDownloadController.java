@@ -42,7 +42,7 @@ public class TestDownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDownloadController.class);
 
-    @Operation(summary = "test.download.summary", description = "test.download.summary")
+    @Operation(summary = "test.download.summary", description = "test.download.desc")
     @GetMapping(value = "/testcase")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
@@ -87,7 +87,7 @@ public class TestDownloadController {
         }
     }
 
-    @Operation(summary = "test.manual.summary", description = "test.manual.summary")
+    @Operation(summary = "test.manual.summary", description = "test.manual.desc")
     @GetMapping(value = "/rule")
     @ApiResponse(responseCode = "200", description = "OK", headers = {
             @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
