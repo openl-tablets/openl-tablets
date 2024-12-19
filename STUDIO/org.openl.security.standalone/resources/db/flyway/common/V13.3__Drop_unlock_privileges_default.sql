@@ -1,0 +1,3 @@
+DELETE
+FROM OpenL_Group_Authorities
+WHERE authority IN ('UNLOCK_PROJECTS', 'UNLOCK_DEPLOYMENT');

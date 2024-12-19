@@ -6,6 +6,6 @@ public interface SecuredService {
     @PreAuthorize("hasAuthority('Developers')")
     void save(Foo foo);
 
-    @PreAuthorize("hasPermission(#foo, 'VIEW')")
+    @PreAuthorize("hasPermission(#foo, 'READ')")
     void read(Foo foo);
 }

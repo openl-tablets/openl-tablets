@@ -521,7 +521,7 @@ public class ProjectModel {
             s = s.substring(s.indexOf("/") + 1);
             try {
                 if (studio.getDesignRepositoryAclService()
-                        .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.EDIT))) {
+                        .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.WRITE))) {
                     ret.addAll(List.of(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
                 }
             } catch (ProjectException ignored) {
@@ -664,7 +664,7 @@ public class ProjectModel {
                 return false;
             }
             if (currentModule != null) {
-                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
+                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.WRITE))) {
                     return false;
                 }
             }
@@ -680,12 +680,12 @@ public class ProjectModel {
                 AProjectArtefact rulesDescriptorArtifact = currentProject
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 return studio.getDesignRepositoryAclService()
-                        .isGranted(rulesDescriptorArtifact, List.of(AclPermission.EDIT));
+                        .isGranted(rulesDescriptorArtifact, List.of(AclPermission.WRITE));
             } catch (ProjectException ignored) {
                 return false;
             }
         } else {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.ADD));
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.CREATE));
         }
     }
 
@@ -699,8 +699,8 @@ public class ProjectModel {
             if (studio.getCurrentModule() == null) {
                 RulesProject currentProject = getProject();
                 return studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.EDIT)) || studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.ADD)) || studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.WRITE)) || studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.CREATE)) || studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.DELETE));
             }
             return true;
