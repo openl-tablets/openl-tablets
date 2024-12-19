@@ -11,6 +11,7 @@ import io.swagger.v3.oas.models.media.Schema;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
 import org.openl.util.StringUtils;
@@ -59,7 +60,10 @@ public class PropertySchemaCustomizingConverter implements ModelConverter {
                                 resolvedSchema.setEnum(Arrays.asList(schemaApi.allowableValues()));
                             }
                             if (paramApi.required()) {
-                                type.getParent().addRequiredItem(type.getPropertyName());
+                                var parentSchema = type.getParent();
+                                if (!CollectionUtils.containsInstance(parentSchema.getRequired(), type.getPropertyName())) {
+                                    parentSchema.addRequiredItem(type.getPropertyName());
+                                }
                             }
                         }
                     }
