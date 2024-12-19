@@ -84,7 +84,6 @@ public class StatisticsTest {
         assertEquals(Double.valueOf(5), avg((byte) 3, (short) 4, 8));
         assertEquals(BigDecimal.valueOf(5), avg(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
         assertEquals(BigDecimal.valueOf(3.5), avg(BigDecimal.valueOf(3), BigDecimal.valueOf(4)));
-        assertEquals(new BigDecimal("5.333333333333333333333333333333333", MathContext.DECIMAL128),
-                avg(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
+        assertEquals(new BigDecimal("5.333333333333333333333333333333333", MathContext.DECIMAL128), avg(BigInteger.valueOf(3), BigInteger.valueOf(5), BigInteger.valueOf(8)));
     }
 }
