@@ -16,6 +16,8 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions);
 
+    boolean isGranted(AProjectArtefact projectArtefact, boolean useParentStrategy, Permission... permissions);
+
     boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force);
 
     boolean hasAcl(AProjectArtefact projectArtefact);

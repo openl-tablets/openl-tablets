@@ -1,5 +1,6 @@
 package org.openl.rules.rest.acl.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,8 +23,9 @@ public class AclManagementConfig {
     }
 
     @Bean
-    public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider) {
-        return new AclProjectsHelperImpl(aclServiceProvider);
+    public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider,
+                                               @Value("${security.allow-project-create-delete}") boolean allowProjectCreateDelete) {
+        return new AclProjectsHelperImpl(aclServiceProvider, allowProjectCreateDelete);
     }
 
     @Bean

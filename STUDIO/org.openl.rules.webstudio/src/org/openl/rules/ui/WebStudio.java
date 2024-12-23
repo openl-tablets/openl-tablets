@@ -727,8 +727,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             for (File file : files) {
                 String relative = getRelativePath(projectFolder, file);
                 if (!filesInZip.contains(relative)) {
-                    if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
-                            List.of(AclPermission.DELETE))) {
+                    var artefact = rulesProject.getArtefact(relative);
+                    if (!designRepositoryAclService.isGranted(artefact, true, AclPermission.DELETE)) {
                         throw new Message(String.format("There is no permission for deleting '%s' file.",
                                 projectPath + "/" + relative));
                     }
@@ -1372,6 +1372,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (branches.size() < 2) {
                 return false;
             }
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
