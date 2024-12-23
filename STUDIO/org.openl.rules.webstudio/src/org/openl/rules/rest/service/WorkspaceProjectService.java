@@ -403,6 +403,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     private boolean hasCreateBranchPermissions(RulesProject project) {
         if (project.isSupportsBranches()) {
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {

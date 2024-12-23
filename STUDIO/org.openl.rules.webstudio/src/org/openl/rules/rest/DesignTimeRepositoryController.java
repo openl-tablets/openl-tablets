@@ -45,6 +45,7 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -85,6 +86,7 @@ public class DesignTimeRepositoryController {
     private final LockManager lockManager;
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryProjectService projectService;
+    private final AclProjectsHelper aclProjectsHelper;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
@@ -94,7 +96,7 @@ public class DesignTimeRepositoryController {
                                           ZipArchiveValidator zipArchiveValidator,
                                           ZipProjectSaveStrategy zipProjectSaveStrategy,
                                           @Value("${openl.home.shared}") String homeDirectory,
-                                          RepositoryProjectService projectService) {
+                                          RepositoryProjectService projectService, AclProjectsHelper aclProjectsHelper) {
         this.designTimeRepository = designTimeRepository;
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
@@ -103,6 +105,7 @@ public class DesignTimeRepositoryController {
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
         this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
         this.projectService = projectService;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
     @Lookup
@@ -210,7 +213,7 @@ public class DesignTimeRepositoryController {
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.WRITE))) {
                 throw new SecurityException();
             }
-        } else if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+        } else if (!aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
             throw new SecurityException();
         }
 

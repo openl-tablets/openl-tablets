@@ -25,13 +25,16 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     private final UserWorkspace userWorkspace;
     private final RepositoryAclService designRepositoryAclService;
     private final RepositoryAclService deployConfigRepositoryAclService;
+    private final boolean allowProjectCreateDelete;
 
     public SecureUserWorkspaceImpl(UserWorkspace userWorkspace,
                                    RepositoryAclService designRepositoryAclService,
-                                   RepositoryAclService deployConfigRepositoryAclService) {
+                                   RepositoryAclService deployConfigRepositoryAclService,
+                                   boolean allowProjectCreateDelete) {
         this.userWorkspace = userWorkspace;
         this.designRepositoryAclService = designRepositoryAclService;
         this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.allowProjectCreateDelete = allowProjectCreateDelete;
     }
 
     @Override
@@ -177,7 +180,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
                 throw new ProjectException(String.format("There is no permission for modifying '%s'.", path));
             }
         } else {
-            if (designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+            if (allowProjectCreateDelete && designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
                 throw new ProjectException("There is no permission for creating a new project.");
