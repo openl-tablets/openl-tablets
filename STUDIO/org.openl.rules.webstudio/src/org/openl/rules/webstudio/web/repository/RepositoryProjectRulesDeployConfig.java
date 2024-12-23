@@ -101,7 +101,7 @@ public class RepositoryProjectRulesDeployConfig {
         if (hasRulesDeploy(project)) {
             try {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact)));
                     return;
@@ -249,7 +249,7 @@ public class RepositoryProjectRulesDeployConfig {
         }
         try {
             AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-            return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE));
+            return designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE);
         } catch (ProjectException e) {
             return false;
         }
