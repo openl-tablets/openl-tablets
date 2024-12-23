@@ -84,6 +84,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
@@ -206,6 +207,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private AclProjectsHelper aclProjectsHelper;
 
     private String repositoryId;
     private String projectName;
@@ -673,7 +677,7 @@ public class RepositoryTreeController {
                 .stream()
                 .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
                         .isBranchProtected(((BranchRepository) repo).getBranch()))
-                .filter(e -> aclServiceProvider.getDesignRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.CREATE)))
+                .filter(e -> aclProjectsHelper.hasCreateProjectPermission(e.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -681,7 +685,7 @@ public class RepositoryTreeController {
         Map<String, String> types = getCreateAllowedRepositories().stream()
                 .map(Repository::getId)
                 .map(this::getRepositoryConfiguration)
-                .filter(e -> aclServiceProvider.getDesignRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.CREATE)))
+                .filter(e -> aclProjectsHelper.hasCreateProjectPermission(e.getId()))
                 .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
@@ -716,7 +720,7 @@ public class RepositoryTreeController {
             return null;
         }
 
-        if (!aclServiceProvider.getDesignRepoAclService().isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+        if (!aclProjectsHelper.hasCreateProjectPermission(repositoryId)) {
             WebStudioUtils.addErrorMessage("There is no permission for creating a new project.");
             return null;
         }
@@ -1018,7 +1022,7 @@ public class RepositoryTreeController {
                 .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
         var repositoryAclService = getSelectedProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService()
                 : aclServiceProvider.getDesignRepoAclService();
-        if (!repositoryAclService.isGranted(childArtefact, List.of(AclPermission.DELETE))) {
+        if (!repositoryAclService.isGranted(childArtefact, true, AclPermission.DELETE)) {
             WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
                     ProjectArtifactUtils.extractResourceName(childArtefact)));
             return null;
@@ -1078,7 +1082,7 @@ public class RepositoryTreeController {
         }
         var repositoryAclService = projectArtefact
                 .getProject() instanceof ADeploymentProject ? aclServiceProvider.getDeployConfigRepoAclService() : aclServiceProvider.getDesignRepoAclService();
-        if (!repositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+        if (!repositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
             throw new Message(String.format("There is no permission for deleting '%s' project.",
                     ProjectArtifactUtils.extractResourceName(projectArtefact)));
         }
@@ -2521,7 +2525,7 @@ public class RepositoryTreeController {
                 // any user can delete own local project
                 return true;
             }
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2547,6 +2551,7 @@ public class RepositoryTreeController {
             if (isMainBranch(project) || isCurrentBranchProtected(project)) {
                 return false;
             }
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
@@ -2564,7 +2569,7 @@ public class RepositoryTreeController {
     private boolean isMainBranch(UserWorkspaceProject selectedProject) {
         boolean mainBranch = true;
         Repository designRepository = selectedProject.getDesignRepository();
-        if (designRepository.supports().branches()) {
+        if (designRepository != null && designRepository.supports().branches()) {
             String branch = selectedProject.getBranch();
             if (!((BranchRepository) designRepository).getBaseBranch().equals(branch)) {
                 mainBranch = false;
@@ -2596,8 +2601,7 @@ public class RepositoryTreeController {
 
     public boolean getCanDeleteDeployment(UserWorkspaceProject project) {
         if (project instanceof ADeploymentProject) {
-            return aclServiceProvider.getDeployConfigRepoAclService().isGranted(project, List.of(AclPermission.DELETE)) && !project
-                    .isBranchProtected() && (!project.isLocked() || project.isLockedByMe());
+            return !project.isBranchProtected() && (!project.isLocked() || project.isLockedByMe()) && aclProjectsHelper.hasPermission(project, AclPermission.DELETE);
         }
         return false;
     }
@@ -3237,6 +3241,7 @@ public class RepositoryTreeController {
         if (project == null) {
             return false;
         }
+        // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
         for (AProjectArtefact artefact : project.getArtefacts()) {
             if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
                     List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {

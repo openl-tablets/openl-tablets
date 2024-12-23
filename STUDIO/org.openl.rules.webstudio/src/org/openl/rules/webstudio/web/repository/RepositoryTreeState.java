@@ -36,6 +36,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.security.standalone.persistence.ProjectGrouping;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.filter.AllFilter;
@@ -92,6 +93,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private DeploymentManager deploymentManager;
+
+    @Autowired
+    private AclProjectsHelper aclProjectsHelper;
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
@@ -733,7 +737,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanCreate() {
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (aclServiceProvider.getDesignRepoAclService().isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
                 return true;
             }
         }
@@ -775,8 +779,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return true;
         }
         return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser()))
-                && aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.DELETE))
-                && !isCurrentBranchProtected(selectedProject);
+                && !isCurrentBranchProtected(selectedProject)
+                && aclProjectsHelper.hasPermission(selectedProject, AclPermission.DELETE);
     }
 
     public boolean getCanSaveDeployment() {
@@ -814,8 +818,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     return false;
                 }
             }
-            return el.getData().getProject().isOpenedForEditing() && aclServiceProvider.getDesignRepoAclService().isGranted(el.getData(),
-                    List.of(AclPermission.DELETE));
+            var artefact = el.getData();
+            var aclService = aclServiceProvider.getDesignRepoAclService();
+            return artefact.getProject().isOpenedForEditing() && aclService.isGranted(artefact, true, AclPermission.DELETE);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -829,14 +834,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 // any user can delete own local project
                 return true;
             }
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(selectedProject, List.of(AclPermission.DELETE))) {
-                return false;
-            }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
             if (!unlocked) {
                 return false;
             }
-            return isMainBranch(selectedProject) && !isCurrentBranchProtected(selectedProject);
+            if (!isMainBranch(selectedProject) || isCurrentBranchProtected(selectedProject)) {
+                return false;
+            }
+            return aclProjectsHelper.hasPermission(selectedProject, AclPermission.DELETE);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -855,6 +860,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (isMainBranch(selectedProject) || isCurrentBranchProtected(selectedProject)) {
                 return false;
             }
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : selectedProject.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
@@ -890,14 +896,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanErase() {
         UserWorkspaceProject project = getSelectedProject();
-        var repositoryAclService = project instanceof ADeploymentProject
-                ? aclServiceProvider.getDeployConfigRepoAclService()
-                : aclServiceProvider.getDesignRepoAclService();
-        if (!repositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
-            return false;
-        }
         boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isDeleted() && isMainBranch(project) && !branchProtected;
+        return project.isDeleted() && isMainBranch(project) && !branchProtected
+                && aclProjectsHelper.hasPermission(project, AclPermission.DELETE);
     }
 
     public boolean getCanOpen() {
@@ -1016,11 +1017,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanUndelete() {
         UserWorkspaceProject project = getSelectedProject();
         boolean branchProtected = isCurrentBranchProtected(project);
-        var repositoryAclService = project instanceof ADeploymentProject
-                ? aclServiceProvider.getDeployConfigRepoAclService()
-                : aclServiceProvider.getDesignRepoAclService();
-        return project.isDeleted() && repositoryAclService.isGranted(project,
-                List.of(AclPermission.DELETE)) && isMainBranch(project) && !branchProtected;
+        return project.isDeleted() && isMainBranch(project) && !branchProtected
+                && aclProjectsHelper.hasPermission(project, AclPermission.DELETE);
     }
 
     // for any project artefact
@@ -1031,8 +1029,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             var repositoryAclService = project instanceof ADeploymentProject
                     ? aclServiceProvider.getDeployConfigRepoAclService()
                     : aclServiceProvider.getDesignRepoAclService();
-            return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
-                    List.of(AclPermission.DELETE)) && !branchProtected;
+            var artefact = getSelectedNode().getData();
+            return project.isOpenedForEditing() && !branchProtected
+                    && repositoryAclService.isGranted(artefact, true, AclPermission.DELETE);
         } else {
             return false;
         }
@@ -1125,6 +1124,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (aclServiceProvider.getDesignRepoAclService().isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {
