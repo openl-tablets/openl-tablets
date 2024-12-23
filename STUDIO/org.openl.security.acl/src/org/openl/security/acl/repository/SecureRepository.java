@@ -96,15 +96,14 @@ public class SecureRepository implements Repository, RepositoryDelegate {
     }
 
     protected void checkDeletePermission(String name) throws IOException {
-        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DELETE))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, true, AclPermission.DELETE)) {
             throw new AccessDeniedException(
                     String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeleteHistoryPermission(String name) throws IOException {
-        if (!simpleRepositoryAclService
-                .isGranted(getId(), name, List.of(AclPermission.DELETE))) {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, true, AclPermission.DELETE)) {
             throw new AccessDeniedException(
                     String.format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
