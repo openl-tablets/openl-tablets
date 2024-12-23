@@ -42,6 +42,16 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Override
     @Transactional(readOnly = true)
     public boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions) {
+        return isGranted0(projectArtefact, false, permissions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isGranted(AProjectArtefact projectArtefact, boolean useParentStrategy, Permission... permissions) {
+        return isGranted0(projectArtefact, useParentStrategy, List.of(permissions));
+    }
+
+    private boolean isGranted0(AProjectArtefact projectArtefact, boolean useParentStrategy, List<Permission> permissions) {
         if (projectArtefact == null) {
             return false;
         }
@@ -51,6 +61,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
         ObjectIdentity oi = oidProvider.getArtifactOid(projectArtefact);
+        if (useParentStrategy) {
+            oi = oidProvider.getParentOid(oi);
+        }
         return isGranted(oi, sids, permissions);
     }
 

@@ -36,6 +36,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -94,14 +95,18 @@ public class CopyBean {
     private String errorMessage;
     private Comments designRepoComments;
 
+    private final AclProjectsHelper aclProjectsHelper;
+
     public CopyBean(PropertyResolver propertyResolver,
                     RepositoryTreeState repositoryTreeState,
                     ProjectTagsBean projectTagsBean,
-                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                    @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                    AclProjectsHelper aclProjectsHelper) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
         this.designRepositoryAclService = designRepositoryAclService;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
     public boolean getCanCopy(AProject project) {
@@ -255,7 +260,7 @@ public class CopyBean {
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
-                if (!designRepositoryAclService.isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
+                if (!aclProjectsHelper.hasCreateProjectPermission(toRepositoryId)) {
                     throw new Message("There is no permission for creating the project.");
                 }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
@@ -529,7 +534,7 @@ public class CopyBean {
         }
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (aclProjectsHelper.hasCreateProjectPermission(repository.getId())) {
                 return true;
             }
         }
@@ -543,6 +548,7 @@ public class CopyBean {
             branchesSupported = rulesProject.isSupportsBranches();
         }
         if (branchesSupported) {
+            // FIXME Potential performance spike: If the project contains a large number of artifacts, it may result in slower performance.
             for (AProjectArtefact artefact : project.getArtefacts()) {
                 if (designRepositoryAclService.isGranted(artefact,
                         List.of(AclPermission.WRITE, AclPermission.DELETE, AclPermission.CREATE))) {

@@ -26,6 +26,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.project.ProjectStateValidator;
@@ -51,6 +52,7 @@ public class ProjectManagementController {
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclServiceProvider aclServiceProvider;
     private final WorkspaceProjectService projectService;
+    private final AclProjectsHelper aclProjectsHelper;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
@@ -58,13 +60,15 @@ public class ProjectManagementController {
                                        DeploymentManager deploymentManager,
                                        ProjectStateValidator projectStateValidator,
                                        RepositoryAclServiceProvider aclServiceProvider,
-                                       WorkspaceProjectService projectService) {
+                                       WorkspaceProjectService projectService,
+                                       AclProjectsHelper aclProjectsHelper) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
         this.aclServiceProvider = aclServiceProvider;
         this.projectService = projectService;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
     @Lookup
@@ -235,7 +239,7 @@ public class ProjectManagementController {
         // request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {
@@ -268,7 +272,7 @@ public class ProjectManagementController {
                       @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!aclServiceProvider.getDesignRepoAclService().isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {
