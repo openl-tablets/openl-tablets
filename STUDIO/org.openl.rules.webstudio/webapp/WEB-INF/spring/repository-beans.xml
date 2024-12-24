@@ -44,6 +44,7 @@
                 </constructor-arg>
                 <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
                 <constructor-arg name="deployConfigRepositoryAclService" ref="deployConfigRepositoryAclService"/>
+                <constructor-arg name="allowProjectCreateDelete" value="${security.allow-project-create-delete}"/>
             </bean>
         </property>
     </bean>
