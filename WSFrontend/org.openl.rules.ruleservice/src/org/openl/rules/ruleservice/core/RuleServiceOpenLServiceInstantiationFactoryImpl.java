@@ -26,7 +26,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RuntimeContextInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -80,9 +79,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Pair<Object, Map<Method, Method>> serviceTarget = resolveInterfaceAndClassLoader(service,
                     serviceDescription,
                     instantiationStrategy);
-            if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
-                resolveRmiInterface(service);
-            }
             instantiateServiceBean(service, serviceTarget, serviceClassLoader);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -182,27 +178,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         return Pair.of(serviceTarget, methodMap);
     }
 
-    private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException {
-        String rmiServiceClassName = service.getRmiServiceClassName();
-        Class<?> serviceClass = null;
-        ClassLoader serviceClassLoader = service.getClassLoader();
-        if (rmiServiceClassName != null) {
-            try {
-                serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
-            } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                throw new RuleServiceRuntimeException(
-                        String.format("Failed to load RMI service class '%s'.", rmiServiceClassName),
-                        e);
-            }
-        }
-        if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface is used.",
-                    service.getDeployPath());
-            service.setRmiServiceClassName(null); // RMI default will be used
-        }
-        service.setRmiServiceClass(serviceClass);
-    }
-
     private Class<?> processAnnotatedTemplateClass(ServiceDescription serviceDescription,
                                                    Class<?> serviceClass,
                                                    IOpenClass openClass,
@@ -248,8 +223,6 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 .setUrl(serviceDescription.getUrl())
                 .setDeployPath(serviceDescription.getDeployPath())
                 .setServiceClassName(serviceDescription.getServiceClassName())
-                .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
-                .setRmiName(serviceDescription.getRmiName())
                 .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
                 .addModules(modules)
                 .setDeployment(serviceDescription.getDeployment());

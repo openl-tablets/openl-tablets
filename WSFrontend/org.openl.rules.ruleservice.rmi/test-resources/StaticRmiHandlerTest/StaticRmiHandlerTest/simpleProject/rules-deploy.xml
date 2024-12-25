@@ -1,9 +1,0 @@
-<rules-deploy>
-    <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <serviceName>staticRmiHandlerTest</serviceName>
-    <publishers>
-        <publisher>RMI</publisher>
-    </publishers>
-    <rmiServiceClass>org.openl.rules.ruleservice.publish.StaticRmiHandler</rmiServiceClass>
-    <url>staticRmiHandler</url>
-</rules-deploy>

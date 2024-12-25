@@ -12,8 +12,6 @@
     <description>Rules Service Pom Project</description>
     <modules>
         <module>org.openl.rules.ruleservice</module>
-        <module>org.openl.rules.ruleservice.rmi.frontend</module>
-        <module>org.openl.rules.ruleservice.rmi</module>
         <module>org.openl.rules.ruleservice.kafka</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</module>
