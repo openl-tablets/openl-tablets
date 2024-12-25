@@ -267,10 +267,6 @@ public class RepositoryProjectRulesDeployConfig {
         return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
     }
 
-    public boolean isRmiServiceClassSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
-    }
-
     public boolean isGroupsSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
     }

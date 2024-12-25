@@ -25,7 +25,6 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("rulesDeployName", rulesDeploy.getServiceName());
         assertEquals(Boolean.FALSE, rulesDeploy.isProvideRuntimeContext());
         assertEquals(String.class.getName(), rulesDeploy.getServiceClass());
-        assertEquals(String.class.getName(), rulesDeploy.getRmiServiceClass());
         assertEquals(String.class.getName(), rulesDeploy.getInterceptingTemplateClassName());
         assertEquals(String.class.getName(), rulesDeploy.getAnnotationTemplateClassName());
         assertNotNull(rulesDeploy.getPublishers());

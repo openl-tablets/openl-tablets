@@ -81,14 +81,6 @@ public class RulesDeploy {
         this.serviceName = serviceName;
     }
 
-    public String getRmiServiceClass() {
-        return rmiServiceClass;
-    }
-
-    public void setRmiServiceClass(String rmiServiceClass) {
-        this.rmiServiceClass = rmiServiceClass;
-    }
-
     public String getServiceClass() {
         return serviceClass;
     }

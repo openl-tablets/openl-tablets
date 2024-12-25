@@ -28,10 +28,7 @@ public final class OpenLService {
     private final String url;
     private final String deployPath;
     private String serviceClassName;
-    private String rmiServiceClassName;
-    private final String rmiName;
     private Class<?> serviceClass;
-    private Class<?> rmiServiceClass;
     private Object serviceBean;
     private CompiledOpenClass compiledOpenClass;
     private final boolean provideRuntimeContext;
@@ -67,8 +64,6 @@ public final class OpenLService {
                  String url,
                  String deployPath,
                  String serviceClassName,
-                 String rmiServiceClassName,
-                 String rmiName,
                  boolean provideRuntimeContext,
                  Set<String> publishers,
                  Collection<Module> modules,
@@ -84,8 +79,6 @@ public final class OpenLService {
             this.modules = Collections.emptyList();
         }
         this.serviceClassName = serviceClassName;
-        this.rmiServiceClassName = rmiServiceClassName;
-        this.rmiName = rmiName;
         this.provideRuntimeContext = provideRuntimeContext;
         if (publishers != null) {
             this.publishers = Collections.unmodifiableSet(publishers);
@@ -103,8 +96,6 @@ public final class OpenLService {
                 builder.url,
                 builder.deployPath,
                 builder.serviceClassName,
-                builder.rmiServiceClassName,
-                builder.rmiName,
                 builder.provideRuntimeContext,
                 builder.publishers,
                 builder.modules,
@@ -184,29 +175,6 @@ public final class OpenLService {
     }
 
     /**
-     * Returns a rmi class name for service.
-     *
-     * @return
-     */
-    public String getRmiServiceClassName() throws RuleServiceInstantiationException {
-        ensureInitialization();
-        return rmiServiceClassName;
-    }
-
-    /**
-     * Returns a rmi name for service.
-     *
-     * @return
-     */
-    public String getRmiName() {
-        return rmiName;
-    }
-
-    void setRmiServiceClassName(String rmiServiceClassName) {
-        this.rmiServiceClassName = rmiServiceClassName;
-    }
-
-    /**
      * Return provideRuntimeContext value. This value is define that service methods first argument is
      * IRulesRuntimeContext.
      *
@@ -226,26 +194,12 @@ public final class OpenLService {
         return serviceClass;
     }
 
-    /**
-     * Returns rmi service class.
-     *
-     * @return
-     */
-    public Class<?> getRmiServiceClass() throws RuleServiceInstantiationException {
-        ensureInitialization();
-        return rmiServiceClass;
-    }
-
     void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
     void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
-    }
-
-    void setRmiServiceClass(Class<?> rmiServiceClass) {
-        this.rmiServiceClass = rmiServiceClass;
     }
 
     public Object getServiceBean() throws RuleServiceInstantiationException {
@@ -346,8 +300,6 @@ public final class OpenLService {
         private String url;
         private String deployPath;
         private String serviceClassName;
-        private String rmiServiceClassName;
-        private String rmiName;
         private Class<?> serviceClass;
         private boolean provideRuntimeContext = false;
         private Collection<Module> modules;
@@ -383,28 +335,6 @@ public final class OpenLService {
          */
         public OpenLServiceBuilder setServiceClassName(String serviceClassName) {
             this.serviceClassName = serviceClassName;
-            return this;
-        }
-
-        /**
-         * Sets RMI class name to the builder.
-         *
-         * @param rmiServiceClassName
-         * @return
-         */
-        public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {
-            this.rmiServiceClassName = rmiServiceClassName;
-            return this;
-        }
-
-        /**
-         * Sets RMI name to the builder.
-         *
-         * @param rmiName
-         * @return
-         */
-        public OpenLServiceBuilder setRmiName(String rmiName) {
-            this.rmiName = rmiName;
             return this;
         }
 
