@@ -250,6 +250,10 @@ public class DeploymentController {
         return null;
     }
 
+    public boolean isValidBranch() {
+        return  deploymentManager.validateOnMainBranch(Collections.singletonList(getSelectedProject()), repositoryConfigName) == null;
+    }
+
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
@@ -516,6 +520,12 @@ public class DeploymentController {
     }
 
     public String getRepositoryConfigName() {
+        if (repositoryConfigName == null) {
+            var repositories = getRepositories().iterator();
+            if (repositories.hasNext()) {
+                repositoryConfigName = repositories.next().getConfigName();
+            }
+        }
         return repositoryConfigName;
     }
 

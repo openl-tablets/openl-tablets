@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
@@ -554,6 +556,26 @@ public abstract class AbstractSmartRedeployController {
                 items = null;
             }
         }
+    }
+
+    public String getValidBranch() {
+        List<DeploymentProjectItem> projectItems = getItems();
+        if (projectItems == null) {
+            return null;
+        }
+        List<ADeploymentProject> selectedProjectsToDeploy = new ArrayList<>();
+        for (DeploymentProjectItem item : projectItems) {
+            if (item.isSelected() && item.isCanDeploy()) {
+                var deployConfiguration = userWorkspace.getLatestDeploymentConfiguration("random");
+                var project = currentProject;
+                String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
+                deployConfiguration.addProjectDescriptor(project.getRepository()
+                        .getId(), project.getBusinessName(), project.getRealPath(), branch, project.getVersion());
+                selectedProjectsToDeploy.add(deployConfiguration);
+            }
+        }
+
+        return deploymentManager.validateOnMainBranch(selectedProjectsToDeploy, repositoryConfigName);
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {

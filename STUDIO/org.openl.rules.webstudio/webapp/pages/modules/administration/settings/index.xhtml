@@ -797,6 +797,13 @@
                                                                             </ui:include>
                                                                         </h:panelGroup>
                                                                     </h:panelGroup>
+                                                                    <h:panelGrid columns="2" columnClasses="titleColumn">
+                                                                        <h:outputText value="Deployment Branch:"/>
+                                                                        <h:selectOneMenu value="#{repository.settings.mainBranchOnly}">
+                                                                            <f:selectItem itemValue="false" itemLabel="Any Branch"/>
+                                                                            <f:selectItem itemValue="true" itemLabel="Main Branch Only"/>
+                                                                        </h:selectOneMenu>
+                                                                    </h:panelGrid>
                                                                 </td>
                                                             </tr>
                                                         </table>
