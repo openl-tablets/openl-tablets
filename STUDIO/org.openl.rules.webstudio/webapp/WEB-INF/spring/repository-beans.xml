@@ -69,6 +69,7 @@
         <property name="initialProductionRepositoryConfigNames" value="${production-repository-configs}"/>
         <property name="repositoryFactoryProxy" ref="productionRepositoryFactoryProxy"/>
         <property name="designRepository" ref="designTimeRepository"/>
+        <property name="propertyResolver" ref="environment"/>
     </bean>
 
     <bean id="projectDescriptorArtefactResolver"

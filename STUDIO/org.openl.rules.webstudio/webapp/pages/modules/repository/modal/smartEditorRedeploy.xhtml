@@ -62,6 +62,10 @@
                             <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}"/>
                         </rich:column>
                     </rich:dataTable>
+                    <h:outputText
+                            value="The selected branch is not allowed for deployment. Please switch to the [#{smartRedeployController.validBranch}]"
+                            rendered="#{smartRedeployEditorController.validBranch != null}"
+                            style="margin: 25px 0"/>
                 </h:panelGroup>
             </h:panelGroup>
 
@@ -79,7 +83,7 @@
                  But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
                  --></ui:remove>
                 <a4j:commandButton value="Deploy"
-                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems}"
+                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems or smartRedeployEditorController.validBranch != null}"
                                    onclick="modalSmartEditorRedeployDeployAction(); return false;"
                                    styleClass="button-primary"/>
                 <a4j:commandButton id="smartRedeployBtn"

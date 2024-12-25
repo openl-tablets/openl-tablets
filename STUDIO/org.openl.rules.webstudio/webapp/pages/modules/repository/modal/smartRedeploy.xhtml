@@ -62,6 +62,10 @@
                             <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}"/>
                         </rich:column>
                     </rich:dataTable>
+                    <h:outputText
+                            value="The selected branch is not allowed for deployment. Please switch to the [#{smartRedeployController.validBranch}]"
+                            rendered="#{smartRedeployController.validBranch != null}"
+                            style="margin: 25px 0"/>
                 </h:panelGroup>
             </h:panelGroup>
 
@@ -80,7 +84,7 @@
                  --></ui:remove>
                 <h:commandButton value="Deploy"
                                  onclick="modalSmartRedeployDeployAction(); return false;"
-                                 disabled="#{!smartRedeployController.projectHasSelectedItems}"
+                                 disabled="#{!smartRedeployController.projectHasSelectedItems || smartRedeployController.validBranch != null}"
                                  styleClass="button-primary"/>
                 <h:commandButton id="smartRedeployBtn" onclick="return startSmartRedeploy();"
                                  action="#{smartRedeployController.redeploy}"
