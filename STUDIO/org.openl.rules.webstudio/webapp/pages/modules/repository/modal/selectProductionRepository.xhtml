@@ -1,6 +1,7 @@
 <ui:composition
         xmlns:f="http://java.sun.com/jsf/core"
         xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -17,7 +18,12 @@
       <h:panelGroup layout="block" style="margin: 0 7px">
         <h:selectOneMenu id="redeployRepository" value="#{deploymentController.repositoryConfigName}">
           <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
+          <f:ajax event="change" render="@form" execute="@this"/>
         </h:selectOneMenu>
+        <h:panelGroup layout="block" rendered="#{!deploymentController.validBranch}">
+          <div style="margin: 25px 0">The selected branch(s) are not allowed for deployment.<br/>
+            Please switch to the branch(es) that comply with the repository's 'Deployment Branch' settings</div>
+        </h:panelGroup>
       </h:panelGroup>
       <footer>
         <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
@@ -27,12 +33,14 @@
          --></ui:remove>
         <h:commandButton value="Deploy"
                          onclick="modalSelectRepositoryDeployAction(); return false;"
+                         disabled="#{!deploymentController.validBranch}"
                          styleClass="button-primary"/>
         <h:commandButton id="deployBtn"
                          action="#{deploymentController.deploy}"
                          styleClass="hidden"/>
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSelectRepository();" />
       </footer>
+      <a4j:jsFunction name="renderSelectRepositoryForm" render="selectRepositoryForm" oncomplete="showSelectRepositoryDialog()"/>
     </h:form>
   </rich:popupPanel>
 
@@ -41,6 +49,10 @@
       withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{deploymentController.repositoryTypes}')[$j('#selectRepositoryForm\\:redeployRepository option:selected').val()] === 'repo-git',  () => $j('#selectRepositoryForm\\:deployBtn').click());
     }
     function openSelectRepositoryDialog() {
+      renderSelectRepositoryForm();
+    }
+
+    function showSelectRepositoryDialog() {
       RichFaces.$('modalSelectRepository').show();
       window._deployInProgress = false;
     }

@@ -210,6 +210,10 @@ public class ProjectManagementController {
                     deploymentProjectsToDeploy.add(deploymentProject);
                 }
             }
+            var validBranchName = deploymentManager.validateOnMainBranch(deploymentProjectsToDeploy, deployRepoName);
+            if (validBranchName != null) {
+                throw new ConflictException("project.deploy.restricted.message", validBranchName);
+            }
             for (ADeploymentProject deploymentProject : deploymentProjectsToDeploy) {
                 deploymentManager.deploy(deploymentProject, deployRepoName);
             }

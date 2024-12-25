@@ -9,12 +9,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.env.PropertyResolver;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectDescriptor;
@@ -27,10 +29,12 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -50,6 +54,7 @@ public class DeploymentManager implements InitializingBean {
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
     private IRulesDeploySerializer rulesDeploySerializer;
+    private PropertyResolver propertyResolver;
 
     private final Set<String> deployers = new HashSet<>();
     public RepositoryFactoryProxy repositoryFactoryProxy;
@@ -69,6 +74,35 @@ public class DeploymentManager implements InitializingBean {
 
     public boolean hasDeploymentRepository() {
         return !deployers.isEmpty();
+    }
+
+    public String validateOnMainBranch(List<ADeploymentProject> projects, String repositoryConfigName) {
+        if (projects == null || projects.isEmpty() || repositoryConfigName == null) {
+            return null;
+        }
+        if (!new RepositoryConfiguration(repositoryConfigName, propertyResolver).getSettings().isMainBranchOnly()) {
+            return null;
+        }
+
+        return projects.stream()
+                .filter(Objects::nonNull)
+                .flatMap(x -> x.getProjectDescriptors().stream())
+                .map(x -> {
+                    var repo = designRepository.getRepository(x.getRepositoryId());
+                    if (repo == null) {
+                        return null;
+                    }
+                    if (!repo.supports().branches()) {
+                        return null;
+                    }
+                    var repoMainBranch = ((BranchRepository) repo).getBranch();
+                    if (repoMainBranch.equals(x.getBranch())) {
+                        return null;
+                    }
+                    return repoMainBranch;
+                })
+                .filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public DeployID deploy(ADeploymentProject project, String repositoryConfigName) throws ProjectException {
@@ -299,6 +333,10 @@ public class DeploymentManager implements InitializingBean {
 
     public void setDesignRepository(DesignTimeRepository designRepository) {
         this.designRepository = designRepository;
+    }
+
+    public void setPropertyResolver(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
     }
 
     @Override
