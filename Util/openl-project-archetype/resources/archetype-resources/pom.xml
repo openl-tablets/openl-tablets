@@ -15,6 +15,7 @@
     </organization>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>${project.version}</org.openl.version>
     </properties>
 

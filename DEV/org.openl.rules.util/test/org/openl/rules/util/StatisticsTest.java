@@ -19,7 +19,7 @@ public class StatisticsTest {
     @Test
     public void testMax() {
         assertNull(max());
-        assertNull(max(null));
+        assertNull(max((Integer[]) null));
         assertNull(max(new Integer[0]));
         assertNull(max(new Integer[]{null}));
 
@@ -32,7 +32,7 @@ public class StatisticsTest {
     @Test
     public void testMin() {
         assertNull(min());
-        assertNull(min(null));
+        assertNull(min((Integer[]) null));
         assertNull(min(new Integer[0]));
         assertNull(min(new Integer[]{null}));
 

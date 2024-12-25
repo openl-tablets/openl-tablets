@@ -483,9 +483,9 @@ public class StringsTest {
 
     @Test
     public void testConcatenate() {
-        assertNull(concatenate(null));
+        assertNull(concatenate((Object[]) null));
         assertNull(concatenate());
-        assertNull(concatenate(null));
+        assertNull(concatenate((Object) null));
         assertNull(concatenate(null, null));
         assertEquals("", concatenate(null, "", null));
         assertEquals("", concatenate(""));
