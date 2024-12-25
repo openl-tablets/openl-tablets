@@ -102,12 +102,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                     serviceDescriptionBuilder
                                             .setServiceClassName(rulesDeploy.getServiceClass().trim());
                                 }
-                                if (rulesDeploy.getRmiServiceClass() != null && !rulesDeploy.getRmiServiceClass()
-                                        .trim()
-                                        .isEmpty()) {
-                                    serviceDescriptionBuilder
-                                            .setRmiServiceClassName(rulesDeploy.getRmiServiceClass().trim());
-                                }
                                 if (rulesDeploy.isProvideRuntimeContext() != null) {
                                     serviceDescriptionBuilder
                                             .setProvideRuntimeContext(rulesDeploy.isProvideRuntimeContext());
@@ -127,10 +121,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
                                         .isEmpty()) {
                                     serviceDescriptionBuilder.setAnnotationTemplateClassName(
                                             rulesDeploy.getInterceptingTemplateClassName().trim());
-                                }
-                                if (rulesDeploy
-                                        .getRmiName() != null && !rulesDeploy.getRmiName().trim().isEmpty()) {
-                                    serviceDescriptionBuilder.setRmiName(rulesDeploy.getRmiName());
                                 }
                                 if (rulesDeploy.getAnnotationTemplateClassName() != null && !rulesDeploy
                                         .getAnnotationTemplateClassName()

@@ -71,15 +71,6 @@
           <h:message for="#{prefix}serviceClass" styleClass="error" style="display: block" />
       </h:panelGroup>
       
-      <h:outputLabel for="#{prefix}rmiServiceClass" value="RMI Service class:" rendered="#{repositoryProjectRulesDeployConfig.rmiServiceClassSupported}"/>
-      <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.rmiServiceClassSupported}">
-          <h:inputText id="#{prefix}rmiServiceClass" maxlength="100" size="40" value="#{rulesDeploy.rmiServiceClass}"
-                       rendered="#{canEditRulesDeployConfig}"
-                       validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
-          <h:outputText value="#{rulesDeploy.rmiServiceClass}" rendered="#{!canEditRulesDeployConfig}"/>
-          <h:message for="#{prefix}rmiServiceClass" styleClass="error" style="display: block" />
-      </h:panelGroup>
-
       <h:outputLabel for="#{prefix}version" value="Version:" rendered="#{repositoryProjectRulesDeployConfig.versionSupported}"/>
         <h:panelGroup id="#{prefix}version" style="white-space: nowrap;"
                       rendered="#{repositoryProjectRulesDeployConfig.versionSupported}">

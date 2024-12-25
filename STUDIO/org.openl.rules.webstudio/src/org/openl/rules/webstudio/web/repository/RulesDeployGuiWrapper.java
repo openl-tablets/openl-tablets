@@ -67,14 +67,6 @@ public class RulesDeployGuiWrapper {
         rulesDeploy.setServiceClass(StringUtils.trimToNull(serviceClass));
     }
 
-    public String getRmiServiceClass() {
-        return rulesDeploy.getRmiServiceClass();
-    }
-
-    public void setRmiServiceClass(String rmiServiceClass) {
-        rulesDeploy.setRmiServiceClass(StringUtils.trimToNull(rmiServiceClass));
-    }
-
     public String getVersion() {
         return rulesDeploy.getVersion();
     }
@@ -128,7 +120,11 @@ public class RulesDeployGuiWrapper {
             return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
         }
 
-        return new PublisherType[]{PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
+        if (version.compareTo(SupportedVersion.V5_27) <= 0) {
+            return new PublisherType[]{PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
+        }
+
+        return new PublisherType[]{PublisherType.RESTFUL, PublisherType.KAFKA};
     }
 
 }
