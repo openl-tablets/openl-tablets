@@ -1,1 +1,1 @@
-clean install
+verify
