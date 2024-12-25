@@ -475,21 +475,6 @@ public class ServiceInterfaceMethodInterceptingTest {
         }
 
         try {
-            OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder()
-                    .setServiceClassName(null)
-                    .setRmiServiceClassName(ELUSIVE_CLASS_NAME)
-                    .setPublishers(Collections.singletonList("RMI"))
-                    .build());
-            service.getServiceClass();
-            fail("Everything went different before...");
-        } catch (RuleServiceInstantiationException e) {
-            Throwable actual = findExceptionByMessage(e,
-                    "Failed to load RMI service class 'org.openl.test.MustNotBeFoundInClassloader'.");
-            assertNotNull(actual, "Exception must be present");
-            assertTrue(actual.getCause() instanceof ClassNotFoundException);
-        }
-
-        try {
             OpenLService service = instantiationFactory
                     .createService(serviceDescriptionBuilder().setServiceClassName(null)
                             .setAnnotationTemplateClassName(Overload.class.getName())

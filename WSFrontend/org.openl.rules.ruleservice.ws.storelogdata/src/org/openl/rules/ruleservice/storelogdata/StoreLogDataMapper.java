@@ -124,8 +124,6 @@ public class StoreLogDataMapper {
                     case KAFKA:
                         request = storeLogData.getConsumerRecord().value().asText();
                         break;
-                    case RMI:
-                        break;
                     case RESTFUL:
                     case WEBSERVICE:
                         if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage()
@@ -149,8 +147,6 @@ public class StoreLogDataMapper {
                                 throw new RuleServiceRuntimeException(e);
                             }
                         }
-                        break;
-                    case RMI:
                         break;
                     case RESTFUL:
                     case WEBSERVICE:

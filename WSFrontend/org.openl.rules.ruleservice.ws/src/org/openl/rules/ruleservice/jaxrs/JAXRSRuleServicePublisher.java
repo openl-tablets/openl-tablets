@@ -187,9 +187,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         if (service.getPublishers().contains(RulesDeploy.PublisherType.KAFKA.toString())) {
             numOfServicesWithUrls--;
         }
-        if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
-            numOfServicesWithUrls--;
-        }
         if (numOfServicesWithUrls != 1) {
             url = REST_PREFIX + url;
         }

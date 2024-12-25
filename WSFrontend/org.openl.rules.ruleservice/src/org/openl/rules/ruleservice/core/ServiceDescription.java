@@ -24,8 +24,6 @@ public final class ServiceDescription {
     private final String url;
     private final String deployPath;
     private final String serviceClassName;
-    private final String rmiServiceClassName;
-    private final String rmiName;
     private final String annotationTemplateClassName;
     private final boolean provideRuntimeContext;
     private final Map<String, Object> configuration;
@@ -49,8 +47,6 @@ public final class ServiceDescription {
                        String url,
                        String deployPath,
                        String serviceClassName,
-                       String rmiServiceClassName,
-                       String rmiName,
                        String annotationTemplateClassName,
                        boolean provideRuntimeContext,
                        Collection<Module> modules,
@@ -66,8 +62,6 @@ public final class ServiceDescription {
         this.deployPath = deployPath;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
-        this.rmiServiceClassName = rmiServiceClassName;
-        this.rmiName = rmiName;
         this.annotationTemplateClassName = annotationTemplateClassName;
         this.rulesDeploy = rulesDeploy;
         if (configuration == null) {
@@ -91,8 +85,6 @@ public final class ServiceDescription {
                 builder.url,
                 builder.servicePath,
                 builder.serviceClassName,
-                builder.rmiServiceClassName,
-                builder.rmiName,
                 builder.annotationTemplateClassName,
                 builder.provideRuntimeContext,
                 builder.modules,
@@ -151,24 +143,6 @@ public final class ServiceDescription {
      */
     public String getServiceClassName() {
         return serviceClassName;
-    }
-
-    /**
-     * Returns RMI service class name.
-     *
-     * @return class name
-     */
-    public String getRmiServiceClassName() {
-        return rmiServiceClassName;
-    }
-
-    /**
-     * Returns RMI name.
-     *
-     * @return RMI name
-     */
-    public String getRmiName() {
-        return rmiName;
     }
 
     /**
@@ -248,8 +222,6 @@ public final class ServiceDescription {
         private String url;
         private String servicePath;
         private String serviceClassName;
-        private String rmiServiceClassName;
-        private String rmiName;
         private String annotationTemplateClassName;
         private boolean provideRuntimeContext;
         private Map<String, Object> configuration;
@@ -296,17 +268,6 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setName(String name) {
             this.name = Objects.requireNonNull(name, "name cannot be null");
-            return this;
-        }
-
-        /**
-         * Sets rmi name to the builder.
-         *
-         * @param name
-         * @return
-         */
-        public ServiceDescriptionBuilder setRmiName(String rmiName) {
-            this.rmiName = Objects.requireNonNull(rmiName, "rmiName cannot be null");
             return this;
         }
 
@@ -397,17 +358,6 @@ public final class ServiceDescription {
          */
         public ServiceDescriptionBuilder setServiceClassName(String serviceClassName) {
             this.serviceClassName = serviceClassName;
-            return this;
-        }
-
-        /**
-         * Sets rmi class name to the builder. (Optional)
-         *
-         * @param rmiServiceClassName
-         * @return
-         */
-        public ServiceDescriptionBuilder setRmiServiceClassName(String rmiServiceClassName) {
-            this.rmiServiceClassName = rmiServiceClassName;
             return this;
         }
 
