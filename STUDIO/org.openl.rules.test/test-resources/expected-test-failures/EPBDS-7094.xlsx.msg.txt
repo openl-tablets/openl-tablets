@@ -1,0 +1,2 @@
+Object '4' is outside of valid domain 'A1'. Valid values: [2, 3]
+Object '10' is outside of valid domain 'A2'. Valid values: [5, 7]
