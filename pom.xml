@@ -85,12 +85,12 @@
         <spring.security.version>5.8.16</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7.1</asm.version>
-        <byte-buddy.version>1.15.10</byte-buddy.version>
+        <byte-buddy.version>1.15.11</byte-buddy.version>
         <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
@@ -99,7 +99,7 @@
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.10.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.11.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
         <!-- Casandra -->
@@ -109,20 +109,18 @@
         <hive.jdbc.version>4.0.1</hive.jdbc.version>
 
         <!-- REST -->
-        <!-- https://github.com/swagger-api/swagger-core/issues/4755 -->
-        <!-- Downgrade to 2.17.x due errors in the log -->
-        <jackson.version>2.17.3</jackson.version>
-        <cxf.version>3.6.4</cxf.version>
+        <jackson.version>2.18.2</jackson.version>
+        <cxf.version>3.6.5</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.68.2</grpc.version>
+        <grpc.version>1.69.0</grpc.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.26</swagger.core.version>
-        <swagger.parser.version>2.1.23</swagger.parser.version>
+        <swagger.core.version>2.2.27</swagger.core.version>
+        <swagger.parser.version>2.1.24</swagger.parser.version>
 
         <!-- Logging -->
-        <log4j.version>2.24.2</log4j.version>
+        <log4j.version>2.24.3</log4j.version>
         <slf4j.version>2.0.16</slf4j.version>
 
         <!-- OpenL Maven Plugin -->
@@ -134,9 +132,9 @@
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.29.24</amazonaws.version>
+        <amazonaws.version>2.29.40</amazonaws.version>
         <azure.version>12.29.0</azure.version>
-        <netty.version>4.1.115.Final</netty.version>
+        <netty.version>4.1.116.Final</netty.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
@@ -147,7 +145,7 @@
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
-        <junit.version>5.11.3</junit.version>
+        <junit.version>5.11.4</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.2.2</awaitility.version>
         <mockito.version>5.14.2</mockito.version>
@@ -156,7 +154,7 @@
         <testcontainers.version>1.20.4</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
         <minio.version>8.5.14</minio.version>
-        <oracle.version>21.16.0.0</oracle.version>
+        <oracle.version>23.6.0.24.10</oracle.version>
         <postgresql.version>42.7.4</postgresql.version>
         <mariadb.version>2.7.12</mariadb.version>
         <jmh.version>1.37</jmh.version>
@@ -196,7 +194,7 @@
         <poi.version>5.3.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
-        <guava.version>33.3.1-jre</guava.version>
+        <guava.version>33.4.0-jre</guava.version>
         <xmlsec.version>2.3.4</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
@@ -1894,6 +1892,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-yaml</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-rules-opentelemetry</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

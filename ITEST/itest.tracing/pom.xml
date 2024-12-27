@@ -16,50 +16,17 @@
 
     <properties>
         <surefire.argLine.opts>
-            -javaagent:${project.build.directory}/opentelemetry-javaagent.jar
+            -javaagent:${io.opentelemetry.javaagent:opentelemetry-javaagent:jar}
             -Dotel.metrics.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.traces.exporter=logging-otlp <!-- JSON output format -->
             -Dotel.logs.exporter=none <!-- To reduce spamming to the log -->
             -Dotel.bsp.schedule.delay=0 <!-- For rapidly output to the console -->
             -Dotel.service.name=RulerService-Test
-            -Dotel.javaagent.extensions=../../Util/openl-rules-opentelemetry/target/openl-rules-opentelemetry.jar
+            -Dotel.javaagent.extensions=${org.openl.rules:openl-rules-opentelemetry:jar}
         </surefire.argLine.opts>
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>io.opentelemetry.javaagent</groupId>
-                            <artifactId>opentelemetry-javaagent</artifactId>
-                            <type>jar</type>
-                            <overWrite>true</overWrite>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <destFileName>opentelemetry-javaagent.jar</destFileName>
-                        </artifactItem>
-                    </artifactItems>
-                    <outputDirectory>./</outputDirectory>
-                    <overWriteReleases>false</overWriteReleases>
-                    <overWriteSnapshots>true</overWriteSnapshots>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -108,6 +75,10 @@
             <groupId>io.opentelemetry.javaagent</groupId>
             <artifactId>opentelemetry-javaagent</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-rules-opentelemetry</artifactId>
         </dependency>
     </dependencies>
 
