@@ -20,5 +20,4 @@ public interface IConfigurableResourceContext {
 
     ClassLoader getClassLoader();
 
-    IOpenLConfiguration getConfiguration();
 }

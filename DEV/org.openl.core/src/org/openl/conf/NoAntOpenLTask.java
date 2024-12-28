@@ -83,7 +83,7 @@ public class NoAntOpenLTask {
                 }
             }
 
-            IConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), conf);
+            IConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader());
 
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
