@@ -3,16 +3,11 @@ package org.openl.conf;
 import java.io.File;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author snshor
  */
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = {".", ""};
 
