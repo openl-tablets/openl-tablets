@@ -2,7 +2,6 @@ package org.openl.conf;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     private final IOpenLConfiguration config;
     private ClassLoader classLoader;
     private final String[] fileSystemRoots;
-    private Map<String, String> properties;
 
     public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
         this(classLoader, DEFAULT_FILESYSTEM_ROOTS, config);
@@ -38,24 +36,6 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     public ConfigurableResourceContext(IOpenLConfiguration config) {
         this(Thread.currentThread().getContextClassLoader(), DEFAULT_FILESYSTEM_ROOTS, config);
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
-
-    @Override
-    public Class<?> findClass(String className) {
-        try {
-            return getClassLoader().loadClass(className);
-        } catch (Exception | LinkageError e) {
-            LOG.debug("Failed to load class '{}'.", className, e);
-            return null;
-        }
     }
 
     @Override
@@ -79,27 +59,6 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         }
 
         return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IConfigurableResourceContext#findProperty(java.lang.String )
-     */
-    @Override
-    public String findProperty(String propertyName) {
-
-        String property = null;
-
-        if (properties != null) {
-            property = properties.get(propertyName);
-        }
-
-        if (property != null) {
-            return property;
-        }
-
-        return System.getProperty(propertyName);
     }
 
     @Override
