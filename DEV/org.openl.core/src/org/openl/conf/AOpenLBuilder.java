@@ -13,7 +13,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
     }
 
     @Override
-    public OpenL build(String openl) {
+    public OpenL build() {
         try {
 
             IUserContext ucxt = getUserEnvironmentContext();
@@ -44,7 +44,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             }
 
             OpenL op = new OpenL();
-            op.setName(openl);
             op.setParser(new Parser(conf));
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(createVM());

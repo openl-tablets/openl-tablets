@@ -11,7 +11,7 @@ import org.openl.rules.vm.SimpleRulesVM;
 public class OpenLBuilder extends BaseOpenLBuilder {
 
     @Override
-    public OpenL build(String category) {
+    public OpenL build() {
 
         OpenL openl = new OpenL();
 

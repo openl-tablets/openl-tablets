@@ -34,7 +34,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     }
 
     @Override
-    public OpenL build(String category) {
+    public OpenL build() {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         ClassLoader userEnvironmentContextClassLoader = getUserEnvironmentContext().getUserClassLoader();
         try {
@@ -43,7 +43,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return super.build(category);
+        return super.build();
     }
 
     @Override
