@@ -1,6 +1,5 @@
 package org.openl.conf;
 
-import org.openl.OpenL;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -14,7 +13,6 @@ public class NoAntOpenLTask {
 
     private static IOpenLConfiguration lastConfiguration;
 
-    private boolean inheritExtendedConfigurationLoader = false;
     private final OpenLConfiguration conf = new OpenLConfiguration();
     private String category;
     private String extendsCategory;
@@ -85,7 +83,7 @@ public class NoAntOpenLTask {
                 }
             }
 
-            IConfigurableResourceContext cxt = getConfigurationContext(extendsConfiguration, ucxt);
+            IConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), conf);
 
             conf.setParent(extendsConfiguration);
             conf.setConfigurationContext(cxt);
@@ -100,18 +98,6 @@ public class NoAntOpenLTask {
         }
     }
 
-    private IConfigurableResourceContext getConfigurationContext(IOpenLConfiguration extendsConfiguration,
-                                                                 IUserContext ucxt) {
-        ClassLoader parentLoader = extendsConfiguration == null ? OpenL.class
-                .getClassLoader() : extendsConfiguration.getConfigurationContext().getClassLoader();
-
-        if (!inheritExtendedConfigurationLoader) {
-            parentLoader = ucxt.getUserClassLoader();
-        }
-
-        return new ConfigurableResourceContext(parentLoader, conf);
-    }
-
     private void saveConfiguration(IOpenLConfiguration conf) {
         lastConfiguration = conf;
     }
@@ -122,9 +108,5 @@ public class NoAntOpenLTask {
 
     public void setExtendsCategory(String string) {
         extendsCategory = string;
-    }
-
-    void setInheritExtendedConfigurationLoader(boolean inheritExtendedConfigurationLoader) {
-        this.inheritExtendedConfigurationLoader = inheritExtendedConfigurationLoader;
     }
 }
