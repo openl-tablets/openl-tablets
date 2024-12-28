@@ -60,9 +60,9 @@ import org.openl.conf.JavaTypeConfiguration;
 import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NoAntOpenLTask;
 import org.openl.conf.NodeBinderFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -71,10 +71,8 @@ import org.openl.types.java.JavaPrimitiveTypeLibrary;
 public class OpenLBuilder extends AOpenLBuilder {
 
     @Override
-    public NoAntOpenLTask getNoAntOpenLTask() {
-        NoAntOpenLTask op = new NoAntOpenLTask();
-
-        op.setCategory(OpenL.OPENL_J_NAME);
+    protected OpenLConfiguration getOpenLConfiguration() {
+        var op = new OpenLConfiguration();
 
         ClassFactory cfg = op.createGrammar();
         cfg.setClassName(BExGrammarWithParsingHelp.class.getName());
@@ -443,7 +441,7 @@ public class OpenLBuilder extends AOpenLBuilder {
          * </typelibrary> </types>
          */
 
-        TypeCastFactory typecast = op.createTypecast();
+        TypeCastFactory typecast = op.createTypeCastFactory();
         TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
                 CastOperators.class.getName(),
                 CastFactory.class.getName());
@@ -458,4 +456,13 @@ public class OpenLBuilder extends AOpenLBuilder {
 
     }
 
+    @Override
+    protected String getCategory() {
+        return OpenL.OPENL_J_NAME;
+    }
+
+    @Override
+    protected String getExtendsCategory() {
+        return null;
+    }
 }
