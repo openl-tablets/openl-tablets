@@ -18,7 +18,7 @@ public class OpenLClassCastsTest {
 
     @BeforeAll
     public static void init() {
-        OpenL openL = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
+        OpenL openL = OpenL.getInstance(OpenL.OPENL_J_NAME);
         castFactory = openL.getBinder().getCastFactory();
     }
 

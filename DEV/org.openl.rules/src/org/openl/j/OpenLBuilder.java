@@ -16,6 +16,7 @@ import org.openl.binding.impl.ForNodeBinder;
 import org.openl.binding.impl.IdentifierBinder;
 import org.openl.binding.impl.IdentifierSequenceBinder;
 import org.openl.binding.impl.IfNodeBinder;
+import org.openl.binding.impl.IfNodeBinderWithCSRSupport;
 import org.openl.binding.impl.IndexNodeBinder;
 import org.openl.binding.impl.IndexParameterDeclarationBinder;
 import org.openl.binding.impl.IntNodeBinder;
@@ -23,7 +24,6 @@ import org.openl.binding.impl.ListNodeBinder;
 import org.openl.binding.impl.LiteralNodeBinder;
 import org.openl.binding.impl.LocalVarBinder;
 import org.openl.binding.impl.MethodHeaderNodeBinder;
-import org.openl.binding.impl.MethodNodeBinder;
 import org.openl.binding.impl.NewArrayNodeBinder;
 import org.openl.binding.impl.NewNodeBinder;
 import org.openl.binding.impl.Operators;
@@ -47,8 +47,10 @@ import org.openl.binding.impl.WhereVarNodeBinder;
 import org.openl.binding.impl.WhileNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.CastOperators;
+import org.openl.binding.impl.ce.MethodNodeBinder;
 import org.openl.binding.impl.module.MethodDeclarationNodeBinder;
 import org.openl.binding.impl.module.MethodParametersNodeBinder;
+import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
 import org.openl.binding.impl.module.VarDeclarationNodeBinder;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.conf.AOpenLBuilder;
@@ -65,10 +67,76 @@ import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
+import org.openl.rules.binding.TableProperties;
+import org.openl.rules.calc.AnySpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.dt.algorithm.evaluator.CtrUtils;
+import org.openl.rules.enumeration.CaProvincesEnum;
+import org.openl.rules.enumeration.CaRegionsEnum;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.OriginsEnum;
+import org.openl.rules.enumeration.RecalculateEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.UsStatesEnum;
+import org.openl.rules.enumeration.ValidateDTEnum;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.RulesUtils;
+import org.openl.rules.helpers.StringRange;
+import org.openl.rules.util.Arrays;
+import org.openl.rules.util.Avg;
+import org.openl.rules.util.Booleans;
+import org.openl.rules.util.Dates;
+import org.openl.rules.util.Miscs;
+import org.openl.rules.util.Numbers;
+import org.openl.rules.util.Product;
+import org.openl.rules.util.Round;
+import org.openl.rules.util.Statistics;
+import org.openl.rules.util.Strings;
+import org.openl.rules.util.Sum;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.java.JavaPrimitiveTypeLibrary;
+import org.openl.vm.SimpleVM;
 
 public class OpenLBuilder extends AOpenLBuilder {
+
+    private static final String[] JAVA_LIBRARY_NAMES = new String[]{Round.class.getName(),
+            Booleans.class.getName(),
+            Strings.class.getName(),
+            Dates.class.getName(),
+            Arrays.class.getName(),
+            Statistics.class.getName(),
+            Sum.class.getName(),
+            Product.class.getName(),
+            Avg.class.getName(),
+            Miscs.class.getName(),
+            Numbers.class.getName(),
+            RulesUtils.class.getName(),
+            CtrUtils.class.getName()};
+
+    private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
+            Operators.class.getName(),
+            Comparison.class.getName()};
+
+    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[]{
+            CastOperators.class.getName(),
+            IntRange.class.getName(),
+            DoubleRange.class.getName(),
+            CharRange.class.getName(),
+            StringRange.class.getName(),
+            DateRange.class.getName()};
+
+    @Override
+    protected SimpleVM createVM() {
+        return new SimpleRulesVM();
+    }
 
     @Override
     protected OpenLConfiguration getOpenLConfiguration() {
@@ -106,7 +174,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 "var.declaration",
                 VarDeclarationNodeBinder.class.getName(),
                 "parameter.declaration",
-                org.openl.binding.impl.module.ParameterDeclarationNodeBinder.class.getName(),
+                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(),
                 "block",
                 BlockBinder.class.getName(),
                 "op.binary",
@@ -148,7 +216,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 IndexParameterDeclarationBinder.class.getName(),
 
                 "op.ternary.qmark",
-                IfNodeBinder.class.getName(),
+                IfNodeBinderWithCSRSupport.class.getName(),
                 "type.cast",
                 TypeCastBinder.class.getName(),
                 "local.var.declaration",
@@ -189,16 +257,25 @@ public class OpenLBuilder extends AOpenLBuilder {
             nbc.addConfiguredBinder(sbf);
         }
 
-        LibraryFactoryConfiguration lfc = op.createLibraries();
+        LibraryFactoryConfiguration libraries = op.createLibraries();
+
+        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
+        library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
+
+        for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(javaLibConfiguration);
+            library.addJavalib(javalib);
+        }
+
+        libraries.addConfiguredLibrary(library);
+
         NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
         nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(
-                Operators.class.getName());
-        nslc.addJavalib(javalib);
-        JavaLibraryConfiguration javalib2 = new JavaLibraryConfiguration(
-                Comparison.class.getName());
-        nslc.addJavalib(javalib2);
-        lfc.addConfiguredLibrary(nslc);
+        for (String className : JAVA_OPERATORS_CLASSES) {
+            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(className);
+            nslc.addJavalib(javalib);
+        }
+        libraries.addConfiguredLibrary(nslc);
 
         /*
          * <libraries> <library namespace="org.openl.operators"> <javalib classname="org.openl.binding.impl.Operators"/>
@@ -428,29 +505,43 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         nstc.addConfiguration(javaImports);
 
+        JavaImportTypeConfiguration openlTypes = new JavaImportTypeConfiguration();
+        openlTypes.addClassImport(CharRange.class.getName());
+        openlTypes.addClassImport(DateRange.class.getName());
+        openlTypes.addClassImport(IntRange.class.getName());
+        openlTypes.addClassImport(StringRange.class.getName());
+        openlTypes.addClassImport(DoubleRange.class.getName());
+
+        openlTypes.addClassImport(SpreadsheetResult.class.getName());
+        openlTypes.addClassImport(AnySpreadsheetResult.class.getName());
+        openlTypes.addClassImport(TableProperties.class.getName());
+
+        openlTypes.addClassImport(CaProvincesEnum.class.getName());
+        openlTypes.addClassImport(CaRegionsEnum.class.getName());
+        openlTypes.addClassImport(CountriesEnum.class.getName());
+        openlTypes.addClassImport(CurrenciesEnum.class.getName());
+        openlTypes.addClassImport(LanguagesEnum.class.getName());
+        openlTypes.addClassImport(RegionsEnum.class.getName());
+        openlTypes.addClassImport(OriginsEnum.class.getName());
+        openlTypes.addClassImport(UsRegionsEnum.class.getName());
+        openlTypes.addClassImport(UsStatesEnum.class.getName());
+        openlTypes.addClassImport(DTEmptyResultProcessingEnum.class.getName());
+        openlTypes.addClassImport(RecalculateEnum.class.getName());
+        openlTypes.addClassImport(ValidateDTEnum.class.getName());
+
+        nstc.addConfiguration(openlTypes);
+
         JavaLongNameTypeConfiguration javaLongNameType = new JavaLongNameTypeConfiguration();
         nstc.addConfiguration(javaLongNameType);
 
         types.addConfiguredTypeLibrary(nstc);
 
-        /*
-         *
-         * <types> <typelibrary namespace="org.openl.this"> <javatype
-         * classname="org.openl.types.java.JavaPrimitiveTypeLibrary"/> <javatype
-         * classname="org.openl.types.java.JavaLang"/> <javaimport> <import>java.util</import> </javaimport>
-         * </typelibrary> </types>
-         */
-
         TypeCastFactory typecast = op.createTypeCastFactory();
-        TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(
-                CastOperators.class.getName(),
-                CastFactory.class.getName());
-        typecast.addJavaCast(javacast);
-
-        /*
-         * <typecast> <javacast libraryclassname="org.openl.binding.impl.Operators"
-         * classname="org.openl.binding.impl.ACastFactory"/> </typecast>
-         */
+        for (String typeCastClassName : JAVA_TYPE_CAST_CLASSES) {
+            TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(typeCastClassName,
+                    CastFactory.class.getName());
+            typecast.addJavaCast(javacast);
+        }
 
         return op;
 

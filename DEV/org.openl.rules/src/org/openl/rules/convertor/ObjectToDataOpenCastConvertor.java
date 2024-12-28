@@ -14,7 +14,7 @@ public class ObjectToDataOpenCastConvertor {
 
     private ICastFactory getCastFactory() {
         if (castFactory == null) {
-            IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_JAVA_NAME).getBinder();
+            IOpenBinder binder = OpenL.getInstance(OpenL.OPENL_J_NAME).getBinder();
             castFactory = binder.getCastFactory();
         }
         return castFactory;

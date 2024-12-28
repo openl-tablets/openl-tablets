@@ -84,7 +84,7 @@ public class BinderTest {
 
     @Test
     public void testMeta() {
-        _testNoError("DoubleValue d1, d2; d1 + d2", Double.class, OpenL.OPENL_JAVA_NAME);
+        _testNoError("DoubleValue d1, d2; d1 + d2", Double.class, OpenL.OPENL_J_NAME);
     }
 
     @Test

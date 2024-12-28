@@ -67,7 +67,6 @@ import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.table.MethodTableNodeBinder;
@@ -195,10 +194,9 @@ public class XlsBinder implements IOpenBinder {
         try {
             openl = makeOpenL(moduleNode, exceptions);
         } catch (OpenLConfigurationException ex) {
-            OpenlSyntaxNode syntaxNode = moduleNode.getOpenlNode();
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, syntaxNode);
+            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, moduleNode);
 
-            ErrorBoundNode boundNode = new ErrorBoundNode(syntaxNode);
+            ErrorBoundNode boundNode = new ErrorBoundNode(moduleNode);
 
             return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[]{error}, null);
         }
@@ -474,7 +472,7 @@ public class XlsBinder implements IOpenBinder {
                 } catch (Exception e) {
                     packageNames.add(libraryClassName);
                 } catch (LinkageError e) {
-                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
+                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode));
                 }
             } else {
                 try {
@@ -485,7 +483,7 @@ public class XlsBinder implements IOpenBinder {
                 } catch (Exception e) {
                     packageNames.add(singleImport);
                 } catch (LinkageError e) {
-                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode.getOpenlNode()));
+                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode));
                 }
             }
         }
@@ -496,13 +494,9 @@ public class XlsBinder implements IOpenBinder {
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
 
-        String openlName = getOpenLName(moduleNode.getOpenlNode());
-
         OpenLBuilderImpl builder = new OpenLBuilderImpl();
 
-        builder.setExtendsCategory(openlName);
-
-        String category = openlName + "::" + moduleNode.getModule().getUri();
+        String category = "XLSX::" + moduleNode.getModule().getUri();
         builder.setCategory(category);
 
         addImports(moduleNode, builder, moduleNode.getImports(), exceptions);
@@ -530,14 +524,6 @@ public class XlsBinder implements IOpenBinder {
 
     protected AXlsTableBinder findBinder(String tableSyntaxNodeType) {
         return getBinderFactories().get(tableSyntaxNodeType);
-    }
-
-    protected String getDefaultOpenLName() {
-        return OpenL.OPENL_JAVA_NAME;
-    }
-
-    private String getOpenLName(OpenlSyntaxNode osn) {
-        return osn == null ? getDefaultOpenLName() : osn.getOpenlName();
     }
 
     private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode, Predicate<ISyntaxNode> childSelector) {

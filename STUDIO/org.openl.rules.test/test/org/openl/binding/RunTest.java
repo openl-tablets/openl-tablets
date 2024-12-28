@@ -20,7 +20,7 @@ import org.openl.syntax.exception.CompositeOpenlException;
 
 public class RunTest {
     private static Object runExpression(String expression) {
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_JAVA_NAME);
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         return OpenLManager.run(openl, new StringSourceCodeModule(expression, null));
     }
 

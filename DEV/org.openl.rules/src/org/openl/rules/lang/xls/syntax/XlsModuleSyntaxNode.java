@@ -1,9 +1,3 @@
-/*
- * Created on Oct 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.lang.xls.syntax;
 
 import java.util.ArrayList;
@@ -22,17 +16,14 @@ import org.openl.syntax.impl.NaryNode;
  */
 public class XlsModuleSyntaxNode extends NaryNode {
 
-    private final OpenlSyntaxNode openlNode;
 
     private final Set<String> imports;
 
     public XlsModuleSyntaxNode(WorkbookSyntaxNode[] nodes,
                                IOpenSourceCodeModule module,
-                               OpenlSyntaxNode openlNode,
                                Collection<String> imports) {
         super(XlsNodeTypes.XLS_MODULE.toString(), null, nodes, module);
 
-        this.openlNode = openlNode;
         this.imports = new HashSet<>(imports);
     }
 
@@ -42,10 +33,6 @@ public class XlsModuleSyntaxNode extends NaryNode {
 
     public void addImport(String value) {
         imports.add(value);
-    }
-
-    public OpenlSyntaxNode getOpenlNode() {
-        return openlNode;
     }
 
     public WorkbookSyntaxNode[] getWorkbookSyntaxNodes() {
