@@ -14,13 +14,9 @@ import java.net.URL;
  */
 public interface IConfigurableResourceContext {
 
-    Class<?> findClass(String className);
-
     URL findClassPathResource(String url);
 
     File findFileSystemResource(String url);
-
-    String findProperty(String propertyName);
 
     ClassLoader getClassLoader();
 
