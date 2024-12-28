@@ -1,7 +1,5 @@
 package org.openl.conf;
 
-import java.io.File;
-
 import org.openl.OpenL;
 
 /**
@@ -12,39 +10,15 @@ import org.openl.OpenL;
 
 public class OpenLConfigurator {
 
-    public static final String OPENL_ALT_CONFIG_ROOT = "lang.config";
-
-    public static final String OPENL_DEFAULT_PROPERTY_FILE_NAME = "OpenL.properties";
-    public static final String OPENL_PROPERTY_FILE_PROPERTY = "properties.file";
-
-    public static final String DEFAULT_BUILDER_CLASS_PROPERTY = "org.openl.builderclass";
-    public static final String BUILDER_CLASS = ".builderclass";
 
     public static final String OPENL_BUILDER = "OpenLBuilder";
 
     public synchronized IOpenLBuilder getBuilder(String openlName, IUserContext ucxt) {
         String userHome = ucxt.getUserHome();
 
-        String[] homes;
-        try {
-            String altHome = new File(userHome + "/../" + OPENL_ALT_CONFIG_ROOT).getCanonicalPath();
-            homes = new String[]{userHome, altHome};
-        } catch (Exception t) {
-            homes = new String[]{userHome};
-        }
+        var homes = new String[]{userHome};
 
         ConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader(), homes);
-
-        PropertyFileLoader propertyLoader = new PropertyFileLoader(openlName + "." + OPENL_DEFAULT_PROPERTY_FILE_NAME,
-                openlName + "." + OPENL_PROPERTY_FILE_PROPERTY,
-                cxt,
-                new PropertyFileLoader(OPENL_DEFAULT_PROPERTY_FILE_NAME,
-                        "org.openl." + OPENL_PROPERTY_FILE_PROPERTY,
-                        cxt,
-                        null));
-
-        var pp = propertyLoader.getProperties();
-        cxt.setProperties(pp);
 
         try {
             IOpenLBuilder builder = makeBuilder(openlName, cxt, ucxt);
@@ -70,13 +44,7 @@ public class OpenLConfigurator {
             // Ignore
         }
 
-        String builderClassName = cxt.findProperty(openl + BUILDER_CLASS);
-        if (builderClassName == null) {
-            builderClassName = cxt.findProperty(DEFAULT_BUILDER_CLASS_PROPERTY);
-        }
-        if (builderClassName == null) {
-            builderClassName = openl + "." + OPENL_BUILDER;
-        }
+        var builderClassName = openl + "." + OPENL_BUILDER;
         return (IOpenLBuilder) ClassFactory.forName(builderClassName, cl).getDeclaredConstructor().newInstance();
     }
 }
