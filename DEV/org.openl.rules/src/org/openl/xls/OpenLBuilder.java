@@ -1,16 +1,9 @@
-/*
- * Created on Oct 2, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.xls;
 
-import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsVM;
+import org.openl.rules.vm.SimpleRulesVM;
 
 /**
  * @author snshor
@@ -22,14 +15,11 @@ public class OpenLBuilder extends BaseOpenLBuilder {
 
         OpenL openl = new OpenL();
 
-        openl.setParser(createParser());
+        openl.setParser(new Parser(getUserEnvironmentContext()));
         openl.setBinder(new XlsBinder(new RulesCompileContext(), getUserEnvironmentContext()));
-        openl.setVm(new XlsVM());
+        openl.setVm(new SimpleRulesVM());
 
         return openl;
     }
 
-    protected IOpenParser createParser() {
-        return new Parser(getUserEnvironmentContext());
-    }
 }
