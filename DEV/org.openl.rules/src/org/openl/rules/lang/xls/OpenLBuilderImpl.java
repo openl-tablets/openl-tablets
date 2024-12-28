@@ -136,10 +136,6 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.category = category;
     }
 
-    public void setExtendsCategory(String extendsCategory) {
-        this.extendsCategory = extendsCategory;
-    }
-
     public void setClassImports(String[] classImports) {
         this.classImports = classImports;
     }

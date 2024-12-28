@@ -29,7 +29,6 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorksheetSyntaxNode;
@@ -38,7 +37,6 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
@@ -58,7 +56,6 @@ public class SequentialXlsLoader {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
     private final Collection<String> imports = new HashSet<>();
     private final IncludeSearcher includeSeeker;
-    private OpenlSyntaxNode openl;
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
@@ -130,7 +127,6 @@ public class SequentialXlsLoader {
         WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
                 source,
-                openl,
                 Collections.unmodifiableCollection(imports));
 
         SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
@@ -153,7 +149,7 @@ public class SequentialXlsLoader {
             }
 
             if (IXlsTableNames.LANG_PROPERTY.equals(value)) {
-                preprocessOpenlTable(row.getSource(), source);
+                // Drop support "language" property
             } else if (IXlsTableNames.DEPENDENCY.equals(value)) {
                 // process module dependency
                 //
@@ -303,14 +299,6 @@ public class SequentialXlsLoader {
         addError(se);
     }
 
-    private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
-        String openlName = table.getCell(1, 0).getStringValue();
-        if (StringUtils.isNotBlank(openlName)) {
-            openlName = openlName.trim();
-        }
-        setOpenl(new OpenlSyntaxNode(openlName, new GridLocation(table), source));
-    }
-
     private TableSyntaxNode preprocessTable(IGridTable table,
                                             XlsSheetSourceCodeModule source,
                                             TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
@@ -390,18 +378,5 @@ public class SequentialXlsLoader {
         }
 
         return new WorksheetSyntaxNode(tableNodes.toArray(TableSyntaxNode.EMPTY_ARRAY), sheetSource);
-    }
-
-    private void setOpenl(OpenlSyntaxNode openl) {
-
-        if (this.openl == null) {
-            this.openl = openl;
-        } else {
-            if (!this.openl.getOpenlName().equals(openl.getOpenlName())) {
-                SyntaxNodeException error = SyntaxNodeExceptionUtils
-                        .createError("Only one openl statement is allowed", null, openl);
-                addError(error);
-            }
-        }
     }
 }
