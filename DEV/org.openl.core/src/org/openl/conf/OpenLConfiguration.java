@@ -41,7 +41,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private IOpenLConfiguration parent;
     private IConfigurableResourceContext configurationContext;
     private ClassFactory grammarFactory;
-    private NodeBinderFactoryConfiguration binderFactory;
+    private NodeBinders nodeBinders;
     private LibraryFactoryConfiguration methodFactory;
     private TypeCastFactory typeCastFactory;
     private TypeFactoryConfiguration typeFactory;
@@ -212,7 +212,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public INodeBinder getNodeBinder(ISyntaxNode node) {
-        INodeBinder binder = binderFactory == null ? null : binderFactory.getNodeBinder(node, configurationContext);
+        if (node == null) {
+            return null;
+        }
+        INodeBinder binder = nodeBinders == null ? null : nodeBinders.get(node.getType());
         if (binder != null) {
             return binder;
         }
@@ -269,9 +272,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getVar(namespace, name, strictMatch);
     }
 
-    public NodeBinderFactoryConfiguration createBindings() {
-        binderFactory = new NodeBinderFactoryConfiguration();
-        return binderFactory;
+    public void setNodeBinders(NodeBinders nodeBinders) {
+        this.nodeBinders = nodeBinders;
     }
 
     public void setConfigurationContext(IConfigurableResourceContext context) {
@@ -310,9 +312,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             throw new OpenLConfigurationException("Grammar class is not set", getUri(), null);
         }
 
-        if (binderFactory != null) {
-            binderFactory.validate(cxt);
-        } else if (parent == null) {
+        if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", getUri(), null);
         }
 
