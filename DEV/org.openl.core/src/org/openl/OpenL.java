@@ -1,6 +1,5 @@
 package org.openl;
 
-import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurationException;
@@ -60,8 +59,6 @@ public class OpenL {
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext) {
 
-        var cxt = new ConfigurableResourceContext(userContext.getUserClassLoader(), new String[]{userContext.getUserHome()});
-
         try {
             var builderClassName = name + "." + "OpenLBuilder";
             Class<?> builderClass;
@@ -72,7 +69,7 @@ public class OpenL {
             }
 
             var builder = (IOpenLBuilder) builderClass.getDeclaredConstructor().newInstance();
-            builder.setContexts(cxt, userContext);
+            builder.setContexts(userContext);
             return getInstance(name, userContext, builder);
         } catch (Exception ex) {
             throw new OpenLConfigurationException("Error creating builder: ", null, ex);
