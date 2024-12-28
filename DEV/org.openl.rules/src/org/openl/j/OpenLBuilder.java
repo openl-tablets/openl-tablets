@@ -62,8 +62,7 @@ import org.openl.conf.JavaTypeConfiguration;
 import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NodeBinderFactoryConfiguration;
-import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.conf.NodeBinders;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
@@ -145,117 +144,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         ClassFactory cfg = op.createGrammar();
         cfg.setClassName(BExGrammarWithParsingHelp.class.getName());
 
-        NodeBinderFactoryConfiguration nbc = op.createBindings();
-
-        String[] binders = {"literal",
-                LiteralNodeBinder.class.getName(),
-                "literal.integer",
-                IntNodeBinder.class.getName(),
-                "literal.real",
-                DoubleNodeBinder.class.getName(),
-                "literal.percent",
-                PercentNodeBinder.class.getName(),
-                "literal.string",
-                StringNodeBinder.class.getName(),
-                "literal.char",
-                CharNodeBinder.class.getName(),
-                "literal.integer.business",
-                BusinessIntNodeBinder.class.getName(),
-                "array.init",
-                ArrayInitializationBinder.class.getName(),
-                "method.header",
-                MethodHeaderNodeBinder.class.getName(),
-                "param.declaration",
-                ParameterDeclarationNodeBinder.class.getName(),
-                "method.parameters",
-                MethodParametersNodeBinder.class.getName(),
-                "method.declaration",
-                MethodDeclarationNodeBinder.class.getName(),
-                "var.declaration",
-                VarDeclarationNodeBinder.class.getName(),
-                "parameter.declaration",
-                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(),
-                "block",
-                BlockBinder.class.getName(),
-                "op.binary",
-                BinaryOperatorNodeBinder.class.getName(),
-                "op.binary.and",
-                BinaryOperatorAndNodeBinder.class.getName(),
-                "op.binary.or",
-                BinaryOperatorOrNodeBinder.class.getName(),
-                "op.unary",
-                UnaryOperatorNodeBinder.class.getName(),
-                "op.prefix",
-                PrefixOperatorNodeBinder.class.getName(),
-                "op.suffix",
-                SuffixOperatorNodeBinder.class.getName(),
-                "op.assign",
-                AssignOperatorNodeBinder.class.getName(),
-                "op.new.object",
-                NewNodeBinder.class.getName(),
-                "op.new.array",
-                NewArrayNodeBinder.class.getName(),
-                "op.index",
-                IndexNodeBinder.class.getName(),
-                "selectfirst.index",
-                SelectFirstIndexNodeBinder.class.getName(),
-                "selectall.index",
-                SelectAllIndexNodeBinder.class.getName(),
-                "orderby.index",
-                OrderByIndexNodeBinder.class.getName(),
-                "orderdecreasingby.index",
-                OrderByIndexNodeBinder.class.getName(),
-                "splitby.index",
-                SplitByIndexNodeBinder.class.getName(),
-
-                "transform.index",
-                TransformIndexNodeBinder.class.getName(),
-                "transformunique.index",
-                TransformIndexNodeBinder.class.getName(),
-                "index.parameter.declaration",
-                IndexParameterDeclarationBinder.class.getName(),
-
-                "op.ternary.qmark",
-                IfNodeBinderWithCSRSupport.class.getName(),
-                "type.cast",
-                TypeCastBinder.class.getName(),
-                "local.var.declaration",
-                LocalVarBinder.class.getName(),
-                "type.declaration",
-                TypeBinder.class.getName(),
-                "function",
-                MethodNodeBinder.class.getName(),
-                "identifier",
-                IdentifierBinder.class.getName(),
-                "identifier.sequence",
-                IdentifierSequenceBinder.class.getName(),
-                "range.variable",
-                RangeVariableBinder.class.getName(),
-                "chain",
-                BExChainBinder.class.getName(),
-                "chain.suffix",
-                BExChainSuffixBinder.class.getName(),
-                "where.expression",
-                WhereExpressionNodeBinder.class.getName(),
-                "where.var.explanation",
-                WhereVarNodeBinder.class.getName(),
-                "list",
-                ListNodeBinder.class.getName(),
-                "control.for",
-                ForNodeBinder.class.getName(),
-                "control.if",
-                IfNodeBinder.class.getName(),
-                "control.while",
-                WhileNodeBinder.class.getName(),
-                "control.return",
-                ReturnNodeBinder.class.getName()};
-
-        for (int i = 0; i < binders.length / 2; i++) {
-            SingleBinderFactory sbf = new SingleBinderFactory();
-            sbf.setNode(binders[2 * i]);
-            sbf.setClassName(binders[2 * i + 1]);
-            nbc.addConfiguredBinder(sbf);
-        }
+        op.setNodeBinders(createNodeBinders());
 
         LibraryFactoryConfiguration libraries = op.createLibraries();
 
@@ -545,6 +434,64 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         return op;
 
+    }
+
+    private static NodeBinders createNodeBinders() {
+        NodeBinders binders = new NodeBinders();
+
+        binders.put("literal", new LiteralNodeBinder());
+        binders.put("literal.integer", new IntNodeBinder());
+        binders.put("literal.real", new DoubleNodeBinder());
+        binders.put("literal.percent", new PercentNodeBinder());
+        binders.put("literal.string", new StringNodeBinder());
+        binders.put("literal.char", new CharNodeBinder());
+        binders.put("literal.integer.business", new BusinessIntNodeBinder());
+        binders.put("array.init", new ArrayInitializationBinder());
+        binders.put("method.header", new MethodHeaderNodeBinder());
+        binders.put("param.declaration", new ParameterDeclarationNodeBinder());
+        binders.put("method.parameters", new MethodParametersNodeBinder());
+        binders.put("method.declaration", new MethodDeclarationNodeBinder());
+        binders.put("var.declaration", new VarDeclarationNodeBinder());
+        binders.put("parameter.declaration", new ParameterDeclarationNodeBinderWithContextParameterSupport());
+        binders.put("block", new BlockBinder());
+        binders.put("op.binary", new BinaryOperatorNodeBinder());
+        binders.put("op.binary.and", new BinaryOperatorAndNodeBinder());
+        binders.put("op.binary.or", new BinaryOperatorOrNodeBinder());
+        binders.put("op.unary", new UnaryOperatorNodeBinder());
+        binders.put("op.prefix", new PrefixOperatorNodeBinder());
+        binders.put("op.suffix", new SuffixOperatorNodeBinder());
+        binders.put("op.assign", new AssignOperatorNodeBinder());
+        binders.put("op.new.object", new NewNodeBinder());
+        binders.put("op.new.array", new NewArrayNodeBinder());
+        binders.put("op.index", new IndexNodeBinder());
+        binders.put("selectfirst.index", new SelectFirstIndexNodeBinder());
+        binders.put("selectall.index", new SelectAllIndexNodeBinder());
+        binders.put("orderby.index", new OrderByIndexNodeBinder());
+        binders.put("orderdecreasingby.index", new OrderByIndexNodeBinder());
+        binders.put("splitby.index", new SplitByIndexNodeBinder());
+
+        binders.put("transform.index", new TransformIndexNodeBinder());
+        binders.put("transformunique.index", new TransformIndexNodeBinder());
+        binders.put("index.parameter.declaration", new IndexParameterDeclarationBinder());
+
+        binders.put("op.ternary.qmark", new IfNodeBinderWithCSRSupport());
+        binders.put("type.cast", new TypeCastBinder());
+        binders.put("local.var.declaration", new LocalVarBinder());
+        binders.put("type.declaration", new TypeBinder());
+        binders.put("function", new MethodNodeBinder());
+        binders.put("identifier", new IdentifierBinder());
+        binders.put("identifier.sequence", new IdentifierSequenceBinder());
+        binders.put("range.variable", new RangeVariableBinder());
+        binders.put("chain", new BExChainBinder());
+        binders.put("chain.suffix", new BExChainSuffixBinder());
+        binders.put("where.expression", new WhereExpressionNodeBinder());
+        binders.put("where.var.explanation", new WhereVarNodeBinder());
+        binders.put("list", new ListNodeBinder());
+        binders.put("control.for", new ForNodeBinder());
+        binders.put("control.if", new IfNodeBinder());
+        binders.put("control.while", new WhileNodeBinder());
+        binders.put("control.return", new ReturnNodeBinder());
+        return binders;
     }
 
     @Override
