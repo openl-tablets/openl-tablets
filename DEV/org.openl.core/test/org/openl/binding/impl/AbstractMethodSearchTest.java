@@ -41,7 +41,7 @@ public abstract class AbstractMethodSearchTest {
             typecast.addJavaCast(javaCast);
         }
 
-        openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));
+        openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(Thread.currentThread().getContextClassLoader()));
         castFactory = openLConfiguration;
     }
 

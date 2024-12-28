@@ -11,26 +11,17 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = {".", ""};
 
-    private final IOpenLConfiguration config;
     private ClassLoader classLoader;
     private final String[] fileSystemRoots;
 
-    public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
-        this(classLoader, DEFAULT_FILESYSTEM_ROOTS, config);
+    public ConfigurableResourceContext(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+        this.fileSystemRoots = DEFAULT_FILESYSTEM_ROOTS;
     }
 
     public ConfigurableResourceContext(ClassLoader classLoader, String[] fileSystemRoots) {
-        this(classLoader, fileSystemRoots, null);
-    }
-
-    public ConfigurableResourceContext(ClassLoader classLoader, String[] fileSystemRoots, IOpenLConfiguration config) {
         this.classLoader = classLoader;
         this.fileSystemRoots = fileSystemRoots;
-        this.config = config;
-    }
-
-    public ConfigurableResourceContext(IOpenLConfiguration config) {
-        this(Thread.currentThread().getContextClassLoader(), DEFAULT_FILESYSTEM_ROOTS, config);
     }
 
     @Override
@@ -64,16 +55,6 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         }
 
         return classLoader;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.conf.IConfigurableResourceContext#getConfiguration()
-     */
-    @Override
-    public IOpenLConfiguration getConfiguration() {
-        return config;
     }
 
 }
