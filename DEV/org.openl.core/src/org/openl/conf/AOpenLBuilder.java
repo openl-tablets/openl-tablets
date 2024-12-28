@@ -14,24 +14,49 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     @Override
     public OpenL build(String openl) {
-        OpenL op = new OpenL();
-        op.setName(openl);
         try {
-            NoAntOpenLTask naot = getNoAntOpenLTask();
 
-            naot.execute(getUserEnvironmentContext());
+            IUserContext ucxt = getUserEnvironmentContext();
 
-            IOpenLConfiguration conf = NoAntOpenLTask.retrieveConfiguration();
+            String category = getCategory();
+            IOpenLConfiguration conf = ucxt.getOpenLConfiguration(category);
+            if (conf == null) {
+                OpenLConfiguration oPconf = getOpenLConfiguration();
+                String extendsCategory = getExtendsCategory();
+                IOpenLConfiguration extendsConfiguration = null;
+                if (extendsCategory != null) {
+                    if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
+                        throw new OpenLConfigurationException(
+                                "The extended category " + extendsCategory + " must have been loaded first",
+                                null,
+                                null);
+                    }
+                }
 
+                IConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader());
+
+                oPconf.setParent(extendsConfiguration);
+                oPconf.setConfigurationContext(cxt);
+                oPconf.validate(cxt);
+
+                ucxt.registerOpenLConfiguration(category, oPconf);
+                conf = oPconf;
+            }
+
+            OpenL op = new OpenL();
+            op.setName(openl);
             op.setParser(new Parser(conf));
-
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
             op.setVm(createVM());
+            return op;
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
-        return op;
     }
 
-    public abstract NoAntOpenLTask getNoAntOpenLTask();
+    protected abstract OpenLConfiguration getOpenLConfiguration();
+
+    protected abstract String getCategory();
+
+    protected abstract String getExtendsCategory();
 }
