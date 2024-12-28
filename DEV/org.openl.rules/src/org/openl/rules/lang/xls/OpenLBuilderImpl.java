@@ -8,7 +8,7 @@ import org.openl.conf.JavaLibraryConfiguration;
 import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
 import org.openl.conf.NameSpacedTypeConfiguration;
-import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OperatorsNamespace;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
@@ -46,23 +46,27 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         return super.build(category);
     }
 
-    public String getCategory() {
+    @Override
+    protected String getCategory() {
         return category;
     }
 
     @Override
-    public NoAntOpenLTask getNoAntOpenLTask() {
-        NoAntOpenLTask op = new NoAntOpenLTask();
+    protected String getExtendsCategory() {
+        return extendsCategory;
+    }
 
-        op.setExtendsCategory(extendsCategory);
-        op.setCategory(category);
+    @Override
+    protected OpenLConfiguration getOpenLConfiguration() {
+
+        var op = new OpenLConfiguration();
 
         if (libraries != null && libraries.length > 0) {
             LibraryFactoryConfiguration libraries = op.createLibraries();
             NameSpacedLibraryConfiguration thisNamespaceLibrary = new NameSpacedLibraryConfiguration();
             thisNamespaceLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
             NameSpacedLibraryConfiguration operationNamespaceLibrary = null;
-            TypeCastFactory typeCastFactory = op.createTypecast();
+            TypeCastFactory typeCastFactory = op.createTypeCastFactory();
 
             for (String libraryName : this.libraries) {
                 JavaLibraryConfiguration javaLib = new JavaLibraryConfiguration(libraryName);

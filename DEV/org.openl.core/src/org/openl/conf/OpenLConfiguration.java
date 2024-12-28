@@ -63,10 +63,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         openFactories.put(opfc.getName(), opfc);
     }
 
-    public NodeBinderFactoryConfiguration getBinderFactory() {
-        return binderFactory;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -164,10 +160,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
     }
 
-    public ClassFactory getGrammarFactory() {
-        return grammarFactory;
-    }
-
     @Override
     public IMethodCaller getMethodCaller(String namespace,
                                          String name,
@@ -218,10 +210,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return openMethods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
-    public LibraryFactoryConfiguration getMethodFactory() {
-        return methodFactory;
-    }
-
     @Override
     public INodeBinder getNodeBinder(ISyntaxNode node) {
         INodeBinder binder = binderFactory == null ? null : binderFactory.getNodeBinder(node, configurationContext);
@@ -261,10 +249,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
     }
 
-    public TypeCastFactory getTypeCastFactory() {
-        return typeCastFactory;
-    }
-
     public TypeCastFactory createTypeCastFactory() {
         this.typeCastFactory = new TypeCastFactory(this);
         return this.typeCastFactory;
@@ -285,32 +269,34 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getVar(namespace, name, strictMatch);
     }
 
-    public void setBinderFactory(NodeBinderFactoryConfiguration factory) {
-        binderFactory = factory;
+    public NodeBinderFactoryConfiguration createBindings() {
+        binderFactory = new NodeBinderFactoryConfiguration();
+        return binderFactory;
     }
 
     public void setConfigurationContext(IConfigurableResourceContext context) {
         configurationContext = context;
     }
 
-    public void setGrammarFactory(ClassFactory factory) {
-        grammarFactory = factory;
+    public ClassFactory createGrammar() {
+        ClassFactory cf = new ClassFactory();
+        cf.setExtendsClassName(IGrammar.class.getName());
+        grammarFactory = cf;
+        return cf;
     }
 
-    public void setMethodFactory(LibraryFactoryConfiguration factory) {
-        methodFactory = factory;
+    public LibraryFactoryConfiguration createLibraries() {
+        methodFactory = new LibraryFactoryConfiguration();
+        return methodFactory;
     }
 
     public void setParent(IOpenLConfiguration configuration) {
         parent = configuration;
     }
 
-    public void setTypeCastFactory(TypeCastFactory factory) {
-        typeCastFactory = factory;
-    }
-
-    public void setTypeFactory(TypeFactoryConfiguration configuration) {
-        typeFactory = configuration;
+    public TypeFactoryConfiguration createTypes() {
+        typeFactory = new TypeFactoryConfiguration();
+        return typeFactory;
     }
 
     public void setUri(String string) {
