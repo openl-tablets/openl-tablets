@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-import org.openl.conf.IConfigurableResourceContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
@@ -17,21 +16,24 @@ import org.openl.source.impl.URLSourceCodeModule;
 public class IncludeSearcher {
 
     private static final String INCLUDE = "include/";
-    private final IConfigurableResourceContext ucxt;
 
-    public IncludeSearcher(IConfigurableResourceContext ucxt) {
-        this.ucxt = ucxt;
+    private final String fileSystemRoot;
+    private final ClassLoader classLoader;
+
+    public IncludeSearcher(String fileSystemRoot, ClassLoader classLoader) {
+        this.fileSystemRoot = fileSystemRoot;
+        this.classLoader = classLoader;
     }
 
     public IOpenSourceCodeModule findInclude(String include) throws IOException {
         String p = Paths.get(INCLUDE, include).normalize().toString();
-        URL url = ucxt.findClassPathResource(p);
+        URL url = classLoader.getResource(p);
 
         if (url != null) {
             return new URLSourceCodeModule(url);
         }
 
-        File f = ucxt.findFileSystemResource(p);
+        File f = findFileSystemResource(p);
 
         if (f != null) {
             try {
@@ -59,5 +61,20 @@ public class IncludeSearcher {
         }
 
         return new URLSourceCodeModule(xurl);
+    }
+
+    private File findFileSystemResource(String url) {
+        File file = new File(url);
+
+        if (file.isAbsolute() && file.exists()) {
+            return file;
+        } else {
+            file = new File(fileSystemRoot, url);
+            if (file.exists()) {
+                return file;
+            }
+        }
+
+        return null;
     }
 }
