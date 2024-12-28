@@ -1,17 +1,10 @@
-/*
- * Created on May 30, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl;
 
+import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IUserContext;
 import org.openl.conf.OpenLConfigurationException;
-import org.openl.conf.OpenLConfigurator;
 import org.openl.conf.UserContext;
-import org.openl.util.ClassUtils;
 
 /**
  * This class describes OpenL engine context abstraction that used during compilation process.
@@ -22,10 +15,8 @@ import org.openl.util.ClassUtils;
  * loaders, so they will not interfere with each other. It allows, for example, to have 2 LCs using different SAX or DOM
  * parser implementation.
  * <p>
- * The actual work is done by class OpenLConfigurator.
  *
  * @author snshor
- * @see OpenLConfigurator
  */
 public class OpenL {
     public static final String OPENL_J_NAME = "org.openl.j";
@@ -33,8 +24,6 @@ public class OpenL {
     public static final String OPENL_JAVA_RULE_NAME = "org.openl.xls";
 
     private static final String DEFAULT_USER_HOME = ".";
-
-    private static OpenLConfigurator config = new OpenLConfigurator();
 
     private IOpenParser parser;
 
@@ -48,15 +37,6 @@ public class OpenL {
     }
 
     /**
-     * Change default OpenLConfigurator implementation to another.
-     *
-     * @param config new OpenLConfigurator
-     */
-    public static void setConfig(OpenLConfigurator config) {
-        OpenL.config = config;
-    }
-
-    /**
      * Gets instance of <code>OpenL</code> with given name.
      *
      * @param name OpenL name
@@ -65,7 +45,7 @@ public class OpenL {
      */
     // TODO: Do not use this method! Should be removed!
     public static synchronized OpenL getInstance(String name) {
-        return getInstance(name, new UserContext(ClassUtils.getCurrentClassLoader(config.getClass()), DEFAULT_USER_HOME));
+        return getInstance(name, new UserContext(OpenL.class.getClassLoader(), DEFAULT_USER_HOME));
     }
 
     /**
@@ -76,12 +56,27 @@ public class OpenL {
      * @param userContext user context
      * @return instance of IOpenL
      * @throws OpenLConfigurationException
-     * @see #remove
      * @see IUserContext
      */
     public static synchronized OpenL getInstance(String name, IUserContext userContext) {
-        IOpenLBuilder builder = config.getBuilder(name, userContext);
-        return getInstance(name, userContext, builder);
+
+        var cxt = new ConfigurableResourceContext(userContext.getUserClassLoader(), new String[]{userContext.getUserHome()});
+
+        try {
+            var builderClassName = name + "." + "OpenLBuilder";
+            Class<?> builderClass;
+            try {
+                builderClass = userContext.getUserClassLoader().loadClass(builderClassName);
+            } catch (Exception ignored) {
+                builderClass = Class.forName(builderClassName);
+            }
+
+            var builder = (IOpenLBuilder) builderClass.getDeclaredConstructor().newInstance();
+            builder.setContexts(cxt, userContext);
+            return getInstance(name, userContext, builder);
+        } catch (Exception ex) {
+            throw new OpenLConfigurationException("Error creating builder: ", null, ex);
+        }
     }
 
     /**
