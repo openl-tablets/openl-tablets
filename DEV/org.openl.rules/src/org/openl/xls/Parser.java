@@ -1,6 +1,5 @@
 package org.openl.xls;
 
-import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IUserContext;
 import org.openl.excel.grid.SequentialXlsLoader;
 import org.openl.rules.lang.xls.BaseParser;
@@ -17,9 +16,7 @@ public class Parser extends BaseParser {
 
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
-        String[] roots = {userContext.getUserHome()};
-        ClassLoader classLoader = userContext.getUserClassLoader();
-        IncludeSearcher includeSeeker = new IncludeSearcher(new ConfigurableResourceContext(classLoader, roots));
+        IncludeSearcher includeSeeker = new IncludeSearcher(userContext.getUserHome(), userContext.getUserClassLoader());
 
         return new SequentialXlsLoader(includeSeeker).parse(source);
     }
