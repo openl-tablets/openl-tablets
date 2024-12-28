@@ -15,6 +15,6 @@ public interface IOpenLBuilder {
 
     OpenL build(String category);
 
-    void setContexts(IConfigurableResourceContext resourceContext, IUserContext userEnvironmentContext);
+    void setContexts(IUserContext userEnvironmentContext);
 
 }
