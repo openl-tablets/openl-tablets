@@ -29,8 +29,6 @@ public class OpenL {
 
     private IOpenVM vm;
 
-    private String name;
-
     public OpenL() {
     }
 
@@ -88,29 +86,11 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
         OpenL openl = userContext.getOpenL(name);
         if (openl == null) {
-            openl = builder.build(name);
+            openl = builder.build();
             userContext.registerOpenL(name, openl);
         }
 
         return openl;
-    }
-
-    /**
-     * Gets name of OpenL instance.
-     *
-     * @return name string
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets name of OpenL instance.
-     *
-     * @param name name string
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -165,10 +145,5 @@ public class OpenL {
      */
     public void setBinder(IOpenBinder binder) {
         this.binder = binder;
-    }
-
-    @Override
-    public String toString() {
-        return getName();
     }
 }

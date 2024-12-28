@@ -13,7 +13,7 @@ import org.openl.OpenL;
  */
 public interface IOpenLBuilder {
 
-    OpenL build(String category);
+    OpenL build();
 
     void setContexts(IUserContext userEnvironmentContext);
 
