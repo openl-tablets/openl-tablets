@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.OpenL;
 
@@ -19,7 +20,7 @@ import org.openl.OpenL;
  *
  * @author snshor
  */
-public final class UserContext extends AUserContext {
+public final class UserContext implements IUserContext {
 
     private final ClassLoader userClassLoader;
 
@@ -96,4 +97,30 @@ public final class UserContext extends AUserContext {
         configurations.put(name, oplc);
     }
 
+    // Classloader is important part of user context, commonly each executable
+    // instance of rules is made in separate classloader that serves an
+    // identifier of this instance.
+    // For example two files with rules placed into the same folder(common user
+    // home) and java beans are shared between these rules,
+    // in this case classloader of each rules instance helps to distinguish
+    // usercontexts of modules.
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof IUserContext)) {
+            return false;
+        }
+        IUserContext c = (IUserContext) obj;
+
+        return Objects.equals(getUserClassLoader(), c.getUserClassLoader()) && Objects.equals(getUserHome(),
+                c.getUserHome());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUserClassLoader(), getUserHome());
+    }
 }
