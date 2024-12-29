@@ -12,7 +12,6 @@ import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.MessageUtils;
 
@@ -38,7 +37,7 @@ public class NewNodeBinder extends ANodeBinder {
 
         var typeNode = node.getChild(0);
         var typeName = ((IdentifierNode) typeNode).getIdentifier();
-        var type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        var type = bindingContext.findType(typeName);
 
         if (type == null) {
             return makeErrorNode(MessageUtils.getTypeNotFoundMessage(typeName), typeNode, bindingContext);

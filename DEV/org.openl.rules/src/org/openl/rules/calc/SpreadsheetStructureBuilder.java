@@ -621,7 +621,7 @@ public class SpreadsheetStructureBuilder {
 
         IOpenClass spreadsheetHeaderType = spreadsheetHeader.getType();
 
-        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
+        if (bindingContext.findType(SpreadsheetResult.class.getSimpleName())
                 .equals(spreadsheetHeaderType) && returnHeaderDefinition == null) {
 
             // No RETURN and SpreadsheetResult is in the return
@@ -827,7 +827,7 @@ public class SpreadsheetStructureBuilder {
         IResultBuilder resultBuilder;
 
         if (!isExistsReturnHeader() && bindingContext
-                .findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
+                .findType(SpreadsheetResult.class.getSimpleName())
                 .equals(spreadsheet.getHeader().getType())) {
             resultBuilder = new SpreadsheetResultBuilder();
         } else {

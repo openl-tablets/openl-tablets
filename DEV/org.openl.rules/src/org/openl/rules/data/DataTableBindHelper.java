@@ -33,7 +33,6 @@ import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.rules.testmethod.UserErrorOpenClass;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -740,7 +739,7 @@ public class DataTableBindHelper {
                 TableSyntaxNode tableSyntaxNode = executableRulesMethod.getSyntaxNode();
                 if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
                     IOpenClass cType = bindingContext
-                            .findType(ISyntaxConstants.THIS_NAMESPACE,
+                            .findType(
                                     tableSyntaxNode.getHeader()
                                             .getCollectParameters()[ClassUtils
                                             .isAssignable(executableRulesMethod.getType().getInstanceClass(), Map.class) ? 1
@@ -757,7 +756,7 @@ public class DataTableBindHelper {
         String typeName = identifierNode.getIdentifier().substring(typeSeparatorIndex + 1);
         typeName = typeName.trim();
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        IOpenClass type = bindingContext.findType(typeName);
         if (type == null) {
             String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
@@ -1168,7 +1167,7 @@ public class DataTableBindHelper {
             ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) testMethodOpenClass.getTestedMethod();
             TableSyntaxNode tableSyntaxNode = executableRulesMethod.getSyntaxNode();
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
-                IOpenClass keyOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                IOpenClass keyOpenClass = bindingContext.findType(
                         tableSyntaxNode.getHeader().getCollectParameters()[0]);
                 if (keyOpenClass != null) {
                     if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {

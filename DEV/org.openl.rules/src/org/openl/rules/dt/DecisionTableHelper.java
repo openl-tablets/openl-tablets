@@ -94,7 +94,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -618,7 +617,7 @@ public final class DecisionTableHelper {
         IOpenClass compoundType;
         if (isCollect(tableSyntaxNode)) {
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                compoundType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                compoundType = bindingContext.findType(
                         tableSyntaxNode.getHeader()
                                 .getCollectParameters()[tableSyntaxNode.getHeader().getCollectParameters().length - 1]);
             } else {
@@ -1953,7 +1952,7 @@ public final class DecisionTableHelper {
                             case STRICT_CASTED:
                             case METHOD_ARGS_RENAMED_CASTED:
                                 String typeName = type.getInstanceClass().getSimpleName();
-                                if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName) == null) {
+                                if (bindingContext.findType(typeName) == null) {
                                     typeName = type.getJavaName();
                                 }
                                 newParam = "((" + typeName + ")" + header.getSignature().getParameterName(i) + ")";

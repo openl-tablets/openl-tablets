@@ -26,7 +26,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -67,7 +66,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         try {
             bindingContext.pushErrors();
             bindingContext.pushMessages();
-            openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+            openClass = bindingContext.findType(typeName);
         } finally {
             bindingContext.popErrors();
             bindingContext.popMessages();
@@ -152,7 +151,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Add domain class definition to biding context as internal type.
             //
-            bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            bindingContext.addType(tableType);
 
             // Return bound node.
             //
@@ -179,7 +178,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Add domain class definition to biding context as internal type.
             //
-            bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, tableType);
+            bindingContext.addType(tableType);
 
             if (parsedHeader.length == 4) {
                 return new DatatypeTableBoundNode(tsn,

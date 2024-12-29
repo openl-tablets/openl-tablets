@@ -48,7 +48,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -208,7 +207,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private boolean beanClassCanBeGenerated(IBindingContext cxt) {
         if (parentClassName != null) {
-            IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
+            IOpenClass parentClass = cxt.findType(parentClassName);
             return parentClass != null;
         }
         return true;
@@ -697,7 +696,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         parentBoundNode.generateByteCode(bindingContext);
                         parentOpenClass = parentBoundNode.getDataType();
                     } else {
-                        parentOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
+                        parentOpenClass = bindingContext.findType(parentClassName);
                     }
                     if (parentOpenClass == null) {
                         byteCodeReadyToLoad = true;
