@@ -66,7 +66,6 @@ public class OpenL {
             }
 
             var builder = (IOpenLBuilder) builderClass.getDeclaredConstructor().newInstance();
-            builder.setContexts(userContext);
             return getInstance(name, userContext, builder);
         } catch (Exception ex) {
             throw new OpenLConfigurationException("Error creating builder: ", ex);
@@ -86,10 +85,9 @@ public class OpenL {
     public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
         OpenL openl = userContext.getOpenL(name);
         if (openl == null) {
-            openl = builder.build();
+            openl = builder.build(userContext);
             userContext.registerOpenL(name, openl);
         }
-
         return openl;
     }
 

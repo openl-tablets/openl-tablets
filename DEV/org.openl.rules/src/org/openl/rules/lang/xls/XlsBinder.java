@@ -491,8 +491,6 @@ public class XlsBinder implements IOpenBinder {
 
         addImports(moduleNode, builder, moduleNode.getImports(), exceptions);
 
-        builder.setContexts(userContext);
-
         return OpenL.getInstance(category, userContext, builder);
     }
 
