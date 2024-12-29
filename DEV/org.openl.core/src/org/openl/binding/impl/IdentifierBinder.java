@@ -49,7 +49,7 @@ public class IdentifierBinder extends ANodeBinder {
 
     protected TypeBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
         String typeName = node.getText();
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        IOpenClass type = bindingContext.findType(typeName);
         if (type != null) {
             type = type.toStaticClass();
             BindHelper.checkOnDeprecation(node, bindingContext, type);
@@ -124,7 +124,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         if (type instanceof WrapModuleSpecificTypes && t instanceof ModuleSpecificType) {
-            IOpenClass newType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, t.getName());
+            IOpenClass newType = bindingContext.findType(t.getName());
             if (newType != null) {
                 if (dim > 0) {
                     newType = newType.getArrayType(dim);

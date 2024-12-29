@@ -80,7 +80,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -686,7 +685,7 @@ public class XlsBinder implements IOpenBinder {
     private String getParentClassName(DatatypeTableBoundNode datatypeTableBoundNode,
                                       RulesModuleBindingContext rulesModuleBindingContext) {
         if (datatypeTableBoundNode.getParentClassName() != null) {
-            IOpenClass parentClass = rulesModuleBindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+            IOpenClass parentClass = rulesModuleBindingContext.findType(
                     datatypeTableBoundNode.getParentClassName());
             if (parentClass != null) {
                 return parentClass.getJavaName();

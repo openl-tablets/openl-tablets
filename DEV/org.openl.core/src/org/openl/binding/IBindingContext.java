@@ -37,11 +37,10 @@ public interface IBindingContext extends ICastFactory {
     /**
      * Adds new type to binding context.
      *
-     * @param namespace type namespace
-     * @param type      type
+     * @param type type
      * @throws DuplicatedTypeException if an error has occurred
      */
-    IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
+    IOpenClass addType(IOpenClass type) throws DuplicatedTypeException;
 
     ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
 
@@ -51,7 +50,7 @@ public interface IBindingContext extends ICastFactory {
                                    String name,
                                    IOpenClass[] parTypes) throws AmbiguousMethodException;
 
-    IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException;
+    IOpenClass findType(String typeName) throws AmbiguousTypeException;
 
     IOpenClass combineTypes(IOpenClass... openClasses) throws TypesCombinationNotSupportedException;
 

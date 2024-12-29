@@ -58,7 +58,7 @@ class FullClassnameSupport {
                 int varTypeLength = 0;
                 if (variableType != null) {
                     try {
-                        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, variableType);
+                        IOpenClass type = bindingContext.findType(variableType);
                         varTypeLength = calcLength(identifierChain, type);
                         if (varTypeLength == identifierChain.size()) {
                             return;
@@ -89,7 +89,7 @@ class FullClassnameSupport {
                 }
                 int j = identifierChain.size() - 1;
                 while (j >= 0 && j + 1 > varTypeLength && j + 1 > varNameLength) {
-                    IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassNames[j]);
+                    IOpenClass type = bindingContext.findType(fullClassNames[j]);
                     if (type != null) {
                         StringBuilder originalFullClassName = new StringBuilder();
                         for (int k = 0; k < j + 1; k++) {
