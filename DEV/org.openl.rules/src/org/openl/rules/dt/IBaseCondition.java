@@ -1,6 +1,6 @@
 package org.openl.rules.dt;
 
-import org.openl.types.IMethodCaller;
+import org.openl.types.Invokable;
 
 public interface IBaseCondition extends IBaseDecisionRow {
 
@@ -8,5 +8,5 @@ public interface IBaseCondition extends IBaseDecisionRow {
 
     IBaseConditionEvaluator getConditionEvaluator();
 
-    IMethodCaller getEvaluator();
+    Invokable getEvaluator();
 }
