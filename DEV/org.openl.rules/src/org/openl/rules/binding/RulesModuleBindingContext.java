@@ -36,7 +36,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -195,11 +194,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     }
 
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+    public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
         final String typeName = type.getName();
         if (type instanceof ModuleSpecificType) {
             ModuleSpecificType moduleRelatedType = (ModuleSpecificType) type;
-            IOpenClass openClass = super.findType(namespace, typeName);
+            IOpenClass openClass = super.findType(typeName);
             if (openClass == moduleRelatedType) {
                 return openClass;
             }
@@ -211,13 +210,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 return openClass;
             }
         } else {
-            return super.addType(namespace, type);
+            return super.addType(type);
         }
     }
 
     @Override
-    public IOpenClass findType(String namespace, String typeName) {
-        IOpenClass openClass = super.findType(namespace, typeName);
+    public IOpenClass findType(String typeName) {
+        IOpenClass openClass = super.findType(typeName);
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams())) {
             // We found some type which can be CSR
             // So there additional action is required for CSR
@@ -268,7 +267,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (!isExecutionMode() && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && method
                 .isSpreadsheetWithCustomSpreadsheetResult()) {
             final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
-            IOpenClass openClass = findType(ISyntaxConstants.THIS_NAMESPACE, sprTypeName);
+            IOpenClass openClass = findType(sprTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                 customSpreadsheetResultOpenClass.setMetaInfo(
@@ -304,7 +303,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     .collect(Collectors.toList());
             final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
                     .getName();
-            IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
+            IOpenClass openClass = super.findType(customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
                 csroc.setIgnoreCompilation(true);
@@ -319,7 +318,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 }
                 if (t instanceof CustomSpreadsheetResultOpenClass) {
                     // Fires type compilation
-                    findType(ISyntaxConstants.THIS_NAMESPACE, t.getName());
+                    findType(t.getName());
                 }
             }
             openMethodBinders = Collections.singletonList(openMethodBinder);

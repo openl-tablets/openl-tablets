@@ -5,7 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -217,7 +216,7 @@ public abstract class ANodeBinder implements INodeBinder {
                                         IBindingContext bindingContext) throws ClassNotFoundException {
         if ("type.name".equals(node.getType())) {
             String typeName = node.getText();
-            IOpenClass varType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+            IOpenClass varType = bindingContext.findType(typeName);
             if (varType == null) {
                 throw new ClassNotFoundException(MessageUtils.getTypeNotFoundMessage(typeName));
             }
@@ -229,7 +228,7 @@ public abstract class ANodeBinder implements INodeBinder {
             for (int i = 0; i < node.getNumberOfChildren(); i++) {
                 ISyntaxNode childNode = node.getChild(i);
                 String typeName = childNode.getText();
-                typesToCombine[i] = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+                typesToCombine[i] = bindingContext.findType(typeName);
                 if (typesToCombine[i] == null) {
                     allTypesFound = false;
                     BindHelper.processError(new ClassNotFoundException(MessageUtils.getTypeNotFoundMessage(typeName)),

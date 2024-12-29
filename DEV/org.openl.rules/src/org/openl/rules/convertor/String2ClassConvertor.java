@@ -3,7 +3,6 @@ package org.openl.rules.convertor;
 import java.lang.reflect.Array;
 
 import org.openl.binding.IBindingContext;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.util.MessageUtils;
 
@@ -29,7 +28,7 @@ class String2ClassConvertor implements IString2DataConvertor<Class<?>>, IString2
             typeName = data;
         }
 
-        IOpenClass openClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        IOpenClass openClass = cxt.findType(typeName);
 
         if (openClass == null) {
             throw new IllegalArgumentException(MessageUtils.getTypeNotFoundMessage(data));

@@ -95,7 +95,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 }
             }
 
-            var type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
+            var type = bindingContext.findType(methodName);
             var childNodes = new ISyntaxNode[node.getNumberOfChildren() - 1];
             for (int i = 0; i < childNodes.length; i++) {
                 childNodes[i] = node.getChild(i);
@@ -141,7 +141,7 @@ public class MethodNodeBinder extends ANodeBinder {
                             .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
                 }
                 if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
-                    var t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
+                    var t = bindingContext.findType(field.getType().getName());
                     if (t != null) {
                         field = new ModuleSpecificOpenField(field, t);
                     }

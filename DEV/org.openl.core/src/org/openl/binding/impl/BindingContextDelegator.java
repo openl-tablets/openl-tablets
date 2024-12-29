@@ -48,8 +48,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
-        return delegate.addType(namespace, type);
+    public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
+        return delegate.addType(type);
     }
 
     @Override
@@ -75,8 +75,8 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
-        return delegate.findType(namespace, typeName);
+    public IOpenClass findType(String typeName) throws AmbiguousTypeException {
+        return delegate.findType(typeName);
     }
 
     @Override

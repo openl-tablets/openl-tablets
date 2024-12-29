@@ -37,7 +37,6 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.util.ClassUtils;
@@ -407,7 +406,7 @@ public class DecisionTableLoader {
             }
         }
         for (String parameterType : tableSyntaxNode.getHeader().getCollectParameters()) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, parameterType);
+            IOpenClass t = bindingContext.findType(parameterType);
             if (t == null) {
                 throw SyntaxNodeExceptionUtils.createError(String.format("Type '%s' is not found.", parameterType),
                         tableSyntaxNode.getHeader().getCellSource());
