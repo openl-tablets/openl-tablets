@@ -13,7 +13,6 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastOperators;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.types.IMethodCaller;
@@ -34,7 +33,7 @@ public abstract class AbstractMethodSearchTest {
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         typecast.addJavaCast(CastOperators.class);
 
-        openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(Thread.currentThread().getContextClassLoader()));
+        openLConfiguration.setClassLoader(Thread.currentThread().getContextClassLoader());
         castFactory = openLConfiguration;
     }
 
