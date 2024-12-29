@@ -455,7 +455,7 @@ public class XlsBinder implements IOpenBinder {
                             Collection<String> imports,
                             List<SyntaxNodeException> exceptions) {
         Collection<String> packageNames = new LinkedHashSet<>();
-        Collection<String> classNames = new LinkedHashSet<>();
+        Collection<Class<?>> classNames = new LinkedHashSet<>();
         Collection<String> libraries = new LinkedHashSet<>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
@@ -476,10 +476,10 @@ public class XlsBinder implements IOpenBinder {
                 }
             } else {
                 try {
-                    userContext.getUserClassLoader().loadClass(singleImport); // try
+                    var cls = userContext.getUserClassLoader().loadClass(singleImport); // try
                     // load
                     // class
-                    classNames.add(singleImport);
+                    classNames.add(cls);
                 } catch (Exception e) {
                     packageNames.add(singleImport);
                 } catch (LinkageError e) {
@@ -488,7 +488,7 @@ public class XlsBinder implements IOpenBinder {
             }
         }
         builder.setPackageImports(packageNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
-        builder.setClassImports(classNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setClassImports(classNames);
         builder.setLibraries(libraries.toArray(StringUtils.EMPTY_STRING_ARRAY));
     }
 

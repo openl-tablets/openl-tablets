@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.MethodUtil;
-import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * @author snshor
@@ -28,26 +27,6 @@ public class ClassFactory extends AConfigurationElement {
     protected boolean singleton;
 
     Object cachedObject;
-
-    public static Class<?> forName(String name, ClassLoader cl) {
-        try {
-            return cl.loadClass(name);
-        } catch (ClassNotFoundException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        } catch (NoClassDefFoundError ex) {
-            LOG.debug("Potential problem loading class: {}", name, ex);
-            throw RuntimeExceptionWrapper.wrap(ex);
-        } catch (UnsupportedClassVersionError e) {
-            LOG.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",
-                    name,
-                    System.getProperty("java.version"),
-                    e);
-            throw RuntimeExceptionWrapper.wrap(e);
-        } catch (Exception | LinkageError t) {
-            LOG.error("Failed to load class '{}'.", name, t);
-            throw RuntimeExceptionWrapper.wrap(t);
-        }
-    }
 
     public static Object newInstance(Class<?> cc, String uri) {
         try {
