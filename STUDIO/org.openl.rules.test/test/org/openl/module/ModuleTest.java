@@ -191,7 +191,7 @@ public class ModuleTest {
      */
     private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) throws SyntaxNodeException {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL op = OpenL.getInstance();
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
@@ -233,7 +233,7 @@ public class ModuleTest {
 
     private Object executeOpenLOGNLExprression(Object context, String expr) throws SyntaxNodeException {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL op = OpenL.getInstance();
 
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(context.getClass());
         IMethodSignature signature = new MethodSignature(new ParameterDeclaration(openClass, "context"));
@@ -291,7 +291,7 @@ public class ModuleTest {
 
     @Test
     public void testModule() throws SyntaxNodeException {
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL op = OpenL.getInstance();
 
         ModuleOpenClass module = new ModuleOpenClass("ZZZ", op);
 
