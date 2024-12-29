@@ -53,7 +53,6 @@ import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextPa
 import org.openl.binding.impl.module.VarDeclarationNodeBinder;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.ClassFactory;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.NodeBinders;
 import org.openl.conf.OpenLConfiguration;
@@ -132,8 +131,7 @@ public class OpenLBuilder extends AOpenLBuilder {
     protected OpenLConfiguration getOpenLConfiguration() {
         var op = new OpenLConfiguration();
 
-        ClassFactory cfg = op.createGrammar();
-        cfg.setClassName(BExGrammarWithParsingHelp.class.getName());
+        op.setGrammar(BExGrammarWithParsingHelp::new);
 
         op.setNodeBinders(createNodeBinders());
 
