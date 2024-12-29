@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.openl.OpenL;
 import org.openl.conf.AOpenLBuilder;
+import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OperatorsNamespace;
@@ -29,16 +30,16 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     }
 
     @Override
-    public OpenL build() {
+    public OpenL build(IUserContext userContext) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader userEnvironmentContextClassLoader = getUserEnvironmentContext().getUserClassLoader();
+        ClassLoader userEnvironmentContextClassLoader = userContext.getUserClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(userEnvironmentContextClassLoader);
-            OpenL.getInstance(extendsCategory, getUserEnvironmentContext());
+            OpenL.getInstance(extendsCategory, userContext);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-        return super.build();
+        return super.build(userContext);
     }
 
     @Override
