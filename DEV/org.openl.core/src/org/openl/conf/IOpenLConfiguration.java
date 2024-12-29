@@ -18,8 +18,4 @@ import org.openl.syntax.grammar.IGrammarFactory;
  */
 public interface IOpenLConfiguration extends IGrammarFactory, INodeBinderFactory, INameSpacedMethodFactory, ICastFactory, INameSpacedVarFactory, INameSpacedTypeFactory {
 
-    void addOpenFactory(IOpenFactoryConfiguration opfc);
-
-    IConfigurableResourceContext getConfigurationContext();
-
 }
