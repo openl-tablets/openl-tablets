@@ -35,7 +35,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     public void reset() {
         super.reset();
         if (engineFactory != null) {
-            getEngineFactory().reset(false);
+            getEngineFactory().reset();
         }
     }
 
