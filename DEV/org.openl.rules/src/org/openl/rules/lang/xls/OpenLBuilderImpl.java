@@ -1,18 +1,18 @@
 package org.openl.rules.lang.xls;
 
+import java.util.Collection;
+
 import org.openl.OpenL;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.JavaImportTypeConfiguration;
 import org.openl.conf.JavaLibraryConfiguration;
 import org.openl.conf.LibraryFactoryConfiguration;
 import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.NameSpacedTypeConfiguration;
+import org.openl.conf.TypeResolver;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OperatorsNamespace;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
-import org.openl.conf.TypeFactoryConfiguration;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
@@ -24,7 +24,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     private String category;
 
     private String[] packageImports = new String[]{};
-    private String[] classImports = new String[]{};
+    private Collection<Class<?>> classImports;
 
     private String[] libraries = new String[]{};
 
@@ -95,39 +95,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             libraries.addConfiguredLibrary(thisNamespaceLibrary);
         }
 
-        /**
-         * <libraries>
-         *
-         * <library namespace="org.openl.this"> <javalib classname="org.openl.rules.helpers.RulesUtils"/> </library>
-         * </libraries>
-         */
-
-        if (packageImports != null && packageImports.length > 0 || classImports != null && classImports.length > 0) {
-            TypeFactoryConfiguration types = op.createTypes();
-            NameSpacedTypeConfiguration typeLibrary = new NameSpacedTypeConfiguration();
-            typeLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-            JavaImportTypeConfiguration javaImportTypeConfiguration = new JavaImportTypeConfiguration();
-            if (packageImports != null) {
-                for (String packageName : packageImports) {
-                    javaImportTypeConfiguration.addPackageImport(packageName);
-                }
-            }
-            if (classImports != null) {
-                for (String className : classImports) {
-                    javaImportTypeConfiguration.addClassImport(className);
-                }
-            }
-
-            typeLibrary.addConfiguration(javaImportTypeConfiguration);
-
-            types.addConfiguredTypeLibrary(typeLibrary);
-        }
-
-        /*
-         *
-         * <types> <typelibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
-         * <javaimport all="org.openl.rules.helpers"/> </typelibrary> </types>
-         */
+        op.setTypeResolver(new TypeResolver(classImports, packageImports));
 
         return op;
     }
@@ -136,7 +104,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.category = category;
     }
 
-    public void setClassImports(String[] classImports) {
+    public void setClassImports(Collection<Class<?>> classImports) {
         this.classImports = classImports;
     }
 

@@ -44,7 +44,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private NodeBinders nodeBinders;
     private LibraryFactoryConfiguration methodFactory;
     private TypeCastFactory typeCastFactory;
-    private TypeFactoryConfiguration typeFactory;
+    private TypeResolver typeResolver;
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
     @Override
@@ -231,7 +231,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return namespaceCache.get(name);
         }
 
-        IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
+        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name, configurationContext.getClassLoader());
         if (parent == null) {
             namespaceCache.put(name, type);
             return type;
@@ -296,9 +296,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         parent = configuration;
     }
 
-    public TypeFactoryConfiguration createTypes() {
-        typeFactory = new TypeFactoryConfiguration();
-        return typeFactory;
+    public void setTypeResolver(TypeResolver typeResolver) {
+        this.typeResolver = typeResolver;
     }
 
     public void setUri(String string) {
@@ -322,10 +321,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         if (typeCastFactory != null) {
             typeCastFactory.validate(cxt);
-        }
-
-        if (typeFactory != null) {
-            typeFactory.validate(cxt);
         }
 
         if (openFactories != null) {
