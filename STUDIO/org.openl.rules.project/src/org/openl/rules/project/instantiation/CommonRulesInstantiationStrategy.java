@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
-import org.openl.runtime.AEngineFactory;
+import org.openl.rules.runtime.RulesEngineFactory;
 
 public abstract class CommonRulesInstantiationStrategy implements RulesInstantiationStrategy {
 
@@ -158,9 +158,9 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         return compileInternal(getEngineFactory());
     }
 
-    protected abstract AEngineFactory getEngineFactory() throws RulesInstantiationException;
+    protected abstract RulesEngineFactory<?> getEngineFactory() throws RulesInstantiationException;
 
-    protected final CompiledOpenClass compileInternal(AEngineFactory engineFactory) throws RulesInstantiationException {
+    protected final CompiledOpenClass compileInternal(RulesEngineFactory engineFactory) throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {

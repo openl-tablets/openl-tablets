@@ -31,7 +31,7 @@ public class ExecutionModeTest {
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("ageSurcharge", int.class);
         assertNotNull(method);
-        Object instance = engineFactory.newInstance();
+        Object instance = engineFactory.newEngineInstance();
         Object result = method.invoke(instance, 2);
         assertEquals(300.0, result);
     }
@@ -44,7 +44,7 @@ public class ExecutionModeTest {
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("currentYear");
         assertNotNull(method);
-        Object instance = engineFactory.newInstance();
+        Object instance = engineFactory.newEngineInstance();
         Object result = method.invoke(instance);
         assertEquals(Calendar.getInstance().get(Calendar.YEAR), result);
     }
@@ -57,7 +57,7 @@ public class ExecutionModeTest {
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("modification", int.class);
         assertNotNull(method);
-        Object instance = engineFactory.newInstance();
+        Object instance = engineFactory.newEngineInstance();
         Object result = method.invoke(instance, 5);
         assertEquals(120, result);
 
@@ -88,7 +88,7 @@ public class ExecutionModeTest {
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("calc");
         assertNotNull(method);
-        Object instance = engineFactory.newInstance();
+        Object instance = engineFactory.newEngineInstance();
         Object result = method.invoke(instance);
         assertEquals(375.0, result);
 
@@ -118,7 +118,7 @@ public class ExecutionModeTest {
         Class<?> interfaceClass = engineFactory.getInterfaceClass();
         Method method = interfaceClass.getMethod("runColumnMatch", int.class, int.class, int.class, int.class);
         assertNotNull(method);
-        Object instance = engineFactory.newInstance();
+        Object instance = engineFactory.newEngineInstance();
         Object result = method.invoke(instance, 4, 3, 3, 2);
         assertEquals(91, result);
 
@@ -145,7 +145,7 @@ public class ExecutionModeTest {
                 ITestI.class);
         engineFactory.setExecutionMode(true);
 
-        ITestI instance = (ITestI) engineFactory.newInstance();
+        ITestI instance = (ITestI) engineFactory.newEngineInstance();
 
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
@@ -197,7 +197,7 @@ public class ExecutionModeTest {
             Class<?> interfaceClass = engineFactory.getInterfaceClass();
             Method method = interfaceClass.getMethod("npe", Integer.class);
             assertNotNull(method);
-            Object instance = engineFactory.newInstance();
+            Object instance = engineFactory.newEngineInstance();
             method.invoke(instance, new Object[]{null});
         });
     }

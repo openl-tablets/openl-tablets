@@ -20,11 +20,11 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 /**
  * Test for properties recognition in execution mode.
@@ -91,7 +91,7 @@ public class PropertiesTableInExecutionModeTest {
         // properties table with name will be represented as field
         assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
         // properties table without name will not be represented as field
-        IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
+        var env = new SimpleRulesVM().getRuntimeEnv();
         for (IOpenField field : fields) {
             if (field instanceof PropertiesOpenField) {
                 ITableProperties properties = (ITableProperties) field
