@@ -65,7 +65,7 @@ public final class CastToWiderType {
         if (collection == null) {
             return NullOpenClass.the;
         }
-        ICastFactory castFactory = OpenL.getInstance(OpenL.OPENL_J_NAME).getBinder().getCastFactory();
+        ICastFactory castFactory = OpenL.getInstance().getBinder().getCastFactory();
         IOpenClass widerType = null;
         for (Object ob : collection) {
             if (ob != null) {

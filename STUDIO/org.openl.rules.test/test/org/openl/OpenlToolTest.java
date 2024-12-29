@@ -25,7 +25,7 @@ public class OpenlToolTest {
 
     @Test
     public void testMakeMethod() {
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL openl = OpenL.getInstance();
         String name = "abc";
         IMethodSignature signature = IMethodSignature.VOID;
         IOpenClass declaringClass = null;

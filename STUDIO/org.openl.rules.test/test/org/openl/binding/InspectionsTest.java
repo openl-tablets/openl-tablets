@@ -84,7 +84,7 @@ public class InspectionsTest {
     @SuppressWarnings("unchecked")
     private <T> T checkWarning(String expression, String expectedMessage) throws OpenLCompilationException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL openl = OpenL.getInstance();
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
@@ -101,7 +101,7 @@ public class InspectionsTest {
     @SuppressWarnings("unchecked")
     private <T> T checkNoMessage(String expression) throws OpenLCompilationException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        OpenL openl = OpenL.getInstance();
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
@@ -109,6 +109,6 @@ public class InspectionsTest {
 
         assertTrue(bindingContext.getMessages().isEmpty());
 
-        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME), source);
+        return (T) OpenLManager.run(OpenL.getInstance(), source);
     }
 }

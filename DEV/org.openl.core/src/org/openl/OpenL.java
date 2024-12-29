@@ -35,13 +35,12 @@ public class OpenL {
     /**
      * Gets instance of <code>OpenL</code> with given name.
      *
-     * @param name OpenL name
      * @return instance of OpenL
      * @throws OpenLConfigurationException
      */
     // TODO: Do not use this method! Should be removed!
-    public static synchronized OpenL getInstance(String name) {
-        return getInstance(name, new UserContext(OpenL.class.getClassLoader(), DEFAULT_USER_HOME));
+    public static synchronized OpenL getInstance() {
+        return getInstance(OPENL_J_NAME, new UserContext(OpenL.class.getClassLoader(), DEFAULT_USER_HOME));
     }
 
     /**

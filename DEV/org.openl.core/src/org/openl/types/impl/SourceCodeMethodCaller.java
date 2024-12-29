@@ -33,7 +33,7 @@ public class SourceCodeMethodCaller implements IMethodCaller {
     public IOpenMethod getMethod() {
         if (method == null) {
             IOpenSourceCodeModule src = new StringSourceCodeModule(sourceCode, null);
-            OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
+            OpenL op = OpenL.getInstance();
             OpenMethodHeader methodHeader = new OpenMethodHeader("run",
                     resultType == null ? JavaOpenClass.VOID : resultType,
                     signature,
