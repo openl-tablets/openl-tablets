@@ -25,7 +25,6 @@ import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -191,7 +190,7 @@ public class Action extends FunctionalRow implements IAction {
                                                                          IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-            cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+            cType = bindingContext.findType(
                     tableSyntaxNode.getHeader().getCollectParameters()[0]);
         }
         return cType != null ? cType : JavaOpenClass.OBJECT;
@@ -206,7 +205,7 @@ public class Action extends FunctionalRow implements IAction {
         if (ClassUtils.isAssignable(type.getInstanceClass(), Collection.class)) {
             IOpenClass cType = null;
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
-                cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                cType = bindingContext.findType(
                         tableSyntaxNode.getHeader().getCollectParameters()[0]);
             }
             return cType != null ? cType : JavaOpenClass.OBJECT;
@@ -214,7 +213,7 @@ public class Action extends FunctionalRow implements IAction {
         if (ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             IOpenClass cType = null;
             if (tableSyntaxNode.getHeader().getCollectParameters().length > 1) {
-                cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                cType = bindingContext.findType(
                         tableSyntaxNode.getHeader().getCollectParameters()[1]);
             }
             return cType != null ? cType : JavaOpenClass.OBJECT;

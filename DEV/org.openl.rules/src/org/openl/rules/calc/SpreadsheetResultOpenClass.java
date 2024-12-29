@@ -11,7 +11,6 @@ import java.util.Stack;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -104,7 +103,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                 }
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
                                 module.getRulesModuleBindingContext()
-                                        .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
+                                        .findType(openClass.getName());
                             } finally {
                                 SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
                                 if (g) {

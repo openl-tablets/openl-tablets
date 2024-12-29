@@ -7,7 +7,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -74,7 +73,7 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
 
         if (type instanceof WrapModuleSpecificTypes && methodCaller instanceof IOpenMethod && methodCaller.getMethod()
                 .getType() instanceof ModuleSpecificType) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+            IOpenClass t = bindingContext.findType(
                     methodCaller.getMethod().getType().getName());
             if (t != null) {
                 methodCaller = new ModuleSpecificOpenMethod((IOpenMethod) methodCaller, t);

@@ -70,7 +70,7 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) {
+    public IOpenClass addType(IOpenClass type) {
         throw new UnsupportedOperationException();
     }
 
@@ -122,8 +122,8 @@ public class BindingContext implements IBindingContext {
      * @see org.openl.binding.IBindingContext#findType(java.lang.String, java.lang.String)
      */
     @Override
-    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
-        return binder.getTypeFactory().getType(namespace, typeName);
+    public IOpenClass findType(String typeName) throws AmbiguousTypeException {
+        return binder.getTypeFactory().getType(typeName);
     }
 
     @Override

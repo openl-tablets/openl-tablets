@@ -14,6 +14,6 @@ import org.openl.types.IOpenClass;
  */
 public interface INameSpacedTypeFactory {
 
-    IOpenClass getType(String namespace, String typename) throws AmbiguousTypeException;
+    IOpenClass getType(String typename) throws AmbiguousTypeException;
 
 }

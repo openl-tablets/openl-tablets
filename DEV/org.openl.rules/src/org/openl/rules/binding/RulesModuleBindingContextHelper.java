@@ -1,7 +1,6 @@
 package org.openl.rules.binding;
 
 import org.openl.binding.IBindingContext;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 
@@ -17,7 +16,7 @@ public final class RulesModuleBindingContextHelper {
             while (pType.isArray()) {
                 pType = pType.getComponentClass();
             }
-            bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, pType.getName());
+            bindingContext.findType(pType.getName());
         }
     }
 }

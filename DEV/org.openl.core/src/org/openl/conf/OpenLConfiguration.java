@@ -222,21 +222,20 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
-    private final Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
+    private final Map<String, IOpenClass> cache = new HashMap<>();
 
     @Override
-    public IOpenClass getType(String namespace, String name) throws AmbiguousTypeException {
-        Map<String, IOpenClass> namespaceCache = cache.computeIfAbsent(namespace, e -> new HashMap<>());
-        if (namespaceCache.containsKey(name)) {
-            return namespaceCache.get(name);
+    public IOpenClass getType(String name) throws AmbiguousTypeException {
+        if (cache.containsKey(name)) {
+            return cache.get(name);
         }
 
         IOpenClass type = typeResolver == null ? null : typeResolver.getType(name, configurationContext.getClassLoader());
         if (parent == null) {
-            namespaceCache.put(name, type);
+            cache.put(name, type);
             return type;
         } else {
-            IOpenClass type1 = parent.getType(namespace, name);
+            IOpenClass type1 = parent.getType(name);
             if (type != null || type1 != null) {
                 if (type1 != null && type != null && !Objects.equals(type, type1)) {
                     List<IOpenClass> foundTypes = new ArrayList<>();
@@ -244,7 +243,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                     foundTypes.add(type1);
                     throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
                 } else {
-                    namespaceCache.put(name, type != null ? type : type1);
+                    cache.put(name, type != null ? type : type1);
                     return type != null ? type : type1;
                 }
             }

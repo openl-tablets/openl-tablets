@@ -26,7 +26,6 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -118,7 +117,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
             CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
-                IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
+                IOpenClass bindingContextType = bindingContext.addType(type);
                 spreadsheet.setCustomSpreadsheetResultType((CustomSpreadsheetResultOpenClass) bindingContextType);
             } catch (Exception | LinkageError e) {
                 String message = String.format("Cannot define type '%s'.",
@@ -126,7 +125,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
                 bindingContext.addError(error);
                 spreadsheet.setCustomSpreadsheetResultType(
-                        (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                        (CustomSpreadsheetResultOpenClass) bindingContext.findType(
                                 Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName()));
             }
         }

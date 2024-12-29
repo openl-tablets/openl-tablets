@@ -40,8 +40,8 @@ public class DependencyBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
-        IOpenClass type = super.findType(namespace, typeName);
+    public IOpenClass findType(String typeName) throws AmbiguousTypeException {
+        IOpenClass type = super.findType(typeName);
         if (type != null) {
             return type;
         }

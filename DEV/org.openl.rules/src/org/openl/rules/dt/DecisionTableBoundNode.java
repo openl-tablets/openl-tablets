@@ -14,7 +14,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 
@@ -50,7 +49,7 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
         if (decisionTable.isTypeCustomSpreadsheetResult()) {
             decisionTable.setDim(dim);
             decisionTable.setCustomSpreadsheetResultType(
-                    (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
+                    (CustomSpreadsheetResultOpenClass) bindingContext.findType(
                             Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + decisionTable.getName()));
             try {
                 RulesModuleBindingContextHelper.compileAllTypesInSignature(getHeader().getSignature(), bindingContext);

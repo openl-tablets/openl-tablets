@@ -37,39 +37,27 @@ public class ComponentBindingContext extends BindingContextDelegator {
         this.componentOpenClass = componentOpenClass;
     }
 
-    /**
-     * Builds the type name with namespace.
-     *
-     * @param namespace for typeName
-     * @param typeName
-     * @return namespace::typeName
-     */
-    private static String buildTypeName(String namespace, String typeName) {
-        return namespace + "::" + typeName;
-    }
-
     public ComponentOpenClass getComponentOpenClass() {
         return componentOpenClass;
     }
 
     @Override
-    public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
+    public IOpenClass addType(IOpenClass type) throws DuplicatedTypeException {
         final String typeName = type.getName();
         if (internalTypes == null) {
             internalTypes = new HashMap<>();
         }
-        final String nameWithNamespace = buildTypeName(namespace, typeName);
-        if (internalTypes.containsKey(nameWithNamespace)) {
-            IOpenClass openClass = internalTypes.get(nameWithNamespace);
+        if (internalTypes.containsKey(typeName)) {
+            IOpenClass openClass = internalTypes.get(typeName);
             if (openClass == type) {
                 return type;
             }
             if (openClass.getPackageName().equals(type.getPackageName())) {
-                throw new DuplicatedTypeException(null, nameWithNamespace);
+                throw new DuplicatedTypeException(null, typeName);
             }
         }
 
-        internalTypes.put(nameWithNamespace, type);
+        internalTypes.put(typeName, type);
         return type;
     }
 
@@ -92,10 +80,9 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
-        String key = buildTypeName(namespace, typeName);
+    public IOpenClass findType(String typeName) throws AmbiguousTypeException {
         if (internalTypes != null) {
-            IOpenClass ioc = internalTypes.get(key);
+            IOpenClass ioc = internalTypes.get(typeName);
             if (ioc != null) {
                 return ioc;
             }
@@ -106,7 +93,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
             return type;
         }
 
-        return super.findType(namespace, typeName);
+        return super.findType(typeName);
     }
 
     @Override
@@ -130,7 +117,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
             dim++;
         }
         if (isComponentSpecificOpenClass(componentOpenClass)) {
-            IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE,
+            IOpenClass thisContextOpenClass = this.findType(
                     componentOpenClass.getName());
             if (thisContextOpenClass != null) {
                 return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
