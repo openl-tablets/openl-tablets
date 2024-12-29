@@ -2,6 +2,7 @@ package org.openl.rules.runtime;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -12,13 +13,13 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.classloader.OpenLClassLoader;
+import org.openl.conf.UserContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.runtime.AEngineFactory;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.runtime.IOpenLMethodHandler;
@@ -26,7 +27,11 @@ import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
+import org.openl.types.IOpenMethod;
+import org.openl.types.java.OpenClassHelper;
+import org.openl.util.ClassUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
@@ -37,16 +42,23 @@ import org.openl.xls.RulesCompileContext;
  *
  * @author PUdalau, Marat Kamalov
  */
-public class RulesEngineFactory<T> extends AEngineFactory {
+public class RulesEngineFactory<T> {
 
+
+    public static final String DEFAULT_USER_HOME = ".";
+    private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
     private final Logger log = LoggerFactory.getLogger(RulesEngineFactory.class);
     private final IOpenSourceCodeModule sourceCode;
+    private final String userHome;
 
     private InterfaceClassGenerator interfaceClassGenerator = new InterfaceClassGenerator();
     private Class<T> interfaceClass;
     private CompiledOpenClass compiledOpenClass;
     private boolean executionMode;
     private IDependencyManager dependencyManager;
+    private final IRuntimeEnvBuilder runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
+    // Volatile is required for correct double locking checking pattern
+    private volatile OpenL openl;
 
     public void setInterfaceClassGenerator(InterfaceClassGenerator interfaceClassGenerator) {
         this.interfaceClassGenerator = Objects.requireNonNull(interfaceClassGenerator,
@@ -54,110 +66,63 @@ public class RulesEngineFactory<T> extends AEngineFactory {
     }
 
     public RulesEngineFactory(String sourceFile) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         sourceCode = new URLSourceCodeModule(sourceFile);
     }
 
     public RulesEngineFactory(String sourceFile, Class<T> interfaceClass) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(sourceFile);
         setInterfaceClass(interfaceClass);
     }
 
     public RulesEngineFactory(String sourceFile, String userHome) {
-        super(OpenL.OPENL_JAVA_RULE_NAME, userHome);
+        this.userHome = userHome;
         sourceCode = new URLSourceCodeModule(sourceFile);
     }
 
     public RulesEngineFactory(String sourceFile, String userHome, Class<T> interfaceClass) {
-        super(OpenL.OPENL_JAVA_RULE_NAME, userHome);
+        this.userHome = userHome;
         setInterfaceClass(interfaceClass);
         sourceCode = new URLSourceCodeModule(sourceFile);
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule sourceCodeModule) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         this.sourceCode = sourceCodeModule;
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule sourceCodeModule, Class<T> interfaceClass) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         this.sourceCode = sourceCodeModule;
         setInterfaceClass(interfaceClass);
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome) {
-        super(OpenL.OPENL_JAVA_RULE_NAME, userHome);
+        this.userHome = userHome;
         this.sourceCode = source;
     }
 
     public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, Class<T> interfaceClass) {
-        super(OpenL.OPENL_JAVA_RULE_NAME, userHome);
+        this.userHome = userHome;
         this.sourceCode = source;
         setInterfaceClass(interfaceClass);
     }
 
     public RulesEngineFactory(URL source) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(source);
     }
 
     public RulesEngineFactory(URL source, Class<T> interfaceClass) {
-        super(OpenL.OPENL_JAVA_RULE_NAME);
+        userHome = DEFAULT_USER_HOME;
         this.sourceCode = new URLSourceCodeModule(source);
         Objects.requireNonNull(interfaceClass, "interfaceClass cannot be null");
         setInterfaceClass(interfaceClass);
     }
 
-    public RulesEngineFactory(String openlName, IOpenSourceCodeModule sourceCode, Class<T> interfaceClass) {
-        super(openlName);
-        this.sourceCode = sourceCode;
-        setInterfaceClass(interfaceClass);
-    }
-
-    public RulesEngineFactory(String openlName, IOpenSourceCodeModule sourceCode) {
-        super(openlName);
-        this.sourceCode = sourceCode;
-    }
-
-    public RulesEngineFactory(String openlName,
-                              String userHome,
-                              IOpenSourceCodeModule sourceCode,
-                              Class<T> interfaceClass) {
-        super(openlName, userHome);
-        this.sourceCode = sourceCode;
-        setInterfaceClass(interfaceClass);
-    }
-
-    public RulesEngineFactory(String openlName, String userHome, IOpenSourceCodeModule sourceCode) {
-        super(openlName, userHome);
-        this.sourceCode = sourceCode;
-    }
-
-    public RulesEngineFactory(String openlName, String userHome, String sourceFile, Class<T> interfaceClass) {
-        super(openlName, userHome);
-        sourceCode = new URLSourceCodeModule(sourceFile);
-        setInterfaceClass(interfaceClass);
-    }
-
-    public RulesEngineFactory(String openlName, String userHome, String sourceFile) {
-        super(openlName, userHome);
-        this.sourceCode = new URLSourceCodeModule(sourceFile);
-    }
-
-    /**
-     * Added to allow using other openl names, such as org.openl.xls.ce
-     */
-    public RulesEngineFactory(IOpenSourceCodeModule source, String userHome, String openlName) {
-        super(openlName, userHome);
-        this.sourceCode = source;
-    }
-
-    public void reset(boolean resetInterface) {
-        reset();
-        if (resetInterface) {
-            setInterfaceClass(null);
-        }
+    public void reset() {
+        compiledOpenClass = null;
     }
 
     /**
@@ -192,23 +157,12 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         }
     }
 
-    private IRuntimeEnvBuilder runtimeEnvBuilder = null;
-
-    @Override
-    protected IRuntimeEnvBuilder getRuntimeEnvBuilder() {
-        if (runtimeEnvBuilder == null) {
-            runtimeEnvBuilder = () -> new SimpleRulesVM().getRuntimeEnv();
-        }
-        return runtimeEnvBuilder;
-    }
-
-    @Override
-    protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
+    private IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
                                                        Map<Method, IOpenMember> methodMap,
                                                        IRuntimeEnv runtimeEnv) {
         OpenLRulesMethodHandler openLRulesMethodHandler = new OpenLRulesMethodHandler(openClassInstance,
                 methodMap,
-                getRuntimeEnvBuilder());
+                runtimeEnvBuilder);
         if (runtimeEnv != null) {
             openLRulesMethodHandler.setRuntimeEnv(runtimeEnv);
         }
@@ -219,7 +173,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         this.interfaceClass = interfaceClass;
     }
 
-    protected CompiledOpenClass initializeOpenClass() {
+    private CompiledOpenClass initializeOpenClass() {
         boolean oldValidationState = ValidationManager.isValidationEnabled();
         CompiledOpenClass compiledOpenClass;
         try {
@@ -240,7 +194,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
                     Thread.currentThread().setContextClassLoader(newClassLoader);
                 }
 
-                result = OpenLManager.compileModuleWithErrors(getOpenL(), getSourceCode(), executionMode, dependencyManager);
+                result = OpenLManager.compileModuleWithErrors(getOpenL(), sourceCode, executionMode, dependencyManager);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
@@ -272,30 +226,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         }
     }
 
-    public T newEngineInstance() {
-        return newEngineInstance(false);
-    }
-
-    public T newEngineInstance(IRuntimeEnv runtimeEnv) {
-        return newEngineInstance(runtimeEnv, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    public T newEngineInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
-        return (T) newInstance(runtimeEnv, ignoreCompilationErrors);
-    }
-
-    @SuppressWarnings("unchecked")
-    public T newEngineInstance(boolean ignoreCompilationErrors) {
-        return (T) newInstance(ignoreCompilationErrors);
-    }
-
-    public void reset() {
-        compiledOpenClass = null;
-    }
-
-    @Override
-    public Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
+    private Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
@@ -303,7 +234,7 @@ public class RulesEngineFactory<T> extends AEngineFactory {
             Class<T> interfaceClass = getInterfaceClass();
             Map<Method, IOpenMember> methodMap = prepareMethodMap(interfaceClass, openClass);
             Object openClassInstance = openClass
-                    .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
+                    .newInstance(runtimeEnv == null ? runtimeEnvBuilder.buildRuntimeEnv() : runtimeEnv);
             ClassLoader classLoader = interfaceClass.getClassLoader();
 
             Class<?>[] proxyInterfaces = new Class[]{interfaceClass, IEngineWrapper.class, IRulesRuntimeContextProvider.class};
@@ -318,7 +249,6 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         }
     }
 
-    @Override
     public CompiledOpenClass getCompiledOpenClass() {
         if (compiledOpenClass == null) {
             compiledOpenClass = initializeOpenClass();
@@ -334,15 +264,109 @@ public class RulesEngineFactory<T> extends AEngineFactory {
         this.executionMode = executionMode;
     }
 
-    public IOpenSourceCodeModule getSourceCode() {
-        return sourceCode;
-    }
-
-    public IDependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
     public void setDependencyManager(IDependencyManager dependencyManager) {
         this.dependencyManager = dependencyManager;
+    }
+
+    private OpenL getOpenL() {
+        if (openl == null) {
+            synchronized (this) {
+                if (openl == null) {
+                    var userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()), userHome);
+                    openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME, userContext);
+                }
+            }
+        }
+        return openl;
+    }
+
+    public T newEngineInstance() {
+        return newEngineInstance(false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T newEngineInstance(boolean ignoreCompilationErrors) {
+        return (T) prepareInstance(null, ignoreCompilationErrors);
+    }
+
+    /**
+     * Creates methods map that contains interface's methods as key and appropriate open class's members as value.
+     *
+     * @param engineInterface interface that provides method for engine
+     * @param moduleOpenClass open class that used by engine to invoke appropriate rules
+     * @return methods map
+     */
+    private Map<Method, IOpenMember> prepareMethodMap(Class<?> engineInterface, IOpenClass moduleOpenClass) {
+
+        // Methods map.
+        //
+        Map<Method, IOpenMember> methodMap = new HashMap<>();
+        // Get declared by engine interface methods.
+        //
+        Method[] interfaceMethods = engineInterface.getDeclaredMethods();
+
+        for (Method interfaceMethod : interfaceMethods) {
+            // Get name of method.
+            //
+            String interfaceMethodName = interfaceMethod.getName();
+            // Try to find openClass's method with appropriate name and
+            // parameter types.
+            //
+            IOpenMethod rulesMethod = OpenClassHelper.findRulesMethod(moduleOpenClass, interfaceMethod);
+
+            if (rulesMethod != null) {
+                validateReturnType(rulesMethod, interfaceMethod);
+                // If openClass has appropriate method then add new entry to
+                // methods map.
+                //
+                methodMap.put(interfaceMethod, rulesMethod);
+            } else {
+                // Try to find appropriate method candidate in openClass's
+                // fields.
+                //
+                IOpenField ruleField = OpenClassHelper.findRulesField(moduleOpenClass, interfaceMethod);
+                if (ruleField != null) {
+                    methodMap.put(interfaceMethod, ruleField);
+                    continue;
+                } else {
+                    if (interfaceMethod.getParameterCount() == 0) {
+                        IOpenField openField = OpenClassHelper.findRulesField(moduleOpenClass,
+                                interfaceMethod.getName());
+                        if (openField != null) {
+                            String message = String.format(INCORRECT_RET_TYPE_MSG,
+                                    openField.getType(),
+                                    interfaceMethodName,
+                                    interfaceMethod.getName());
+                            throw new RuntimeException(message);
+                        }
+                    }
+                }
+                // If openClass does not have appropriate method or field then
+                // throw runtime exception.
+                //
+                String message = String.format("There is no implementation in rules for interface method '%s'",
+                        interfaceMethod);
+
+                throw new OpenlNotCheckedException(message);
+            }
+        }
+
+        return methodMap;
+    }
+
+    private void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
+        Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
+        if (openClassReturnType == Void.class || openClassReturnType == void.class) {
+            return;
+        }
+        Class<?> interfaceReturnType = interfaceMethod.getReturnType();
+        boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
+        if (!isAssignable) {
+            String message = String.format(INCORRECT_RET_TYPE_MSG,
+                    openClassReturnType.getName(),
+                    interfaceMethod.getName(),
+                    interfaceReturnType.getName());
+            throw new ClassCastException(message);
+        }
     }
 }
