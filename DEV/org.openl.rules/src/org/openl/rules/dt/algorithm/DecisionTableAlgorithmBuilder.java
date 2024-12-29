@@ -13,9 +13,11 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
@@ -36,16 +38,17 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.types.IMethodCaller;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.Invokable;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.impl.ParameterMethodCaller;
-import org.openl.types.impl.SourceCodeMethodCaller;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
@@ -334,7 +337,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
             if (conditionEvaluator != null) {
                 condition.setConditionEvaluator(conditionEvaluator);
-                IMethodCaller evaluator = makeOptimizedConditionMethodEvaluator(condition,
+                var evaluator = makeOptimizedConditionMethodEvaluator(condition,
                         signature,
                         conditionEvaluator.getOptimizedSourceCode());
                 condition.setEvaluator(evaluator);
@@ -348,7 +351,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 conditionEvaluator = DependentParametersOptimizedAlgorithm.makeEvaluator(condition, signature, bindingContext);
                 if (conditionEvaluator != null) {
                     condition.setConditionEvaluator(conditionEvaluator);
-                    IMethodCaller evaluator = makeOptimizedConditionMethodEvaluator(condition,
+                    var evaluator = makeOptimizedConditionMethodEvaluator(condition,
                             signature,
                             conditionEvaluator.getOptimizedSourceCode());
                     if (evaluator == null) {
@@ -408,27 +411,27 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 .anyMatch(e -> "$Rule".equals(e.getIdentifier()) || "$RuleId".equals(e.getIdentifier()));
     }
 
-    private IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
+    private Invokable makeOptimizedConditionMethodEvaluator(ICondition condition, IMethodSignature signature) {
         return makeOptimizedConditionMethodEvaluator(condition,
                 signature,
                 DecisionTableUtils.getConditionSourceCode(condition));
     }
 
-    private static IMethodCaller makeOptimizedConditionMethodEvaluator(ICondition condition,
+    private static Invokable makeOptimizedConditionMethodEvaluator(ICondition condition,
                                                                        IMethodSignature signature,
                                                                        String code) {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String pname = signature.getParameterName(i);
             if (pname.equals(code)) {
-                return new ParameterMethodCaller(condition.getMethod(), i);
+                return new ParameterMethodCaller(i);
             }
         }
         return null;
     }
 
-    private static IMethodCaller makeDependentParamsIndexedConditionMethodEvaluator(ICondition condition,
-                                                                                    IMethodSignature signature,
-                                                                                    String optimizedCode) {
+    private Invokable makeDependentParamsIndexedConditionMethodEvaluator(ICondition condition,
+                                                                                IMethodSignature signature,
+                                                                                String optimizedCode) {
         String v = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode()
                 .getSyntaxNode()
                 .getModule()
@@ -439,10 +442,16 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 String pname = signature.getParameterName(i);
                 if (pname.equals(p)) {
                     IOpenClass type = findExpressionType(signature.getParameterType(i), optimizedCode);
-                    return new SourceCodeMethodCaller(signature, type, optimizedCode);
+                    return invoker(signature, type == null ? JavaOpenClass.VOID : type, optimizedCode);
                 }
             }
         }
         return null;
+    }
+
+    private Invokable invoker(IMethodSignature signature, IOpenClass resultType, String sourceCode) {
+        var methodHeader = new OpenMethodHeader("run",resultType, signature, null);
+        var cxt = new BindingContext(openl.getBinder(), null, openl);
+        return OpenLManager.makeMethod(openl, new StringSourceCodeModule(sourceCode, null), methodHeader, cxt);
     }
 }

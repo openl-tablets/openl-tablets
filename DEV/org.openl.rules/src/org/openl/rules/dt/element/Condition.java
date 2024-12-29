@@ -39,12 +39,12 @@ import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IDynamicObject;
-import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
+import org.openl.types.Invokable;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.impl.OpenMethodHeader;
@@ -56,7 +56,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
 
-    private IMethodCaller evaluator;
+    private Invokable evaluator;
     private IConditionEvaluator conditionEvaluator;
     private IOpenSourceCodeModule userDefinedOpenSourceCodeModule;
     private boolean conditionParametersUsed;
@@ -97,12 +97,12 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    public IMethodCaller getEvaluator() {
+    public Invokable getEvaluator() {
         return evaluator == null ? getMethod() : evaluator;
     }
 
     @Override
-    public void setEvaluator(IMethodCaller evaluator) {
+    public void setEvaluator(Invokable evaluator) {
         this.evaluator = evaluator;
     }
 

@@ -6,7 +6,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.types.IMethodCaller;
+import org.openl.types.Invokable;
 import org.openl.types.IMethodSignature;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -17,7 +17,7 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
 
-    void setEvaluator(IMethodCaller iMethodCaller);
+    void setEvaluator(Invokable iMethodCaller);
 
     boolean isDependentOnInputParams();
 
