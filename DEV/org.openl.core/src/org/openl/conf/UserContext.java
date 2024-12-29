@@ -76,7 +76,7 @@ public final class UserContext implements IUserContext {
     public void registerOpenL(String name, OpenL opl) {
         OpenL openl = openls.get(name);
         if (openl != null) {
-            throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null, null);
+            throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null);
         }
         openls.put(name, opl);
     }
@@ -91,7 +91,6 @@ public final class UserContext implements IUserContext {
         IOpenLConfiguration configuration = configurations.get(name);
         if (configuration != null) {
             throw new OpenLConfigurationException(String.format("The configuration %s already exists", name),
-                    null,
                     null);
         }
         configurations.put(name, oplc);
