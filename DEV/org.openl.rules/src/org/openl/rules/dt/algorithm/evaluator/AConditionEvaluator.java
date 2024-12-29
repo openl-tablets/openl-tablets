@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ConditionCasts;
-import org.openl.types.IMethodCaller;
 import org.openl.types.impl.ParameterMethodCaller;
 
 public abstract class AConditionEvaluator implements IConditionEvaluator {
@@ -20,7 +19,7 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     @Override
     public IDomain<? extends Object> getRuleParameterDomain(IBaseCondition condition) throws DomainCanNotBeDefined {
-        IMethodCaller mc = condition.getEvaluator();
+        var mc = condition.getEvaluator();
         if (mc instanceof ParameterMethodCaller) {
             return indexedDomain(condition);
         }

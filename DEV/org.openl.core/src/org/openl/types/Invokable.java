@@ -7,6 +7,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  * @author DLiauchuk, Yury Molchan
  */
+@FunctionalInterface
 public interface Invokable<T, E extends IRuntimeEnv> {
 
     /**
