@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
@@ -39,29 +40,12 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private String uri;
     private IOpenLConfiguration parent;
     private IConfigurableResourceContext configurationContext;
-    private ClassFactory grammarFactory;
+    private Supplier<IGrammar> grammar;
     private NodeBinders nodeBinders;
     private LibrariesRegistry methodFactory;
     private LibrariesRegistry operatorsFactory;
     private TypeCastFactory typeCastFactory;
     private TypeResolver typeResolver;
-    private Map<String, IOpenFactoryConfiguration> openFactories = null;
-
-    @Override
-    public synchronized void addOpenFactory(IOpenFactoryConfiguration opfc) {
-        if (openFactories == null) {
-            openFactories = new HashMap<>();
-        }
-
-        if (opfc.getName() == null) {
-            throw new OpenLConfigurationException("The factory must have a name", opfc.getUri(), null);
-        }
-        if (openFactories.containsKey(opfc.getName())) {
-            throw new OpenLConfigurationException("Duplicated name: " + opfc.getName(), opfc.getUri(), null);
-        }
-
-        openFactories.put(opfc.getName(), opfc);
-    }
 
     /*
      * (non-Javadoc)
@@ -146,16 +130,11 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IConfigurableResourceContext getConfigurationContext() {
-        return configurationContext;
-    }
-
-    @Override
     public synchronized IGrammar getGrammar() {
-        if (grammarFactory == null) {
+        if (grammar == null) {
             return parent.getGrammar();
         } else {
-            return (IGrammar) grammarFactory.getResource(configurationContext);
+            return grammar.get();
         }
     }
 
@@ -276,11 +255,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         configurationContext = context;
     }
 
-    public ClassFactory createGrammar() {
-        ClassFactory cf = new ClassFactory();
-        cf.setExtendsClassName(IGrammar.class.getName());
-        grammarFactory = cf;
-        return cf;
+    public void setGrammar(Supplier<IGrammar> grammar) {
+        this.grammar = grammar;
     }
 
     public void setMethodFactory(LibrariesRegistry methodFactory) {
@@ -304,22 +280,13 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public synchronized void validate(IConfigurableResourceContext cxt) {
-        if (grammarFactory != null) {
-            grammarFactory.validate(cxt);
-        } else if (parent == null) {
+        if (grammar == null && parent == null) {
             throw new OpenLConfigurationException("Grammar class is not set", getUri(), null);
         }
 
         if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", getUri(), null);
         }
-
-        if (openFactories != null) {
-            for (IOpenFactoryConfiguration factory : openFactories.values()) {
-                factory.validate(cxt);
-            }
-        }
-
     }
 
     private static class Key {
