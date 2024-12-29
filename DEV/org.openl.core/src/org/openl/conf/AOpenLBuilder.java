@@ -30,11 +30,9 @@ public abstract class AOpenLBuilder implements IOpenLBuilder {
                     }
                 }
 
-                IConfigurableResourceContext cxt = new ConfigurableResourceContext(ucxt.getUserClassLoader());
-
                 oPconf.setParent(extendsConfiguration);
-                oPconf.setConfigurationContext(cxt);
-                oPconf.validate(cxt);
+                oPconf.setClassLoader(ucxt.getUserClassLoader());
+                oPconf.validate();
 
                 ucxt.registerOpenLConfiguration(category, oPconf);
                 conf = oPconf;

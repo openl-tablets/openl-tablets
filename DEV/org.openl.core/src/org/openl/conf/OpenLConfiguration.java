@@ -38,7 +38,7 @@ import org.openl.types.impl.MethodKey;
 public class OpenLConfiguration implements IOpenLConfiguration {
 
     private IOpenLConfiguration parent;
-    private IConfigurableResourceContext configurationContext;
+    private ClassLoader classLoader;
     private Supplier<IGrammar> grammar;
     private NodeBinders nodeBinders;
     private LibrariesRegistry methodFactory;
@@ -207,7 +207,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return cache.get(name);
         }
 
-        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name, configurationContext.getClassLoader());
+        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name, classLoader);
         if (parent == null) {
             cache.put(name, type);
             return type;
@@ -246,10 +246,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         this.nodeBinders = nodeBinders;
     }
 
-    public void setConfigurationContext(IConfigurableResourceContext context) {
-        configurationContext = context;
-    }
-
     public void setGrammar(Supplier<IGrammar> grammar) {
         this.grammar = grammar;
     }
@@ -270,7 +266,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         this.typeResolver = typeResolver;
     }
 
-    public synchronized void validate(IConfigurableResourceContext cxt) {
+    public synchronized void validate() {
         if (grammar == null && parent == null) {
             throw new OpenLConfigurationException("Grammar class is not set", null);
         }
@@ -278,6 +274,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", null);
         }
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     private static class Key {
