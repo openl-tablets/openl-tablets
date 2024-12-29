@@ -3,18 +3,13 @@ package org.openl.rules.lang.xls;
 import java.util.Collection;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.cast.CastFactory;
 import org.openl.conf.AOpenLBuilder;
-import org.openl.conf.JavaLibraryConfiguration;
-import org.openl.conf.LibraryFactoryConfiguration;
-import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.TypeResolver;
+import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OperatorsNamespace;
 import org.openl.conf.TypeCastFactory;
-import org.openl.conf.TypeCastFactory.JavaCastComponent;
+import org.openl.conf.TypeResolver;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
@@ -26,7 +21,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     private String[] packageImports = new String[]{};
     private Collection<Class<?>> classImports;
 
-    private String[] libraries = new String[]{};
+    private Collection<Class<?>> libraries;
 
     @Override
     protected SimpleVM createVM() {
@@ -61,38 +56,27 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
         var op = new OpenLConfiguration();
 
-        if (libraries != null && libraries.length > 0) {
-            LibraryFactoryConfiguration libraries = op.createLibraries();
-            NameSpacedLibraryConfiguration thisNamespaceLibrary = new NameSpacedLibraryConfiguration();
-            thisNamespaceLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-            NameSpacedLibraryConfiguration operationNamespaceLibrary = null;
+        if (libraries != null && !libraries.isEmpty()) {
+            LibrariesRegistry thisNamespaceLibrary = new LibrariesRegistry();
+            LibrariesRegistry operationNamespaceLibrary = null;
             TypeCastFactory typeCastFactory = op.createTypeCastFactory();
 
-            for (String libraryName : this.libraries) {
-                JavaLibraryConfiguration javaLib = new JavaLibraryConfiguration(libraryName);
-
-                try {
-                    Class<?> libraryClass = getUserEnvironmentContext().getUserClassLoader().loadClass(libraryName);
-                    if (libraryClass.getAnnotation(OperatorsNamespace.class) != null) {
-                        if (operationNamespaceLibrary == null) {
-                            operationNamespaceLibrary = new NameSpacedLibraryConfiguration();
-                            operationNamespaceLibrary.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-                        }
-                        operationNamespaceLibrary.addJavalib(javaLib);
+            for (Class<?> libraryName : this.libraries) {
+                if (libraryName.getAnnotation(OperatorsNamespace.class) != null) {
+                    if (operationNamespaceLibrary == null) {
+                        operationNamespaceLibrary = new LibrariesRegistry();
                     }
-                } catch (ReflectiveOperationException ignore) {
+                    operationNamespaceLibrary.addJavalib(libraryName);
                 }
-                thisNamespaceLibrary.addJavalib(javaLib);
+                thisNamespaceLibrary.addJavalib(libraryName);
 
-                JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
-                        CastFactory.class.getName());
-                typeCastFactory.addJavaCast(javaCastComponent);
+                typeCastFactory.addJavaCast(libraryName);
 
             }
             if (operationNamespaceLibrary != null) {
-                libraries.addConfiguredLibrary(operationNamespaceLibrary);
+                op.setOperatorsFactory(operationNamespaceLibrary);
             }
-            libraries.addConfiguredLibrary(thisNamespaceLibrary);
+            op.setMethodFactory(thisNamespaceLibrary);
         }
 
         op.setTypeResolver(new TypeResolver(classImports, packageImports));
@@ -108,7 +92,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
         this.classImports = classImports;
     }
 
-    public void setLibraries(String[] libraries) {
+    public void setLibraries(Collection<Class<?>> libraries) {
         this.libraries = libraries;
     }
 

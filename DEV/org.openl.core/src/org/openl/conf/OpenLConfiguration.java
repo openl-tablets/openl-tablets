@@ -22,7 +22,6 @@ import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -42,7 +41,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private IConfigurableResourceContext configurationContext;
     private ClassFactory grammarFactory;
     private NodeBinders nodeBinders;
-    private LibraryFactoryConfiguration methodFactory;
+    private LibrariesRegistry methodFactory;
+    private LibrariesRegistry operatorsFactory;
     private TypeCastFactory typeCastFactory;
     private TypeResolver typeResolver;
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
@@ -71,15 +71,15 @@ public class OpenLConfiguration implements IOpenLConfiguration {
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        IOpenCast cast = typeCastFactory == null ? null : typeCastFactory.getCast(from, to, configurationContext);
+        IOpenCast cast = typeCastFactory == null ? null : typeCastFactory.getCast(from, to);
         if (cast != null) {
             return cast;
         }
         return parent == null ? null : parent.getCast(from, to);
     }
 
-    protected Collection<JavaCastComponent> getAllJavaCastComponents() {
-        Collection<JavaCastComponent> javaCastComponents = new ArrayList<>();
+    protected Collection<CastFactory> getAllJavaCastComponents() {
+        Collection<CastFactory> javaCastComponents = new ArrayList<>();
         if (typeCastFactory != null) {
             javaCastComponents.addAll(typeCastFactory.getJavaCastComponents());
         }
@@ -109,10 +109,9 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             readLock.unlock();
         }
         if (closestClass == null) {
-            Collection<JavaCastComponent> components = getAllJavaCastComponents();
+            Collection<CastFactory> components = getAllJavaCastComponents();
             Collection<IOpenMethod> allMethods = new ArrayList<>();
-            for (JavaCastComponent component : components) {
-                CastFactory castFactory = component.getCastFactory(configurationContext);
+            for (var castFactory : components) {
                 Iterable<IOpenMethod> methods = castFactory.getMethodFactory()
                         .methods(CastFactory.AUTO_CAST_METHOD_NAME);
                 for (IOpenMethod method : methods) {
@@ -174,8 +173,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenMethod[] getMethods(String namespace, String name) {
-        IOpenMethod[] mcs = methodFactory == null ? IOpenMethod.EMPTY_ARRAY
-                : methodFactory.getMethods(namespace, name, configurationContext);
+        var factory = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace) ? operatorsFactory : methodFactory;
+        IOpenMethod[] mcs = factory == null ? IOpenMethod.EMPTY_ARRAY : factory.getMethods(name);
         IOpenMethod[] pmcs = parent == null ? IOpenMethod.EMPTY_ARRAY : parent.getMethods(namespace, name);
 
         // Shadowing
@@ -262,9 +261,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField field = methodFactory == null ? null
-                : methodFactory
-                .getVar(namespace, name, configurationContext, strictMatch);
+        IOpenField field = methodFactory == null ? null : methodFactory.getField(name, strictMatch);
         if (field != null) {
             return field;
         }
@@ -286,9 +283,12 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return cf;
     }
 
-    public LibraryFactoryConfiguration createLibraries() {
-        methodFactory = new LibraryFactoryConfiguration();
-        return methodFactory;
+    public void setMethodFactory(LibrariesRegistry methodFactory) {
+        this.methodFactory = methodFactory;
+    }
+
+    public void setOperatorsFactory(LibrariesRegistry operatorsFactory) {
+        this.operatorsFactory = operatorsFactory;
     }
 
     public void setParent(IOpenLConfiguration configuration) {
@@ -312,14 +312,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", getUri(), null);
-        }
-
-        if (methodFactory != null) {
-            methodFactory.validate(cxt);
-        }
-
-        if (typeCastFactory != null) {
-            typeCastFactory.validate(cxt);
         }
 
         if (openFactories != null) {

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.CastOperators;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.conf.ConfigurableResourceContext;
@@ -26,8 +25,6 @@ import org.openl.util.ClassUtils;
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
-    private static final String[] CAST_LIBRARY_NAMES = new String[]{
-            CastOperators.class.getName()};
     static ICastFactory castFactory;
 
     @BeforeAll
@@ -35,11 +32,7 @@ public abstract class AbstractMethodSearchTest {
         OpenLConfiguration openLConfiguration = new OpenLConfiguration();
 
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
-        for (String libName : CAST_LIBRARY_NAMES) {
-            TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName,
-                    CastFactory.class.getName());
-            typecast.addJavaCast(javaCast);
-        }
+        typecast.addJavaCast(CastOperators.class);
 
         openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(Thread.currentThread().getContextClassLoader()));
         castFactory = openLConfiguration;
