@@ -69,7 +69,7 @@ public class OpenL {
             builder.setContexts(userContext);
             return getInstance(name, userContext, builder);
         } catch (Exception ex) {
-            throw new OpenLConfigurationException("Error creating builder: ", null, ex);
+            throw new OpenLConfigurationException("Error creating builder: ", ex);
         }
     }
 

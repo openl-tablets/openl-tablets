@@ -14,15 +14,9 @@ public class OpenLConfigurationException extends RuntimeException {
     // TODO add parameters, message etc.
 
     private static final long serialVersionUID = 3292629986027365336L;
-    private final String uri;
 
-    public OpenLConfigurationException(String msg, String uri, Throwable t) {
+    public OpenLConfigurationException(String msg, Throwable t) {
         super(msg, t);
-        this.uri = uri;
-    }
-
-    public String getUri() {
-        return uri;
     }
 
     @Override
@@ -31,10 +25,6 @@ public class OpenLConfigurationException extends RuntimeException {
 
         if (myMsg == null) {
             myMsg = "";
-        }
-
-        if (uri != null) {
-            myMsg += " URI: " + uri;
         }
 
         if (getCause() != null) {
