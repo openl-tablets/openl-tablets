@@ -28,7 +28,6 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
                     if ((extendsConfiguration = ucxt.getOpenLConfiguration(extendsCategory)) == null) {
                         throw new OpenLConfigurationException(
                                 "The extended category " + extendsCategory + " must have been loaded first",
-                                null,
                                 null);
                     }
                 }

@@ -37,7 +37,6 @@ import org.openl.types.impl.MethodKey;
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
 
-    private String uri;
     private IOpenLConfiguration parent;
     private IConfigurableResourceContext configurationContext;
     private Supplier<IGrammar> grammar;
@@ -234,10 +233,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return this.typeCastFactory;
     }
 
-    public String getUri() {
-        return uri;
-    }
-
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null : methodFactory.getField(name, strictMatch);
@@ -275,17 +270,13 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         this.typeResolver = typeResolver;
     }
 
-    public void setUri(String string) {
-        uri = string;
-    }
-
     public synchronized void validate(IConfigurableResourceContext cxt) {
         if (grammar == null && parent == null) {
-            throw new OpenLConfigurationException("Grammar class is not set", getUri(), null);
+            throw new OpenLConfigurationException("Grammar class is not set", null);
         }
 
         if (nodeBinders == null && parent == null) {
-            throw new OpenLConfigurationException("Bindings are not set", getUri(), null);
+            throw new OpenLConfigurationException("Bindings are not set", null);
         }
     }
 
