@@ -6,17 +6,15 @@ import org.openl.syntax.impl.Parser;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
 
-public abstract class AOpenLBuilder extends BaseOpenLBuilder {
+public abstract class AOpenLBuilder implements IOpenLBuilder {
 
     protected SimpleVM createVM() {
         return new SimpleVM();
     }
 
     @Override
-    public OpenL build() {
+    public OpenL build(IUserContext ucxt) {
         try {
-
-            IUserContext ucxt = getUserEnvironmentContext();
 
             String category = getCategory();
             IOpenLConfiguration conf = ucxt.getOpenLConfiguration(category);
