@@ -8,6 +8,7 @@ import org.openl.binding.impl.BExChainSuffixBinder;
 import org.openl.binding.impl.BinaryOperatorAndNodeBinder;
 import org.openl.binding.impl.BinaryOperatorNodeBinder;
 import org.openl.binding.impl.BinaryOperatorOrNodeBinder;
+import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BlockBinder;
 import org.openl.binding.impl.BusinessIntNodeBinder;
 import org.openl.binding.impl.CharNodeBinder;
@@ -52,7 +53,9 @@ import org.openl.binding.impl.module.MethodParametersNodeBinder;
 import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
 import org.openl.binding.impl.module.VarDeclarationNodeBinder;
 import org.openl.binding.impl.operator.Comparison;
-import org.openl.conf.AOpenLBuilder;
+import org.openl.conf.IOpenLBuilder;
+import org.openl.conf.IOpenLConfiguration;
+import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.NodeBinders;
 import org.openl.conf.OpenLConfiguration;
@@ -92,9 +95,9 @@ import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.vm.SimpleVM;
+import org.openl.syntax.impl.Parser;
 
-public class OpenLBuilder extends AOpenLBuilder {
+public class OpenLBuilder implements IOpenLBuilder {
 
     static {
         // OpenL types which are located in 'rules' module, but must be registered in the core by default.
@@ -123,12 +126,25 @@ public class OpenLBuilder extends AOpenLBuilder {
     }
 
     @Override
-    protected SimpleVM createVM() {
-        return new SimpleRulesVM();
+    public OpenL build(IUserContext ucxt) {
+        IOpenLConfiguration conf = ucxt.getOpenLConfiguration(OpenL.OPENL_J_NAME);
+        if (conf == null) {
+            OpenLConfiguration oPconf = getOpenLConfiguration();
+            oPconf.setClassLoader(ucxt.getUserClassLoader());
+            oPconf.validate();
+
+            ucxt.registerOpenLConfiguration(OpenL.OPENL_J_NAME, oPconf);
+            conf = oPconf;
+        }
+
+        OpenL op = new OpenL();
+        op.setParser(new Parser(conf));
+        op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
+        op.setVm(new SimpleRulesVM());
+        return op;
     }
 
-    @Override
-    protected OpenLConfiguration getOpenLConfiguration() {
+    private static OpenLConfiguration getOpenLConfiguration() {
         var op = new OpenLConfiguration();
 
         op.setGrammar(BExGrammarWithParsingHelp::new);
@@ -228,13 +244,4 @@ public class OpenLBuilder extends AOpenLBuilder {
         return binders;
     }
 
-    @Override
-    protected String getCategory() {
-        return OpenL.OPENL_J_NAME;
-    }
-
-    @Override
-    protected String getExtendsCategory() {
-        return null;
-    }
 }
