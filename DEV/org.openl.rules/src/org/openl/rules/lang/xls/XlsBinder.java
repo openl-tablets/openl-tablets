@@ -1,10 +1,5 @@
-/*
- * Created on Oct 2, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.rules.lang.xls;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -455,19 +450,15 @@ public class XlsBinder implements IOpenBinder {
                             List<SyntaxNodeException> exceptions) {
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<Class<?>> classNames = new LinkedHashSet<>();
-        Collection<String> libraries = new LinkedHashSet<>();
+        Collection<Class<?>> libraries = new LinkedHashSet<>();
         for (String singleImport : imports) {
             if (singleImport.endsWith(".*")) {
                 String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
                 try {
-                    URL resource = userContext.getUserClassLoader()
-                            .getResource(libraryClassName.replaceAll("\\.", "/") + ".groovy");
-                    if (resource == null) {
-                        userContext.getUserClassLoader().loadClass(libraryClassName); // try
-                    }
+                    var lib = userContext.getUserClassLoader().loadClass(libraryClassName); // try
                     // load
                     // class
-                    libraries.add(libraryClassName);
+                    libraries.add(lib);
                 } catch (Exception e) {
                     packageNames.add(libraryClassName);
                 } catch (LinkageError e) {
@@ -488,7 +479,7 @@ public class XlsBinder implements IOpenBinder {
         }
         builder.setPackageImports(packageNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
         builder.setClassImports(classNames);
-        builder.setLibraries(libraries.toArray(StringUtils.EMPTY_STRING_ARRAY));
+        builder.setLibraries(libraries);
     }
 
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {

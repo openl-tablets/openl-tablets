@@ -45,7 +45,6 @@ import org.openl.binding.impl.UnaryOperatorNodeBinder;
 import org.openl.binding.impl.WhereExpressionNodeBinder;
 import org.openl.binding.impl.WhereVarNodeBinder;
 import org.openl.binding.impl.WhileNodeBinder;
-import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.CastOperators;
 import org.openl.binding.impl.ce.MethodNodeBinder;
 import org.openl.binding.impl.module.MethodDeclarationNodeBinder;
@@ -55,13 +54,11 @@ import org.openl.binding.impl.module.VarDeclarationNodeBinder;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.ClassFactory;
-import org.openl.conf.JavaLibraryConfiguration;
-import org.openl.conf.LibraryFactoryConfiguration;
-import org.openl.conf.NameSpacedLibraryConfiguration;
-import org.openl.conf.TypeResolver;
+import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.NodeBinders;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
+import org.openl.conf.TypeResolver;
 import org.openl.rules.binding.TableProperties;
 import org.openl.rules.calc.AnySpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -96,36 +93,9 @@ import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
 
 public class OpenLBuilder extends AOpenLBuilder {
-
-    private static final String[] JAVA_LIBRARY_NAMES = new String[]{Round.class.getName(),
-            Booleans.class.getName(),
-            Strings.class.getName(),
-            Dates.class.getName(),
-            Arrays.class.getName(),
-            Statistics.class.getName(),
-            Sum.class.getName(),
-            Product.class.getName(),
-            Avg.class.getName(),
-            Miscs.class.getName(),
-            Numbers.class.getName(),
-            RulesUtils.class.getName(),
-            CtrUtils.class.getName()};
-
-    private static final String[] JAVA_OPERATORS_CLASSES = new String[]{
-            Operators.class.getName(),
-            Comparison.class.getName()};
-
-    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[]{
-            CastOperators.class.getName(),
-            IntRange.class.getName(),
-            DoubleRange.class.getName(),
-            CharRange.class.getName(),
-            StringRange.class.getName(),
-            DateRange.class.getName()};
 
     static {
         // OpenL types which are located in 'rules' module, but must be registered in the core by default.
@@ -167,34 +137,36 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         op.setNodeBinders(createNodeBinders());
 
-        LibraryFactoryConfiguration libraries = op.createLibraries();
+        LibrariesRegistry library = new LibrariesRegistry();
+        library.addJavalib(Round.class);
+        library.addJavalib(Booleans.class);
+        library.addJavalib(Strings.class);
+        library.addJavalib(Dates.class);
+        library.addJavalib(Arrays.class);
+        library.addJavalib(Statistics.class);
+        library.addJavalib(Sum.class);
+        library.addJavalib(Product.class);
+        library.addJavalib(Avg.class);
+        library.addJavalib(Miscs.class);
+        library.addJavalib(Numbers.class);
+        library.addJavalib(RulesUtils.class);
+        library.addJavalib(CtrUtils.class);
+        op.setMethodFactory(library);
 
-        NameSpacedLibraryConfiguration library = new NameSpacedLibraryConfiguration();
-        library.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
-
-        for (String javaLibConfiguration : JAVA_LIBRARY_NAMES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(javaLibConfiguration);
-            library.addJavalib(javalib);
-        }
-
-        libraries.addConfiguredLibrary(library);
-
-        NameSpacedLibraryConfiguration nslc = new NameSpacedLibraryConfiguration();
-        nslc.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
-        for (String className : JAVA_OPERATORS_CLASSES) {
-            JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(className);
-            nslc.addJavalib(javalib);
-        }
-        libraries.addConfiguredLibrary(nslc);
+        LibrariesRegistry operators = new LibrariesRegistry();
+        operators.addJavalib(Operators.class);
+        operators.addJavalib(Comparison.class);
+        op.setOperatorsFactory(operators);
 
         op.setTypeResolver(new TypeResolver());
 
         TypeCastFactory typecast = op.createTypeCastFactory();
-        for (String typeCastClassName : JAVA_TYPE_CAST_CLASSES) {
-            TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(typeCastClassName,
-                    CastFactory.class.getName());
-            typecast.addJavaCast(javacast);
-        }
+        typecast.addJavaCast(CastOperators.class);
+        typecast.addJavaCast(IntRange.class);
+        typecast.addJavaCast(DoubleRange.class);
+        typecast.addJavaCast(CharRange.class);
+        typecast.addJavaCast(StringRange.class);
+        typecast.addJavaCast(DateRange.class);
 
         return op;
 
