@@ -27,17 +27,17 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class BinderTest {
 
-    private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
-        OpenL openl = OpenL.getInstance(openlName);
+    private void _testMethodHeader(String code, IOpenClass type, int numPar) {
+        OpenL openl = OpenL.getInstance();
         IOpenMethodHeader header = OpenLManager
                 .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         assertEquals(type, header.getType());
         assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
 
-    private void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenLConfigurationException {
+    private void _testNoError(String testCode, Class<?> targetClass) throws OpenLConfigurationException {
 
-        OpenL op = OpenL.getInstance(parser);
+        OpenL op = OpenL.getInstance();
 
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(testCode, null));
 
@@ -68,29 +68,29 @@ public class BinderTest {
 
     @Test
     public void testBind() throws OpenLConfigurationException {
-        _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
-        _testNoError("int x = 5, z, y= 20;", void.class, OpenL.OPENL_J_NAME);
-        _testNoError("5.5", double.class, OpenL.OPENL_J_NAME);
-        _testNoError("5.5 + 4.5", double.class, OpenL.OPENL_J_NAME);
-        _testNoError("5.5 + 4", double.class, OpenL.OPENL_J_NAME);
-        _testNoError("\t545847548567L", long.class, OpenL.OPENL_J_NAME);
-        _testNoError("4+3", int.class, OpenL.OPENL_J_NAME);
-        _testNoError("\t-545847548567L", long.class, OpenL.OPENL_J_NAME);
-        _testNoError("5-3", int.class, OpenL.OPENL_J_NAME);
-        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", Boolean.class, OpenL.OPENL_J_NAME);
-        _testNoError("Date d1, d2; d1 < d2", Boolean.class, OpenL.OPENL_J_NAME);
-        _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
+        _testNoError("String[] name;", void.class);
+        _testNoError("int x = 5, z, y= 20;", void.class);
+        _testNoError("5.5", double.class);
+        _testNoError("5.5 + 4.5", double.class);
+        _testNoError("5.5 + 4", double.class);
+        _testNoError("\t545847548567L", long.class);
+        _testNoError("4+3", int.class);
+        _testNoError("\t-545847548567L", long.class);
+        _testNoError("5-3", int.class);
+        _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", Boolean.class);
+        _testNoError("Date d1, d2; d1 < d2", Boolean.class);
+        _testNoError("String[] name;", void.class);
     }
 
     @Test
     public void testMeta() {
-        _testNoError("DoubleValue d1, d2; d1 + d2", Double.class, OpenL.OPENL_J_NAME);
+        _testNoError("DoubleValue d1, d2; d1 + d2", Double.class);
     }
 
     @Test
     public void testMethodHeader() throws OpenLCompilationException {
-        _testMethodHeader("int x()", JavaOpenClass.INT, OpenL.OPENL_J_NAME, 0);
-        _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, OpenL.OPENL_J_NAME, 2);
+        _testMethodHeader("int x()", JavaOpenClass.INT, 0);
+        _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, 2);
     }
 
 }
