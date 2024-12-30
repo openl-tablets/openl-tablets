@@ -12,7 +12,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringUtils;
 
 /**
  * Resolves Java types to OpenClass types by a simple or canonical class name.
@@ -274,13 +273,13 @@ public class TypeResolver {
 
     private final ConcurrentHashMap<String, IOpenClass> aliases = new ConcurrentHashMap<>();
 
-    private final String[] packages;
+    private final Collection<String> packages;
 
     public TypeResolver() {
-        packages = StringUtils.EMPTY_STRING_ARRAY;
+        packages = Collections.emptyList();
     }
 
-    public TypeResolver(Collection<Class<?>> classes, String[] packages) {
+    public TypeResolver(Collection<Class<?>> classes, Collection<String> packages) {
         if (!classes.isEmpty()) {
             for (var cls : classes) {
                 String alias = cls.getSimpleName();
