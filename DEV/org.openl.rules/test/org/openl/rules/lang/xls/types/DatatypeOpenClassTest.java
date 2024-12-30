@@ -34,7 +34,7 @@ public class DatatypeOpenClassTest {
 
     @BeforeEach
     public void setUp() throws ClassNotFoundException {
-        from = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.packA"));
+        from = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.X"));
     }
 
     @Test
@@ -84,16 +84,16 @@ public class DatatypeOpenClassTest {
 
     @Test
     public void testEquals_ComponentTypeArrayOpenClass_componentClassWithDiffPackages() throws ClassNotFoundException {
-        IOpenClass to = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.packB"));
+        IOpenClass to = new ComponentTypeArrayOpenClass(buildDatatypeOpenClass("MyType", "org.openl.generated.Y"));
         assertNotEquals(from, to);
     }
 
     @Test
     public void testEquals_ComponentTypeArrayOpenClass_componentClassWithSamePackages() throws ClassNotFoundException {
-        DatatypeOpenClass datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.packA");
+        DatatypeOpenClass datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.X");
         IOpenClass to = new ComponentTypeArrayOpenClass(datatypeOpenClass);
         assertNotEquals(from, to);
-        datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.packA");
+        datatypeOpenClass = buildDatatypeOpenClass("MyType", "org.openl.generated.X");
         datatypeOpenClass.setInstanceClass(from.getComponentClass().getInstanceClass());
         to = new ComponentTypeArrayOpenClass(datatypeOpenClass);
         assertEquals(from, to);
@@ -101,6 +101,6 @@ public class DatatypeOpenClassTest {
 
     @Test
     public void test_toString() {
-        assertEquals("[Lorg.openl.generated.packA.MyType;", from.toString());
+        assertEquals("[Lorg.openl.generated.X.MyType;", from.toString());
     }
 }
