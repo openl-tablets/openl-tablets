@@ -1520,11 +1520,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.grammars</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules</artifactId>
                 <version>${project.version}</version>
