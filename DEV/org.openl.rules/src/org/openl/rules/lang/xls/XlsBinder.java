@@ -497,11 +497,6 @@ public class XlsBinder implements IOpenBinder {
     private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
 
         String openlName = getOpenLName(moduleNode.getOpenlNode());
-        Collection<String> imports = moduleNode.getImports();
-
-        if (imports == null) {
-            return OpenL.getInstance(openlName, userContext);
-        }
 
         OpenLBuilderImpl builder = new OpenLBuilderImpl();
 
@@ -510,7 +505,7 @@ public class XlsBinder implements IOpenBinder {
         String category = openlName + "::" + moduleNode.getModule().getUri();
         builder.setCategory(category);
 
-        addImports(moduleNode, builder, imports, exceptions);
+        addImports(moduleNode, builder, moduleNode.getImports(), exceptions);
 
         builder.setContexts(userContext);
 
