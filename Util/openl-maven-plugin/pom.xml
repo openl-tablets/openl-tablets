@@ -88,7 +88,7 @@
                 <configuration>
                     <requirements>
                         <maven>3.6</maven>
-                        <jdk>11</jdk>
+                        <jdk>21</jdk>
                         <memory>64m</memory>
                     </requirements>
                 </configuration>
@@ -149,7 +149,7 @@
                     <streamLogsOnFailures>true</streamLogsOnFailures>
                     <scope>compile</scope>
                     <properties>
-                        <maven.compiler.release>11</maven.compiler.release>
+                        <maven.compiler.release>21</maven.compiler.release>
                     </properties>
                     <showErrors>true</showErrors>
                     <mavenOpts>-ea ${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
