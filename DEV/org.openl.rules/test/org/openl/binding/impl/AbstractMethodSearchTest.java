@@ -11,10 +11,9 @@ import org.junit.jupiter.api.BeforeAll;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.cast.CastOperators;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.conf.OpenLConfiguration;
-import org.openl.conf.TypeCastFactory;
+import org.openl.conf.LibrariesRegistry;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -24,16 +23,12 @@ import org.openl.util.ClassUtils;
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
-    static ICastFactory castFactory;
+    static CastFactory castFactory;
 
     @BeforeAll
     public static void init() {
-        OpenLConfiguration openLConfiguration = new OpenLConfiguration();
-
-        TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
-        typecast.addJavaCast(CastOperators.class);
-
-        castFactory = openLConfiguration;
+        castFactory = new CastFactory();
+        castFactory.setMethodFactory(new LibrariesRegistry().asMethodFactory());
     }
 
     final void assertInvoke(Object expected,

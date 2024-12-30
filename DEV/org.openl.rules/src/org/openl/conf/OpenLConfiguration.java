@@ -1,14 +1,10 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -20,7 +16,6 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.IOpenMethod;
 
 /**
  * @author snshor
@@ -29,8 +24,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     private IOpenLConfiguration parent;
     private LibrariesRegistry methodFactory;
-    private LibrariesRegistry operatorsFactory;
-    private TypeCastFactory typeCastFactory;
+    private CastFactory castFactory;
     private TypeResolver typeResolver;
 
     /*
@@ -41,26 +35,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-        IOpenCast cast = typeCastFactory == null ? null : typeCastFactory.getCast(from, to);
-        if (cast != null) {
-            return cast;
-        }
-        return parent == null ? null : parent.getCast(from, to);
+        return castFactory.getCast(from, to);
     }
-
-    protected Collection<CastFactory> getAllJavaCastComponents() {
-        Collection<CastFactory> javaCastComponents = new ArrayList<>();
-        if (typeCastFactory != null) {
-            javaCastComponents.addAll(typeCastFactory.getJavaCastComponents());
-        }
-        if (parent instanceof OpenLConfiguration) {
-            javaCastComponents.addAll(((OpenLConfiguration) parent).getAllJavaCastComponents());
-        }
-        return javaCastComponents;
-    }
-
-    private final Map<Key, IOpenClass> closestClassCache = new HashMap<>();
-    private final ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
 
     @Override
     public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
@@ -69,50 +45,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        Key key = new Key(openClass1, openClass2);
-        IOpenClass closestClass;
-        Lock readLock = closestClassCacheLock.readLock();
-        try {
-            readLock.lock();
-            closestClass = closestClassCache.get(key);
-        } finally {
-            readLock.unlock();
-        }
-        if (closestClass == null) {
-            Collection<CastFactory> components = getAllJavaCastComponents();
-            Collection<IOpenMethod> allMethods = new ArrayList<>();
-            for (var castFactory : components) {
-                Iterable<IOpenMethod> methods = castFactory.getMethodFactory()
-                        .methods(CastFactory.AUTO_CAST_METHOD_NAME);
-                for (IOpenMethod method : methods) {
-                    allMethods.add(method);
-                }
-            }
-            closestClass = CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
-                @Override
-                public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public IOpenCast getCast(IOpenClass from, IOpenClass to) {
-                    return OpenLConfiguration.this.getCast(from, to);
-                }
-
-                @Override
-                public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
-                    return CastFactory.findParentClass1(openClass1, openClass2);
-                }
-            }, allMethods);
-            Lock writeLock = closestClassCacheLock.readLock();
-            try {
-                writeLock.lock();
-                closestClassCache.put(key, closestClass);
-            } finally {
-                writeLock.unlock();
-            }
-        }
-        return closestClass;
+        return castFactory.findClosestClass(openClass1, openClass2);
     }
 
     @Override
@@ -121,14 +54,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                                          IOpenClass[] params,
                                          ICastFactory casts) throws AmbiguousMethodException {
 
-        var allowMultiCall = !ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
-        var factory = allowMultiCall ? methodFactory : operatorsFactory;
-        LibrariesRegistry parentFactory = null;
-        if (parent instanceof OpenLConfiguration opc) {
-            parentFactory = allowMultiCall ? opc.methodFactory : opc.operatorsFactory;
-        }
-
-        return factory.getMethodCaller(name, params, casts, allowMultiCall, parentFactory);
+        return methodFactory.getMethodCaller(name, params, casts, ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace));
     }
 
     private final Map<String, IOpenClass> cache = new HashMap<>();
@@ -160,11 +86,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
     }
 
-    public TypeCastFactory createTypeCastFactory() {
-        this.typeCastFactory = new TypeCastFactory(this);
-        return this.typeCastFactory;
-    }
-
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null : methodFactory.getField(name);
@@ -174,12 +95,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getVar(namespace, name, strictMatch);
     }
 
-    public void setMethodFactory(LibrariesRegistry methodFactory) {
-        this.methodFactory = methodFactory;
-    }
-
-    public void setOperatorsFactory(LibrariesRegistry operatorsFactory) {
-        this.operatorsFactory = operatorsFactory;
+    public void setMethodFactory(LibrariesRegistry librariesRegistry) {
+        this.methodFactory = librariesRegistry;
+        this.castFactory = new CastFactory();
+        this.castFactory.setMethodFactory(librariesRegistry.asMethodFactory());
     }
 
     public void setParent(IOpenLConfiguration configuration) {
@@ -189,51 +108,4 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     public void setTypeResolver(TypeResolver typeResolver) {
         this.typeResolver = typeResolver;
     }
-
-    private static class Key {
-        private final IOpenClass openClass1;
-        private final IOpenClass openClass2;
-
-        public Key(IOpenClass openClass1, IOpenClass openClass2) {
-            super();
-            this.openClass1 = openClass1;
-            this.openClass2 = openClass2;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + (openClass1 == null ? 0 : openClass1.hashCode());
-            result = prime * result + (openClass2 == null ? 0 : openClass2.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            Key other = (Key) obj;
-            if (openClass1 == null) {
-                if (other.openClass1 != null) {
-                    return false;
-                }
-            } else if (!openClass1.equals(other.openClass1)) {
-                return false;
-            }
-            if (openClass2 == null) {
-                return other.openClass2 == null;
-            } else {
-                return openClass2.equals(other.openClass2);
-            }
-        }
-    }
-
 }

@@ -3,6 +3,9 @@ package org.openl.binding.impl.cast;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.openl.conf.OperatorsNamespace;
+
+@OperatorsNamespace
 public final class CastOperators {
 
     private CastOperators() {

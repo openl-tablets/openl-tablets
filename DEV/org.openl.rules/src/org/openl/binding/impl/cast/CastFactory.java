@@ -101,7 +101,6 @@ public class CastFactory implements ICastFactory {
      * Method factory object. This factory allows to define cast operations thru java methods.
      */
     private IMethodFactory methodFactory;
-    private ICastFactory globalCastFactory;
 
     /**
      * Internal cache of cast operations.
@@ -732,14 +731,6 @@ public class CastFactory implements ICastFactory {
         return null;
     }
 
-    public ICastFactory getGlobalCastFactory() {
-        return Objects.requireNonNullElse(globalCastFactory, this);
-    }
-
-    public void setGlobalCastFactory(ICastFactory globalCastFactory) {
-        this.globalCastFactory = globalCastFactory;
-    }
-
     /**
      * Checks that instance class of open class is primitive.
      *
@@ -793,7 +784,7 @@ public class CastFactory implements ICastFactory {
         }
 
         if (isAllowJavaDownCast(from, to)) {
-            return new JavaDownCast(to, getGlobalCastFactory());
+            return new JavaDownCast(to, this);
         }
 
         if (fromClass.isEnum() && toClass == String.class) {
