@@ -83,7 +83,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.Parser;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -506,7 +505,7 @@ public class XlsBinder implements IOpenBinder {
         userContext.registerOpenLConfiguration(category, conf);
 
         OpenL op = new OpenL();
-        op.setParser(new Parser(conf));
+        op.setParser(new Parser());
         op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
         op.setVm(new SimpleRulesVM());
         return op;
