@@ -26,7 +26,6 @@ import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BindingContext;
@@ -152,11 +151,6 @@ public class XlsBinder implements IOpenBinder {
 
     @Override
     public INameSpacedMethodFactory getMethodFactory() {
-        return null;
-    }
-
-    @Override
-    public INodeBinderFactory getNodeBinderFactory() {
         return null;
     }
 
@@ -500,13 +494,12 @@ public class XlsBinder implements IOpenBinder {
         Objects.requireNonNull(extendsConfiguration, "The extended category " + OpenL.OPENL_J_NAME + " must have been loaded first");
 
         conf.setParent(extendsConfiguration);
-        conf.validate();
 
         userContext.registerOpenLConfiguration(category, conf);
 
         OpenL op = new OpenL();
         op.setParser(new Parser());
-        op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
+        op.setBinder(new Binder(conf, conf, conf, conf, op));
         op.setVm(new SimpleRulesVM());
         return op;
     }

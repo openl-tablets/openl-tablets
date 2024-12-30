@@ -14,7 +14,6 @@ import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -23,7 +22,6 @@ import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.message.OpenLMessage;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -82,16 +80,6 @@ public class BindingContext implements IBindingContext {
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return localFrame.addVar(namespace, name, type);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBindingContext#findBinder(org.openl.syntax.ISyntaxNode )
-     */
-    @Override
-    public INodeBinder findBinder(ISyntaxNode node) {
-        return binder.getNodeBinderFactory().getNodeBinder(node);
     }
 
     @Override

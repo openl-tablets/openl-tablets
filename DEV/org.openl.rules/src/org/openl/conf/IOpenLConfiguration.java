@@ -10,11 +10,10 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
 
 /**
  * @author snshor
  */
-public interface IOpenLConfiguration extends INodeBinderFactory, INameSpacedMethodFactory, ICastFactory, INameSpacedVarFactory, INameSpacedTypeFactory {
+public interface IOpenLConfiguration extends INameSpacedMethodFactory, ICastFactory, INameSpacedVarFactory, INameSpacedTypeFactory {
 
 }
