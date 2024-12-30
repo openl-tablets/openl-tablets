@@ -33,7 +33,6 @@ public abstract class AbstractMethodSearchTest {
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         typecast.addJavaCast(CastOperators.class);
 
-        openLConfiguration.setClassLoader(Thread.currentThread().getContextClassLoader());
         castFactory = openLConfiguration;
     }
 

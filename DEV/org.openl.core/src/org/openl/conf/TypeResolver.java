@@ -271,15 +271,19 @@ public class TypeResolver {
         putClass(RoundingMode.class);
     }
 
+    private final ClassLoader classLoader;
+
     private final ConcurrentHashMap<String, IOpenClass> aliases = new ConcurrentHashMap<>();
 
     private final Collection<String> packages;
 
-    public TypeResolver() {
+    public TypeResolver(ClassLoader classLoader) {
+        this.classLoader = classLoader;
         packages = Collections.emptyList();
     }
 
-    public TypeResolver(Collection<Class<?>> classes, Collection<String> packages) {
+    public TypeResolver(ClassLoader classLoader, Collection<Class<?>> classes, Collection<String> packages) {
+        this.classLoader = classLoader;
         if (!classes.isEmpty()) {
             for (var cls : classes) {
                 String alias = cls.getSimpleName();
@@ -296,7 +300,7 @@ public class TypeResolver {
 
     private final ConcurrentHashMap<String, IOpenClass> found = new ConcurrentHashMap<>();
 
-    public IOpenClass getType(String name, ClassLoader classLoader) throws AmbiguousTypeException {
+    public IOpenClass getType(String name) throws AmbiguousTypeException {
         Set<IOpenClass> foundTypes = new HashSet<>();
 
         var cls = CORE_CLASSES.get(name);

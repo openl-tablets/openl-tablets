@@ -494,14 +494,13 @@ public class XlsBinder implements IOpenBinder {
 
         conf.setOperatorsFactory(operationNamespaceLibrary);
         conf.setMethodFactory(thisNamespaceLibrary);
-        conf.setTypeResolver(new TypeResolver(classNames, packageNames));
+        conf.setTypeResolver(new TypeResolver(userClassLoader, classNames, packageNames));
 
         OpenL.getInstance(OpenL.OPENL_J_NAME, userContext);
         IOpenLConfiguration extendsConfiguration = userContext.getOpenLConfiguration(OpenL.OPENL_J_NAME);
         Objects.requireNonNull(extendsConfiguration, "The extended category " + OpenL.OPENL_J_NAME + " must have been loaded first");
 
         conf.setParent(extendsConfiguration);
-        conf.setClassLoader(userClassLoader);
         conf.validate();
 
         userContext.registerOpenLConfiguration(category, conf);
