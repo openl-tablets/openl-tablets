@@ -38,7 +38,6 @@ import org.openl.types.impl.MethodKey;
 public class OpenLConfiguration implements IOpenLConfiguration {
 
     private IOpenLConfiguration parent;
-    private ClassLoader classLoader;
     private Supplier<IGrammar> grammar;
     private NodeBinders nodeBinders;
     private LibrariesRegistry methodFactory;
@@ -207,7 +206,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return cache.get(name);
         }
 
-        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name, classLoader);
+        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name);
         if (parent == null) {
             cache.put(name, type);
             return type;
@@ -274,10 +273,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", null);
         }
-    }
-
-    public void setClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
     }
 
     private static class Key {
