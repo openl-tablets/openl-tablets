@@ -38,8 +38,6 @@ import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OpenLConfigurationException;
-import org.openl.conf.OperatorsNamespace;
-import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeResolver;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
@@ -459,8 +457,6 @@ public class XlsBinder implements IOpenBinder {
         Collection<Class<?>> classNames = new LinkedHashSet<>();
 
         LibrariesRegistry thisNamespaceLibrary = new LibrariesRegistry();
-        LibrariesRegistry operationNamespaceLibrary = new LibrariesRegistry();
-        TypeCastFactory typeCastFactory = conf.createTypeCastFactory();
 
         for (var anImport : moduleNode.getImports()) {
             boolean isPattern = anImport.endsWith(".*");
@@ -470,11 +466,7 @@ public class XlsBinder implements IOpenBinder {
             try {
                 var cls = userClassLoader.loadClass(anImport);
                 if (isPattern) {
-                    if (cls.getAnnotation(OperatorsNamespace.class) != null) {
-                        operationNamespaceLibrary.addJavalib(cls);
-                    }
                     thisNamespaceLibrary.addJavalib(cls);
-                    typeCastFactory.addJavaCast(cls);
                 } else {
                     classNames.add(cls);
                 }
@@ -485,7 +477,6 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        conf.setOperatorsFactory(operationNamespaceLibrary);
         conf.setMethodFactory(thisNamespaceLibrary);
         conf.setTypeResolver(new TypeResolver(userClassLoader, classNames, packageNames));
 
