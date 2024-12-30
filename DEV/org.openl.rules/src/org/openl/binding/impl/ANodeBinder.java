@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.NodeBinders;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
@@ -21,7 +22,7 @@ public abstract class ANodeBinder implements INodeBinder {
         if (node == null) {
             return new ErrorBoundNode(null);
         }
-        INodeBinder binder = findBinder(node, bindingContext);
+        INodeBinder binder = NodeBinders.get(node.getType());
         try {
             return binder.bind(node, bindingContext);
         } catch (Exception | LinkageError e) {
@@ -44,7 +45,7 @@ public abstract class ANodeBinder implements INodeBinder {
             return new ErrorBoundNode(node);
         }
 
-        INodeBinder binder = findBinder(node, bindingContext);
+        INodeBinder binder = NodeBinders.get(node.getType());
 
         try {
             return binder.bindTarget(node, bindingContext, targetNode);
@@ -54,7 +55,7 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IBoundNode bindTypeNode(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
-        INodeBinder binder = findBinder(node, bindingContext);
+        INodeBinder binder = NodeBinders.get(node.getType());
         try {
             return binder.bindType(node, bindingContext, type);
         } catch (Exception | LinkageError e) {
@@ -142,11 +143,6 @@ public abstract class ANodeBinder implements INodeBinder {
         }
 
         return types;
-    }
-
-    private static INodeBinder findBinder(ISyntaxNode node, IBindingContext bindingContext) {
-
-        return bindingContext.findBinder(node);
     }
 
     private static IBoundNode convertType(IBoundNode node,
