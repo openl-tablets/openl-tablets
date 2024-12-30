@@ -12,7 +12,6 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
 import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
 import org.openl.syntax.code.IParsedCode;
 
 /**
@@ -29,8 +28,6 @@ public interface IOpenBinder {
     ICastFactory getCastFactory();
 
     INameSpacedMethodFactory getMethodFactory();
-
-    INodeBinderFactory getNodeBinderFactory();
 
     INameSpacedTypeFactory getTypeFactory();
 

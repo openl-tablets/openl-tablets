@@ -8,7 +8,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
@@ -18,7 +17,6 @@ import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -60,11 +58,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException {
         return delegate.addVar(namespace, name, type);
-    }
-
-    @Override
-    public INodeBinder findBinder(ISyntaxNode node) {
-        return delegate.findBinder(node);
     }
 
     @Override

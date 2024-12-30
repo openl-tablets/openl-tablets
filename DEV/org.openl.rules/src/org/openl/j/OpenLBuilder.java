@@ -1,63 +1,14 @@
 package org.openl.j;
 
 import org.openl.OpenL;
-import org.openl.binding.impl.ArrayInitializationBinder;
-import org.openl.binding.impl.AssignOperatorNodeBinder;
-import org.openl.binding.impl.BExChainBinder;
-import org.openl.binding.impl.BExChainSuffixBinder;
-import org.openl.binding.impl.BinaryOperatorAndNodeBinder;
-import org.openl.binding.impl.BinaryOperatorNodeBinder;
-import org.openl.binding.impl.BinaryOperatorOrNodeBinder;
 import org.openl.binding.impl.Binder;
-import org.openl.binding.impl.BlockBinder;
-import org.openl.binding.impl.BusinessIntNodeBinder;
-import org.openl.binding.impl.CharNodeBinder;
-import org.openl.binding.impl.DoubleNodeBinder;
-import org.openl.binding.impl.ForNodeBinder;
-import org.openl.binding.impl.IdentifierBinder;
-import org.openl.binding.impl.IdentifierSequenceBinder;
-import org.openl.binding.impl.IfNodeBinder;
-import org.openl.binding.impl.IfNodeBinderWithCSRSupport;
-import org.openl.binding.impl.IndexNodeBinder;
-import org.openl.binding.impl.IndexParameterDeclarationBinder;
-import org.openl.binding.impl.IntNodeBinder;
-import org.openl.binding.impl.ListNodeBinder;
-import org.openl.binding.impl.LiteralNodeBinder;
-import org.openl.binding.impl.LocalVarBinder;
-import org.openl.binding.impl.MethodHeaderNodeBinder;
-import org.openl.binding.impl.NewArrayNodeBinder;
-import org.openl.binding.impl.NewNodeBinder;
 import org.openl.binding.impl.Operators;
-import org.openl.binding.impl.OrderByIndexNodeBinder;
-import org.openl.binding.impl.ParameterDeclarationNodeBinder;
-import org.openl.binding.impl.PercentNodeBinder;
-import org.openl.binding.impl.PrefixOperatorNodeBinder;
-import org.openl.binding.impl.RangeVariableBinder;
-import org.openl.binding.impl.ReturnNodeBinder;
-import org.openl.binding.impl.SelectAllIndexNodeBinder;
-import org.openl.binding.impl.SelectFirstIndexNodeBinder;
-import org.openl.binding.impl.SplitByIndexNodeBinder;
-import org.openl.binding.impl.StringNodeBinder;
-import org.openl.binding.impl.SuffixOperatorNodeBinder;
-import org.openl.binding.impl.TransformIndexNodeBinder;
-import org.openl.binding.impl.TypeBinder;
-import org.openl.binding.impl.TypeCastBinder;
-import org.openl.binding.impl.UnaryOperatorNodeBinder;
-import org.openl.binding.impl.WhereExpressionNodeBinder;
-import org.openl.binding.impl.WhereVarNodeBinder;
-import org.openl.binding.impl.WhileNodeBinder;
 import org.openl.binding.impl.cast.CastOperators;
-import org.openl.binding.impl.ce.MethodNodeBinder;
-import org.openl.binding.impl.module.MethodDeclarationNodeBinder;
-import org.openl.binding.impl.module.MethodParametersNodeBinder;
-import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
-import org.openl.binding.impl.module.VarDeclarationNodeBinder;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.conf.IOpenLBuilder;
 import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
-import org.openl.conf.NodeBinders;
 import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeResolver;
@@ -83,6 +34,7 @@ import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.helpers.RulesUtils;
 import org.openl.rules.helpers.StringRange;
+import org.openl.rules.lang.xls.Parser;
 import org.openl.rules.util.Arrays;
 import org.openl.rules.util.Avg;
 import org.openl.rules.util.Booleans;
@@ -95,7 +47,6 @@ import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.rules.lang.xls.Parser;
 
 public class OpenLBuilder implements IOpenLBuilder {
 
@@ -130,7 +81,6 @@ public class OpenLBuilder implements IOpenLBuilder {
         IOpenLConfiguration conf = ucxt.getOpenLConfiguration(OpenL.OPENL_J_NAME);
         if (conf == null) {
             OpenLConfiguration oPconf = getOpenLConfiguration(ucxt.getUserClassLoader());
-            oPconf.validate();
 
             ucxt.registerOpenLConfiguration(OpenL.OPENL_J_NAME, oPconf);
             conf = oPconf;
@@ -138,15 +88,13 @@ public class OpenLBuilder implements IOpenLBuilder {
 
         OpenL op = new OpenL();
         op.setParser(new Parser());
-        op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
+        op.setBinder(new Binder(conf, conf, conf, conf, op));
         op.setVm(new SimpleRulesVM());
         return op;
     }
 
     private static OpenLConfiguration getOpenLConfiguration(ClassLoader classLoader) {
         var op = new OpenLConfiguration();
-
-        op.setNodeBinders(createNodeBinders());
 
         LibrariesRegistry library = new LibrariesRegistry();
         library.addJavalib(Round.class);
@@ -182,63 +130,4 @@ public class OpenLBuilder implements IOpenLBuilder {
         return op;
 
     }
-
-    private static NodeBinders createNodeBinders() {
-        NodeBinders binders = new NodeBinders();
-
-        binders.put("literal", new LiteralNodeBinder());
-        binders.put("literal.integer", new IntNodeBinder());
-        binders.put("literal.real", new DoubleNodeBinder());
-        binders.put("literal.percent", new PercentNodeBinder());
-        binders.put("literal.string", new StringNodeBinder());
-        binders.put("literal.char", new CharNodeBinder());
-        binders.put("literal.integer.business", new BusinessIntNodeBinder());
-        binders.put("array.init", new ArrayInitializationBinder());
-        binders.put("method.header", new MethodHeaderNodeBinder());
-        binders.put("param.declaration", new ParameterDeclarationNodeBinder());
-        binders.put("method.parameters", new MethodParametersNodeBinder());
-        binders.put("method.declaration", new MethodDeclarationNodeBinder());
-        binders.put("var.declaration", new VarDeclarationNodeBinder());
-        binders.put("parameter.declaration", new ParameterDeclarationNodeBinderWithContextParameterSupport());
-        binders.put("block", new BlockBinder());
-        binders.put("op.binary", new BinaryOperatorNodeBinder());
-        binders.put("op.binary.and", new BinaryOperatorAndNodeBinder());
-        binders.put("op.binary.or", new BinaryOperatorOrNodeBinder());
-        binders.put("op.unary", new UnaryOperatorNodeBinder());
-        binders.put("op.prefix", new PrefixOperatorNodeBinder());
-        binders.put("op.suffix", new SuffixOperatorNodeBinder());
-        binders.put("op.assign", new AssignOperatorNodeBinder());
-        binders.put("op.new.object", new NewNodeBinder());
-        binders.put("op.new.array", new NewArrayNodeBinder());
-        binders.put("op.index", new IndexNodeBinder());
-        binders.put("selectfirst.index", new SelectFirstIndexNodeBinder());
-        binders.put("selectall.index", new SelectAllIndexNodeBinder());
-        binders.put("orderby.index", new OrderByIndexNodeBinder());
-        binders.put("orderdecreasingby.index", new OrderByIndexNodeBinder());
-        binders.put("splitby.index", new SplitByIndexNodeBinder());
-
-        binders.put("transform.index", new TransformIndexNodeBinder());
-        binders.put("transformunique.index", new TransformIndexNodeBinder());
-        binders.put("index.parameter.declaration", new IndexParameterDeclarationBinder());
-
-        binders.put("op.ternary.qmark", new IfNodeBinderWithCSRSupport());
-        binders.put("type.cast", new TypeCastBinder());
-        binders.put("local.var.declaration", new LocalVarBinder());
-        binders.put("type.declaration", new TypeBinder());
-        binders.put("function", new MethodNodeBinder());
-        binders.put("identifier", new IdentifierBinder());
-        binders.put("identifier.sequence", new IdentifierSequenceBinder());
-        binders.put("range.variable", new RangeVariableBinder());
-        binders.put("chain", new BExChainBinder());
-        binders.put("chain.suffix", new BExChainSuffixBinder());
-        binders.put("where.expression", new WhereExpressionNodeBinder());
-        binders.put("where.var.explanation", new WhereVarNodeBinder());
-        binders.put("list", new ListNodeBinder());
-        binders.put("control.for", new ForNodeBinder());
-        binders.put("control.if", new IfNodeBinder());
-        binders.put("control.while", new WhileNodeBinder());
-        binders.put("control.return", new ReturnNodeBinder());
-        return binders;
-    }
-
 }

@@ -14,7 +14,6 @@ import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
@@ -43,8 +42,6 @@ public interface IBindingContext extends ICastFactory {
     IOpenClass addType(IOpenClass type) throws DuplicatedTypeException;
 
     ILocalVar addVar(String namespace, String name, IOpenClass type) throws DuplicatedVarException;
-
-    INodeBinder findBinder(ISyntaxNode node);
 
     IMethodCaller findMethodCaller(String namespace,
                                    String name,

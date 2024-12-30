@@ -14,15 +14,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
-import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -36,7 +33,6 @@ import org.openl.types.impl.MethodKey;
 public class OpenLConfiguration implements IOpenLConfiguration {
 
     private IOpenLConfiguration parent;
-    private NodeBinders nodeBinders;
     private LibrariesRegistry methodFactory;
     private LibrariesRegistry operatorsFactory;
     private TypeCastFactory typeCastFactory;
@@ -174,18 +170,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return openMethods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
-    @Override
-    public INodeBinder getNodeBinder(ISyntaxNode node) {
-        if (node == null) {
-            return null;
-        }
-        INodeBinder binder = nodeBinders == null ? null : nodeBinders.get(node.getType());
-        if (binder != null) {
-            return binder;
-        }
-        return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
-    }
-
     private final Map<String, IOpenClass> cache = new HashMap<>();
 
     @Override
@@ -229,10 +213,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? null : parent.getVar(namespace, name, strictMatch);
     }
 
-    public void setNodeBinders(NodeBinders nodeBinders) {
-        this.nodeBinders = nodeBinders;
-    }
-
     public void setMethodFactory(LibrariesRegistry methodFactory) {
         this.methodFactory = methodFactory;
     }
@@ -247,12 +227,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     public void setTypeResolver(TypeResolver typeResolver) {
         this.typeResolver = typeResolver;
-    }
-
-    public synchronized void validate() {
-        if (nodeBinders == null && parent == null) {
-            throw new OpenLConfigurationException("Bindings are not set", null);
-        }
     }
 
     private static class Key {
