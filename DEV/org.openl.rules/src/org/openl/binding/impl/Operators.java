@@ -7,12 +7,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.openl.binding.impl.method.IgnoreVarargsMatching;
+import org.openl.conf.OperatorsNamespace;
 import org.openl.rules.util.dates.DateInterval;
 
 /**
  * @author snshor
  */
 @IgnoreVarargsMatching
+@OperatorsNamespace
 public class Operators {
 
     // Add
