@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
@@ -24,7 +23,6 @@ import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.grammar.IGrammar;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -38,7 +36,6 @@ import org.openl.types.impl.MethodKey;
 public class OpenLConfiguration implements IOpenLConfiguration {
 
     private IOpenLConfiguration parent;
-    private Supplier<IGrammar> grammar;
     private NodeBinders nodeBinders;
     private LibrariesRegistry methodFactory;
     private LibrariesRegistry operatorsFactory;
@@ -125,15 +122,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             }
         }
         return closestClass;
-    }
-
-    @Override
-    public synchronized IGrammar getGrammar() {
-        if (grammar == null) {
-            return parent.getGrammar();
-        } else {
-            return grammar.get();
-        }
     }
 
     @Override
@@ -245,10 +233,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         this.nodeBinders = nodeBinders;
     }
 
-    public void setGrammar(Supplier<IGrammar> grammar) {
-        this.grammar = grammar;
-    }
-
     public void setMethodFactory(LibrariesRegistry methodFactory) {
         this.methodFactory = methodFactory;
     }
@@ -266,10 +250,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     public synchronized void validate() {
-        if (grammar == null && parent == null) {
-            throw new OpenLConfigurationException("Grammar class is not set", null);
-        }
-
         if (nodeBinders == null && parent == null) {
             throw new OpenLConfigurationException("Bindings are not set", null);
         }

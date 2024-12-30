@@ -95,7 +95,7 @@ import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
 import org.openl.rules.vm.SimpleRulesVM;
-import org.openl.syntax.impl.Parser;
+import org.openl.rules.lang.xls.Parser;
 
 public class OpenLBuilder implements IOpenLBuilder {
 
@@ -137,7 +137,7 @@ public class OpenLBuilder implements IOpenLBuilder {
         }
 
         OpenL op = new OpenL();
-        op.setParser(new Parser(conf));
+        op.setParser(new Parser());
         op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
         op.setVm(new SimpleRulesVM());
         return op;
@@ -145,8 +145,6 @@ public class OpenLBuilder implements IOpenLBuilder {
 
     private static OpenLConfiguration getOpenLConfiguration(ClassLoader classLoader) {
         var op = new OpenLConfiguration();
-
-        op.setGrammar(BExGrammarWithParsingHelp::new);
 
         op.setNodeBinders(createNodeBinders());
 
