@@ -1,14 +1,11 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -19,13 +16,11 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.MethodKey;
 
 /**
  * @author snshor
@@ -126,48 +121,14 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                                          IOpenClass[] params,
                                          ICastFactory casts) throws AmbiguousMethodException {
 
-        IOpenMethod[] mcs = getMethods(namespace, name);
-
-        return MethodSearch
-                .findMethod(name, params, casts, Arrays.asList(mcs), ISyntaxConstants.THIS_NAMESPACE.equals(namespace));
-    }
-
-    @Override
-    public IOpenMethod[] getMethods(String namespace, String name) {
-        var factory = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace) ? operatorsFactory : methodFactory;
-        IOpenMethod[] mcs = factory == null ? IOpenMethod.EMPTY_ARRAY : factory.getMethods(name);
-        IOpenMethod[] pmcs = parent == null ? IOpenMethod.EMPTY_ARRAY : parent.getMethods(namespace, name);
-
-        // Shadowing
-        Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<>();
-        for (IOpenMethod method : pmcs) {
-            MethodKey mk = new MethodKey(method);
-            Collection<IOpenMethod> callers = methods.computeIfAbsent(mk, k -> new ArrayList<>());
-            callers.add(method);
+        var allowMultiCall = !ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
+        var factory = allowMultiCall ? methodFactory : operatorsFactory;
+        LibrariesRegistry parentFactory = null;
+        if (parent instanceof OpenLConfiguration opc) {
+            parentFactory = allowMultiCall ? opc.methodFactory : opc.operatorsFactory;
         }
 
-        Set<MethodKey> usedKeys = new HashSet<>();
-        for (IOpenMethod method : mcs) {
-            MethodKey mk = new MethodKey(method);
-            Collection<IOpenMethod> callers = methods.get(mk);
-            if (callers == null) {
-                usedKeys.add(mk);
-                callers = new ArrayList<>();
-                methods.put(mk, callers);
-            }
-            if (!usedKeys.contains(mk)) {
-                usedKeys.add(mk);
-                callers = new ArrayList<>();
-                methods.put(mk, callers);
-            }
-            callers.add(method);
-        }
-
-        Collection<IOpenMethod> openMethods = new ArrayList<>();
-        for (Collection<IOpenMethod> m : methods.values()) {
-            openMethods.addAll(m);
-        }
-        return openMethods.toArray(IOpenMethod.EMPTY_ARRAY);
+        return factory.getMethodCaller(name, params, casts, allowMultiCall, parentFactory);
     }
 
     private final Map<String, IOpenClass> cache = new HashMap<>();
@@ -206,7 +167,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField field = methodFactory == null ? null : methodFactory.getField(name, strictMatch);
+        IOpenField field = methodFactory == null ? null : methodFactory.getField(name);
         if (field != null) {
             return field;
         }
