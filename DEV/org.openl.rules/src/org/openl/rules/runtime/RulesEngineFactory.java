@@ -18,6 +18,7 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
+import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.ASMProxyFactory;
@@ -35,6 +36,7 @@ import org.openl.util.ClassUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.xls.Parser;
 import org.openl.xls.RulesCompileContext;
 
 /**
@@ -273,7 +275,11 @@ public class RulesEngineFactory<T> {
             synchronized (this) {
                 if (openl == null) {
                     var userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()), userHome);
-                    openl = OpenL.getInstance(OpenL.OPENL_JAVA_RULE_NAME, userContext);
+
+                    openl = new OpenL();
+                    openl.setParser(new Parser(userContext));
+                    openl.setBinder(new XlsBinder(new RulesCompileContext(), userContext));
+                    openl.setVm(new SimpleRulesVM());
                 }
             }
         }
