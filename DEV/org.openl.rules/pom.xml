@@ -46,6 +46,22 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy</artifactId>
+        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -67,7 +83,11 @@
         </dependency>
         <dependency>
             <groupId>org.openl</groupId>
-            <artifactId>org.openl.core</artifactId>
+            <artifactId>org.openl.core.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.rules.util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
