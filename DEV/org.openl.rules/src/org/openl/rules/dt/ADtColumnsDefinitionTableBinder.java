@@ -18,7 +18,7 @@ import org.openl.util.TableNameChecker;
 
 public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
-    String tableNamePrefix;
+    final String tableNamePrefix;
 
     public ADtColumnsDefinitionTableBinder(String tableNamePrefix) {
         if (tableNamePrefix == null) {

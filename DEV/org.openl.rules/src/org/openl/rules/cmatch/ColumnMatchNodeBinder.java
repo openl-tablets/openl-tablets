@@ -16,8 +16,6 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.impl.OpenMethodHeader;
 
 public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoundNode> {
-    private SubTextSourceCodeModule nameOfAlgorithm;
-
     private static SubTextSourceCodeModule cutNameOfAlgorithm(TableSyntaxNode tsn,
                                                               IOpenSourceCodeModule src,
                                                               int headerTokenLength) throws SyntaxNodeException {
@@ -59,7 +57,7 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
 
         int headerTokenLength = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier().length();
 
-        nameOfAlgorithm = cutNameOfAlgorithm(tableSyntaxNode, src, headerTokenLength);
+        var nameOfAlgorithm = cutNameOfAlgorithm(tableSyntaxNode, src, headerTokenLength);
         if (nameOfAlgorithm != null) {
             String name = nameOfAlgorithm.getCode();
             // TODO
@@ -76,6 +74,14 @@ public class ColumnMatchNodeBinder extends AExecutableNodeBinder<ColumnMatchBoun
                                               OpenMethodHeader header,
                                               XlsModuleOpenClass module,
                                               IBindingContext context) {
+        IGridTable table = tsn.getGridTable();
+        int headerTokenLength = tsn.getHeader().getHeaderToken().getIdentifier().length();
+        IOpenSourceCodeModule nameOfAlgorithm;
+        try {
+            nameOfAlgorithm = cutNameOfAlgorithm(tsn, new GridCellSourceCodeModule(table, context), headerTokenLength);
+        } catch (SyntaxNodeException e) {
+            throw new RuntimeException(e);
+        }
         return new ColumnMatchBoundNode(tsn, openl, header, module, nameOfAlgorithm);
     }
 }
