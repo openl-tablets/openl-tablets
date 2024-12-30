@@ -19,7 +19,6 @@ import org.openl.conf.UserContext;
  */
 public class OpenL {
     public static final String OPENL_J_NAME = "org.openl.j";
-    public static final String OPENL_JAVA_RULE_NAME = "org.openl.xls";
 
     private static final String DEFAULT_USER_HOME = ".";
 
