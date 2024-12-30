@@ -1,17 +1,13 @@
-/*
- * Created on May 9, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
-package org.openl.syntax.impl;
+package org.openl.rules.lang.xls;
 
 import org.openl.IOpenParser;
+import org.openl.j.BExGrammarWithParsingHelp;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.grammar.IGrammar;
-import org.openl.syntax.grammar.IGrammarFactory;
 
 /**
  * Default implementation of {@link IOpenParser}.
@@ -20,20 +16,13 @@ import org.openl.syntax.grammar.IGrammarFactory;
  */
 public class Parser implements IOpenParser {
 
-    private final IGrammarFactory grammarFactory;
-
-    public Parser(IGrammarFactory grammarFactory) {
-
-        this.grammarFactory = grammarFactory;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public IParsedCode parseAsMethodBody(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = grammarFactory.getGrammar();
+        IGrammar grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsMethod(source.getCharacterStream());
 
@@ -46,7 +35,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsMethodHeader(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = grammarFactory.getGrammar();
+        IGrammar grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsMethodHeader(source.getCharacterStream());
 
@@ -59,7 +48,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsModule(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = grammarFactory.getGrammar();
+        IGrammar grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsModule(source.getCharacterStream());
 
@@ -72,7 +61,7 @@ public class Parser implements IOpenParser {
     @Override
     public IParsedCode parseAsType(IOpenSourceCodeModule source) {
 
-        IGrammar grammar = grammarFactory.getGrammar();
+        IGrammar grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsType(source.getCharacterStream());
 
@@ -98,10 +87,15 @@ public class Parser implements IOpenParser {
 
     @Override
     public IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source) {
-        IGrammar grammar = grammarFactory.getGrammar();
+        IGrammar grammar = createGrammar();
         grammar.setModule(source);
         grammar.parseAsParamDeclaration(source.getCharacterStream());
 
         return makeParsedCode(grammar, source);
+    }
+
+
+    private IGrammar createGrammar() {
+        return new BExGrammarWithParsingHelp();
     }
 }
