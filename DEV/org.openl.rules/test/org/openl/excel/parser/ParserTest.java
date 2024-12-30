@@ -4,7 +4,7 @@
  * Developed by Intelligent ChoicePoint Inc. 2003
  */
 
-package org.openl.syntax;
+package org.openl.excel.parser;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +15,7 @@ import java.math.BigInteger;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.OpenL;
+import org.openl.IOpenParser;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.CharNodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
@@ -23,11 +23,14 @@ import org.openl.binding.impl.IntNodeBinder;
 import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.binding.impl.StringNodeBinder;
 import org.openl.conf.OpenLConfigurationException;
+import org.openl.j.BExGrammarWithParsingHelp;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.NaryNode;
+import org.openl.syntax.impl.Parser;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -52,10 +55,25 @@ public class ParserTest {
 
     }
 
+    private static IOpenParser getParser() {
+        return new Parser(BExGrammarWithParsingHelp::new);
+    }
+
+    @Test
+    public void type() {
+        IParsedCode result = getParser().parseAsType(new StringSourceCodeModule("String", ""));
+        assertEquals(0, result.getErrors().length);
+    }
+
+    @Test
+    public void typeWithSpaces() {
+        IParsedCode result = getParser().parseAsType(new StringSourceCodeModule("String sadfa sadf", ""));
+        assertEquals(1, result.getErrors().length);
+    }
+
     public void _testLiteral(String src, String res, final String type) throws OpenLConfigurationException {
 
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
@@ -65,8 +83,7 @@ public class ParserTest {
 
     public void _testMethodHeader(String src, String res, String type) throws OpenLConfigurationException {
 
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodHeader(new StringSourceCodeModule(src, null));
 
         assertEquals(0, pc.getErrors().length);
 
@@ -78,14 +95,12 @@ public class ParserTest {
     @SuppressWarnings("unchecked")
     public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenLConfigurationException {
 
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         return (T) search(pc.getTopNode(), type);
     }
 
     public void _testErrorMsg(String src, String messageStart) {
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
 
         SyntaxNodeException[] errors = pc.getErrors();
 
@@ -103,8 +118,7 @@ public class ParserTest {
 
     public void _testType(String src, final String type) throws OpenLConfigurationException {
 
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         ISyntaxNode bn = search(pc.getTopNode(), type);
@@ -115,28 +129,25 @@ public class ParserTest {
 
     @Test
     public void testOfMethod() {
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
-        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
+        pc = getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
     }
 
     @Test
     public void testOperatorMethods() {
-        OpenL op = OpenL.getInstance();
-
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
-        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
+        pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
-        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
+        pc = getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
-        pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
+        pc = getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
         assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
     }
@@ -146,8 +157,7 @@ public class ParserTest {
                                          Object res,
                                          Class<?> clazz,
                                          final String type) throws Exception {
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
         ISyntaxNode ln = search(pc.getTopNode(), type);
 
         LiteralBoundNode literalBoundNode = (LiteralBoundNode) binder.bind(ln, null);
@@ -234,8 +244,7 @@ public class ParserTest {
     @Test
     public void testLocation() throws OpenLConfigurationException {
         String test1 = "\tx";
-        OpenL op = OpenL.getInstance();
-        IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
+        IParsedCode pc = getParser().parseAsMethodBody(new StringSourceCodeModule(test1, null));
         ILocation loc = pc.getTopNode().getSourceLocation();
         assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
 
