@@ -129,8 +129,7 @@ public class OpenLBuilder implements IOpenLBuilder {
     public OpenL build(IUserContext ucxt) {
         IOpenLConfiguration conf = ucxt.getOpenLConfiguration(OpenL.OPENL_J_NAME);
         if (conf == null) {
-            OpenLConfiguration oPconf = getOpenLConfiguration();
-            oPconf.setClassLoader(ucxt.getUserClassLoader());
+            OpenLConfiguration oPconf = getOpenLConfiguration(ucxt.getUserClassLoader());
             oPconf.validate();
 
             ucxt.registerOpenLConfiguration(OpenL.OPENL_J_NAME, oPconf);
@@ -144,7 +143,7 @@ public class OpenLBuilder implements IOpenLBuilder {
         return op;
     }
 
-    private static OpenLConfiguration getOpenLConfiguration() {
+    private static OpenLConfiguration getOpenLConfiguration(ClassLoader classLoader) {
         var op = new OpenLConfiguration();
 
         op.setGrammar(BExGrammarWithParsingHelp::new);
@@ -172,7 +171,7 @@ public class OpenLBuilder implements IOpenLBuilder {
         operators.addJavalib(Comparison.class);
         op.setOperatorsFactory(operators);
 
-        op.setTypeResolver(new TypeResolver());
+        op.setTypeResolver(new TypeResolver(classLoader));
 
         TypeCastFactory typecast = op.createTypeCastFactory();
         typecast.addJavaCast(CastOperators.class);
