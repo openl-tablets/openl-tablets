@@ -28,13 +28,20 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.Binder;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
+import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
+import org.openl.conf.LibrariesRegistry;
+import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OpenLConfigurationException;
+import org.openl.conf.OperatorsNamespace;
+import org.openl.conf.TypeCastFactory;
+import org.openl.conf.TypeResolver;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
@@ -70,11 +77,13 @@ import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.Parser;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -83,7 +92,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.RuntimeExceptionWrapper;
-import org.openl.util.StringUtils;
 import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
 
@@ -183,16 +191,21 @@ public class XlsBinder implements IOpenBinder {
 
         XlsModuleSyntaxNode moduleNode = (XlsModuleSyntaxNode) parsedCode.getTopNode();
 
-        OpenL openl;
+        String category = "XLSX::" + moduleNode.getModule().getUri();
+        var openl = userContext.getOpenL(category);
         List<SyntaxNodeException> exceptions = new ArrayList<>();
-        try {
-            openl = makeOpenL(moduleNode, exceptions);
-        } catch (OpenLConfigurationException ex) {
-            SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, moduleNode);
 
-            ErrorBoundNode boundNode = new ErrorBoundNode(moduleNode);
+        if (openl == null) {
+            try {
+                openl = makeOpenL(category, moduleNode, exceptions, userContext);
+                userContext.registerOpenL(category, openl);
+            } catch (OpenLConfigurationException ex) {
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Error Creating OpenL", ex, moduleNode);
 
-            return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[]{error}, null);
+                ErrorBoundNode boundNode = new ErrorBoundNode(moduleNode);
+
+                return new BoundCode(parsedCode, boundNode, new SyntaxNodeException[]{error}, null);
+            }
         }
 
         if (bindingContext == null) {
@@ -444,54 +457,60 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private void addImports(XlsModuleSyntaxNode moduleNode,
-                            OpenLBuilderImpl builder,
-                            Collection<String> imports,
-                            List<SyntaxNodeException> exceptions) {
+    private static OpenL makeOpenL(String category, XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions, IUserContext userContext) {
+        ClassLoader userClassLoader = userContext.getUserClassLoader();
+
+        OpenLConfiguration conf = new OpenLConfiguration();
+
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<Class<?>> classNames = new LinkedHashSet<>();
-        Collection<Class<?>> libraries = new LinkedHashSet<>();
-        for (String singleImport : imports) {
-            if (singleImport.endsWith(".*")) {
-                String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
-                try {
-                    var lib = userContext.getUserClassLoader().loadClass(libraryClassName); // try
-                    // load
-                    // class
-                    libraries.add(lib);
-                } catch (Exception e) {
-                    packageNames.add(libraryClassName);
-                } catch (LinkageError e) {
-                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode));
-                }
-            } else {
-                try {
-                    var cls = userContext.getUserClassLoader().loadClass(singleImport); // try
-                    // load
-                    // class
+
+        LibrariesRegistry thisNamespaceLibrary = new LibrariesRegistry();
+        LibrariesRegistry operationNamespaceLibrary = new LibrariesRegistry();
+        TypeCastFactory typeCastFactory = conf.createTypeCastFactory();
+
+        for (var anImport : moduleNode.getImports()) {
+            boolean isPattern = anImport.endsWith(".*");
+            if (isPattern) {
+                anImport = anImport.substring(0, anImport.length() - 2);
+            }
+            try {
+                var cls = userClassLoader.loadClass(anImport);
+                if (isPattern) {
+                    if (cls.getAnnotation(OperatorsNamespace.class) != null) {
+                        operationNamespaceLibrary.addJavalib(cls);
+                    }
+                    thisNamespaceLibrary.addJavalib(cls);
+                    typeCastFactory.addJavaCast(cls);
+                } else {
                     classNames.add(cls);
-                } catch (Exception e) {
-                    packageNames.add(singleImport);
-                } catch (LinkageError e) {
-                    exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode));
                 }
+            } catch (Exception e) {
+                packageNames.add(anImport);
+            } catch (LinkageError e) {
+                exceptions.add(SyntaxNodeExceptionUtils.createError(e, moduleNode));
             }
         }
-        builder.setPackageImports(packageNames.toArray(StringUtils.EMPTY_STRING_ARRAY));
-        builder.setClassImports(classNames);
-        builder.setLibraries(libraries);
-    }
 
-    private OpenL makeOpenL(XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions) {
+        conf.setOperatorsFactory(operationNamespaceLibrary);
+        conf.setMethodFactory(thisNamespaceLibrary);
+        conf.setTypeResolver(new TypeResolver(classNames, packageNames));
 
-        OpenLBuilderImpl builder = new OpenLBuilderImpl();
+        OpenL.getInstance(OpenL.OPENL_J_NAME, userContext);
+        IOpenLConfiguration extendsConfiguration = userContext.getOpenLConfiguration(OpenL.OPENL_J_NAME);
+        Objects.requireNonNull(extendsConfiguration, "The extended category " + OpenL.OPENL_J_NAME + " must have been loaded first");
 
-        String category = "XLSX::" + moduleNode.getModule().getUri();
-        builder.setCategory(category);
+        conf.setParent(extendsConfiguration);
+        conf.setClassLoader(userClassLoader);
+        conf.validate();
 
-        addImports(moduleNode, builder, moduleNode.getImports(), exceptions);
+        userContext.registerOpenLConfiguration(category, conf);
 
-        return OpenL.getInstance(category, userContext, builder);
+        OpenL op = new OpenL();
+        op.setParser(new Parser(conf));
+        op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
+        op.setVm(new SimpleRulesVM());
+        return op;
     }
 
     private IMemberBoundNode preBindXlsNode(ISyntaxNode syntaxNode,
