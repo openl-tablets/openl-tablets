@@ -19,10 +19,6 @@ public interface IUserContext {
 
     String getUserHome();
 
-    IOpenLConfiguration getOpenLConfiguration(String name);
-
-    void registerOpenLConfiguration(String name, IOpenLConfiguration oplc);
-
     OpenL getOpenL(String name);
 
     void registerOpenL(String name, OpenL opl);
