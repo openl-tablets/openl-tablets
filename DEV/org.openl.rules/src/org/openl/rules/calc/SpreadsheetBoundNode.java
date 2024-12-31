@@ -97,8 +97,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
          */
         boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType().getInstanceClass()
                 && !(getType() instanceof CustomSpreadsheetResultOpenClass)
-                && !structureBuilder.isExistsReturnHeader()
-                && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
+                && !structureBuilder.isExistsReturnHeader();
 
         var spreadsheet = new Spreadsheet(getHeader(), this);
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);

@@ -29,7 +29,6 @@
         <module>itest.ws-rest-rules-deploy</module>
         <module>itest.healthchecks</module>
         <module>itest.WebService</module>
-        <module>itest.WebService-csr-false</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>

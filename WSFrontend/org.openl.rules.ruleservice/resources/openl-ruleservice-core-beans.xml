@@ -17,7 +17,6 @@
         <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
         <property name="externalParameters">
             <props>
-                <prop key="custom.spreadsheet.type">${custom.spreadsheet.type}</prop>
                 <prop key="dispatching.validation">${dispatching.validation}</prop>
             </props>
         </property>

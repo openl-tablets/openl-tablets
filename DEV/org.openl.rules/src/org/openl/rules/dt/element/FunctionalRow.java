@@ -13,7 +13,6 @@ import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.engine.OpenLManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
@@ -343,8 +342,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                 paramType = paramType.getComponentClass();
                 paramDim++;
             }
-            if (paramType.getInstanceClass() == SpreadsheetResult.class && OpenLSystemProperties
-                    .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+            if (paramType.getInstanceClass() == SpreadsheetResult.class) {
                 Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new HashSet<>();
                 boolean anySpreadsheetResult = false;
                 for (int j = 0; j < storage[i].size(); j++) {

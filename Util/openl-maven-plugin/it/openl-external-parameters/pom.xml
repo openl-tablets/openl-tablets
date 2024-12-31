@@ -19,7 +19,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <externalParameters>
-                        <custom.spreadsheet.type>false</custom.spreadsheet.type>
+                        <custom.property>some value</custom.property>
                     </externalParameters>
                 </configuration>
             </plugin>

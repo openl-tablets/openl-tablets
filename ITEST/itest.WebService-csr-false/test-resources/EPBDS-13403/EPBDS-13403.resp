@@ -1,7 +1,0 @@
-HTTP/1.1 200
-Content-Type: application/json
-
-{
-  "Step2": "Test",
-  "Step1": 100
-}

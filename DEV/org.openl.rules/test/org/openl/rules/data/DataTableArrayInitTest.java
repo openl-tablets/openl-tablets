@@ -7,11 +7,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -24,19 +21,6 @@ public class DataTableArrayInitTest extends BaseOpenlBuilderHelper {
 
     public DataTableArrayInitTest() {
         super(FILE_NAME);
-    }
-
-    private static String csr;
-
-    @BeforeAll
-    public static void before() {
-        csr = System.getProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "");
-        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, "true");
-    }
-
-    @AfterAll
-    public static void after() {
-        System.setProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY, csr);
     }
 
     @Test
