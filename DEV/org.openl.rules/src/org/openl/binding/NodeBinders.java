@@ -46,7 +46,7 @@ import org.openl.binding.impl.UnaryOperatorNodeBinder;
 import org.openl.binding.impl.WhereExpressionNodeBinder;
 import org.openl.binding.impl.WhereVarNodeBinder;
 import org.openl.binding.impl.WhileNodeBinder;
-import org.openl.binding.impl.ce.MethodNodeBinder;
+import org.openl.binding.impl.MethodNodeBinder;
 import org.openl.binding.impl.module.MethodDeclarationNodeBinder;
 import org.openl.binding.impl.module.MethodParametersNodeBinder;
 import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
