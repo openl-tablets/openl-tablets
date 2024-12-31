@@ -13,7 +13,6 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.conf.LibrariesRegistry;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -23,12 +22,11 @@ import org.openl.util.ClassUtils;
 public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
-    static CastFactory castFactory;
+    static ICastFactory castFactory;
 
     @BeforeAll
     public static void init() {
-        castFactory = new CastFactory();
-        castFactory.setMethodFactory(new LibrariesRegistry().asMethodFactory());
+        castFactory = CastFactory.create();
     }
 
     final void assertInvoke(Object expected,
