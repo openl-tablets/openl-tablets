@@ -5,7 +5,7 @@ import com.bpodgursky.jbool_expressions.rules.RuleSet
 import org.apache.commons.lang3.tuple.Triple
 import org.openl.binding.IBoundNode
 import org.openl.binding.impl.*
-import org.openl.binding.impl.operator.Comparison
+import org.openl.rules.operator.*
 import org.openl.rules.convertor.IString2DataConvertor
 import org.openl.rules.convertor.String2DataConvertorFactory
 import org.openl.rules.dt.AST

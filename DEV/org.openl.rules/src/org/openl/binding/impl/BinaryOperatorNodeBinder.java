@@ -11,7 +11,7 @@ import java.util.Objects;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.binding.impl.operator.Comparison;
+import org.openl.rules.operator.Comparison;
 import org.openl.domain.IDomain;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
