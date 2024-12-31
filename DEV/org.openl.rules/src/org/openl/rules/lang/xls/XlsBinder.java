@@ -478,19 +478,13 @@ public class XlsBinder implements IOpenBinder {
         }
 
         conf.setMethodFactory(thisNamespaceLibrary);
-        conf.setTypeResolver(new TypeResolver(userClassLoader, classNames, packageNames));
-
-        OpenL.getInstance(OpenL.OPENL_J_NAME, userContext);
-        IOpenLConfiguration extendsConfiguration = userContext.getOpenLConfiguration(OpenL.OPENL_J_NAME);
-        Objects.requireNonNull(extendsConfiguration, "The extended category " + OpenL.OPENL_J_NAME + " must have been loaded first");
-
-        conf.setParent(extendsConfiguration);
+        var typeResolver = new TypeResolver(userClassLoader, classNames, packageNames);
 
         userContext.registerOpenLConfiguration(category, conf);
 
         OpenL op = new OpenL();
         op.setParser(new Parser());
-        op.setBinder(new Binder(conf, conf, conf, conf, op));
+        op.setBinder(new Binder(conf, conf, conf, typeResolver, op));
         op.setVm(new SimpleRulesVM());
         return op;
     }
