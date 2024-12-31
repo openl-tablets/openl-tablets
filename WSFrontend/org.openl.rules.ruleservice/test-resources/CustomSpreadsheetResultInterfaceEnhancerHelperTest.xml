@@ -13,7 +13,6 @@
         <property name="arguments">
             <map>
                 <entry key="custom.spreadsheet.type" value="true"/>
-                <entry key="dispatching.mode" value="java"/>
             </map>
         </property>
     </bean>

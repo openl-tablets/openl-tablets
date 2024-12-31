@@ -207,7 +207,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         projectResolver = ProjectResolver.getInstance();
         externalProperties = new HashMap<>();
         copyExternalProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY);
-        copyExternalProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY);
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
     }
 

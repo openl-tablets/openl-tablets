@@ -12,10 +12,11 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.validation.properties.dimentional.TableSyntaxNodeDispatcherBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
@@ -91,8 +92,14 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
-            DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(getDeclaringClass());
-            dispatcherTablesBuilder.build(this);
+            XlsModuleOpenClass moduleOpenClass = getDeclaringClass();
+            TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(moduleOpenClass.getRulesModuleBindingContext(),
+                    moduleOpenClass,
+                    this).build();
+            if (tsn != null) {
+                XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
+                xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
+            }
         }
         if (decisionTableOpenMethod != null) {
             return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();
