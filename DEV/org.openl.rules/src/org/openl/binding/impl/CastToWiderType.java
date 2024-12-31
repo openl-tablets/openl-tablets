@@ -2,8 +2,8 @@ package org.openl.binding.impl;
 
 import java.util.Collection;
 
-import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -65,7 +65,7 @@ public final class CastToWiderType {
         if (collection == null) {
             return NullOpenClass.the;
         }
-        ICastFactory castFactory = OpenL.getInstance().getBinder().getCastFactory();
+        var castFactory = CastFactory.create();
         IOpenClass widerType = null;
         for (Object ob : collection) {
             if (ob != null) {

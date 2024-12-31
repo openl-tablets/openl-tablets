@@ -23,6 +23,7 @@ import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.cache.GenericKey;
+import org.openl.conf.LibrariesRegistry;
 import org.openl.domain.IDomain;
 import org.openl.ie.constrainer.ConstrainerObject;
 import org.openl.types.IMethodCaller;
@@ -42,6 +43,7 @@ import org.openl.util.OpenClassUtils;
  * @author snshor, Yury Molchan, Marat Kamalov
  */
 public class CastFactory implements ICastFactory {
+
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Set
             .of(Serializable.class, Cloneable.class, Comparable.class);
 
@@ -107,6 +109,12 @@ public class CastFactory implements ICastFactory {
      */
     private final ConcurrentHashMap<Object, IOpenCast> castCache = new ConcurrentHashMap<>();
 
+    public static ICastFactory create() {
+        var castFactory = new CastFactory();
+        castFactory.methodFactory = new LibrariesRegistry().asMethodFactory();
+        return castFactory;
+    }
+
     public void setMethodFactory(IMethodFactory factory) {
         methodFactory = factory;
     }
@@ -117,7 +125,7 @@ public class CastFactory implements ICastFactory {
         return findClosestClass(openClass1, openClass2, this, autoCastMethods);
     }
 
-    public static IOpenClass findClosestClass(IOpenClass openClass1,
+    private static IOpenClass findClosestClass(IOpenClass openClass1,
                                               IOpenClass openClass2,
                                               ICastFactory casts,
                                               Iterable<IOpenMethod> methods) {
@@ -265,7 +273,7 @@ public class CastFactory implements ICastFactory {
         return findParentClass1(openClass1, openClass2);
     }
 
-    public static IOpenClass findParentClass1(IOpenClass openClass1, IOpenClass openClass2) {
+    private static IOpenClass findParentClass1(IOpenClass openClass1, IOpenClass openClass2) {
         if (openClass1 == null) {
             throw new IllegalArgumentException("openClass1 cannot be null");
         }
