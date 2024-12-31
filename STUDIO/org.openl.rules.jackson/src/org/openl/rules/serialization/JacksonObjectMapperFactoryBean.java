@@ -41,7 +41,6 @@ import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.openl.rules.ruleservice.databinding.annotation.MixInClass;
-import org.openl.rules.ruleservice.databinding.annotation.MixInClassFor;
 import org.openl.rules.serialization.jackson.SubtypeMixin;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
@@ -170,10 +169,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 polymorphicTypeValidation);
 
         for (Class<?> clazz : getConfigurationClasses()) {
-            MixInClassFor mixInClass = clazz.getAnnotation(MixInClassFor.class);
-            if (mixInClass != null) {
-                Arrays.stream(mixInClass.value()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
-            }
             MixInClass mixInRulesClass = clazz.getAnnotation(MixInClass.class);
             if (mixInRulesClass != null) {
                 Arrays.stream(mixInRulesClass.types()).forEach(forClass -> mapper.addMixIn(forClass, clazz));
