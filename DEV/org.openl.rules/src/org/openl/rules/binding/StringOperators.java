@@ -3,10 +3,10 @@ package org.openl.rules.binding;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.openl.conf.OperatorsNamespace;
+import org.openl.rules.annotations.Operator;
 
-@OperatorsNamespace
 @Deprecated
+@Operator
 public class StringOperators {
 
     private static final int STRING_TO_TYPE_DISTANCE = 40;

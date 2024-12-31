@@ -1,5 +1,6 @@
 package org.openl.conf;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import org.openl.binding.impl.Operators;
 import org.openl.binding.impl.cast.CastOperators;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.operator.Comparison;
+import org.openl.rules.annotations.Operator;
 import org.openl.rules.dt.algorithm.evaluator.CtrUtils;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
@@ -39,6 +41,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -78,14 +81,16 @@ public class LibrariesRegistry {
     private final HashMap<String, List<IOpenField>> constants = new HashMap<>();
 
     public void addJavalib(Class<?> cls) {
-        boolean isOperators = cls.isAnnotationPresent(OperatorsNamespace.class);
+        var isOperator = cls.isAnnotationPresent(Operator.class);
         JavaOpenClass openClass = JavaOpenClass.getOpenClass(cls);
-        for (var method : openClass.getDeclaredMethods()) {
-            if (method.isStatic()) {
-                if (isOperators) {
-                    operators.computeIfAbsent(method.getName(), x -> new ArrayList<>()).add(method);
+        for (var method : cls.getDeclaredMethods()) {
+            int modifiers = method.getModifiers();
+            if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
+                var openMethod = new JavaOpenMethod(method);
+                if (isOperator || method.isAnnotationPresent(Operator.class)) {
+                    operators.computeIfAbsent(method.getName(), x -> new ArrayList<>()).add(openMethod);
                 } else {
-                    utils.computeIfAbsent(method.getName(), x -> new ArrayList<>()).add(method);
+                    utils.computeIfAbsent(method.getName(), x -> new ArrayList<>()).add(openMethod);
                 }
             }
         }

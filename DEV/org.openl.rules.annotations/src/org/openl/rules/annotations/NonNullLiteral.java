@@ -1,4 +1,4 @@
-package org.openl.binding.impl.method;
+package org.openl.rules.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -18,8 +18,8 @@
     </organization>
     <dependencies>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.core.annotations</artifactId>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.annotations</artifactId>
         </dependency>
     </dependencies>
 </project>
