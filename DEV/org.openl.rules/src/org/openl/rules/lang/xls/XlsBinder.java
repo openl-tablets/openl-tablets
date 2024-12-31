@@ -72,7 +72,6 @@ import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
-import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -381,12 +380,6 @@ public class XlsBinder implements IOpenBinder {
                     moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
                             .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
-            }
-
-            if (moduleOpenClass.isUseDecisionTableDispatcher()) {
-                DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(
-                        (XlsModuleOpenClass) topNode.getType());
-                dispatcherTablesBuilder.build();
             }
 
             ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();

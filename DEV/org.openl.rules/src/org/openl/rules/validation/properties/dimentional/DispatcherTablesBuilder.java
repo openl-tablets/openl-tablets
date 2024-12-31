@@ -1,12 +1,6 @@
 package org.openl.rules.validation.properties.dimentional;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -34,41 +28,4 @@ public class DispatcherTablesBuilder {
         return false;
     }
 
-    private final XlsModuleOpenClass moduleOpenClass;
-    private final RulesModuleBindingContext rulesModuleBindingContext;
-
-    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass) {
-        this.rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
-        this.moduleOpenClass = moduleOpenClass;
-    }
-
-    /**
-     * Builds dispatcher tables for every group of overloaded methods. As a result new {@link TableSyntaxNode} objects
-     * appears in module.
-     */
-    public void build() {
-        for (MatchingOpenMethodDispatcher dispatcher : getAllMethodDispatchers()) {
-            build(dispatcher);
-        }
-    }
-
-    public void build(MatchingOpenMethodDispatcher dispatcher) {
-        TableSyntaxNode tsn = new TableSyntaxNodeDispatcherBuilder(rulesModuleBindingContext,
-                moduleOpenClass,
-                dispatcher).build();
-        if (tsn != null) {
-            XlsModuleSyntaxNode xlsModuleNode = moduleOpenClass.getXlsMetaInfo().getXlsModuleNode();
-            xlsModuleNode.getWorkbookSyntaxNodes()[0].getWorksheetSyntaxNodes()[0].addNode(tsn);
-        }
-    }
-
-    private List<MatchingOpenMethodDispatcher> getAllMethodDispatchers() {
-        List<MatchingOpenMethodDispatcher> dispatchers = new ArrayList<>();
-        for (IOpenMethod method : moduleOpenClass.getMethods()) {
-            if (method instanceof MatchingOpenMethodDispatcher) {
-                dispatchers.add((MatchingOpenMethodDispatcher) method);
-            }
-        }
-        return dispatchers;
-    }
 }

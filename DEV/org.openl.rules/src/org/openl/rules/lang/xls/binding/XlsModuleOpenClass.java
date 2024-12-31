@@ -63,7 +63,6 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.DuplicateMemberThrowExceptionHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -82,12 +81,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private static final Logger LOG = LoggerFactory.getLogger(XlsModuleOpenClass.class);
 
     private final IDataBase dataBase;
-
-    /**
-     * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)
-     * dispatching logic will be performed in Java code.
-     */
-    private final boolean useDecisionTableDispatcher;
 
     private final boolean dispatchingValidationEnabled;
 
@@ -137,7 +130,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         super(moduleName, openl);
         this.dataBase = dbase;
         this.xlsMetaInfo = xlsMetaInfo;
-        this.useDecisionTableDispatcher = OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams());
         this.dispatchingValidationEnabled = OpenLSystemProperties
                 .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
@@ -247,10 +239,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         .buildGlobalTableProperties(mergedTableProperties);
             }
         }
-    }
-
-    public boolean isUseDecisionTableDispatcher() {
-        return useDecisionTableDispatcher;
     }
 
     public ClassLoader getClassLoader() {
@@ -676,13 +664,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
-        OpenMethodDispatcher decorator;
-        if (useDecisionTableDispatcher) {
-            decorator = new OverloadedMethodsDispatcherTable(method, this);
-        } else {
-            decorator = new MatchingOpenMethodDispatcher(method, this);
-        }
-        return decorator;
+        return new MatchingOpenMethodDispatcher(method, this);
     }
 
     @Override

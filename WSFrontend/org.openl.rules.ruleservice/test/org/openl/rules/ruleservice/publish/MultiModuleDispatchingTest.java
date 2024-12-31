@@ -9,7 +9,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManager;
@@ -32,18 +31,6 @@ public class MultiModuleDispatchingTest {
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
-        // dispatcher table
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-        cxt.setLob("lob1_1");
-        assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));
-        cxt.setLob("lob2_1");
-        assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", cxt));
-        cxt.setLob("lob3_1");
-        assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", cxt));
-
-        // dispatching by java code
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
-                OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setLob("lob1_1");
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob2_1");

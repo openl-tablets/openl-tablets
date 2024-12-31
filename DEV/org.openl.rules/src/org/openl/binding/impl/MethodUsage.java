@@ -8,7 +8,6 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenMethod;
 
 public class MethodUsage implements NodeUsage {
@@ -49,8 +48,6 @@ public class MethodUsage implements NodeUsage {
         try {
             if (method instanceof ExecutableRulesMethod) {
                 return ((ExecutableRulesMethod) method).getSyntaxNode().getUri();
-            } else if (method instanceof OverloadedMethodsDispatcherTable) {
-                return ((OverloadedMethodsDispatcherTable) method).getDispatcherTable().getUri();
             } else if (method instanceof MatchingOpenMethodDispatcher) {
                 MatchingOpenMethodDispatcher matchingOpenMethodDispatcher = (MatchingOpenMethodDispatcher) method;
                 if (matchingOpenMethodDispatcher.getCandidates().size() == 1) {

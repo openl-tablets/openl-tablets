@@ -8,16 +8,8 @@ public class OpenLSystemProperties {
 
     public static final String CUSTOM_SPREADSHEET_TYPE_PROPERTY = "custom.spreadsheet.type";
     public static final String DISPATCHING_VALIDATION = "dispatching.validation";
-    public static final String DISPATCHING_MODE_PROPERTY = "dispatching.mode";
-    public static final String DISPATCHING_MODE_JAVA = "java";
-    public static final String DISPATCHING_MODE_DT = "dt";
 
     private OpenLSystemProperties() {
-    }
-
-    public static boolean isDTDispatchingMode(Map<String, Object> externalParameters) {
-        String dispatchingMode = getProperty(externalParameters, DISPATCHING_MODE_PROPERTY);
-        return DISPATCHING_MODE_DT.equalsIgnoreCase(dispatchingMode);
     }
 
     public static boolean isDispatchingValidationEnabled(Map<String, Object> externalParameters) {
