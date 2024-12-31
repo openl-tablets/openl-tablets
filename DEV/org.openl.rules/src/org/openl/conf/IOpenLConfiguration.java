@@ -8,12 +8,11 @@ package org.openl.conf;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INameSpacedMethodFactory;
-import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 
 /**
  * @author snshor
  */
-public interface IOpenLConfiguration extends INameSpacedMethodFactory, ICastFactory, INameSpacedVarFactory, INameSpacedTypeFactory {
+public interface IOpenLConfiguration extends INameSpacedMethodFactory, ICastFactory, INameSpacedVarFactory {
 
 }
