@@ -1,4 +1,4 @@
-package org.openl.binding.impl.cast;
+package org.openl.rules.operator;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

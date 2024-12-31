@@ -1,4 +1,4 @@
-package org.openl.rules.binding;
+package org.openl.rules.operator;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;

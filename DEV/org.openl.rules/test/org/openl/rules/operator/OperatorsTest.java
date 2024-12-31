@@ -1,4 +1,4 @@
-package org.openl.binding.impl;
+package org.openl.rules.operator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
