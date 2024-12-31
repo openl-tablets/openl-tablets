@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
-import org.openl.conf.OperatorsNamespace;
+import org.openl.rules.annotations.Operator;
 
 @Deprecated
-@OperatorsNamespace
+@Operator
 public class MulDivNullToOneOperators {
 
     public static Byte multiply(Byte x, Byte y) {
