@@ -1812,11 +1812,11 @@ public class ProjectBean {
     }
 
     public boolean isPropertiesFileNamePatternSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isProjectDependenciesSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public SupportedVersion[] getPossibleVersions() {

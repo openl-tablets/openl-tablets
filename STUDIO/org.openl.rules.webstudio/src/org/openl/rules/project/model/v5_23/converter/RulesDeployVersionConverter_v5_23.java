@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WildcardPattern;
-import org.openl.rules.project.model.v5_17.PublisherType_v5_17;
+import org.openl.rules.project.model.v5_23.PublisherType_v5_23;
 import org.openl.rules.project.model.v5_23.RulesDeploy_v5_23;
 import org.openl.util.CollectionUtils;
 
@@ -80,25 +80,25 @@ public class RulesDeployVersionConverter_v5_23 implements ObjectVersionConverter
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
 
         if (currentVersion.getPublishers() != null) {
-            List<PublisherType_v5_17> publishers = CollectionUtils
+            List<PublisherType_v5_23> publishers = CollectionUtils
                     .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
                         if (oldVersion == null) {
                             return null;
                         }
                         switch (oldVersion) {
                             case WEBSERVICE:
-                                return PublisherType_v5_17.WEBSERVICE;
+                                return PublisherType_v5_23.WEBSERVICE;
                             case RESTFUL:
-                                return PublisherType_v5_17.RESTFUL;
+                                return PublisherType_v5_23.RESTFUL;
                             case RMI:
-                                return PublisherType_v5_17.RMI;
+                                return PublisherType_v5_23.RMI;
                             case KAFKA:
-                                return PublisherType_v5_17.KAFKA;
+                                return PublisherType_v5_23.KAFKA;
                             default:
                                 throw new IllegalArgumentException();
                         }
                     });
-            rulesDeploy.setPublishers(publishers.toArray(new PublisherType_v5_17[0]));
+            rulesDeploy.setPublishers(publishers.toArray(new PublisherType_v5_23[0]));
         }
 
         rulesDeploy.setRmiServiceClass(currentVersion.getRmiServiceClass());

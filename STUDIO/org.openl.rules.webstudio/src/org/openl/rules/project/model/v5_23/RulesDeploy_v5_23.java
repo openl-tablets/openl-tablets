@@ -15,9 +15,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.openl.rules.project.model.WildcardPattern;
-import org.openl.rules.project.model.v5_17.PublisherType_v5_17;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer.MapAdapter;
-import org.openl.rules.project.xml.v5_17.PublisherTypeXmlAdapter_v5_17;
+import org.openl.rules.project.xml.v5_23.PublisherTypeXmlAdapter_v5_23;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = RULES_DEPLOY_DESCRIPTOR_TAG)
@@ -28,8 +27,8 @@ public class RulesDeploy_v5_23 {
     private String serviceName;
     @XmlElementWrapper(name = PUBLISHERS_TAG)
     @XmlElement(name = PUBLISHER_TAG)
-    @XmlJavaTypeAdapter(PublisherTypeXmlAdapter_v5_17.class)
-    private PublisherType_v5_17[] publishers;
+    @XmlJavaTypeAdapter(PublisherTypeXmlAdapter_v5_23.class)
+    private PublisherType_v5_23[] publishers;
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
     private String serviceClass;
@@ -44,11 +43,11 @@ public class RulesDeploy_v5_23 {
     @XmlElement(name = MODULE_NAME)
     private WildcardPattern[] lazyModulesForCompilationPatterns;
 
-    public PublisherType_v5_17[] getPublishers() {
+    public PublisherType_v5_23[] getPublishers() {
         return publishers;
     }
 
-    public void setPublishers(PublisherType_v5_17[] publishers) {
+    public void setPublishers(PublisherType_v5_23[] publishers) {
         this.publishers = publishers;
     }
 
