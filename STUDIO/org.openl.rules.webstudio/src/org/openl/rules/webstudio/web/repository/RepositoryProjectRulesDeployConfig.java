@@ -256,22 +256,22 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     public boolean isVersionSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isPublishersSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isAnnotationTemplateClassNameSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isRmiServiceClassSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 
     public boolean isGroupsSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+        return getSupportedVersion().compareTo(SupportedVersion.V5_23) >= 0;
     }
 }

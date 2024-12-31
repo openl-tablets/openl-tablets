@@ -116,14 +116,6 @@ public class RulesDeployGuiWrapper {
     }
 
     public PublisherType[] getAvailablePublishers() {
-        if (version.compareTo(SupportedVersion.V5_15) <= 0) {
-            return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL};
-        }
-
-        if (version.compareTo(SupportedVersion.V5_22) <= 0) {
-            return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI};
-        }
-
         if (version.compareTo(SupportedVersion.V5_25) <= 0) {
             return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
         }
