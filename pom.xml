@@ -1510,8 +1510,8 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.openl</groupId>
-                <artifactId>org.openl.core.annotations</artifactId>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.annotations</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
