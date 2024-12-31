@@ -7,6 +7,7 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.rules.binding.TableProperties;
 import org.openl.rules.calc.AnySpreadsheetResult;
@@ -38,7 +39,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * @author Yury Molchan
  */
-public class TypeResolver {
+public class TypeResolver implements INameSpacedTypeFactory {
 
     private static final HashMap<String, IOpenClass> CORE_CLASSES = new HashMap<>();
 

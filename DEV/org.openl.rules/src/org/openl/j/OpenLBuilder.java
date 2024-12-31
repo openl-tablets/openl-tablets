@@ -17,23 +17,20 @@ public class OpenLBuilder implements IOpenLBuilder {
     public OpenL build(IUserContext ucxt) {
         IOpenLConfiguration conf = ucxt.getOpenLConfiguration(OpenL.OPENL_J_NAME);
         if (conf == null) {
-            OpenLConfiguration oPconf = getOpenLConfiguration(ucxt.getUserClassLoader());
-
-            ucxt.registerOpenLConfiguration(OpenL.OPENL_J_NAME, oPconf);
-            conf = oPconf;
+            ucxt.getUserClassLoader();
+            var op = new OpenLConfiguration();
+            op.setMethodFactory(new LibrariesRegistry());
+            ucxt.registerOpenLConfiguration(OpenL.OPENL_J_NAME, op);
+            conf = op;
         }
+
+        var typeFactory = new TypeResolver(ucxt.getUserClassLoader());
 
         OpenL op = new OpenL();
         op.setParser(new Parser());
-        op.setBinder(new Binder(conf, conf, conf, conf, op));
+        op.setBinder(new Binder(conf, conf, conf, typeFactory, op));
         op.setVm(new SimpleRulesVM());
         return op;
     }
 
-    private static OpenLConfiguration getOpenLConfiguration(ClassLoader classLoader) {
-        var op = new OpenLConfiguration();
-        op.setMethodFactory(new LibrariesRegistry());
-        op.setTypeResolver(new TypeResolver(classLoader));
-        return op;
-    }
 }

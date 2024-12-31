@@ -1,15 +1,8 @@
 package org.openl.conf;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.openl.binding.ICastFactory;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -22,10 +15,8 @@ import org.openl.types.IOpenField;
  */
 public class OpenLConfiguration implements IOpenLConfiguration {
 
-    private IOpenLConfiguration parent;
     private LibrariesRegistry methodFactory;
     private CastFactory castFactory;
-    private TypeResolver typeResolver;
 
     /*
      * (non-Javadoc)
@@ -57,55 +48,14 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return methodFactory.getMethodCaller(name, params, casts, ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace));
     }
 
-    private final Map<String, IOpenClass> cache = new HashMap<>();
-
-    @Override
-    public IOpenClass getType(String name) throws AmbiguousTypeException {
-        if (cache.containsKey(name)) {
-            return cache.get(name);
-        }
-
-        IOpenClass type = typeResolver == null ? null : typeResolver.getType(name);
-        if (parent == null) {
-            cache.put(name, type);
-            return type;
-        } else {
-            IOpenClass type1 = parent.getType(name);
-            if (type != null || type1 != null) {
-                if (type1 != null && type != null && !Objects.equals(type, type1)) {
-                    List<IOpenClass> foundTypes = new ArrayList<>();
-                    foundTypes.add(type);
-                    foundTypes.add(type1);
-                    throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
-                } else {
-                    cache.put(name, type != null ? type : type1);
-                    return type != null ? type : type1;
-                }
-            }
-            return null;
-        }
-    }
-
     @Override
     public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField field = methodFactory == null ? null : methodFactory.getField(name);
-        if (field != null) {
-            return field;
-        }
-        return parent == null ? null : parent.getVar(namespace, name, strictMatch);
+        return methodFactory.getField(name);
     }
 
     public void setMethodFactory(LibrariesRegistry librariesRegistry) {
         this.methodFactory = librariesRegistry;
         this.castFactory = new CastFactory();
         this.castFactory.setMethodFactory(librariesRegistry.asMethodFactory());
-    }
-
-    public void setParent(IOpenLConfiguration configuration) {
-        parent = configuration;
-    }
-
-    public void setTypeResolver(TypeResolver typeResolver) {
-        this.typeResolver = typeResolver;
     }
 }
