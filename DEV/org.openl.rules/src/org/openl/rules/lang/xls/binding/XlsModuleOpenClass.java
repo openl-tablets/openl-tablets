@@ -141,9 +141,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         this.globalTableProperties = TablePropertyDefinitionUtils.buildGlobalTableProperties();
 
-        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
-            this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);
-        }
+        this.spreadsheetResultOpenClass = new SpreadsheetResultOpenClass(this);
         if (usingModules != null) {
             setDependencies(usingModules);
             initDependencies();
