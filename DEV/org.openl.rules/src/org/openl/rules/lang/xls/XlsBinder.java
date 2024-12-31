@@ -40,7 +40,6 @@ import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.TypeResolver;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
@@ -360,26 +359,23 @@ public class XlsBinder implements IOpenBinder {
 
             // After recursive compilation non initialized fields need to be initialized for CSR type in compile time
             // and meta info initialized.
-            if (OpenLSystemProperties
-                    .isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
-                for (IOpenClass type : moduleOpenClass.getTypes()) {
-                    if (type instanceof CustomSpreadsheetResultOpenClass) {
-                        type.getFields().forEach(IOpenField::getType);
-                    }
+            for (IOpenClass type : moduleOpenClass.getTypes()) {
+                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                    type.getFields().forEach(IOpenField::getType);
                 }
-                moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getFields()
-                        .forEach(IOpenField::getType);
-                int combinedSpreadsheetResultOpenClassesSize = 0;
-                while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
-                        .getCombinedSpreadsheetResultOpenClasses()
-                        .size()) {
-                    combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
-                            .size();
-                    moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
-                            .forEach(e -> e.getFields().forEach(IOpenField::getType));
-                }
+            }
+            moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getFields()
+                    .forEach(IOpenField::getType);
+            int combinedSpreadsheetResultOpenClassesSize = 0;
+            while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
+                    .getCombinedSpreadsheetResultOpenClasses()
+                    .size()) {
+                combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                        .size();
+                moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                        .forEach(e -> e.getFields().forEach(IOpenField::getType));
             }
 
             ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
@@ -557,29 +553,26 @@ public class XlsBinder implements IOpenBinder {
     private Map<TableSyntaxNode, CustomSpreadsheetResultOpenClass> registerNewCustomSpreadsheetResultTypes(
             TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
-            Map<TableSyntaxNode, CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClassTableSyntaxNodes = new HashMap<>();
-            for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-                String sprResTypeName = getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode);
-                if (sprResTypeName != null) {
-                    CustomSpreadsheetResultOpenClass t = (CustomSpreadsheetResultOpenClass) rulesModuleBindingContext
-                            .getModule()
-                            .findType(sprResTypeName);
-                    if (t == null) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                                sprResTypeName,
-                                rulesModuleBindingContext.getModule(),
-                                rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
-                                XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()));
-                        rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
-                        t = customSpreadsheetResultOpenClass;
-                    }
-                    customSpreadsheetResultOpenClassTableSyntaxNodes.put(tableSyntaxNode, t);
+        Map<TableSyntaxNode, CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClassTableSyntaxNodes = new HashMap<>();
+        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+            String sprResTypeName = getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode);
+            if (sprResTypeName != null) {
+                CustomSpreadsheetResultOpenClass t = (CustomSpreadsheetResultOpenClass) rulesModuleBindingContext
+                        .getModule()
+                        .findType(sprResTypeName);
+                if (t == null) {
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                            sprResTypeName,
+                            rulesModuleBindingContext.getModule(),
+                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
+                            XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()));
+                    rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
+                    t = customSpreadsheetResultOpenClass;
                 }
+                customSpreadsheetResultOpenClassTableSyntaxNodes.put(tableSyntaxNode, t);
             }
-            return Collections.unmodifiableMap(customSpreadsheetResultOpenClassTableSyntaxNodes);
         }
-        return Collections.emptyMap();
+        return Collections.unmodifiableMap(customSpreadsheetResultOpenClassTableSyntaxNodes);
     }
 
     protected IBoundNode bindInternal(XlsModuleSyntaxNode moduleSyntaxNode,
