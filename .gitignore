@@ -25,7 +25,6 @@ maven-eclipse.xml
 
 #common tools files
 target
-**/bin/**
 .toDelete
 
 # Logs

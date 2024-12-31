@@ -169,19 +169,12 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     public static class AfterConverter5 extends AbstractServiceMethodAfterReturningAdvice<String> {
 
-        String methodName;
-
-        @InjectOpenMember
-        public void setIOpenMember(IOpenMember openMember) {
-            this.methodName = openMember.getName().toUpperCase();
-        }
-
         @Autowired
         IOpenMember openMethod;
 
         @Override
         public String afterReturning(Method interfaceMethod, Object result, Object... args) throws Exception {
-            return result + "-5: " + openMethod.getName() + " - @" + openMethod.getClass().getSimpleName() + " : " + methodName;
+            return result + "-5: " + openMethod.getName() + " - @" + openMethod.getClass().getSimpleName();
         }
     }
 
@@ -368,7 +361,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         assertTrue(service.getServiceBean() instanceof OverloadInterface);
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-        assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert - @SpreadsheetWrapper : CONVERT", instance.convert(runtimeContext, "INPUT"));
+        assertEquals("E-D-C-B-A+@Value+@PostConstruct-INPUT_-1-2-3+@Value+@PostConstruct-4-5: convert - @SpreadsheetWrapper", instance.convert(runtimeContext, "INPUT"));
     }
 
     @Test
