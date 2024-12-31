@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls;
 
 import org.openl.IOpenParser;
-import org.openl.j.BExGrammarWithParsingHelp;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
