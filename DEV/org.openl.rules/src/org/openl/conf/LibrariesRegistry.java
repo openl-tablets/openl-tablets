@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.Operators;
@@ -30,6 +32,7 @@ import org.openl.rules.util.Round;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Strings;
 import org.openl.rules.util.Sum;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -118,6 +121,17 @@ public class LibrariesRegistry {
             return fields.getFirst();
         }
         throw new AmbiguousFieldException(name, fields);
+    }
+
+    public INameSpacedMethodFactory asMethodFactory2() {
+        return (namespace, name, params, casts) -> {
+            boolean isOperator = ISyntaxConstants.OPERATORS_NAMESPACE.equals(namespace);
+            return LibrariesRegistry.this.getMethodCaller(name, params, casts, isOperator);
+        };
+    }
+
+    public INameSpacedVarFactory asVarFactory() {
+        return (namespace, name, strictMatch) -> getField(name);
     }
 
     public IMethodFactory asMethodFactory() {

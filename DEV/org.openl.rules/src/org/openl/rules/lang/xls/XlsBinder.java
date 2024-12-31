@@ -32,11 +32,10 @@ import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.module.ModuleNode;
-import org.openl.conf.IOpenLConfiguration;
 import org.openl.conf.IUserContext;
 import org.openl.conf.LibrariesRegistry;
-import org.openl.conf.OpenLConfiguration;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.conf.TypeResolver;
 import org.openl.dependency.CompiledDependency;
@@ -451,8 +450,6 @@ public class XlsBinder implements IOpenBinder {
     private static OpenL makeOpenL(String category, XlsModuleSyntaxNode moduleNode, List<SyntaxNodeException> exceptions, IUserContext userContext) {
         ClassLoader userClassLoader = userContext.getUserClassLoader();
 
-        OpenLConfiguration conf = new OpenLConfiguration();
-
         Collection<String> packageNames = new LinkedHashSet<>();
         Collection<Class<?>> classNames = new LinkedHashSet<>();
 
@@ -477,14 +474,13 @@ public class XlsBinder implements IOpenBinder {
             }
         }
 
-        conf.setMethodFactory(thisNamespaceLibrary);
         var typeResolver = new TypeResolver(userClassLoader, classNames, packageNames);
-
-        userContext.registerOpenLConfiguration(category, conf);
+        var castFactory = new CastFactory();
+        castFactory.setMethodFactory(thisNamespaceLibrary.asMethodFactory());
 
         OpenL op = new OpenL();
         op.setParser(new Parser());
-        op.setBinder(new Binder(conf, conf, conf, typeResolver, op));
+        op.setBinder(new Binder(thisNamespaceLibrary.asMethodFactory2(), castFactory, thisNamespaceLibrary.asVarFactory(), typeResolver, op));
         op.setVm(new SimpleRulesVM());
         return op;
     }
