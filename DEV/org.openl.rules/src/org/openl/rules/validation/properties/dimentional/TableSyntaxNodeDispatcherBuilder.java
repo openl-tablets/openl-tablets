@@ -56,7 +56,7 @@ import org.openl.util.StringUtils;
  *
  * @author DLiauchuk
  */
-class TableSyntaxNodeDispatcherBuilder {
+public class TableSyntaxNodeDispatcherBuilder {
 
     private final Logger log = LoggerFactory.getLogger(TableSyntaxNodeDispatcherBuilder.class);
 
@@ -86,7 +86,7 @@ class TableSyntaxNodeDispatcherBuilder {
     private final XlsModuleOpenClass moduleOpenClass;
     private final MatchingOpenMethodDispatcher dispatcher;
 
-    TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext rulesModuleBindingContext,
+    public TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext rulesModuleBindingContext,
                                      XlsModuleOpenClass moduleOpenClass,
                                      MatchingOpenMethodDispatcher dispatcher) {
         if (rulesModuleBindingContext == null || moduleOpenClass == null || dispatcher == null) {
@@ -120,7 +120,7 @@ class TableSyntaxNodeDispatcherBuilder {
     /**
      * Build dispatcher table for dimensional properties for particular overloaded method group.
      */
-    TableSyntaxNode build() {
+    public TableSyntaxNode build() {
         TableSyntaxNode tsn = null;
         if (needToBuild()) {
             // build source of decision table
@@ -203,9 +203,7 @@ class TableSyntaxNodeDispatcherBuilder {
 
         clearCompositeMethods(decisionTable);
 
-        if (!OpenLSystemProperties.isDTDispatchingMode(rulesModuleBindingContext.getExternalParams())) {
-            tsn.setMember(null);
-        }
+        tsn.setMember(null);
     }
 
     private void clearCompositeMethods(DecisionTable decisionTable) {
