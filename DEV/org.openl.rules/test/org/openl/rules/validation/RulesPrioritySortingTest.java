@@ -6,11 +6,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -24,19 +21,6 @@ public class RulesPrioritySortingTest {
         Double driverRiskScoreOverloadTest3(String driverRisk);
 
         Double driverRiskScoreNoOverloadTest(String driverRisk);
-    }
-
-    private static String csr;
-
-    @BeforeAll
-    public static void before() {
-        csr = System.getProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, "");
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
-    }
-
-    @AfterAll
-    public static void after() {
-        System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, csr);
     }
 
     @Test
@@ -96,7 +80,7 @@ public class RulesPrioritySortingTest {
         ITestI instance = TestUtils.create("test/rules/overload/MaxMinOverload.xls", ITestI.class);
         IRulesRuntimeContext context = instance.getRuntimeContext();
 
-        Object[][] testData = {{"2011-08-15", "lobb", 4.0}, {"2011-08-15", "lobb2", 7.0}};
+        Object[][] testData = {{"2011-08-15", "lobb", 4.0}, {"2013-08-15", "lobb2", 6.0}};
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 

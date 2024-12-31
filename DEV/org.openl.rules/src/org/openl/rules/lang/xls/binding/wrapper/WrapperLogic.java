@@ -18,7 +18,6 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
@@ -142,12 +141,6 @@ public final class WrapperLogic {
         var contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature(),
                 xlsModuleOpenClass.getRulesModuleBindingContext());
 
-        if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
-                    (OverloadedMethodsDispatcherTable) openMethod,
-                    contextPropertiesInjector,
-                    externalMethodCall);
-        }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass,
                     (MatchingOpenMethodDispatcher) openMethod,
