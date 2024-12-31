@@ -63,8 +63,6 @@ public final class UserContext implements IUserContext {
         return "home=" + userHome + "cl=" + printClassloader(userClassLoader);
     }
 
-    private final Map<String, IOpenLConfiguration> configurations = new HashMap<>();
-
     private final Map<String, OpenL> openls = new HashMap<>();
 
     @Override
@@ -79,21 +77,6 @@ public final class UserContext implements IUserContext {
             throw new OpenLConfigurationException(String.format("The openl %s already exists", name), null);
         }
         openls.put(name, opl);
-    }
-
-    @Override
-    public IOpenLConfiguration getOpenLConfiguration(String name) {
-        return configurations.get(name);
-    }
-
-    @Override
-    public void registerOpenLConfiguration(String name, IOpenLConfiguration oplc) {
-        IOpenLConfiguration configuration = configurations.get(name);
-        if (configuration != null) {
-            throw new OpenLConfigurationException(String.format("The configuration %s already exists", name),
-                    null);
-        }
-        configurations.put(name, oplc);
     }
 
     // Classloader is important part of user context, commonly each executable
