@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -101,17 +100,6 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                 if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {
                                     Parameter parameter = method.getParameters()[i];
                                     boolean isCompatibleParameter = false;
-                                    AnyType anyType = parameter.getAnnotation(AnyType.class);
-                                    if (anyType != null) {
-                                        String pattern = anyType.value();
-                                        if (pattern.isEmpty()) {
-                                            isCompatibleParameter = true;
-                                        } else {
-                                            if (Pattern.matches(pattern, typesInCurrentMethod[i].getClassName())) {
-                                                isCompatibleParameter = true;
-                                            }
-                                        }
-                                    }
                                     RulesType rulesType = parameter.getAnnotation(RulesType.class);
                                     if (rulesType != null) {
                                         try {
