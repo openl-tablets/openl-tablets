@@ -1,4 +1,4 @@
-package org.openl.j;
+package org.openl.rules.lang.xls;
 
 import org.openl.grammar.bexgrammar.BExGrammar;
 import org.openl.grammar.bexgrammar.ParseException;
@@ -7,7 +7,7 @@ import org.openl.grammar.bexgrammar.TokenMgrError;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.util.text.TextInterval;
 
-public class BExGrammarWithParsingHelp extends BExGrammar {
+class BExGrammarWithParsingHelp extends BExGrammar {
 
     private static final String ENCOUNTERED_PREFIX_EMPTY = "Encountered \"\"";
     private static final String WAS_EXPECTING = "Was expecting:";
