@@ -1,10 +1,6 @@
 package org.openl.rules.ruleservice.databinding.annotation;
 
-import java.lang.annotation.Annotation;
-
 public final class JacksonBindingConfigurationUtils {
-
-    private static final Class<?>[] CONFIGURATION_ANNOTATIONS = {MixInClassFor.class, MixInClass.class};
 
     private JacksonBindingConfigurationUtils() {
     }
@@ -14,11 +10,6 @@ public final class JacksonBindingConfigurationUtils {
         if (clazz == null) {
             return false;
         }
-        for (Class<?> annotation : CONFIGURATION_ANNOTATIONS) {
-            if (clazz.isAnnotationPresent((Class<? extends Annotation>) annotation)) {
-                return true;
-            }
-        }
-        return false;
+        return clazz.isAnnotationPresent(MixInClass.class);
     }
 }
