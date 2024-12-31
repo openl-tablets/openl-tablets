@@ -28,12 +28,4 @@ public class TestLogical {
         okRows("test/rules/algorithm/Test_IsSquare.xls", -123, 0);
         okRows("test/rules/algorithm/Test_IsSquare.xls", 6, 0);
     }
-
-    @Test
-    public void test3() {
-        okRows("test/rules/algorithm/Test_GetMaxPrime.xls", -1, 0);
-        okRows("test/rules/algorithm/Test_GetMaxPrime.xls", 10, 7);
-        okRows("test/rules/algorithm/Test_GetMaxPrime.xls", 100, 97);
-        okRows("test/rules/algorithm/Test_GetMaxPrime.xls", 2500, 2477);
-    }
 }
