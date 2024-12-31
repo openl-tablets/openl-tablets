@@ -1,8 +1,7 @@
 package org.openl.rules.convertor;
 
-import org.openl.IOpenBinder;
-import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -14,8 +13,7 @@ public class ObjectToDataOpenCastConvertor {
 
     private ICastFactory getCastFactory() {
         if (castFactory == null) {
-            IOpenBinder binder = OpenL.getInstance().getBinder();
-            castFactory = binder.getCastFactory();
+            castFactory = CastFactory.create();
         }
         return castFactory;
     }
