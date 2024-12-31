@@ -25,12 +25,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -62,6 +61,7 @@ import org.openl.util.StringUtils;
 @Service
 @SessionScope
 public class MergeConflictBean {
+    private static final XmlProjectDescriptorSerializer PROJECT_DESCRIPTOR_SERIALIZER = new XmlProjectDescriptorSerializer();
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
@@ -515,15 +515,12 @@ public class MergeConflictBean {
                 if (hasYourFile(rulesXmlFile) && hasTheirFile(rulesXmlFile)) {
                     String moduleInternalPath = name.substring(projectPath.length() + 1);
 
-                    IProjectDescriptorSerializer serializer = WebStudioUtils
-                            .getBean(ProjectDescriptorSerializerFactory.class)
-                            .getDefaultSerializer();
                     Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
 
                     Module module;
 
                     FileItem fileItem = repository.readHistory(rulesXmlFile, getTheirCommit());
-                    module = getModule(serializer, fileItem, moduleInternalPath);
+                    module = getModule(fileItem, moduleInternalPath);
                     if (module == null) {
                         if (mergeConflict.isMerging()) {
                             fileItem = repository.readHistory(rulesXmlFile, getYourCommit());
@@ -533,7 +530,7 @@ public class MergeConflictBean {
 
                             fileItem = userWorkspace.getLocalWorkspace().getRepository(repositoryId).read(localName);
                         }
-                        module = getModule(serializer, fileItem, moduleInternalPath);
+                        module = getModule(fileItem, moduleInternalPath);
                     }
 
                     if (module != null) {
@@ -552,8 +549,6 @@ public class MergeConflictBean {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
             Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
-            IProjectDescriptorSerializer serializer = WebStudioUtils.getBean(ProjectDescriptorSerializerFactory.class)
-                    .getDefaultSerializer();
 
             List<FileItem> files = new ArrayList<>();
             for (Map.Entry<String, List<Module>> entry : modulesToAppend.entrySet()) {
@@ -561,7 +556,7 @@ public class MergeConflictBean {
                 String rulesXmlFile = projectPath + "/rules.xml";
                 try (FileItem fileItem = repository.read(rulesXmlFile)) {
                     if (fileItem != null) {
-                        ProjectDescriptor descriptor = serializer.deserialize(fileItem.getStream());
+                        ProjectDescriptor descriptor = PROJECT_DESCRIPTOR_SERIALIZER.deserialize(fileItem.getStream());
                         Map<String, Module> modules = new LinkedHashMap<>();
                         modules.putAll(descriptor.getModules()
                                 .stream()
@@ -574,7 +569,7 @@ public class MergeConflictBean {
                             }
                         }
                         descriptor.setModules(new ArrayList<>(modules.values()));
-                        files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(serializer.serialize(descriptor))));
+                        files.add(new FileItem(rulesXmlFile, IOUtils.toInputStream(PROJECT_DESCRIPTOR_SERIALIZER.serialize(descriptor))));
                     }
                 }
             }
@@ -590,11 +585,10 @@ public class MergeConflictBean {
         }
     }
 
-    private Module getModule(IProjectDescriptorSerializer serializer,
-                             FileItem fileItem,
+    private Module getModule(FileItem fileItem,
                              String moduleInternalPath) throws IOException, JAXBException {
         try (InputStream stream = fileItem.getStream()) {
-            ProjectDescriptor descriptor = serializer.deserialize(stream);
+            ProjectDescriptor descriptor = PROJECT_DESCRIPTOR_SERIALIZER.deserialize(stream);
             for (Module module : descriptor.getModules()) {
                 if (module.getRulesRootPath().getPath().equals(moduleInternalPath)) {
                     return module;

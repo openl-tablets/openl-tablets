@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -20,11 +19,8 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.RulesDeploySerializerFactory;
-import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
@@ -42,7 +38,6 @@ public class RepositoryProjectRulesDeployConfig {
     private final Logger log = LoggerFactory.getLogger(RepositoryProjectRulesDeployConfig.class);
 
     private final RepositoryTreeState repositoryTreeState;
-    private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
     private final WebStudio studio = WebStudioUtils.getWebStudio(true);
 
@@ -57,12 +52,10 @@ public class RepositoryProjectRulesDeployConfig {
     private final RepositoryAclService designRepositoryAclService;
 
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
-                                              RulesDeploySerializerFactory rulesDeploySerializerFactory,
                                               @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
-        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
 
-        serializer = new XmlRulesDeployGuiWrapperSerializer(rulesDeploySerializerFactory);
+        serializer = new XmlRulesDeployGuiWrapperSerializer();
 
         this.designRepositoryAclService = designRepositoryAclService;
     }
@@ -91,7 +84,7 @@ public class RepositoryProjectRulesDeployConfig {
 
     public void createRulesDeploy() {
         created = true;
-        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
+        rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy());
         rulesDeploy.setProvideRuntimeContext(true);
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
     }
@@ -128,7 +121,7 @@ public class RepositoryProjectRulesDeployConfig {
             UserWorkspaceProject project = getProject();
 
             InputStream inputStream = IOUtils
-                    .toInputStream(serializer.serialize(rulesDeploy, getSupportedVersion(project)));
+                    .toInputStream(serializer.serialize(rulesDeploy));
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -163,19 +156,6 @@ public class RepositoryProjectRulesDeployConfig {
         }
     }
 
-    private SupportedVersion getSupportedVersion() {
-        return getSupportedVersion(getProject());
-    }
-
-    private SupportedVersion getSupportedVersion(UserWorkspaceProject project) {
-        if (project.getRepository() instanceof FileSystemRepository) {
-            File projectFolder = new File(((FileSystemRepository) project.getRepository()).getRoot(),
-                    project.getFolderPath());
-            return rulesDeploySerializerFactory.getSupportedVersion(projectFolder);
-        }
-        return SupportedVersion.getLastVersion();
-    }
-
     private UserWorkspaceProject getProject() {
         return repositoryTreeState.getSelectedProject();
     }
@@ -189,7 +169,7 @@ public class RepositoryProjectRulesDeployConfig {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             try (var content = artefact.getContent()) {
                 var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);
-                return serializer.deserialize(sourceString, getSupportedVersion(project));
+                return serializer.deserialize(sourceString);
             }
         } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
@@ -256,18 +236,18 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     public boolean isVersionSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+        return true;
     }
 
     public boolean isPublishersSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_14) >= 0;
+        return true;
     }
 
     public boolean isAnnotationTemplateClassNameSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_16) >= 0;
+        return true;
     }
 
     public boolean isGroupsSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
+        return true;
     }
 }

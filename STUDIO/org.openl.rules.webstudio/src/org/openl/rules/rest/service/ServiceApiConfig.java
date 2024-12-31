@@ -10,7 +10,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.WebStudio;
@@ -59,7 +58,6 @@ public class ServiceApiConfig {
                                              ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                                              PathFilter zipFilter,
                                              ZipCharsetDetector zipCharsetDetector,
-                                             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
                                              PropertyResolver propertyResolver,
                                              DeploymentManager deploymentManager) {
         var rulesUserSession = new RulesUserSession();
@@ -75,7 +73,6 @@ public class ServiceApiConfig {
                 projectDescriptorArtefactResolver,
                 zipFilter,
                 zipCharsetDetector,
-                projectDescriptorSerializerFactory,
                 propertyResolver,
                 deploymentManager);
         rulesUserSession.setWebStudio(webStudio);

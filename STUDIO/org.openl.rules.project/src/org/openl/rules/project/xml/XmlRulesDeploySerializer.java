@@ -19,11 +19,8 @@ import org.openl.rules.project.model.RulesDeploy;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
-    public static final String MODULE_NAME = "module";
-    public static final String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
     public static final String PUBLISHER_TAG = "publisher";
     public static final String PUBLISHERS_TAG = "publishers";
-    public static final String NAME_TAG = "name";
 
     private final JAXBSerializer jaxbSerializer;
 

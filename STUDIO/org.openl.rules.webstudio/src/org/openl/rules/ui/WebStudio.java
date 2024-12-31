@@ -51,7 +51,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -168,7 +168,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final ProjectDescriptorArtefactResolver pdArtefactResolver;
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
-    private final ProjectDescriptorSerializerFactory pdSerializerFactory;
 
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
@@ -185,7 +184,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                      ProjectDescriptorArtefactResolver projectDescriptorArtefactResolver,
                      PathFilter zipFilter,
                      ZipCharsetDetector zipCharsetDetector,
-                     ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
                      PropertyResolver propertyResolver,
                      DeploymentManager deploymentManager
 
@@ -197,7 +195,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         this.pdArtefactResolver = projectDescriptorArtefactResolver;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
-        this.pdSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesUserSession = rulesUserSession;
         this.propertyResolver = propertyResolver;
         this.deploymentManager = deploymentManager;
@@ -303,7 +300,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     getModel().clearModuleInfo();
 
                     // Revert project name in rules.xml
-                    var serializer = pdSerializerFactory.getSerializer(project);
+                    var serializer = new XmlProjectDescriptorSerializer();
                     AProjectResource artefact = (AProjectResource) project
                             .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                     content = artefact.getContent();

@@ -46,8 +46,6 @@ import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
-import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -69,9 +67,7 @@ import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
-import org.openl.rules.project.xml.RulesDeploySerializerFactory;
-import org.openl.rules.project.xml.SupportedVersion;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.table.formatters.Formats;
@@ -103,13 +99,11 @@ public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String CANNOT_BE_EMPTY_MESSAGE = "Cannot be empty";
     public static final String RECONCILIATION = "reconciliation";
+    private static final XmlRulesDeploySerializer RULES_DEPLOY_XML_SERIALIZER = new XmlRulesDeploySerializer();
 
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     private final RepositoryTreeState repositoryTreeState;
-
-    private final ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
-    private final RulesDeploySerializerFactory rulesDeploySerializerFactory;
 
     private final WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -126,23 +120,17 @@ public class ProjectBean {
 
     private String currentModuleName;
 
-    private SupportedVersion supportedVersion;
     private String newFileName;
     private String currentPathPattern;
     private Integer currentModuleIndex;
-    private IRulesDeploySerializer rulesDeploySerializer;
 
     private final RepositoryAclService designRepositoryAclService;
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
-                       ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-                       RulesDeploySerializerFactory rulesDeploySerializerFactory,
                        @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
-        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
-        this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
@@ -1396,24 +1384,17 @@ public class ProjectBean {
                                          OpenAPIGeneratedClasses generatedClasses,
                                          boolean rulesDeployExists) {
         try {
-            configureSerializer();
-        } catch (IOException | JAXBException e) {
-            log.error("Error was occurred during serializer configuration.");
-        }
-        try {
             if (rulesDeployExists) {
                 AProjectResource artifact = (AProjectResource) currentProject.getArtefact(RULES_DEPLOY_XML);
                 validatePermissionForEditing(artifact);
                 try (InputStream rulesDeployContent = artifact.getContent()) {
-                    RulesDeploy rulesDeploy = rulesDeploySerializerFactory
-                            .getSerializer(SupportedVersion.getLastVersion())
-                            .deserialize(rulesDeployContent);
+                    RulesDeploy rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.deserialize(rulesDeployContent);
                     artifact.setContent(openAPIHelper
-                            .editOrCreateRulesDeploy(rulesDeploySerializer, projectModel, generatedClasses, rulesDeploy));
+                            .editOrCreateRulesDeploy(RULES_DEPLOY_XML_SERIALIZER, projectModel, generatedClasses, rulesDeploy));
                 }
             } else {
                 try (ByteArrayInputStream rulesDeployInputStream = openAPIHelper
-                        .editOrCreateRulesDeploy(rulesDeploySerializer, projectModel, generatedClasses, null)) {
+                        .editOrCreateRulesDeploy(RULES_DEPLOY_XML_SERIALIZER, projectModel, generatedClasses, null)) {
                     validatePermissionForCreating(currentProject, RULES_DEPLOY_XML);
                     currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
                 }
@@ -1460,7 +1441,6 @@ public class ProjectBean {
         InputStream rulesDeployContent = null;
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            configureSerializer();
             projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 
@@ -1486,10 +1466,9 @@ public class ProjectBean {
                 AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
                 validatePermissionForEditing(artifact);
                 rulesDeployContent = artifact.getContent();
-                RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
-                        .deserialize(rulesDeployContent);
+                RulesDeploy rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.deserialize(rulesDeployContent);
                 artifact.setContent(new ByteArrayInputStream(
-                        rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
+                        RULES_DEPLOY_XML_SERIALIZER.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
             }
 
             refreshProject(project.getRepository().getId(), project.getName());
@@ -1503,21 +1482,6 @@ public class ProjectBean {
             IOUtils.closeQuietly(rulesDeployContent);
         }
         WebStudioUtils.getWebStudio().resetProjects();
-    }
-
-    private void configureSerializer() throws IOException, JAXBException {
-        IProjectDescriptorSerializer serializer;
-        SupportedVersion version = supportedVersion;
-        if (version == null) {
-            version = getSupportedVersion();
-        }
-        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder().toFile();
-        projectDescriptorSerializerFactory.setSupportedVersion(projectFolder, version);
-
-        serializer = projectDescriptorSerializerFactory.getSerializer(version);
-        projectDescriptorManager.setSerializer(serializer);
-
-        rulesDeploySerializer = rulesDeploySerializerFactory.getSerializer(version);
     }
 
     private void clean(ProjectDescriptor descriptor) {
@@ -1798,29 +1762,12 @@ public class ProjectBean {
         return studio.getCurrentProjectDescriptor().getPropertiesFileNameProcessor();
     }
 
-    public SupportedVersion getSupportedVersion() {
-        if (supportedVersion != null) {
-            return supportedVersion;
-        }
-
-        ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
-        return projectDescriptorSerializerFactory.getSupportedVersion(descriptor.getProjectFolder().toFile());
-    }
-
-    public void setSupportedVersion(SupportedVersion supportedVersion) {
-        this.supportedVersion = supportedVersion;
-    }
-
     public boolean isPropertiesFileNamePatternSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
+        return true;
     }
 
     public boolean isProjectDependenciesSupported() {
-        return getSupportedVersion().compareTo(SupportedVersion.V5_12) >= 0;
-    }
-
-    public SupportedVersion[] getPossibleVersions() {
-        return SupportedVersion.values();
+        return true;
     }
 
     private ProjectDescriptor getOriginalProjectDescriptor() {

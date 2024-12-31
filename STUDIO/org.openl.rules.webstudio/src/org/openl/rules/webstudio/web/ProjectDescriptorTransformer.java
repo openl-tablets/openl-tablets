@@ -14,8 +14,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.IOUtils;
 
 public class ProjectDescriptorTransformer implements ResourceTransformer {
@@ -40,9 +39,7 @@ public class ProjectDescriptorTransformer implements ResourceTransformer {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                IProjectDescriptorSerializer serializer = WebStudioUtils
-                        .getBean(ProjectDescriptorSerializerFactory.class)
-                        .getSerializer(resource);
+                IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
                 ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(newProjectName);
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));

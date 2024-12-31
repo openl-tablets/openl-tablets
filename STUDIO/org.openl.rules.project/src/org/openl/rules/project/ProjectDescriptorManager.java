@@ -56,10 +56,6 @@ public class ProjectDescriptorManager {
         return serializer;
     }
 
-    public void setSerializer(IProjectDescriptorSerializer serializer) {
-        this.serializer = serializer;
-    }
-
     public ProjectDescriptor readDescriptor(InputStream source) throws JAXBException {
         return serializer.deserialize(source);
     }

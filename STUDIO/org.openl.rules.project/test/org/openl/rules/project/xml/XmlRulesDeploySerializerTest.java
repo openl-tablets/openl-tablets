@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.project.model.WildcardPattern;
 
 public class XmlRulesDeploySerializerTest {
 
@@ -31,10 +30,6 @@ public class XmlRulesDeploySerializerTest {
         assertEquals(1, rulesDeploy.getPublishers().length);
         assertEquals(RulesDeploy.PublisherType.RESTFUL, rulesDeploy.getPublishers()[0]);
         assertEquals("someURL", rulesDeploy.getUrl());
-        assertNotNull(rulesDeploy.getLazyModulesForCompilationPatterns());
-        assertEquals(2, rulesDeploy.getLazyModulesForCompilationPatterns().length);
-        assertEquals("some1*", rulesDeploy.getLazyModulesForCompilationPatterns()[0].getValue());
-        assertEquals("some2*", rulesDeploy.getLazyModulesForCompilationPatterns()[1].getValue());
         assertEquals("v1", rulesDeploy.getVersion());
         assertEquals("group1,group2", rulesDeploy.getGroups());
         assertEquals("rmiName", rulesDeploy.getRmiName());
@@ -54,9 +49,6 @@ public class XmlRulesDeploySerializerTest {
         RulesDeploy rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
-        rulesDeploy.setLazyModulesForCompilationPatterns(
-                new WildcardPattern[]{new WildcardPattern("some1*"),
-                        new WildcardPattern("some2*")});
         rulesDeploy.setInterceptingTemplateClassName(String.class.getName());
         rulesDeploy.setAnnotationTemplateClassName(String.class.getName());
         rulesDeploy.setServiceClass(String.class.getName());
@@ -95,9 +87,5 @@ public class XmlRulesDeploySerializerTest {
             "            <string>value</string>\n" +
             "        </entry>\n" +
             "    </configuration>\n" +
-            "    <lazy-modules-for-compilation>\n" +
-            "        <module name=\"some1*\"/>\n" +
-            "        <module name=\"some2*\"/>\n" +
-            "    </lazy-modules-for-compilation>\n" +
             "</rules-deploy>";
 }

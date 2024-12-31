@@ -1,16 +1,11 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.bind.JAXBException;
 
-import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.BaseRulesDeploySerializer;
-import org.openl.rules.project.xml.RulesDeploySerializerFactory;
-import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -20,15 +15,12 @@ public class XmlRulesDeployGuiWrapperSerializer {
             Pattern.DOTALL);
     private static final Pattern ENCLOSING_CONFIG_PATTERN = Pattern
             .compile("^\\s*<configuration>.*</configuration>\\s*$", Pattern.DOTALL);
+    private static final XmlRulesDeploySerializer RULES_DEPLOY_XML_SERIALIZER = new XmlRulesDeploySerializer();
 
-    private final RulesDeploySerializerFactory serializerFactory;
-
-    public XmlRulesDeployGuiWrapperSerializer(RulesDeploySerializerFactory serializerFactory) {
-        this.serializerFactory = serializerFactory;
-    }
-
-    public String serialize(final RulesDeployGuiWrapper wrapper, SupportedVersion version) throws JAXBException, IOException {
-        String rulesDeploy = getSerializer(version).serialize(wrapper.getRulesDeploy());
+    public String serialize(final RulesDeployGuiWrapper wrapper) throws JAXBException, IOException {
+        var rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.serialize(wrapper.getRulesDeploy());
+        rulesDeploy = rulesDeploy.replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
+                .replaceAll("(?m)^[ \t]*\r?\n", "");
 
         String configuration = "";
         if (StringUtils.isNotBlank(wrapper.getConfiguration())) {
@@ -45,7 +37,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         return rulesDeploy;
     }
 
-    public RulesDeployGuiWrapper deserialize(String source, SupportedVersion version) throws JAXBException {
+    public RulesDeployGuiWrapper deserialize(String source) throws JAXBException {
         Matcher matcher = CONFIGURATION_PATTERN.matcher(source);
         String configuration = null;
 
@@ -54,28 +46,9 @@ public class XmlRulesDeployGuiWrapperSerializer {
             source = matcher.replaceFirst("");
         }
 
-        RulesDeploy rulesDeploy = getSerializer(version).deserialize(IOUtils.toInputStream(source));
-        RulesDeployGuiWrapper result = new RulesDeployGuiWrapper(rulesDeploy, version);
+        RulesDeploy rulesDeploy = RULES_DEPLOY_XML_SERIALIZER.deserialize(IOUtils.toInputStream(source));
+        RulesDeployGuiWrapper result = new RulesDeployGuiWrapper(rulesDeploy);
         result.setConfiguration(configuration);
         return result;
-    }
-
-    private IRulesDeploySerializer getSerializer(SupportedVersion version) throws JAXBException {
-        BaseRulesDeploySerializer serializer = (BaseRulesDeploySerializer) serializerFactory.getSerializer(version);
-
-        return new IRulesDeploySerializer() {
-            @Override
-            public RulesDeploy deserialize(InputStream source) throws JAXBException {
-                return serializer.deserialize(source);
-            }
-
-            @Override
-            public String serialize(RulesDeploy source) throws JAXBException, IOException {
-                // We process the "configuration" field ourself
-                return serializer.serialize(source)
-                        .replaceAll("<configuration>[\\s\\S]*?</configuration>", "")
-                        .replaceAll("(?m)^[ \t]*\r?\n", "");
-            }
-        };
     }
 }

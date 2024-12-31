@@ -76,7 +76,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -168,9 +168,6 @@ public class RepositoryTreeController {
 
     @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
-
-    @Autowired
-    private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
     @Autowired
     private ZipCharsetDetector zipCharsetDetector;
@@ -947,7 +944,7 @@ public class RepositoryTreeController {
         Collection<String> modulePaths = new HashSet<>();
         findModulePaths(aProjectArtefact, modulePaths);
         if (projectDescriptorArtifact instanceof AProjectResource) {
-            IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory.getSerializer(selectedProject);
+            var serializer = new XmlProjectDescriptorSerializer();
 
             String projectDescriptorPath = projectDescriptorArtifact.getArtefactPath()
                     .withoutFirstSegment()
@@ -2286,8 +2283,7 @@ public class RepositoryTreeController {
                 AProjectArtefact projectDescriptorArtifact = selectedProject
                         .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (projectDescriptorArtifact instanceof AProjectResource) {
-                    IProjectDescriptorSerializer serializer = projectDescriptorSerializerFactory
-                            .getSerializer(selectedProject);
+                    var serializer = new XmlProjectDescriptorSerializer();
 
                     AProjectResource resource = (AProjectResource) projectDescriptorArtifact;
                     if (!aclServiceProvider.getDesignRepoAclService().isGranted(resource, List.of(AclPermission.EDIT))) {
@@ -2941,11 +2937,6 @@ public class RepositoryTreeController {
 
     public void setEraseProjectComment(String eraseProjectComment) {
         this.eraseProjectComment = eraseProjectComment;
-    }
-
-    public void setProjectDescriptorSerializerFactory(
-            ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory) {
-        this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
     }
 
     public void setZipCharsetDetector(ZipCharsetDetector zipCharsetDetector) {

@@ -42,8 +42,6 @@ import org.openl.util.RuntimeExceptionWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = PROJECT_DESCRIPTOR_TAG)
 public class ProjectDescriptor {
-    @XmlTransient
-    private String id;
     @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
     private String comment;
@@ -107,22 +105,6 @@ public class ProjectDescriptor {
         } else {
             return parent.toUri().relativize(projectFolder.toUri()).toString();
         }
-    }
-
-    /**
-     * @deprecated Id is not used anymore. Use {@link #getName()} instead.
-     */
-    @Deprecated
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @deprecated Id is not used anymore. Use {@link #setName(String)} instead.
-     */
-    @Deprecated
-    public void setId(String id) {
-        this.id = id;
     }
 
     public OpenAPI getOpenapi() {
