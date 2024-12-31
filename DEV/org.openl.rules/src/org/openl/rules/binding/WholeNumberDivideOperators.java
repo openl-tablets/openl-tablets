@@ -4,13 +4,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
-import org.openl.conf.OperatorsNamespace;
+import org.openl.rules.annotations.Operator;
 
 @Deprecated
-@OperatorsNamespace
+@Operator
 public class WholeNumberDivideOperators {
-    private static final String DIVISION_BY_ZERO = "Division by zero";
-
     public static byte divide(byte x, byte y) {
         return (byte) (x / y);
     }

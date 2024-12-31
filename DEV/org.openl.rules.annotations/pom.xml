@@ -6,11 +6,10 @@
         <artifactId>org.openl.rules.dev-pom</artifactId>
         <version>5.27.11-SNAPSHOT</version>
     </parent>
-    <groupId>org.openl</groupId>
-    <artifactId>org.openl.core.annotations</artifactId>
+    <artifactId>org.openl.rules.annotations</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - DEV - Core - Annotations</name>
-    <description>OpenL core</description>
+    <name>OpenL - Rules - Annotations (API)</name>
+    <description>OpenL annotations for extending functionality of OpenL Rules</description>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>
