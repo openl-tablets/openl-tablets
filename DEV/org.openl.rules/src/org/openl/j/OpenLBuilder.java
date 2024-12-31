@@ -50,32 +50,6 @@ import org.openl.rules.vm.SimpleRulesVM;
 
 public class OpenLBuilder implements IOpenLBuilder {
 
-    static {
-        // OpenL types which are located in 'rules' module, but must be registered in the core by default.
-        TypeResolver.putClass(CharRange.class);
-        TypeResolver.putClass(DateRange.class);
-        TypeResolver.putClass(IntRange.class);
-        TypeResolver.putClass(StringRange.class);
-        TypeResolver.putClass(DoubleRange.class);
-
-        TypeResolver.putClass(SpreadsheetResult.class);
-        TypeResolver.putClass(AnySpreadsheetResult.class);
-        TypeResolver.putClass(TableProperties.class);
-
-        TypeResolver.putClass(CaProvincesEnum.class);
-        TypeResolver.putClass(CaRegionsEnum.class);
-        TypeResolver.putClass(CountriesEnum.class);
-        TypeResolver.putClass(CurrenciesEnum.class);
-        TypeResolver.putClass(LanguagesEnum.class);
-        TypeResolver.putClass(RegionsEnum.class);
-        TypeResolver.putClass(OriginsEnum.class);
-        TypeResolver.putClass(UsRegionsEnum.class);
-        TypeResolver.putClass(UsStatesEnum.class);
-        TypeResolver.putClass(DTEmptyResultProcessingEnum.class);
-        TypeResolver.putClass(RecalculateEnum.class);
-        TypeResolver.putClass(ValidateDTEnum.class);
-    }
-
     @Override
     public OpenL build(IUserContext ucxt) {
         IOpenLConfiguration conf = ucxt.getOpenLConfiguration(OpenL.OPENL_J_NAME);
