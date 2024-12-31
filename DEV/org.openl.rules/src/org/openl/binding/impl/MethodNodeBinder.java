@@ -9,7 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.exception.MethodNotFoundException;
+import org.openl.binding.impl.method.AOpenMethodDelegator;
+import org.openl.binding.impl.method.MultiCallOpenMethod;
+import org.openl.binding.impl.method.MultiCallOpenMethodMT;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -17,11 +21,16 @@ import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
+import org.openl.rules.method.ITablePropertiesMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.util.DomainUtils;
 import org.openl.util.OpenClassUtils;
 
@@ -32,7 +41,21 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
+    private IOpenMethod extractMethod(IOpenMethod openMethod) {
+        if (openMethod instanceof AOpenMethodDelegator) {
+            return extractMethod(((AOpenMethodDelegator) openMethod).getDelegate());
+        }
+        return openMethod;
+    }
+
     protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
+        if (methodCaller instanceof MultiCallOpenMethod) {
+            IOpenMethod openMethod = extractMethod(methodCaller.getMethod());
+            if (isParallel(openMethod)) {
+                MultiCallOpenMethod multiCallOpenMethod = (MultiCallOpenMethod) methodCaller;
+                return new MultiCallOpenMethodMT((multiCallOpenMethod));
+            }
+        }
         return methodCaller;
     }
 
@@ -128,6 +151,36 @@ public class MethodNodeBinder extends ANodeBinder {
                 bindingContext.popMessages();
             }
         }
+    }
+
+    private boolean isParallel(IOpenMethod openMethod) {
+        boolean parallel = false;
+        if (openMethod instanceof ITablePropertiesMethod) {
+            ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) openMethod.getMethod();
+            if (Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
+                parallel = true;
+            }
+        }
+        if (openMethod instanceof OpenMethodDispatcher) {
+            OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) openMethod;
+            boolean f = true;
+            for (IOpenMethod method : openMethodDispatcher.getCandidates()) {
+                if (method instanceof ITablePropertiesMethod) {
+                    ITablePropertiesMethod tablePropertiesMethod = (ITablePropertiesMethod) method;
+                    if (!Boolean.TRUE.equals(tablePropertiesMethod.getMethodProperties().getParallel())) {
+                        f = false;
+                        break;
+                    }
+                } else {
+                    f = false;
+                    break;
+                }
+            }
+            if (f) {
+                parallel = true;
+            }
+        }
+        return parallel;
     }
 
     private void validateMethodParameters(IMethodCaller methodCaller,
@@ -257,6 +310,11 @@ public class MethodNodeBinder extends ANodeBinder {
                 log(methodName, argumentTypes, "field access method");
                 return new FieldBoundNode(methodNode, field, children[0], dims);
             }
+        }
+        if (methodName
+                .startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN) && SpreadsheetResult.class
+                .equals(argumentType.getInstanceClass())) {
+            throw new FieldNotFoundException("", methodName, argumentType);
         }
         return null;
     }
