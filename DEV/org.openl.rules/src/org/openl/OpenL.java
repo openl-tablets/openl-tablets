@@ -1,9 +1,12 @@
 package org.openl;
 
-import org.openl.conf.IOpenLBuilder;
-import org.openl.conf.IUserContext;
+import org.openl.binding.impl.Binder;
+import org.openl.binding.impl.cast.CastFactory;
+import org.openl.conf.LibrariesRegistry;
 import org.openl.conf.OpenLConfigurationException;
-import org.openl.conf.UserContext;
+import org.openl.conf.TypeResolver;
+import org.openl.rules.lang.xls.Parser;
+import org.openl.rules.vm.SimpleRulesVM;
 
 /**
  * This class describes OpenL engine context abstraction that used during compilation process.
@@ -18,10 +21,6 @@ import org.openl.conf.UserContext;
  * @author snshor
  */
 public class OpenL {
-    public static final String OPENL_J_NAME = "org.openl.j";
-
-    private static final String DEFAULT_USER_HOME = ".";
-
     private IOpenParser parser;
 
     private IOpenBinder binder;
@@ -39,54 +38,19 @@ public class OpenL {
      */
     // TODO: Do not use this method! Should be removed!
     public static synchronized OpenL getInstance() {
-        return getInstance(OPENL_J_NAME, new UserContext(OpenL.class.getClassLoader(), DEFAULT_USER_HOME));
-    }
 
-    /**
-     * Gets an instance of OpenL. Each instance is cached with name and user context as it's key. To remove cached
-     * instance use #remove method
-     *
-     * @param name        IOpenL name, for example org.openl.java12.v101
-     * @param userContext user context
-     * @return instance of IOpenL
-     * @throws OpenLConfigurationException
-     * @see IUserContext
-     */
-    public static synchronized OpenL getInstance(String name, IUserContext userContext) {
+        var librariesRegistry = new LibrariesRegistry();
+        var castFactory = new CastFactory();
+        castFactory.setMethodFactory(librariesRegistry.asMethodFactory());
+        var methodFactory = librariesRegistry.asMethodFactory2();
+        var varFactory = librariesRegistry.asVarFactory();
+        var typeFactory = new TypeResolver(OpenL.class.getClassLoader());
 
-        try {
-            var builderClassName = name + "." + "OpenLBuilder";
-            Class<?> builderClass;
-            try {
-                builderClass = userContext.getUserClassLoader().loadClass(builderClassName);
-            } catch (Exception ignored) {
-                builderClass = Class.forName(builderClassName);
-            }
-
-            var builder = (IOpenLBuilder) builderClass.getDeclaredConstructor().newInstance();
-            return getInstance(name, userContext, builder);
-        } catch (Exception ex) {
-            throw new OpenLConfigurationException("Error creating builder: ", ex);
-        }
-    }
-
-    /**
-     * Gets an instance of OpenL. Each instance is cached with name and user context as it's key.
-     *
-     * @param name        IOpenL name
-     * @param userContext user context
-     * @param builder     {@link IOpenLBuilder} instance which used to build new instance of OpenL if that does not exist
-     * @return instance of IOpenL
-     * @throws OpenLConfigurationException
-     * @see IUserContext
-     */
-    public static synchronized OpenL getInstance(String name, IUserContext userContext, IOpenLBuilder builder) {
-        OpenL openl = userContext.getOpenL(name);
-        if (openl == null) {
-            openl = builder.build(userContext);
-            userContext.registerOpenL(name, openl);
-        }
-        return openl;
+        OpenL op = new OpenL();
+        op.setParser(new Parser());
+        op.setBinder(new Binder(methodFactory, castFactory, varFactory, typeFactory, op));
+        op.setVm(new SimpleRulesVM());
+        return op;
     }
 
     /**
