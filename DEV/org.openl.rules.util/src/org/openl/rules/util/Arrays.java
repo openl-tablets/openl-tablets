@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import org.openl.binding.impl.method.NonNullLiteral;
+import org.openl.rules.annotations.NonNullLiteral;
 
 /**
  * A set of util methods to work with arrays.

@@ -26,7 +26,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.cast.VOID;
-import org.openl.binding.impl.method.IgnoreNonVarargsMatching;
+import org.openl.rules.annotations.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;

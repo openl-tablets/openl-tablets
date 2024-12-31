@@ -12,11 +12,11 @@
     <description>OpenL Tablets rules engine and related frameworks</description>
     <modules>
         <module>org.openl.commons</module>
-        <module>org.openl.spring</module>
+        <module>org.openl.rules.annotations</module>
         <module>org.openl.rules.util</module>
-        <module>org.openl.core.annotations</module>
-        <module>org.openl.rules</module>
-        <module>org.openl.rules.constrainer</module>
         <module>org.openl.rules.gen</module>
+        <module>org.openl.rules.constrainer</module>
+        <module>org.openl.rules</module>
+        <module>org.openl.spring</module>
     </modules>
 </project>

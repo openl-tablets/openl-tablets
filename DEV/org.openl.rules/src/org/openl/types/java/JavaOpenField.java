@@ -9,7 +9,7 @@ package org.openl.types.java;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import org.openl.runtime.ContextProperty;
+import org.openl.rules.annotations.ContextProperty;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;

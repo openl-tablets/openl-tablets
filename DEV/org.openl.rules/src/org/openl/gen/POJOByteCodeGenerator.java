@@ -28,7 +28,7 @@ import org.openl.gen.writers.HashCodeWriter;
 import org.openl.gen.writers.ISO8601DateFormater;
 import org.openl.gen.writers.SettersWriter;
 import org.openl.gen.writers.ToStringWriter;
-import org.openl.runtime.ContextProperty;
+import org.openl.rules.annotations.ContextProperty;
 import org.openl.util.JAXBUtils;
 
 /**
