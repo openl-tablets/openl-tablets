@@ -1,7 +1,5 @@
 package org.openl.rules.project.model;
 
-import static org.openl.rules.project.xml.XmlRulesDeploySerializer.LAZY_MODULES_FOR_COMPILATION;
-import static org.openl.rules.project.xml.XmlRulesDeploySerializer.MODULE_NAME;
 import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHERS_TAG;
 import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHER_TAG;
 import static org.openl.rules.project.xml.XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG;
@@ -44,10 +42,6 @@ public class RulesDeploy {
     private String groups;
     @XmlJavaTypeAdapter(MapAdapter.class)
     private Map<String, Object> configuration;
-
-    @XmlElementWrapper(name = LAZY_MODULES_FOR_COMPILATION)
-    @XmlElement(name = MODULE_NAME)
-    private WildcardPattern[] lazyModulesForCompilationPatterns;
 
     public PublisherType[] getPublishers() {
         return publishers;
@@ -119,16 +113,6 @@ public class RulesDeploy {
 
     public void setAnnotationTemplateClassName(String annotationTemplateClassName) {
         this.annotationTemplateClassName = annotationTemplateClassName;
-    }
-
-    @Deprecated
-    public WildcardPattern[] getLazyModulesForCompilationPatterns() {
-        return lazyModulesForCompilationPatterns;
-    }
-
-    @Deprecated
-    public void setLazyModulesForCompilationPatterns(WildcardPattern[] lazyModulesForCompilationPatterns) {
-        this.lazyModulesForCompilationPatterns = lazyModulesForCompilationPatterns;
     }
 
     public String getGroups() {

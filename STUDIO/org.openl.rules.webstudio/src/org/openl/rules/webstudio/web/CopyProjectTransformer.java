@@ -16,15 +16,12 @@ import org.slf4j.LoggerFactory;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProjectTags;
 import org.openl.rules.project.abstraction.ResourceTransformer;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
@@ -53,9 +50,7 @@ public class CopyProjectTransformer implements ResourceTransformer {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                IProjectDescriptorSerializer serializer = WebStudioUtils
-                        .getBean(ProjectDescriptorSerializerFactory.class)
-                        .getSerializer(resource);
+                IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
                 ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(newProjectName);
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));

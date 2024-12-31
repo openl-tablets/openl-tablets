@@ -186,7 +186,6 @@ public class ProjectDescriptorManagerTest {
     @Test
     public void testWriteDescriptor1() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
-        descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
         descriptor.setComment("comment1");
         descriptor.setPropertiesFileNamePatterns(new String[]{"{lob}"});

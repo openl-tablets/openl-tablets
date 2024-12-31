@@ -400,32 +400,6 @@
 
             <h:form prependId="false" id="editProjectForm">
                 <table class="properties properties-form wide">
-                    <tr>
-                        <td style="padding-top: 0">OpenL version compatibility:</td>
-                        <td class="aligned-property" style="padding-top: 0">
-                        <span id="version-compatibility-short" class="expandable-link">
-                            <h:outputText
-                                    value="#{projectBean.supportedVersion.lastVersion ? 'Latest version ('.concat(projectBean.supportedVersion.version).concat('+)') : projectBean.supportedVersion.version.concat('+')}"/>
-                        </span>
-
-                            <span id="version-compatibility-full">
-                            <h:selectOneMenu id="supportedVersion" value="#{projectBean.supportedVersion}">
-                                <f:selectItems value="#{projectBean.possibleVersions}" var="version"
-                                               itemLabel="#{version.lastVersion ? 'Latest version ('.concat(version.version).concat('+)') : version.version.concat('+')}"
-                                               itemValue="#{version}"/>
-                                <a4j:ajax event="change" execute="@this" render="propertiesFileNamePatternSettings"
-                                          oncomplete="onPropertiesFileNameProcessorCheckboxClick()"/>
-                            </h:selectOneMenu>
-                        </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td><a4j:outputPanel ajaxRendered="true">
-                            <h:message for="supportedVersion" styleClass="error"/>
-                        </a4j:outputPanel></td>
-                    </tr>
-
                     <ui:fragment rendered="#{not utils.supportsMappedFolders(projectData)}">
                         <tr>
                             <td>Name:</td>

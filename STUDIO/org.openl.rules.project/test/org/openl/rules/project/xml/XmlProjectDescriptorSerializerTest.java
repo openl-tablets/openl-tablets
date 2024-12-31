@@ -33,7 +33,6 @@ public class XmlProjectDescriptorSerializerTest {
 
     public static ProjectDescriptor initProjectDescriptorForTest() {
         ProjectDescriptor projectDescriptor = new ProjectDescriptor();
-        projectDescriptor.setId("projectId ");
         projectDescriptor.setName("projectDescriptor Name ");
         projectDescriptor.setComment("projectDescriptor Comment ");
 

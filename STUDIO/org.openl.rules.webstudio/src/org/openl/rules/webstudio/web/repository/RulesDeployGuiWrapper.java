@@ -4,17 +4,14 @@ import java.util.Optional;
 
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
-import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.util.StringUtils;
 
 public class RulesDeployGuiWrapper {
     private final RulesDeploy rulesDeploy;
     private String configuration;
-    private final SupportedVersion version;
 
-    public RulesDeployGuiWrapper(RulesDeploy rulesDeploy, SupportedVersion version) {
+    public RulesDeployGuiWrapper(RulesDeploy rulesDeploy) {
         this.rulesDeploy = rulesDeploy;
-        this.version = version;
     }
 
     public RulesDeploy getRulesDeploy() {
@@ -22,8 +19,7 @@ public class RulesDeployGuiWrapper {
     }
 
     public boolean isProvideRuntimeContext() {
-        Boolean provideRuntimeContext = rulesDeploy.isProvideRuntimeContext();
-        return provideRuntimeContext != null ? provideRuntimeContext : false;
+        return Boolean.TRUE.equals(rulesDeploy.isProvideRuntimeContext());
     }
 
     public void setProvideRuntimeContext(boolean provideRuntimeContext) {
@@ -36,16 +32,6 @@ public class RulesDeployGuiWrapper {
 
     public void setServiceName(String serviceName) {
         rulesDeploy.setServiceName(StringUtils.trimToNull(serviceName));
-    }
-
-    @Deprecated
-    public String getInterceptingTemplateClassName() {
-        return rulesDeploy.getInterceptingTemplateClassName();
-    }
-
-    @Deprecated
-    public void setInterceptingTemplateClassName(String interceptingTemplateClassName) {
-        rulesDeploy.setInterceptingTemplateClassName(StringUtils.trimToNull(interceptingTemplateClassName));
     }
 
     public void setTemplateClassName(String templateClassName) {
@@ -108,22 +94,6 @@ public class RulesDeployGuiWrapper {
     }
 
     public PublisherType[] getAvailablePublishers() {
-        if (version.compareTo(SupportedVersion.V5_15) <= 0) {
-            return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL};
-        }
-
-        if (version.compareTo(SupportedVersion.V5_22) <= 0) {
-            return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI};
-        }
-
-        if (version.compareTo(SupportedVersion.V5_25) <= 0) {
-            return new PublisherType[]{PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
-        }
-
-        if (version.compareTo(SupportedVersion.V5_27) <= 0) {
-            return new PublisherType[]{PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA};
-        }
-
         return new PublisherType[]{PublisherType.RESTFUL, PublisherType.KAFKA};
     }
 
