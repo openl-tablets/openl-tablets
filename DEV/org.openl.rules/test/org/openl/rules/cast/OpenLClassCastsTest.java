@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import org.openl.OpenL;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -18,8 +17,7 @@ public class OpenLClassCastsTest {
 
     @BeforeAll
     public static void init() {
-        OpenL openL = OpenL.getInstance();
-        castFactory = openL.getBinder().getCastFactory();
+        castFactory = CastFactory.create();
     }
 
     @Test
