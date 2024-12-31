@@ -8,6 +8,26 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.rules.binding.TableProperties;
+import org.openl.rules.calc.AnySpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.enumeration.CaProvincesEnum;
+import org.openl.rules.enumeration.CaRegionsEnum;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.OriginsEnum;
+import org.openl.rules.enumeration.RecalculateEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.UsStatesEnum;
+import org.openl.rules.enumeration.ValidateDTEnum;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.StringRange;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -59,56 +79,57 @@ public class TypeResolver {
         putClass(boolean.class);
         putClass(void.class);
 
-        // java.lang
+        // java.lang: Standard final types
+        putClass(Integer.class);
+        putClass(Long.class);
+        putClass(Character.class);
+        putClass(Short.class);
+        putClass(Byte.class);
+        putClass(Double.class);
+        putClass(Float.class);
+        putClass(Boolean.class);
+        putClass(Void.class);
+        putClass(String.class);
+
+        // java.lang: Base classes
+        putClass(Number.class);
+        putClass(Object.class);
+        putClass(Record.class);
+        putClass(Class.class);
+        putClass(Enum.class);
+
+        // java.lang: Exceptions
         putClass(AbstractMethodError.class);
-        putClass(Appendable.class);
         putClass(ArithmeticException.class);
         putClass(ArrayIndexOutOfBoundsException.class);
         putClass(ArrayStoreException.class);
         putClass(AssertionError.class);
-        putClass(AutoCloseable.class);
-        putClass(Boolean.class);
         putClass(BootstrapMethodError.class);
-        putClass(Byte.class);
-        putClass(Character.class);
-        putClass(CharSequence.class);
-        putClass(Class.class);
         putClass(ClassCastException.class);
         putClass(ClassCircularityError.class);
         putClass(ClassFormatError.class);
-        putClass(ClassLoader.class);
         putClass(ClassNotFoundException.class);
-        putClass(ClassValue.class);
-        putClass(Cloneable.class);
         putClass(CloneNotSupportedException.class);
-        putClass(Comparable.class);
-        putClass(Deprecated.class);
-        putClass(Double.class);
-        putClass(Enum.class);
         putClass(EnumConstantNotPresentException.class);
         putClass(Error.class);
         putClass(Exception.class);
         putClass(ExceptionInInitializerError.class);
-        putClass(Float.class);
-        putClass(FunctionalInterface.class);
         putClass(IllegalAccessError.class);
         putClass(IllegalAccessException.class);
         putClass(IllegalArgumentException.class);
+        putClass(IllegalCallerException.class);
         putClass(IllegalMonitorStateException.class);
         putClass(IllegalStateException.class);
         putClass(IllegalThreadStateException.class);
         putClass(IncompatibleClassChangeError.class);
         putClass(IndexOutOfBoundsException.class);
-        putClass(InheritableThreadLocal.class);
         putClass(InstantiationError.class);
         putClass(InstantiationException.class);
-        putClass(Integer.class);
         putClass(InternalError.class);
         putClass(InterruptedException.class);
-        putClass(Iterable.class);
+        putClass(LayerInstantiationException.class);
         putClass(LinkageError.class);
-        putClass(Long.class);
-        putClass(Math.class);
+        putClass(MatchException.class);
         putClass(NegativeArraySizeException.class);
         putClass(NoClassDefFoundError.class);
         putClass(NoSuchFieldError.class);
@@ -116,37 +137,13 @@ public class TypeResolver {
         putClass(NoSuchMethodError.class);
         putClass(NoSuchMethodException.class);
         putClass(NullPointerException.class);
-        putClass(Number.class);
         putClass(NumberFormatException.class);
-        putClass(Object.class);
         putClass(OutOfMemoryError.class);
-        putClass(Override.class);
-        putClass(Package.class);
-        putClass(Process.class);
-        putClass(ProcessBuilder.class);
-        putClass(Readable.class);
         putClass(ReflectiveOperationException.class);
-        putClass(Runnable.class);
-        putClass(Runtime.class);
         putClass(RuntimeException.class);
-        putClass(RuntimePermission.class);
-        putClass(SafeVarargs.class);
         putClass(SecurityException.class);
-        putClass(SecurityManager.class);
-        putClass(Short.class);
         putClass(StackOverflowError.class);
-        putClass(StackTraceElement.class);
-        putClass(StrictMath.class);
-        putClass(String.class);
-        putClass(StringBuffer.class);
-        putClass(StringBuilder.class);
         putClass(StringIndexOutOfBoundsException.class);
-        putClass(SuppressWarnings.class);
-        putClass(System.class);
-        putClass(Thread.class);
-        putClass(ThreadDeath.class);
-        putClass(ThreadGroup.class);
-        putClass(ThreadLocal.class);
         putClass(Throwable.class);
         putClass(TypeNotPresentException.class);
         putClass(UnknownError.class);
@@ -155,7 +152,47 @@ public class TypeResolver {
         putClass(UnsupportedOperationException.class);
         putClass(VerifyError.class);
         putClass(VirtualMachineError.class);
-        putClass(Void.class);
+        putClass(WrongThreadException.class);
+
+        // java.lang: Annotations
+        putClass(Deprecated.class);
+        putClass(FunctionalInterface.class);
+        putClass(Override.class);
+        putClass(SafeVarargs.class);
+        putClass(SuppressWarnings.class);
+
+        // java.lang: Interfaces
+        putClass(Appendable.class);
+        putClass(AutoCloseable.class);
+        putClass(CharSequence.class);
+        putClass(Cloneable.class);
+        putClass(Comparable.class);
+        putClass(Iterable.class);
+        putClass(ProcessHandle.class);
+        putClass(Readable.class);
+        putClass(Runnable.class);
+
+        // java.lang
+        putClass(ClassLoader.class);
+        putClass(ClassValue.class);
+        putClass(InheritableThreadLocal.class);
+        putClass(Math.class);
+        putClass(Module.class);
+        putClass(ModuleLayer.class);
+        putClass(Package.class);
+        putClass(Process.class);
+        putClass(ProcessBuilder.class);
+        putClass(Runtime.class);
+        putClass(RuntimePermission.class);
+        putClass(StackTraceElement.class);
+        putClass(StackWalker.class);
+        putClass(StrictMath.class);
+        putClass(StringBuffer.class);
+        putClass(StringBuilder.class);
+        putClass(System.class);
+        putClass(Thread.class);
+        putClass(ThreadGroup.class);
+        putClass(ThreadLocal.class);
 
         // java.util
         putClass(AbstractCollection.class);
@@ -224,8 +261,6 @@ public class TypeResolver {
         putClass(NavigableSet.class);
         putClass(NoSuchElementException.class);
         putClass(Objects.class);
-        putClass(Observable.class);
-        putClass(Observer.class);
         putClass(Optional.class);
         putClass(OptionalDouble.class);
         putClass(OptionalInt.class);
@@ -269,6 +304,31 @@ public class TypeResolver {
         putClass(BigInteger.class);
         putClass(MathContext.class);
         putClass(RoundingMode.class);
+
+        // OpenL types
+        putClass(CharRange.class);
+        putClass(DateRange.class);
+        putClass(IntRange.class);
+        putClass(StringRange.class);
+        putClass(DoubleRange.class);
+
+        putClass(SpreadsheetResult.class);
+        putClass(AnySpreadsheetResult.class);
+        putClass(TableProperties.class);
+
+        // OpenL generated enums
+        putClass(CaProvincesEnum.class);
+        putClass(CaRegionsEnum.class);
+        putClass(CountriesEnum.class);
+        putClass(CurrenciesEnum.class);
+        putClass(LanguagesEnum.class);
+        putClass(RegionsEnum.class);
+        putClass(OriginsEnum.class);
+        putClass(UsRegionsEnum.class);
+        putClass(UsStatesEnum.class);
+        putClass(DTEmptyResultProcessingEnum.class);
+        putClass(RecalculateEnum.class);
+        putClass(ValidateDTEnum.class);
     }
 
     private final ClassLoader classLoader;
@@ -293,7 +353,7 @@ public class TypeResolver {
         this.packages = packages;
     }
 
-    public static void putClass(Class<?> clazz) {
+    private static void putClass(Class<?> clazz) {
         CORE_CLASSES.put(clazz.getSimpleName(), JavaOpenClass.getOpenClass(clazz));
         CORE_CLASSES.put(clazz.getCanonicalName(), JavaOpenClass.getOpenClass(clazz));
     }
