@@ -95,7 +95,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         ADeploymentProject deploymentProject = userWorkspace.getDDProject(name);
-        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.READ))) {
+        if (canRead(deploymentProject)) {
             return deploymentProject;
         }
         throw new ProjectException("There is no permission for reading the deployment configuration.");
@@ -104,7 +104,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
         ADeploymentProject deploymentProject = userWorkspace.getLatestDeploymentConfiguration(name);
-        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.READ))) {
+        if (canRead(deploymentProject)) {
             return deploymentProject;
         }
         return null;
@@ -114,8 +114,14 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         return userWorkspace.getDDProjects()
                 .stream()
-                .filter(e -> deployConfigRepositoryAclService.isGranted(e, List.of(AclPermission.READ)))
+                .filter(this::canRead)
                 .collect(Collectors.toList());
+    }
+
+    private boolean canRead(ADeploymentProject deployConfig) {
+        return deployConfig.getProjectDescriptors().stream()
+                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.getRepositoryId(), pd.getPath())
+                        .isPresent());
     }
 
     @Override

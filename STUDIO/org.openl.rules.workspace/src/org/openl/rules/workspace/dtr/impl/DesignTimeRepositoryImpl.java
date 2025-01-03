@@ -239,6 +239,21 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    public ADeploymentProject getDDProject(String name) throws RepositoryException {
+        if (!hasDeployConfigRepo()) {
+            return null;
+        }
+        Repository repository = getDeployConfigRepository();
+        try {
+            return Optional.ofNullable(repository.check(deploymentConfigurationLocation + name))
+                    .map(fileData -> new ADeploymentProject(repository, fileData))
+                    .orElse(null);
+        } catch (IOException ex) {
+            throw new RepositoryException("Cannot read the deploy configuration.", ex);
+        }
+    }
+
+    @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
         synchronized (projects) {
             if (projectsRefreshNeeded) {

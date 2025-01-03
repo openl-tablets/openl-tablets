@@ -160,7 +160,7 @@ public class ProductionRepositoriesTreeState {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        return secureDeploymentRepositoryService.getReadableRepositories();
+        return secureDeploymentRepositoryService.getRepositories();
     }
 
     public TreeRepository getRoot() {

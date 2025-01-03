@@ -89,7 +89,7 @@
             <div class="align-middle"><span class="clickable name {isAdmin}">{name}</span></div>
             <div class="align-middle"><span class="description">{description}</span></div>
             <div class="align-middle"><span class="design {hasDesign}">{design}</span></div>
-            <div class="align-middle"><span class="deployConfig {hasDeployConfig}">{deployConfig}</span></div>
+            <div class="align-middle"><span class="prod {hasProd}">{prod}</span></div>
             <div class="align-middle"><span class="clickable delete-icon"/></div>
         </div>
     </section>
@@ -145,7 +145,7 @@
                             </tr>
                             <tr>
                                 <td>Deploy:</td>
-                                <td repoType="deployConfig"></td>
+                                <td repoType="prod"></td>
                             </tr>
                         </table>
                     </td>
@@ -231,8 +231,8 @@
                         .replaceString(/{description}/g, ws.utils.escapeHtml(item.description))
                         .replaceString(/{hasDesign}/g, repositoryTypeToRole.design ? "privilege" : "")
                         .replaceString(/{design}/g, ws.utils.escapeHtml(roles[repositoryTypeToRole.design]))
-                        .replaceString(/{deployConfig}/g, ws.utils.escapeHtml(roles[repositoryTypeToRole.deployConfig]))
-                        .replaceString(/{hasDeployConfig}/g, repositoryTypeToRole.deployConfig ? "privilege" : "")
+                        .replaceString(/{prod}/g, ws.utils.escapeHtml(roles[repositoryTypeToRole.prod]))
+                        .replaceString(/{hasProd}/g, repositoryTypeToRole.prod ? "privilege" : "")
                         .replaceString(/{privileges}/g, privs);
                 });
                 $j('#groupsTable').append(list);
@@ -309,9 +309,9 @@
                     const option = $j('<option></option>').val(value).text(text);
                     rolesHtml.append(option);
                 });
-                let deployConfigRolesHtml = rolesHtml.clone();
-                deployConfigRolesHtml.attr("name", "deployConfigRole");
-                $j('#addEditGroupForm [repoType="deployConfig"]').html(deployConfigRolesHtml);
+                let prodRolesHtml = rolesHtml.clone();
+                prodRolesHtml.attr("name", "prodRole");
+                $j('#addEditGroupForm [repoType="prod"]').html(prodRolesHtml);
                 let designRolesHtml = rolesHtml.clone();
                 designRolesHtml.attr("name", "designRole");
                 $j('#addEditGroupForm [repoType="design"]').html(designRolesHtml);
@@ -322,8 +322,8 @@
                     if (repositoryTypeToRole && repositoryTypeToRole.design) {
                         $j('#addEditGroupForm [repoType="design"] option[value="' + repositoryTypeToRole.design + '"]').prop("selected", true);
                     }
-                    if (repositoryTypeToRole && repositoryTypeToRole.deployConfig) {
-                        $j('#addEditGroupForm [repoType="deployConfig"] option[value="' + repositoryTypeToRole.deployConfig + '"]').prop("selected", true);
+                    if (repositoryTypeToRole && repositoryTypeToRole.prod) {
+                        $j('#addEditGroupForm [repoType="prod"] option[value="' + repositoryTypeToRole.prod + '"]').prop("selected", true);
                     }
                 }
                 $j("#addEditGroupForm input[name=admin]").prop("checked", (group?.privileges && group.privileges.includes("ADMIN")) || false);
