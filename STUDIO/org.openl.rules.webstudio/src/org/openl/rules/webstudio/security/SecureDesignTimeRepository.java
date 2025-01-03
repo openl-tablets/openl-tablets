@@ -12,6 +12,4 @@ public interface SecureDesignTimeRepository extends DesignTimeRepository {
 
     List<AProject> getManageableProjects();
 
-    Repository getManageableDeployConfigRepository();
-
 }

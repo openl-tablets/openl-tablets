@@ -14,7 +14,7 @@ import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
-@Component
+@Component("secureDeploymentRepositoryService")
 public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRepositoryService {
 
     private final DeploymentManager deploymentManager;
@@ -30,7 +30,7 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
     }
 
     @Override
-    public List<RepositoryConfiguration> getReadableRepositories() {
+    public List<RepositoryConfiguration> getRepositories() {
         return getRepositories(AclPermission.READ)
                 .collect(Collectors.toList());
     }
@@ -50,4 +50,8 @@ public class SecureDeploymentRepositoryServiceImpl implements SecureDeploymentRe
                 .sorted(RepositoryConfiguration.COMPARATOR);
     }
 
+    @Override
+    public boolean hasPermission(Permission permission) {
+        return getRepositories(permission).findAny().isPresent();
+    }
 }

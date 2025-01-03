@@ -75,13 +75,6 @@ public class AclRepositoriesController {
     public List<AclRepositoryModel> getAclRepositoryRules(@NotNull @SidExistsConstraint Sid sid) {
         var aclRepoModels = designTimeRepository.getManageableRepositories().stream()
                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.DESIGN, repo.getId(), sid));
-        if (designTimeRepository.hasDeployConfigRepo()) {
-            var deployConfigRepo = designTimeRepository.getManageableDeployConfigRepository();
-            if (deployConfigRepo != null) {
-                aclRepoModels = Stream.concat(aclRepoModels,
-                        mapAclRepositoryModel(AclRepositoryType.DEPLOY_CONFIG, deployConfigRepo.getId(), sid));
-            }
-        }
         return Stream.concat(aclRepoModels,
                         deploymentRepositoryService.getManageableRepositories().stream()
                                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.PROD, repo.getId(), sid)))
