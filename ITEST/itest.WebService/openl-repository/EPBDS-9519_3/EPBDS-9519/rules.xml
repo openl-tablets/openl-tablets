@@ -9,6 +9,6 @@
     </modules>
     <!-- Project's classpath. -->
     <classpath>
-        <entry path="lib/*.jar"/>
+        <entry path="groovy"/>
     </classpath>
 </project>
