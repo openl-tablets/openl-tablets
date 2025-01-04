@@ -85,7 +85,7 @@
         <spring.security.version>5.8.16</spring.security.version>
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
+        <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
         <json-smart.version>2.5.1</json-smart.version>
 
         <!-- Bytecode manipulation -->
@@ -132,7 +132,7 @@
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.29.40</amazonaws.version>
+        <amazonaws.version>2.29.44</amazonaws.version>
         <azure.version>12.29.0</azure.version>
         <netty.version>4.1.116.Final</netty.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
@@ -148,7 +148,7 @@
         <junit.version>5.11.4</junit.version>
         <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <awaitility.version>4.2.2</awaitility.version>
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.15.2</mockito.version>
         <datasource-proxy.version>1.10.1</datasource-proxy.version>
         <xmlunit.version>2.10.0</xmlunit.version>
         <testcontainers.version>1.20.4</testcontainers.version>
@@ -195,7 +195,7 @@
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
         <guava.version>33.4.0-jre</guava.version>
-        <xmlsec.version>2.3.4</xmlsec.version>
+        <xmlsec.version>2.3.5</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <activiti.version>5.23.0</activiti.version>

@@ -35,6 +35,7 @@
                     <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
                     </pluginArtifact>
                     <protoSourceRoot>protos</protoSourceRoot>
+                    <pluginParameter>@generated=omit</pluginParameter>
                 </configuration>
                 <executions>
                     <execution>
