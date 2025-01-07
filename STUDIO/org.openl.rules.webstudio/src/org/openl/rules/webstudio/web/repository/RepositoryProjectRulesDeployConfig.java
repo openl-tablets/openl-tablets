@@ -85,7 +85,6 @@ public class RepositoryProjectRulesDeployConfig {
     public void createRulesDeploy() {
         created = true;
         rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy());
-        rulesDeploy.setProvideRuntimeContext(true);
         rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
     }
 

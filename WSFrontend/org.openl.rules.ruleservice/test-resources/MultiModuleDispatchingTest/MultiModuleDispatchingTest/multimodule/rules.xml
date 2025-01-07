@@ -14,5 +14,9 @@
             <rules-root path="project*/Module*.xlsx"/>
 
         </module>
+        <module>
+            <name>RuntimeContextRouter</name>
+            <rules-root path="RuntimeContextRouter.xlsx"/>
+        </module>
     </modules>
 </project>
