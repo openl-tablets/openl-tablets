@@ -13,7 +13,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -41,7 +40,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
                 "vehicleEligibilityScore",
-                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional");
+                "Provisional");
         assertTrue(object instanceof Double);
         assertEquals(50.0, (Double) object, 0.01);
     }
@@ -56,7 +55,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
             assertNotNull(frontend);
             frontend.execute("ErrorTest_ErrorTest",
                     "vehicleEligibilityScore",
-                    RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
+                    "test");
         });
     }
 }

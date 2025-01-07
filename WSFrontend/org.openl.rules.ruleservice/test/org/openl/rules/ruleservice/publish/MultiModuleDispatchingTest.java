@@ -29,7 +29,7 @@ public class MultiModuleDispatchingTest {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        var cxt = new SomeContext();
 
         cxt.setLob("lob1_1");
         assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));

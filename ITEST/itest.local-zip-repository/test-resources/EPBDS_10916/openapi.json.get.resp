@@ -108,7 +108,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double CarPrice(IRulesRuntimeContext, String, String, String)"
+        "summary" : "Double CarPrice(String, String, String)"
       }
     },
     "/DriverPremium1" : {
@@ -207,7 +207,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double DriverPremium1(IRulesRuntimeContext, String, String)"
+        "summary" : "Double DriverPremium1(String, String)"
       }
     },
     "/DriverPremium2" : {
@@ -306,7 +306,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double DriverPremium2(IRulesRuntimeContext, String, String)"
+        "summary" : "Double DriverPremium2(String, String)"
       }
     },
     "/DriverPremium3" : {
@@ -405,7 +405,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double DriverPremium3(IRulesRuntimeContext, String, String)"
+        "summary" : "Double DriverPremium3(String, String)"
       }
     },
     "/DriverPremium4" : {
@@ -504,7 +504,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double DriverPremium4(IRulesRuntimeContext, String, String)"
+        "summary" : "Double DriverPremium4(String, String)"
       }
     },
     "/DriverPremium5" : {
@@ -603,7 +603,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "Double DriverPremium5(IRulesRuntimeContext, String, String)"
+        "summary" : "Double DriverPremium5(String, String)"
       }
     },
     "/Greeting" : {
@@ -620,9 +620,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/GreetingRequest"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -701,7 +702,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "String Greeting(IRulesRuntimeContext, Integer)"
+        "summary" : "String Greeting(Integer)"
       }
     },
     "/Greeting1" : {
@@ -718,9 +719,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Greeting1Request"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -799,7 +801,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "String Greeting1(IRulesRuntimeContext, Integer)"
+        "summary" : "String Greeting1(Integer)"
       }
     },
     "/Greeting2" : {
@@ -816,9 +818,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Greeting2Request"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -897,7 +900,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "String Greeting2(IRulesRuntimeContext, Integer)"
+        "summary" : "String Greeting2(Integer)"
       }
     },
     "/Greeting3" : {
@@ -914,9 +917,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Greeting3Request"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -995,7 +999,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "String Greeting3(IRulesRuntimeContext, Integer)"
+        "summary" : "String Greeting3(Integer)"
       }
     },
     "/Greeting4" : {
@@ -1012,9 +1016,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Greeting4Request"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -1093,7 +1098,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "String Greeting4(IRulesRuntimeContext, Integer)"
+        "summary" : "String Greeting4(Integer)"
       }
     },
     "/Greeting5" : {
@@ -1110,9 +1115,10 @@ Content-Type: application/json
         } ],
         "requestBody" : {
           "content" : {
-            "application/json" : {
+            "text/plain" : {
               "schema" : {
-                "$ref" : "#/components/schemas/Greeting5Request"
+                "type" : "integer",
+                "format" : "int32"
               }
             }
           }
@@ -1181,7 +1187,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "void Greeting5(IRulesRuntimeContext, Integer)"
+        "summary" : "void Greeting5(Integer)"
       }
     }
   },
@@ -1190,9 +1196,6 @@ Content-Type: application/json
       "CarPriceRequest" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "country" : {
             "type" : "string"
           },
@@ -1204,66 +1207,9 @@ Content-Type: application/json
           }
         }
       },
-      "DefaultRulesRuntimeContext" : {
-        "type" : "object",
-        "properties" : {
-          "currentDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "requestDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "lob" : {
-            "type" : "string"
-          },
-          "nature" : {
-            "type" : "string"
-          },
-          "usState" : {
-            "type" : "string",
-            "enum" : [ "AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY" ]
-          },
-          "country" : {
-            "type" : "string",
-            "enum" : [ "AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN", "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU", "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT", "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW", "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA" ]
-          },
-          "usRegion" : {
-            "type" : "string",
-            "enum" : [ "MW", "NE", "SE", "SW", "W" ]
-          },
-          "currency" : {
-            "type" : "string",
-            "enum" : [ "ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "THB", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER" ]
-          },
-          "lang" : {
-            "type" : "string",
-            "enum" : [ "ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE" ]
-          },
-          "region" : {
-            "type" : "string",
-            "enum" : [ "NCSA", "EU", "EMEA", "APJ" ]
-          },
-          "caProvince" : {
-            "type" : "string",
-            "enum" : [ "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT" ]
-          },
-          "caRegion" : {
-            "type" : "string",
-            "enum" : [ "QC", "HQ" ]
-          },
-          "locale" : {
-            "type" : "string"
-          }
-        }
-      },
       "DriverPremium1Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "driverAge" : {
             "type" : "string"
           },
@@ -1275,9 +1221,6 @@ Content-Type: application/json
       "DriverPremium2Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "driverAge" : {
             "type" : "string"
           },
@@ -1289,9 +1232,6 @@ Content-Type: application/json
       "DriverPremium3Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "driverAge" : {
             "type" : "string"
           },
@@ -1303,9 +1243,6 @@ Content-Type: application/json
       "DriverPremium4Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "driverAge" : {
             "type" : "string"
           },
@@ -1317,86 +1254,11 @@ Content-Type: application/json
       "DriverPremium5Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "driverAge" : {
             "type" : "string"
           },
           "driverdriverMaritalStatus" : {
             "type" : "string"
-          }
-        }
-      },
-      "Greeting1Request" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "Greeting2Request" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "Greeting3Request" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "Greeting4Request" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "Greeting5Request" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
-          }
-        }
-      },
-      "GreetingRequest" : {
-        "type" : "object",
-        "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
-          "hour" : {
-            "type" : "integer",
-            "format" : "int32"
           }
         }
       },

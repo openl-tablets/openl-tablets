@@ -1,7 +1,5 @@
 POST /deployed-rules/hello HTTP/1.1
-Content-Type: application/json
+Content-Type: text/plain
 X-OpenL-Test-Retry: yes
 
-{
-  "name": "John Smith"
-}
+John Smith

@@ -13,8 +13,8 @@ Content-Type: application/json
   } ],
   "paths" : {
     "/getMyCalcs" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc[] getMyCalcs()",
         "operationId" : "getMyCalcs",
         "parameters" : [ {
           "example" : "en-GB",
@@ -24,15 +24,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -110,12 +101,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc[] getMyCalcs(IRulesRuntimeContext)"
+        "summary" : "MyCalc[] getMyCalcs()"
       }
     },
     "/getMyCalcs10" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc10[] getMyCalcs10()",
         "operationId" : "getMyCalcs10",
         "parameters" : [ {
           "example" : "en-GB",
@@ -125,15 +116,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -211,12 +193,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc10[] getMyCalcs10(IRulesRuntimeContext)"
+        "summary" : "MyCalc10[] getMyCalcs10()"
       }
     },
     "/getMyCalcs11" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc11[] getMyCalcs11(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc11[] getMyCalcs11()",
         "operationId" : "getMyCalcs11",
         "parameters" : [ {
           "example" : "en-GB",
@@ -226,15 +208,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -312,12 +285,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc11[] getMyCalcs11(IRulesRuntimeContext)"
+        "summary" : "MyCalc11[] getMyCalcs11()"
       }
     },
     "/getMyCalcs2" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc2[] getMyCalcs2()",
         "operationId" : "getMyCalcs2",
         "parameters" : [ {
           "example" : "en-GB",
@@ -327,15 +300,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -413,12 +377,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc2[] getMyCalcs2(IRulesRuntimeContext)"
+        "summary" : "MyCalc2[] getMyCalcs2()"
       }
     },
     "/getMyCalcs3" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc3[] getMyCalcs3(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc3[] getMyCalcs3()",
         "operationId" : "getMyCalcs3",
         "parameters" : [ {
           "example" : "en-GB",
@@ -428,15 +392,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -514,12 +469,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc3[] getMyCalcs3(IRulesRuntimeContext)"
+        "summary" : "MyCalc3[] getMyCalcs3()"
       }
     },
     "/getMyCalcs4" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc4[] getMyCalcs4()",
         "operationId" : "getMyCalcs4",
         "parameters" : [ {
           "example" : "en-GB",
@@ -529,15 +484,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -615,12 +561,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc4[] getMyCalcs4(IRulesRuntimeContext)"
+        "summary" : "MyCalc4[] getMyCalcs4()"
       }
     },
     "/getMyCalcs5" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc5[] getMyCalcs5(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc5[] getMyCalcs5()",
         "operationId" : "getMyCalcs5",
         "parameters" : [ {
           "example" : "en-GB",
@@ -630,15 +576,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -716,12 +653,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc5[] getMyCalcs5(IRulesRuntimeContext)"
+        "summary" : "MyCalc5[] getMyCalcs5()"
       }
     },
     "/getMyCalcs6" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc6[] getMyCalcs6(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc6[] getMyCalcs6()",
         "operationId" : "getMyCalcs6",
         "parameters" : [ {
           "example" : "en-GB",
@@ -731,15 +668,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -817,12 +745,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc6[] getMyCalcs6(IRulesRuntimeContext)"
+        "summary" : "MyCalc6[] getMyCalcs6()"
       }
     },
     "/getMyCalcs7" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc7[] getMyCalcs7(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc7[] getMyCalcs7()",
         "operationId" : "getMyCalcs7",
         "parameters" : [ {
           "example" : "en-GB",
@@ -832,15 +760,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -918,12 +837,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc7[] getMyCalcs7(IRulesRuntimeContext)"
+        "summary" : "MyCalc7[] getMyCalcs7()"
       }
     },
     "/getMyCalcs8" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc8[] getMyCalcs8()",
         "operationId" : "getMyCalcs8",
         "parameters" : [ {
           "example" : "en-GB",
@@ -933,15 +852,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1019,12 +929,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc8[] getMyCalcs8(IRulesRuntimeContext)"
+        "summary" : "MyCalc8[] getMyCalcs8()"
       }
     },
     "/getMyCalcs9" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.spreadsheetresults.MyCalc9[] getMyCalcs9()",
         "operationId" : "getMyCalcs9",
         "parameters" : [ {
           "example" : "en-GB",
@@ -1034,15 +944,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1120,11 +1021,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc9[] getMyCalcs9(IRulesRuntimeContext)"
+        "summary" : "MyCalc9[] getMyCalcs9()"
       }
     },
     "/myCalc" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc myCalc()",
         "operationId" : "myCalc",
         "parameters" : [ {
@@ -1135,15 +1036,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1218,11 +1110,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc myCalc(IRulesRuntimeContext)"
+        "summary" : "MyCalc myCalc()"
       }
     },
     "/myCalc10" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc10 myCalc10()",
         "operationId" : "myCalc10",
         "parameters" : [ {
@@ -1233,15 +1125,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1316,11 +1199,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc10 myCalc10(IRulesRuntimeContext)"
+        "summary" : "MyCalc10 myCalc10()"
       }
     },
     "/myCalc11" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc11 myCalc11()",
         "operationId" : "myCalc11",
         "parameters" : [ {
@@ -1331,15 +1214,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1414,11 +1288,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc11 myCalc11(IRulesRuntimeContext)"
+        "summary" : "MyCalc11 myCalc11()"
       }
     },
     "/myCalc2" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc2 myCalc2()",
         "operationId" : "myCalc2",
         "parameters" : [ {
@@ -1429,15 +1303,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1512,11 +1377,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc2 myCalc2(IRulesRuntimeContext)"
+        "summary" : "MyCalc2 myCalc2()"
       }
     },
     "/myCalc3" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc3 myCalc3()",
         "operationId" : "myCalc3",
         "parameters" : [ {
@@ -1527,15 +1392,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1610,11 +1466,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc3 myCalc3(IRulesRuntimeContext)"
+        "summary" : "MyCalc3 myCalc3()"
       }
     },
     "/myCalc4" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc4 myCalc4()",
         "operationId" : "myCalc4",
         "parameters" : [ {
@@ -1625,15 +1481,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1708,11 +1555,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc4 myCalc4(IRulesRuntimeContext)"
+        "summary" : "MyCalc4 myCalc4()"
       }
     },
     "/myCalc5" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc5 myCalc5()",
         "operationId" : "myCalc5",
         "parameters" : [ {
@@ -1723,15 +1570,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1806,11 +1644,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc5 myCalc5(IRulesRuntimeContext)"
+        "summary" : "MyCalc5 myCalc5()"
       }
     },
     "/myCalc6" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc6 myCalc6()",
         "operationId" : "myCalc6",
         "parameters" : [ {
@@ -1821,15 +1659,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1904,11 +1733,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc6 myCalc6(IRulesRuntimeContext)"
+        "summary" : "MyCalc6 myCalc6()"
       }
     },
     "/myCalc7" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc7 myCalc7()",
         "operationId" : "myCalc7",
         "parameters" : [ {
@@ -1919,15 +1748,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -2002,11 +1822,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc7 myCalc7(IRulesRuntimeContext)"
+        "summary" : "MyCalc7 myCalc7()"
       }
     },
     "/myCalc8" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc8 myCalc8()",
         "operationId" : "myCalc8",
         "parameters" : [ {
@@ -2017,15 +1837,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -2100,11 +1911,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc8 myCalc8(IRulesRuntimeContext)"
+        "summary" : "MyCalc8 myCalc8()"
       }
     },
     "/myCalc9" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyCalc9 myCalc9()",
         "operationId" : "myCalc9",
         "parameters" : [ {
@@ -2115,15 +1926,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -2198,66 +2000,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyCalc9 myCalc9(IRulesRuntimeContext)"
+        "summary" : "MyCalc9 myCalc9()"
       }
     }
   },
   "components" : {
     "schemas" : {
-      "DefaultRulesRuntimeContext" : {
-        "type" : "object",
-        "properties" : {
-          "currentDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "requestDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "lob" : {
-            "type" : "string"
-          },
-          "nature" : {
-            "type" : "string"
-          },
-          "usState" : {
-            "type" : "string",
-            "enum" : [ "AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY" ]
-          },
-          "country" : {
-            "type" : "string",
-            "enum" : [ "AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN", "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU", "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT", "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW", "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA" ]
-          },
-          "usRegion" : {
-            "type" : "string",
-            "enum" : [ "MW", "NE", "SE", "SW", "W" ]
-          },
-          "currency" : {
-            "type" : "string",
-            "enum" : [ "ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "THB", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER" ]
-          },
-          "lang" : {
-            "type" : "string",
-            "enum" : [ "ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE" ]
-          },
-          "region" : {
-            "type" : "string",
-            "enum" : [ "NCSA", "EU", "EMEA", "APJ" ]
-          },
-          "caProvince" : {
-            "type" : "string",
-            "enum" : [ "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT" ]
-          },
-          "caRegion" : {
-            "type" : "string",
-            "enum" : [ "QC", "HQ" ]
-          },
-          "locale" : {
-            "type" : "string"
-          }
-        }
-      },
       "JAXRSErrorResponse" : {
         "type" : "object",
         "properties" : {

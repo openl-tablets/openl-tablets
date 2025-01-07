@@ -55,7 +55,7 @@ public class SpringBootWebAppTest {
     @Test
     public void deployZipFromOpenLFolder() {
         String response = restTemplate
-                .postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
+                .postForObject("/REST/deployed-rules/hello", "John Smith", String.class);
         assertThat(response).contains("Hello, John Smith");
     }
 
@@ -79,13 +79,5 @@ public class SpringBootWebAppTest {
         var json = new ObjectMapper().readTree(response);
         assertThat(json.get("code").asText()).isEqualTo("VALIDATION");
         assertThat(json.get("message").asText()).startsWith("Object 'unknown' is outside of valid domain 'Vocabulary'");
-    }
-
-    public static class Request1 {
-        public String name;
-
-        public Request1(String name) {
-            this.name = name;
-        }
     }
 }

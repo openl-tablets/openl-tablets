@@ -78,7 +78,7 @@ public class RunTracingITest {
     public void testKafkaServiceSpan(StdErr stdOut) throws Exception {
         try (var producer = createKafkaProducer(); var consumer = createKafkaConsumer()) {
             consumer.subscribe(Collections.singletonList("hello-out-topic"));
-            producer.send(new ProducerRecord<>("hello-in-topic", null, "{\"hour\": 5}"));
+            producer.send(new ProducerRecord<>("hello-in-topic", null, "5"));
 
             checkKafkaResponse(consumer, (response) -> {
                 assertEquals("Good Morning", response.value());

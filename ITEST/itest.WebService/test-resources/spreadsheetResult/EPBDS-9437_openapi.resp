@@ -215,18 +215,18 @@ Content-Type: application/json
       "AnySpreadsheetResult" : {
         "type" : "object",
         "properties" : {
-          "Driver_Forms" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/AnySpreadsheetResult"
-            }
-          },
           "INT" : {
             "type" : "integer",
             "format" : "int32"
           },
           "String" : {
             "type" : "string"
+          },
+          "Driver_Forms" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AnySpreadsheetResult"
+            }
           }
         }
       },
