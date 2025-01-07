@@ -13,8 +13,8 @@ Content-Type: application/json
   } ],
   "paths" : {
     "/getMyType1Data" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.beans.MyType1[] getMyType1Data()",
         "operationId" : "getMyType1Data",
         "parameters" : [ {
           "example" : "en-GB",
@@ -24,15 +24,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -110,12 +101,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyType1[] getMyType1Data(IRulesRuntimeContext)"
+        "summary" : "MyType1[] getMyType1Data()"
       }
     },
     "/getMyType2Data" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.beans.MyType2[] getMyType2Data()",
         "operationId" : "getMyType2Data",
         "parameters" : [ {
           "example" : "en-GB",
@@ -125,15 +116,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -211,12 +193,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyType2[] getMyType2Data(IRulesRuntimeContext)"
+        "summary" : "MyType2[] getMyType2Data()"
       }
     },
     "/getMyType3Data" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.beans.MyType3[] getMyType3Data(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.beans.MyType3[] getMyType3Data()",
         "operationId" : "getMyType3Data",
         "parameters" : [ {
           "example" : "en-GB",
@@ -226,15 +208,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -312,12 +285,12 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyType3[] getMyType3Data(IRulesRuntimeContext)"
+        "summary" : "MyType3[] getMyType3Data()"
       }
     },
     "/getMyType4Data" : {
-      "post" : {
-        "description" : "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
+      "get" : {
+        "description" : "Method: org.openl.generated.beans.MyType4[] getMyType4Data()",
         "operationId" : "getMyType4Data",
         "parameters" : [ {
           "example" : "en-GB",
@@ -327,15 +300,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -413,7 +377,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyType4[] getMyType4Data(IRulesRuntimeContext)"
+        "summary" : "MyType4[] getMyType4Data()"
       }
     },
     "/myMethod" : {
@@ -511,7 +475,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod myMethod(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)"
+        "summary" : "MyMethod myMethod(MyType1, MyType2, MyType3, MyType4)"
       }
     },
     "/myMethod2" : {
@@ -609,7 +573,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod2 myMethod2(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)"
+        "summary" : "MyMethod2 myMethod2(MyType1, MyType2, MyType3, MyType4)"
       }
     },
     "/myMethod3" : {
@@ -707,11 +671,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod3 myMethod3(IRulesRuntimeContext, MyType1, MyType2, MyType3)"
+        "summary" : "MyMethod3 myMethod3(MyType1, MyType2, MyType3)"
       }
     },
     "/myMethod4" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyMethod4 myMethod4()",
         "operationId" : "myMethod4",
         "parameters" : [ {
@@ -722,15 +686,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -805,11 +760,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod4 myMethod4(IRulesRuntimeContext)"
+        "summary" : "MyMethod4 myMethod4()"
       }
     },
     "/myMethod5" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyMethod5 myMethod5()",
         "operationId" : "myMethod5",
         "parameters" : [ {
@@ -820,15 +775,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -903,11 +849,11 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod5 myMethod5(IRulesRuntimeContext)"
+        "summary" : "MyMethod5 myMethod5()"
       }
     },
     "/myMethod6" : {
-      "post" : {
+      "get" : {
         "description" : "Rules method: SpreadsheetResultmyMethod6 myMethod6()",
         "operationId" : "myMethod6",
         "parameters" : [ {
@@ -918,15 +864,6 @@ Content-Type: application/json
             "type" : "string"
           }
         } ],
-        "requestBody" : {
-          "content" : {
-            "application/json" : {
-              "schema" : {
-                "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1001,7 +938,7 @@ Content-Type: application/json
             "description" : "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
           }
         },
-        "summary" : "MyMethod6 myMethod6(IRulesRuntimeContext)"
+        "summary" : "MyMethod6 myMethod6()"
       }
     }
   },
@@ -1018,60 +955,6 @@ Content-Type: application/json
           }
         },
         "required" : [ "@class" ]
-      },
-      "DefaultRulesRuntimeContext" : {
-        "type" : "object",
-        "properties" : {
-          "currentDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "requestDate" : {
-            "type" : "string",
-            "format" : "date-time"
-          },
-          "lob" : {
-            "type" : "string"
-          },
-          "nature" : {
-            "type" : "string"
-          },
-          "usState" : {
-            "type" : "string",
-            "enum" : [ "AL", "AK", "AS", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "MP", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV", "WI", "WY" ]
-          },
-          "country" : {
-            "type" : "string",
-            "enum" : [ "AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN", "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU", "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT", "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW", "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA" ]
-          },
-          "usRegion" : {
-            "type" : "string",
-            "enum" : [ "MW", "NE", "SE", "SW", "W" ]
-          },
-          "currency" : {
-            "type" : "string",
-            "enum" : [ "ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "THB", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER" ]
-          },
-          "lang" : {
-            "type" : "string",
-            "enum" : [ "ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE" ]
-          },
-          "region" : {
-            "type" : "string",
-            "enum" : [ "NCSA", "EU", "EMEA", "APJ" ]
-          },
-          "caProvince" : {
-            "type" : "string",
-            "enum" : [ "AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT" ]
-          },
-          "caRegion" : {
-            "type" : "string",
-            "enum" : [ "QC", "HQ" ]
-          },
-          "locale" : {
-            "type" : "string"
-          }
-        }
       },
       "JAXRSErrorResponse" : {
         "type" : "object",
@@ -1199,9 +1082,6 @@ Content-Type: application/json
       "MyMethod2Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "myType1" : {
             "$ref" : "#/components/schemas/MyType1"
           },
@@ -1260,9 +1140,6 @@ Content-Type: application/json
       "MyMethod3Request" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "myType1" : {
             "$ref" : "#/components/schemas/MyType1"
           },
@@ -1340,9 +1217,6 @@ Content-Type: application/json
       "MyMethodRequest" : {
         "type" : "object",
         "properties" : {
-          "runtimeContext" : {
-            "$ref" : "#/components/schemas/DefaultRulesRuntimeContext"
-          },
           "myType1" : {
             "$ref" : "#/components/schemas/MyType1"
           },
