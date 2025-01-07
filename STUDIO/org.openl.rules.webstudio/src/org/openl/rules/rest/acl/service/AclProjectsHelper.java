@@ -8,4 +8,6 @@ public interface AclProjectsHelper {
 
     boolean hasPermission(AProject project, Permission permission);
 
+    boolean hasCreateProjectPermission(String repoId);
+
 }

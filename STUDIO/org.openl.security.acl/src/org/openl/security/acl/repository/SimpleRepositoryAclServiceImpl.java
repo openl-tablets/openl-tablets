@@ -387,10 +387,23 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     @Override
     @Transactional(readOnly = true)
     public boolean isGranted(String repositoryId, String path, List<Permission> permissions) {
+        return isGranted0(repositoryId, path, false, permissions);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isGranted(String repositoryId, String path, boolean useParentStrategy, Permission... permissions) {
+        return isGranted0(repositoryId, path, useParentStrategy, List.of(permissions));
+    }
+
+    private boolean isGranted0(String repositoryId, String path, boolean useParentStrategy, List<Permission> permissions) {
         if (LocalWorkspace.LOCAL_ID.equals(repositoryId)) {
             return true;
         }
         ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
+        if (useParentStrategy) {
+            oi = oidProvider.getParentOid(oi);
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<Sid> sids = sidRetrievalStrategy.getSids(authentication);
         return isGranted(oi, sids, permissions);

@@ -759,7 +759,7 @@ public class ProjectBean {
     private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-            if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+            if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
                         ProjectArtifactUtils.extractResourceName(projectArtefact)));
             }
@@ -831,14 +831,14 @@ public class ProjectBean {
                 if (isModuleWithWildcard(module)) {
                     for (Module m : getModulesMatchingPathPattern(module)) {
                         AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
-                        if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                        if (!designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE)) {
                             return true;
                         }
                     }
                     return false;
                 } else {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-                    return !designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE));
+                    return !designRepositoryAclService.isGranted(projectArtefact, true, AclPermission.DELETE);
                 }
             } catch (ProjectException e) {
                 return true;
@@ -1372,7 +1372,7 @@ public class ProjectBean {
             log.warn("Existing file wasn't found in module {}", existingModule.getName(), e);
         }
         if (artefact != null) {
-            if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.DELETE))) {
+            if (!designRepositoryAclService.isGranted(artefact, true, AclPermission.DELETE)) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
                         ProjectArtifactUtils.extractResourceName(artefact)));
             }

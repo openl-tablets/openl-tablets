@@ -72,6 +72,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
@@ -105,22 +106,22 @@ public class RepositoryController {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryController.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
-
     private final UserManagementService userManagementService;
-
     private final Comments designRepoComments;
-
     private final RepositoryAclService designRepositoryAclService;
+    private final AclProjectsHelper aclProjectsHelper;
 
     @Autowired
     public RepositoryController(MultiUserWorkspaceManager workspaceManager,
                                 PropertyResolver propertyResolver,
                                 UserManagementService userManagementService,
-                                @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+                                @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+                                AclProjectsHelper aclProjectsHelper) {
         this.workspaceManager = workspaceManager;
         this.designRepoComments = new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
         this.userManagementService = userManagementService;
         this.designRepositoryAclService = designRepositoryAclService;
+        this.aclProjectsHelper = aclProjectsHelper;
     }
 
     /**
@@ -385,7 +386,7 @@ public class RepositoryController {
                             .body("Already locked by '" + lockedBy + "'");
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+                if (!aclProjectsHelper.hasCreateProjectPermission(repositoryId)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .contentType(MediaType.TEXT_PLAIN)
                             .body(String.format("No permission for creating a project in the repository with id '%s'.",
