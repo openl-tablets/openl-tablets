@@ -1,11 +1,17 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
+import org.openl.rules.project.model.MethodFilter;
+import org.openl.rules.project.model.Module;
+import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.source.IOpenSourceCodeModule;
 
 public abstract class CommonRulesInstantiationStrategy implements RulesInstantiationStrategy {
 
@@ -23,7 +29,9 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     /**
      * <code>ClassLoader</code> that is used in strategy to compile and instantiate Openl rules.
      */
-    protected ClassLoader classLoader;
+    private ClassLoader classLoader;
+
+    private RulesEngineFactory<?> engineFactory;
 
     /**
      * {@link IDependencyManager} for projects that have dependent modules.
@@ -31,17 +39,6 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     private final IDependencyManager dependencyManager;
 
     private Map<String, Object> externalParameters;
-
-    /**
-     * Creates rules instantiation strategy with empty {@link ClassLoader}.(See {@link #getClassLoader()} for more<br>
-     * information which classLoader will be used).
-     *
-     * @param executionMode     {@link #executionMode}
-     * @param dependencyManager {@link #dependencyManager}
-     */
-    public CommonRulesInstantiationStrategy(boolean executionMode, IDependencyManager dependencyManager) {
-        this(executionMode, dependencyManager, null);
-    }
 
     /**
      * Creates rules instantiation strategy with defined classLoader.
@@ -65,7 +62,13 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
 
     @Override
     public Object instantiate(boolean ignoreCompilationErrors) throws RulesInstantiationException {
-        return instantiate(getInstanceClass(), ignoreCompilationErrors);
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClassLoader());
+            return getEngineFactory().newEngineInstance(ignoreCompilationErrors);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
+        }
     }
 
     @Override
@@ -88,23 +91,14 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
-            if (isServiceClassDefined()) {
-                return getServiceClass();
+            if (serviceClass != null) {
+                return serviceClass;
             } else {
-                return getGeneratedRulesClass();
+                return getEngineFactory().getInterfaceClass();
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
-    }
-
-    @Override
-    public boolean isServiceClassDefined() {
-        return serviceClass != null;
-    }
-
-    protected boolean isExecutionMode() {
-        return executionMode;
     }
 
     protected IDependencyManager getDependencyManager() {
@@ -114,37 +108,25 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     @Override
     public void setServiceClass(Class<?> serviceClass) {
         this.serviceClass = serviceClass;
-    }
-
-    @Override
-    public Class<?> getGeneratedRulesClass() throws RulesInstantiationException {
-        return compile().getOpenClassWithErrors().getInstanceClass();
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
     }
 
     @Override
     public void reset() {
+        if (engineFactory != null) {
+            engineFactory.reset();
+        }
     }
 
     @Override
     public void forcedReset() {
-        reset();
+        engineFactory = null;
         classLoader = null;
     }
 
-    /**
-     * Inner implementation. Creates instance of class handling all rules invocations. The class will be instanced of
-     * class got with {@link #getServiceClass()}.
-     *
-     * @param rulesClass              rule Class
-     * @param ignoreCompilationErrors allow to compile rules with errors
-     * @return instantiated object
-     * @throws RulesInstantiationException
-     */
-    protected abstract Object instantiate(Class<?> rulesClass,
-                                          boolean ignoreCompilationErrors) throws RulesInstantiationException;
-
-    @Override
-    public Map<String, Object> getExternalParameters() {
+    protected Map<String, Object> getExternalParameters() {
         return externalParameters;
     }
 
@@ -155,19 +137,51 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
 
     @Override
     public CompiledOpenClass compile() throws RulesInstantiationException {
-        return compileInternal(getEngineFactory());
-    }
-
-    protected abstract RulesEngineFactory<?> getEngineFactory() throws RulesInstantiationException;
-
-    protected final CompiledOpenClass compileInternal(RulesEngineFactory engineFactory) throws RulesInstantiationException {
+        RulesEngineFactory engineFactory1 = getEngineFactory();
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return engineFactory.getCompiledOpenClass();
+            return engineFactory1.getCompiledOpenClass();
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
+
+    protected RulesEngineFactory<?> getEngineFactory() {
+        if (engineFactory == null) {
+
+            // Information for interface generation, if generation required.
+            Collection<String> allIncludes = new HashSet<>();
+            Collection<String> allExcludes = new HashSet<>();
+            for (Module m : getModules()) {
+                MethodFilter methodFilter = m.getMethodFilter();
+                if (methodFilter != null) {
+                    if (methodFilter.getIncludes() != null) {
+                        allIncludes.addAll(methodFilter.getIncludes());
+                    }
+                    if (methodFilter.getExcludes() != null) {
+                        allExcludes.addAll(methodFilter.getExcludes());
+                    }
+                }
+            }
+            String[] includes = new String[]{};
+            String[] excludes = new String[]{};
+            if (!allIncludes.isEmpty() || !allExcludes.isEmpty()) {
+                includes = allIncludes.toArray(includes);
+                excludes = allExcludes.toArray(excludes);
+            }
+
+            engineFactory = new RulesEngineFactory<>(createSource(), getServiceClass());
+            engineFactory.setInterfaceClassGenerator(new InterfaceClassGenerator(includes, excludes));
+            engineFactory.setExecutionMode(executionMode);
+            engineFactory.setDependencyManager(getDependencyManager());
+        }
+
+        return engineFactory;
+    }
+
+    abstract protected IOpenSourceCodeModule createSource();
+
+    abstract protected Collection<Module> getModules();
 
 }

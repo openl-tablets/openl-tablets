@@ -123,11 +123,6 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     }
 
     @Override
-    public final boolean isServiceClassDefined() {
-        return true;
-    }
-
-    @Override
     public void reset() {
         getOriginalInstantiationStrategy().reset();
         serviceClass = null;
@@ -153,24 +148,9 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     }
 
     @Override
-    public Class<?> getGeneratedRulesClass() throws RulesInstantiationException {
-        return getOriginalInstantiationStrategy().getGeneratedRulesClass();
-    }
-
-    @Override
     public void forcedReset() {
         reset();
         getOriginalInstantiationStrategy().forcedReset();
-    }
-
-    @Override
-    public Collection<Module> getModules() {
-        return getOriginalInstantiationStrategy().getModules();
-    }
-
-    @Override
-    public Map<String, Object> getExternalParameters() {
-        return getOriginalInstantiationStrategy().getExternalParameters();
     }
 
     @Override
