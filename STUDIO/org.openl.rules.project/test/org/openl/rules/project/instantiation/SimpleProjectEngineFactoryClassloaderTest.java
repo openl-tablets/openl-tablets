@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 public class SimpleProjectEngineFactoryClassloaderTest {
@@ -20,7 +21,7 @@ public class SimpleProjectEngineFactoryClassloaderTest {
 
     @Test
     public void singleModuleWithoutDepTest() throws Exception {
-        assertThrows(RulesInstantiationException.class, () -> {
+        assertThrows(OpenlNotCheckedException.class, () -> {
             SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/classpath/project2")
                     .build();

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
@@ -98,7 +99,7 @@ public class SimpleProjectEngineFactoryTest {
 
     @Test
     public void wrongProjectDependency() throws Exception {
-        assertThrows(RulesInstantiationException.class, () -> {
+        assertThrows(OpenlNotCheckedException.class, () -> {
             SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                     .setProject("test-resources/test1/third")
                     .setProjectDependencies("test-resources/test1")
