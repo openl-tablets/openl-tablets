@@ -11,16 +11,13 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
     private final UserWorkspaceFactory delegate;
 
     private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
     private final boolean allowProjectCreateDelete;
 
     public SecureUserWorkspaceFactoryImpl(UserWorkspaceFactory userWorkspaceFactory,
                                           RepositoryAclService designRepositoryAclService,
-                                          RepositoryAclService deployConfigRepositoryAclService,
                                           boolean allowProjectCreateDelete) {
         this.delegate = userWorkspaceFactory;
         this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
         this.allowProjectCreateDelete = allowProjectCreateDelete;
     }
 
@@ -29,6 +26,6 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
                                 DesignTimeRepository designTimeRepository,
                                 WorkspaceUser user) {
         UserWorkspace userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
-        return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService, deployConfigRepositoryAclService, allowProjectCreateDelete);
+        return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService, allowProjectCreateDelete);
     }
 }

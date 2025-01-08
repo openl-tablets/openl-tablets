@@ -25,11 +25,6 @@ public class DisabledAclConfiguration {
     }
 
     @Bean
-    public RepositoryAclService deployConfigRepositoryAclService() {
-        return createDisabledAclService(RepositoryAclService.class);
-    }
-
-    @Bean
     public SimpleRepositoryAclService productionRepositoryAclService() {
         return createDisabledAclService(SimpleRepositoryAclService.class);
     }

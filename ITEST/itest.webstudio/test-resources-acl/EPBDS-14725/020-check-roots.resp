@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "REVTSUdO",
+    "type": "DESIGN",
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "id": "UFJPRA==",
+    "type": "PROD",
+    "role": "CONTRIBUTOR"
+  }
+]
