@@ -37,15 +37,4 @@ public class SimpleProjectEngineFactoryClassloaderTest {
         Object instance = factory.newInstance();
         assertNotNull(instance);
     }
-
-    @Test
-    public void classloader_context_Test() throws Exception {
-        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<>()
-                .setProvideRuntimeContext(true)
-                .setWorkspace("test-resources/classpath")
-                .setProject("test-resources/classpath/project2")
-                .build();
-        Object instance = factory.newInstance();
-        assertNotNull(instance);
-    }
 }

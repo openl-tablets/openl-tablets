@@ -38,7 +38,6 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                     classLoader,
                     interfaceClass,
                     externalParameters,
-                    provideRuntimeContext,
                     executionMode);
         }
     }
@@ -49,14 +48,12 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                                                                    ClassLoader classLoader,
                                                                    Class<T> interfaceClass,
                                                                    Map<String, Object> externalParameters,
-                                                                   boolean provideRuntimeContext,
                                                                    boolean executionMode) {
             super(project,
                     projectDependencies,
                     classLoader,
                     interfaceClass,
                     externalParameters,
-                    provideRuntimeContext,
                     executionMode);
         }
 

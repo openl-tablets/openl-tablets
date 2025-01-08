@@ -17,7 +17,6 @@ public class ProjectDependenciesImportAndClasspathTest {
                 .setProject(SRC)
                 .setExecutionMode(false)
                 .setWorkspace(SRC_WORKSPACE)
-                .setProvideRuntimeContext(true)
                 .build();
         assertNotNull(projectEngineFactory);
         assertFalse(projectEngineFactory.getCompiledOpenClass().hasErrors());
