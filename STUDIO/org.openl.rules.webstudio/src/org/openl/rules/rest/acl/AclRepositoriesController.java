@@ -42,7 +42,6 @@ import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
-import org.openl.util.StreamUtils;
 
 @Validated
 @RestController
@@ -75,13 +74,6 @@ public class AclRepositoriesController {
     public List<AclRepositoryModel> getAclRepositoryRules(@NotNull @SidExistsConstraint Sid sid) {
         var aclRepoModels = designTimeRepository.getManageableRepositories().stream()
                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.DESIGN, repo.getId(), sid));
-        if (designTimeRepository.hasDeployConfigRepo()) {
-            var deployConfigRepo = designTimeRepository.getManageableDeployConfigRepository();
-            if (deployConfigRepo != null) {
-                aclRepoModels = Stream.concat(aclRepoModels,
-                        mapAclRepositoryModel(AclRepositoryType.DEPLOY_CONFIG, deployConfigRepo.getId(), sid));
-            }
-        }
         return Stream.concat(aclRepoModels,
                         deploymentRepositoryService.getManageableRepositories().stream()
                                 .flatMap(repo -> mapAclRepositoryModel(AclRepositoryType.PROD, repo.getId(), sid)))
@@ -139,8 +131,7 @@ public class AclRepositoriesController {
     @GetMapping(value = "/roots")
     @JsonView(AclView.Root.class)
     public List<AclRepositoryModel> getAclRepositoryRulesForRoot(@NotNull @SidExistsConstraint Sid sid) {
-        return StreamUtils.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
-                        mapAclRepositoryModelForRoot(AclRepositoryType.DEPLOY_CONFIG, sid),
+        return Stream.concat(mapAclRepositoryModelForRoot(AclRepositoryType.DESIGN, sid),
                         mapAclRepositoryModelForRoot(AclRepositoryType.PROD, sid))
                 .collect(Collectors.toList());
     }

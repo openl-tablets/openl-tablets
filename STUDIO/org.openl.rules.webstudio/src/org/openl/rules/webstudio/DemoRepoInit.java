@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
@@ -49,6 +50,9 @@ public class DemoRepoInit {
         this.deploymentManager = deploymentManager;
         this.singleUserModeInit = singleUserModeInit;
     }
+
+    @Autowired
+    private AclProjectsHelper aclProjectsHelper;
 
     public void init() {
         if (!Props.bool("demo.init")) {
@@ -109,6 +113,10 @@ public class DemoRepoInit {
             }
 
             if (deploy) {
+                if (!aclProjectsHelper.hasCreateDeployConfigProjectPermission()) {
+                    LOG.error("There is no permission to create deploy configuration project: {}", projectName);
+                    return;
+                }
                 var deployConfiguration = userWorkspace.createDDProject(projectName);
                 deployConfiguration.open();
                 var branch = createdProject.getBranch();

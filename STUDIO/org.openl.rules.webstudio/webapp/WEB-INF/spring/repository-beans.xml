@@ -23,15 +23,14 @@
     </bean>
 
     <bean id="designTimeRepository" class="org.openl.rules.webstudio.security.SecureDesignTimeRepositoryImpl">
-        <property name="designTimeRepository">
+        <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
+        <constructor-arg name="designTimeRepository">
             <bean class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init"
                   destroy-method="destroy">
                 <constructor-arg name="propertyResolver" ref="environment"/>
                 <constructor-arg name="repositorySettings" ref="repositorySettings"/>
             </bean>
-        </property>
-        <property name="designRepositoryAclService" ref="designRepositoryAclService"/>
-        <property name="deployConfigRepositoryAclService" ref="deployConfigRepositoryAclService"/>
+        </constructor-arg>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
@@ -43,7 +42,6 @@
                     <bean class="org.openl.rules.workspace.DefaultUserWorkspaceFactory"/>
                 </constructor-arg>
                 <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
-                <constructor-arg name="deployConfigRepositoryAclService" ref="deployConfigRepositoryAclService"/>
                 <constructor-arg name="allowProjectCreateDelete" value="${security.allow-project-create-delete}"/>
             </bean>
         </property>

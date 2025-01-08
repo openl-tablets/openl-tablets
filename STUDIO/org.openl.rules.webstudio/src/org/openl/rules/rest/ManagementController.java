@@ -89,7 +89,7 @@ public class ManagementController {
     private UIGroup buildUIGroup(Group group) {
         UIGroup uiGroup = new UIGroup(group);
         buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DESIGN, group, uiGroup);
-        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DEPLOY_CONFIG, group, uiGroup);
+        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_PROD, group, uiGroup);
         return uiGroup;
     }
 
@@ -159,7 +159,7 @@ public class ManagementController {
             @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
             @Parameter(description = "mgmt.schema.group.description") @RequestParam(value = "description", required = false) final String description,
             @Parameter(description = "mgmt.schema.group.design.role") @RequestParam(value = "designRole", required = false) final AclRole designRole,
-            @Parameter(description = "mgmt.schema.group.deployConfig.role") @RequestParam(value = "deployConfigRole", required = false) final AclRole deployConfigRole,
+            @Parameter(description = "mgmt.schema.group.prod.role") @RequestParam(value = "prodRole", required = false) final AclRole prodRole,
             @Parameter(description = "mgmt.schema.group.admin") @RequestParam(value = "admin", required = false) final Boolean admin) {
         if (!name.equals(oldName) && groupManagementService.existsByName(name)) {
             throw new ConflictException("duplicated.group.message");
@@ -178,17 +178,14 @@ public class ManagementController {
         var sid = new GrantedAuthoritySid(name);
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
         designRepoAclService.removeRootPermissions(sid);
-        var deployConfigRepoAclService = aclServiceProvider.getDeployConfigRepoAclService();
-        deployConfigRepoAclService.removeRootPermissions(sid);
         var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
         prodRepoAclService.removeRootPermissions(sid);
         if (designRole != null) {
             designRepoAclService.addRootPermissions(sid, designRole.getCumulativePermission());
         }
-        if (deployConfigRole != null) {
-            var deployPermission = deployConfigRole.getCumulativePermission();
-            deployConfigRepoAclService.addRootPermissions(sid, deployPermission);
-            prodRepoAclService.addRootPermissions(sid, deployPermission);
+        if (prodRole != null) {
+            var prodPermission = prodRole.getCumulativePermission();
+            prodRepoAclService.addRootPermissions(sid, prodPermission);
         }
     }
 
