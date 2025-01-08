@@ -20,10 +20,8 @@ public class OpenLAclConfiguration {
     @Bean
     public RepositoryAclServiceProvider repositoryAclServiceProvider(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
         return new RepositoryAclServiceProviderImpl(designRepositoryAclService,
-                deployConfigRepositoryAclService,
                 productionRepositoryAclService);
     }
 
