@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
@@ -59,21 +58,16 @@ public class SimpleProjectEngineFactoryTest {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<>()
                 .setProject("test-resources/test1/third")
                 .setWorkspace("test-resources/test1")
-                .setProvideRuntimeContext(true)
                 .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         assertNotNull(instance);
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
-                .getMethod("sayHello", IRulesRuntimeContext.class);
+                .getMethod("sayHello");
         assertNotNull(sayHelloMethod);
     }
 
     public interface SayHello {
         String sayHello();
-    }
-
-    public interface SayHelloWithRuntimeContext {
-        String sayHello(IRulesRuntimeContext context);
     }
 
     @Test
@@ -87,33 +81,6 @@ public class SimpleProjectEngineFactoryTest {
         assertNotNull(instance);
         assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
         assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHello.class);
-    }
-
-    @Test
-    public void staticInterfaceTestWithRuntimeContextFailureTest() throws Exception {
-        assertThrows(RulesInstantiationException.class, () -> {
-            SimpleProjectEngineFactory<SayHello> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHello>()
-                    .setProject("test-resources/test1/third")
-                    .setWorkspace("test-resources/test1")
-                    .setInterfaceClass(SayHello.class)
-                    .setProvideRuntimeContext(true)
-                    .build();
-            Object instance = simpleProjectEngineFactory.newInstance();
-            assertNotNull(instance);
-        });
-    }
-
-    @Test
-    public void staticInterfaceTestWithRuntimeContextTest() throws Exception {
-        SimpleProjectEngineFactory<SayHelloWithRuntimeContext> simpleProjectEngineFactory = new SimpleProjectEngineFactoryBuilder<SayHelloWithRuntimeContext>()
-                .setProject("test-resources/test1/third")
-                .setWorkspace("test-resources/test1")
-                .setInterfaceClass(SayHelloWithRuntimeContext.class)
-                .setProvideRuntimeContext(true)
-                .build();
-        Object instance = simpleProjectEngineFactory.newInstance();
-        assertNotNull(instance);
-        assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithRuntimeContext.class);
     }
 
     @Test

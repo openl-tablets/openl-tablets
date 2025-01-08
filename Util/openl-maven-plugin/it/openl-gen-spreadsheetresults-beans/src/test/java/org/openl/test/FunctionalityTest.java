@@ -19,8 +19,7 @@ public class FunctionalityTest {
 
     @Test
     public void test() throws Exception {
-        SimpleProjectEngineFactory<Object> factory = new SimpleProjectEngineFactoryBuilder<Object>()
-                .setProvideRuntimeContext(true)
+        var factory = new SimpleProjectEngineFactoryBuilder<Object>()
                 .setExecutionMode(false)
                 .setProject("src/main/openl").build();
 

@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
+import org.openl.runtime.IEngineWrapper;
 
 public class DependencyMethodDispatchingTest {
 
@@ -50,22 +50,24 @@ public class DependencyMethodDispatchingTest {
     @Test
     public void testMethodDispatching() throws Exception {
 
-        var factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/testMethodDispatching1")
                 .build();
         factory.getCompiledOpenClass();
 
         Class<?> interfaceClass = factory.getInterfaceClass();
 
-        Method method = interfaceClass.getMethod("start", IRulesRuntimeContext.class);
+        Method method = interfaceClass.getMethod("start");
 
-        IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
 
         // set the state from dependency module
         //
         context.setUsState(UsStatesEnum.AZ);
 
-        assertEquals(2, method.invoke(factory.newInstance(), context));
+        var instance = factory.newInstance();
+        ((IEngineWrapper) instance).getRuntimeEnv().setContext(context);
+        assertEquals(2, method.invoke(instance));
     }
 
 }
