@@ -2079,7 +2079,7 @@ Content-Type: application/json
                     "description" : "***",
                     "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
                   },
-                  "deployConfigRole" : {
+                  "prodRole" : {
                     "type" : "string",
                     "description" : "***",
                     "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]

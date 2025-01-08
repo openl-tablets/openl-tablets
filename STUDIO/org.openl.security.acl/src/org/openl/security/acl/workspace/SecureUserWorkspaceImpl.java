@@ -19,21 +19,19 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.util.CollectionUtils;
 
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private final UserWorkspace userWorkspace;
     private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
     private final boolean allowProjectCreateDelete;
 
     public SecureUserWorkspaceImpl(UserWorkspace userWorkspace,
                                    RepositoryAclService designRepositoryAclService,
-                                   RepositoryAclService deployConfigRepositoryAclService,
                                    boolean allowProjectCreateDelete) {
         this.userWorkspace = userWorkspace;
         this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
         this.allowProjectCreateDelete = allowProjectCreateDelete;
     }
 
@@ -69,13 +67,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public ADeploymentProject copyDDProject(ADeploymentProject project,
                                             String name,
                                             String comment) throws ProjectException {
-        if (deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.READ))) {
-            if (deployConfigRepositoryAclService
-                    .isGranted(project.getRepository().getId(), null, List.of(AclPermission.CREATE))) {
-                return userWorkspace.copyDDProject(project, name, comment);
-            }
-        }
-        throw new ProjectException("There is no permission for copying the deployment configuration.");
+        return userWorkspace.copyDDProject(project, name, comment);
     }
 
     @Override
@@ -83,19 +75,13 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
             throw new RepositoryException("There is no repository for deployment configurations.");
         }
-        if (deployConfigRepositoryAclService.isGranted(
-                userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                null,
-                List.of(AclPermission.CREATE))) {
-            return userWorkspace.createDDProject(name);
-        }
-        throw new RepositoryException("There is no permission for creating a new deployment configuration.");
+        return userWorkspace.createDDProject(name);
     }
 
     @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         ADeploymentProject deploymentProject = userWorkspace.getDDProject(name);
-        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.READ))) {
+        if (canRead(deploymentProject)) {
             return deploymentProject;
         }
         throw new ProjectException("There is no permission for reading the deployment configuration.");
@@ -104,7 +90,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
         ADeploymentProject deploymentProject = userWorkspace.getLatestDeploymentConfiguration(name);
-        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.READ))) {
+        if (canRead(deploymentProject)) {
             return deploymentProject;
         }
         return null;
@@ -114,8 +100,14 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         return userWorkspace.getDDProjects()
                 .stream()
-                .filter(e -> deployConfigRepositoryAclService.isGranted(e, List.of(AclPermission.READ)))
+                .filter(this::canRead)
                 .collect(Collectors.toList());
+    }
+
+    private boolean canRead(ADeploymentProject deployConfig) {
+        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
+                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.getRepositoryId(), pd.getPath())
+                        .isPresent());
     }
 
     @Override

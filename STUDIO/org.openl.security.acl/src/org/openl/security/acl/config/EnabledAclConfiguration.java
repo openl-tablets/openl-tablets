@@ -47,7 +47,6 @@ public class EnabledAclConfiguration {
     private static final GrantedAuthoritySid RELEVANT_SYSTEM_WIDE_SID = new GrantedAuthoritySid("ADMIN");
 
     private static final String DESIGN_REPO_ROOT_ID = "1";
-    private static final String DEPLOY_CONFIG_REPO_ROOT_ID = "2";
     private static final String PROD_REPO_ROOT_ID = "3";
 
     @Bean
@@ -155,19 +154,6 @@ public class EnabledAclConfiguration {
                                                            SidRetrievalStrategy sidRetrievalStrategy) {
         var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.ProjectArtifact.class,
                 DESIGN_REPO_ROOT_ID);
-        return new RepositoryAclServiceImpl(aclCache,
-                repositoryJdbcMutableAclService,
-                RELEVANT_SYSTEM_WIDE_SID,
-                sidRetrievalStrategy,
-                oidProvider);
-    }
-
-    @Bean
-    public RepositoryAclService deployConfigRepositoryAclService(AclCache aclCache,
-                                                                 JdbcMutableAclService repositoryJdbcMutableAclService,
-                                                                 SidRetrievalStrategy sidRetrievalStrategy) {
-        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.DeploymentProjectArtifact.class,
-                DEPLOY_CONFIG_REPO_ROOT_ID);
         return new RepositoryAclServiceImpl(aclCache,
                 repositoryJdbcMutableAclService,
                 RELEVANT_SYSTEM_WIDE_SID,
