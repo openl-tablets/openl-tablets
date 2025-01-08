@@ -10,14 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 public class ExternalDependenciesTest {
 
     @Test
     public void testDependencies1() throws Exception {
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test1/module")
                 .setExecutionMode(false)
                 .build();
@@ -32,7 +31,7 @@ public class ExternalDependenciesTest {
 
     @Test
     public void testDependencies2() throws Exception {
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test2/module")
                 .setExecutionMode(false)
                 .build();
@@ -62,7 +61,7 @@ public class ExternalDependenciesTest {
 
     @Test
     public void testDependencies3() throws Exception {
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test3/module")
                 .setExecutionMode(false)
                 .setProvideRuntimeContext(true)
@@ -100,7 +99,7 @@ public class ExternalDependenciesTest {
 
     @Test
     public void testDependencies4() throws Exception {
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+        var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/test4/module/main")
                 .setWorkspace("test-resources/dependencies/test4/module")
                 .setExecutionMode(false)

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.enumeration.UsStatesEnum;
-import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 
 public class DependencyMethodDispatchingTest {
@@ -28,7 +27,7 @@ public class DependencyMethodDispatchingTest {
         // AmbiguousMethodException can be retrieved in only the dispatching
         // mode based on methods selecting in java code
 
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder()
+         var factory = new SimpleProjectEngineFactoryBuilder()
                 .setProject("test-resources/dependencies/testMethodDispatching")
                 .build();
         factory.getCompiledOpenClass();
@@ -51,7 +50,7 @@ public class DependencyMethodDispatchingTest {
     @Test
     public void testMethodDispatching() throws Exception {
 
-        ProjectEngineFactory<?> factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
+        var factory = new SimpleProjectEngineFactoryBuilder().setProvideRuntimeContext(true)
                 .setProject("test-resources/dependencies/testMethodDispatching1")
                 .build();
         factory.getCompiledOpenClass();
