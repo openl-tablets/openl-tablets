@@ -27,7 +27,6 @@ public class SimpleProjectEngineFactory<T> {
 
     protected final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
     protected final Map<String, Object> externalParameters;
-    protected final boolean provideRuntimeContext;
     protected final boolean executionMode;
     protected final ClassLoader classLoader;
     protected final File[] projectDependencies;
@@ -41,7 +40,6 @@ public class SimpleProjectEngineFactory<T> {
         protected String project;
         protected String workspace;
         protected ClassLoader classLoader;
-        protected boolean provideRuntimeContext = false;
         protected Class<T> interfaceClass = null;
         protected Map<String, Object> externalParameters = Collections.emptyMap();
         protected boolean executionMode = true;
@@ -67,11 +65,6 @@ public class SimpleProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setExecutionMode(boolean executionMode) {
             this.executionMode = executionMode;
-            return this;
-        }
-
-        public SimpleProjectEngineFactoryBuilder<T> setProvideRuntimeContext(boolean provideRuntimeContext) {
-            this.provideRuntimeContext = provideRuntimeContext;
             return this;
         }
 
@@ -137,7 +130,6 @@ public class SimpleProjectEngineFactory<T> {
                     classLoader,
                     interfaceClass,
                     externalParameters,
-                    provideRuntimeContext,
                     executionMode);
         }
     }
@@ -147,14 +139,12 @@ public class SimpleProjectEngineFactory<T> {
                                          ClassLoader classLoader,
                                          Class<T> interfaceClass,
                                          Map<String, Object> externalParameters,
-                                         boolean provideRuntimeContext,
                                          boolean executionMode) {
         this.project = Objects.requireNonNull(project, "project arg cannot be null");
         this.projectDependencies = projectDependencies;
         this.classLoader = classLoader;
         this.interfaceClass = interfaceClass;
         this.externalParameters = externalParameters;
-        this.provideRuntimeContext = provideRuntimeContext;
         this.executionMode = executionMode;
     }
 
@@ -235,10 +225,6 @@ public class SimpleProjectEngineFactory<T> {
         return executionMode;
     }
 
-    public boolean isProvideRuntimeContext() {
-        return provideRuntimeContext;
-    }
-
     public Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException {
         if (interfaceClass != null) {
             return interfaceClass;
@@ -284,10 +270,6 @@ public class SimpleProjectEngineFactory<T> {
         if (rulesInstantiationStrategy == null) {
             RulesInstantiationStrategy instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
                     getDependencyManager());
-
-            if (isProvideRuntimeContext()) {
-                instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
-            }
 
             Map<String, Object> parameters = ProjectExternalDependenciesHelper
                     .buildExternalParamsWithProjectDependencies(externalParameters,
