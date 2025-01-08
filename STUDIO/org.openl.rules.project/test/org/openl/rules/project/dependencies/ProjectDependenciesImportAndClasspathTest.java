@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.rules.project.instantiation.ProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 
 public class ProjectDependenciesImportAndClasspathTest {
@@ -14,7 +13,7 @@ public class ProjectDependenciesImportAndClasspathTest {
 
     @Test
     public void test() throws Exception {
-        ProjectEngineFactory<Object> projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+        var projectEngineFactory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
                 .setProject(SRC)
                 .setExecutionMode(false)
                 .setWorkspace(SRC_WORKSPACE)

@@ -23,7 +23,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 
-public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
+public class SimpleProjectEngineFactory<T> {
 
     protected final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
     protected final Map<String, Object> externalParameters;
@@ -197,7 +197,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return new SimpleDependencyManager(buildProjectDescriptors(),
                 classLoader,
                 isExecutionMode(),
-                getExternalParameters());
+                externalParameters);
     }
 
     protected Collection<ProjectDescriptor> buildProjectDescriptors() throws ProjectResolvingException {
@@ -235,12 +235,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return executionMode;
     }
 
-    @Override
     public boolean isProvideRuntimeContext() {
         return provideRuntimeContext;
     }
 
-    @Override
     public Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException {
         if (interfaceClass != null) {
             return interfaceClass;
@@ -253,12 +251,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return generatedInterfaceClass;
     }
 
-    @Override
-    public Map<String, Object> getExternalParameters() {
-        return externalParameters;
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public T newInstance() throws RulesInstantiationException, ProjectResolvingException {
         return (T) getRulesInstantiationStrategy().instantiate();
@@ -298,7 +290,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             }
 
             Map<String, Object> parameters = ProjectExternalDependenciesHelper
-                    .buildExternalParamsWithProjectDependencies(getExternalParameters(),
+                    .buildExternalParamsWithProjectDependencies(externalParameters,
                             getProjectDescriptor().getModules());
 
             instantiationStrategy.setExternalParameters(parameters);
@@ -314,7 +306,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return rulesInstantiationStrategy;
     }
 
-    @Override
     public CompiledOpenClass getCompiledOpenClass() throws RulesInstantiationException, ProjectResolvingException {
         return getRulesInstantiationStrategy().compile();
     }
