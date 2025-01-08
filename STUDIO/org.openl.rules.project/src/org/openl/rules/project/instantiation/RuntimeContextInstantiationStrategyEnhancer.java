@@ -1,17 +1,19 @@
 package org.openl.rules.project.instantiation;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.runtime.ASMProxyHandler;
+import org.openl.runtime.ASMProxyFactory;
 
 /**
  * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during
@@ -29,58 +31,125 @@ import org.openl.runtime.ASMProxyHandler;
  *
  * @author Marat Kamalov
  */
-public class RuntimeContextInstantiationStrategyEnhancer extends AbstractServiceClassEnhancerInstantiationStrategy {
+public class RuntimeContextInstantiationStrategyEnhancer implements RulesInstantiationStrategy {
 
     private final Logger log = LoggerFactory.getLogger(RuntimeContextInstantiationStrategyEnhancer.class);
 
     /**
-     * Constructs new instance of instantiation strategy.
-     *
-     * @param instantiationStrategy instantiation strategy which used to instantiate original service
+     * Instantiation strategy delegate.
      */
+    private final RulesInstantiationStrategy instantiationStrategy;
+
+    /**
+     * Internal generated class at runtime which used as service class.
+     */
+    private Class<?> serviceClass;
+
     public RuntimeContextInstantiationStrategyEnhancer(RulesInstantiationStrategy instantiationStrategy) {
-        super(instantiationStrategy);
-    }
-
-    @Override
-    protected Class<?> decorateServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
-        try {
-            return RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(serviceClass, classLoader);
-        } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to add runtime context in parameters of each method.", e);
-        }
-    }
-
-    @Override
-    protected Class<?> undecorateServiceClass(Class<?> serviceClass, ClassLoader classLoader) {
-        try {
-            return RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass, classLoader);
-        } catch (Exception e) {
-            throw new OpenlNotCheckedException("Failed to remove runtime context from parameters of each method.", e);
-        }
-    }
-
-    @Override
-    protected boolean validateServiceClass(Class<?> serviceClass) throws ValidationServiceClassException {
-        if (RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
-            return true;
-        } else {
-            throw new ValidationServiceClassException("Runtime context parameter is required in each method.");
-        }
+        this.instantiationStrategy = instantiationStrategy;
     }
 
     /**
-     * Makes invocation handler.
+     * Gets enhanced service class.
      *
-     * @return {@link InvocationHandler} instance
-     * @throws Exception
+     * @return service class
      */
     @Override
-    protected ASMProxyHandler makeMethodHandler(Object instanceObject) throws Exception {
-        Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
-                getOriginalInstantiationStrategy().getInstanceClass());
-        return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);
+    public final Class<?> getServiceClass() {
+        if (serviceClass == null) {
+            try {
+                Class<?> originalServiceClass = instantiationStrategy.getInstanceClass();
+                Class<?> result;
+                ClassLoader classLoader = getClassLoader();
+                try {
+                    result = RuntimeContextInstantiationStrategyEnhancerHelper.decorateClass(originalServiceClass, classLoader);
+                } catch (Exception e) {
+                    throw new OpenlNotCheckedException("Failed to add runtime context in parameters of each method.", e);
+                }
+                serviceClass = result;
+            } catch (Exception e) {
+                throw new OpenlNotCheckedException("Failed to enhance a service class.", e);
+            }
+        }
+        return serviceClass;
     }
+
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        if (RuntimeContextInstantiationStrategyEnhancerHelper.isDecoratedClass(serviceClass)) {
+            this.serviceClass = serviceClass;
+                try {
+                    ClassLoader classLoader = getClassLoader();
+                    var clazz = RuntimeContextInstantiationStrategyEnhancerHelper.undecorateClass(serviceClass, classLoader);
+                    instantiationStrategy.setServiceClass(clazz);
+                } catch (Exception e) {
+                    throw new OpenlNotCheckedException("Failed to remove runtime context from parameters of each method.", e);
+                }
+        } else {
+            throw new OpenlNotCheckedException(
+                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.");
+        }
+    }
+
+    @Override
+    public final Object instantiate(boolean ignoreCompilationErrors) throws RulesInstantiationException {
+        try {
+            Object originalInstance = instantiationStrategy.instantiate(ignoreCompilationErrors);
+            Class<?> originalServiceClass = instantiationStrategy.getInstanceClass();
+
+            Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(), originalServiceClass);
+            List<Class<?>> proxyInterfaces = new ArrayList<>();
+            proxyInterfaces.add(getServiceClass());
+            for (Class<?> interfaceClass : originalInstance.getClass().getInterfaces()) {
+                if (!interfaceClass.equals(originalServiceClass)) {
+                    proxyInterfaces.add(interfaceClass);
+                }
+            }
+            return ASMProxyFactory.newProxyInstance(getClassLoader(),
+                    new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, originalInstance),
+                    proxyInterfaces.toArray(new Class<?>[]{}));
+        } catch (Exception e) {
+            throw new RulesInstantiationException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public final Object instantiate() throws RulesInstantiationException {
+        return instantiate(false);
+    }
+
+    @Override
+    public void reset() {
+        instantiationStrategy.reset();
+        serviceClass = null;
+    }
+
+    @Override
+    public ClassLoader getClassLoader() throws RulesInstantiationException {
+        return instantiationStrategy.getInstanceClass().getClassLoader();
+    }
+
+    @Override
+    public final Class<?> getInstanceClass() {
+        return getServiceClass();
+    }
+
+    @Override
+    public CompiledOpenClass compile() throws RulesInstantiationException {
+        return instantiationStrategy.compile();
+    }
+
+    @Override
+    public void forcedReset() {
+        reset();
+        instantiationStrategy.forcedReset();
+    }
+
+    @Override
+    public void setExternalParameters(Map<String, Object> parameters) {
+        instantiationStrategy.setExternalParameters(parameters);
+    }
+
 
     /**
      * Gets methods map where keys are interface class methods and values - original service class methods.
