@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
@@ -25,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
-import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -43,6 +41,7 @@ import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
 import org.openl.rules.webstudio.service.TagService;
@@ -105,6 +104,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private AclProjectsHelper aclProjectsHelper;
+
+    @Autowired
+    private SecureDeploymentRepositoryService deploymentRepositoryService;
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
@@ -305,7 +307,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         for (TreeNode currChild : currChildren) {
             final TreeNode prevChild = prev.getChild(currChild.getId());
             if (prevChild != null) {
-                syncExpandedState(((AbstractTreeNode) prevChild), (AbstractTreeNode) currChild);
+                syncExpandedState((AbstractTreeNode) prevChild, (AbstractTreeNode) currChild);
             }
         }
     }
@@ -370,7 +372,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         List<String> ids = new ArrayList<>();
         while (node != null && !node.getType().equals(ROOT_TYPE)) {
-            ids.add(0, node.getId());
+            ids.addFirst(node.getId());
             node = node.getParent();
         }
 
@@ -392,8 +394,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private TreeProject findProjectNode(List<TreeNode> nodes, Predicate<TreeProject> predicate) {
         for (TreeNode node : nodes) {
-            if (node instanceof TreeProject) {
-                TreeProject project = (TreeProject) node;
+            if (node instanceof TreeProject project) {
                 if (predicate.test(project)) {
                     return project;
                 }
@@ -478,8 +479,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 if (branch != null && currentNode != null) {
                     // If currentNode is a project, update its branch.
                     AProjectArtefact currentArtefact = currentNode.getData();
-                    if (currentArtefact instanceof UserWorkspaceProject) {
-                        UserWorkspaceProject newProject = (UserWorkspaceProject) currentArtefact;
+                    if (currentArtefact instanceof UserWorkspaceProject newProject) {
                         if (!branch.equals(newProject.getBranch())) {
                             try {
                                 RulesProject rulesProject = (RulesProject) project;
@@ -625,7 +625,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return;
         }
 
-        Object currentSelectionKey = selection.get(0);
+        Object currentSelectionKey = selection.getFirst();
         UITree tree = (UITree) event.getSource();
 
         Object storedKey = tree.getRowKey();
@@ -766,12 +766,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        return userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() && aclServiceProvider.getDeployConfigRepoAclService()
-                .isGranted(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                        null,
-                        List.of(AclPermission.CREATE)) && userWorkspace.getDesignTimeRepository()
-                .hasDeployConfigRepo() && !DeploymentRepositoriesUtil.isMainBranchProtected(
-                userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+        var designRepo = userWorkspace.getDesignTimeRepository();
+        return designRepo.hasDeployConfigRepo()
+                && !DeploymentRepositoriesUtil.isMainBranchProtected(designRepo.getDeployConfigRepository())
+                && aclProjectsHelper.hasCreateDeployConfigProjectPermission();
     }
 
     public boolean getCanEditDeployment() {
@@ -779,8 +777,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-        return aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject,
-                List.of(AclPermission.WRITE)) && !isCurrentBranchProtected(selectedProject);
+        return !isCurrentBranchProtected(selectedProject)
+                && aclProjectsHelper.hasPermission(selectedProject, AclPermission.WRITE);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -919,10 +917,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     .isOpenedForEditing() || selectedProject.isOpened()) {
                 return false;
             }
-            var repositoryAclService = selectedProject instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
+            return aclProjectsHelper.hasPermission(selectedProject, AclPermission.READ);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -932,18 +927,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanOpenOtherVersion() {
         UserWorkspaceProject selectedProject = getSelectedProject();
 
-        if (selectedProject == null) {
-            return false;
-        }
-
-        if (!selectedProject.isLocalOnly()) {
-            var repositoryAclService = selectedProject instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
-        }
-
-        return false;
+        return selectedProject != null
+                && !selectedProject.isLocalOnly()
+                && aclProjectsHelper.hasPermission(selectedProject, AclPermission.READ);
     }
 
     public boolean getCanExport() {
@@ -955,10 +941,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        var repositoryAclService = selectedProject instanceof ADeploymentProject
-                ? aclServiceProvider.getDeployConfigRepoAclService()
-                : aclServiceProvider.getDesignRepoAclService();
-        return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.READ));
+        return aclProjectsHelper.hasPermission(selectedProject, AclPermission.READ);
     }
 
     public boolean getCanRedeploy() {
@@ -981,44 +964,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            if (deploymentManager.getRepositoryConfigNames()
+            return deploymentRepositoryService.getRepositories()
                     .stream()
-                    .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                    .noneMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.WRITE)))) {
-                return false;
-            }
-
-            if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                    null,
-                    List.of(AclPermission.CREATE))) {
-                return true;
-            }
-
-            for (ADeploymentProject deploymentProject : userWorkspace.getDesignTimeRepository().getDDProjects()) {
-                if (!deploymentProject.isDeleted()) { // don't check marked for deletion projects
-                    ADeploymentProject latestDeploymentVersion = deploymentProject;
-                    if (deploymentProject.isOpenedOtherVersion()) {
-                        latestDeploymentVersion = userWorkspace
-                                .getLatestDeploymentConfiguration(deploymentProject.getName());
-                    }
-                    for (ProjectDescriptor<?> projectDescriptor : latestDeploymentVersion.getProjectDescriptors()) {
-                        if (Objects.equals(projectDescriptor.getProjectName(),
-                                selectedProject
-                                        .getBusinessName()) && (projectDescriptor.getRepositoryId() == null || projectDescriptor
-                                .getRepositoryId()
-                                .equals(selectedProject.getDesignRepository().getId())) && (projectDescriptor
-                                .getPath() == null || projectDescriptor.getPath()
-                                .equals(selectedProject.getRealPath()))) {
-                            if (aclServiceProvider.getDeployConfigRepoAclService().isGranted(latestDeploymentVersion,
-                                    List.of(AclPermission.WRITE))) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
+                    .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
+                    .anyMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -1037,12 +986,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
             boolean branchProtected = isCurrentBranchProtected(project);
-            var repositoryAclService = project instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
             var artefact = getSelectedNode().getData();
             return project.isOpenedForEditing() && !branchProtected
-                    && repositoryAclService.isGranted(artefact, true, AclPermission.DELETE);
+                    && aclProjectsHelper.hasPermission(artefact, AclPermission.DELETE);
         } else {
             return false;
         }
@@ -1052,12 +998,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanModify() {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
-            boolean branchProtected = isCurrentBranchProtected(project);
-            var repositoryAclService = project instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
-            return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
-                    List.of(AclPermission.WRITE)) && !branchProtected;
+            return project.isOpenedForEditing()
+                    && !isCurrentBranchProtected(project)
+                    && aclProjectsHelper.hasPermission(getSelectedNode().getData(), AclPermission.WRITE);
         } else {
             return false;
         }
@@ -1069,21 +1012,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanModifyTags() {
         UserWorkspaceProject project = getSelectedProject();
-        var repositoryAclService = project instanceof ADeploymentProject
-                ? aclServiceProvider.getDeployConfigRepoAclService()
-                : aclServiceProvider.getDesignRepoAclService();
-        return repositoryAclService.isGranted(project, List.of(AclPermission.WRITE));
+        return aclProjectsHelper.hasPermission(project, AclPermission.WRITE);
     }
 
     public boolean getCanAppend() {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
-            boolean branchProtected = isCurrentBranchProtected(project);
-            var repositoryAclService = project instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
-            return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
-                    List.of(AclPermission.CREATE)) && !branchProtected;
+            return project.isOpenedForEditing()
+                    && !isCurrentBranchProtected(project)
+                    && aclProjectsHelper.hasPermission(getSelectedNode().getData(), AclPermission.CREATE);
         } else {
             return false;
         }
@@ -1092,11 +1029,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanCopy() {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
-            var repositoryAclService = project instanceof ADeploymentProject
-                    ? aclServiceProvider.getDeployConfigRepoAclService()
-                    : aclServiceProvider.getDesignRepoAclService();
-            return project.isOpenedForEditing() && !isCurrentBranchProtected(project) && repositoryAclService
-                    .isGranted(getSelectedNode().getData(), List.of(AclPermission.CREATE));
+            return project.isOpenedForEditing()
+                    && !isCurrentBranchProtected(project)
+                    && aclProjectsHelper.hasPermission(getSelectedNode().getData(), AclPermission.CREATE);
         } else {
             return false;
         }
@@ -1105,14 +1040,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeployDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject instanceof ADeploymentProject) {
-            if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(selectedProject, List.of(AclPermission.WRITE))) {
+            if (!aclProjectsHelper.hasPermission(selectedProject, AclPermission.WRITE)) {
                 return false;
             }
         }
-        return !selectedProject.isModified() && deploymentManager.getRepositoryConfigNames()
+        return !selectedProject.isModified() && deploymentRepositoryService.getRepositories()
                 .stream()
-                .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e)))
-                .anyMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e, null, List.of(AclPermission.WRITE)));
+                .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))
+                .anyMatch(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)));
     }
 
     public boolean getCanMerge() {
@@ -1200,7 +1135,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         final List<String> types = new ArrayList<>();
         types.add(TreeProjectGrouping.GROUPING_NONE);
         types.add(TreeProjectGrouping.GROUPING_REPOSITORY);
-        types.addAll(tagTypeService.getAllTagTypes().stream().map(TagType::getName).collect(Collectors.toList()));
+        types.addAll(tagTypeService.getAllTagTypes().stream().map(TagType::getName).toList());
         return types;
     }
 

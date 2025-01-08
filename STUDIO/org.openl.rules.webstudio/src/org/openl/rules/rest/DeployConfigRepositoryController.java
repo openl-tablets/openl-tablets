@@ -1,7 +1,6 @@
 package org.openl.rules.rest;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Lookup;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +25,10 @@ import org.openl.rules.rest.model.RepositoryFeatures;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.resolver.PaginationDefault;
 import org.openl.rules.rest.service.HistoryRepositoryMapper;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.RepositoryAclService;
 
 @RestController
 @RequestMapping("/deploy-config-repo")
@@ -37,12 +36,12 @@ import org.openl.security.acl.repository.RepositoryAclService;
 public class DeployConfigRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
-    private final RepositoryAclService deployConfigRepositoryAclService;
+    private final SecureDeploymentRepositoryService deploymentRepositoryService;
 
     public DeployConfigRepositoryController(DesignTimeRepository designTimeRepository,
-                                            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
+                                            SecureDeploymentRepositoryService deploymentRepositoryService) {
         this.designTimeRepository = designTimeRepository;
-        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.deploymentRepositoryService = deploymentRepositoryService;
     }
 
     @Lookup
@@ -66,15 +65,15 @@ public class DeployConfigRepositoryController {
     public PageResponse<ProjectRevision> getProjectRevision(
             @Parameter(description = "deploy-repo.param.config-name.desc") @PathVariable("config-name") String name,
             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
-            @PaginationDefault(size = 50) Pageable page) throws IOException {
+            @PaginationDefault(size = 50) Pageable page) throws IOException, RepositoryException {
         Repository repository = getDeployConfigRepository();
-        if (!designTimeRepository.hasDDProject(name)) {
+        if (designTimeRepository.getDDProject(name) == null) {
             throw new NotFoundException("project.message", name);
         }
-        String fullPath = designTimeRepository.getDeployConfigLocation() + name;
-        if (!deployConfigRepositoryAclService.isGranted(repository.getId(), fullPath, List.of(AclPermission.READ))) {
+        if (!deploymentRepositoryService.hasPermission(AclPermission.READ)) {
             throw new SecurityException();
         }
+        String fullPath = designTimeRepository.getDeployConfigLocation() + name;
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, false, page);
     }
 

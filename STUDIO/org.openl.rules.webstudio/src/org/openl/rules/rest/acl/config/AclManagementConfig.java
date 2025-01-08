@@ -10,6 +10,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.acl.service.AclProjectsHelperImpl;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelper;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelperImpl;
+import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
@@ -24,8 +25,9 @@ public class AclManagementConfig {
 
     @Bean
     public AclProjectsHelper aclProjectsHelper(RepositoryAclServiceProvider aclServiceProvider,
+                                               SecureDeploymentRepositoryService deploymentRepositoryService,
                                                @Value("${security.allow-project-create-delete}") boolean allowProjectCreateDelete) {
-        return new AclProjectsHelperImpl(aclServiceProvider, allowProjectCreateDelete);
+        return new AclProjectsHelperImpl(aclServiceProvider, deploymentRepositoryService, allowProjectCreateDelete);
     }
 
     @Bean

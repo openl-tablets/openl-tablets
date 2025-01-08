@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -32,18 +33,17 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
-import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.StringUtils;
 
@@ -81,6 +81,9 @@ public abstract class AbstractSmartRedeployController {
 
     @Autowired
     private SecureDeploymentRepositoryService secureDeploymentRepositoryService;
+
+    @Autowired
+    private AclProjectsHelper aclProjectsHelper;
 
     volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
@@ -231,8 +234,7 @@ public abstract class AbstractSmartRedeployController {
                     }
                 }
             } else {
-                if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(deploymentProject,
-                        List.of(AclPermission.WRITE)) || DeploymentRepositoriesUtil
+                if (!canUpdateDeployConfig(deploymentProject) || DeploymentRepositoriesUtil
                         .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -314,12 +316,10 @@ public abstract class AbstractSmartRedeployController {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && userWorkspace.getDesignTimeRepository()
-                .hasDeployConfigRepo() && aclServiceProvider.getDeployConfigRepoAclService().isGranted(
-                userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                null,
-                List.of(AclPermission.CREATE)) && !DeploymentRepositoriesUtil
-                .isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+        var dtRepository = userWorkspace.getDesignTimeRepository();
+        if (!userWorkspace.hasDDProject(projectName) && dtRepository.hasDeployConfigRepo()
+                && secureDeploymentRepositoryService.hasPermission(BasePermission.WRITE)
+                && !DeploymentRepositoriesUtil.isMainBranchProtected(dtRepository.getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -351,6 +351,14 @@ public abstract class AbstractSmartRedeployController {
         }
 
         return result;
+    }
+
+    private boolean canUpdateDeployConfig(ADeploymentProject deployConfigProject) {
+        if (!secureDeploymentRepositoryService.hasPermission(BasePermission.WRITE)) {
+            return false;
+        }
+        return deployConfigProject.getProjectDescriptors().stream()
+                .anyMatch(pd -> userWorkspace.getProjectByPath(pd.getRepositoryId(), pd.getPath()).isPresent());
     }
 
     public abstract void reset();
@@ -419,24 +427,13 @@ public abstract class AbstractSmartRedeployController {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                if (!aclServiceProvider.getDeployConfigRepoAclService().isGranted(
-                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                        null,
-                        List.of(AclPermission.CREATE))) {
+                if (!aclProjectsHelper.hasCreateDeployConfigProjectPermission()) {
                     WebStudioUtils
                             .addErrorMessage("There is no permission for creating a new deployment configuration.");
                     return null;
                 }
                 // the same name, than create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                if (!aclServiceProvider.getDeployConfigRepoAclService().createAcl(deployConfiguration,
-                        List.of(AclRole.CONTRIBUTOR.getCumulativePermission()),
-                        true)) {
-                    String message = String.format(
-                            "Granting permissions to a new deployment configuration '%s' is failed.",
-                            ProjectArtifactUtils.extractResourceName(deployConfiguration));
-                    WebStudioUtils.addErrorMessage(message);
-                }
             }
 
             boolean create;
@@ -523,7 +520,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        return secureDeploymentRepositoryService.getReadableRepositories().stream()
+        return secureDeploymentRepositoryService.getRepositories().stream()
                 .filter(e -> aclServiceProvider.getProdRepoAclService().isGranted(e.getId(), null, List.of(AclPermission.WRITE)))
                 .filter(e -> !DeploymentRepositoriesUtil.isMainBranchProtected(
                         deploymentManager.repositoryFactoryProxy.getRepositoryInstance(e.getConfigName())))

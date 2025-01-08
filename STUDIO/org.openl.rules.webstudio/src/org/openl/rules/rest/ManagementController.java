@@ -89,7 +89,7 @@ public class ManagementController {
     private UIGroup buildUIGroup(Group group) {
         UIGroup uiGroup = new UIGroup(group);
         buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DESIGN, group, uiGroup);
-        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DEPLOY_CONFIG, group, uiGroup);
+        buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_PROD, group, uiGroup);
         return uiGroup;
     }
 
@@ -178,8 +178,6 @@ public class ManagementController {
         var sid = new GrantedAuthoritySid(name);
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
         designRepoAclService.removeRootPermissions(sid);
-        var deployConfigRepoAclService = aclServiceProvider.getDeployConfigRepoAclService();
-        deployConfigRepoAclService.removeRootPermissions(sid);
         var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
         prodRepoAclService.removeRootPermissions(sid);
         if (designRole != null) {
@@ -187,7 +185,6 @@ public class ManagementController {
         }
         if (deployConfigRole != null) {
             var deployPermission = deployConfigRole.getCumulativePermission();
-            deployConfigRepoAclService.addRootPermissions(sid, deployPermission);
             prodRepoAclService.addRootPermissions(sid, deployPermission);
         }
     }

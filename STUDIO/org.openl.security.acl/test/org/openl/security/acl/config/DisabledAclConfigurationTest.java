@@ -25,13 +25,6 @@ public class DisabledAclConfigurationTest {
     }
 
     @Test
-    public void test_disabled_deployConfigRepositoryAclService() {
-        var aclService = disabledAclConfiguration.deployConfigRepositoryAclService();
-        test_DisabledSimpleRepositoryAclService_stubs(aclService);
-        test_DisabledRepositoryAclService_stubs(aclService);
-    }
-
-    @Test
     public void test_disabled_designRepositoryAclService() {
         var aclService = disabledAclConfiguration.designRepositoryAclService();
         test_DisabledSimpleRepositoryAclService_stubs(aclService);
@@ -79,7 +72,7 @@ public class DisabledAclConfigurationTest {
         assertTrue(service.updateOwner(null, null, null));
 
         assertNotNull(service.hashCode());
-        assertNotEquals(service, new Object());
+        assertNotEquals(new Object(), service);
         assertTrue(service.toString().startsWith("Disabled"));
     }
 
