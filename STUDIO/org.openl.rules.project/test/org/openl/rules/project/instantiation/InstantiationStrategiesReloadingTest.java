@@ -49,9 +49,9 @@ public class InstantiationStrategiesReloadingTest {
 
     private static final ProjectResolver resolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy apiStrategy;
-    private SingleModuleInstantiationStrategy dynamicStrategy;
+    private ApiBasedInstantiationStrategy dynamicStrategy;
 
-    private static SingleModuleInstantiationStrategy resolve(File folder) throws Exception {
+    private static ApiBasedInstantiationStrategy resolve(File folder) throws Exception {
         ProjectDescriptor project = resolver.resolve(folder);
         if (project != null) {
             List<PathEntry> classpath = project.getClasspath();
@@ -67,7 +67,7 @@ public class InstantiationStrategiesReloadingTest {
 
     @BeforeEach
     public void init() throws Exception {
-        apiStrategy = (ApiBasedInstantiationStrategy) resolve(
+        apiStrategy = resolve(
                 new File("./test-resources/reloading-test/SimpleProject"));
         dynamicStrategy = resolve(new File("./test-resources/reloading-test/EngineProject"));
     }

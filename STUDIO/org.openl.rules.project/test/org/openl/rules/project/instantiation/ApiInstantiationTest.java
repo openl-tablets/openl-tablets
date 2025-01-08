@@ -39,7 +39,7 @@ public class ApiInstantiationTest {
                 null,
                 false,
                 null);
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
 
         assertNull(strategy.getServiceClass());
         try {
@@ -65,7 +65,7 @@ public class ApiInstantiationTest {
                 null,
                 false,
                 null);
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();
         assertNotNull(instance);

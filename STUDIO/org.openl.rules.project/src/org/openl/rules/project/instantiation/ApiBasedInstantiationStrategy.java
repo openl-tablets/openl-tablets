@@ -1,8 +1,15 @@
 package org.openl.rules.project.instantiation;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
@@ -13,22 +20,20 @@ import org.openl.util.CollectionUtils;
  *
  * @author PUdalau
  */
-public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
+public class ApiBasedInstantiationStrategy extends CommonRulesInstantiationStrategy {
 
     /**
      * Rules engine factory for module that contains only Excel file.
      */
     private RulesEngineFactory<?> engineFactory;
-
-    public ApiBasedInstantiationStrategy(Module module, IDependencyManager dependencyManager, boolean executionMode) {
-        super(module, dependencyManager, executionMode);
-    }
+    private final Module module;
 
     public ApiBasedInstantiationStrategy(Module module,
                                          IDependencyManager dependencyManager,
                                          ClassLoader classLoader,
                                          boolean executionMode) {
-        super(module, dependencyManager, classLoader, executionMode);
+        super(executionMode, dependencyManager, classLoader);
+        this.module = module;
     }
 
     @Override
@@ -43,6 +48,40 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     public void forcedReset() {
         super.forcedReset();
         engineFactory = null;
+    }
+    public Module getModule() {
+        return module;
+    }
+
+    // Single module strategy does not compile dependencies. Exception not required.
+    @Override
+    public ClassLoader getClassLoader() {
+        if (classLoader == null) {
+            classLoader = initClassLoader();
+        }
+        return classLoader;
+    }
+
+    @Override
+    protected ClassLoader initClassLoader() {
+        ProjectDescriptor project = getModule().getProject();
+        return new OpenLClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
+    }
+
+    @Override
+    public Collection<Module> getModules() {
+        return Collections.singleton(getModule());
+    }
+
+    private Map<String, Object> prepareExternalParameters() {
+        Map<String, Object> externalProperties = new HashMap<>();
+        if (getModule().getProperties() != null) {
+            externalProperties.putAll(getModule().getProperties());
+        }
+        if (getExternalParameters() != null) {
+            externalProperties.putAll(getExternalParameters());
+        }
+        return externalProperties;
     }
 
     @Override

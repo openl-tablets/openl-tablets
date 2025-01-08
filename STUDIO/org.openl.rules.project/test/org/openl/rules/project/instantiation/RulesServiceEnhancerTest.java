@@ -35,7 +35,7 @@ public class RulesServiceEnhancerTest {
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
                 .singletonList(project), null, false, null);
 
-        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
+        ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, null, false);
 
         RuntimeContextInstantiationStrategyEnhancer enhancer = new RuntimeContextInstantiationStrategyEnhancer(
                 strategy);
