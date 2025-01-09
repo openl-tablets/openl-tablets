@@ -54,6 +54,9 @@ public final class Forecast {
      * @return the forecasted value as a BigDecimal, or null
      */
     public static BigDecimal forecast(BigDecimal x, BigDecimal[] knownY, BigDecimal[] knownX) {
+        if (x == null) {
+            return null;
+        }
         InputStatsBigDecimal inputStats = loadInputStats(knownY, knownX);
         return forecastBigNumber(inputStats, x);
     }
@@ -67,12 +70,15 @@ public final class Forecast {
      * @return the forecasted value as a BigDecimal, or null
      */
     public static BigDecimal forecast(BigInteger x, BigInteger[] knownY, BigInteger[] knownX) {
+        if (x == null) {
+            return null;
+        }
         InputStatsBigDecimal inputStats = loadInputStats(knownY, knownX);
         return forecastBigNumber(inputStats, new BigDecimal(x));
     }
 
     private static BigDecimal forecastBigNumber(InputStatsBigDecimal inputStats, BigDecimal x) {
-        if (inputStats == null || x == null) {
+        if (inputStats == null) {
             return null;
         }
         BigDecimal slopeB = Slope.slope(inputStats);

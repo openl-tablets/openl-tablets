@@ -26,7 +26,7 @@ public class VarTest {
         assertEquals(4.666666666666667, varP((byte) 3, (byte) 4, (byte) 8));
         assertEquals(4.666666666666667, varP((short) 3, (short) 4, (short) 8));
         assertEquals(4.666666666666667, varP(3L, 4L, 8L));
-        assertEquals(4.666666666666667, varP(3f, 4f, 8f));
+        assertEquals(4.666666666666667f, varP(3f, 4f, 8f));
         assertEquals(4.666666666666667, varP(3d, 4d, 8d));
         assertEquals(4.666666666666667, varP((byte) 3, (short) 4, 8));
         assertEquals(new BigDecimal("4.666666666666666666666666666666667"), varP(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));
@@ -47,7 +47,7 @@ public class VarTest {
         assertEquals(7.0, varS((short) 3, (short) 4, (short) 8));
         assertEquals(7.0, varS(3, 4, 8));
         assertEquals(7.0, varS(3L, 4L, 8L));
-        assertEquals(7.0, varS(3f, 4f, 8f));
+        assertEquals(7.0f, varS(3f, 4f, 8f));
         assertEquals(7.0, varS(3d, 4d, 8d));
         assertEquals(7.0, varS((byte) 3, (short) 4, 8));
         assertEquals(new BigDecimal("7"), varS(BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(8)));

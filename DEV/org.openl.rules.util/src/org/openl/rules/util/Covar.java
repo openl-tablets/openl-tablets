@@ -105,7 +105,7 @@ public final class Covar {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), MathContext.DECIMAL128);
             }
         });
 
@@ -192,7 +192,7 @@ public final class Covar {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter), MathContext.DECIMAL128);
             }
         });
     }

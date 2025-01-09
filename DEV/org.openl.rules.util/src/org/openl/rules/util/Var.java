@@ -54,6 +54,28 @@ public final class Var {
     }
 
     /**
+     * Calculates the sample variance of an array of numbers.
+     * Sample variance uses (n-1) as denominator to provide an unbiased estimate of population variance.
+     *
+     * @param values the array of Float values
+     * @return the sample variance as a Float, or null
+     */
+    public static Float varS(Float... values) {
+        Float avg = avg(values);
+        return avg == null || values.length == 1 ? null : process(values, new Result<>() {
+            @Override
+            public void processNonNull(Float value) {
+                result = variance(value, avg, result);
+            }
+
+            @Override
+            public Float result() {
+                return result == null ? null : result / (counter - 1);
+            }
+        });
+    }
+
+    /**
      * Calculates the sample variance of an array of BigInteger numbers.
      *
      * @param values the array of BigInteger values
@@ -74,7 +96,7 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }
@@ -100,7 +122,7 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter - 1L), DECIMAL128);
             }
         });
     }
@@ -134,6 +156,34 @@ public final class Var {
     }
 
     /**
+     * Calculates the population variance of an array of numbers.
+     * Population variance uses n as denominator and is used when the data represents the entire population.
+     *
+     * @param values the array of Float values
+     * @return the population variance as a Float, or null
+     */
+    public static Float varP(Float... values) {
+        Float avg = avg(values);
+        if (avg == null) {
+            return null;
+        }
+        if (values.length == 1) {
+            return 0.0f;
+        }
+        return process(values, new Result<>() {
+            @Override
+            public void processNonNull(Float value) {
+                result = variance(value, avg, result);
+            }
+
+            @Override
+            public Float result() {
+                return result == null ? null : result / counter;
+            }
+        });
+    }
+
+    /**
      * Calculates the population variance of an array of BigDecimal numbers.
      *
      * @param values the array of BigDecimal values
@@ -155,7 +205,7 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? result : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }
@@ -182,12 +232,18 @@ public final class Var {
 
             @Override
             public BigDecimal result() {
-                return result == null ? null : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
+                return result == null || BigDecimal.ZERO.equals(result) ? null : result.divide(BigDecimal.valueOf(counter), DECIMAL128);
             }
         });
     }
 
     private static Double variance(Double value, Double avg, Double result) {
+        var tmp = (value - avg);
+        tmp *= tmp;
+        return result == null ? tmp : result + tmp;
+    }
+
+    private static Float variance(Float value, Float avg, Float result) {
         var tmp = (value - avg);
         tmp *= tmp;
         return result == null ? tmp : result + tmp;

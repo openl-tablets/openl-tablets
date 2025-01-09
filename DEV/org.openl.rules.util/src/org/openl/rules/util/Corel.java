@@ -39,9 +39,9 @@ public class Corel {
             return null;
         }
         Double covariance = sampleCovariance(inputStats);
-        Double deviationX = stdevS(inputStats.x);
-        Double deviationY = stdevS(inputStats.y);
-        return covariance == null || deviationX == null || deviationY == null ? null : covariance / (deviationX * deviationY);
+        Double deviationX = covariance == null || covariance == 0.0 ? null : stdevS(inputStats.x);
+        Double deviationY = deviationX == null || deviationX == 0.0 ? null : stdevS(inputStats.y);
+        return  deviationY == null || deviationY == 0.0 ? null : covariance / (deviationX * deviationY);
     }
 
     /**
@@ -74,9 +74,9 @@ public class Corel {
             return null;
         }
         BigDecimal covariance = sampleCovariance(inputStats);
-        BigDecimal deviationX = stdevS(inputStats.x);
-        BigDecimal deviationY = BigDecimal.ZERO.equals(deviationX) ? null : stdevS(inputStats.y);
-        return covariance == null || deviationX == null || deviationY == null ? null : covariance.divide(deviationX.multiply(deviationY), DECIMAL128);
+        BigDecimal deviationX = covariance == null || BigDecimal.ZERO.equals(covariance) ? null : stdevS(inputStats.x);
+        BigDecimal deviationY = deviationX == null || BigDecimal.ZERO.equals(deviationX) ? null : stdevS(inputStats.y);
+        return deviationY == null || BigDecimal.ZERO.equals(deviationY) ? null : covariance.divide(deviationX.multiply(deviationY), DECIMAL128);
     }
 
     /**

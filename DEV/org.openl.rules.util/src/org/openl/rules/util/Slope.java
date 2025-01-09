@@ -68,8 +68,8 @@ public final class Slope {
             return null;
         }
         Double sampleCovariance = sampleCovariance(inputStats);
-        Double sampleVariance = varS(inputStats.x);
-        return sampleCovariance == null || sampleVariance == null || sampleVariance == 0 ? null : sampleCovariance / sampleVariance;
+        Double sampleVariance = sampleCovariance == null ? null : varS(inputStats.x);
+        return sampleVariance == null || sampleVariance == 0 ? null : sampleCovariance / sampleVariance;
 
     }
 
@@ -78,7 +78,7 @@ public final class Slope {
             return null;
         }
         BigDecimal sampleCovariance = sampleCovariance(inputStats);
-        BigDecimal sampleVariance = varS(inputStats.x);
-        return sampleCovariance == null || sampleVariance == null || BigDecimal.ZERO.equals(sampleCovariance) ? null : sampleCovariance.divide(sampleVariance, MathContext.DECIMAL128);
+        BigDecimal sampleVariance = sampleCovariance == null || BigDecimal.ZERO.equals(sampleCovariance) ? null : varS(inputStats.x);
+        return sampleVariance == null ? null : sampleCovariance.divide(sampleVariance, MathContext.DECIMAL128);
     }
 }
