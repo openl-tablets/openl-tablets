@@ -36,6 +36,8 @@ public interface DesignTimeRepository extends ProjectsContainer {
      */
     List<ADeploymentProject> getDDProjects() throws RepositoryException;
 
+    ADeploymentProject getDDProject(String name) throws RepositoryException;
+
     /**
      * Gets particular version of a rules project.
      *

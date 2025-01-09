@@ -1,6 +1,5 @@
 package org.openl.rules.rest.acl.resolver;
 
-import java.util.Objects;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.springframework.core.convert.converter.Converter;
@@ -36,9 +35,6 @@ public class AclRepositoryIdConverter implements Converter<String, AclRepository
         boolean notExists;
         if (aclRepoId.getType() == AclRepositoryType.DESIGN) {
             notExists = designTimeRepository.getRepository(aclRepoId.getId()) == null;
-        } else if (aclRepoId.getType() == AclRepositoryType.DEPLOY_CONFIG) {
-            notExists = !designTimeRepository.hasDeployConfigRepo()
-                    || !Objects.equals(aclRepoId.getId(), designTimeRepository.getDeployConfigRepository().getId());
         } else if (aclRepoId.getType() == AclRepositoryType.PROD) {
             notExists = !deploymentManager.getRepositoryConfigNames().contains(aclRepoId.getId());
         } else {
