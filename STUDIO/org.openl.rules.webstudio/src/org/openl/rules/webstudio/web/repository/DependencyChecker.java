@@ -62,7 +62,6 @@ public class DependencyChecker {
 
         for (ProjectDescriptor descriptor : deploymentProject.getProjectDescriptors()) {
             String projectName = descriptor.getProjectName();
-            String branch = descriptor.getBranch();
             String projectPath = descriptor.getPath();
             CommonVersion projectVersion = descriptor.getProjectVersion();
 
@@ -74,7 +73,7 @@ public class DependencyChecker {
                 AProject project;
                 if (projectPath != null) {
                     project = designRepository
-                            .getProjectByPath(repositoryId, branch, projectPath, projectVersion.getVersionName());
+                            .getProjectByPath(repositoryId, null, projectPath, projectVersion.getVersionName());
                 } else {
                     if (designRepository.hasProject(repositoryId, projectName)) {
                         project = designRepository.getProject(repositoryId, projectName, projectVersion);
