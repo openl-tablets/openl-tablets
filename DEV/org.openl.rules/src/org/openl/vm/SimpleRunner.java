@@ -20,7 +20,7 @@ class SimpleRunner implements IOpenRunner {
     public Object run(IBoundMethodNode node, Object[] params) {
         int frameSize = node.getLocalFrameSize();
 
-        return node.evaluate(new SimpleVM.SimpleRuntimeEnv(this, frameSize, params));
+        return node.evaluate(new SimpleRuntimeEnv(this, frameSize, params));
     }
 
     @Override
