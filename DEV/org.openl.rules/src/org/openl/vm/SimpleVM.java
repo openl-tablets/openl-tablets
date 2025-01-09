@@ -10,8 +10,6 @@ import java.util.ArrayDeque;
 
 import org.openl.IOpenRunner;
 import org.openl.IOpenVM;
-import org.openl.binding.IBoundMethodNode;
-import org.openl.binding.IBoundNode;
 import org.openl.runtime.DefaultRuntimeContext;
 import org.openl.runtime.IRuntimeContext;
 
@@ -20,55 +18,8 @@ import org.openl.runtime.IRuntimeContext;
  */
 public class SimpleVM implements IOpenVM {
 
-    private static final SimpleRunner SIMPLE_RUNNER = new SimpleRunner();
     private static final Object[] NO_PARAMS = {};
     private static final Object NULL_THIS = new Object();
-
-    static class SimpleRunner implements IOpenRunner {
-
-        SimpleRunner() {
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see org.openl.IOpenRunner#run(java.lang.Object[])
-         */
-        @Override
-        public Object run(IBoundMethodNode node, Object[] params) {
-            int frameSize = node.getLocalFrameSize();
-
-            return node.evaluate(new SimpleRuntimeEnv(this, frameSize, params));
-        }
-
-        @Override
-        public Object run(IBoundMethodNode node, Object[] params, IRuntimeEnv env) {
-            int frameSize = node.getLocalFrameSize();
-
-            Object[] frame = new Object[frameSize];
-
-            if (params != null && params.length > 0) {
-                System.arraycopy(params, 0, frame, 0, params.length);
-            }
-
-            try {
-                env.pushLocalFrame(frame);
-                return node.evaluate(env);
-            } finally {
-                env.popLocalFrame();
-            }
-        }
-
-        @Override
-        public Object runExpression(IBoundNode expressionNode, Object[] params, IRuntimeEnv env) {
-            try {
-                env.pushLocalFrame(params);
-                return expressionNode.evaluate(env);
-            } finally {
-                env.popLocalFrame();
-            }
-        }
-    }
 
     public static class SimpleRuntimeEnv implements IRuntimeEnv {
 
@@ -78,7 +29,7 @@ public class SimpleVM implements IOpenVM {
         protected ArrayDeque<IRuntimeContext> contextStack;
 
         public SimpleRuntimeEnv() {
-            this(SIMPLE_RUNNER, 0, NO_PARAMS);
+            this(SimpleRunner.SIMPLE_RUNNER, 0, NO_PARAMS);
         }
 
         SimpleRuntimeEnv(IOpenRunner runner, int frameSize, Object[] params) {
@@ -95,7 +46,7 @@ public class SimpleVM implements IOpenVM {
         }
 
         public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
-            this.runner = SIMPLE_RUNNER;
+            this.runner = SimpleRunner.SIMPLE_RUNNER;
             contextStack = new ArrayDeque<>(env.contextStack);
             pushThis(env.getThis());
             pushLocalFrame(env.getLocalFrame());
@@ -188,7 +139,7 @@ public class SimpleVM implements IOpenVM {
      */
     @Override
     public IOpenRunner getRunner() {
-        return SIMPLE_RUNNER;
+        return SimpleRunner.SIMPLE_RUNNER;
     }
 
     @Override
