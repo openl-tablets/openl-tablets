@@ -19,6 +19,7 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
+import org.openl.util.CollectionUtils;
 
 public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepository {
 
@@ -151,7 +152,7 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     }
 
     private boolean canRead(ADeploymentProject deployConfig) {
-        return deployConfig.getProjectDescriptors().stream()
+        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
                 .anyMatch(pd -> {
                     try {
                         getProjectByPath(pd.getRepositoryId(),

@@ -19,6 +19,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.util.CollectionUtils;
 
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
@@ -104,7 +105,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     private boolean canRead(ADeploymentProject deployConfig) {
-        return deployConfig.getProjectDescriptors().stream()
+        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
                 .anyMatch(pd -> userWorkspace.getProjectByPath(pd.getRepositoryId(), pd.getPath())
                         .isPresent());
     }

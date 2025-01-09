@@ -12,6 +12,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.util.CollectionUtils;
 
 public class AclProjectsHelperImpl implements AclProjectsHelper {
 
@@ -62,7 +63,7 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
 
     private boolean canReadAtLeastOneDeployedProject(ADeploymentProject deployConfig) {
         var aclService = aclServiceProvider.getDesignRepoAclService();
-        return deployConfig.getProjectDescriptors().stream()
+        return CollectionUtils.isEmpty(deployConfig.getProjectDescriptors()) || deployConfig.getProjectDescriptors().stream()
                 .anyMatch(pd -> aclService.isGranted(pd.getRepositoryId(), pd.getPath(), List.of(BasePermission.READ)));
     }
 
