@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.openl.rules.cloner.Cloner;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
@@ -29,9 +29,9 @@ public class LazyTracerNodeObject implements ITracerObject {
                                 Object source,
                                 ClassLoader classLoader) {
         this.env = env.copy();
-        if (env instanceof SimpleRulesRuntimeEnv) {
-            ((SimpleRulesRuntimeEnv) this.env).setMethodWrapper(((SimpleRulesRuntimeEnv) env).getMethodWrapper());
-            ((SimpleRulesRuntimeEnv) this.env).setTopClass(((SimpleRulesRuntimeEnv) env).getTopClass());
+        if (env instanceof SimpleRuntimeEnv) {
+            ((SimpleRuntimeEnv) this.env).setMethodWrapper(((SimpleRuntimeEnv) env).getMethodWrapper());
+            ((SimpleRuntimeEnv) this.env).setTopClass(((SimpleRuntimeEnv) env).getTopClass());
         }
         this.executor = executor;
         this.target = target;

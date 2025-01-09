@@ -13,7 +13,7 @@ import org.openl.binding.impl.cast.StringToEnumCast;
 import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -105,12 +105,12 @@ class ContextPropertiesInjector {
         }
     }
 
-    public boolean push(Object[] params, IRuntimeEnv env, SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+    public boolean push(Object[] params, IRuntimeEnv env, SimpleRuntimeEnv simpleRuntimeEnv) {
         if (contextPropertyInjections != null) {
             IRulesRuntimeContext rulesRuntimeContext = null;
             for (IContextPropertyInjection contextPropertiesInjector : contextPropertyInjections) {
                 rulesRuntimeContext = contextPropertiesInjector
-                        .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+                        .inject(params, env, simpleRuntimeEnv, rulesRuntimeContext);
             }
             if (rulesRuntimeContext != null) {
                 env.pushContext(rulesRuntimeContext);
@@ -122,7 +122,7 @@ class ContextPropertiesInjector {
         return false;
     }
 
-    public void pop(SimpleRulesRuntimeEnv env) {
+    public void pop(SimpleRuntimeEnv env) {
         env.popContext();
     }
 }

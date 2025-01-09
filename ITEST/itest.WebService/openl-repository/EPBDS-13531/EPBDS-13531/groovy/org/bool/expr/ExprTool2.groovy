@@ -9,7 +9,6 @@ import org.openl.rules.operator.*
 import org.openl.rules.convertor.IString2DataConvertor
 import org.openl.rules.convertor.String2DataConvertorFactory
 import org.openl.rules.dt.AST
-import org.openl.rules.vm.SimpleRulesRuntimeEnv
 import org.openl.types.IOpenClass
 import org.openl.types.IOpenMethod
 import org.openl.types.java.JavaOpenClass
@@ -34,11 +33,11 @@ class ExprTool {
     private static final Double ONE = 1.0d
 
     private static Double mul(Double a, Double b) {
-        return (Double) MUL_OP_METHOD.invoke(null, new Object[]{a, b}, new SimpleRulesRuntimeEnv())
+        return (Double) MUL_OP_METHOD.invoke(null, new Object[]{a, b}, new SimpleRuntimeEnv())
     }
 
     private static Double add(Double a, Double b) {
-        return (Double) ADD_OP_METHOD.invoke(null, new Object[]{a, b}, new SimpleRulesRuntimeEnv())
+        return (Double) ADD_OP_METHOD.invoke(null, new Object[]{a, b}, new SimpleRuntimeEnv())
     }
 
     private static List<IOpenClass> INTEGER_TYPES = List.of(JavaOpenClass.BYTE,
@@ -830,7 +829,7 @@ class ExprTool {
                         if (isLiteral(p0) && isLiteral(p1)) {
                             Object v1 = getLiteralValue(p0)
                             Object v2 = getLiteralValue(p1)
-                            Object v = binaryOpNode.getMethodCaller().invoke(null, new Object[]{v1, v2}, new SimpleRulesRuntimeEnv())
+                            Object v = binaryOpNode.getMethodCaller().invoke(null, new Object[]{v1, v2}, new SimpleRuntimeEnv())
                             return new SE("\"" + String.valueOf(v) + "\"", true, null, true)
                         }
                     }
@@ -1052,7 +1051,7 @@ class ExprTool {
                     if (isLiteral0 && isLiteral1) {
                         var literal1 = getLiteralValue(p0)
                         var literal2 = getLiteralValue(p1)
-                        if (Boolean.TRUE == boundNode.getMethodCaller().invoke(null, new Object[]{literal1, literal2}, new SimpleRulesRuntimeEnv())) {
+                        if (Boolean.TRUE == boundNode.getMethodCaller().invoke(null, new Object[]{literal1, literal2}, new SimpleRuntimeEnv())) {
                             return Literal.getTrue()
                         } else {
                             return Literal.getFalse()
@@ -1117,7 +1116,7 @@ class ExprTool {
             return castNode.getCast().convert(getLiteralValueBoundNode(castNode.getChildren()[0]))
         } else if (boundNode instanceof FieldBoundNode) {
             var fieldBoundNode = (FieldBoundNode) boundNode
-            return fieldBoundNode.getBoundField().get(null, new SimpleRulesRuntimeEnv())
+            return fieldBoundNode.getBoundField().get(null, new SimpleRuntimeEnv())
         }
         throw new IllegalStateException()
     }

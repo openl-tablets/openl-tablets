@@ -34,7 +34,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -336,10 +336,10 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            if (env instanceof SimpleRulesRuntimeEnv) {
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
-                IOpenMethod method = simpleRulesRuntimeEnv.getMethodWrapper()
-                        .getTopOpenClassMethod(simpleRulesRuntimeEnv.getTopClass());
+            if (env instanceof SimpleRuntimeEnv) {
+                SimpleRuntimeEnv simpleRuntimeEnv = (SimpleRuntimeEnv) env;
+                IOpenMethod method = simpleRuntimeEnv.getMethodWrapper()
+                        .getTopOpenClassMethod(simpleRuntimeEnv.getTopClass());
                 if (method instanceof ExecutableRulesMethod) {
                     ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
                     return new TableProperties[]{new TableProperties(executableRulesMethod.getMethodProperties())};
@@ -427,15 +427,15 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
         @Override
         public Object get(Object target, IRuntimeEnv env) {
-            if (env instanceof SimpleRulesRuntimeEnv) {
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
-                if (simpleRulesRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
-                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) simpleRulesRuntimeEnv
+            if (env instanceof SimpleRuntimeEnv) {
+                SimpleRuntimeEnv simpleRuntimeEnv = (SimpleRuntimeEnv) env;
+                if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
+                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) simpleRuntimeEnv
                             .getMethodWrapper()
                             .getDelegate();
                     return new TableProperties(executableRulesMethod.getMethodProperties());
-                } else if (simpleRulesRuntimeEnv.getMethodWrapper().getDelegate() instanceof OpenMethodDispatcher) {
-                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) simpleRulesRuntimeEnv
+                } else if (simpleRuntimeEnv.getMethodWrapper().getDelegate() instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) simpleRuntimeEnv
                             .getMethodWrapper()
                             .getDelegate();
                     IOpenMethod method = openMethodDispatcher.findMatchingMethod(env);

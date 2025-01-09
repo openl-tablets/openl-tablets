@@ -1,10 +1,15 @@
 package org.openl.vm;
 
 import java.util.ArrayDeque;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.RecursiveAction;
 
 import org.openl.IOpenRunner;
-import org.openl.runtime.DefaultRuntimeContext;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
+import org.openl.types.IOpenClass;
 
 public class SimpleRuntimeEnv implements IRuntimeEnv {
 
@@ -15,6 +20,9 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
     protected final ArrayDeque<Object> thisStack = new ArrayDeque<>();
     protected final ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
     protected ArrayDeque<IRuntimeContext> contextStack;
+    private IOpenClass topClass;
+    private IRulesMethodWrapper methodWrapper;
+    private Queue<RecursiveAction> actionStack = null;
 
     public SimpleRuntimeEnv() {
         this(SimpleRunner.SIMPLE_RUNNER, 0, NO_PARAMS);
@@ -29,8 +37,54 @@ public class SimpleRuntimeEnv implements IRuntimeEnv {
         pushContext(buildDefaultRuntimeContext());
     }
 
-    protected IRuntimeContext buildDefaultRuntimeContext() {
-        return new DefaultRuntimeContext();
+    public ArrayDeque<IRuntimeContext> cloneContextStack() {
+        return new ArrayDeque<>(contextStack);
+    }
+
+    private IRuntimeContext buildDefaultRuntimeContext() {
+        return RulesRuntimeContextFactory.buildRulesRuntimeContext();
+    }
+
+    public IRulesMethodWrapper getMethodWrapper() {
+        return methodWrapper;
+    }
+
+    public void setMethodWrapper(IRulesMethodWrapper methodWrapper) {
+        this.methodWrapper = methodWrapper;
+    }
+
+    public IOpenClass getTopClass() {
+        return topClass;
+    }
+
+    public void setTopClass(IOpenClass topClass) {
+        this.topClass = topClass;
+    }
+
+
+    public void pushAction(RecursiveAction action) {
+        if (actionStack == null) {
+            actionStack = new LinkedList<>();
+        }
+        actionStack.add(action);
+    }
+
+    public boolean joinActionIfExists() {
+        if (actionStack != null && !actionStack.isEmpty()) {
+            RecursiveAction action = actionStack.poll();
+            action.join();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean cancelActionIfExists() {
+        if (actionStack != null && !actionStack.isEmpty()) {
+            RecursiveAction action = actionStack.poll();
+            action.cancel(true);
+            return true;
+        }
+        return false;
     }
 
     public SimpleRuntimeEnv(SimpleRuntimeEnv env) {
