@@ -2,14 +2,14 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.vm.IRuntimeEnv;
 
 abstract class AbstractContextPropertyInjector implements IContextPropertyInjection {
 
     public IRulesRuntimeContext inject(Object[] params,
                                        IRuntimeEnv env,
-                                       SimpleRulesRuntimeEnv simpleRulesRuntimeEnv,
+                                       SimpleRuntimeEnv simpleRuntimeEnv,
                                        IRulesRuntimeContext rulesRuntimeContext) {
         if (isProcessable(params)) {
             Object value = getValue(params, env);
@@ -21,7 +21,7 @@ abstract class AbstractContextPropertyInjector implements IContextPropertyInject
                 return rulesRuntimeContext;
             }
             if (rulesRuntimeContext == null) {
-                IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv.getContext();
+                IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRuntimeEnv.getContext();
                 try {
                     rulesRuntimeContext = currentRuntimeContext.clone();
                     rulesRuntimeContext.setValue(getContextProperty(), value);

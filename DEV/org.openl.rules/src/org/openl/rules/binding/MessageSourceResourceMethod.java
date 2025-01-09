@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -38,7 +38,7 @@ public class MessageSourceResourceMethod implements IOpenMethod {
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         Locale locale = Optional.ofNullable(((IRulesRuntimeContext) env.getContext()).getLocale()).orElse(Locale.US);
-        var messageBundle = ((XlsModuleOpenClass) ((SimpleRulesRuntimeEnv) env).getTopClass()).getMessageSource()
+        var messageBundle = ((XlsModuleOpenClass) ((SimpleRuntimeEnv) env).getTopClass()).getMessageSource()
                 .getMessageBundle(locale);
         return messageBundle.msg((String) params[0], (Object[]) params[1]);
     }

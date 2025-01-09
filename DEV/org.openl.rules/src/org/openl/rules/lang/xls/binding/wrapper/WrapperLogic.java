@@ -18,7 +18,7 @@ import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
 import org.openl.runtime.OpenLMethodHandler;
@@ -61,7 +61,7 @@ public final class WrapperLogic {
     private WrapperLogic() {
     }
 
-    public static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
+    public static SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv) {
             TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
@@ -71,7 +71,7 @@ public final class WrapperLogic {
                 env1 = tBasicContextHolderEnv.getEnv();
             }
         }
-        return (SimpleRulesRuntimeEnv) env1;
+        return (SimpleRuntimeEnv) env1;
     }
 
     public static IOpenMethod extractNonLazyMethod(IOpenMethod method) {
@@ -191,22 +191,22 @@ public final class WrapperLogic {
                                                Object target,
                                                Object[] params,
                                                IRuntimeEnv env) {
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
+        SimpleRuntimeEnv simpleRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
+        IOpenClass topClass = simpleRuntimeEnv.getTopClass();
         if (topClass != null) {
             try {
-                simpleRulesRuntimeEnv.setTopClass(wrapper.getXlsModuleOpenClass());
+                simpleRuntimeEnv.setTopClass(wrapper.getXlsModuleOpenClass());
                 return WrapperLogic.invoke(wrapper, target, params, env);
             } finally {
-                simpleRulesRuntimeEnv.setTopClass(topClass);
+                simpleRuntimeEnv.setTopClass(topClass);
             }
         }
         return WrapperLogic.invoke(wrapper, target, params, env);
     }
 
     private static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
+        SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
+        IOpenClass topClass = simpleRuntimeEnv.getTopClass();
         if (topClass == null) {
             ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
@@ -231,12 +231,12 @@ public final class WrapperLogic {
                 } else {
                     throw new IllegalStateException("Cannot define OpenL class from target object.");
                 }
-                simpleRulesRuntimeEnv.setTopClass(typeClass);
+                simpleRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
-                return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
+                return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRuntimeEnv);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
-                simpleRulesRuntimeEnv.setTopClass(null);
+                simpleRuntimeEnv.setTopClass(null);
             }
         } else {
             if (topClass != wrapper.getXlsModuleOpenClass()) {
@@ -249,7 +249,7 @@ public final class WrapperLogic {
                 }
             }
         }
-        return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
+        return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRuntimeEnv);
     }
 
     public static Object invoke(IRulesMethodWrapper wrapper,

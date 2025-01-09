@@ -1,13 +1,13 @@
 package org.openl.rules.vm.ce;
 
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
-    private final SimpleRulesRuntimeEnv delegate;
+public class SimpleRulesRuntimeEnvMT extends SimpleRuntimeEnv {
+    private final SimpleRuntimeEnv delegate;
 
-    public SimpleRulesRuntimeEnvMT(SimpleRulesRuntimeEnv delegate) {
+    public SimpleRulesRuntimeEnvMT(SimpleRuntimeEnv delegate) {
         this.delegate = delegate;
         pushThis(delegate.getThis());
         this.contextStack = delegate.cloneContextStack();

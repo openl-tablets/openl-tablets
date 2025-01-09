@@ -5,7 +5,7 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
-import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 import org.openl.rules.vm.ce.SimpleRulesRuntimeEnvMT;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -30,12 +30,12 @@ public final class ServiceMT {
             runnable.run(env);
             return;
         }
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
+        SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         RunnableRecursiveAction action = new RunnableRecursiveAction(runnable,
-                simpleRulesRuntimeEnv,
+                simpleRuntimeEnv,
                 Thread.currentThread().getContextClassLoader());
-        simpleRulesRuntimeEnv.pushAction(action);
-        if (simpleRulesRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
+        simpleRuntimeEnv.pushAction(action);
+        if (simpleRuntimeEnv instanceof SimpleRulesRuntimeEnvMT) {
             action.fork();
         } else {
             forkJoinPool.execute(action);
@@ -53,36 +53,36 @@ public final class ServiceMT {
     }
 
     public void join(IRuntimeEnv env) {
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
+        SimpleRuntimeEnv simpleRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         try {
-            while (simpleRulesRuntimeEnv.joinActionIfExists()) {
+            while (simpleRuntimeEnv.joinActionIfExists()) {
             }
         } finally {
-            while (simpleRulesRuntimeEnv.cancelActionIfExists()) {
+            while (simpleRuntimeEnv.cancelActionIfExists()) {
             }
         }
     }
 
-    private SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
+    private SimpleRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         if (env instanceof TBasicContextHolderEnv) {
             IRuntimeEnv env1 = ((TBasicContextHolderEnv) env).getEnv();
             if (env1 instanceof TBasicContextHolderEnv) {
                 return extractSimpleRulesRuntimeEnv(env1);
             } else {
-                return (SimpleRulesRuntimeEnv) env1;
+                return (SimpleRuntimeEnv) env1;
             }
         } else {
-            return (SimpleRulesRuntimeEnv) env;
+            return (SimpleRuntimeEnv) env;
         }
     }
 
     private static class RunnableRecursiveAction extends RecursiveAction {
         private static final long serialVersionUID = -6827837658658403954L;
         private final Runnable runnable;
-        private final SimpleRulesRuntimeEnv env;
+        private final SimpleRuntimeEnv env;
         private final ClassLoader classLoader;
 
-        private RunnableRecursiveAction(Runnable runnable, SimpleRulesRuntimeEnv env, ClassLoader classLoader) {
+        private RunnableRecursiveAction(Runnable runnable, SimpleRuntimeEnv env, ClassLoader classLoader) {
             this.runnable = runnable;
             this.env = env;
             this.classLoader = classLoader;
