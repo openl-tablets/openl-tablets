@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
@@ -472,10 +473,7 @@ public abstract class AbstractSmartRedeployController {
                 create = true;
             }
 
-            boolean sameVersion = deployConfiguration
-                    .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
-                    .compareTo(
-                            deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
+            boolean sameVersion = isSameVersion(deployConfiguration, project);
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -513,6 +511,18 @@ public abstract class AbstractSmartRedeployController {
         }
 
         return null;
+    }
+
+    private boolean isSameVersion(ADeploymentProject deployConfiguration, AProject project) throws ProjectException {
+        if (!deployConfiguration.hasProjectDescriptor(project.getBusinessName())) {
+            return false;
+        }
+        var projectDescriptor = deployConfiguration.getProjectDescriptor(project.getBusinessName());
+        if (project.getVersion().compareTo(projectDescriptor.getProjectVersion()) != 0) {
+            return false;
+        }
+        String branch = project instanceof RulesProject ? ((RulesProject) project).getBranch() : null;
+        return Objects.equals(branch, projectDescriptor.getBranch());
     }
 
     public String getRepositoryConfigName() {
