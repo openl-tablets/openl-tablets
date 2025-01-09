@@ -13,7 +13,7 @@ import org.openl.rules.vm.SimpleRulesRuntimeEnv
 import org.openl.types.IOpenClass
 import org.openl.types.IOpenMethod
 import org.openl.types.java.JavaOpenClass
-import org.openl.vm.SimpleVM
+import org.openl.vm.SimpleRuntimeEnv
 
 import java.util.function.Supplier
 import java.util.stream.Collectors
@@ -688,7 +688,7 @@ class ExprTool {
                                 Literal literal0 = (Literal) e0
                                 Literal literal1 = (Literal) e1
                                 Object v = method.invoke(null, new Object[]{literal0.getValue(),
-                                        literal1.getValue()}, new SimpleVM.SimpleRuntimeEnv())
+                                        literal1.getValue()}, new SimpleRuntimeEnv())
                                 return new SE(String.valueOf(v), true, null, true)
                             }
                             if (e0 instanceof Literal && !(e1 instanceof Literal)) {

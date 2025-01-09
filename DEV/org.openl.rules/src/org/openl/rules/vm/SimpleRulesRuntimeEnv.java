@@ -10,7 +10,7 @@ import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM.SimpleRuntimeEnv;
+import org.openl.vm.SimpleRuntimeEnv;
 
 public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     private volatile boolean originalCalculation = true;
