@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>5.27.10-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>itest.ruleServices-large-response</artifactId>
+    <packaging>jar</packaging>
+    <name>ITEST - RuleServices - Large Response</name>
+    <url>https://openl-tablets.org</url>
+
+    <properties>
+        <surefire.argLine.perf>-Xms8m -Xmx30m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-features-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+    </dependencies>
+</project>
