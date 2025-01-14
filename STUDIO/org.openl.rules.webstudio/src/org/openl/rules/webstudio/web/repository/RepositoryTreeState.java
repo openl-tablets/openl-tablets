@@ -265,11 +265,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             try {
                 if (hasDeployConfigRepo) {
-                    List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
-                    for (ADeploymentProject project : deployConfigurations) {
-                        addDeploymentProjectToTree(project);
+                    var deployConfigurations = userWorkspace.getDDProjects();
+                    int count = 0;
+                    for (var deployConfigProj : deployConfigurations) {
+                        if (aclProjectsHelper.hasPermission(deployConfigProj, AclPermission.READ)) {
+                            addDeploymentProjectToTree(deployConfigProj);
+                            count++;
+                        }
                     }
-                    if (deployConfigurations.isEmpty()) {
+                    if (count == 0) {
                         // Initialize content of empty node
                         deploymentRepository.getElements();
                     }
