@@ -698,10 +698,10 @@ public class ProjectModel {
         if (isEditable()) {
             if (studio.getCurrentModule() == null) {
                 RulesProject currentProject = getProject();
-                return studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.WRITE)) || studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.CREATE)) || studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.DELETE));
+                var alcService = studio.getDesignRepositoryAclService();
+                return alcService.isGranted(currentProject, List.of(AclPermission.WRITE))
+                        || alcService.isGranted(currentProject, List.of(AclPermission.CREATE))
+                        || alcService.isGranted(currentProject, true, AclPermission.DELETE);
             }
             return true;
         }
