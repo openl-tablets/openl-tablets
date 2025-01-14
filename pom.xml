@@ -86,12 +86,12 @@
         <opensaml.version>4.3.2</opensaml.version>
         <jose4j.version>0.9.6</jose4j.version>
         <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
-        <json-smart.version>2.5.1</json-smart.version>
+        <json-smart.version>2.5.2</json-smart.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.7.1</asm.version>
-        <byte-buddy.version>1.15.11</byte-buddy.version>
-        <cloning.version>1.11.1</cloning.version>
+        <byte-buddy.version>1.17.1</byte-buddy.version>
+        <cloning.version>1.12.1</cloning.version>
         <objenesis.version>3.4</objenesis.version>
 
         <!-- Kafka -->
@@ -99,7 +99,7 @@
         <snappy-java.version>1.1.10.7</snappy-java.version>
 
         <!-- Open Telemetry -->
-        <opentelemetry.version>2.11.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
+        <opentelemetry.version>2.12.0</opentelemetry.version><!-- !!! also in the Dockerfile !!! -->
         <auto.service.version>1.1.1</auto.service.version>
 
         <!-- Casandra -->
@@ -113,11 +113,11 @@
         <cxf.version>3.6.5</cxf.version>
 
         <!-- gRPC -->
-        <grpc.version>1.69.0</grpc.version>
+        <grpc.version>1.70.0</grpc.version>
 
         <!-- OpenAPI -->
-        <swagger.core.version>2.2.27</swagger.core.version>
-        <swagger.parser.version>2.1.24</swagger.parser.version>
+        <swagger.core.version>2.2.28</swagger.core.version>
+        <swagger.parser.version>2.1.25</swagger.parser.version>
 
         <!-- Logging -->
         <log4j.version>2.24.3</log4j.version>
@@ -132,9 +132,9 @@
         <jetty.version>10.0.24</jetty.version>
 
         <!-- Repositories -->
-        <amazonaws.version>2.29.44</amazonaws.version>
+        <amazonaws.version>2.30.21</amazonaws.version>
         <azure.version>12.29.0</azure.version>
-        <netty.version>4.1.116.Final</netty.version>
+        <netty.version>4.1.118.Final</netty.version>
         <jgit.version>6.9.0.202403050737-openl</jgit.version>
 
         <!-- DB -->
@@ -153,9 +153,9 @@
         <xmlunit.version>2.10.0</xmlunit.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <testcontainers.keycloak.version>2.6.0</testcontainers.keycloak.version>
-        <minio.version>8.5.14</minio.version>
-        <oracle.version>23.6.0.24.10</oracle.version>
-        <postgresql.version>42.7.4</postgresql.version>
+        <minio.version>8.5.17</minio.version>
+        <oracle.version>23.7.0.25.01</oracle.version>
+        <postgresql.version>42.7.5</postgresql.version>
         <mariadb.version>2.7.12</mariadb.version>
         <jmh.version>1.37</jmh.version>
 
@@ -178,7 +178,7 @@
         <greenmail.version>1.6.15</greenmail.version>
 
         <!-- Commons and utils -->
-        <commons.codec.version>1.17.1</commons.codec.version>
+        <commons.codec.version>1.18.0</commons.codec.version>
         <commons.compress.version>1.27.1</commons.compress.version>
         <commons.collections4.version>4.4</commons.collections4.version>
         <commons.io.version>2.18.0</commons.io.version>
@@ -187,11 +187,11 @@
 
         <!-- protocols -->
         <hessian.version>4.0.66</hessian.version>
-        <gson.version>2.11.0</gson.version>
+        <gson.version>2.12.1</gson.version>
 
-        <bouncycastle.version>1.79</bouncycastle.version>
-        <groovy.version>4.0.24</groovy.version>
-        <poi.version>5.3.0</poi.version>
+        <bouncycastle.version>1.80</bouncycastle.version>
+        <groovy.version>4.0.25</groovy.version>
+        <poi.version>5.4.0</poi.version>
         <aspectj.version>1.9.22.1</aspectj.version>
         <velocity.version>2.4.1</velocity.version>
         <guava.version>33.4.0-jre</guava.version>
