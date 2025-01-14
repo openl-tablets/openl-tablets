@@ -2538,7 +2538,7 @@ public class RepositoryTreeController {
     private boolean isMainBranch(UserWorkspaceProject selectedProject) {
         boolean mainBranch = true;
         Repository designRepository = selectedProject.getDesignRepository();
-        if (designRepository.supports().branches()) {
+        if (designRepository != null && designRepository.supports().branches()) {
             String branch = selectedProject.getBranch();
             if (!((BranchRepository) designRepository).getBaseBranch().equals(branch)) {
                 mainBranch = false;
