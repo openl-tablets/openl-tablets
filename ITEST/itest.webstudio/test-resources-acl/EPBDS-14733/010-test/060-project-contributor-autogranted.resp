@@ -4,15 +4,9 @@ Content-Type: application/json
 [
   {
     "sid": {
-      "sid": "admin",
+      "sid": "jdoe",
       "principal": true
     },
     "role": "CONTRIBUTOR"
-  },
-  {
-    "sid": {
-      "sid": "openl_mnt"
-    },
-    "role": "MANAGER"
   }
 ]
