@@ -66,6 +66,7 @@ import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.util.FileUtils;
@@ -192,7 +193,7 @@ public class DesignTimeRepositoryController {
                                                  @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
                                                  @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
                                                  @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
-            JAXBException {
+            JAXBException, ProjectException {
         if (overwrite) {
             String pathInRepo = repository.supports().mappedFolders() ? AclPathUtils.concatPaths(path, projectName) : projectName;
             if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.WRITE))) {
@@ -223,6 +224,10 @@ public class DesignTimeRepositoryController {
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
             FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
+            var project = designTimeRepository.getProject(repository.getId(), projectName);
+            if (!designRepositoryAclService.hasAcl(project)) {
+                designRepositoryAclService.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+            }
             return mapFileDataResponse(data, repository.supports());
         } finally {
             FileUtils.deleteQuietly(archiveTmp);

@@ -42,7 +42,9 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
                 if (!allowProjectCreateDelete) {
                     return false;
                 }
-                return aclService.isGranted(project, true, BasePermission.DELETE);
+                // if user is project owner, then check permissions on current resource
+                boolean useParentStrategy = !aclService.isOwner(project);
+                return aclService.isGranted(project, useParentStrategy, BasePermission.DELETE);
             }
             return aclService.isGranted(project, List.of(permission));
         }
@@ -56,9 +58,9 @@ public class AclProjectsHelperImpl implements AclProjectsHelper {
             return hasPermission(deployConfig, permission);
         }
         var aclService = aclServiceProvider.getDesignRepoAclService();
-        return aclService.isGranted(child,
-                permission.getMask() == BasePermission.DELETE.getMask(),
-                permission);
+        // if user is project owner, then check delete permissions on current resource
+        var useParentStrategy = permission.getMask() == BasePermission.DELETE.getMask() && !aclService.isOwner(child);
+        return aclService.isGranted(child, useParentStrategy, permission);
     }
 
     private boolean canReadAtLeastOneDeployedProject(ADeploymentProject deployConfig) {
