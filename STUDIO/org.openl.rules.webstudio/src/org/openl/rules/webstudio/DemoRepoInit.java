@@ -108,7 +108,7 @@ public class DemoRepoInit {
 
                 deployConfiguration.save();
                 var repositoryConfigName = deploymentManager.getRepositoryConfigNames().iterator().next();
-                deploymentManager.deploy(deployConfiguration, repositoryConfigName, userWorkspace.getUser());
+                deploymentManager.deploy(deployConfiguration, repositoryConfigName, userWorkspace.getUser(), null);
             }
         } catch (Exception ex) {
             LOG.error("Project: {}", projectName, ex);
