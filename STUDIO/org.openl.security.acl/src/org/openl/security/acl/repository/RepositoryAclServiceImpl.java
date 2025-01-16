@@ -3,7 +3,9 @@ package org.openl.security.acl.repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
@@ -141,5 +143,14 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     public void addPermissions(AProjectArtefact projectArtefact, Sid sid, Permission... permissions) {
         var oi = oidProvider.getArtifactOid(projectArtefact);
         addPermissions(oi, Map.of(sid, List.of(permissions)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isOwner(AProjectArtefact projectArtefact) {
+        var oi = oidProvider.getArtifactOid(projectArtefact);
+        var owner = getOwner(oi);
+        var sid = new PrincipalSid(SecurityContextHolder.getContext().getAuthentication());
+        return Objects.equals(owner, sid);
     }
 }
