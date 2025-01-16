@@ -215,7 +215,7 @@ public class ProjectManagementController {
                 throw new ConflictException("project.deploy.restricted.message", validBranchName);
             }
             for (ADeploymentProject deploymentProject : deploymentProjectsToDeploy) {
-                deploymentManager.deploy(deploymentProject, deployRepoName);
+                deploymentManager.deploy(deploymentProject, deployRepoName, null);
             }
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
