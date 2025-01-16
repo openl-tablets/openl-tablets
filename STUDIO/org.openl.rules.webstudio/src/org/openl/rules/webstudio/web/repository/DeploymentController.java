@@ -59,6 +59,7 @@ public class DeploymentController {
     private String cachedForProject;
     private String repositoryConfigName;
     private boolean canDeploy;
+    private String deployComment;
 
     @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
@@ -83,6 +84,7 @@ public class DeploymentController {
     private RepositoryAclServiceProvider aclServiceProvider;
 
     public void onPageLoad() {
+        deployComment = null;
         if (repositoryTreeState.getSelectedNode() == null) {
             repositoryTreeState.invalidateSelection();
             canDeploy = false;
@@ -270,7 +272,7 @@ public class DeploymentController {
                 return null;
             }
             try {
-                DeployID id = deploymentManager.deploy(project, repositoryConfigName);
+                DeployID id = deploymentManager.deploy(project, repositoryConfigName, deployComment);
                 String message = String.format(
                         "Configuration '%s' is successfully deployed with id '%s' to '%s' repository.",
                         project.getName(),
@@ -626,5 +628,13 @@ public class DeploymentController {
             LOG.error(e.getMessage(), e);
             return Collections.emptyList();
         }
+    }
+
+    public String getDeployComment() {
+        return deployComment;
+    }
+
+    public void setDeployComment(String deployComment) {
+        this.deployComment = deployComment;
     }
 }

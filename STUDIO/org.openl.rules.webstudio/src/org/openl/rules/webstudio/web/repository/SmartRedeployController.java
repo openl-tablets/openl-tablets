@@ -25,6 +25,7 @@ public class SmartRedeployController extends AbstractSmartRedeployController {
     public void initProject() throws ProjectException {
         reset();
         currentProject = userWorkspace.getProject(repositoryId, currentProjectName, false);
+        setDeployComment(null);
     }
 
     public String getRepositoryId() {

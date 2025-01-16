@@ -16,14 +16,19 @@
 
         <h:form id="smartRedeployEditorForm">
             <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
-                <h:panelGroup layout="block" style="margin: 0 7px">
+                <h:panelGrid columns="2" style="margin: 0 7px">
                     <h:outputText value="Repository: "/>
                     <h:selectOneMenu id="redeploySmartEditorRepository" value="#{smartRedeployEditorController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployEditorController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
                         <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
-                </h:panelGroup>
+                    <h:outputText value="Comment:" />
+                    <h:inputTextarea id="comment" value="#{smartRedeployEditorController.deployComment}" type="text" size="35" readonly="false">
+                        <f:validateLength maximum="255"/>
+                        <f:ajax event="change" execute="@this"/>
+                    </h:inputTextarea>
+                </h:panelGrid>
                 <h:panelGroup>
                     <h:outputText
                             value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.businessName}'"

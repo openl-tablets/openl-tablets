@@ -37,5 +37,6 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
         items = null;
         repositoryId = null;
         currentProject = null;
+        setDeployComment(null);
     }
 }

@@ -7,7 +7,7 @@
 
   <rich:popupPanel id="modalSelectRepository" minWidth="250" autosized="true">
     <f:facet name="header">
-      <h:outputText value="Select a deployment repository" style="padding: 2px;"/>
+      <h:outputText value="Deploy" style="padding: 2px;"/>
     </f:facet>
 
     <f:facet name="controls">
@@ -15,7 +15,8 @@
     </f:facet>
 
     <h:form id="selectRepositoryForm">
-      <h:panelGroup layout="block" style="margin: 0 7px">
+      <h:panelGrid columns="2" style="margin: 0 7px">
+        <h:outputText value="Repository: "/>
         <h:selectOneMenu id="redeployRepository" value="#{deploymentController.repositoryConfigName}">
           <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
           <f:ajax event="change" render="@form" execute="@this"/>
@@ -24,7 +25,11 @@
           <div style="margin: 25px 0">The selected branch(s) are not allowed for deployment.<br/>
             Please switch to the branch(es) that comply with the repository's 'Deployment Branch' settings</div>
         </h:panelGroup>
-      </h:panelGroup>
+        <h:outputText value="Comment:" />
+        <h:inputTextarea id="comment" value="#{deploymentController.deployComment}" type="text" size="35" readonly="false">
+          <f:validateLength maximum="255"/>
+        </h:inputTextarea>
+      </h:panelGrid>
       <footer>
         <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
          Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
