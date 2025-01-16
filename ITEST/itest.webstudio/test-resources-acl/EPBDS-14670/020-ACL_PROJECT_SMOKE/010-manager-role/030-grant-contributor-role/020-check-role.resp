@@ -10,6 +10,13 @@ Content-Type: application/json
   },
   {
     "sid": {
+      "sid": "admin",
+      "principal": true
+    },
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
       "sid": "openl_mnt"
     },
     "role": "MANAGER"

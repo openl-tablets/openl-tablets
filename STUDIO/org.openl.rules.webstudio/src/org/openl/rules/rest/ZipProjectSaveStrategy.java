@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,7 +54,6 @@ public class ZipProjectSaveStrategy {
     private final ZipCharsetDetector zipCharsetDetector;
     private final UserManagementService userManagementService;
 
-    @Inject
     public ZipProjectSaveStrategy(DesignTimeRepository designTimeRepository,
                                   @Qualifier("zipFilter") PathFilter zipFilter,
                                   ZipCharsetDetector zipCharsetDetector,
