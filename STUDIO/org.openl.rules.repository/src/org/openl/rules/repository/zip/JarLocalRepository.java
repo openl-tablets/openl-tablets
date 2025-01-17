@@ -42,10 +42,10 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                 final URI uri = res.getURI();
                 final Path path = ZipUtils.toPath(uri);
                 final String name = FileUtils.getBaseName(path.getFileName().toString());
-                if (localStorage.containsKey(name)) {
-                    throw new IllegalStateException(String.format("The resource with name '%s' already exits.", name));
+                var existed = localStorage.put(name, path);
+                if (existed != null && !existed.equals(path)) {
+                    throw new IllegalStateException(String.format("The resources '%s' and '%s' conflict for the same '%s' name.", existed, path, name));
                 }
-                localStorage.put(name, path);
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to initialize a repository.", e);
             }
