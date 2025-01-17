@@ -3,7 +3,6 @@ package org.openl.rules.repository.zip;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -41,23 +40,8 @@ public class JarLocalRepository extends AbstractArchiveRepository {
         final Consumer<Resource> collector = res -> {
             try {
                 final URI uri = res.getURI();
-                final String name;
-                final Path path;
-                if (uri.getScheme().startsWith("vfs")) {
-                    // JBoss VFS Support
-                    String urlString = res.getURL().toString();
-                    int extPos = urlString.lastIndexOf(".jar");
-                    if (extPos < 0) {
-                        extPos = urlString.lastIndexOf(".zip");
-                    }
-                    urlString = urlString.substring(0, extPos + 4);
-                    VfsFile vfsFile = new VfsURLConnection(new URL(urlString).openConnection()).getContent();
-                    path = vfsFile.getFile().toPath().getParent().resolve(vfsFile.getName());
-                    name = FileUtils.getBaseName(vfsFile.getName());
-                } else {
-                    path = ZipUtils.toPath(uri);
-                    name = FileUtils.getBaseName(path.getFileName().toString());
-                }
+                final Path path = ZipUtils.toPath(uri);
+                final String name = FileUtils.getBaseName(path.getFileName().toString());
                 if (localStorage.containsKey(name)) {
                     throw new IllegalStateException(String.format("The resource with name '%s' already exits.", name));
                 }
