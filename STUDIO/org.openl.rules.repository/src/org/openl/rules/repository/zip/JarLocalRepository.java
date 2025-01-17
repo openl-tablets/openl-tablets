@@ -3,6 +3,7 @@ package org.openl.rules.repository.zip;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 
 /**
  * Read only implementation of Jar Repository to support deploying of jars from classpath as it is without
@@ -40,7 +41,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
         final Consumer<Resource> collector = res -> {
             try {
                 final URI uri = res.getURI();
-                final Path path = ZipUtils.toPath(uri);
+                final Path path = toPath(uri);
                 final String name = FileUtils.getBaseName(path.getFileName().toString());
                 var existed = localStorage.put(name, path);
                 if (existed != null && !existed.equals(path)) {
@@ -78,6 +79,33 @@ public class JarLocalRepository extends AbstractArchiveRepository {
     private Stream<Resource> getResources(String fileName) throws IOException {
         String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
         return Stream.of(resourceResolver.getResources(locationPattern));
+    }
+
+    private static Path toPath(URI uri) {
+        if ("jar".equals(uri.getScheme())) {
+            String path = uri.getRawSchemeSpecificPart();
+            int sep = path.indexOf("!/");
+            if (sep > -1) {
+                path = path.substring(0, sep);
+            }
+            try {
+                URI uriToZip = new URI(path);
+                if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                    try {
+                        uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                    } catch (URISyntaxException ignored) {
+                        //it's ok
+                    }
+                }
+                return Paths.get(uriToZip);
+            } catch (URISyntaxException e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        } else if ("file".equals(uri.getScheme())) {
+            return Paths.get(uri);
+        }
+        throw new IllegalArgumentException("Invalid URI scheme.");
     }
 
 }
