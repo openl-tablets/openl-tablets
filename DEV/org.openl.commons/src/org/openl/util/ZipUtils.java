@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
@@ -116,30 +115,4 @@ public final class ZipUtils {
         }
     }
 
-    public static Path toPath(URI uri) {
-        if ("jar".equals(uri.getScheme())) {
-            String path = uri.getRawSchemeSpecificPart();
-            int sep = path.indexOf("!/");
-            if (sep > -1) {
-                path = path.substring(0, sep);
-            }
-            try {
-                URI uriToZip = new URI(path);
-                if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
-                    try {
-                        uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
-                    } catch (URISyntaxException ignored) {
-                        //it's ok
-                    }
-                }
-                return Paths.get(uriToZip);
-            } catch (URISyntaxException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
-            }
-        } else if ("file".equals(uri.getScheme())) {
-            return Paths.get(uri);
-        }
-        throw new IllegalArgumentException("Invalid URI scheme.");
-    }
 }
