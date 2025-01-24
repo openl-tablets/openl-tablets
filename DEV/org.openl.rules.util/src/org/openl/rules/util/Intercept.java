@@ -78,6 +78,6 @@ public final class Intercept {
         BigDecimal avgY = inputStats.getAvgY();
         BigDecimal avgX = inputStats.getAvgX();
         BigDecimal slopeB = avgX == null ? null : Slope.slope(inputStats);
-        return slopeB == null ? avgY : avgY.subtract(slopeB.multiply(avgX));
+        return slopeB == null ? null : avgY.subtract(slopeB.multiply(avgX));
     }
 }
