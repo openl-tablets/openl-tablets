@@ -526,6 +526,11 @@
                                             <input id="flattenParametersInputArgs" name="flattenParameters" type="checkbox"
                                                    value="true" checked="checked" style="vertical-align:-2px;margin:-4px"/>
                                         </div>
+                                        <div style="margin: 10px" title="Result in JSON format">
+                                            <span style="margin-right: 10px">Result in JSON format</span>
+                                            <input id="resultInJSONFormat" name="resultInJSONFormat" type="checkbox"
+                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
+                                        </div>
                                     </h:panelGroup>
                                     <h:panelGroup id="inputTestCasePanelWrapper">
                                         <h:selectOneRadio id="inputTestCaseType"
@@ -1121,7 +1126,10 @@
             var currentOpenedModule = $j("#inputArgsMenu").find('input[id=runTestModuleOnlyInputArgs]')[0].checked;
             var includeEmptyParamters = $j("#inputArgsMenu").find('input[id=skipEmptyParametersInputArgs]')[0].checked;
             var flattenParameters = $j("#inputArgsMenu").find('input[id=flattenParametersInputArgs]')[0].checked;
-            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule
+            let resultInJSONFormat = $j("#inputArgsMenu").find('input[id=resultInJSONFormat]')[0].checked;
+            ws.nav.download("#{contextPath}/web/test/rule"
+                + (resultInJSONFormat ? "/json" : "")
+                + "?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule
                 + "&skipEmptyParameters=" + includeEmptyParamters
                 + "&flattenParameters=" + flattenParameters);
         }
