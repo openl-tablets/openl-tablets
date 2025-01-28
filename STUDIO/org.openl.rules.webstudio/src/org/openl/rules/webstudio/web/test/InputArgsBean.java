@@ -11,7 +11,6 @@ import static org.openl.types.java.JavaOpenClass.SHORT;
 import static org.openl.types.java.JavaOpenClass.STRING;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.faces.model.SelectItem;
-import javax.xml.bind.JAXBException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,26 +33,17 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.JsonUtils;
-import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.tablewizard.WizardUtils;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
-import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -169,7 +158,7 @@ public class InputArgsBean {
     }
 
     private boolean isProvideRuntimeContext() {
-        RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
+        RulesDeploy rulesDeploy = WebStudioUtils.getWebStudio().getCurrentProjectRulesDeploy();
         if (rulesDeploy == null) {
             return true;
         } else {
@@ -179,17 +168,8 @@ public class InputArgsBean {
 
     private ObjectMapper configureObjectMapper() {
         try {
-            RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
-            ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
-            ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
-            objectMapperFactory.setRulesDeploy(rulesDeploy);
+            var objectMapperFactory = WebStudioUtils.getWebStudio().getCurrentProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setEnvironment(environment);
-            objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) WebStudioUtils.getWebStudio()
-                    .getModel()
-                    .getCompiledOpenClass()
-                    .getOpenClassWithErrors());
-            objectMapperFactory.setClassLoader(classLoader);
-
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
@@ -488,30 +468,6 @@ public class InputArgsBean {
                     break;
                 }
             }
-        }
-    }
-
-    private RulesDeploy getCurrentProjectRulesDeploy() {
-        try {
-            RulesProject currentProject = WebStudioUtils.getWebStudio().getCurrentProject();
-            if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
-                try {
-                    AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
-                    if (artefact instanceof AProjectResource) {
-                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
-                            IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-                            return rulesDeploySerializer.deserialize(content);
-                        }
-                    }
-                } catch (ProjectException ignore) {
-                }
-            }
-            return null;
-        } catch (IOException | JAXBException e) {
-            if (StringUtils.isNotBlank(e.getMessage())) {
-                throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
-            }
-            throw new Message("Invalid Rules Deploy Configuration.");
         }
     }
 

@@ -37,6 +37,8 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -47,17 +49,20 @@ import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.ui.tree.view.RulesTreeView;
@@ -368,6 +373,41 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return getProject(currentRepositoryId, projectFolder);
         }
         return null;
+    }
+
+    public RulesDeploy getCurrentProjectRulesDeploy() {
+        try {
+            RulesProject currentProject = getCurrentProject();
+            if (currentProject.hasArtefact(DeploymentManager.RULES_DEPLOY_XML)) {
+                try {
+                    AProjectArtefact artefact = currentProject.getArtefact(DeploymentManager.RULES_DEPLOY_XML);
+                    if (artefact instanceof AProjectResource) {
+                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                            IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+                            return rulesDeploySerializer.deserialize(content);
+                        }
+                    }
+                } catch (ProjectException ignore) {
+                }
+            }
+            return null;
+        } catch (IOException | JAXBException e) {
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
+            }
+            throw new Message("Invalid Rules Deploy Configuration.");
+        }
+    }
+
+    public ProjectJacksonObjectMapperFactoryBean getCurrentProjectJacksonObjectMapperFactoryBean() {
+        var compiledOpenClass = getModel().getCompiledOpenClass();
+        var objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
+        objectMapperFactory.setRulesDeploy(getCurrentProjectRulesDeploy());
+        objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) compiledOpenClass
+                .getOpenClassWithErrors());
+        ClassLoader classLoader = compiledOpenClass.getClassLoader();
+        objectMapperFactory.setClassLoader(classLoader);
+        return objectMapperFactory;
     }
 
     public RulesProject getProject(String repositoryId, String name) {
