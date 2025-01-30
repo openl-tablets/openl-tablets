@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import { Button, Modal, Row, Table, Tag } from 'antd'
-import { CloseCircleOutlined } from '@ant-design/icons'
+import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { AddAndEditUserModal } from './users/components/AddAndEditUserModal'
 import { apiCall } from 'services'
 import './Users.scss'
 import { useTranslation } from 'react-i18next'
+import { UserContext } from '../contexts/User'
+import { UserGroupType } from '../constants'
 
 interface EditUserRequest {
     displayName: string
@@ -21,6 +23,7 @@ interface EditUserRequest {
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
+    const { isExternalAuthSystem } = useContext(UserContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedUser, setSelectedUser] = useState<any>({})
     const [userData, setUserData] = useState<any[]>([])
@@ -101,63 +104,70 @@ export const Users: React.FC = () => {
         }
     }
 
-    const columns = [
-        {
-            title: t('users:users_table.username'),
-            dataIndex: 'username',
-            key: 'username',
-        },
-        {
-            title: t('users:users_table.first_name'),
-            dataIndex: 'firstName',
-            key: 'firstName',
-        },
-        {
-            title: t('users:users_table.last_name'),
-            dataIndex: 'lastName',
-            key: 'lastName',
-        },
-        {
-            title: t('users:users_table.email'),
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: t('users:users_table.display_name'),
-            dataIndex: 'displayName',
-            key: 'displayName',
-        },
-        {
-            title: t('users:users_table.groups'),
-            dataIndex: 'userGroups',
-            key: 'userGroups',
-            render: (userGroups: any[]) => (
-                <div>
-                    {userGroups
-                        && userGroups.length > 0
-                        && userGroups.map((userGroup) => {
-                            const { name } = userGroup
-                            let color = name === 'Administrators' ? 'red' : 'blue'
-                            return (
-                                <Tag key={name} color={color} style={{ margin: 2 }}>
-                                    {name}
-                                </Tag>
-                            )
-                        })}
-                </div>
-            ),
-        },
-        {
-            title: t('users:users_table.actions'),
-            render: (_: string, record: any) => (
-                <Button
-                    icon={<CloseCircleOutlined />}
-                    onClick={() => removeUser(record.username)}
-                    type="text"
-                />
-            ),
-        },
-    ]
+    const columns = useMemo(() => {
+        const columns = [
+            {
+                title: t('users:users_table.username'),
+                dataIndex: 'username',
+                key: 'username',
+            },
+            {
+                title: t('users:users_table.full_name'),
+                dataIndex: 'displayName',
+                key: 'displayName',
+            },
+            {
+                title: t('users:users_table.email'),
+                dataIndex: 'email',
+                key: 'email',
+            },
+            {
+                title: t('users:users_table.groups'),
+                dataIndex: 'userGroups',
+                key: 'userGroups',
+                render: (userGroups: any[]) => (
+                    <div>
+                        {userGroups
+                            && userGroups.length > 0
+                            && userGroups.map((userGroup) => {
+                                const { name, type } = userGroup
+                                const color = type === UserGroupType.ADMIN ? 'red' :
+                                    type === UserGroupType.DEFAULT ? 'blue' : 'green'
+                                return (
+                                    <Tag key={name} color={color} style={{ margin: 2 }}>
+                                        {name}
+                                    </Tag>
+                                )
+                            })}
+                    </div>
+                ),
+            },
+            {
+                title: t('users:users_table.actions'),
+                width: 100,
+                render: (_: string, record: any) => (
+                    <>
+                        <Button
+                            icon={<EditOutlined/>}
+                            onClick={() => handleDoubleRowClick(record)}
+                            type="text"
+                        />
+                        <Button
+                            icon={<CloseCircleOutlined/>}
+                            onClick={() => removeUser(record.username)}
+                            type="text"
+                        />
+                    </>
+                ),
+            },
+        ]
+
+        if (!isExternalAuthSystem) {
+            return columns.filter((column) => column.key !== 'userGroups')
+        }
+
+        return columns
+    }, [isExternalAuthSystem, t])
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record })

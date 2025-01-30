@@ -5,6 +5,7 @@ import { fetchUserDetails, fetchUserProfile} from './containers/user/userSlice'
 import { RootState, useAppDispatch, useAppSelector } from 'store'
 import { fetchNotification } from './containers/notification/notificationSlice'
 import { RouterProvider } from 'react-router-dom'
+import { SecurityProvider } from './providers/SecurityProvider'
 
 function App() {
     const dispatch = useAppDispatch()
@@ -40,7 +41,9 @@ function App() {
         ? (
             <Suspense fallback={<div>Loading...</div>}>
                 <AntApp>
-                    <RouterProvider router={router} />
+                    <SecurityProvider>
+                        <RouterProvider router={router} />
+                    </SecurityProvider>
                 </AntApp>
             </Suspense>
         )

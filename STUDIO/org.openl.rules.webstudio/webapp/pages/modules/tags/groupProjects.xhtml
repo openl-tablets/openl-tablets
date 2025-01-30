@@ -101,7 +101,7 @@
                 let hasSame = (val1 !== noneValue && (val2 && val1 === val2 || val3 && val1 === val3) || val2 !== noneValue && val2 && val2 === val3);
                 let $message = $j('#groupingFormMessage');
                 if (hasSame) {
-                    $message.text('Groups can\'t be the same');
+                    $message.text('GroupsAndUsers can\'t be the same');
                     $message.parent().removeClass('hidden');
                 } else {
                     $message.text('');

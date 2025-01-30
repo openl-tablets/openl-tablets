@@ -4,6 +4,7 @@ import { Checkbox as AntdCheckbox, Form } from 'antd'
 
 type InputProps = {
     name: string
+    checked?: boolean
     label?: string
     disabled?: boolean,
     style?: React.CSSProperties

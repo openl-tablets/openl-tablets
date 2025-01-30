@@ -8,7 +8,7 @@ i18next.addResourceBundle('en', 'users', {
         first_name: 'First Name',
         last_name: 'Last Name',
         email: 'Email',
-        display_name: 'Display Name',
+        full_name: 'Full Name',
         groups: 'Groups',
         actions: 'Actions',
     },
