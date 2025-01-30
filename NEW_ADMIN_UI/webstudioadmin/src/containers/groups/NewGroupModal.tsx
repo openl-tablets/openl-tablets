@@ -1,87 +1,30 @@
-import React, { useEffect, useState, useMemo } from 'react'
-import { Button, Form, Input, Modal, Table } from 'antd'
-import type { CheckboxValueType } from 'antd/es/checkbox/Group'
+import React, { useEffect, useState } from 'react'
+import { Button, Checkbox, Form, Input, Modal, Row } from 'antd'
 import { stringify } from 'querystring'
-import { CheckOutlined } from '@ant-design/icons'
 import { apiCall } from '../../services'
+import { useTranslation } from 'react-i18next'
+import { Role } from '../../constants'
 
-type Group = {
-  name: string;
-  id: number;
-  description: string;
-  roles: string[];
-  privileges: string[];
-};
-
-interface Privilege {
-  [key: string]: string;
-}
-
-export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGroups }) => {
+export const NewGroupModal: React.FC = ({}) => {
+    const { t } = useTranslation()
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [name, setName] = useState('')
     const [description, setDescription] = useState('')
-    const [privileges, setPrivileges] = useState<CheckboxValueType[]>([])
-    const [selectedColumns, setSelectedColumns] = useState<string[]>([])
-    const [allPrivileges, setAllPrivileges] = useState<Privilege>({})
-    const [groupData, setGroupData] = useState<Group[]>([])
+    const [admin, setAdmin] = useState(false)
 
     const showModal = () => {
         setIsModalOpen(true)
-        setPrivileges([])
     }
 
     const hideModal = () => {
         setIsModalOpen(false)
     }
 
-    const fetchGroupData = async () => {
-        try {
-            const response = await apiCall('/admin/management/groups')
-            if (response.ok) {
-                const responseObject = await response.json()
-                setGroupData(responseObject)
-            } else {
-                console.error('Failed to fetch groups:', response.statusText)
-            }
-        } catch (error) {
-            console.error('Error fetching groups:', error)
-        }
-    }
-
-    useEffect(() => {
-        fetchGroupData()
-    }, [])
-
-    useEffect(() => {
-        const fetchPrivileges = async () => {
-            try {
-                const response = await apiCall('/admin/management/privileges', {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                })
-                if (response.ok) {
-                    const jsonResponse = await response.json()
-                    setAllPrivileges(jsonResponse)
-                } else {
-                    console.error('Failed to fetch privileges:', response.statusText)
-                }
-            } catch (error) {
-                console.error('Error fetching privileges:', error)
-            }
-        }
-
-        fetchPrivileges()
-    }, [])
-
     const createGroup = async () => {
         try {
             const requestBody = {
                 name,
                 description,
-                privilege: privileges.map((privilege) => privilege.toString()),
-                selectedColumns,
             }
 
             const encodedBody = stringify(requestBody)
@@ -96,10 +39,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
             }).then(applyResult)
             setName('')
             setDescription('')
-            setPrivileges([])
-            setSelectedColumns([])
             setIsModalOpen(false)
-            fetchGroups()
         } catch (error) {
             console.error('Error creating group:', error)
         }
@@ -114,89 +54,43 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
         createGroup()
     }
 
-    const dataSource = useMemo(() => {
-        if (!allPrivileges || !groupData) {
-            return []
-        }
-
-        return Object.keys(allPrivileges).map((key) => ({
-            key,
-            title: allPrivileges[key],
-            ...groupData,
-        }))
-    }, [allPrivileges, groupData])
-
-    const columns = useMemo(() => {
-        if (!allPrivileges || !groupData) {
-            return []
-        }
-
-        return [
-            {
-                title: 'Privilege',
-                dataIndex: 'title',
-                key: 'key',
-            },
-            ...Object.keys(groupData || {}).map((groupKey) => ({
-                title: (
-                    <Button type="link">
-                        {groupKey}
-                    </Button>
-                ),
-                key: groupKey,
-                render: (value: any) => {
-                    const privilege = value.key
-                    const group = value[groupKey]
-                    const hasPrivilege = group.privileges?.includes(privilege)
-                    return hasPrivilege ? <CheckOutlined /> : null
-                },
-            })),
-        ]
-    }, [allPrivileges, groupData])
+    const formItemLayout = {
+        labelCol: {
+            sm: { span: 6 },
+        },
+    };
 
     return (
         <div>
-            <Button onClick={showModal} style={{ marginTop: 15, color: 'green', borderColor: 'green' }}>
-                Add new group
-            </Button>
+            <Row justify="end">
+                <Button onClick={showModal} style={{ marginTop: 20 }} type="primary">
+                    {t('groups:invite_group')}
+                </Button>
+            </Row>
             <Modal
                 className="new-group-modal"
                 onCancel={hideModal}
                 open={isModalOpen}
-                title="Create new group"
+                title={t('groups:invite_group')}
                 width={850}
                 footer={[
                     <Button key="back" onClick={hideModal}>
-                        Cancel
+                        {t('groups:cancel')}
                     </Button>,
-                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: 'green', borderColor: 'green' }}>
-                        Create
+                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15 }} type="primary">
+                        {t('groups:invite')}
                     </Button>]}
             >
                 <div>
-                    <Form layout="vertical" style={{ width: 800 }}>
-                        <Form.Item>
-                            <b>Account</b>
-                        </Form.Item>
+                    <Form style={{ width: 800 }} {...formItemLayout}>
                         <Form.Item label="Name">
                             <Input id="name" onChange={(e) => setName(e.target.value)} value={name} />
                         </Form.Item>
                         <Form.Item label="Description">
                             <Input id="description" onChange={(e) => setDescription(e.target.value)} value={description} />
                         </Form.Item>
-                        <Form.Item>
-                            <b>Group</b>
-                        </Form.Item>
-                        <Form.Item className="group-create-form_last-form-item">
-                            <Form.Item>
-                                <Table
-                                    // rowSelection={rowSelection}
-                                    columns={columns}
-                                    dataSource={dataSource}
-                                    pagination={false}
-                                    scroll={{ x: 'max-content' }}
-                                />
-                            </Form.Item>
+                        <Form.Item label={'Admin'}>
+                            <Checkbox name={'admin'} onChange={(e) => setAdmin(e.target.checked)} checked={admin}/>
                         </Form.Item>
                     </Form>
                 </div>

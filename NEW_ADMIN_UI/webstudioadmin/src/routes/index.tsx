@@ -6,9 +6,8 @@ import { Email } from 'containers/Email'
 import { Tags } from 'containers/Tags'
 import { RepoDesignPage } from 'pages/RepoDesignPage'
 import { RepoDeploymentPage } from 'pages/RepoDeploymentPage'
-import { Users } from 'containers/Users'
 import { RepoDeployConfPage } from 'pages/RepoDeployConfPage'
-import { Groups } from 'containers/Groups'
+import { GroupsAndUsers } from '../containers/GroupsAndUsers'
 import { UserPage } from 'pages/UserPage'
 import { UserProfile } from 'containers/UserProfile'
 import { UserSettings } from 'containers/UserSettings'
@@ -46,12 +45,8 @@ const router = createBrowserRouter([
                         element: <System />,
                     },
                     {
-                        path: 'users',
-                        element: <Users />,
-                    },
-                    {
                         path: 'admin/management/groups',
-                        element: <Groups />,
+                        element: <GroupsAndUsers />,
                     },
                     {
                         path: 'notification',

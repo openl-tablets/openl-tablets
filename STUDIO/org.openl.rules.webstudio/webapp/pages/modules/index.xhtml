@@ -1097,7 +1097,7 @@
 
         $j(function () {
             fixRichFaces();
-            const needRedirect = #{studio.needRedirect};
+            const needRedirect = "#{studio.needRedirect}" === "true";
             if (needRedirect) {
                 ws.nav.go("#{studio.url()}", true);
             }
