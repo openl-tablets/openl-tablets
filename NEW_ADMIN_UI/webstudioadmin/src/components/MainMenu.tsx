@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Menu } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
     DatabaseOutlined,
-    FormOutlined,
     MailOutlined,
     NotificationOutlined,
     NumberOutlined,
@@ -14,9 +13,11 @@ import {
     UserOutlined,
 } from '@ant-design/icons'
 import './MainMenu.scss'
+import { PermissionContext } from '../contexts/Permission'
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
+    const { hasAdminPermission } = useContext(PermissionContext)
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -37,13 +38,17 @@ const MainMenu: React.FC = () => {
                 <Menu.Item key="/administration/user/profile" icon={<UserOutlined />}>{t('common:menu.my_profile')}</Menu.Item>
                 <Menu.Item key="/administration/user/settings" icon={<SettingOutlined />}>{t('common:menu.my_settings')}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item key="/administration/repository/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
-                <Menu.Item key="/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
-                <Menu.Item key="/administration/users" icon={<TeamOutlined />}>{t('common:menu.users')}</Menu.Item>
-                <Menu.Item key="/administration/admin/management/groups" icon={<FormOutlined />}>{t('common:menu.groups_and_privileges')}</Menu.Item>
-                <Menu.Item key="/administration/notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
-                <Menu.Item key="/administration/tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
-                <Menu.Item key="/administration/mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>
+                {hasAdminPermission() && (
+                    <>
+                        <Menu.Item key="/administration/repository/design" icon={<DatabaseOutlined />}>{t('common:menu.repositories')}</Menu.Item>
+                        <Menu.Item key="/administration/system" icon={<ToolOutlined />}>{t('common:menu.system')}</Menu.Item>
+                        <Menu.Item key="/administration/admin/management/groups" icon={<TeamOutlined />}>{t('common:menu.groups_and_users')}</Menu.Item>
+                        <Menu.Item key="/administration/notification" icon={<NotificationOutlined />}>{t('common:menu.notification')}</Menu.Item>
+                        <Menu.Item key="/administration/tags" icon={<NumberOutlined />}>{t('common:menu.tags')}</Menu.Item>
+                        <Menu.Item key="/administration/mail" icon={<MailOutlined />}>{t('common:menu.mail')}</Menu.Item>
+                    </>
+                )}
+
             </Menu>
         </div>
     )

@@ -6,10 +6,17 @@ i18next.addResourceBundle('en', 'groups', {
     table: {
         name: 'Name',
         description: 'Description',
-        roles: 'Roles',
+        members: 'Members',
         actions: 'Actions',
         no_results: 'No groups found'
     },
-    default_group_for_all_users: 'Default group for all users * ',
     apply: 'Apply',
+    invite_group: 'Invite group',
+    cancel: 'Cancel',
+    invite: 'Invite',
+    role: {
+        VIEWER: 'Viewer',
+        CONTRIBUTOR: 'Contributor',
+        MANAGER: 'Manager'
+    }
 })
