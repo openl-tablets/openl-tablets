@@ -4,6 +4,8 @@ i18next.addResourceBundle('en', 'common', {
     openl_studio: 'OpenL Studio',
     openl_tables: 'OpenL Tables',
     report_a_problem: 'Report a problem',
+    users: 'Users',
+    groups: 'Groups',
     menu: {
         editor: 'Editor',
         advanced_editor: 'Advanced Editor',
@@ -12,8 +14,7 @@ i18next.addResourceBundle('en', 'common', {
         my_settings: 'My Settings',
         repositories: 'Repositories',
         system: 'System',
-        users: 'Users',
-        groups_and_privileges: 'Groups & Privileges',
+        groups_and_users: 'Groups & Users',
         notification: 'Notification',
         tags: 'Tags',
         mail: 'Mail',

@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { Button, Table, Tag, Form, Input, Divider, Row, Col, Modal } from 'antd'
-import { CloseCircleOutlined } from '@ant-design/icons'
+import React, { useContext, useEffect, useState } from 'react'
+import { Button, Table, Modal } from 'antd'
+import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
 import { NewGroupModal } from 'containers/groups/NewGroupModal'
 import { EditGroupModal } from 'containers/groups/EditGroupModal'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
+import { UserContext } from '../contexts/User'
+import { Role, UserGroupType } from '../constants'
 
-interface Group {
+export interface Group {
+    oldName?: string;
     name: string;
     id: number;
-    description: string;
-    roles: string[];
-    privileges: string[];
+    description?: string;
+    designRole?: Role
+    prodRole?: Role
+    admin?: boolean;
 }
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
+    const { isExternalAuthSystem } = useContext(UserContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [groupData, setGroupData] = useState<Group[]>([])
     const [selectedGroup, setSelectedGroup] = useState<any>({})
@@ -30,10 +35,12 @@ export const Groups: React.FC = () => {
 
     const fetchGroups = async () => {
         const response = await apiCall('/admin/management/groups')
-        const groups = Object.entries(response).map(([groupName, group]: [string, unknown]) => ({
-            groupName,
-            ...(group as Group),
-            privileges: (group as Group).privileges || [],
+        const groups = Object.entries(response).map(([name, group]: [string, unknown]) => ({
+            name,
+            oldName: name,
+            admin: group.privileges?.includes(UserGroupType.ADMIN),
+            id: group.id,
+            description: group.description,
         }))
         setGroupData(groups)
     }
@@ -58,7 +65,8 @@ export const Groups: React.FC = () => {
     }
 
     const updateGroup = (updatedGroup: any) => {
-        setGroupData((groupData) => groupData.map((group: any) => (group.key === updatedGroup.key ? updatedGroup : group)))
+        console.log('updatedGroup', updatedGroup)
+        setGroupData((groupData) => groupData.map((group: any) => (group.id === updatedGroup.id ? updatedGroup : group)))
     }
 
     const handleDoubleRowClick = (record: any) => {
@@ -69,13 +77,8 @@ export const Groups: React.FC = () => {
     const columns = [
         {
             title: t('groups:table.name'),
-            dataIndex: 'groupName',
+            dataIndex: 'name',
             key: 'name',
-            render: (text: string) => (
-                <span>
-                    {text}
-                </span>
-            ),
         },
         {
             title: t('groups:table.description'),
@@ -83,72 +86,33 @@ export const Groups: React.FC = () => {
             key: 'description',
         },
         {
-            title: t('groups:table.roles'),
-            key: 'roles',
-            render: (data: { roles: string[], privileges: string[] }) => (
-                <div>
-                    {data.roles
-                        && data.roles.length > 0
-                        && data.roles.map((role: string) => {
-                            let color = 'default'
-                            if (['Administrators'].includes(role)) {
-                                color = 'red'
-                            } else if (['Developers', 'Testers', 'Viewers', 'Deployers', 'Analysts'].includes(role)) {
-                                color = 'blue'
-                            }
-                            return (
-                                <Tag key={role} color={color} style={{ margin: 2 }}>
-                                    {role}
-                                </Tag>
-                            )
-                        })}
-                    {data.privileges
-                        && data.privileges.length > 0
-                        && data.privileges.map((privilege: string) => {
-                            let color = ''
-                            if (['ADMIN', 'Administrate'].includes(privilege)) {
-                                color = 'red'
-                            } else {
-                                color = 'default'
-                            }
-                            return (
-                                <Tag key={privilege} color={color} style={{ margin: 2 }}>
-                                    {privilege}
-                                </Tag>
-                            )
-                        })}
-                </div>
-            ),
+            title: t('groups:table.members'),
+            dataIndex: 'members',
+            key: 'members',
         },
         {
             title: t('groups:table.actions'),
-            dataIndex: 'Action',
             key: 'Action',
-            render: (text: string, record: any) => (
-                <Button
-                    icon={<CloseCircleOutlined />}
-                    onClick={() => removeGroup(record.id)}
-                    type="text"
-                />
+            width: 100,
+            render: (_: string, record: any) => (
+                <>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => handleDoubleRowClick(record)}
+                        type="text"
+                    />
+                    <Button
+                        icon={<CloseCircleOutlined />}
+                        onClick={() => removeGroup(record.id)}
+                        type="text"
+                    />
+                </>
             ),
         },
     ]
 
     return (
         <>
-            <Form>
-                <Form.Item label={t('groups:default_group_for_all_users')}>
-                    <Row>
-                        <Col flex="auto">
-                            <Input />
-                        </Col>
-                        <Col offset={1}>
-                            <Button style={{ color: 'green', borderColor: 'green' }}>{t('groups:apply')}</Button>
-                        </Col>
-                    </Row>
-                </Form.Item>
-            </Form>
-            <Divider />
             <Table
                 columns={columns}
                 dataSource={groupData}
@@ -164,7 +128,7 @@ export const Groups: React.FC = () => {
                 footer={null}
                 onCancel={hideEditGroupModal}
                 open={isModalOpen}
-                width={1000}
+                width={600}
             >
                 {isModalOpen && (
                     <EditGroupModal
