@@ -621,10 +621,14 @@ Content-Type: application/json
           "name": {
             "description": "***",
             "type": "string"
+          },
+          "aclId" : {
+            "type" : "string",
+            "description" : "***"
           }
         },
         "required": [
-          "id", "name"
+          "aclId", "id", "name"
         ],
         "type": "object"
       },
@@ -10983,6 +10987,89 @@ Content-Type: application/json
           }
         }
       }
+    },
+    "/production-repos" : {
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RepositoryViewModel"
+                  }
+                }
+              }
+            },
+            "description" : "***"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Production Repository" ]
+      }
     }
   },
   "security": [
@@ -11025,6 +11112,8 @@ Content-Type: application/json
       "name": "Message"
     }, {
       "name": "Notification"
+    }, {
+      "name" : "Production Repository"
     }, {
       "name": "Project Compilation"
     }, {
