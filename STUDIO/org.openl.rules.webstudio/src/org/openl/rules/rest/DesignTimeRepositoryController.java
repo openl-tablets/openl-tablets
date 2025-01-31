@@ -45,6 +45,7 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.acl.model.AclRepositoryId;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -67,6 +68,7 @@ import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclRole;
+import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
 import org.openl.util.FileUtils;
@@ -132,7 +134,14 @@ public class DesignTimeRepositoryController {
         return designTimeRepository.getRepositories()
                 .stream()
                 .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.READ)))
-                .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
+                .map(repo -> RepositoryViewModel.builder()
+                        .id(repo.getId())
+                        .name(repo.getName())
+                        .aclId(AclRepositoryId.builder()
+                                .id(repo.getId())
+                                .type(AclRepositoryType.DESIGN)
+                                .build())
+                        .build())
                 .collect(Collectors.toList());
     }
 
