@@ -1,9 +1,11 @@
-export const DISPLAY_USER_NAME_FIRST_LAST = 'firstLast'
-export const DISPLAY_USER_NAME_LAST_FIRST = 'lastFirst'
-export const DISPLAY_USER_NAME_OTHER = 'other'
-
 export enum UserGroupType {
-    ADMIN = 'ADMIN',
-    DEFAULT = 'DEFAULT',
-    EXTERNAL = 'EXTERNAL',
+    Admin = 'ADMIN',
+    Default = 'DEFAULT',
+    External = 'EXTERNAL',
+}
+
+export enum DisplayUserName {
+    FirstLast = 'firstLast',
+    LastFirst = 'lastFirst',
+    Other = 'other',
 }

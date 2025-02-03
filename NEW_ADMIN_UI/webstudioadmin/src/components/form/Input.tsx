@@ -1,9 +1,9 @@
 import React, { FC } from 'react'
-import { Field } from 'react-final-form'
 import { Input as AntdInput, Form } from 'antd'
+import { Rule } from 'antd/es/form'
 
 type InputProps = {
-    name: string
+    name: string | (string | number)[]
     label?: string
     type?: string
     disabled?: boolean,
@@ -11,6 +11,7 @@ type InputProps = {
     formItemStyle?: React.CSSProperties,
     placeholder?: string
     defaultValue?: string
+    rules?: Rule[]
 };
 
 const Input: FC<InputProps> = ({
@@ -21,15 +22,11 @@ const Input: FC<InputProps> = ({
     style,
     formItemStyle,
     placeholder,
-    defaultValue,
+    ...rest
 }) => (
-    <Field name={name} type={type}>
-        {({ input }) => (
-            <Form.Item label={label} style={formItemStyle}>
-                <AntdInput {...input} defaultValue={defaultValue} disabled={disabled} placeholder={placeholder} style={style} />
-            </Form.Item>
-        )}
-    </Field>
+    <Form.Item label={label} name={name} style={formItemStyle} {...rest}>
+        <AntdInput disabled={disabled} placeholder={placeholder} style={style} />
+    </Form.Item>
 )
 
 export default Input

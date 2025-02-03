@@ -36,7 +36,7 @@ const CheckboxGroup: FC<CheckboxGroupProps> = ({
 )
 
 const Checkbox: FC<CheckboxProps> = ({ name, fields, option }) => {
-    const isChecked = useMemo(() => fields.value.includes(option), [fields.value, option])
+    const isChecked = useMemo(() => fields.value?.includes(option), [fields.value, option])
 
     const toggleCheckbox = (event: CheckboxChangeEvent) => {
         if (event.target.checked) {

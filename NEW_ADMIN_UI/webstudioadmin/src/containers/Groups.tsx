@@ -1,26 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { Button, Table, Modal } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { Button, Table, Modal, Row } from 'antd'
 import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
-import { NewGroupModal } from 'containers/groups/NewGroupModal'
 import { EditGroupModal } from 'containers/groups/EditGroupModal'
 import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
-import { UserContext } from '../contexts/User'
-import { Role, UserGroupType } from '../constants'
-
-export interface Group {
-    oldName?: string;
-    name: string;
-    id: number;
-    description?: string;
-    designRole?: Role
-    prodRole?: Role
-    admin?: boolean;
-}
+import { UserGroupType } from '../constants'
+import { Group, GroupList } from '../types/group'
 
 export const Groups: React.FC = () => {
     const { t } = useTranslation()
-    const { isExternalAuthSystem } = useContext(UserContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [groupData, setGroupData] = useState<Group[]>([])
     const [selectedGroup, setSelectedGroup] = useState<any>({})
@@ -30,15 +18,16 @@ export const Groups: React.FC = () => {
     }
 
     const hideEditGroupModal = () => {
+        setSelectedGroup({})
         setIsModalOpen(false)
     }
 
     const fetchGroups = async () => {
-        const response = await apiCall('/admin/management/groups')
-        const groups = Object.entries(response).map(([name, group]: [string, unknown]) => ({
+        const response: GroupList = await apiCall('/admin/management/groups')
+        const groups = Object.entries(response).map(([name, group]) => ({
             name,
             oldName: name,
-            admin: group.privileges?.includes(UserGroupType.ADMIN),
+            admin: group.privileges?.includes(UserGroupType.Admin),
             id: group.id,
             description: group.description,
         }))
@@ -65,8 +54,9 @@ export const Groups: React.FC = () => {
     }
 
     const updateGroup = (updatedGroup: any) => {
-        console.log('updatedGroup', updatedGroup)
-        setGroupData((groupData) => groupData.map((group: any) => (group.id === updatedGroup.id ? updatedGroup : group)))
+        if (updatedGroup.id) {
+            setGroupData((groupData) => groupData.map((group: any) => (group.id === updatedGroup.id ? updatedGroup : group)))
+        }
     }
 
     const handleDoubleRowClick = (record: any) => {
@@ -121,10 +111,13 @@ export const Groups: React.FC = () => {
                     onDoubleClick: () => handleDoubleRowClick(record),
                 })}
             />
-            <NewGroupModal fetchGroups={fetchGroups} />
+            <Row justify="end">
+                <Button onClick={showEditGroupModal} style={{ marginTop: 20 }} type="primary">
+                    {t('groups:invite_group')}
+                </Button>
+            </Row>
             <Modal
                 destroyOnClose
-                className="edit-group-modal"
                 footer={null}
                 onCancel={hideEditGroupModal}
                 open={isModalOpen}
@@ -132,8 +125,9 @@ export const Groups: React.FC = () => {
             >
                 {isModalOpen && (
                     <EditGroupModal
+                        closeModal={hideEditGroupModal}
                         group={selectedGroup}
-                        onSave={hideEditGroupModal}
+                        onAddGroup={fetchGroups}
                         updateGroup={updateGroup}
                     />
                 )}

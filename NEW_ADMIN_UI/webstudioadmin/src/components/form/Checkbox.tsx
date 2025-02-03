@@ -1,5 +1,4 @@
 import React, { FC } from 'react'
-import { Field } from 'react-final-form'
 import { Checkbox as AntdCheckbox, Form } from 'antd'
 
 type InputProps = {
@@ -18,13 +17,9 @@ const Checkbox: FC<InputProps> = ({
     style,
     formItemStyle,
 }) => (
-    <Field name={name} type="checkbox">
-        {({ input }) => (
-            <Form.Item label={label} style={formItemStyle}>
-                <AntdCheckbox {...input} disabled={disabled} style={style} />
-            </Form.Item>
-        )}
-    </Field>
+    <Form.Item label={label} name={name} style={formItemStyle} valuePropName="checked">
+        <AntdCheckbox disabled={disabled} style={style} />
+    </Form.Item>
 )
 
 export default Checkbox
