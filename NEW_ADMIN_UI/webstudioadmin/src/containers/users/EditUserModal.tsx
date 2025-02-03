@@ -1,63 +1,35 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Button, Checkbox, Form, Input, Row, Tabs, Typography } from 'antd'
-import { stringify } from 'querystring'
-import { apiCall } from '../../services'
-import { Group } from '../Groups'
+import React, { useMemo, useEffect, useState } from 'react'
+import { Button, Row, Form, Typography, Tabs } from 'antd'
+import { useTranslation } from 'react-i18next'
+import { DisplayUserName, RepositoryType } from 'constants/'
+import { UserDetailsTab } from './UserDatailsTab'
 import { DeployRepositoriesTab, DesignRepositoriesTab, ProjectsTab } from '../../components/editRepositoriesTabs'
-import { RepositoryType, Role } from '../../constants'
+import { apiCall } from '../../services'
+import { UserProfile } from '../../types/user'
 
-interface EditGroupProps {
-    group: Group;
-    updateGroup: (updatedGroup: any) => void;
-    onAddGroup: () => void;
+interface EditUserProps {
+    user: UserProfile
+    updateUser: any // TODO add type
     closeModal: () => void;
+    onAddUser: () => void;
 }
 
-interface Repository {
-    id: string
-    name: string
-    type: string
-}
-
-interface Project {
-    id: string
-    name: string
-    role: Role
-}
-
-interface FormValues {
-    name: string
-    description: string
-    admin: boolean
-    designRepos: Repository[]
-    deployRepos: Repository[]
-    projects: Project[]
-}
-
-export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, onAddGroup, closeModal }) => {
-    const [isNewGroup, setIsNewGroup] = useState(!group.id)
+export const EditUserModal: React.FC<EditUserProps> = ({ updateUser, user, onAddUser, closeModal }) => {
+    const { t } = useTranslation()
+    const [form] = Form.useForm()
+    const [isNewUser, setIsNewUser] = useState(!user.username)
+    const [userGroups, setUserGroups] = React.useState<string[]>([])
     const [designRepos, setDesignRepos] = useState<Repository[]>([])
     const [deployRepos, setDeployRepos] = useState<Repository[]>([])
     const [projects, setProjects] = useState<Project[]>([])
-    const [isReposLoaded, setIsReposLoaded] = useState(false)
-    const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
     const [selectedRepositories, setSelectedRepositories] = useState<string[]>([])
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
-
-    const [form] = Form.useForm()
-
-    const initialValues = useMemo(() => ({
-        name: group.name,
-        description: group.description,
-        admin: group.admin,
-        designRepos,
-        deployRepos,
-        projects
-    }), [group, designRepos, deployRepos, projects])
+    const [isReposLoaded, setIsReposLoaded] = useState(false)
+    const [isProjectsLoaded, setIsProjectsLoaded] = useState(false)
 
     const fetchReposRoles = async () => {
-        if (!isNewGroup) {
-            const response: Repository[] = await apiCall(`/acls/repositories?sid=${group.name}`)
+        if (!isNewUser) {
+            const response: Repository[] = await apiCall(`/acls/repositories?sid=${user.username}&principal=true`)
             setDesignRepos(response.filter(repo => repo.type === RepositoryType.DESIGN))
             setDeployRepos(response.filter(repo => repo.type === RepositoryType.PROD))
             setSelectedRepositories(response.map(repo => repo.id))
@@ -66,8 +38,8 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     }
 
     const fetchProjectRoles = async () => {
-        if (!isNewGroup) {
-            const response: Project[] = await apiCall(`/acls/projects?sid=${group.name}`)
+        if (!isNewUser) {
+            const response: Project[] = await apiCall(`/acls/projects?sid=${user.username}&principal=true`)
             setProjects(response)
             setSelectedProjects(response.map(project => project.id))
         }
@@ -77,48 +49,88 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     useEffect(() => {
         fetchReposRoles()
         fetchProjectRoles()
-    }, [group.name])
+    }, [user.username])
 
-    const saveGroup = async (values: FormValues) => {
-        const updatedGroup = {
-            ...group,
-            name: values.name,
-            description: values.description,
-            admin: !!values.admin
+    const initialValues = useMemo(() => {
+        const displayNameSelectInitialValue = () => {
+            const firstName = user.firstName || ''
+            const lastName = user.lastName || ''
+            if (user.displayName === `${firstName} ${lastName}`.trim()) {
+                return DisplayUserName.FirstLast
+            }
+            if (user.displayName === `${lastName} ${firstName}`.trim()) {
+                return DisplayUserName.LastFirst
+            }
+            return DisplayUserName.Other
         }
 
-        if (!isNewGroup) {
-            updatedGroup.oldName = group.oldName || updatedGroup.name
+        setUserGroups(user.userGroups?.map((group) => group.name) || [])
+
+        return {
+            username: user.username,
+            email: user.email,
+            password: null,
+            firstName: user.firstName || '',
+            lastName: user.lastName || '',
+            displayName: user.displayName,
+            displayNameSelect: displayNameSelectInitialValue(),
+            designRepos,
+            deployRepos,
+            projects
+        }
+    }, [user, designRepos, deployRepos, projects])
+
+    const onSubmitUserModal = async (userData: any) => {
+        const updatedUser: EditUserRequest = {
+            email: userData.email,
+            displayName: userData.displayName,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            password: userData.password,
+            groups: userGroups,
         }
 
-        const encodedBody = stringify(updatedGroup)
+        if (isNewUser) {
+            updatedUser.username = userData.username
+            updatedUser.internalPassword = {
+                password: userData.password
+            }
+        }
 
         try {
-            const headers = new Headers()
-            headers.append('Content-Type', 'application/x-www-form-urlencoded')
-            headers.append('Accept', 'application/json')
+            const url = isNewUser ? '/users' : `/users/${userData.username}`
 
-            const response = await apiCall('/admin/management/groups', {
-                method: 'POST',
-                headers,
-                body: encodedBody,
+            const response = await apiCall(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedUser),
             })
+
             if (response) {
-                updatedGroup.oldName = updatedGroup.name
-                updateGroup(updatedGroup)
-                if (isNewGroup) {
-                    setIsNewGroup(false)
-                    onAddGroup()
+                updateUser({ username: userData.username, ...updatedUser })
+                if (isNewUser) {
+                    setIsNewUser(false)
+                    onAddUser()
                 } else {
                     closeModal()
                 }
             } else {
-                throw new Error('Error updating group')
+                throw new Error('Error updating user')
             }
         } catch (error) {
             console.error('Error updating group:', error)
         }
     }
+
+    const updateButtonText = useMemo(() => {
+        return isNewUser ? t('common:btn.create') : t('common:btn.save')
+    }, [isNewUser, t])
+
+    const title = useMemo(() => {
+        return isNewUser ? 'Add User' : 'Edit User'
+    }, [isNewUser])
 
     const saveReposRoles = async (groupName: string, repositories, repoType: RepositoryType) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
@@ -132,14 +144,14 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         headers.append('Accept', 'application/json')
 
         deletedRoles.forEach((role: any) => {
-            apiCall(`/acls/repositories/${role.id}?sid=${groupName}`, {
+            apiCall(`/acls/repositories/${role.id}?sid=${groupName}&principal=true`, {
                 method: 'DELETE',
                 headers
             })
         })
 
         addedRoles.forEach((role: any) => {
-            apiCall(`/acls/repositories/${role.id}?sid=${groupName}`, {
+            apiCall(`/acls/repositories/${role.id}?sid=${groupName}&principal=true`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ role: role.role })
@@ -147,7 +159,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         })
 
         updatedRoles.forEach((role: any) => {
-            apiCall(`/acls/repositories/${role.id}?sid=${groupName}`, {
+            apiCall(`/acls/repositories/${role.id}?sid=${groupName}&principal=true`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ role: role.role })
@@ -156,11 +168,11 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
     }
 
     const saveDesignRepositoriesRoles = async (values: FormValues) => {
-        saveReposRoles(values.name, values.designRepos, RepositoryType.DESIGN)
+        saveReposRoles(values.username, values.designRepos, RepositoryType.DESIGN)
     }
 
     const saveDeployRepositoriesRoles = async (values: FormValues) => {
-        saveReposRoles(values.name, values.deployRepos, RepositoryType.PROD)
+        saveReposRoles(values.username, values.deployRepos, RepositoryType.PROD)
     }
 
     const saveProjectRoles = async (values: FormValues) => {
@@ -180,14 +192,14 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         headers.append('Accept', 'application/json')
 
         deletedRoles.forEach((project: any) => {
-            apiCall(`/acls/projects/${project.id}?sid=${values.name}`, {
+            apiCall(`/acls/projects/${project.id}?sid=${values.username}&principal=true`, {
                 method: 'DELETE',
                 headers
             })
         })
 
         addedRoles.forEach((project: any) => {
-            apiCall(`/acls/projects/${project.id}?sid=${values.name}`, {
+            apiCall(`/acls/projects/${project.id}?sid=${values.username}&principal=true`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ role: project.role })
@@ -195,7 +207,7 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         })
 
         updatedRoles.forEach((project: any) => {
-            apiCall(`/acls/projects/${project.id}?sid=${values.name}`, {
+            apiCall(`/acls/projects/${project.id}?sid=${values.name}&principal=true`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ role: project.role })
@@ -224,59 +236,28 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         }
     ]
 
-    const groupTabs = [
+    const userTabs = [
         {
             label: 'Details',
             key: 'details',
             forceRender: true,
-            children: (
-                <>
-                    <Form.Item
-                        required
-                        label="Name"
-                        name="name"
-                        rules={[
-                            { required: true, message: 'Enter Group Name' },
-                            { max: 65, message: 'Group Name cannot be longer than 65 characters' }
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Description" name="description" rules={[{ max: 200, message: 'Description cannot be longer than 200 characters' }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Admin" name="admin" valuePropName="checked">
-                        <Checkbox />
-                    </Form.Item>
-                </>
-            )
+            children: <UserDetailsTab isNewUser={isNewUser} />
         },
         {
             label: 'Access Management',
             key: 'access_management',
-            disabled: isNewGroup,
             forceRender: true,
-            children: (
-                <Tabs items={accessTabs} />
-            )
+            children: <Tabs items={accessTabs} />
         }
     ]
 
     const onFinish = async (values: FormValues) => {
-        await saveGroup(values)
-        if (!isNewGroup) {
+        await onSubmitUserModal(values)
+        if (!isNewUser) {
             saveDesignRepositoriesRoles(values)
             saveDeployRepositoriesRoles(values)
             saveProjectRoles(values)
         }
-    }
-
-    const title = useMemo(() => {
-        return isNewGroup ? 'Invite Group' : 'Edit Group'
-    }, [isNewGroup])
-
-    if (!isReposLoaded || !isProjectsLoaded) {
-        return <Typography.Text>Loading...</Typography.Text>
     }
 
     const onValuesChange = (_: any, allValues: FormValues) => {
@@ -284,28 +265,33 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
         setSelectedProjects(allValues.projects.map(project => project ? project.id || '' : ''))
     }
 
+    if (!isReposLoaded || !isProjectsLoaded) {
+        return <Typography.Text>Loading...</Typography.Text>
+    }
+
     return (
         <Form
             form={form}
             initialValues={initialValues}
-            labelCol={{ sm: { span: 6 } }}
+            labelCol={{ sm: { span: 8 } }}
             onFinish={onFinish}
             onValuesChange={onValuesChange}
-
         >
             <Typography.Title level={4} style={{ marginTop: 0 }}>{title}</Typography.Title>
-            <Tabs items={groupTabs} />
+            <Tabs items={userTabs} />
             <Row justify="end">
                 <Button key="back" onClick={closeModal} style={{ marginRight: 20 }}>
-                    Cancel
+                    {t('users:edit_modal.cancel')}
                 </Button>
                 <Button
+                    key="submit"
                     htmlType="submit"
                     type="primary"
                 >
-                    {isNewGroup ? 'Invite' : 'Save'}
+                    {updateButtonText}
                 </Button>
             </Row>
+
         </Form>
     )
 }

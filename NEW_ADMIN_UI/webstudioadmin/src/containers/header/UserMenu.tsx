@@ -1,12 +1,11 @@
-import React, { FC } from 'react'
+import React, { FC, useContext } from 'react'
 import { Col, Drawer, Menu, Row, Typography } from 'antd'
 import './UserMenu.scss'
 import { UserLogo } from '../../components/UserLogo'
 import { LogoutOutlined, QuestionOutlined, SettingOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { RootState } from 'store'
-import { useSelector } from 'react-redux'
+import { UserContext } from '../../contexts/User'
 
 interface UserMenuProps {
     isOpen: boolean
@@ -16,8 +15,7 @@ interface UserMenuProps {
 export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const { t } = useTranslation()
     const navigate = useNavigate()
-
-    const { username, email } = useSelector((state: RootState) => state.user.profile || {})
+    const { userProfile } = useContext(UserContext)
 
     const Title = (
         <Row align="middle">
@@ -27,11 +25,11 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
             <Col>
                 <div className="user-menu-title">
                     <div className="user-menu-title-username">
-                        {username}
+                        {userProfile.username}
                     </div>
                     <div className="user-menu-title-email">
                         <Typography.Text style={{ fontWeight: 500 }} type="secondary">
-                            {email}
+                            {userProfile.email}
                         </Typography.Text>
                     </div>
                 </div>
@@ -60,14 +58,12 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
                 <Menu.Divider />
                 <Menu.Item key="/administration/" icon={<ToolOutlined />}>{t('common:user_menu.administration')}</Menu.Item>
                 <Menu.Divider />
-                <Menu.Item key="3" icon={<QuestionOutlined />}>
+                <Menu.Item key="/help" icon={<QuestionOutlined />}>
                     TODO:
                     {' '}
                     {t('common:user_menu.help')}
                 </Menu.Item>
-                <Menu.Item key="3" icon={<LogoutOutlined />}>
-                    TODO:
-                    {' '}
+                <Menu.Item key="/logout" icon={<LogoutOutlined />}>
                     {t('common:user_menu.sign_out')}
                 </Menu.Item>
             </Menu>

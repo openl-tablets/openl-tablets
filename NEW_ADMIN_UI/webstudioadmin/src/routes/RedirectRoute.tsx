@@ -4,7 +4,11 @@ import { NoMatch } from './NoMatch'
 
 const baseRoot = process.env.BASE_PATH || ''
 
-export const RedirectRoute = () => {
+interface RedirectRouteProps {
+    to?: string
+}
+
+export const RedirectRoute: React.FC<RedirectRouteProps> = ({ to }) => {
     const { page } = useParams()
 
     if (page === 'editor') {
@@ -13,6 +17,10 @@ export const RedirectRoute = () => {
     } else if (page === 'login') {
         window.location.href = baseRoot + '/faces/pages/login.xhtml'
         return null
+    } else if (to === 'logout') {
+        window.location.href = baseRoot + '/security_logout'
+        return null
+
     } else {
         return <NoMatch />
     }

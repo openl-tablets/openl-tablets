@@ -1,50 +1,35 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react'
-import { Button, Modal, Row, Table, Tag } from 'antd'
+import { Badge, Button, Modal, Row, Table } from 'antd'
 import { CloseCircleOutlined, EditOutlined } from '@ant-design/icons'
-import { AddAndEditUserModal } from './users/components/AddAndEditUserModal'
+import { EditUserModal } from './users/EditUserModal'
 import { apiCall } from 'services'
-import './Users.scss'
 import { useTranslation } from 'react-i18next'
 import { UserContext } from '../contexts/User'
 import { UserGroupType } from '../constants'
-
-interface EditUserRequest {
-    displayName: string
-    email: string
-    firstName: string
-    groups: string[]
-    lastName: string
-    password: string
-    username?: string
-    internalPassword?: {
-        password: string
-    }
-}
+import { UserDetails, UserProfile } from '../types/user'
+import { ColumnsType } from 'antd/es/table/interface'
 
 export const Users: React.FC = () => {
     const { t } = useTranslation()
     const { isExternalAuthSystem } = useContext(UserContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedUser, setSelectedUser] = useState<any>({})
-    const [userData, setUserData] = useState<any[]>([])
-    const [isNewUser, setIsNewUser] = useState(false)
+    const [usersData, setUsersData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
-    const showAddAndEditUserModal = () => {
+    const showEditUserModal = () => {
         setIsModalOpen(true)
     }
 
-    const hideAddAndEditUserModal = () => {
+    const hideEditUserModal = () => {
         setIsModalOpen(false)
         setSelectedUser({})
-        setIsNewUser(false)
-        fetchUsers()
     }
 
     const fetchUsers = async () => {
         setIsLoading(true)
-        const response = await apiCall('/users')
-        setUserData(response.map((user: any, index: any) => ({ ...user, key: index })))
+        const response: UserDetails[] = await apiCall('/users')
+        setUsersData(response.map((user: any, index: any) => ({ ...user, key: index })))
         setIsLoading(false)
     }
 
@@ -67,49 +52,29 @@ export const Users: React.FC = () => {
         })
     }
 
-    const onAddNewUser = () => {
-        setIsNewUser(true)
-        showAddAndEditUserModal()
+    const handleDoubleRowClick = (record: any) => {
+        setSelectedUser({ ...record })
+        showEditUserModal()
     }
 
-    const onSubmitUserModal = async (userData: any) => {
-        const userDataMapped: EditUserRequest = {
-            email: userData.email,
-            displayName: userData.displayName,
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            password: userData.password,
-            groups: userData.groups,
-        }
-
-        if (isNewUser) {
-            userDataMapped.username = userData.username
-            userDataMapped.internalPassword = {
-                password: userData.password
-            }
-        }
-
-        try {
-            const url = isNewUser ? '/users' : `/users/${userData.username}`
-
-            await apiCall(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userDataMapped),
-            })
-        } finally {
-            hideAddAndEditUserModal()
+    const updateUser = (updatedUser: UserProfile) => {
+        if (updatedUser.username) {
+            setUsersData((userData) => userData.map((user) => (user.username === updatedUser.username ? { ...user, ...updatedUser } : user)))
         }
     }
 
     const columns = useMemo(() => {
-        const columns = [
+        const columns: ColumnsType<UserProfile> = [
             {
                 title: t('users:users_table.username'),
-                dataIndex: 'username',
                 key: 'username',
+                render: ({ username, userGroups }) => {
+                    if (Array.isArray(userGroups) && userGroups.some(({ type }) => type === UserGroupType.Admin)) {
+                        return <Badge dot color="blue">{username}</Badge>
+                    }
+
+                    return username
+                },
             },
             {
                 title: t('users:users_table.full_name'),
@@ -129,16 +94,7 @@ export const Users: React.FC = () => {
                     <div>
                         {userGroups
                             && userGroups.length > 0
-                            && userGroups.map((userGroup) => {
-                                const { name, type } = userGroup
-                                const color = type === UserGroupType.ADMIN ? 'red' :
-                                    type === UserGroupType.DEFAULT ? 'blue' : 'green'
-                                return (
-                                    <Tag key={name} color={color} style={{ margin: 2 }}>
-                                        {name}
-                                    </Tag>
-                                )
-                            })}
+                            && userGroups.map(({ name }) =>  name).join(', ')}
                     </div>
                 ),
             },
@@ -148,12 +104,12 @@ export const Users: React.FC = () => {
                 render: (_: string, record: any) => (
                     <>
                         <Button
-                            icon={<EditOutlined/>}
+                            icon={<EditOutlined />}
                             onClick={() => handleDoubleRowClick(record)}
                             type="text"
                         />
                         <Button
-                            icon={<CloseCircleOutlined/>}
+                            icon={<CloseCircleOutlined />}
                             onClick={() => removeUser(record.username)}
                             type="text"
                         />
@@ -167,22 +123,13 @@ export const Users: React.FC = () => {
         }
 
         return columns
-    }, [isExternalAuthSystem, t])
-
-    const handleDoubleRowClick = (record: any) => {
-        setSelectedUser({ ...record })
-        showAddAndEditUserModal()
-    }
-
-    const modalTitle = useMemo(() => {
-        return isNewUser ? t('users:add_user') : t('users:edit_user')
-    }, [isNewUser, t])
+    }, [t, isExternalAuthSystem, handleDoubleRowClick, removeUser])
 
     return (
         <>
             <Table
                 columns={columns}
-                dataSource={userData}
+                dataSource={usersData}
                 loading={isLoading}
                 pagination={{ hideOnSinglePage: true }}
                 rowKey={(record) => record.username}
@@ -192,7 +139,7 @@ export const Users: React.FC = () => {
             />
             <Row justify="end">
                 <Button
-                    onClick={onAddNewUser}
+                    onClick={showEditUserModal}
                     style={{ marginTop: 20 }}
                     type="primary"
                 >
@@ -201,18 +148,19 @@ export const Users: React.FC = () => {
             </Row>
             <Modal
                 destroyOnClose
-                className="edit-user-modal"
                 footer={null}
-                onCancel={hideAddAndEditUserModal}
+                onCancel={hideEditUserModal}
                 open={isModalOpen}
-                title={modalTitle}
+                width={600}
             >
-                <AddAndEditUserModal
-                    isNewUser={isNewUser}
-                    onCancel={hideAddAndEditUserModal}
-                    onSubmit={onSubmitUserModal}
-                    user={selectedUser}
-                />
+                {isModalOpen && (
+                    <EditUserModal
+                        closeModal={hideEditUserModal}
+                        onAddUser={fetchUsers}
+                        updateUser={updateUser}
+                        user={selectedUser}
+                    />
+                )}
             </Modal>
         </>
     )

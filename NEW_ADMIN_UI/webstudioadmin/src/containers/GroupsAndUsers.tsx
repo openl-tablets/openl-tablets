@@ -1,17 +1,9 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { Tabs } from 'antd'
-import { apiCall } from 'services'
 import { useTranslation } from 'react-i18next'
 import { Users } from './Users'
 import { Groups } from './Groups'
 import { UserContext } from '../contexts/User'
-
-interface Group {
-    name: string;
-    id: number;
-    description: string;
-    roles: string[];
-}
 
 export const GroupsAndUsers: React.FC = () => {
     const { t } = useTranslation()
@@ -34,11 +26,11 @@ export const GroupsAndUsers: React.FC = () => {
             }
         )
         return tabs
-    }, [isExternalAuthSystem])
+    }, [t, isExternalAuthSystem])
 
     return (
         <>
-            <Tabs items={tabs} destroyInactiveTabPane />
+            <Tabs destroyInactiveTabPane items={tabs} />
         </>
     )
 }

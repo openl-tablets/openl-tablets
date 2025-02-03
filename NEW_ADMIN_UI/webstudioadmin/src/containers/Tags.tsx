@@ -1,4 +1,4 @@
-import { Input, Divider, Button, Row, Typography, Col } from 'antd'
+import { Input, Divider, Button, Row, Typography } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
