@@ -27,12 +27,20 @@ i18next.addResourceBundle('en', 'common', {
         sign_out: 'Sign Out',
     },
     btn: {
+        ok: 'OK',
         save: 'Save',
         cancel: 'Cancel',
         apply: 'Apply',
+        create: 'Create',
+        invite: 'Invite',
     },
     plugin: {
         loading_plugin: 'Loading Plugin',
         no_plugin_specified: 'No plugin specified',
+    },
+    role: {
+        VIEWER: 'Viewer',
+        CONTRIBUTOR: 'Contributor',
+        MANAGER: 'Manager',
     }
 })

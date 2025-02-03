@@ -8,6 +8,8 @@ import { UserLogo } from '../components/UserLogo'
 import Logo from './header/Logo'
 import { claimMenu } from '../plugins'
 
+type MenuItem = Required<MenuProps>['items'][number];
+
 const { Header: AntHeader } = Layout
 
 const EDITOR = 'EDITOR'
@@ -22,7 +24,6 @@ const basePath = process.env.BASE_PATH || ''
 
 export const Header = () => {
     const { t } = useTranslation()
-    // const router = plugins.getRouter()
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [activeKey, setActiveKey] = useState(window.location.pathname)
 
@@ -39,12 +40,12 @@ export const Header = () => {
             return {
                 key: basePath + item.path,
                 label: t(item.label),
-            }
+            } as MenuItem
         }
     })
 
     const menuItems = () => {
-        const defaultMenuItems: MenuProps['items'] = [
+        const defaultMenuItems = [
             {
                 key: basePath + '/',
                 label: t('common:menu.advanced_editor'),
@@ -63,7 +64,7 @@ export const Header = () => {
         return [
             ...defaultMenuItems,
             ...additionalMenuItems
-        ]
+        ] as MenuItem[]
     }
 
     return (
@@ -72,12 +73,12 @@ export const Header = () => {
                 <Col span={6}>
                     <Row align="middle">
                         <Col>
-                            <div className="header__logo">
+                            <div className="header-logo">
                                 <Logo />
                             </div>
                         </Col>
                         <Col>
-                            <div className="header__title">
+                            <div className="header-title">
                                 <Link style={titleStyle} to="/" >{t('common:openl_studio')}</Link>
                             </div>
                         </Col>
@@ -89,7 +90,7 @@ export const Header = () => {
                         items={menuItems()}
                         mode="horizontal"
                         onClick={({ key }) => {
-                            window.location = key
+                            window.location.href = key
                         }}
                         style={{
                             flex: 1,
