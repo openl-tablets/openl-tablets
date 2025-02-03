@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react'
 import { router } from './routes'
 import { App as AntApp } from 'antd'
-import { fetchUserDetails, fetchUserProfile} from './containers/user/userSlice'
+import { fetchUserDetails, fetchUserProfile } from './containers/user/userSlice'
 import { RootState, useAppDispatch, useAppSelector } from 'store'
 import { fetchNotification } from './containers/notification/notificationSlice'
 import { RouterProvider } from 'react-router-dom'
@@ -33,6 +33,7 @@ function App() {
 
     useEffect(() => {
         if (isUserLoggedIn && username) {
+            // @ts-ignore
             dispatch(fetchUserDetails(username))
         }
     }, [username, dispatch])

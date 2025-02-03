@@ -1,7 +1,6 @@
 import { notification } from 'antd'
 
 const baseURL = process.env.API_URL || ''
-const authorisationHeader = null // process.env.AUTHORIZATION_HEADER
 
 const fetchInitialConfig = {
     method: 'GET',
@@ -12,17 +11,6 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
     const responseParams = {
         ...fetchInitialConfig,
         ...params,
-    }
-
-    if (authorisationHeader) {
-        if (responseParams.headers instanceof Headers) {
-            responseParams.headers.set('Authorization', authorisationHeader)
-        } else {
-            responseParams.headers = new Headers({
-                ...responseParams.headers,
-                Authorization: authorisationHeader,
-            })
-        }
     }
 
     return fetch(`${baseURL}${url}`, responseParams)
@@ -41,7 +29,12 @@ const apiCall = async (url: string, params?: RequestInit, throwError = false) =>
                 throw new Error('Page not found!')
             } else {
                 await response.json().then((data: any) => {
-                    throw new Error(data.message)
+                    if (data.fields) {
+                        const errors = data.fields.map(({ message }) => message)
+                        throw new Error(errors)
+                    } else {
+                        throw new Error(data.message)
+                    }
                 })
                 throw new Error('Something went wrong on API server!')
             }

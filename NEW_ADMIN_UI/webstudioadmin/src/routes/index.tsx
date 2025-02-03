@@ -16,6 +16,7 @@ import { AdministrationLayout } from '../layouts/AdministrationLayout'
 import { RedirectToDefaultPage } from './RedirectToDefaultPage'
 import { HeaderLayout } from '../layouts/HeaderLayout'
 import { claimsRoutes } from '../plugins'
+import { RedirectRoute } from './RedirectRoute'
 
 const basePath = process.env.BASE_PATH || ''
 
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
             },
             ...claimsRoutes
         ],
+    },
+    {
+        path: '/logout',
+        element: <RedirectRoute to="logout" />,
     },
     {
         path: '/faces/pages/admin.xhtml',

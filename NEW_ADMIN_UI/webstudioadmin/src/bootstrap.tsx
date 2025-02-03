@@ -1,9 +1,13 @@
 import React from 'react'
 
+// Uncomment the following line to enable the runtime import of remote plugins
 // define list of default plugins
-import './plugins.config'
+// import './plugins.config'
 // runtime import of remote plugins
-import './initRemotePlugins'
+// import './initRemotePlugins'
+
+import './i18n'
+import './locales'
 
 import { createRoot } from 'react-dom/client'
 
@@ -11,10 +15,8 @@ import store from '../src/store'
 import { Provider } from 'react-redux'
 
 import reportWebVitals from './reportWebVitals'
-import App from './App'
 
-import './i18n_init'
-import './i18n'
+import App from './App'
 
 import './index.scss'
 
