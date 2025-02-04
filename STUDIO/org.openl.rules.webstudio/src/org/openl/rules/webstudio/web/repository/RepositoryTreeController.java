@@ -2451,6 +2451,10 @@ public class RepositoryTreeController {
 
     public boolean canDelete(UserWorkspaceProject project) {
         try {
+            if (project.isLocalOnly()) {
+                // user can delete local projects
+                return true;
+            }
             if (!aclProjectsHelper.hasPermission(project, AclPermission.DELETE)) {
                 return false;
             }
