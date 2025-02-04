@@ -3,7 +3,6 @@ package org.openl.security.acl.repository;
 public interface RepositoryAclServiceProvider {
 
     String REPO_TYPE_PROD = "prod";
-    String REPO_TYPE_DEPLOY_CONFIG = "deployConfig";
     String REPO_TYPE_DESIGN = "design";
 
     /**
@@ -20,13 +19,6 @@ public interface RepositoryAclServiceProvider {
      * @return design repository ACL service
      */
     RepositoryAclService getDesignRepoAclService();
-
-    /**
-     * Get deploy config repository ACL service
-     *
-     * @return deploy config repository ACL service
-     */
-    RepositoryAclService getDeployConfigRepoAclService();
 
     /**
      * Get production repository ACL service

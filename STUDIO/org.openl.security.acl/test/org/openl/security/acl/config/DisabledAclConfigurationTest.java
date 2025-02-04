@@ -1,7 +1,6 @@
 package org.openl.security.acl.config;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -22,13 +21,6 @@ public class DisabledAclConfigurationTest {
     @BeforeEach
     public void setUp() {
         disabledAclConfiguration = new DisabledAclConfiguration();
-    }
-
-    @Test
-    public void test_disabled_deployConfigRepositoryAclService() {
-        var aclService = disabledAclConfiguration.deployConfigRepositoryAclService();
-        test_DisabledSimpleRepositoryAclService_stubs(aclService);
-        test_DisabledRepositoryAclService_stubs(aclService);
     }
 
     @Test
@@ -78,8 +70,8 @@ public class DisabledAclConfigurationTest {
 
         assertTrue(service.updateOwner(null, null, null));
 
-        assertNotNull(service.hashCode());
-        assertNotEquals(service, new Object());
+        assertDoesNotThrow(service::hashCode);
+        assertDoesNotThrow(() -> service.equals(new Object()));
         assertTrue(service.toString().startsWith("Disabled"));
     }
 

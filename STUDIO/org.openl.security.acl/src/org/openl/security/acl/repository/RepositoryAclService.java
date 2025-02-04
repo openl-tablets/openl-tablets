@@ -33,4 +33,12 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
     void removePermissions(AProjectArtefact projectArtefact, Sid sid);
 
     void addPermissions(AProjectArtefact projectArtefact, Sid sid, Permission... permissions);
+
+    /**
+     * Check if the current user is the owner of the project artefact.
+     *
+     * @param projectArtefact project artefact
+     * @return {@code true} if the current user is the owner of the project artefact
+     */
+    boolean isOwner(AProjectArtefact projectArtefact);
 }

@@ -10,7 +10,7 @@ Content-Type: application/json
     "id": 6,
     "repositoryTypeToRole": {
       "design": "CONTRIBUTOR",
-      "deployConfig": "VIEWER"
+      "prod": "VIEWER"
     }
   },
   "Authenticated": {
@@ -18,35 +18,35 @@ Content-Type: application/json
     "description": "A default group for authenticated users",
     "repositoryTypeToRole": {
       "design": "VIEWER",
-      "deployConfig": "VIEWER"
+      "prod": "VIEWER"
     }
   },
   "Deployers": {
     "id": 5,
     "repositoryTypeToRole": {
       "design": "VIEWER",
-      "deployConfig": "CONTRIBUTOR"
+      "prod": "CONTRIBUTOR"
     }
   },
   "Developers": {
     "id": 3,
     "repositoryTypeToRole": {
       "design": "CONTRIBUTOR",
-      "deployConfig": "VIEWER"
+      "prod": "VIEWER"
     }
   },
   "Testers": {
     "id": 4,
     "repositoryTypeToRole": {
       "design": "VIEWER",
-      "deployConfig": "VIEWER"
+      "prod": "VIEWER"
     }
   },
   "Viewers": {
     "id": 2,
     "repositoryTypeToRole": {
       "design": "VIEWER",
-      "deployConfig": "VIEWER"
+      "prod": "VIEWER"
     }
   }
 }

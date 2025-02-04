@@ -1,0 +1,6 @@
+DELETE /rest/user-workspace/design/projects/EPBDS_14670_Project/delete HTTP/1.1
+Authorization: Basic amRvZTpqZG9l
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar

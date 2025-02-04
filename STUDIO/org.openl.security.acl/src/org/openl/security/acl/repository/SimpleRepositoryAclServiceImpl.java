@@ -10,6 +10,8 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -29,6 +31,8 @@ import org.openl.security.acl.MutableAclService;
 import org.openl.security.acl.oid.AclObjectIdentityProvider;
 
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleRepositoryAclServiceImpl.class);
 
     protected final MutableAclService aclService;
     private final Sid relevantSystemWideSid;
@@ -484,15 +488,16 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected Sid getOwner(ObjectIdentity oi) {
         try {
-            MutableAcl acl = getOrCreateAcl(oi);
+            var acl = aclService.readAclById(oi);
             return acl.getOwner();
         } catch (NotFoundException e) {
+            LOG.debug("No ACL found for {}", oi, e);
             return null;
         }
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Sid getOwner(String repositoryId, String path) {
         ObjectIdentity oi = oidProvider.getRepositoryOid(repositoryId, path);
         return getOwner(oi);

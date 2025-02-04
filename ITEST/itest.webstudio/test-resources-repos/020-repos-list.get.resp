@@ -3,16 +3,20 @@ Content-Type: application/json
 
 [
   {
+    "aclId": "REVTSUdOOmRlc2lnbi1mbGF0",
     "id": "design-flat",
     "name": "Git Flat"
   }, {
+    "aclId": "REVTSUdOOmRlc2lnbi1ub24tZmxhdA==",
     "id": "design-non-flat",
     "name": "Git Non Flat"
   }, {
+    "aclId": "REVTSUdOOmRlc2lnbi1wcm90ZWN0ZWQtZmxhdA==",
     "id": "design-protected-flat",
     "name": "Git Protected Branch Flat"
   }, {
+    "aclId": "REVTSUdOOmRlc2lnbg==",
     "id": "design",
     "name": "H2"
-  }
+}
 ]
