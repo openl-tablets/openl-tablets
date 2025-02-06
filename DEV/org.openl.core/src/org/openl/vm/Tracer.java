@@ -24,12 +24,12 @@ public class Tracer {
         return target;
     }
 
-    protected <T, E extends IRuntimeEnv> void doResolveTraceNode(Invokable<? super T, E> executor,
+    protected <T, E extends IRuntimeEnv> boolean doResolveTraceNode(Invokable<? super T, E> executor,
                                                                  T target,
                                                                  Object[] params,
                                                                  E env,
                                                                  Object source) {
-
+        return false;
     }
 
     /*
@@ -98,11 +98,11 @@ public class Tracer {
         }
     }
 
-    public static <T, E extends IRuntimeEnv> void resolveTraceNode(Invokable<? super T, E> executor,
+    public static <T, E extends IRuntimeEnv> boolean resolveTraceNode(Invokable<? super T, E> executor,
                                                                    T target,
                                                                    Object[] params,
                                                                    E env,
                                                                    Object source) {
-        instance.doResolveTraceNode(executor, target, params, env, source);
+        return instance.doResolveTraceNode(executor, target, params, env, source);
     }
 }

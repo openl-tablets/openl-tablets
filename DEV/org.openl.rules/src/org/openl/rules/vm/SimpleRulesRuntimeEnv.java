@@ -35,6 +35,11 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
 
     @Override
     public IRuntimeEnv clone() {
+        return copy();
+    }
+
+    @Override
+    public SimpleRulesRuntimeEnv copy() {
         return new SimpleRulesRuntimeEnv(this);
     }
 

@@ -57,4 +57,9 @@ public class RefToTracerNodeObject implements ITracerObject {
     public ITracerObject getOriginalTracerNode() {
         return originalTracerNode;
     }
+
+    @Override
+    public void replace(LazyTracerNodeObject lazyNode, ITracerObject realNode) {
+        originalTracerNode.replace(lazyNode, realNode);
+    }
 }

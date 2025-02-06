@@ -127,4 +127,8 @@ public class TBasicContextHolderEnv implements IRuntimeEnv {
         env.pushContext(context);
     }
 
+    @Override
+    public IRuntimeEnv copy() {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
 }
