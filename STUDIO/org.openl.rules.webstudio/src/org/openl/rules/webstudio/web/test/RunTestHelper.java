@@ -30,13 +30,13 @@ public class RunTestHelper {
     private Object[] params = new Object[0];
     private IRulesRuntimeContext runtimeContext;
 
-    public ITracerObject getTraceObject() {
+    public ITracerObject getTraceObject(boolean lazyNodes) {
         catchParams();
         TestSuite testSuite = getTestSuite();
         ProjectModel model = WebStudioUtils.getProjectModel();
         ITracerObject t;
         try {
-            t = TreeBuildTracer.initialize();
+            t = TreeBuildTracer.initialize(lazyNodes);
             model.traceElement(testSuite);
         } finally {
             TreeBuildTracer.destroy();
@@ -46,7 +46,7 @@ public class RunTestHelper {
     }
 
     public void initTrace() {
-        ITracerObject root = getTraceObject();
+        ITracerObject root = getTraceObject(true);
 
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper();
         traceHelper.cacheTraceTree(root);// Register

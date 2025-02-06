@@ -76,6 +76,15 @@ public class TracedObjectFactory {
         return null;
     }
 
+    public static boolean supportLazyTrace(Object source) {
+        return source instanceof OpenMethodDispatcher
+                || source instanceof WeightAlgorithmExecutor
+                || source instanceof ColumnMatch
+                || source instanceof DecisionTable
+                || source instanceof Spreadsheet
+                || source instanceof TableMethod;
+    }
+
     public static ITracerObject getTracedObject(Object source, String id, Object[] args) {
         ITracerObject trObj;
         if ("index".equals(id) || "condition".equals(id)) {

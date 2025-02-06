@@ -35,4 +35,6 @@ public interface ITracerObject {
     String getType();
 
     boolean isLeaf();
+
+    void replace(LazyTracerNodeObject lazyNode, ITracerObject realNode);
 }

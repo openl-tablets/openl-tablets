@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleTracerObject.class);
 
     private ITracerObject parent;
-    private ArrayList<ITracerObject> children;
+    private LinkedList<ITracerObject> children;
     private Object result;
     private Throwable error;
     private final String type;
@@ -37,7 +37,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
     @Override
     public void addChild(ITracerObject child) {
         if (children == null) {
-            children = new ArrayList<>();
+            children = new LinkedList<>();
         }
 
         children.add(child);
@@ -95,4 +95,12 @@ public abstract class SimpleTracerObject implements ITracerObject {
         return error != null;
     }
 
+    @Override
+    public void replace(LazyTracerNodeObject lazyNode, ITracerObject realNode) {
+        var idx = children.indexOf(lazyNode);
+        if (idx == -1) {
+            throw new IllegalStateException();
+        }
+        children.set(idx, realNode);
+    }
 }

@@ -46,4 +46,6 @@ public interface IRuntimeEnv {
     IRuntimeContext popContext();
 
     void pushContext(IRuntimeContext context);
+
+    IRuntimeEnv copy();
 }

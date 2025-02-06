@@ -100,9 +100,11 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         }
         SpreadsheetCell spreadsheetCell = spreadsheet.getCells()[row][column];
         if (result != METHOD_VALUE) {
+            boolean resolved = false;
             if (spreadsheetCell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
-                Tracer.resolveTraceNode(spreadsheetCell, this, params, env, this);
-            } else {
+                resolved = Tracer.resolveTraceNode(spreadsheetCell, this, params, env, this);
+            }
+            if (!resolved) {
                 Tracer.put(spreadsheetCell, "cell", result);
             }
             return result;
