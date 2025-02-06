@@ -95,7 +95,12 @@ public class MockRuntimeEnv implements IRuntimeEnv {
 
     @Override
     public IRuntimeEnv clone() {
-        return new MockRuntimeEnv(this);
+        return copy();
 
+    }
+
+    @Override
+    public MockRuntimeEnv copy() {
+        return new MockRuntimeEnv(this);
     }
 }

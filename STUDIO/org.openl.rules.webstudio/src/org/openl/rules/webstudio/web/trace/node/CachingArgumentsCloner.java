@@ -37,6 +37,10 @@ public final class CachingArgumentsCloner<T> {
         instance.set(new CachingArgumentsCloner<>());
     }
 
+    public static void initInstance(CachingArgumentsCloner<?> cloner) {
+        instance.set(cloner);
+    }
+
     public static void removeInstance() {
         instance.remove();
     }

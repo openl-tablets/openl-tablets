@@ -40,7 +40,7 @@ public class TraceIntoFileBean {
     }
 
     public void traceIntoFile() throws IOException {
-        ITracerObject tracer = runTestHelper.getTraceObject();
+        ITracerObject tracer = runTestHelper.getTraceObject(false);
 
         HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
         response.setHeader("Content-Disposition", "attachment; filename=trace.txt; filename*=UTF-8''trace.txt");

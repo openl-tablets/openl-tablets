@@ -172,6 +172,11 @@ public class SimpleVM implements IOpenVM {
 
         @Override
         public IRuntimeEnv clone() {
+            return copy();
+        }
+
+        @Override
+        public SimpleRuntimeEnv copy() {
             return new SimpleRuntimeEnv(this);
         }
     }
