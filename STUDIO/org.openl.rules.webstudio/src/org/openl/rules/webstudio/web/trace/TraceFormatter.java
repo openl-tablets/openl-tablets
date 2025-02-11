@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.trace;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Function;
@@ -9,6 +10,7 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -17,6 +19,7 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
+import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
@@ -28,6 +31,8 @@ import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
 import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
 import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
+import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 
@@ -138,10 +143,9 @@ public class TraceFormatter {
         buf.append(SpreadsheetStructureBuilder.DOLLAR_SIGN);
         buf.append(spreadsheet.getRowNames()[spreadsheetCell.getRowIndex()]);
 
-        if (!OpenClassUtils.isVoid(spreadsheetCell.getType())) {
-            /* write result for all cells, excluding void type */
-            buf.append(" = ").append(format(stl.getResult(), smartNumbers));
-        }
+        Optional.ofNullable(getDisplayName(spreadsheetCell.getType(), stl.getResult(), smartNumbers))
+                .map(r -> " = " + r)
+                .ifPresent(buf::append);
         return buf.toString();
     }
 
@@ -156,13 +160,42 @@ public class TraceFormatter {
             // append error of any
             buf.append(" = ERROR");
         } else {
-            if (!OpenClassUtils.isVoid(method.getType())) {
-                // append formatted result
-                buf.append(" = ").append(format(attn.getResult(), smartNumbers));
-            }
+            Optional.ofNullable(getDisplayName(method.getType(), attn.getResult(), smartNumbers))
+                    .map(r -> " = " + r)
+                    .ifPresent(buf::append);
         }
 
         return buf.toString();
+    }
+
+    private static String getDisplayName(IOpenClass type, Object value, boolean smartNumbers) {
+        if (OpenClassUtils.isVoid(type)) {
+            return null;
+        }
+        if (value == null) {
+            return "null";
+        }
+        if (canBeFormatted(type)) {
+            return format(value, smartNumbers);
+        } else if (Utils.isCollection(type)) {
+            boolean empty = !type.getAggregateInfo().getIterator(value).hasNext();
+            return empty ? "{}" : Utils.displayNameForCollection(type, false);
+        } else {
+            return type.getDisplayName(INamedThing.SHORT);
+        }
+    }
+
+    private static boolean canBeFormatted(IOpenClass type) {
+        if (type == null) {
+            return true;
+        }
+        if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Date.class)) {
+            return true;
+        }
+        if (Utils.isCollection(type)) {
+            return canBeFormatted(type.getComponentClass());
+        }
+        return false;
     }
 
     private static String format(Object o, boolean smartNumbers) {

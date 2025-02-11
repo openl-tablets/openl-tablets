@@ -25,7 +25,7 @@ public final class Utils {
 
     private static final String INPUT_ARGS_PARAMETER = "inputArgsParam";
 
-    static boolean isCollection(IOpenClass openClass) {
+    public static boolean isCollection(IOpenClass openClass) {
         return openClass.getAggregateInfo() != null && openClass.getAggregateInfo().isAggregate(openClass);
     }
 
