@@ -279,12 +279,7 @@
                         <td  style="padding-right: 5px; font-size: 143%"><b>Input parameters: </b></td>
                         <td>
                             <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
-                                <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
-                                <span>
-                                    <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
-                                </span>
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{!showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <h:panelGroup>
                                 <span>
                                     <ui:include src="/pages/modules/test/parameter.xhtml">
                                         <ui:param name="parameter" value="#{parameter}" />
@@ -318,14 +313,12 @@
                         <td style="padding-right: 5px; font-size: 143%"><b>Returned result: </b></td>
                         <c:set var="result" value="#{showTraceTableBean.returnResult}"/>
                         <td>
-                            <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(result.value)}">
-                                <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(result.value)}" escape="false" />
-                            </h:panelGroup>
-                            <h:panelGroup rendered="#{!parameterTreeBuilder.isSpreadsheetResult(result.value)}">
+                            <h:panelGroup>
                                 <ui:include src="/pages/modules/test/parameter.xhtml">
                                     <ui:param name="parameter" value="#{result}"/>
-                                    <ui:param name="lazy" value="false" />
+                                    <ui:param name="lazy" value="true" />
                                     <ui:param name="trace" value="true"/>
+                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
                                     <ui:param name="showRealNumbers" value="#{studio.showRealNumbers}"/>
                                 </ui:include>
                             </h:panelGroup>

@@ -17,15 +17,12 @@
                 <f:convertDateTime pattern="#{environment.getProperty('data.format.date')}" />
             </h:outputText>
         </h:panelGroup>
-        <h:panelGroup rendered="#{parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
-            <h:outputText value="#{parameterTreeBuilder.formattedResult(parameter.value)}" escape="false" />
-        </h:panelGroup>
         <h:panelGroup rendered="#{parameterTreeBuilder.isHtmlTable(parameter)}">
             <h:outputText value="#{parameterTreeBuilder.tableToHtml(parameter)}" escape="false" />
         </h:panelGroup>
 
         <h:panelGroup styleClass="prmt"
-            rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple and !parameterTreeBuilder.isSpreadsheetResult(parameter.value)}">
+            rendered="#{!parameterTreeBuilder.isHtmlTable(parameter) and !parameter.type.simple}">
 
             <!-- New approach for lazy parameter loading (when requestId is passed) -->
             <h:panelGroup rendered="#{(empty lazy or lazy == 'true') and not empty requestId}">
