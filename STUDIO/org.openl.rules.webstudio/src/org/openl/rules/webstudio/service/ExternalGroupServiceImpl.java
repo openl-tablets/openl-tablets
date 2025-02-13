@@ -139,7 +139,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
         @Override
         public Iterator<ExternalGroup> iterator() {
             final Iterator<? extends GrantedAuthority> it = externalGroups.iterator();
-            return new Iterator<ExternalGroup>() {
+            return new Iterator<>() {
 
                 @Override
                 public boolean hasNext() {
@@ -159,4 +159,9 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long countUsersInGroup(String groupName) {
+        return externalGroupDao.countUsersInGroup(groupName);
+    }
 }

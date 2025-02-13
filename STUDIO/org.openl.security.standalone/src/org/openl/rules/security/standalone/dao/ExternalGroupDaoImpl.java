@@ -154,4 +154,16 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         searchTerm = searchTerm.replace("_", ESCAPE_CHAR + "_");
         return searchTerm.replace("%", ESCAPE_CHAR + "%");
     }
+
+    @Override
+    public long countUsersInGroup(String groupName) {
+        var cb = getSession().getCriteriaBuilder();
+        var query = cb.createQuery(Long.class);
+        var extGroupRoot = query.from(ExternalGroup.class);
+
+        query.select(cb.count(extGroupRoot))
+                .where(cb.equal(extGroupRoot.get("groupName"), groupName));
+
+        return getSession().createQuery(query).getSingleResult();
+    }
 }
