@@ -823,6 +823,26 @@ Content-Type: application/json
         },
         "type": "object"
       },
+      "NumberOfMembers" : {
+        "type" : "object",
+        "properties" : {
+          "external" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "***"
+          },
+          "internal" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "***"
+          },
+          "total" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "***"
+          }
+        }
+      },
       "UIGroup": {
         "properties": {
           "description": {
@@ -848,6 +868,9 @@ Content-Type: application/json
               "type" : "string",
               "enum" : [ "MANAGER", "CONTRIBUTOR", "VIEWER" ]
             }
+          },
+          "numberOfMembers" : {
+            "$ref" : "#/components/schemas/NumberOfMembers"
           }
         },
         "type": "object"

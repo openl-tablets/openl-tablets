@@ -1,0 +1,1 @@
+CREATE INDEX idx_OpenL_External_Groups_groupName ON OpenL_External_Groups(groupName);
