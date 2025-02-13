@@ -4,25 +4,60 @@ Content-Type: application/json
 {
   "Administrators": {
     "id": "*",
-    "privileges": ["ADMIN"]
+    "privileges": ["ADMIN"],
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
+    }
   },
   "Analysts": {
-    "id": "*"
+    "id": "*",
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
+    }
   },
   "Authenticated": {
     "id": "*",
-    "description": "A default group for authenticated users"
+    "description": "A default group for authenticated users",
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
+    }
   },
   "Deployers": {
-    "id": "*"
+    "id": "*",
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
+    }
   },
   "Developers": {
-    "id": "*"
+    "id": "*",
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
+    }
   },
   "Testers": {
-    "id": "*"
+    "id": "*",
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
+    }
   },
   "Viewers": {
-    "id": "*"
+    "id": "*",
+    "numberOfMembers": {
+      "internal": 2,
+      "external": 0,
+      "total": 2
+    }
   }
 }
