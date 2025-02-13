@@ -83,4 +83,12 @@ public interface ExternalGroupService {
      * @return collection of found external groups
      */
     List<Group> findAllByName(String groupName, int limit);
+
+    /**
+     * Count external groups by full group name or fragment
+     *
+     * @param groupName full group name or term fragment
+     * @return positive number of found external groups otherwise {@code 0}
+     */
+    long countUsersInGroup(String groupName);
 }

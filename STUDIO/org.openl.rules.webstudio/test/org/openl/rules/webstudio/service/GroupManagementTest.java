@@ -55,6 +55,8 @@ public class GroupManagementTest {
     @Autowired
     @Qualifier("flywayDBReset")
     private Flyway flywayDBReset;
+    @Autowired
+    private UserManagementService userManagementService;
 
     @BeforeEach
     public void setUp() {
@@ -352,6 +354,36 @@ public class GroupManagementTest {
         groupService.addGroup("foo", "Foo");
         assertTrue(groupService.existsByName("foo"));
         assertFalse(groupService.existsByName("bar"));
+    }
+
+    @Test
+    void testCountUsersInGroup() {
+        initOneUser();
+        initSecondUser();
+
+        externalGroupService.mergeAllForUser("jdoe", Stream.of("foo", "baz")
+                .map(SimplePrivilege::new)
+                .collect(Collectors.toList()));
+
+        externalGroupService.mergeAllForUser("jsmith", Stream.of( "baz")
+                .map(SimplePrivilege::new)
+                .collect(Collectors.toList()));
+
+        userManagementService.updateAuthorities("jdoe", Set.of("Analysts", "Developers"));
+        userManagementService.updateAuthorities("jsmith", Set.of("Developers"));
+
+        QueryCountHolder.clear();
+        assertEquals(2, externalGroupService.countUsersInGroup("baz"));
+        assertEquals(1, externalGroupService.countUsersInGroup("foo"));
+        assertEquals(0, externalGroupService.countUsersInGroup("UNKNOWN"));
+
+        assertEquals(2, groupService.countUsersInGroup("Developers"));
+        assertEquals(1, groupService.countUsersInGroup("Analysts"));
+        assertEquals(0, groupService.countUsersInGroup("UNKNOWN"));
+
+        var queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(6, queryCount.getSelect());
+        assertEquals(6, queryCount.getTotal());
     }
 
     private static <T, R> void assertCollectionEquals(Collection<R> expected,

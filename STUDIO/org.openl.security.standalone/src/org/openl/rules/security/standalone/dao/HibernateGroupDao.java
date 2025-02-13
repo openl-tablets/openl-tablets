@@ -8,6 +8,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.security.standalone.persistence.User;
 
 /**
  * Hibernate implementation of {@link GroupDao}.
@@ -66,5 +67,17 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
         Root<Group> root = criteria.from(Group.class);
         criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
+    }
+
+    @Override
+    public long countUsersInGroup(String groupName) {
+        var builder = getSession().getCriteriaBuilder();
+        var criteria = builder.createQuery(Long.class);
+        var userRoot = criteria.from(User.class);
+
+        criteria.select(builder.count(userRoot))
+                .where(builder.equal(userRoot.join("groups").get("name"), groupName));
+
+        return getSession().createQuery(criteria).getSingleResult();
     }
 }

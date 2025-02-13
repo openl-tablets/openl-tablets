@@ -20,4 +20,6 @@ public interface GroupDao extends Dao<Group> {
     void deleteGroupById(Long id);
 
     List<Group> getAllGroups();
+
+    long countUsersInGroup(String groupName);
 }

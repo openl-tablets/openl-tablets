@@ -83,13 +83,25 @@ public class ManagementController {
     @GetMapping("/groups")
     @AdminPrivilege
     public Map<String, UIGroup> getGroups() {
-        return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
+        return groupDao.getAllGroups().stream()
+                .collect(StreamUtils.toLinkedMap(Group::getName, group -> {
+                    var uiGroup = new UIGroup(group);
+                    buildnumberOfMembers(group, uiGroup);
+                    return uiGroup;
+                }));
+    }
+
+    private void buildnumberOfMembers(Group group, UIGroup uiGroup) {
+        long internal = groupManagementService.countUsersInGroup(group.getName());
+        long external = extGroupService.countAllForUser(group.getName());
+        uiGroup.numberOfMembers = new NumberOfMembers(internal, external);
     }
 
     private UIGroup buildUIGroup(Group group) {
         UIGroup uiGroup = new UIGroup(group);
         buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_DESIGN, group, uiGroup);
         buildUIRoles(RepositoryAclServiceProvider.REPO_TYPE_PROD, group, uiGroup);
+        buildnumberOfMembers(group, uiGroup);
         return uiGroup;
     }
 
@@ -243,5 +255,25 @@ public class ManagementController {
         public Set<String> privileges;
 
         public Map<String, AclRole> repositoryTypeToRole;
+
+        public NumberOfMembers numberOfMembers;
+    }
+
+    public static class NumberOfMembers {
+
+        @Parameter(description = "mgmt.schema.group.internal-number-of-users")
+        public final long internal;
+
+        @Parameter(description = "mgmt.schema.group.external-number-of-users")
+        public final long external;
+
+        @Parameter(description = "mgmt.schema.group.total-number-of-users")
+        public final long total;
+
+        public NumberOfMembers(long internal, long external) {
+            this.internal = internal;
+            this.external = external;
+            this.total = internal + external;
+        }
     }
 }
