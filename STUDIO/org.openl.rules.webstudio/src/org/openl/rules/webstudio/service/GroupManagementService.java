@@ -74,4 +74,9 @@ public class GroupManagementService {
     public boolean existsByName(String name) {
         return groupDao.existsByName(name);
     }
+
+    @Transactional(readOnly = true)
+    public long countUsersInGroup(String groupName) {
+        return groupDao.countUsersInGroup(groupName);
+    }
 }

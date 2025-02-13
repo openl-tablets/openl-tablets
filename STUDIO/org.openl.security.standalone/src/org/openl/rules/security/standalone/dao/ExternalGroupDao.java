@@ -80,4 +80,12 @@ public interface ExternalGroupDao extends Dao<ExternalGroup> {
      * @return collection of found external groups
      */
     List<String> findAllByName(String groupName, int limit);
+
+    /**
+     * Count users in external group
+     *
+     * @param groupName external group name
+     * @return positive number of users otherwise {@code 0}
+     */
+    long countUsersInGroup(String groupName);
 }

@@ -4,13 +4,23 @@ Content-Type: application/json
 {
   "Administrators": {
     "id": 1,
-    "privileges": ["ADMIN"]
+    "privileges": ["ADMIN"],
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
+    }
   },
   "Analysts": {
     "id": 6,
     "repositoryTypeToRole": {
       "design": "CONTRIBUTOR",
       "prod": "VIEWER"
+    },
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
     }
   },
   "Authenticated": {
@@ -19,6 +29,11 @@ Content-Type: application/json
     "repositoryTypeToRole": {
       "design": "VIEWER",
       "prod": "VIEWER"
+    },
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
     }
   },
   "Deployers": {
@@ -26,6 +41,11 @@ Content-Type: application/json
     "repositoryTypeToRole": {
       "design": "VIEWER",
       "prod": "CONTRIBUTOR"
+    },
+    "numberOfMembers": {
+      "internal": 1,
+      "external": 0,
+      "total": 1
     }
   },
   "Developers": {
@@ -33,6 +53,11 @@ Content-Type: application/json
     "repositoryTypeToRole": {
       "design": "CONTRIBUTOR",
       "prod": "VIEWER"
+    },
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
     }
   },
   "Testers": {
@@ -40,6 +65,11 @@ Content-Type: application/json
     "repositoryTypeToRole": {
       "design": "VIEWER",
       "prod": "VIEWER"
+    },
+    "numberOfMembers": {
+      "internal": 0,
+      "external": 0,
+      "total": 0
     }
   },
   "Viewers": {
@@ -47,6 +77,11 @@ Content-Type: application/json
     "repositoryTypeToRole": {
       "design": "VIEWER",
       "prod": "VIEWER"
+    },
+    "numberOfMembers": {
+      "internal": 2,
+      "external": 0,
+      "total": 2
     }
   }
 }
