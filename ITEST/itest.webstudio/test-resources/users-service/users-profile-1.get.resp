@@ -22,6 +22,7 @@ Content-Type: application/json
     "firstNameExternal": false,
     "displayNameExternal": false
   },
+  "administrator": false,
   "profiles": [
     {
       "displayName":"By Type",
