@@ -15,6 +15,7 @@ Content-Type: application/json
   "showComplexResult": true,
   "showRealNumbers": true,
   "treeView": "type",
+  "administrator": false,
   "externalFlags": {
     "lastNameExternal": false,
     "emailExternal": false,
