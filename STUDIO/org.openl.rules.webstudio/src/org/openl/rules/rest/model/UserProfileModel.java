@@ -14,6 +14,8 @@ public class UserProfileModel extends UserProfileBaseModel {
 
     private RulesProfile[] profiles;
 
+    private boolean administrator;
+
     public String getUsername() {
         return username;
     }
@@ -154,5 +156,14 @@ public class UserProfileModel extends UserProfileBaseModel {
 
     public RulesProfile[] getProfiles() {
         return profiles;
+    }
+
+    public boolean isAdministrator() {
+        return administrator;
+    }
+
+    public UserProfileModel setAdministrator(boolean administrator) {
+        this.administrator = administrator;
+        return this;
     }
 }

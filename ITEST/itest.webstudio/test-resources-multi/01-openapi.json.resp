@@ -1276,6 +1276,9 @@ Content-Type: application/json
       },
       "UserProfileModel": {
         "properties": {
+          "administrator" : {
+            "type" : "boolean"
+          },
           "displayName": {
             "description": "***",
             "example": "John Doe",
