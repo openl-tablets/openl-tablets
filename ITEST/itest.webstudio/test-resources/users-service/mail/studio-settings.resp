@@ -1,0 +1,14 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "entrypoint": {
+    "logoutUrl": "/security_logout"
+  },
+  "userMode": "INTERNAL",
+  "supportedFeatures": {
+    "groupsManagement": false,
+    "userManagement": true,
+    "emailVerification": true
+  }
+}

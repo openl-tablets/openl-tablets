@@ -152,6 +152,7 @@ public class UsersRestTest {
         newMailConfig.url = mailUrl;
         newMailConfig.username = "username@email";
         client.putForObject("/web/mail/settings", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
+        client.send("users-service/mail/studio-settings");
 
         MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
         assertEquals("password", mailConfig.password);
