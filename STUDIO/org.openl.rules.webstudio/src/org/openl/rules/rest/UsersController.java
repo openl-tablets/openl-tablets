@@ -49,6 +49,7 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.AdminPrivilege;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.OwnerOrAdminPrivilege;
@@ -276,6 +277,7 @@ public class UsersController {
                 .setDisplayName(user.getDisplayName())
                 .setUsername(user.getUsername())
                 .setExternalFlags(user.getExternalFlags())
+                .setAdministrator(AccessManager.isGranted(Privileges.ADMIN))
                 .setProfiles(Profile.PROFILES);
 
     }

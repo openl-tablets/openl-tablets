@@ -15,6 +15,7 @@ Content-Type: application/json
   "showRealNumbers": false,
   "treeView": "excelSheet",
   "username": "jdoe",
+  "administrator": true,
   "externalFlags": {
     "displayNameExternal": true,
     "firstNameExternal": true,
