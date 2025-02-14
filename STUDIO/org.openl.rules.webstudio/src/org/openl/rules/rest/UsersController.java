@@ -291,6 +291,7 @@ public class UsersController {
         }
     }
 
+    @Deprecated
     @Operation(description = "users.options.desc", summary = "users.options.summary")
     @GetMapping("/options")
     public UserOptions options() {
@@ -356,7 +357,7 @@ public class UsersController {
         }
     }
 
-    private static class UserOptions {
+    public static class UserOptions {
 
         @Parameter(description = "Can create internal users")
         public final Boolean canCreateInternalUsers;

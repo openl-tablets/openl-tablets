@@ -15,39 +15,28 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import org.openl.rules.security.User;
+import org.openl.rules.webstudio.mail.config.MailSenderProperties;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
 
 
 /**
  * The implementation of SMTP client, that allows to send mails to SMTP Server.
  */
-@Service
 public class MailSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailSender.class);
 
     private static final String MAIL_VERIFICATION_TEMPLATE = "/templates/email-verification.eml";
     private static final String MAIL_VERIFICATION_PAGE = "/faces/pages/modules/emailVerification.xhtml";
 
-    @Value("${mail.url}")
-    private String url;
-
-    @Value("${mail.username}")
-    private String user;
-
-    @Value("${mail.password}")
-    private String password;
-
+    private final MailSenderProperties settings;
     private final UserSettingManagementService userSettingManagementService;
 
-    @Autowired
-    public MailSender(UserSettingManagementService userSettingManagementService) {
+    public MailSender(MailSenderProperties mailSenderProperties,
+                      UserSettingManagementService userSettingManagementService) {
+        this.settings = mailSenderProperties;
         this.userSettingManagementService = userSettingManagementService;
     }
 
@@ -57,7 +46,7 @@ public class MailSender {
      * @return true - if e-mail has been sent successful, false - if the service is off.
      */
     public boolean sendVerificationMail(User user, HttpServletRequest httpServletRequest) {
-        String token = RandomStringUtils.random(8, false, true);
+        String token = RandomStringUtils.secure().next(8, false, true);
         boolean emailWasSent = false;
 
         String verificationLink = createVerificationLink(httpServletRequest, token);
@@ -74,7 +63,7 @@ public class MailSender {
                 // substitute values
                 var emailContent = template
                         .replace("${link}", verificationLink)
-                        .replace("${from}", this.user)
+                        .replace("${from}", settings.getUser())
                         .replace("${user}", user.getFirstName())
                         .replace("${email}", user.getEmail());
 
@@ -83,7 +72,7 @@ public class MailSender {
                 msg.saveChanges();
 
                 // Send email
-                try (Transport transport = getTransport(url, this.user, password)) {
+                try (Transport transport = getTransport(settings.getUrl(), settings.getUser(), settings.getPassword())) {
                     transport.sendMessage(msg, msg.getAllRecipients());
                     userSettingManagementService.setProperty(user.getUsername(), MAIL_VERIFY_TOKEN, token);
                     emailWasSent = true;
@@ -117,6 +106,6 @@ public class MailSender {
     }
 
     public boolean isValidEmailSettings() {
-        return StringUtils.isNotBlank(url) && StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password);
+        return settings.isValidEmailSettings();
     }
 }
