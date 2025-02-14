@@ -1,9 +1,11 @@
 package org.openl.rules.webstudio.security;
 
+import java.util.function.Supplier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class LogoutUrlProvider {
+public class LogoutUrlProvider implements Supplier<String> {
     private final String logoutUrl;
     private String logoutUrlParameters;
 
@@ -19,5 +21,10 @@ public class LogoutUrlProvider {
 
     public String getUrl() {
         return logoutUrl + (logoutUrlParameters != null ? logoutUrlParameters : "");
+    }
+
+    @Override
+    public String get() {
+        return getUrl();
     }
 }

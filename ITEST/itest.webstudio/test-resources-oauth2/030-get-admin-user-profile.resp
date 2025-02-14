@@ -15,6 +15,7 @@ Content-Type: application/json
   "showRealNumbers": false,
   "treeView": "excelSheet",
   "username": "admin",
+  "administrator": true,
   "externalFlags": {
     "emailExternal": true,
     "emailVerified": true,
