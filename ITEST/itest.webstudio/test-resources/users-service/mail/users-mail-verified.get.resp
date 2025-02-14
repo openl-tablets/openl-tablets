@@ -15,6 +15,7 @@ Content-Type: application/json
   "showComplexResult": false,
   "showRealNumbers": false,
   "treeView": "excelSheet",
+  "administrator": true,
   "externalFlags": {
     "firstNameExternal": false,
     "displayNameExternal": false,
