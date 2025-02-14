@@ -4,6 +4,49 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "EntrypointSettingsModel" : {
+        "type" : "object",
+        "properties" : {
+          "logoutUrl" : {
+            "type" : "string",
+            "description" : "***"
+          }
+        }
+      },
+      "SettingsModel" : {
+        "type" : "object",
+        "properties" : {
+          "entrypoint" : {
+            "$ref" : "#/components/schemas/EntrypointSettingsModel"
+          },
+          "supportedFeatures" : {
+            "$ref" : "#/components/schemas/SupportedFeaturesModel"
+          },
+          "userMode" : {
+            "type" : "string",
+            "description" : "***",
+            "enum" : [ "INTERNAL", "EXTERNAL" ]
+          }
+        },
+        "required" : [ "entrypoint", "supportedFeatures" ]
+      },
+      "SupportedFeaturesModel" : {
+        "type" : "object",
+        "properties" : {
+          "emailVerification" : {
+            "type" : "boolean",
+            "description" : "***"
+          },
+          "groupsManagement" : {
+            "type" : "boolean",
+            "description" : "***"
+          },
+          "userManagement" : {
+            "type" : "boolean",
+            "description" : "***"
+          }
+        }
+      },
       "AclRepositoryModel_Repository": {
         "type": "object",
         "description": "ACL Repository Model",
@@ -9656,6 +9699,7 @@ Content-Type: application/json
     },
     "/users/options": {
       "get": {
+        "deprecated" : true,
         "description": "***",
         "operationId": "***",
         "responses": {
@@ -11093,6 +11137,86 @@ Content-Type: application/json
         "summary" : "***",
         "tags" : [ "Production Repository" ]
       }
+    },
+    "/settings" : {
+      "get" : {
+        "description" : "***",
+        "operationId" : "***",
+        "responses" : {
+          "423" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Locked"
+          },
+          "500" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Internal Server Error"
+          },
+          "403" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Not Found"
+          },
+          "409" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description" : "Conflict"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description" : "Bad Request"
+          },
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SettingsModel"
+                }
+              }
+            },
+            "description" : "default response"
+          }
+        },
+        "summary" : "***",
+        "tags" : [ "Settings" ]
+      }
     }
   },
   "security": [
@@ -11144,7 +11268,9 @@ Content-Type: application/json
     }, {
       "name": "Projects (BETA)",
       "description": "Experimental projects API"
-    },{
+    }, {
+      "name" : "Settings"
+    }, {
       "name": "Tags"
     }, {
       "name": "Test"
