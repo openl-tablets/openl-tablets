@@ -274,6 +274,13 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                     method.updateDependency(dependencies);
                 }
 
+                if (condition instanceof  ICondition) {
+                    var indexMethod = ((ICondition) condition).getIndexMethod();
+                    if (indexMethod != null) {
+                        indexMethod.updateDependency(dependencies);
+                    }
+                }
+
                 updateValueDependency((FunctionalRow) condition, dependencies);
             }
         }
