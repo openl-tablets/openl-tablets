@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -105,13 +106,13 @@ public class DeploymentManager implements InitializingBean {
                 .findFirst().orElse(null);
     }
 
-    public DeployID deploy(ADeploymentProject project, String repositoryConfigName) throws ProjectException {
+    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, String comment) throws ProjectException {
 
         CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
-        return deploy(project, repositoryConfigName, user);
+        return deploy(project, repositoryConfigName, user, comment);
     }
 
-    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, CommonUser user) throws ProjectException {
+    public DeployID deploy(ADeploymentProject project, String repositoryConfigName, CommonUser user, String comment) throws ProjectException {
         if (!deployers.contains(repositoryConfigName)) {
             throw new IllegalArgumentException(String.format("Repository '%s' is not found.", repositoryConfigName));
         }
@@ -136,6 +137,9 @@ public class DeploymentManager implements InitializingBean {
             String deploymentPath = deploymentName + "/";
 
             String rulesPath = designRepository.getRulesLocation();
+            comment = Optional.ofNullable(comment)
+                    .filter(StringUtils::isNotBlank)
+                    .orElseGet(project.getFileData()::getComment);
             if (deployRepo.supports().folders()) {
 
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
@@ -146,7 +150,7 @@ public class DeploymentManager implements InitializingBean {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(user.getUserInfo());
-                    deploymentData.setComment(project.getFileData().getComment());
+                    deploymentData.setComment(comment);
                     deployRepo.save(deploymentData, changes, ChangesetType.FULL);
                 }
             } else {
@@ -171,7 +175,7 @@ public class DeploymentManager implements InitializingBean {
                     FileData dest = new FileData();
                     dest.setName(deploymentPath + projectName);
                     dest.setAuthor(user.getUserInfo());
-                    dest.setComment(project.getFileData().getComment());
+                    dest.setComment(comment);
 
                     final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
                     DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
