@@ -22,6 +22,7 @@ public class RangeAscIndex implements IRuleIndex {
     private final IRangeAdaptor<IndexNode, ?> adaptor;
     private final int[] emptyRules;
     private final int rulesTotalSize;
+    private final BitSet allRules;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
                          List<IndexNode> index,
@@ -32,6 +33,16 @@ public class RangeAscIndex implements IRuleIndex {
         this.nextNode = nextNode;
         this.emptyRules = emptyRules;
         this.rulesTotalSize = nextNode.getRules().length;
+
+        allRules = new BitSet();
+        for (var node : index) {
+            for (int ruleN : node.getRules()) {
+                allRules.set(ruleN);
+            }
+        }
+        for (int ruleN : emptyRules) {
+            allRules.set(ruleN);
+        }
     }
 
     private Pair<Integer, Integer> findIndexRange(Object value) {
@@ -59,7 +70,20 @@ public class RangeAscIndex implements IRuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+    public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
+        if (Boolean.TRUE.equals(staticDecision)) {
+            BitSet rules = new BitSet();
+            if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
+                rules.or(allRules);
+            } else {
+                var prevRes = ((IDecisionTableRuleNodeV2) prevResult).getRuleSet();
+                if (!prevRes.isEmpty()) {
+                    rules.or(allRules);
+                    rules.and(prevRes);
+                }
+            }
+            return new RangeIndexDecisionTableRuleNode(rules, nextNode.getNextIndex());
+        }
         return new RangeIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
     }
 

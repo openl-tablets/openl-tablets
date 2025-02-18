@@ -6,7 +6,7 @@ public interface IRuleIndex {
 
     DecisionTableRuleNode getEmptyOrFormulaNodes();
 
-    DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult);
+    DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult);
 
     Iterable<? extends DecisionTableRuleNode> nodes();
 

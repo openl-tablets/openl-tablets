@@ -2,6 +2,7 @@ package org.openl.rules.dt.index;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
+import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.helpers.NumberUtils;
@@ -32,6 +34,7 @@ public class EqualsIndexV2 implements IRuleIndex {
     private final DecisionTableRuleNode nextNode;
     private final int rulesTotalSize;
     private final ConditionCasts conditionCasts;
+    private final BitSet allRules;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
                          Map<Object, int[]> index,
@@ -42,6 +45,16 @@ public class EqualsIndexV2 implements IRuleIndex {
         this.nextNode = nextNode;
         this.rulesTotalSize = nextNode.getRules().length;
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");
+
+        allRules = new BitSet();
+        for (var arr : index.values()) {
+            for (int ruleN : arr) {
+                allRules.set(ruleN);
+            }
+        }
+        for (int ruleN : emptyRules) {
+            allRules.set(ruleN);
+        }
     }
 
     private int[] findIndex(Object value) {
@@ -54,7 +67,20 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     @Override
-    public DecisionTableRuleNode findNode(Object value, DecisionTableRuleNode prevResult) {
+    public DecisionTableRuleNode findNode(Object value, Boolean staticDecision, DecisionTableRuleNode prevResult) {
+        if (Boolean.TRUE.equals(staticDecision)) {
+            BitSet rules = new BitSet();
+            if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
+                rules.or(allRules);
+            } else {
+                var prevRes = ((IDecisionTableRuleNodeV2) prevResult).getRuleSet();
+                if (!prevRes.isEmpty()) {
+                    rules.or(allRules);
+                    rules.and(prevRes);
+                }
+            }
+            return new RangeIndexDecisionTableRuleNode(rules, nextNode.getNextIndex());
+        }
         return new EqualsIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
     }
 
