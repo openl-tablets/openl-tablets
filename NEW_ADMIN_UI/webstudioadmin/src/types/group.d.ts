@@ -13,7 +13,12 @@ export interface Group {
 export interface GroupList {
     [key: string]: {
         id: number;
-        description: string;
-        privileges: string[];
+        description?: string;
+        privileges?: string[];
+        numberOfMembers: {
+            external: number;
+            internal: number;
+            total: number;
+        }
     }
 }

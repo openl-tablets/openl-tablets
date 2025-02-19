@@ -30,6 +30,7 @@ export const Groups: React.FC = () => {
             admin: group.privileges?.includes(UserGroupType.Admin),
             id: group.id,
             description: group.description,
+            numberOfMembers: group.numberOfMembers.total,
         }))
         setGroupData(groups)
     }
@@ -77,8 +78,8 @@ export const Groups: React.FC = () => {
         },
         {
             title: t('groups:table.members'),
-            dataIndex: 'members',
-            key: 'members',
+            dataIndex: 'numberOfMembers',
+            key: 'numberOfMembers',
         },
         {
             title: t('groups:table.actions'),
