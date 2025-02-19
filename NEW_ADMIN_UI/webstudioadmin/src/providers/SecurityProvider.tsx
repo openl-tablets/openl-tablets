@@ -1,18 +1,21 @@
-import React, { FC, PropsWithChildren, useEffect, useState } from 'react'
-import { UserContext } from '../contexts/User'
-import { PermissionContext } from '../contexts/Permission'
-import { apiCall } from '../services'
-import { UserGroupType } from '../constants'
-import { UserProfile, UserDetails } from '../types/user'
+import React, {FC, PropsWithChildren, useEffect, useMemo, useState} from 'react'
+import {UserContext} from '../contexts/User'
+import {PermissionContext} from '../contexts/Permission'
+import {apiCall} from '../services'
+import {UserGroupType} from '../constants'
+import {UserDetails, UserProfile} from '../types/user'
+import {SystemSettings} from "../types/system";
+import {SystemUserMode} from "../constants/system";
 
 export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
     const [userProfile, setUserProfile] = useState<UserProfile>()
     const [userDetails, setUserDetails] = useState<UserDetails>()
-    const [isExternalAuthSystem, setIsExternalAuthSystem] = useState(true)
+    const [systemSettings, setSystemSettings] = useState<SystemSettings>()
     const [isProfileLoaded, setIsProfileLoaded] = useState(false)
     const [isDetailsLoaded, setIsDetailsLoaded] = useState(false)
 
     const fetchUserProfileAndDetails = async () => {
+        loadSystemSettings()
         if (!userProfile) {
             await loadUserProfile()
             setIsProfileLoaded(true)
@@ -44,6 +47,15 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
             setUserDetails(details)
         }
     }
+
+    const loadSystemSettings = async () => {
+        const settings = await apiCall('/settings')
+        setSystemSettings(settings)
+    }
+
+    const isExternalAuthSystem = useMemo(() => {
+        return systemSettings?.userMode === SystemUserMode.EXTERNAL
+    }, [systemSettings])
 
     if (!isProfileLoaded || !isDetailsLoaded) {
         return null

@@ -32,6 +32,7 @@ export interface UserDetails {
 }
 
 export interface UserProfile {
+    administrator: boolean
     displayName: string
     email: string
     externalFlags: {
