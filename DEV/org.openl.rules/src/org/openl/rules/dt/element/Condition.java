@@ -1,13 +1,23 @@
 package org.openl.rules.dt.element;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.BinaryOpNode;
+import org.openl.binding.impl.BinaryOpNodeOr;
+import org.openl.binding.impl.BindingContext;
+import org.openl.binding.impl.FieldBoundNode;
+import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.binding.impl.MethodBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
@@ -27,6 +37,8 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodCaller;
@@ -34,9 +46,13 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenFieldDelegator;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
+import org.openl.util.text.TextInfo;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {
@@ -48,6 +64,8 @@ public class Condition extends FunctionalRow implements ICondition {
     private boolean ruleIdOrRuleNameUsed;
     private boolean dependentOnOtherColumnsParams;
     private IOpenCast comparisonCast;
+    private CompositeMethod staticMethod;
+    private CompositeMethod indexMethod;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -350,5 +368,118 @@ public class Condition extends FunctionalRow implements ICondition {
 
     public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
         this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
+    }
+
+    @Override
+    protected CompositeMethod compileExpressionSource(IOpenSourceCodeModule source,
+                                           IOpenClass methodType,
+                                           IMethodSignature signature,
+                                           OpenL openl,
+                                           IBindingContext bindingContext) {
+        var originalExpr = super.compileExpressionSource(source, methodType, signature, openl, bindingContext);
+        if (bindingContext.getErrors().length == 0) {
+            optimizeExpression(originalExpr.getMethodBodyBoundNode(), methodType, signature, openl, bindingContext);
+        }
+        return originalExpr;
+    }
+
+    private void optimizeExpression(IBoundMethodNode originalExprBoundNode,
+                                 IOpenClass methodType,
+                                 IMethodSignature signature,
+                                 OpenL openl,
+                                 IBindingContext bindingContext) {
+        var children = originalExprBoundNode.getChildren();
+        if (children.length == 1 && children[0].getChildren().length == 1 && children[0].getChildren()[0] instanceof BinaryOpNodeOr) {
+            var binaryOpNodeOr = (BinaryOpNodeOr) children[0].getChildren()[0];
+
+            var staticMethod = compileStaticExpression(binaryOpNodeOr, signature, openl);
+            if (staticMethod != null) {
+                var indexMethod = compileIndexExpression(binaryOpNodeOr,methodType, signature, openl, bindingContext);
+                if (indexMethod != null) {
+                    this.staticMethod = staticMethod;
+                    this.indexMethod = indexMethod;
+                }
+            }
+        }
+    }
+
+    private CompositeMethod compileIndexExpression(BinaryOpNodeOr binaryOpNodeOr, IOpenClass methodType, IMethodSignature signature, OpenL openl, IBindingContext bindingContext) {
+        var rightBoundNode = binaryOpNodeOr.getRight();
+        IOpenSourceCodeModule indexSourceCodeModule;
+        if (rightBoundNode instanceof BinaryOpNode) {
+            var module = binaryOpNodeOr.getSyntaxNode().getModule();
+            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+            var sourceCode = module.getCode();
+            indexSourceCodeModule = new SubTextSourceCodeModule(module,
+                    location.getEnd().getAbsolutePosition(new TextInfo(sourceCode)) + 1);
+        } else if (rightBoundNode instanceof MethodBoundNode
+                || rightBoundNode instanceof LiteralBoundNode
+                || rightBoundNode instanceof FieldBoundNode)  {
+            indexSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
+        } else {
+            return null;
+        }
+
+        CompositeMethod indexMethod;
+        List<SyntaxNodeException> errors;
+        try {
+            bindingContext.pushErrors();
+            bindingContext.pushMessages();
+            indexMethod = super.compileExpressionSource(indexSourceCodeModule,
+                    methodType,
+                    signature,
+                    openl,
+                    bindingContext);
+        } finally {
+            errors = bindingContext.popErrors();
+            bindingContext.popMessages();
+        }
+        return errors.isEmpty() ? indexMethod : null;
+    }
+
+    private CompositeMethod compileStaticExpression(BinaryOpNodeOr binaryOpNodeOr, IMethodSignature signature, OpenL openl) {
+        var rightBoundNode = binaryOpNodeOr.getLeft();
+        IOpenSourceCodeModule staticSourceCodeModule;
+        if (rightBoundNode instanceof BinaryOpNode) {
+            var module = binaryOpNodeOr.getSyntaxNode().getModule();
+            var location = binaryOpNodeOr.getSyntaxNode().getSourceLocation();
+            var sourceCode = module.getCode();
+            staticSourceCodeModule = new SubTextSourceCodeModule(module,
+                    0,
+                    location.getStart().getAbsolutePosition(new TextInfo(sourceCode)));
+        } else if (rightBoundNode instanceof MethodBoundNode
+                || rightBoundNode instanceof LiteralBoundNode
+                || rightBoundNode instanceof FieldBoundNode)  {
+            staticSourceCodeModule = rightBoundNode.getSyntaxNode().getSourceCodeModule();
+        } else {
+            return null;
+        }
+
+        var returnType = JavaOpenClass.getOpenClass(Boolean.class);
+        var staticExprCtx = new BindingContext(openl.getBinder(), returnType, openl);
+        OpenMethodHeader methodHeader = new OpenMethodHeader("run", returnType, signature, null);
+        var compiledMethod = OpenLManager.makeMethod(openl,
+                staticSourceCodeModule,
+                methodHeader,
+                staticExprCtx);
+        return staticExprCtx.getErrors().length == 0 ? compiledMethod : null;
+    }
+
+    @Override
+    public CompositeMethod getStaticMethod() {
+        return staticMethod;
+    }
+
+    @Override
+    public IOpenSourceCodeModule getIndexSourceCodeModule() {
+        return Optional.ofNullable(indexMethod)
+                .map(this::getSourceCodeModule)
+                .orElseGet(this::getSourceCodeModule);
+    }
+
+    @Override
+    public CompositeMethod getIndexMethod() {
+        return Optional.ofNullable(indexMethod)
+                .orElseGet(this::getMethod);
     }
 }

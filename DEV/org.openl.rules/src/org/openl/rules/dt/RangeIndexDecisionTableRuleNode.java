@@ -2,6 +2,8 @@ package org.openl.rules.dt;
 
 import java.util.BitSet;
 
+import org.openl.domain.IIntIterator;
+import org.openl.rules.dt.index.BitSetIterator;
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
@@ -43,5 +45,12 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode imple
     @Override
     public boolean hasIndex() {
         return nextIndex != null;
+    }
+
+    @Override
+    public IIntIterator getRulesIterator() {
+        // use efficient iterator for BitSet to avoid converting to array
+        // this is important for performance
+        return new BitSetIterator(ruleSet);
     }
 }
